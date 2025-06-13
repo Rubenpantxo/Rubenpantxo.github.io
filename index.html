@@ -1,34 +1,284 @@
 <!DOCTYPE html>
-<html class="no-js" lang="es-ES">
+<html lang="es">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimal-ui">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<meta http-equiv="cleartype" content="on">
-	<meta name="HandheldFriendly" content="True">
-	<meta name="MobileOptimized" content="320">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubenpantxo.com</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-	<link rel="apple-touch-icon" href="apple-touch-icon.png">
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #f8f8f8;
+            background-image: 
+                linear-gradient(rgba(100, 149, 237, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100, 149, 237, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
 
-	<link rel="stylesheet" href="css/vendors/normalize.css">
-	<link rel="stylesheet" href="css/style.css">
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px 40px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            position: relative;
+        }
 
-	<link rel="author" href="humans.txt">
+        .container::before {
+            content: '';
+            position: absolute;
+            left: 60px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ff6b6b;
+        }
 
-	<title>Hello!!!</title>
-	<meta name="description" content="">
+        .title {
+            color: #1e3a8a;
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 50px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(30, 58, 138, 0.3);
+            transform: rotate(-1deg);
+        }
+
+        .navigation {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .nav-button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            transform: rotate(-0.5deg);
+        }
+
+        .nav-button:hover {
+            transform: rotate(0deg) translateY(-5px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+        }
+
+        .nav-button:nth-child(even) {
+            transform: rotate(0.5deg);
+        }
+
+        .nav-button:nth-child(even):hover {
+            transform: rotate(0deg) translateY(-5px);
+        }
+
+        .content-section {
+            display: none;
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 4px solid #3b82f6;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: #1e3a8a;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 10px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .contact-link {
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .contact-link:hover {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
+
+        .article-card, .support-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .article-image, .support-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #e2e8f0, #cbd5e1);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .coming-soon {
+            text-align: center;
+            font-size: 2em;
+            color: #6366f1;
+            margin: 40px 0;
+            transform: rotate(-2deg);
+            text-shadow: 2px 2px 4px rgba(99, 102, 241, 0.3);
+        }
+
+        .handwriting {
+            font-family: 'Courier New', monospace;
+            color: #1e3a8a;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+            
+            .navigation {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
 <body>
-	<header>
-		<h1>Hello World!!!</h1>
-	</header>
-	<main>
+    <div class="container">
+        <h1 class="title handwriting">Rubenpantxo.com</h1>
+        
+        <div class="navigation">
+            <button class="nav-button" onclick="showSection('contacto')">Contacto</button>
+            <button class="nav-button" onclick="showSection('articulos')">Artículos</button>
+            <button class="nav-button" onclick="showSection('support')">Support</button>
+            <button class="nav-button" onclick="showSection('play')">Play</button>
+        </div>
 
-	</main>
-	<footer>
-		<p>Plantilla Web Standard · <a href="humans.txt">Humans.txt</a> · <a href="LICENSE">Licencia MIT</a></p>
-	</footer>
-	<script src="js/vendors/modernizr-custom.js"></script>
-	<script src="js/main.js"></script>
+        <!-- Sección Contacto -->
+        <div id="contacto" class="content-section">
+            <h2 class="section-title handwriting">Contacto</h2>
+            <div class="contact-item">
+                <div class="contact-icon">@</div>
+                <div>
+                    <strong>Instagram:</strong> 
+                    <a href="https://instagram.com/rubenpantxo" target="_blank" class="contact-link">@rubenpantxo</a>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon">✉</div>
+                <div>
+                    <strong>Email:</strong> 
+                    <a href="mailto:rubenpantxo@gmail.com" class="contact-link">rubenpantxo@gmail.com</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección Artículos -->
+        <div id="articulos" class="content-section">
+            <h2 class="section-title handwriting">Artículos</h2>
+            <div class="article-card">
+                <div class="article-image">Imagen del artículo</div>
+                <h3 class="handwriting">Próximamente: Primer Artículo</h3>
+                <p class="handwriting">Aquí aparecerán artículos y noticias interesantes con sus respectivas imágenes y enlaces.</p>
+                <a href="#" class="contact-link">Leer más...</a>
+            </div>
+        </div>
+
+        <!-- Sección Support -->
+        <div id="support" class="content-section">
+            <h2 class="section-title handwriting">Support</h2>
+            <div class="support-card">
+                <div class="support-image">Logo del negocio</div>
+                <h3 class="handwriting">Negocios Recomendados</h3>
+                <p class="handwriting">Aquí aparecerán enlaces a páginas web de negocios y empresas que quiero recomendar, con descripciones e imágenes.</p>
+                <a href="#" class="contact-link">Visitar sitio web</a>
+            </div>
+        </div>
+
+        <!-- Sección Play -->
+        <div id="play" class="content-section">
+            <div class="coming-soon handwriting">Próximamente...</div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Mostrar la sección seleccionada
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+        }
+
+        // Mostrar la sección de contacto por defecto
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('contacto');
+        });
+    </script>
 </body>
 </html>
