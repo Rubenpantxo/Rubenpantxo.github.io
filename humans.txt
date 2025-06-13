@@ -1,0 +1,58 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+  Picateclas:   BCasal
+  Web:          http://bcasal.es
+  Contact:      bcasal@bcasal.es - http://bcasal.es/contacto
+  Twitter:      @BCasalTweet
+  Location:     Alicante, Spain.
+
+
+# SITE
+
+  Admin:        BCasal
+  Last update:  YYYY/MM/DD
+
+# THANKS
+
+  ## Team Boilerplate
+
+    Authors:
+      - Mathias Bynens        - Twitter   (@mathias)
+      - Hans Christian Reinl  - Twitter   (@drublic)
+      - Cătălin Mariș         - Twitter   (@alrra)
+      - Nicolas Gallagher     - Twitter   (@necolas)
+      - Paul Irish            - Twitter   (@paul_irish)
+      - Divya Manian          - Twitter   (@divya)
+
+    Homepage: https://html5boilerplate.com
+
+  ## Team Normalize
+
+    Authors:
+      - Nicolas Gallagher - Twitter   (@necolas)
+      - Jonathan Neal     - Twitter   (@jon_neal)
+
+    Homepage: http://necolas.github.io/normalize.css
+
+  ## Team Modernizr
+
+    Authors:
+      - Faruk Ateş      - Twitter  (@KuraFire)
+      - Paul Irish      - Twitter  (@paul_irish)
+      - Alex Sexton     - Twitter  (@SlexAxton)
+      - Ryan Seddon     - Twitter  (@ryanseddon)
+      - Patrick Kettner - Twitter  (@patrickkettner)
+      - Stu Cox         - Twitter  (@StuCoxMedia)
+      - Richard Herrera - Twitter  (@doctyper)
+
+    Homepage: https://modernizr.com
+
+
+# TECHNOLOGY COLOPHON
+
+  Standards:    HTML5, CSS3, JS
+  Components:   Modernizr, Normalize, Boilerplate
+  Software:     BunsenLabs, Atom, Git, GitHub

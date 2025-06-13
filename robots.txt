@@ -1,0 +1,7 @@
+# www.robotstxt.org/
+
+### Permitir acceso
+User-agent: *
+
+### Denegar acceso
+# Disallow:
