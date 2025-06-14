@@ -67,6 +67,38 @@
       <button class="nav-button" onclick="startGame()">🎮 Start</button>
     </div>
   </div>
+  
+<!-- SECCIÓN PARA EL JUEGO DE SUDOKU -->
+<div id="sudokuSection" class="content-section" style="display:none;">
+  <h2 class="section-title">Sudoku</h2>
+
+  <select id="selectorSudoku">
+    <option selected disabled>Selecciona Sudoku</option>
+    <!-- opciones generadas con JS -->
+  </select>
+
+  <button id="corregirSudoku" class="nav-button">Corregir</button>
+
+  <div id="listaSudokus"></div>
+
+  <div id="sudokuContainer"></div>
+
+  <!-- Teclado numérico lateral -->
+  <div id="tecladoNumerico">
+    <button class="num">1</button>
+    <button class="num">2</button>
+    <button class="num">3</button>
+    <button class="num">4</button>
+    <button class="num">5</button>
+    <button class="num">6</button>
+    <button class="num">7</button>
+    <button class="num">8</button>
+    <button class="num">9</button>
+  </div>
+</div>
+
+<!-- botón para abrir sudoku -->
+<button class="nav-button" onclick="showSection('sudokuSection')">🧩 Sudoku</button>
 
   <!-- GAME FULL SCREEN -->
   <div id="gameContainer">
