@@ -28,6 +28,30 @@
     @media(max-width:768px){.container{padding:40px 20px}.navigation{grid-template-columns:1fr}h1.title{font-size:2em}}
   </style>
 </head>
+  
+/* Estilos adicionales para Sudoku */
+#sudokuContainer {
+  background-image: linear-gradient(rgba(100,149,237,.1) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(100,149,237,.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  padding: 15px;
+}
+
+#tecladoNumerico {
+  position: fixed;
+  right: 20px; top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+}
+
+#tecladoNumerico .num {
+  padding: 10px; margin: 5px;
+  font-size: 18px; font-family: 'Comic Sans MS', cursive;
+  cursor: pointer; border: 1px solid #555;
+  background: #f0f0f0;
+}
+
 <body>
   <div class="container">
     <!-- Título principal del sitio -->
@@ -259,6 +283,11 @@
     // --- TECLAS Y RESIZE ---
     window.addEventListener('keydown', e=>game.keys[e.key] = true);
     window.addEventListener('keyup',   e=>game.keys[e.key] = false);
+    
+<!-- Final del archivo index.html -->
+<script src="sudoku.js"></script>
+</body>
+</html>
 
     function resizeCanvas(){ game.canvas.width=window.innerWidth; game.canvas.height=window.innerHeight; }
     window.addEventListener('resize', resizeCanvas);
