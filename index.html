@@ -256,7 +256,40 @@
 
         <!-- Sección Play -->
         <div id="play" class="content-section">
-            <div class="coming-soon handwriting">Próximamente...</div>
+            <h2 class="section-title handwriting">Juegos</h2>
+            <div class="article-card">
+                <h3 class="handwriting">🌾 Harvest Artichokes</h3>
+                <p class="handwriting">Un divertido juego de recolección de alcachofas. Recoge todas las alcachofas del campo y llévalas al tractor lo más rápido posible.</p>
+                <button onclick="startGame()" class="nav-button" style="width: 200px; margin: 10px 0;">🎮 Jugar Ahora</button>
+            </div>
+        </div>
+
+        <!-- Game Container (Hidden by default) -->
+        <div id="gameContainer" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #2d5016; z-index: 1000;">
+            <canvas id="gameCanvas" width="800" height="600" style="display: block; margin: 0 auto; background: #8B4513;"></canvas>
+            <div id="gameUI" style="position: absolute; top: 20px; left: 20px; color: white; font-family: 'Courier New', monospace; font-size: 18px;">
+                <div id="timer">Tiempo: 00:00</div>
+                <div id="artichokes">Alcachofas: 0/10</div>
+                <div id="total">Total recogidas: 0</div>
+                <button onclick="exitGame()" style="position: absolute; top: 10px; right: 20px; background: #ff4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">← Volver</button>
+            </div>
+            <div id="gameMenu" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; background: rgba(0,0,0,0.8); padding: 40px; border-radius: 15px;">
+                <h2 style="color: #ffd700; margin-bottom: 20px;">🌾 HARVEST ARTICHOKES 🌾</h2>
+                <p style="margin-bottom: 20px;">Recoge todas las alcachofas y llévalas al tractor</p>
+                <button onclick="playGame()" id="playButton" style="background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 10px; cursor: pointer; margin: 10px;">▶️ JUGAR</button>
+                <button onclick="showScores()" style="background: #2196F3; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 10px; cursor: pointer; margin: 10px;">🏆 PUNTUACIONES</button>
+                <div id="scoresSection" style="display: none; margin-top: 20px;">
+                    <h3 style="color: #ffd700;">🏆 Mejores Tiempos</h3>
+                    <div id="scoresList"></div>
+                </div>
+            </div>
+            <div id="gameOver" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; background: rgba(0,0,0,0.9); padding: 40px; border-radius: 15px;">
+                <h2 style="color: #ffd700;">🎉 ¡FELICIDADES! 🎉</h2>
+                <p id="finalTime" style="font-size: 24px; margin: 20px 0;"></p>
+                <p id="scoreMessage" style="margin: 20px 0;"></p>
+                <button onclick="restartGame()" style="background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 10px; cursor: pointer; margin: 10px;">🔄 Jugar de Nuevo</button>
+                <button onclick="backToMenu()" style="background: #2196F3; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 10px; cursor: pointer; margin: 10px;">📋 Ver Puntuaciones</button>
+            </div>
         </div>
     </div>
 
@@ -279,6 +312,261 @@
         document.addEventListener('DOMContentLoaded', function() {
             showSection('contacto');
         });
+
+        // Game Variables
+        let game = {
+            canvas: null,
+            ctx: null,
+            player: { x: 400, y: 500, width: 40, height: 40, speed: 3 },
+            tractor: { x: 350, y: 50, width: 100, height: 60 },
+            artichokes: [],
+            carriedArtichokes: 0,
+            totalCollected: 0,
+            totalArtichokes: 50,
+            gameRunning: false,
+            startTime: 0,
+            gameTime: 0,
+            keys: {}
+        };
+
+        function startGame() {
+            document.getElementById('gameContainer').style.display = 'block';
+            document.getElementById('gameMenu').style.display = 'block';
+            document.getElementById('gameOver').style.display = 'none';
+            game.canvas = document.getElementById('gameCanvas');
+            game.ctx = game.canvas.getContext('2d');
+            
+            // Ajustar canvas al tamaño de la ventana
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Load scores
+            loadScores();
+        }
+
+        function resizeCanvas() {
+            game.canvas.width = window.innerWidth;
+            game.canvas.height = window.innerHeight;
+        }
+
+        function exitGame() {
+            document.getElementById('gameContainer').style.display = 'none';
+            game.gameRunning = false;
+        }
+
+        function playGame() {
+            document.getElementById('gameMenu').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            initGame();
+            gameLoop();
+        }
+
+        function initGame() {
+            // Reset game state
+            game.player = { x: game.canvas.width/2, y: game.canvas.height - 100, width: 40, height: 40, speed: 4 };
+            game.tractor = { x: game.canvas.width/2 - 50, y: 50, width: 100, height: 60 };
+            game.artichokes = [];
+            game.carriedArtichokes = 0;
+            game.totalCollected = 0;
+            game.gameRunning = true;
+            game.startTime = Date.now();
+
+            // Generate artichokes randomly across the field
+            for (let i = 0; i < game.totalArtichokes; i++) {
+                game.artichokes.push({
+                    x: Math.random() * (game.canvas.width - 30) + 15,
+                    y: Math.random() * (game.canvas.height - 200) + 150,
+                    width: 25,
+                    height: 25,
+                    collected: false
+                });
+            }
+
+            // Setup controls
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('keyup', handleKeyUp);
+        }
+
+        function handleKeyDown(e) {
+            game.keys[e.code] = true;
+        }
+
+        function handleKeyUp(e) {
+            game.keys[e.code] = false;
+        }
+
+        function updatePlayer() {
+            if (game.keys['ArrowLeft'] || game.keys['KeyA']) {
+                game.player.x = Math.max(0, game.player.x - game.player.speed);
+            }
+            if (game.keys['ArrowRight'] || game.keys['KeyD']) {
+                game.player.x = Math.min(game.canvas.width - game.player.width, game.player.x + game.player.speed);
+            }
+            if (game.keys['ArrowUp'] || game.keys['KeyW']) {
+                game.player.y = Math.max(120, game.player.y - game.player.speed);
+            }
+            if (game.keys['ArrowDown'] || game.keys['KeyS']) {
+                game.player.y = Math.min(game.canvas.height - game.player.height, game.player.y + game.player.speed);
+            }
+        }
+
+        function checkCollisions() {
+            // Check artichoke collection
+            game.artichokes.forEach(artichoke => {
+                if (!artichoke.collected && 
+                    game.player.x < artichoke.x + artichoke.width &&
+                    game.player.x + game.player.width > artichoke.x &&
+                    game.player.y < artichoke.y + artichoke.height &&
+                    game.player.y + game.player.height > artichoke.y) {
+                    
+                    artichoke.collected = true;
+                    game.carriedArtichokes++;
+                    game.totalCollected++;
+                }
+            });
+
+            // Check tractor delivery
+            if (game.carriedArtichokes > 0 &&
+                game.player.x < game.tractor.x + game.tractor.width &&
+                game.player.x + game.player.width > game.tractor.x &&
+                game.player.y < game.tractor.y + game.tractor.height &&
+                game.player.y + game.player.height > game.tractor.y) {
+                
+                game.carriedArtichokes = 0;
+            }
+
+            // Check win condition
+            if (game.totalCollected >= game.totalArtichokes && game.carriedArtichokes === 0) {
+                endGame();
+            }
+        }
+
+        function render() {
+            // Clear canvas with field color
+            game.ctx.fillStyle = '#8B4513';
+            game.ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
+
+            // Draw field pattern
+            game.ctx.fillStyle = '#654321';
+            for (let y = 120; y < game.canvas.height; y += 40) {
+                for (let x = 0; x < game.canvas.width; x += 80) {
+                    game.ctx.fillRect(x, y, 40, 20);
+                }
+            }
+
+            // Draw tractor (simple rectangle representation)
+            game.ctx.fillStyle = '#228B22';
+            game.ctx.fillRect(game.tractor.x, game.tractor.y, game.tractor.width, game.tractor.height);
+            game.ctx.fillStyle = '#000';
+            game.ctx.fillRect(game.tractor.x + 10, game.tractor.y + 45, 15, 15);
+            game.ctx.fillRect(game.tractor.x + 75, game.tractor.y + 45, 15, 15);
+            game.ctx.fillStyle = '#87CEEB';
+            game.ctx.fillRect(game.tractor.x + 30, game.tractor.y + 10, 40, 25);
+
+            // Draw artichokes
+            game.artichokes.forEach(artichoke => {
+                if (!artichoke.collected) {
+                    game.ctx.fillStyle = '#228B22';
+                    game.ctx.fillRect(artichoke.x, artichoke.y, artichoke.width, artichoke.height);
+                    game.ctx.fillStyle = '#90EE90';
+                    game.ctx.fillRect(artichoke.x + 5, artichoke.y + 5, 15, 15);
+                }
+            });
+
+            // Draw player
+            game.ctx.fillStyle = '#D2691E';
+            game.ctx.fillRect(game.player.x, game.player.y, game.player.width, game.player.height);
+            game.ctx.fillStyle = '#8B4513';
+            game.ctx.fillRect(game.player.x + 10, game.player.y + 5, 20, 15);
+            game.ctx.fillStyle = '#FFE4B5';
+            game.ctx.fillRect(game.player.x + 15, game.player.y + 8, 10, 10);
+
+            // Update UI
+            updateUI();
+        }
+
+        function updateUI() {
+            game.gameTime = Math.floor((Date.now() - game.startTime) / 1000);
+            const minutes = Math.floor(game.gameTime / 60);
+            const seconds = game.gameTime % 60;
+            document.getElementById('timer').textContent = `Tiempo: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('artichokes').textContent = `Alcachofas: ${game.carriedArtichokes}/10`;
+            document.getElementById('total').textContent = `Total recogidas: ${game.totalCollected}/${game.totalArtichokes}`;
+        }
+
+        function gameLoop() {
+            if (!game.gameRunning) return;
+
+            updatePlayer();
+            checkCollisions();
+            render();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            game.gameRunning = false;
+            const finalTime = Math.floor((Date.now() - game.startTime) / 1000);
+            
+            document.getElementById('finalTime').textContent = `Tiempo final: ${Math.floor(finalTime/60)}:${(finalTime%60).toString().padStart(2, '0')}`;
+            
+            // Save score
+            saveScore(finalTime);
+            
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        function saveScore(time) {
+            let scores = JSON.parse(localStorage.getItem('harvestScores') || '[]');
+            scores.push(time);
+            scores.sort((a, b) => a - b);
+            scores = scores.slice(0, 5); // Keep only top 5
+            localStorage.setItem('harvestScores', JSON.stringify(scores));
+            
+            const rank = scores.indexOf(time) + 1;
+            if (rank <= 5) {
+                document.getElementById('scoreMessage').textContent = `¡Nuevo récord! Posición #${rank}`;
+            } else {
+                document.getElementById('scoreMessage').textContent = 'Buen tiempo, ¡sigue intentándolo!';
+            }
+        }
+
+        function loadScores() {
+            const scores = JSON.parse(localStorage.getItem('harvestScores') || '[]');
+            const scoresList = document.getElementById('scoresList');
+            
+            if (scores.length === 0) {
+                scoresList.innerHTML = '<p>No hay puntuaciones aún</p>';
+                return;
+            }
+            
+            let html = '<ol>';
+            scores.forEach(score => {
+                const minutes = Math.floor(score / 60);
+                const seconds = score % 60;
+                html += `<li>${minutes}:${seconds.toString().padStart(2, '0')}</li>`;
+            });
+            html += '</ol>';
+            scoresList.innerHTML = html;
+        }
+
+        function showScores() {
+            const scoresSection = document.getElementById('scoresSection');
+            scoresSection.style.display = scoresSection.style.display === 'none' ? 'block' : 'none';
+            if (scoresSection.style.display === 'block') {
+                loadScores();
+            }
+        }
+
+        function restartGame() {
+            playGame();
+        }
+
+        function backToMenu() {
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('gameMenu').style.display = 'block';
+            loadScores();
+        }
     </script>
 </body>
 </html>
