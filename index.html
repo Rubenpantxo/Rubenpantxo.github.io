@@ -1,498 +1,197 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>¡Coge Alcachofas!</title>
-  <style>
-    /* Estilos generales */
-    body {
-      margin: 0;
-      padding: 0;
-      background: #fff;
-      font-family: Arial, sans-serif;
-    }
-    /* Menú principal */
-    #mainMenu {
-      text-align: center;
-      padding: 20px;
-    }
-    .level-select {
-      margin-bottom: 20px;
-      font-size: 1.1em;
-    }
-    .level-select span {
-      margin-right: 10px;
-    }
-    .level-select label {
-      margin: 0 10px;
-      cursor: pointer;
-    }
-    .menu-bg {
-      position: relative;
-      display: inline-block;
-      max-width: 90%;
-      width: 600px;
-    }
-    .menu-bg img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-    .menu-button, .menu-text {
-      position: absolute;
-      width: 100%;
-      left: 0;
-      text-align: center;
-      font-weight: bold;
-      font-size: 2.5em;
-      color: #fff;
-      text-shadow: 2px 2px 4px #000;
-      text-decoration: none;
-    }
-    /* Posiciones de texto en el palet (3 tablas) */
-    #playBtn { top: 50%; transform: translateY(-50%); }
-    #pauseLabel { top: 15%; }
-    #continueBtn { top: 50%; transform: translateY(-50%); }
-    #menuBtn { top: 85%; transform: translateY(-50%); }
-    /* Botones de Volver y Pausa en el juego */
-    #backButton, #pauseButton {
-      position: absolute;
-      top: 10px;
-      padding: 5px 10px;
-      background: rgba(0,0,0,0.5);
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      border-radius: 5px;
-      z-index: 1000;
-    }
-    #backButton { right: 10px; }
-    #pauseButton { left: 50%; transform: translateX(-50%); }
-    /* HUD del juego (tiempo y contadores) */
-    #hud {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(0,0,0,0.5);
-      color: #fff;
-      padding: 10px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-    /* Mensajes de juego */
-    #llenoMsg {
-      position: absolute;
-      bottom: 10px;
-      width: 100%;
-      text-align: center;
-      color: yellow;
-      font-weight: bold;
-      text-shadow: 1px 1px 2px #000;
-      display: none;
-    }
-    #gameOver {
-      position: absolute;
-      top: 40%;
-      width: 100%;
-      text-align: center;
-      color: #fff;
-      text-shadow: 2px 2px 4px #000;
-      display: none;
-    }
-    #gameOver h2 {
-      font-size: 2em;
-      margin-bottom: 0.2em;
-    }
-    #gameOver p {
-      font-size: 1.2em;
-      margin: 0.2em;
-    }
-    /* Overlay de pausa */
-    #pauseOverlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      flex-direction: column;
-    }
-    #pauseOverlay .menu-bg {
-      position: relative;
-      max-width: 80%;
-      width: 500px;
-    }
-    #pauseOverlay .menu-bg img {
-      width: 100%;
-      height: auto;
-    }
-    #pauseOverlay .menu-button, #pauseOverlay .menu-text {
-      position: absolute;
-      width: 100%;
-      left: 0;
-      text-align: center;
-      font-weight: bold;
-      font-size: 2em;
-      color: #fff;
-      text-shadow: 2px 2px 4px #000;
-      text-decoration: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubenpantxo.com</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #f8f8f8;
+            background-image:
+                linear-gradient(rgba(100,149,237,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100,149,237,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 60px 40px; box-shadow: 0 0 20px rgba(0,0,0,0.1); border-radius: 10px; position: relative; }
+        .container::before { content: ''; position: absolute; left: 60px; top: 0; bottom: 0; width: 2px; background: #ff6b6b; }
+        .title { color: #1e3a8a; font-size: 2.5em; text-align: center; margin-bottom: 50px; font-weight: bold; text-shadow: 1px 1px 2px rgba(30,58,138,0.3); transform: rotate(-1deg); }
+        .navigation { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:20px; margin-bottom:40px; }
+        .nav-button { background: linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; border:none; padding:20px; border-radius:15px; font-size:1.1em; font-family:'Courier New', monospace; cursor:pointer; transition: all .3s ease; box-shadow:0 4px 15px rgba(59,130,246,0.3); }
+        .nav-button:hover { transform: translateY(-5px); background: linear-gradient(135deg,#2563eb,#1e40af); box-shadow:0 8px 25px rgba(59,130,246,0.4); }
+        .content-section { display: none; margin-top:40px; padding:30px; background:#f8fafc; border-radius:10px; border-left:4px solid #3b82f6; color:#1e3a8a; line-height:1.6; }
+        .content-section.active { display:block; animation:fadeIn .5s ease-in; }
+        @keyframes fadeIn { from { opacity:0; transform: translateY(20px);} to { opacity:1; transform: translateY(0);} }
+        .section-title { color:#1e3a8a; font-size:1.8em; margin-bottom:20px; border-bottom:2px solid #3b82f6; padding-bottom:10px; }
+        /* GAME STYLES */
+        #gameContainer { display:none; position:relative; width:100%; padding-top:56.25%; /* 16:9 ratio */ background:#8B4513; margin-top:20px; }
+        #gameCanvas { position:absolute; top:0; left:0; width:100%; height:100%; }
+        #gameUI { position:absolute; top:10px; left:10px; color:white; font-size:1em; }
+        #backBtn { position:absolute; top:10px; right:10px; background:#ff4444; color:#fff; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; }
+        #pauseBtn { position:absolute; top:10px; left:50%; transform: translateX(-50%); background:#444; color:#fff; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; }
+        /* MENU PALÉ */
+        .menu-palet { position:relative; display:inline-block; width:100%; max-width:600px; margin:0 auto; }
+        .menu-palet img { width:100%; display:block; }
+        .menu-palet button, .menu-palet .label { position:absolute; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.5); color:#fff; border:none; padding:8px 16px; border-radius:5px; font-size:1.2em; cursor:pointer; }
+        .menu-palet #btnStart { top:45%; }
+        .menu-palet #btnScores { top:60%; }
+        .menu-palet .level-label { top:30%; display:flex; gap:10px; transform:translateX(-50%) translateY(-50%); }
+        .menu-palet .level-label input { margin-left:5px; }
+    </style>
 </head>
 <body>
-  <!-- Menú principal -->
-  <div id="mainMenu">
-    <div class="level-select">
-      <span>Selecciona nivel:</span>
-      <label><input type="radio" name="level" value="1" checked /> 1</label>
-      <label><input type="radio" name="level" value="2" /> 2</label>
-      <label><input type="radio" name="level" value="3" /> 3</label>
+    <div class="container">
+        <h1 class="title">Rubenpantxo.com</h1>
+        <div class="navigation">
+            <button class="nav-button" onclick="showSection('contacto')">Contacto</button>
+            <button class="nav-button" onclick="showSection('articulos')">Artículos</button>
+            <button class="nav-button" onclick="showSection('support')">Support</button>
+            <button class="nav-button" onclick="showSection('play')">Play</button>
+        </div>
+        <!-- Contacto, Artículos y Support iguales -->
+        <div id="contacto" class="content-section">...contenido contacto...</div>
+        <div id="articulos" class="content-section">...contenido artículos...</div>
+        <div id="support" class="content-section">...contenido support...</div>
+        <!-- PLAY -->
+        <div id="play" class="content-section">
+            <h2 class="section-title">Juegos</h2>
+            <!-- MISMO ESTILO DE LA PÁGINA para botón Jugar Ahora -->
+            <div class="article-card">
+                <h3 class="handwriting">🌾 Harvest Artichokes</h3>
+                <p class="handwriting">Un divertido juego de recolección de alcachofas...</p>
+                <button onclick="initMenu()" class="nav-button" style="width:200px;">▶️ Jugar Ahora</button>
+            </div>
+            <!-- MENÚ PALÉ del juego -->
+            <div id="menuGame" class="menu-palet" style="display:none;">
+                <img src="img/1_Palet.png" alt="Menú Juego">
+                <div class="level-label">
+                    <span>Nivel:</span>
+                    <label>1<input type="radio" name="nivel" value="1" checked></label>
+                    <label>2<input type="radio" name="nivel" value="2"></label>
+                    <label>3<input type="radio" name="nivel" value="3"></label>
+                </div>
+                <button id="btnStart">JUGAR</button>
+                <button id="btnScores">PUNTUACIONES</button>
+            </div>
+            <!-- CONTENEDOR DEL JUEGO -->
+            <div id="gameContainer">
+                <canvas id="gameCanvas"></canvas>
+                <div id="gameUI">
+                    <div id="timer">Tiempo: 00:00</div>
+                    <div id="count">Alcachofas: 0/5</div>
+                    <div id="total">Total: 0</div>
+                </div>
+                <button id="backBtn">← Volver</button>
+                <button id="pauseBtn">PAUSA</button>
+            </div>
+        </div>
     </div>
-    <div class="menu-bg">
-      <img src="img/1_Palet.png" alt="Menú Principal" />
-      <a href="#" id="playBtn" class="menu-button" onclick="game.level=parseInt(document.querySelector('input[name=level]:checked').value); startGame(); return false;">JUGAR</a>
-    </div>
-  </div>
-
-  <!-- Contenedor del juego -->
-  <div id="gameContainer" style="display:none; position: relative;">
-    <canvas id="gameCanvas"></canvas>
-    <div id="hud">
-      <div id="timer">Tiempo: 00:00</div>
-      <div id="artichokes">Alcachofas: 0/5</div>
-      <div id="total">Total recogidas: 0</div>
-    </div>
-    <div id="llenoMsg">¡Cesto lleno! Ve al tractor para vaciarlo.</div>
-    <div id="gameOver">
-      <h2>¡Juego terminado!</h2>
-      <p id="finalTime"></p>
-    </div>
-    <!-- Menú de Pausa -->
-    <div id="pauseOverlay">
-      <div class="menu-bg">
-        <img src="img/1_Palet.png" alt="Pausa" />
-        <div id="pauseLabel" class="menu-text">PAUSA</div>
-        <a href="#" id="continueBtn" class="menu-button" onclick="resumeGame(); return false;">CONTINUAR</a>
-        <a href="#" id="menuBtn" class="menu-button" onclick="exitGame(); return false;">MENÚ PRINCIPAL</a>
-        <img src="img/1_descanso.png" alt="Personaje descansando" style="position:absolute; bottom: 0; right: 20px; width: 100px; height: auto;" />
-      </div>
-    </div>
-    <a href="#" id="backButton" onclick="exitGame(); return false;">&larr; Volver</a>
-    <a href="#" id="pauseButton" onclick="pauseGame(); return false;">PAUSA</a>
-  </div>
-
-  <script>
-    // =================================================================
-    // === LÓGICA DEL JUEGO (JavaScript Nativo) =========================
-    // =================================================================
-    const game = {
-      // Elementos del DOM
-      container: document.getElementById('gameContainer'),
-      canvas: document.getElementById('gameCanvas'),
-      ctx: null,
-      ui: {
-        timer: document.getElementById('timer'),
-        artichokes: document.getElementById('artichokes'),
-        total: document.getElementById('total'),
-        llenoMsg: document.getElementById('llenoMsg'),
-        gameOver: document.getElementById('gameOver'),
-        finalTime: document.getElementById('finalTime')
-      },
-      // Estado del juego
-      running: false,
-      paused: false,
-      keys: {},
-      startTime: 0,
-      // Configuración del juego
-      config: {
-        MAX_CARRIED: 5,
-        FIELD_COLOR: '#8B4513',
-        TOTAL_ARTICHOKES: 50
-      },
-      // Recursos (imágenes)
-      assets: {
-        playerNormal: { img: new Image(), src: 'img/2_Agricul.png' },
-        playerTired:  { img: new Image(), src: 'img/1_cansado.png' },
-        playerFallen: { img: new Image(), src: 'img/1_caida.png' },
-        tractor:      { img: new Image(), src: 'img/Trator🚜.png' },
-        artichoke:    { img: new Image(), src: 'img/Alcachofa.png' },
-        obstacle1:    { img: new Image(), src: 'img/Piedra_1_obs.png' },
-        obstacle2:    { img: new Image(), src: 'img/Piedra_2_obs.png' },
-        background1:  { img: new Image(), src: 'img/Textura_tierra_1.png' },
-        background2:  { img: new Image(), src: 'img/Textura_tierra_2.png' },
-        background3:  { img: new Image(), src: 'img/Textura_tierra_3.png' }
-      },
-      // Entidades del juego
-      player: {},
-      tractor: {},
-      artichokes: [],
-      obstacles: [],
-      // Contadores
-      carried: 0,
-      collected: 0,
-      level: 1
-    };
-
-    function initGameAssets() {
-      // Cargar todas las imágenes
-      for (const key in game.assets) {
-        if (game.assets.hasOwnProperty(key)) {
-          game.assets[key].img.src = game.assets[key].src;
+    <script>
+        // Mostrar secciones
+        function showSection(id) {
+            document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
-      }
-    }
+        document.addEventListener('DOMContentLoaded',()=>showSection('contacto'));
 
-    function startGame() {
-      // Mostrar la sección de juego y ocultar el menú principal
-      game.container.style.display = 'block';
-      document.getElementById('mainMenu').style.display = 'none';
-      // Ocultar mensajes de fin de juego/pausa
-      game.ui.gameOver.style.display = 'none';
-      document.getElementById('pauseOverlay').style.display = 'none';
-      document.getElementById('backButton').style.display = 'block';
-      // Inicializar contexto de dibujo
-      if (!game.ctx) {
-        game.ctx = game.canvas.getContext('2d');
-      }
-      // Resetear estado del juego
-      game.running = true;
-      game.paused = false;
-      game.keys = {};
-      game.carried = 0;
-      game.collected = 0;
-      game.player.isTired = false;
-      game.player.isFrozen = false;
-      game.startTime = performance.now();
-      // Posicionar jugador y tractor
-      game.player = { x: game.canvas.width / 2, y: game.canvas.height - 120, w: 48, h: 48, speed: 2, isTired: false, isFrozen: false };
-      game.tractor = { x: game.canvas.width / 2 - 64, y: 40, w: 128, h: 96 };
-      // Generar alcachofas aleatorias en el campo
-      game.artichokes = [];
-      for (let i = 0; i < game.config.TOTAL_ARTICHOKES; i++) {
-        game.artichokes.push({
-          x: Math.random() * (game.canvas.width - 40) + 20,
-          y: Math.random() * (game.canvas.height - 240) + 140,
-          w: 32, h: 32, taken: false
-        });
-      }
-      // Generar obstáculos aleatorios en el campo
-      game.obstacles = [];
-      for (let j = 0; j < 5; j++) {
-        const obsX = Math.random() * (game.canvas.width - 80) + 40;
-        const obsY = Math.random() * (game.canvas.height - 240) + 140;
-        game.obstacles.push({
-          x: obsX,
-          y: obsY,
-          w: 48, h: 48,
-          taken: false,
-          type: (Math.random() < 0.5 ? 'obstacle1' : 'obstacle2')
-        });
-      }
-      // Ajustar el canvas al tamaño de la ventana
-      resizeCanvas();
-      // Comenzar el bucle del juego
-      requestAnimationFrame(gameLoop);
-    }
+        // Variables juego
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let level=1, carried=0, total=0, maxCarry=5;
+        const imgPalet = new Image(); imgPalet.src='img/1_Palet.png';
+        const imgBg=[];
+        for(let i=1;i<=3;i++){ imgBg[i]=new Image(); imgBg[i].src=`img/Textura_tierra_${i}.png`; }
+        const playerImg={normal:new Image(), tired:new Image(), fallen:new Image()};
+        playerImg.normal.src='img/2_Agricul.png';
+        playerImg.tired.src='img/1_cansado.png';
+        playerImg.fallen.src='img/1_caida.png';
+        const artImg=new Image(); artImg.src='img/Alcachofa.png';
+        const obs1=new Image(); obs1.src='img/Piedra_1_obs.png';
+        const obs2=new Image(); obs2.src='img/Piedra_2_obs.png';
+        let player={x:0,y:0,w:48,h:48,speed:2,isTired:false,isFrozen:false};
+        let artichokes=[], obstacles=[];
+        let keys={}; let startTime;
 
-    function exitGame() {
-      // Volver al menú principal
-      game.running = false;
-      game.paused = false;
-      game.container.style.display = 'none';
-      document.getElementById('mainMenu').style.display = 'block';
-    }
+        // Control de menú
+        function initMenu(){
+            document.getElementById('menuGame').style.display='block';
+        }
+        document.getElementById('btnStart').onclick=()=>{
+            level = +document.querySelector('input[name="nivel"]:checked').value;
+            document.getElementById('menuGame').style.display='none';
+            startGame();
+        };
+        document.getElementById('backBtn').onclick=()=>{ endGame(); };
+        document.getElementById('pauseBtn').onclick=()=>{ paused=!paused; renderPause(); };
 
-    function pauseGame() {
-      if (game.running && !game.paused) {
-        game.paused = true;
-        game.running = false;
-        document.getElementById('pauseOverlay').style.display = 'flex';
-        document.getElementById('backButton').style.display = 'none';
-      }
-    }
+        // Redimensionar canvas
+        function resize(){ width=canvas.width=canvas.parentElement.clientWidth; height=canvas.height=canvas.parentElement.clientHeight; }
+        window.addEventListener('resize',resize);
 
-    function resumeGame() {
-      if (game.paused) {
-        document.getElementById('pauseOverlay').style.display = 'none';
-        game.paused = false;
-        game.running = true;
-        document.getElementById('backButton').style.display = 'block';
-        // Nota: No ajustamos el temporizador para simplicidad
-        requestAnimationFrame(gameLoop);
-      }
-    }
+        // Iniciar juego
+        let running=false, paused=false;
+        function startGame(){
+            resize(); carried=0; total=0; player.isTired=false; player.isFrozen=false; player.speed=2;
+            // posicionar
+            player.x=width/2; player.y=height-100;
+            // generar alcachofas y piedras
+            artichokes=[]; obstacles=[];
+            for(let i=0;i<50;i++) artichokes.push({x:Math.random()*(width-32),y:Math.random()*(height-200)+100,taken:false});
+            for(let i=0;i<5;i++) obstacles.push({x:Math.random()*(width-48),y:Math.random()*(height-200)+100,type:Math.random()<.5?1:2,taken:false});
+            keys={}; startTime=performance.now(); running=true; paused=false;
+            requestAnimationFrame(loop);
+        }
 
-    function gameLoop() {
-      if (!game.running) return;
-      update();
-      render();
-      requestAnimationFrame(gameLoop);
-    }
-
-    function update() {
-      // Movimiento del jugador por teclas (si no está congelado)
-      if (!game.player.isFrozen) {
-        if (game.keys['ArrowLeft'] || game.keys['a']) game.player.x -= game.player.speed;
-        if (game.keys['ArrowRight'] || game.keys['d']) game.player.x += game.player.speed;
-        if (game.keys['ArrowUp'] || game.keys['w']) game.player.y -= game.player.speed;
-        if (game.keys['ArrowDown'] || game.keys['s']) game.player.y += game.player.speed;
-      }
-      // Limitar el movimiento a los bordes del canvas
-      game.player.x = clamp(game.player.x, 0, game.canvas.width - game.player.w);
-      game.player.y = clamp(game.player.y, 0, game.canvas.height - game.player.h);
-      // Recolección de alcachofas (solo si no lleva el máximo)
-      if (game.carried < game.config.MAX_CARRIED) {
-        game.artichokes.forEach(a => {
-          if (!a.taken && checkCollision(game.player, a)) {
-            a.taken = true;
-            game.carried++;
-            game.collected++;
-            // Al recolectar 5 alcachofas en total, personaje se cansa
-            if (!game.player.isTired && game.collected >= 5) {
-              game.player.isTired = true;
-              game.player.speed = 1;  // reducir velocidad (más lento)
+        // Bucle principal
+        function loop(){ if(!running||paused)return; update(); render(); requestAnimationFrame(loop); }
+        function update(){
+            if(!player.isFrozen){ if(keys.ArrowLeft)player.x-=player.speed; if(keys.ArrowRight)player.x+=player.speed;
+                if(keys.ArrowUp)player.y-=player.speed; if(keys.ArrowDown)player.y+=player.speed; }
+            player.x=Math.max(0,Math.min(player.x,width-player.w)); player.y=Math.max(0,Math.min(player.y,height-player.h));
+            // recoger alcachofas
+            artichokes.forEach(a=>{
+                if(!a.taken && collide(player,a)){
+                    a.taken=true; carried++; total++;
+                    if(total===5){ player.isTired=true; player.speed=1; }
+                }
+            });
+            // mensaje lleno
+            document.getElementById('count').textContent=`Alcachofas: ${carried}/${maxCarry}`;
+            // descargar en tractor (arriba centro)
+            if(carried && player.y<100 && Math.abs(player.x-width/2)<100){ carried=0; }
+            // colisión piedras
+            if(!player.isFrozen) for(let o of obstacles){
+                if(!o.taken && collide(player,{x:o.x,y:o.y,w:48,h:48})){
+                    o.taken=true; player.isFrozen=true; player.speed=0;
+                    setTimeout(()=>{ player.isFrozen=false; player.speed=player.isTired?1:2; },3000);
+                    break; }
             }
-          }
-        });
-      }
-      // Mostrar mensaje de inventario lleno
-      game.ui.llenoMsg.style.display = (game.carried >= game.config.MAX_CARRIED) ? 'block' : 'none';
-      // Colisión con el tractor para descargar alcachofas
-      if (game.carried > 0 && checkCollision(game.player, game.tractor)) {
-        game.carried = 0; // descarga todas las alcachofas recolectadas
-      }
-      // Colisiones con obstáculos
-      if (!game.player.isFrozen) {
-        for (let obs of game.obstacles) {
-          if (!obs.taken && checkCollision(game.player, obs)) {
-            // Jugador tropieza con un obstáculo
-            obs.taken = true;
-            game.player.isFrozen = true;
-            game.player.speed = 0;
-            // Detener movimiento 3 segundos y cambiar sprite a "caído"
-            setTimeout(() => {
-              if (game.running) {
-                game.player.isFrozen = false;
-                // Restaurar velocidad según estado (cansado o normal)
-                game.player.speed = game.player.isTired ? 1 : 2;
-              }
-            }, 3000);
-            break;
-          }
+            // fin juego
+            if(total>=50&&carried===0){ running=false; document.getElementById('finalTime').textContent=`Tiempo: ${((performance.now()-startTime)/1000).toFixed(1)}s`; document.getElementById('gameOver').style.display='block'; }
         }
-      }
-      // Verificar condición de victoria (todas las alcachofas recogidas y descargadas)
-      if (game.collected >= game.config.TOTAL_ARTICHOKES && game.carried === 0) {
-        game.running = false;
-        const totalTime = ((performance.now() - game.startTime) / 1000).toFixed(1);
-        game.ui.finalTime.textContent = `Tiempo total: ${totalTime} s`;
-        game.ui.gameOver.style.display = 'block';
-      }
-      updateUI();
-    }
-
-    function updateUI() {
-      const elapsed = Math.floor((performance.now() - game.startTime) / 1000);
-      const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-      const seconds = (elapsed % 60).toString().padStart(2, '0');
-      game.ui.timer.textContent = `Tiempo: ${minutes}:${seconds}`;
-      game.ui.artichokes.textContent = `Alcachofas: ${game.carried}/${game.config.MAX_CARRIED}`;
-      game.ui.total.textContent = `Total recogidas: ${game.collected}`;
-    }
-
-    function render() {
-      const ctx = game.ctx;
-      // Dibujar fondo con textura según nivel (o color de tierra de respaldo)
-      const bgAsset = game.assets['background' + game.level];
-      if (bgAsset && bgAsset.img.complete && bgAsset.img.naturalHeight !== 0) {
-        const pattern = ctx.createPattern(bgAsset.img, 'repeat');
-        if (pattern) {
-          ctx.fillStyle = pattern;
-          ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
+        function render(){
+            // fondo nivel
+            let bg=imgBg[level]; if(bg.complete){ let p=ctx.createPattern(bg,'repeat'); ctx.fillStyle=p; ctx.fillRect(0,0,width,height); }
+            // dibujar alcachofas y piedras
+            artichokes.forEach(a=>{ if(!a.taken) ctx.drawImage(artImg,a.x,a.y,32,32); });
+            obstacles.forEach(o=>{ if(!o.taken) ctx.drawImage(o.type===1?obs1:obs2,o.x,o.y,48,48); });
+            // jugador
+            let img=player.isFrozen?playerImg.fallen:(player.isTired?playerImg.tired:playerImg.normal);
+            ctx.drawImage(img,player.x,player.y,48,48);
+            // UI tiempo y total
+            let t=Math.floor((performance.now()-startTime)/1000),m=Math.floor(t/60).toString().padStart(2,'0'),s=(t%60).toString().padStart(2,'0');
+            document.getElementById('timer').textContent=`Tiempo: ${m}:${s}`;
+            document.getElementById('total').textContent=`Total: ${total}`;
         }
-      } else {
-        ctx.fillStyle = game.config.FIELD_COLOR;
-        ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
-      }
-      // Dibujar el tractor (o rectángulo verde de respaldo)
-      if (game.assets.tractor.img.complete && game.assets.tractor.img.naturalHeight !== 0) {
-        ctx.drawImage(game.assets.tractor.img, game.tractor.x, game.tractor.y, game.tractor.w, game.tractor.h);
-      } else {
-        ctx.fillStyle = '#006400';
-        ctx.fillRect(game.tractor.x, game.tractor.y, game.tractor.w, game.tractor.h);
-      }
-      // Dibujar alcachofas no recogidas
-      game.artichokes.forEach(a => {
-        if (!a.taken) {
-          if (game.assets.artichoke.img.complete && game.assets.artichoke.img.naturalHeight !== 0) {
-            ctx.drawImage(game.assets.artichoke.img, a.x, a.y, a.w, a.h);
-          } else {
-            ctx.fillStyle = '#228B22';
-            ctx.fillRect(a.x, a.y, a.w, a.h);
-          }
-        }
-      });
-      // Dibujar obstáculos restantes
-      game.obstacles.forEach(obs => {
-        if (!obs.taken) {
-          const obsAsset = game.assets[obs.type];
-          if (obsAsset.img.complete && obsAsset.img.naturalHeight !== 0) {
-            ctx.drawImage(obsAsset.img, obs.x, obs.y, obs.w, obs.h);
-          } else {
-            ctx.fillStyle = '#777';
-            ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
-          }
-        }
-      });
-      // Dibujar jugador (sprite normal, cansado o caído según estado)
-      if (game.player.isFrozen && game.assets.playerFallen.img.complete && game.assets.playerFallen.img.naturalHeight !== 0) {
-        ctx.drawImage(game.assets.playerFallen.img, game.player.x, game.player.y, game.player.w, game.player.h);
-      } else if (game.player.isTired && game.assets.playerTired.img.complete && game.assets.playerTired.img.naturalHeight !== 0) {
-        ctx.drawImage(game.assets.playerTired.img, game.player.x, game.player.y, game.player.w, game.player.h);
-      } else if (game.assets.playerNormal.img.complete && game.assets.playerNormal.img.naturalHeight !== 0) {
-        ctx.drawImage(game.assets.playerNormal.img, game.player.x, game.player.y, game.player.w, game.player.h);
-      } else {
-        ctx.fillStyle = '#00f';
-        ctx.fillRect(game.player.x, game.player.y, game.player.w, game.player.h);
-      }
-    }
+        function collide(a,b){ return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y; }
 
-    // Funciones auxiliares
-    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-    const checkCollision = (rect1, rect2) => (
-      rect1.x < rect2.x + rect2.w &&
-      rect1.x + rect1.w > rect2.x &&
-      rect1.y < rect2.y + rect2.h &&
-      rect1.y + rect1.h > rect2.y
-    );
-
-    function resizeCanvas() {
-      game.canvas.width = window.innerWidth;
-      game.canvas.height = window.innerHeight;
-    }
-
-    // Eventos de control de entrada
-    window.addEventListener('keydown', e => {
-      game.keys[e.key] = true;
-      // Tecla Escape para pausar/reanudar
-      if (e.key === 'Escape') {
-        if (game.running && !game.paused) {
-          pauseGame();
-        } else if (game.paused) {
-          resumeGame();
-        }
-      }
-    });
-    window.addEventListener('keyup', e => {
-      game.keys[e.key] = false;
-    });
-    window.addEventListener('resize', resizeCanvas);
-
-    // Cargar recursos al inicio
-    initGameAssets();
-  </script>
+        // Capturar teclas
+        window.addEventListener('keydown',e=>keys[e.key]=true);
+        window.addEventListener('keyup',e=>keys[e.key]=false);
+    </script>
 </body>
 </html>
