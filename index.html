@@ -3,1049 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rubenpantxo.com</title>
+    <title>Pizarra Táctica de Fútbol Sala con Caricaturas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* === ESTILOS GENERALES === */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Courier New', monospace;
-            background-color: #f8f8f8;
-            background-image: 
-                linear-gradient(rgba(100, 149, 237, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(100, 149, 237, 0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
-            min-height: 100vh;
-            padding: 40px 20px;
+            font-family: 'Inter', sans-serif;
+            touch-action: none;
         }
-
-        .container {
+        .futsal-court-container {
+            width: 95vw;
             max-width: 800px;
+            border: 10px solid #6B4226;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             margin: 0 auto;
-            background: white;
-            padding: 60px 40px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+            overflow: hidden;
+        }
+        .futsal-court {
+            background-color: #E3CBAA;
+            aspect-ratio: 40 / 20;
             position: relative;
         }
-
-        .container::before {
-            content: '';
+        .court-lines {
+            width: 100%;
+            height: 100%;
             position: absolute;
-            left: 60px;
             top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #ff6b6b;
+            left: 0;
+            z-index: 1;
         }
-
-        .title {
-            color: #1e3a8a;
-            font-size: 2.5em;
-            text-align: center;
-            margin-bottom: 50px;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(30, 58, 138, 0.3);
-            transform: rotate(-1deg);
-        }
-
-        .navigation {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .nav-button {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white;
-            border: none;
-            padding: 20px;
-            border-radius: 15px;
-            font-size: 1.1em;
-            font-family: 'Courier New', monospace;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-            transform: rotate(-0.5deg);
-        }
-
-        .nav-button:hover {
-            transform: rotate(0deg) translateY(-5px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-            background: linear-gradient(135deg, #2563eb, #1e40af);
-        }
-
-        .nav-button:nth-child(even) {
-            transform: rotate(0.5deg);
-        }
-
-        .nav-button:nth-child(even):hover {
-            transform: rotate(0deg) translateY(-5px);
-        }
-
-        .content-section {
-            display: none;
-            margin-top: 40px;
-            padding: 30px;
-            background: #f8fafc;
-            border-radius: 10px;
-            border-left: 4px solid #3b82f6;
-            color: #1e3a8a;
-            line-height: 1.6;
-        }
-
-        .content-section.active {
-            display: block;
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .section-title {
-            color: #1e3a8a;
-            font-size: 1.8em;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #3b82f6;
-            padding-bottom: 10px;
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .contact-icon {
-            width: 40px;
-            height: 40px;
-            background: #3b82f6;
+        .player-token {
+            position: absolute;
+            width: clamp(35px, 6vw, 50px); /* Ligeramente más grandes para las caras */
+            height: clamp(35px, 6vw, 50px);
             border-radius: 50%;
             display: flex;
-            align-items: center;
             justify-content: center;
-            margin-right: 15px;
-            color: white;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .contact-link {
-            color: #1e3a8a;
-            text-decoration: none;
-            font-weight: bold;
-            word-break: break-all;
-            cursor: pointer;
-        }
-
-        .contact-link:hover {
-            color: #3b82f6;
-            text-decoration: underline;
-        }
-
-        .article-card, .support-card, .function-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #3b82f6;
-        }
-
-        .article-image {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(45deg, #e2e8f0, #cbd5e1);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
             align-items: center;
-            justify-content: center;
-            color: #64748b;
-            font-style: italic;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .article-card a:hover .article-image {
-            transform: scale(1.03);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .article-title {
-            color: #1d4ed8;
-            font-size: 1.4em;
             font-weight: bold;
-            margin-bottom: 15px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            font-size: clamp(14px, 3vw, 18px);
+            cursor: grab;
+            user-select: none;
+            border: 2px solid rgba(255, 255, 255, 0.7); /* Borde blanco para resaltar */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+            z-index: 10;
+            /* Estilos para las imágenes de fondo */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
-
-        .article-full-text {
-            display: none;
-        }
-        
-        .handwriting {
-            font-family: 'Courier New', monospace;
-            color: #1e3a8a;
-            line-height: 1.8;
-        }
-        
-        /* === ESTILOS MODAL JUEGOS === */
-        .game-modal {
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100vw; 
-            height: 100vh; 
-            background: rgba(0,0,0,0.7); 
+        .player-token.dragging {
+            cursor: grabbing;
+            transform: scale(1.15) translate(-43%, -43%) !important;
             z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.3);
+        }
+        /* Fichas del equipo de caricaturas */
+        #player-1 { background-image: url('https://i.ibb.co/yWjLzW4/1000225035.jpg'); }
+        #player-2 { background-image: url('https://i.ibb.co/yQ8bJgM/1000225031.png'); }
+        #player-3 { background-image: url('https://i.ibb.co/d20v2sP/1000225033.png'); }
+        #player-4 { background-image: url('https://i.ibb.co/yVw0h3D/1000225038.jpg'); }
+        #player-5 { background-image: url('https://i.ibb.co/hX4S7gH/1000225030.png'); }
+
+        /* Fichas del equipo azul */
+        .team-blue {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
         }
 
-        .game-modal-content {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
-            position: relative;
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow: auto;
-        }
-
-        .game-button.back {
-            position: absolute; 
-            top: 15px; 
-            right: 15px; 
-            background: #ff4444; 
-            padding: 8px 15px;
-            z-index: 1001;
-        }
-
-        /* === ESTILOS SUDOKU === */
-        #sudoku-board {
-            display: grid;
-            grid-template-columns: repeat(9, 1fr);
-            gap: 2px;
-            width: clamp(300px, 90vw, 500px);
-            margin: 20px auto;
-        }
-        .sudoku-cell {
-            width: 100%;
-            aspect-ratio: 1/1;
-            border: 1px solid #ccc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5em;
-            cursor: pointer;
-        }
-        .sudoku-cell.fixed {
-            background-color: #e9ecef;
-            font-weight: bold;
-            cursor: not-allowed;
-        }
-        .sudoku-cell.selected {
-            background-color: #a0c4ff;
-        }
-        .sudoku-cell:nth-child(3n):not(:last-child) { border-right: 3px solid #3b82f6; }
-        .sudoku-cell:nth-child(9n+1) { border-left: 3px solid #3b82f6; }
-        .sudoku-cell:nth-child(n+19):nth-child(-n+27),
-        .sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 3px solid #3b82f6; }
-        
-        #sudoku-controls { text-align: center; margin-top: 10px; }
-        #number-palette button { width: 40px; height: 40px; margin: 5px; font-size: 1.2em; }
-
-        /* === ESTILOS BUSCAMINAS === */
-        #minesweeper-info { display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 1.2em; align-items: center;}
-        #minesweeper-grid { display: grid; border: 2px solid #3b82f6; }
-        .mine-cell {
-            border: 1px solid #ccc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            background-color: #ddd;
-            cursor: pointer;
-        }
-        .mine-cell.revealed { background-color: #f8fafc; }
-        .mine-cell.mine { background-color: red; }
-
-
-        /* === ESTILOS FUNCIONES === */
-        .post-it {
-            background-color: #ffc;
-            padding: 20px;
-            border: 1px solid #ccc;
-            box-shadow: 5px 5px 10px rgba(0,0,0,0.2);
-            width: 300px;
-            height: 300px;
-            resize: none;
-            font-family: 'Courier New', monospace;
-            font-size: 1.2em;
-        }
-        #corkboard {
-            background-color: #c9a77d;
-            border: 10px solid #8b5a2b;
-            padding: 20px;
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            min-height: 200px;
-        }
-        .pinned-note {
-            background-color: #ffc;
-            padding: 15px;
-            width: 200px;
-            height: 200px;
-            box-shadow: 3px 3px 7px rgba(0,0,0,0.2);
-            overflow-y: auto;
-            position: relative;
-        }
-        .pinned-note .delete-note {
+        .ball {
             position: absolute;
-            top: 5px;
-            right: 5px;
-            cursor: pointer;
-            color: red;
-            font-weight: bold;
+            width: clamp(22px, 4.5vw, 35px);
+            height: clamp(22px, 4.5vw, 35px);
+            background-image: url('https://i.ibb.co/r2X3f0N/kisspng-mikasa-sports-futsal-ball-adidas-jabulani-5b15853394d5a9-5189993615281370116096.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: 50%; 
+            background-color: white;
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+            z-index: 500;
         }
-        .calculator-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        .calculator-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .calculator-group label {
-            font-weight: bold;
-        }
-        .calculator-group input, .calculator-group select {
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        #calculationResult {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #eef2ff;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 40px 20px;
-            }
-            .navigation {
-                grid-template-columns: 1fr;
-            }
-            .title {
-                font-size: 2em;
-            }
+        .ball.dragging {
+            cursor: grabbing;
+            transform: scale(1.15) translate(-43%, -43%) !important;
+            z-index: 1000;
+            box-shadow: 0 6px 10px rgba(0,0,0,0.25);
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1 class="title handwriting">Rubenpantxo.com</h1>
+<body class="bg-gray-200 flex flex-col items-center justify-center min-h-screen p-4">
 
-        <div class="navigation">
-            <button class="nav-button" onclick="showSection('contacto')">Contacto</button>
-            <button class="nav-button" onclick="showSection('articulos')">Artículos</button>
-            <button class="nav-button" onclick="showSection('funciones')">Funciones</button>
-            <button class="nav-button" onclick="showSection('play')">Juegos</button>
-        </div>
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 text-center">Pizarra Táctica con tu Equipo</h1>
 
-        <!-- Sección Contacto -->
-        <div id="contacto" class="content-section">
-            <h2 class="section-title handwriting">Contacto</h2>
-            <div class="contact-item">
-                <div class="contact-icon">@</div>
-                <div>
-                    <strong>Instagram:</strong> 
-                    <a href="https://instagram.com/rubenpantxo" target="_blank" class="contact-link">@rubenpantxo</a>
-                </div>
-            </div>
-            <div class="contact-item">
-                <div class="contact-icon">✉</div>
-                <div>
-                    <strong>Email:</strong> 
-                    <a href="mailto:rubenpantxo@gmail.com" class="contact-link">rubenpantxo@gmail.com</a>
-                </div>
-            </div>
-        </div>
+    <div class="futsal-court-container">
+        <div id="futsal-court" class="futsal-court">
+            <!-- SVG para las líneas del campo -->
+            <svg class="court-lines" viewBox="0 0 400 200" preserveAspectRatio="none">
+                <defs>
+                    <path id="penalty-arc" d="M 0,40 A 60,60 0 0 1 0,160" stroke="white" stroke-width="2" fill="none"/>
+                </defs>
+                <rect x="1" y="1" width="398" height="198" fill="none" stroke="white" stroke-width="2"/>
+                <line x1="200" y1="1" x2="200" y2="199" stroke="white" stroke-width="2"/>
+                <circle cx="200" cy="100" r="30" stroke="white" stroke-width="2" fill="none"/>
+                <circle cx="200" cy="100" r="2" fill="white"/>
+                <rect x="1" y="80" width="10" height="40" fill="none" stroke="white" stroke-width="1.5" />
+                <use href="#penalty-arc" x="1" y="0"/>
+                <circle cx="60" cy="100" r="2" fill="white"/>
+                <rect x="389" y="80" width="10" height="40" fill="none" stroke="white" stroke-width="1.5" />
+                <use href="#penalty-arc" x="399" y="0" transform="rotate(180, 200, 100)"/>
+                <circle cx="340" cy="100" r="2" fill="white"/>
+            </svg>
 
-        <!-- Sección Artículos -->
-        <div id="articulos" class="content-section">
-            <h2 class="section-title handwriting">Artículos</h2>
-            <!-- Artículos existentes aquí -->
-            <div class="article-card">
-                <a href="https://es.gizmodo.com/conozca-el-super-dvd-los-cientificos-desarrollan-un-di-1851274430" target="_blank">
-                    <div class="article-image">[Imagen del artículo]</div>
-                </a>
-                <h3 class="article-title handwriting">AIE-DDPR: el asombroso disco óptico que almacena más de un millón de gigabytes</h3>
-                <p class="handwriting article-summary">Imagina un disco óptico capaz de guardar más de 1 millón de gigabytes. Eso promete AIE-DDPR, una nueva tecnología desarrollada por científicos en China que permite almacenar hasta 1 petabit (125 TB) de datos en un disco tipo DVD.</p>
-                <div class="handwriting article-full-text">
-                    <p>Imagina un disco óptico capaz de guardar más de 1 millón de gigabytes. Eso promete AIE-DDPR, una nueva tecnología desarrollada por científicos en China que permite almacenar hasta 1 petabit (125 TB) de datos en un disco tipo DVD. El truco está en un material especial llamado dye-doped photoresist con luminógenos de emisión inducida por agregación (de ahí las siglas AIE) que permite grabar información en 100 capas nanoscópicas dentro del disco. Gracias a este enfoque 3D, un solo "súper DVD" AIE-DDPR tiene la capacidad de unos 15.000 discos Blu-ray convencionales. Además de su enorme capacidad, el disco sería regrabable y muy duradero, pensado para archivar datos por décadas. Aunque por ahora es un prototipo de laboratorio, los investigadores creen que esta tecnología revolucionará el almacenamiento masivo, reduciendo el espacio y energía que hoy consumen grandes centros de datos. Con colaboradores como la Universidad de Fudan y empresas como Sony interesadas, se espera que los primeros discos AIE-DDPR comerciales lleguen en la segunda mitad de esta década.</p>
-                </div>
-                <a class="contact-link" onclick="toggleArticle(this)">Leer más...</a>
-            </div>
+            <!-- Fichas del Equipo de Caricaturas -->
+            <div class="player-token" id="player-1" data-initial-top="50%" data-initial-left="15%"></div>
+            <div class="player-token" id="player-2" data-initial-top="25%" data-initial-left="30%"></div>
+            <div class="player-token" id="player-3" data-initial-top="75%" data-initial-left="30%"></div>
+            <div class="player-token" id="player-4" data-initial-top="35%" data-initial-left="45%"></div>
+            <div class="player-token" id="player-5" data-initial-top="65%" data-initial-left="45%"></div>
 
-            <div class="article-card">
-                <a href="https://www.xataka.com/investigacion/discos-cuarzo-5d-nos-prometen-360-tb-vida-eterna-como-funciona-que-estado-esta-esta-tecnica-almacenamiento" target="_blank">
-                    <div class="article-image">[Imagen del artículo]</div>
-                </a>
-                <h3 class="article-title handwriting">Los discos de cuarzo 5D nos prometen 360 TB y una vida eterna</h3>
-                <p class="handwriting article-summary">Un equipo de investigadores ha creado unos discos de cuarzo "5D" que pueden guardar hasta 360 terabytes (TB) en un disco de cristal del tamaño de un CD. La técnica, apodada "cristal de memoria de Superman", utiliza láseres femtosegundo para grabar nanoestructuras en el vidrio de cuarzo.</p>
-                <div class="handwriting article-full-text">
-                   <p>Un equipo de investigadores ha creado unos discos de cuarzo "5D" que pueden guardar hasta 360 terabytes (TB) en un disco de cristal del tamaño de un CD. La técnica, apodada "cristal de memoria de Superman", utiliza láseres femtosegundo para grabar nanoestructuras en el vidrio de cuarzo en cinco dimensiones (las tres posiciones espaciales más dos propiedades ópticas). El resultado es un medio de almacenamiento ultra-duradero, capaz de conservar datos por millones de años sin degradarse y resistir temperaturas de hasta 1000°C. En demostraciones, ya se lograron almacenar textos históricos y la Biblia entera en un pequeño disco de cuarzo. Estos discos 5D podrían usarse en el futuro para archivar patrimonio digital de la humanidad, dado que combinan altísima capacidad (360 TB por disco de 12 cm) con una vida útil prácticamente eterna. Aunque la tecnología está en desarrollo y requiere equipos láser especializados, varias agencias (como la NASA) se han interesado en usarla para guardar información valiosa a largo plazo. En unos años, estos "cristales de datos" podrían convertirse en la caja fuerte definitiva para nuestra información, conservándola hasta para civilizaciones futuras.</p>
-                </div>
-                <a class="contact-link" onclick="toggleArticle(this)">Leer más...</a>
-            </div>
-        </div>
-
-        <!-- Sección Funciones -->
-        <div id="funciones" class="content-section">
-            <h2 class="section-title handwriting">Funciones</h2>
-            <div class="function-card">
-                <h3 class="article-title handwriting">Notas</h3>
-                <textarea id="postItNote" class="post-it" placeholder="Escribe tu nota aquí..."></textarea>
-                <button class="nav-button" style="margin-top:10px;" onclick="pinNote()">Colgar en el corcho</button>
-                <div id="corkboard"></div>
-            </div>
-            <div class="function-card">
-                <h3 class="article-title handwriting">Electricidad</h3>
-                <div class="calculator-grid">
-                    <div class="calculator-group">
-                        <label for="calcType">Tipo de Cálculo:</label>
-                        <select id="calcType" onchange="updateCalculator()">
-                            <option value="voltaje">Tensión (V)</option>
-                            <option value="corriente">Corriente (A)</option>
-                            <option value="potencia">Potencia (W)</option>
-                            <option value="resistencia">Resistencia (Ω)</option>
-                            <option value="caidaTension">Caída de Tensión (%)</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="calculatorInputs" class="calculator-grid" style="margin-top:20px;"></div>
-                <button class="nav-button" style="margin-top:20px;" onclick="calculate()">Calcular</button>
-                <div id="calculationResult"></div>
-            </div>
-        </div>
-
-        <!-- Sección Juegos -->
-        <div id="play" class="content-section">
-            <h2 class="section-title handwriting">Juegos</h2>
-            <div class="article-card">
-                <h3 class="handwriting">🌾 Harvest Artichokes</h3>
-                <p class="handwriting">Un divertido juego de recolección de alcachofas.</p>
-                <button onclick="startHarvestArtichokes()" class="nav-button" style="width: 200px; margin: 10px 0;">🎮 Jugar Ahora</button>
-            </div>
-            <div class="article-card">
-                <h3 class="handwriting">🔢 Sudoku</h3>
-                <p class="handwriting">Pon a prueba tu lógica con este clásico rompecabezas numérico.</p>
-                <button onclick="startSudoku()" class="nav-button" style="width: 200px; margin: 10px 0;">🧠 Jugar Sudoku</button>
-            </div>
-            <div class="article-card">
-                <h3 class="handwriting">💣 Buscaminas</h3>
-                <p class="handwriting">Despeja el campo de minas sin detonar ninguna.</p>
-                <button onclick="startMinesweeper()" class="nav-button" style="width: 200px; margin: 10px 0;">💥 Jugar Buscaminas</button>
-            </div>
+            <!-- Fichas del Equipo Azul -->
+            <div class="player-token team-blue" id="blue-1" data-initial-top="50%" data-initial-left="85%">1</div>
+            <div class="player-token team-blue" id="blue-2" data-initial-top="25%" data-initial-left="70%">2</div>
+            <div class="player-token team-blue" id="blue-3" data-initial-top="75%" data-initial-left="70%">3</div>
+            <div class="player-token team-blue" id="blue-4" data-initial-top="35%" data-initial-left="55%">4</div>
+            <div class="player-token team-blue" id="blue-5" data-initial-top="65%" data-initial-left="55%">5</div>
+            
+            <!-- Balón -->
+            <div class="ball" id="futsal-ball" data-initial-top="50%" data-initial-left="50%"></div>
         </div>
     </div>
 
-    <!-- Contenedor del Juego Harvest Artichokes -->
-    <div id="harvestGameContainer" class="game-modal">
-        <div class="game-modal-content" style="background-color: transparent; padding:0; width:100%; height:100%; display: flex; justify-content: center; align-items: center;">
-            <canvas id="harvestGameCanvas"></canvas>
-            <div id="harvestGameUI" style="position: absolute; top: 20px; left: 20px; color: white; font-family: 'Courier New', monospace; font-size: 18px; text-shadow: 1px 1px 2px black;">
-                <div id="harvestTimer">Tiempo: 00:00</div>
-                <div id="harvestArtichokes">En mano: 0/10</div>
-                <div id="harvestTotal">Total: 0/50</div>
-            </div>
-            <div id="harvestGameMenu" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; background: rgba(0,0,0,0.8); padding: 40px; border-radius: 15px; display:flex; flex-direction:column;">
-                <h2 style="color: #ffd700; margin-bottom: 20px;">🌾 HARVEST ARTICHOKES 🌾</h2>
-                <p style="margin-bottom: 20px;">Recoge todas las alcachofas y llévalas al tractor.</p>
-                <button onclick="playHarvestGame()" class="game-button">▶️ JUGAR</button>
-            </div>
-            <div id="harvestGameOver" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; background: rgba(0,0,0,0.8); padding: 40px; border-radius: 15px;">
-                <h2 style="color: #ffd700;">🎉 ¡FELICIDADES! 🎉</h2>
-                <p id="harvestFinalTime" style="font-size: 24px; margin: 20px 0;"></p>
-                <button onclick="restartHarvestGame()" class="game-button">🔄 Jugar de Nuevo</button>
-            </div>
-            <button onclick="exitHarvestGame()" class="game-button back">X</button>
-        </div>
-    </div>
-
-    <!-- Contenedor del Juego Sudoku -->
-    <div id="sudokuGameContainer" class="game-modal">
-        <div class="game-modal-content">
-            <h2 class="section-title handwriting">Sudoku</h2>
-            <div id="sudoku-board"></div>
-            <div id="sudoku-controls">
-                <div id="number-palette"></div>
-                <button class="nav-button" onclick="checkSudokuSolution()">Comprobar</button>
-                <button class="nav-button" onclick="startSudoku()">Nuevo Juego</button>
-            </div>
-            <button onclick="document.getElementById('sudokuGameContainer').style.display = 'none';" class="game-button back">X</button>
-        </div>
-    </div>
-
-    <!-- Contenedor del Juego Buscaminas -->
-    <div id="minesweeperGameContainer" class="game-modal">
-         <div class="game-modal-content">
-            <h2 class="section-title handwriting">Buscaminas</h2>
-            <div id="minesweeper-info">
-                <span id="mines-left"></span>
-                <button class="nav-button" onclick="startMinesweeper()">😊</button>
-                <span id="minesweeper-timer">0</span>
-            </div>
-            <div id="minesweeper-grid"></div>
-            <button onclick="document.getElementById('minesweeperGameContainer').style.display = 'none';" class="game-button back">X</button>
-        </div>
-    </div>
+    <button id="reset-button" class="mt-6 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-colors">
+        Reiniciar Posiciones
+    </button>
 
     <script>
-        // --- NAVEGACIÓN PRINCIPAL ---
-        function showSection(sectionId) {
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.add('active');
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
-            showSection('contacto');
-            loadNotes();
-            updateCalculator();
-        });
-
-        // --- FUNCIONALIDAD DE ARTÍCULOS ---
-        function toggleArticle(linkElement) {
-            const card = linkElement.closest('.article-card');
-            const summary = card.querySelector('.article-summary');
-            const fullText = card.querySelector('.article-full-text');
-
-            const isHidden = fullText.style.display === 'none' || fullText.style.display === '';
+            const court = document.getElementById('futsal-court');
+            // La selección ahora incluye todas las fichas (caricaturas y azules) y el balón
+            const tokens = document.querySelectorAll('.player-token, .ball');
+            const resetButton = document.getElementById('reset-button');
             
-            summary.style.display = isHidden ? 'none' : 'block';
-            fullText.style.display = isHidden ? 'block' : 'none';
-            linkElement.textContent = isHidden ? 'Leer menos...' : 'Leer más...';
-        }
+            let activeToken = null;
+            let offsetX = 0;
+            let offsetY = 0;
 
-        // --- FUNCIONALIDAD DE NOTAS ---
-        function pinNote() {
-            const noteContent = document.getElementById('postItNote').value;
-            if (noteContent.trim() === '') return;
-
-            const corkboard = document.getElementById('corkboard');
-            const noteId = `note-${Date.now()}`;
-            const noteElement = document.createElement('div');
-            noteElement.className = 'pinned-note handwriting';
-            noteElement.id = noteId;
-            noteElement.innerHTML = `<span class="delete-note" onclick="deleteNote('${noteId}')">X</span><p>${noteContent.replace(/\n/g, '<br>')}</p>`;
-            
-            corkboard.appendChild(noteElement);
-            saveNote(noteId, noteContent);
-            document.getElementById('postItNote').value = '';
-        }
-
-        function saveNote(id, content) {
-            const notes = JSON.parse(localStorage.getItem('pinnedNotes') || '{}');
-            notes[id] = content;
-            localStorage.setItem('pinnedNotes', JSON.stringify(notes));
-        }
-
-        function loadNotes() {
-            const notes = JSON.parse(localStorage.getItem('pinnedNotes') || '{}');
-            const corkboard = document.getElementById('corkboard');
-            for (const id in notes) {
-                const noteElement = document.createElement('div');
-                noteElement.className = 'pinned-note handwriting';
-                noteElement.id = id;
-                noteElement.innerHTML = `<span class="delete-note" onclick="deleteNote('${id}')">X</span><p>${notes[id].replace(/\n/g, '<br>')}</p>`;
-                corkboard.appendChild(noteElement);
-            }
-        }
-        
-        function deleteNote(id) {
-            document.getElementById(id).remove();
-            const notes = JSON.parse(localStorage.getItem('pinnedNotes') || '{}');
-            delete notes[id];
-            localStorage.setItem('pinnedNotes', JSON.stringify(notes));
-        }
-
-        // --- CALCULADORA DE ELECTRICIDAD ---
-        const calculatorInputs = document.getElementById('calculatorInputs');
-        const resultDiv = document.getElementById('calculationResult');
-
-        function updateCalculator() {
-            const calcType = document.getElementById('calcType').value;
-            calculatorInputs.innerHTML = '';
-            resultDiv.innerHTML = '';
-
-            switch(calcType) {
-                case 'voltaje':
-                    calculatorInputs.innerHTML = `
-                        <div class="calculator-group"><label for="corriente">Corriente (A):</label><input id="corriente" type="number" placeholder="Ej: 10"></div>
-                        <div class="calculator-group"><label for="resistencia">Resistencia (Ω):</label><input id="resistencia" type="number" placeholder="Ej: 23"></div>
-                    `;
-                    break;
-                case 'corriente':
-                    calculatorInputs.innerHTML = `
-                        <div class="calculator-group"><label for="voltaje">Tensión (V):</label><input id="voltaje" type="number" placeholder="Ej: 230"></div>
-                        <div class="calculator-group"><label for="resistencia">Resistencia (Ω):</label><input id="resistencia" type="number" placeholder="Ej: 23"></div>
-                    `;
-                    break;
-                case 'potencia':
-                     calculatorInputs.innerHTML = `
-                        <div class="calculator-group"><label for="voltaje">Tensión (V):</label><input id="voltaje" type="number" placeholder="Ej: 230"></div>
-                        <div class="calculator-group"><label for="corriente">Corriente (A):</label><input id="corriente" type="number" placeholder="Ej: 10"></div>
-                    `;
-                    break;
-                case 'resistencia':
-                     calculatorInputs.innerHTML = `
-                        <div class="calculator-group"><label for="voltaje">Tensión (V):</label><input id="voltaje" type="number" placeholder="Ej: 230"></div>
-                        <div class="calculator-group"><label for="corriente">Corriente (A):</label><input id="corriente" type="number" placeholder="Ej: 10"></div>
-                    `;
-                    break;
-                case 'caidaTension':
-                    calculatorInputs.innerHTML = `
-                        <div class="calculator-group"><label for="voltaje">Tensión (V):</label><input id="voltaje" type="number" value="230"></div>
-                        <div class="calculator-group"><label for="potencia">Potencia (W):</label><input id="potencia" type="number" placeholder="Ej: 3680"></div>
-                        <div class="calculator-group"><label for="longitud">Longitud (m):</label><input id="longitud" type="number" placeholder="Ej: 50"></div>
-                        <div class="calculator-group"><label for="seccion">Sección del Cable (mm²):</label><input id="seccion" type="number" placeholder="Ej: 2.5"></div>
-                        <div class="calculator-group"><label for="material">Material:</label><select id="material"><option value="cobre">Cobre</option><option value="aluminio">Aluminio</option></select></div>
-                    `;
-                    break;
-            }
-        }
-
-        function calculate() {
-            const calcType = document.getElementById('calcType').value;
-            let result = '';
-
-            try {
-                const getValue = id => {
-                    const el = document.getElementById(id);
-                    if (!el || el.value === '') throw new Error(`El campo '${el.previousElementSibling.textContent}' es obligatorio.`);
-                    return parseFloat(el.value);
-                };
-
-                switch(calcType) {
-                    case 'voltaje':
-                        result = `Tensión: ${(getValue('corriente') * getValue('resistencia')).toFixed(2)} V`;
-                        break;
-                    case 'corriente':
-                        result = `Corriente: ${(getValue('voltaje') / getValue('resistencia')).toFixed(2)} A`;
-                        break;
-                    case 'potencia':
-                        result = `Potencia: ${(getValue('voltaje') * getValue('corriente')).toFixed(2)} W`;
-                        break;
-                    case 'resistencia':
-                        result = `Resistencia: ${(getValue('voltaje') / getValue('corriente')).toFixed(2)} Ω`;
-                        break;
-                    case 'caidaTension':
-                        const V = getValue('voltaje');
-                        const P = getValue('potencia');
-                        const L = getValue('longitud');
-                        const S = getValue('seccion');
-                        const resistividad = document.getElementById('material').value === 'cobre' ? 0.0172 : 0.0282; // Ω·mm²/m
-                        
-                        const I = P / V; // Asumimos monofásica para simplificar
-                        const caidaV = 2 * L * (resistividad / S) * I;
-                        const caidaPorcentaje = (caidaV / V) * 100;
-
-                        result = `Caída de Tensión: ${caidaV.toFixed(2)} V (${caidaPorcentaje.toFixed(2)}%)`;
-                        if (caidaPorcentaje > 3) {
-                            result += '<br><strong style="color:red;">Atención: La caída de tensión supera el 3% recomendado para alumbrado.</strong>';
-                        } else if (caidaPorcentaje > 5) {
-                             result += '<br><strong style="color:red;">Atención: La caída de tensión supera el 5% recomendado para otros usos.</strong>';
-                        }
-                        break;
-                }
-                resultDiv.innerHTML = result;
-            } catch (e) {
-                resultDiv.innerHTML = `<span style="color:red;">Error: ${e.message}</span>`;
-            }
-        }
-        
-        // --- LÓGICA DE HARVEST ARTICHOKES ---
-        const harvestGame = {
-            canvas: null, ctx: null, player: { x: 400, y: 500, width: 40, height: 40, speed: 4 },
-            tractor: { x: 350, y: 50, width: 100, height: 60 }, artichokes: [], carriedArtichokes: 0,
-            totalCollected: 0, totalArtichokes: 50, maxCarried: 10, gameRunning: false, startTime: 0,
-            gameTime: 0, keys: {}, animationFrameId: null
-        };
-
-        function startHarvestArtichokes() {
-            document.getElementById('harvestGameContainer').style.display = 'flex';
-            document.getElementById('harvestGameMenu').style.display = 'flex';
-            document.getElementById('harvestGameOver').style.display = 'none';
-            
-            harvestGame.canvas = document.getElementById('harvestGameCanvas');
-            harvestGame.ctx = harvestGame.canvas.getContext('2d');
-            
-            window.addEventListener('resize', resizeHarvestCanvas, false);
-            resizeHarvestCanvas();
-        }
-        
-        function resizeHarvestCanvas() {
-            if(!harvestGame.canvas) return;
-            harvestGame.canvas.width = window.innerWidth * 0.9;
-            harvestGame.canvas.height = window.innerHeight * 0.9;
-            if (!harvestGame.gameRunning) {
-                 harvestGame.tractor.x = harvestGame.canvas.width / 2 - 50;
-            }
-            if(harvestGame.gameRunning) renderHarvestGame();
-        }
-
-        function exitHarvestGame() {
-            harvestGame.gameRunning = false;
-            if (harvestGame.animationFrameId) cancelAnimationFrame(harvestGame.animationFrameId);
-            document.getElementById('harvestGameContainer').style.display = 'none';
-            document.removeEventListener('keydown', handleHarvestKeyDown);
-            document.removeEventListener('keyup', handleHarvestKeyUp);
-            window.removeEventListener('resize', resizeHarvestCanvas);
-        }
-
-        function playHarvestGame() {
-            document.getElementById('harvestGameMenu').style.display = 'none';
-            document.getElementById('harvestGameOver').style.display = 'none';
-            initHarvestGame();
-            harvestGameLoop();
-        }
-
-        function initHarvestGame() {
-            harvestGame.player = { x: harvestGame.canvas.width / 2, y: harvestGame.canvas.height - 100, width: 40, height: 40, speed: 4 };
-            harvestGame.tractor = { x: harvestGame.canvas.width / 2 - 50, y: 50, width: 100, height: 60 };
-            harvestGame.artichokes = [];
-            harvestGame.carriedArtichokes = 0;
-            harvestGame.totalCollected = 0;
-            harvestGame.gameRunning = true;
-            harvestGame.startTime = Date.now();
-            harvestGame.keys = {};
-
-            for (let i = 0; i < harvestGame.totalArtichokes; i++) {
-                harvestGame.artichokes.push({
-                    x: Math.random() * (harvestGame.canvas.width - 30) + 15,
-                    y: Math.random() * (harvestGame.canvas.height - 200) + 150,
-                    width: 25, height: 25, collected: false
+            const resetPositions = () => {
+                tokens.forEach(token => {
+                    token.style.top = token.dataset.initialTop;
+                    token.style.left = token.dataset.initialLeft;
+                    token.style.transform = 'translate(-50%, -50%)';
                 });
-            }
-            document.addEventListener('keydown', handleHarvestKeyDown);
-            document.addEventListener('keyup', handleHarvestKeyUp);
-        }
-        
-        function handleHarvestKeyDown(e) { harvestGame.keys[e.code] = true; }
-        function handleHarvestKeyUp(e) { harvestGame.keys[e.code] = false; }
+            };
+            
+            resetPositions();
+            resetButton.addEventListener('click', resetPositions);
 
-        function updateHarvestPlayer() {
-            if (harvestGame.keys['ArrowLeft'] || harvestGame.keys['KeyA']) harvestGame.player.x = Math.max(0, harvestGame.player.x - harvestGame.player.speed);
-            if (harvestGame.keys['ArrowRight'] || harvestGame.keys['KeyD']) harvestGame.player.x = Math.min(harvestGame.canvas.width - harvestGame.player.width, harvestGame.player.x + harvestGame.player.speed);
-            if (harvestGame.keys['ArrowUp'] || harvestGame.keys['KeyW']) harvestGame.player.y = Math.max(120, harvestGame.player.y - harvestGame.player.speed);
-            if (harvestGame.keys['ArrowDown'] || harvestGame.keys['KeyS']) harvestGame.player.y = Math.min(harvestGame.canvas.height - harvestGame.player.height, harvestGame.player.y + harvestGame.player.speed);
-        }
-
-        function checkHarvestCollisions() {
-            if (harvestGame.carriedArtichokes < harvestGame.maxCarried) {
-                harvestGame.artichokes.forEach(artichoke => {
-                    if (!artichoke.collected && 
-                        harvestGame.player.x < artichoke.x + artichoke.width &&
-                        harvestGame.player.x + harvestGame.player.width > artichoke.x &&
-                        harvestGame.player.y < artichoke.y + artichoke.height &&
-                        harvestGame.player.y + harvestGame.player.height > artichoke.y) {
-                        artichoke.collected = true;
-                        harvestGame.carriedArtichokes++;
-                    }
-                });
-            }
-            if (harvestGame.carriedArtichokes > 0 &&
-                harvestGame.player.x < harvestGame.tractor.x + harvestGame.tractor.width &&
-                harvestGame.player.x + harvestGame.player.width > harvestGame.tractor.x &&
-                harvestGame.player.y < harvestGame.tractor.y + harvestGame.tractor.height) {
-                harvestGame.totalCollected += harvestGame.carriedArtichokes;
-                harvestGame.carriedArtichokes = 0;
-            }
-            if (harvestGame.totalCollected >= harvestGame.totalArtichokes) endHarvestGame();
-        }
-        
-        function renderHarvestGame() {
-            const ctx = harvestGame.ctx;
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(0, 0, harvestGame.canvas.width, harvestGame.canvas.height);
-            ctx.fillStyle = '#df4f4f';
-            ctx.fillRect(harvestGame.tractor.x, harvestGame.tractor.y, harvestGame.tractor.width, harvestGame.tractor.height);
-            harvestGame.artichokes.forEach(artichoke => {
-                if (!artichoke.collected) {
-                    ctx.fillStyle = '#2E8B57';
-                    ctx.beginPath();
-                    ctx.arc(artichoke.x + artichoke.width / 2, artichoke.y + artichoke.height / 2, artichoke.width / 2, 0, Math.PI * 2);
-                    ctx.fill();
+            const startDrag = (e, token) => {
+                activeToken = token;
+                activeToken.classList.add('dragging');
+                const rect = activeToken.getBoundingClientRect();
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                offsetX = clientX - rect.left - rect.width / 2;
+                offsetY = clientY - rect.top - rect.height / 2;
+            };
+            
+            const drag = (e) => {
+                if (!activeToken) return;
+                e.preventDefault();
+                const courtRect = court.getBoundingClientRect();
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                let newX = clientX - courtRect.left - offsetX;
+                let newY = clientY - courtRect.top - offsetY;
+                const tokenWidth = activeToken.offsetWidth;
+                const tokenHeight = activeToken.offsetHeight;
+                newX = Math.max(tokenWidth / 2, Math.min(newX, courtRect.width - tokenWidth / 2));
+                newY = Math.max(tokenHeight / 2, Math.min(newY, courtRect.height - tokenHeight / 2));
+                activeToken.style.left = `${(newX / courtRect.width) * 100}%`;
+                activeToken.style.top = `${(newY / courtRect.height) * 100}%`;
+                if (activeToken.classList.contains('dragging')) {
+                    const scale = (activeToken.classList.contains('ball') || activeToken.classList.contains('player-token')) ? 1.15 : 1.1;
+                    activeToken.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                } else {
+                    activeToken.style.transform = 'translate(-50%, -50%)';
                 }
+            };
+
+            const stopDrag = () => {
+                if (activeToken) {
+                    activeToken.classList.remove('dragging');
+                    activeToken.style.transform = 'translate(-50%, -50%)';
+                    activeToken = null;
+                }
+            };
+
+            tokens.forEach(token => {
+                token.addEventListener('mousedown', (e) => startDrag(e, token));
+                token.addEventListener('touchstart', (e) => startDrag(e, token));
             });
-            ctx.fillStyle = '#D2691E';
-            ctx.fillRect(harvestGame.player.x, harvestGame.player.y, harvestGame.player.width, harvestGame.player.height);
-            updateHarvestUI();
-        }
 
-        function updateHarvestUI() {
-            if (harvestGame.gameRunning) {
-                harvestGame.gameTime = Math.floor((Date.now() - harvestGame.startTime) / 1000);
-                const minutes = Math.floor(harvestGame.gameTime / 60).toString().padStart(2, '0');
-                const seconds = (harvestGame.gameTime % 60).toString().padStart(2, '0');
-                document.getElementById('harvestTimer').textContent = `Tiempo: ${minutes}:${seconds}`;
-            }
-            document.getElementById('harvestArtichokes').textContent = `En mano: ${harvestGame.carriedArtichokes}/${harvestGame.maxCarried}`;
-            document.getElementById('harvestTotal').textContent = `Total: ${harvestGame.totalCollected}/${harvestGame.totalArtichokes}`;
-        }
-
-        function harvestGameLoop() {
-            if (!harvestGame.gameRunning) return;
-            updateHarvestPlayer();
-            checkHarvestCollisions();
-            renderHarvestGame();
-            harvestGame.animationFrameId = requestAnimationFrame(harvestGameLoop);
-        }
-
-        function endHarvestGame() {
-            harvestGame.gameRunning = false;
-            cancelAnimationFrame(harvestGame.animationFrameId);
-            document.getElementById('harvestGameOver').style.display = 'flex';
-            document.getElementById('harvestGameMenu').style.display = 'none';
-            document.getElementById('harvestFinalTime').textContent = `Tiempo final: ${document.getElementById('harvestTimer').textContent}`;
-        }
-        
-        function restartHarvestGame() {
-            playHarvestGame();
-        }
-
-        // --- LÓGICA DE SUDOKU ---
-        let sudokuBoard = [];
-        let sudokuSolution = [];
-        let selectedCell = null;
-
-        function startSudoku() {
-            document.getElementById('sudokuGameContainer').style.display = 'flex';
-            // Placeholder for a real generator
-            const puzzle = [
-                [5,3,0,0,7,0,0,0,0],
-                [6,0,0,1,9,5,0,0,0],
-                [0,9,8,0,0,0,0,6,0],
-                [8,0,0,0,6,0,0,0,3],
-                [4,0,0,8,0,3,0,0,1],
-                [7,0,0,0,2,0,0,0,6],
-                [0,6,0,0,0,0,2,8,0],
-                [0,0,0,4,1,9,0,0,5],
-                [0,0,0,0,8,0,0,7,9]
-            ];
-             const solution = [
-                [5,3,4,6,7,8,9,1,2],
-                [6,7,2,1,9,5,3,4,8],
-                [1,9,8,3,4,2,5,6,7],
-                [8,5,9,7,6,1,4,2,3],
-                [4,2,6,8,5,3,7,9,1],
-                [7,1,3,9,2,4,8,5,6],
-                [9,6,1,5,3,7,2,8,4],
-                [2,8,7,4,1,9,6,3,5],
-                [3,4,5,2,8,6,1,7,9]
-            ];
-            sudokuBoard = puzzle.map(row => [...row]);
-            sudokuSolution = solution;
-            
-            const boardDiv = document.getElementById('sudoku-board');
-            boardDiv.innerHTML = '';
-            for (let r = 0; r < 9; r++) {
-                for (let c = 0; c < 9; c++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('sudoku-cell');
-                    if (puzzle[r][c] !== 0) {
-                        cell.textContent = puzzle[r][c];
-                        cell.classList.add('fixed');
-                    } else {
-                        cell.addEventListener('click', () => selectSudokuCell(cell, r, c));
-                    }
-                    boardDiv.appendChild(cell);
-                }
-            }
-
-            const palette = document.getElementById('number-palette');
-            palette.innerHTML = '';
-            for (let i = 1; i <= 9; i++) {
-                const btn = document.createElement('button');
-                btn.textContent = i;
-                btn.classList.add('nav-button');
-                btn.onclick = () => fillSudokuCell(i);
-                palette.appendChild(btn);
-            }
-        }
-
-        function selectSudokuCell(cell, r, c) {
-            if (selectedCell) {
-                selectedCell.element.classList.remove('selected');
-            }
-            selectedCell = { element: cell, row: r, col: c };
-            cell.classList.add('selected');
-        }
-
-        function fillSudokuCell(num) {
-            if (selectedCell) {
-                selectedCell.element.textContent = num;
-                sudokuBoard[selectedCell.row][selectedCell.col] = num;
-            }
-        }
-
-        function checkSudokuSolution() {
-            let correct = true;
-            for(let r=0; r<9; r++) {
-                for (let c=0; c<9; c++) {
-                    if (sudokuBoard[r][c] !== sudokuSolution[r][c]) {
-                        correct = false;
-                        break;
-                    }
-                }
-            }
-            alert(correct ? '¡Felicidades, lo resolviste!' : 'Hay errores, sigue intentando.');
-        }
-
-        // --- LÓGICA DE BUSCAMINAS ---
-        let mineGrid;
-        let mineRows = 10, mineCols = 10, mineCount = 15;
-        let minesLeft, timerInterval, minesweeperGameOver;
-
-        function startMinesweeper() {
-            document.getElementById('minesweeperGameContainer').style.display = 'flex';
-            minesweeperGameOver = false;
-            minesLeft = mineCount;
-            document.getElementById('mines-left').textContent = `Minas: ${minesLeft}`;
-            clearInterval(timerInterval);
-            let time = 0;
-            document.getElementById('minesweeper-timer').textContent = time;
-            timerInterval = setInterval(() => {
-                if (!minesweeperGameOver) {
-                    time++;
-                    document.getElementById('minesweeper-timer').textContent = time;
-                }
-            }, 1000);
-
-            const grid = document.getElementById('minesweeper-grid');
-            grid.innerHTML = '';
-            grid.style.gridTemplateColumns = `repeat(${mineCols}, 30px)`;
-            mineGrid = [];
-
-            for (let r = 0; r < mineRows; r++) {
-                let row = [];
-                for (let c = 0; c < mineCols; c++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('mine-cell');
-                    cell.style.width = '30px';
-                    cell.style.height = '30px';
-                    cell.addEventListener('click', () => clickMineCell(r, c));
-                    cell.addEventListener('contextmenu', (e) => {
-                        e.preventDefault();
-                        flagMineCell(r, c);
-                    });
-                    grid.appendChild(cell);
-                    row.push({ element: cell, mine: false, revealed: false, flagged: false, neighbors: 0 });
-                }
-                mineGrid.push(row);
-            }
-            
-            let minesPlaced = 0;
-            while (minesPlaced < mineCount) {
-                const r = Math.floor(Math.random() * mineRows);
-                const c = Math.floor(Math.random() * mineCols);
-                if (!mineGrid[r][c].mine) {
-                    mineGrid[r][c].mine = true;
-                    minesPlaced++;
-                }
-            }
-
-            for (let r = 0; r < mineRows; r++) {
-                for (let c = 0; c < mineCols; c++) {
-                    if (mineGrid[r][c].mine) continue;
-                    let count = 0;
-                    for (let dr = -1; dr <= 1; dr++) {
-                        for (let dc = -1; dc <= 1; dc++) {
-                            if (dr === 0 && dc === 0) continue;
-                            const nr = r + dr, nc = c + dc;
-                            if (nr >= 0 && nr < mineRows && nc >= 0 && nc < mineCols && mineGrid[nr][nc].mine) {
-                                count++;
-                            }
-                        }
-                    }
-                    mineGrid[r][c].neighbors = count;
-                }
-            }
-        }
-
-        function clickMineCell(r, c) {
-            if (minesweeperGameOver) return;
-            const cell = mineGrid[r][c];
-            if (cell.revealed || cell.flagged) return;
-            
-            cell.revealed = true;
-            cell.element.classList.add('revealed');
-
-            if (cell.mine) {
-                minesweeperGameOver = true;
-                mineGrid.forEach(row => row.forEach(c => { if(c.mine) { c.element.classList.add('mine'); c.element.textContent = '💣'; }}));
-                setTimeout(() => alert('¡Boom! Has perdido.'), 100);
-                return;
-            }
-
-            if (cell.neighbors > 0) {
-                cell.element.textContent = cell.neighbors;
-            } else {
-                for (let dr = -1; dr <= 1; dr++) {
-                    for (let dc = -1; dc <= 1; dc++) {
-                        if (dr === 0 && dc === 0) continue;
-                        const nr = r + dr, nc = c + dc;
-                        if (nr >= 0 && nr < mineRows && nc >= 0 && nc < mineCols) {
-                            clickMineCell(nr, nc);
-                        }
-                    }
-                }
-            }
-        }
-        
-        function flagMineCell(r, c) {
-            if (minesweeperGameOver) return;
-            const cell = mineGrid[r][c];
-            if (cell.revealed) return;
-            cell.flagged = !cell.flagged;
-            if (cell.flagged) {
-                cell.element.textContent = '🚩';
-                minesLeft--;
-            } else {
-                cell.element.textContent = '';
-                minesLeft++;
-            }
-            document.getElementById('mines-left').textContent = `Minas: ${minesLeft}`;
-        }
-
-
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchend', stopDrag);
+        });
     </script>
 </body>
 </html>
+
