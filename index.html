@@ -1,220 +1,527 @@
-<!DOCTYPE html>
+# Create an updated HTML with daily history + calendar and APK guidance in code comments.
+html_content = r"""<!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pizarra Táctica de Fútbol Sala con Caricaturas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            touch-action: none;
-        }
-        .futsal-court-container {
-            width: 95vw;
-            max-width: 800px;
-            border: 10px solid #6B4226;
-            border-radius: 8px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            margin: 0 auto;
-            overflow: hidden;
-        }
-        .futsal-court {
-            background-color: #E3CBAA;
-            aspect-ratio: 40 / 20;
-            position: relative;
-        }
-        .court-lines {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-        .player-token {
-            position: absolute;
-            width: clamp(35px, 6vw, 50px); /* Ligeramente más grandes para las caras */
-            height: clamp(35px, 6vw, 50px);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: clamp(14px, 3vw, 18px);
-            cursor: grab;
-            user-select: none;
-            border: 2px solid rgba(255, 255, 255, 0.7); /* Borde blanco para resaltar */
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
-            z-index: 10;
-            /* Estilos para las imágenes de fondo */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-        .player-token.dragging {
-            cursor: grabbing;
-            transform: scale(1.15) translate(-43%, -43%) !important;
-            z-index: 1000;
-            box-shadow: 0 8px 12px rgba(0,0,0,0.3);
-        }
-        /* Fichas del equipo de caricaturas */
-        #player-1 { background-image: url('Adri.png'); }
-        #player-2 { background-image: url('Txapu.png'); }
-        #player-3 { background-image: url('Carca.PNG'); }
-        #player-4 { background-image: url('El_Pr.png'); }
-        #player-5 { background-image: url('Txakoloko_2.png'); }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Planificador semanal de menús (con histórico y calendario)</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#111827; --panel-2:#1f2937; --text:#e5e7eb;
+    --muted:#94a3b8; --accent:#22c55e; --accent-2:#3b82f6; --danger:#ef4444; --warning:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Inter,"Helvetica Neue",Arial,"Noto Sans",sans-serif}
+  h1,h2,h3{margin:0 0 .5rem}
+  small{color:var(--muted)}
+  .container{max-width:1250px;margin:0 auto;padding:16px;display:grid;grid-template-columns: 1fr 1.7fr 1.3fr;gap:16px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .card .hd{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
+  .card .bd{padding:14px 16px}
+  .row{display:flex;gap:8px;align-items:center}
+  .row.wrap{flex-wrap:wrap}
+  .col{flex:1}
+  input,select,button{border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text);padding:10px 12px;font-size:14px;outline:none}
+  select{min-width:180px}
+  button{cursor:pointer}
+  button.primary{background:linear-gradient(180deg,var(--accent),#16a34a);border:none;color:#072b12;font-weight:600}
+  button.secondary{background:linear-gradient(180deg,var(--accent-2),#1d4ed8);border:none;font-weight:600}
+  button.ghost{background:transparent;border:1px dashed rgba(255,255,255,.2);color:var(--muted)}
+  button.danger{background:linear-gradient(180deg,var(--danger),#b91c1c);border:none;color:#fff}
+  .list{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:14px}
+  .pill .icon{font-size:18px}
+  .pill .del{margin-left:8px;background:transparent;border:none;color:var(--danger);cursor:pointer}
+  .grid{display:grid;grid-template-columns: repeat(1, minmax(0,1fr));gap:12px}
+  @media (min-width: 950px){
+    .grid{grid-template-columns: repeat(7, minmax(0,1fr));}
+  }
+  .day{padding:10px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+  .day h3{font-size:14px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+  .select-row{display:grid;grid-template-columns: 1fr auto;gap:8px;align-items:center;margin-bottom:8px}
+  .select-row .emoji{font-size:20px;min-width:26px;text-align:center}
+  .legend{display:flex;gap:8px;flex-wrap:wrap}
+  .legend .tag{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:12px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+  .footer{max-width:1250px;margin:8px auto 24px;padding:0 16px;display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
+  a{color:#9bd0ff}
 
-        /* Fichas del equipo azul */
-        .team-blue {
-            background-color: #3b82f6; /* blue-500 */
-            color: white;
-        }
-
-        .ball {
-            position: absolute;
-            width: clamp(22px, 4.5vw, 35px);
-            height: clamp(22px, 4.5vw, 35px);
-            background-image: url('Balón.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            border-radius: 50%; 
-            background-color: white;
-            cursor: grab;
-            user-select: none;
-            transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
-            z-index: 500;
-        }
-        .ball.dragging {
-            cursor: grabbing;
-            transform: scale(1.15) translate(-43%, -43%) !important;
-            z-index: 1000;
-            box-shadow: 0 6px 10px rgba(0,0,0,0.25);
-        }
-    </style>
+  /* Calendario */
+  .cal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .cal-nav{display:flex;gap:8px;align-items:center}
+  .cal-grid{display:grid;grid-template-columns: repeat(7, 1fr);gap:6px}
+  .cal-cell{aspect-ratio:1/1;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);padding:6px;display:flex;flex-direction:column;justify-content:space-between}
+  .cal-cell header{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+  .cal-cell .meal{font-size:16px;line-height:1.1}
+  .cal-cell.today{outline:2px solid var(--accent-2)}
+  .cal-cell.muted{opacity:.45}
+  .details{margin-top:10px;font-size:14px;color:var(--muted)}
+  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:1px 6px}
+</style>
 </head>
-<body class="bg-gray-200 flex flex-col items-center justify-center min-h-screen p-4">
-
-    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 text-center">Pizarra Táctica con tu Equipo</h1>
-
-    <div class="futsal-court-container">
-        <div id="futsal-court" class="futsal-court">
-            <!-- SVG para las líneas del campo -->
-            <svg class="court-lines" viewBox="0 0 400 200" preserveAspectRatio="none">
-                <defs>
-                    <path id="penalty-arc" d="M 0,40 A 60,60 0 0 1 0,160" stroke="white" stroke-width="2" fill="none"/>
-                </defs>
-                <rect x="1" y="1" width="398" height="198" fill="none" stroke="white" stroke-width="2"/>
-                <line x1="200" y1="1" x2="200" y2="199" stroke="white" stroke-width="2"/>
-                <circle cx="200" cy="100" r="30" stroke="white" stroke-width="2" fill="none"/>
-                <circle cx="200" cy="100" r="2" fill="white"/>
-                <rect x="1" y="80" width="10" height="40" fill="none" stroke="white" stroke-width="1.5" />
-                <use href="#penalty-arc" x="1" y="0"/>
-                <circle cx="60" cy="100" r="2" fill="white"/>
-                <rect x="389" y="80" width="10" height="40" fill="none" stroke="white" stroke-width="1.5" />
-                <use href="#penalty-arc" x="399" y="0" transform="rotate(180, 200, 100)"/>
-                <circle cx="340" cy="100" r="2" fill="white"/>
-            </svg>
-
-            <!-- Fichas del Equipo de Caricaturas -->
-            <div class="player-token" id="player-1" data-initial-top="50%" data-initial-left="15%"></div>
-            <div class="player-token" id="player-2" data-initial-top="25%" data-initial-left="30%"></div>
-            <div class="player-token" id="player-3" data-initial-top="75%" data-initial-left="30%"></div>
-            <div class="player-token" id="player-4" data-initial-top="35%" data-initial-left="45%"></div>
-            <div class="player-token" id="player-5" data-initial-top="65%" data-initial-left="45%"></div>
-
-            <!-- Fichas del Equipo Azul -->
-            <div class="player-token team-blue" id="blue-1" data-initial-top="50%" data-initial-left="85%">1</div>
-            <div class="player-token team-blue" id="blue-2" data-initial-top="25%" data-initial-left="70%">2</div>
-            <div class="player-token team-blue" id="blue-3" data-initial-top="75%" data-initial-left="70%">3</div>
-            <div class="player-token team-blue" id="blue-4" data-initial-top="35%" data-initial-left="55%">4</div>
-            <div class="player-token team-blue" id="blue-5" data-initial-top="65%" data-initial-left="55%">5</div>
-            
-            <!-- Balón -->
-            <div class="ball" id="futsal-ball" data-initial-top="50%" data-initial-left="50%"></div>
-        </div>
+<body>
+<div class="container">
+  <!-- GESTOR DE PLATOS -->
+  <section class="card">
+    <div class="hd">
+      <div>
+        <h2>Gestor de platos</h2>
+        <small>Añade o elimina platos de 1º y 2º. Se guarda en tu navegador.</small>
+      </div>
+      <div class="toolbar">
+        <button id="btnExportar" class="ghost" title="Exportar configuración">Exportar</button>
+        <input type="file" id="fileImportar" accept="application/json" style="display:none">
+        <button id="btnImportar" class="ghost" title="Importar configuración">Importar</button>
+        <button id="btnRestablecer" class="danger" title="Volver a valores iniciales">Restablecer</button>
+      </div>
     </div>
+    <div class="bd">
+      <div class="row">
+        <input id="nuevoPrimero" class="col" placeholder="Añadir 1º (p. ej. 'Macarrones')" />
+        <button id="btnAddPrimero" class="primary">Añadir 1º</button>
+      </div>
+      <div id="listaPrimeros" class="list"></div>
+      <hr style="border-color:rgba(255,255,255,.08);margin:14px 0">
+      <div class="row">
+        <input id="nuevoSegundo" class="col" placeholder="Añadir 2º (p. ej. 'Lomo')" />
+        <button id="btnAddSegundo" class="secondary">Añadir 2º</button>
+      </div>
+      <div id="listaSegundos" class="list"></div>
+    </div>
+  </section>
 
-    <button id="reset-button" class="mt-6 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-colors">
-        Reiniciar Posiciones
-    </button>
+  <!-- PLANIFICADOR SEMANAL -->
+  <section class="card">
+    <div class="hd">
+      <div>
+        <h2>Planificador semanal</h2>
+        <small>Selecciona 1º y 2º para cada día. Verás un icono junto a cada selección.</small>
+      </div>
+      <div class="toolbar">
+        <button id="btnVaciarSemana" class="ghost">Vaciar semana</button>
+        <button id="btnImprimir" class="ghost">Imprimir</button>
+        <button id="btnGuardarHoy" class="primary">Guardar hoy</button>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="legend">
+        <span class="tag">🥗 vegetal</span><span class="tag">🍝 pasta</span><span class="tag">🍚 arroz</span><span class="tag">🍲 sopa/guiso</span>
+        <span class="tag">🫘 legumbre</span><span class="tag">🥔 patata</span><span class="tag">🥩 carne</span><span class="tag">🍗 ave</span>
+        <span class="tag">🐟 pescado</span><span class="tag">🦑 marisco</span><span class="tag">🐌 caracol</span>
+      </div>
+      <div id="grid" class="grid" style="margin-top:10px"></div>
+      <small>Consejo: pulsa <span class="kbd">Guardar hoy</span> para registrar el menú del día. También se guarda automáticamente a medianoche si la página está abierta.</small>
+    </div>
+  </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const court = document.getElementById('futsal-court');
-            // La selección ahora incluye todas las fichas (caricaturas y azules) y el balón
-            const tokens = document.querySelectorAll('.player-token, .ball');
-            const resetButton = document.getElementById('reset-button');
-            
-            let activeToken = null;
-            let offsetX = 0;
-            let offsetY = 0;
+  <!-- HISTÓRICO & CALENDARIO -->
+  <section class="card">
+    <div class="hd">
+      <div>
+        <h2>Histórico y calendario</h2>
+        <small>Consulta lo que comiste cada día. Navega meses.</small>
+      </div>
+      <div class="toolbar">
+        <button id="btnHoy" class="ghost">Ir a hoy</button>
+        <button id="btnBorrarHist" class="danger">Borrar histórico</button>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="cal-hd">
+        <div class="cal-nav">
+          <button id="prevMonth" class="ghost">◀</button>
+          <h3 id="calTitle"></h3>
+          <button id="nextMonth" class="ghost">▶</button>
+        </div>
+        <small>Lunes a Domingo</small>
+      </div>
+      <div class="cal-grid" id="calWeekdays"></div>
+      <div class="cal-grid" id="calGrid" style="margin-top:6px"></div>
+      <div class="details" id="calDetails"></div>
+    </div>
+  </section>
+</div>
 
-            const resetPositions = () => {
-                tokens.forEach(token => {
-                    token.style.top = token.dataset.initialTop;
-                    token.style.left = token.dataset.initialLeft;
-                    token.style.transform = 'translate(-50%, -50%)';
-                });
-            };
-            
-            resetPositions();
-            resetButton.addEventListener('click', resetPositions);
+<div class="footer">
+  <div>© Planificador de cocina</div>
+  <div><a href="#" id="docAyuda">Ayuda</a></div>
+</div>
 
-            const startDrag = (e, token) => {
-                activeToken = token;
-                activeToken.classList.add('dragging');
-                const rect = activeToken.getBoundingClientRect();
-                const clientX = e.clientX || e.touches[0].clientX;
-                const clientY = e.clientY || e.touches[0].clientY;
-                offsetX = clientX - rect.left - rect.width / 2;
-                offsetY = clientY - rect.top - rect.height / 2;
-            };
-            
-            const drag = (e) => {
-                if (!activeToken) return;
-                e.preventDefault();
-                const courtRect = court.getBoundingClientRect();
-                const clientX = e.clientX || e.touches[0].clientX;
-                const clientY = e.clientY || e.touches[0].clientY;
-                let newX = clientX - courtRect.left - offsetX;
-                let newY = clientY - courtRect.top - offsetY;
-                const tokenWidth = activeToken.offsetWidth;
-                const tokenHeight = activeToken.offsetHeight;
-                newX = Math.max(tokenWidth / 2, Math.min(newX, courtRect.width - tokenWidth / 2));
-                newY = Math.max(tokenHeight / 2, Math.min(newY, courtRect.height - tokenHeight / 2));
-                activeToken.style.left = `${(newX / courtRect.width) * 100}%`;
-                activeToken.style.top = `${(newY / courtRect.height) * 100}%`;
-                if (activeToken.classList.contains('dragging')) {
-                    const scale = (activeToken.classList.contains('ball') || activeToken.classList.contains('player-token')) ? 1.15 : 1.1;
-                    activeToken.style.transform = `translate(-50%, -50%) scale(${scale})`;
-                } else {
-                    activeToken.style.transform = 'translate(-50%, -50%)';
-                }
-            };
+<script>
+/* ======= Datos por defecto ======= */
+const DEFAULTS = {
+  primeros: [
+    "Macarrones","Espaguetis","Sopa","Croquetas","Espárragos","Calderete","Arroz","Borraja",
+    "Alubia verde","Menestra","Coliflor","Brócoli","Cardo",
+    "Ensalada - Pasta","Ensalada - Garbanzos","Ensalada - Endivias","Ensalada - Nueces, manzana, queso","Ensaladilla rusa",
+    "Gazpacho","Pisto","Pochas","Garbanzos","Lentejas","Arroz a la cubana","Patatas a la Riojana","Puré"
+  ],
+  segundos: [
+    "Lomo","Pechugas","Muslitos de pollo","Pavo","Conejo","Cordero","Pollo","Solomillo","Filetes",
+    "Cachopo","Ternera guisada","Carrilleras","Albóndigas","Caracoles",
+    "Merluza","Bonito","Anchoas","Bacalao","Chicharro","Salmonetes","Calamares"
+  ]
+};
 
-            const stopDrag = () => {
-                if (activeToken) {
-                    activeToken.classList.remove('dragging');
-                    activeToken.style.transform = 'translate(-50%, -50%)';
-                    activeToken = null;
-                }
-            };
+const DAYS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
-            tokens.forEach(token => {
-                token.addEventListener('mousedown', (e) => startDrag(e, token));
-                token.addEventListener('touchstart', (e) => startDrag(e, token));
-            });
+/* ======= Utilidades ======= */
+function save(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+function load(key, fallback){ try{ return JSON.parse(localStorage.getItem(key)) ?? fallback } catch { return fallback } }
+function titleCase(s){ return s.replace(/\s+/g,' ').trim().replace(/\b\w/g, c => c.toUpperCase()); }
+function fmtDateKey(d){ // YYYY-MM-DD en hora local
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function parseDateKey(k){
+  const [y,m,d] = k.split("-").map(Number);
+  return new Date(y, m-1, d);
+}
 
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('touchmove', drag, { passive: false });
-            document.addEventListener('mouseup', stopDrag);
-            document.addEventListener('touchend', stopDrag);
-        });
-    </script>
+/* Heurística de iconos */
+function getIcon(name, tipo){
+  if(!name) return "🍽️";
+  const n = name.toLowerCase();
+  const map = {
+    "macarrones":"🍝","espaguetis":"🍝","sopa":"🍲","croquetas":"🟠","espárragos":"🥦","esparragos":"🥦",
+    "calderete":"🍲","arroz":"🍚","borraja":"🥦","alubia verde":"🫘","menestra":"🥦","coliflor":"🥦","brócoli":"🥦","brocoli":"🥦","cardo":"🥦",
+    "ensalada - pasta":"🥗","ensalada - garbanzos":"🥗","ensalada - endivias":"🥗","ensalada - nueces, manzana, queso":"🥗","ensaladilla rusa":"🥗",
+    "gazpacho":"🥣","pisto":"🥘","pochas":"🫘","garbanzos":"🫘","lentejas":"🫘","arroz a la cubana":"🍚","patatas a la riojana":"🥔","puré":"🥣","pure":"🥣",
+    "lomo":"🥩","pechugas":"🍗","muslitos de pollo":"🍗","pavo":"🍗","conejo":"🥩","cordero":"🥩","pollo":"🍗","solomillo":"🥩","filetes":"🥩",
+    "cachopo":"🥩","ternera guisada":"🥩","carrilleras":"🥩","albóndigas":"🥩","caracoles":"🐌",
+    "merluza":"🐟","bonito":"🐟","anchoas":"🐟","bacalao":"🐟","chicharro":"🐟","salmonetes":"🐟","calamares":"🦑"
+  };
+  for(const k in map){ if(n === k) return map[k]; }
+  if(/ensalada|endivia/.test(n)) return "🥗";
+  if(/pasta|macarron|espaguet/.test(n)) return "🍝";
+  if(/arroz/.test(n)) return "🍚";
+  if(/sopa|caldo|crema|guis/.test(n)) return "🍲";
+  if(/garbanzo|lenteja|alubia|pocha/.test(n)) return "🫘";
+  if(/patata/.test(n)) return "🥔";
+  if(tipo === 'segundo'){
+    if(/pollo|pavo|muslito|pechuga/.test(n)) return "🍗";
+    if(/lomo|solomillo|ternera|cordero|conejo|filete|cachopo|carrillera|albóndiga/.test(n)) return "🥩";
+    if(/merluza|bonito|anchoa|bacalao|chicharro|salmonete/.test(n)) return "🐟";
+    if(/calamar|sepia|pulpo/.test(n)) return "🦑";
+    if(/caracol/.test(n)) return "🐌";
+  } else {
+    if(/brócoli|brocoli|coliflor|borraja|cardo|menestra|espárrago|esparrago/.test(n)) return "🥦";
+  }
+  return "🍽️";
+}
+
+/* ======= Estado ======= */
+const state = {
+  primeros: load("primeros", null) || DEFAULTS.primeros.slice(),
+  segundos: load("segundos", null) || DEFAULTS.segundos.slice(),
+  semana: load("semana", DAYS.reduce((acc,d)=>{ acc[d] = {primero:"", segundo:""}; return acc; }, {})),
+  historial: load("historial", {}), // { "YYYY-MM-DD": { primero, segundo } }
+  lastSnapshot: load("lastSnapshot", null) // "YYYY-MM-DD"
+};
+
+function sync(){
+  save("primeros", state.primeros);
+  save("segundos", state.segundos);
+  save("semana", state.semana);
+  save("historial", state.historial);
+  save("lastSnapshot", state.lastSnapshot);
+  renderListas();
+  renderSemana();
+  renderCalendar();
+}
+
+/* ======= Render: Listas ======= */
+function renderListas(){
+  const elP = document.getElementById("listaPrimeros");
+  const elS = document.getElementById("listaSegundos");
+  elP.innerHTML = ""; elS.innerHTML = "";
+
+  state.primeros.forEach((item, i)=>{
+    const wrap = document.createElement("div"); wrap.className = "row";
+    const pill = document.createElement("div"); pill.className = "pill col";
+    const ico = document.createElement("span"); ico.className = "icon"; ico.textContent = getIcon(item,'primero');
+    const txt = document.createElement("span"); txt.textContent = " " + item;
+    const btn = document.createElement("button"); btn.className="del"; btn.innerHTML="✕"; btn.title="Eliminar";
+    btn.onclick = ()=>{ state.primeros.splice(i,1); sync(); };
+    pill.appendChild(ico); pill.appendChild(txt); wrap.appendChild(pill); wrap.appendChild(btn);
+    elP.appendChild(wrap);
+  });
+
+  state.segundos.forEach((item, i)=>{
+    const wrap = document.createElement("div"); wrap.className = "row";
+    const pill = document.createElement("div"); pill.className = "pill col";
+    const ico = document.createElement("span"); ico.className = "icon"; ico.textContent = getIcon(item,'segundo');
+    const txt = document.createElement("span"); txt.textContent = " " + item;
+    const btn = document.createElement("button"); btn.className="del"; btn.innerHTML="✕"; btn.title="Eliminar";
+    btn.onclick = ()=>{ state.segundos.splice(i,1); sync(); };
+    pill.appendChild(ico); pill.appendChild(txt); wrap.appendChild(pill); wrap.appendChild(btn);
+    elS.appendChild(wrap);
+  });
+}
+
+/* ======= Render: Semana ======= */
+function renderSemana(){
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  DAYS.forEach(d => {
+    const card = document.createElement("div");
+    card.className = "day";
+    const h = document.createElement("h3");
+    h.innerHTML = d + ' <span style="font-weight:500;color:var(--text)">' + resumenDia(d) + '</span>';
+    card.appendChild(h);
+
+    const r1 = document.createElement("div"); r1.className = "select-row";
+    const s1 = document.createElement("select");
+    const e1 = document.createElement("div"); e1.className="emoji"; e1.textContent = getIcon(state.semana[d].primero,'primero');
+    const optEmpty1 = document.createElement("option"); optEmpty1.value=""; optEmpty1.textContent="(Sin 1º)";
+    s1.appendChild(optEmpty1);
+    state.primeros.forEach(p => { const o = document.createElement("option"); o.value=p; o.textContent=p; if(state.semana[d].primero===p) o.selected=true; s1.appendChild(o); });
+    s1.onchange = (ev)=>{ state.semana[d].primero = ev.target.value; e1.textContent = getIcon(ev.target.value,'primero'); sync(); };
+    r1.appendChild(s1); r1.appendChild(e1);
+    card.appendChild(r1);
+
+    const r2 = document.createElement("div"); r2.className = "select-row";
+    const s2 = document.createElement("select");
+    const e2 = document.createElement("div"); e2.className="emoji"; e2.textContent = getIcon(state.semana[d].segundo,'segundo');
+    const optEmpty2 = document.createElement("option"); optEmpty2.value=""; optEmpty2.textContent="(Sin 2º)";
+    s2.appendChild(optEmpty2);
+    state.segundos.forEach(p => { const o = document.createElement("option"); o.value=p; o.textContent=p; if(state.semana[d].segundo===p) o.selected=true; s2.appendChild(o); });
+    s2.onchange = (ev)=>{ state.semana[d].segundo = ev.target.value; e2.textContent = getIcon(ev.target.value,'segundo'); sync(); };
+    r2.appendChild(s2); r2.appendChild(e2);
+    card.appendChild(r2);
+
+    grid.appendChild(card);
+  });
+}
+
+function resumenDia(d){
+  const p = state.semana[d].primero;
+  const s = state.semana[d].segundo;
+  let parts = [];
+  if(p) parts.push("1º: " + p);
+  if(s) parts.push("2º: " + s);
+  return parts.length ? parts.join(" · ") : "";
+}
+
+/* ======= Histórico: snapshot diario ======= */
+function snapshotHoy(manual=false){
+  const now = new Date();
+  const key = fmtDateKey(now);
+  const diaSemana = DAYS[now.getDay() === 0 ? 6 : now.getDay()-1]; // Lunes=0
+  const { primero, segundo } = state.semana[diaSemana] || { primero:"", segundo:"" };
+  state.historial[key] = { primero, segundo };
+  state.lastSnapshot = key;
+  save("historial", state.historial);
+  save("lastSnapshot", state.lastSnapshot);
+  renderCalendar();
+  if(manual) alert(`Guardado ${key}: 1º "${primero||"—"}", 2º "${segundo||"—"}"`);
+}
+
+function programarMedianoche(){
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, 0,0,2); // 00:00:02 próximo día
+  const ms = midnight - now;
+  setTimeout(()=>{
+    snapshotHoy(false); // guarda el día que termina
+    programarMedianoche(); // reprograma
+  }, ms);
+}
+
+// Al cargar, si han pasado días sin snapshot (app cerrada), rellenamos desde la última selección conocida
+function reconciliarHistorial(){
+  const todayKey = fmtDateKey(new Date());
+  if(state.lastSnapshot === todayKey) return;
+  let cursor = state.lastSnapshot ? parseDateKey(state.lastSnapshot) : null;
+  let start = cursor ? new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate()+1) : null;
+  if(!start){ return; }
+  const end = new Date();
+  for(let d=new Date(start); d <= end; d.setDate(d.getDate()+1)){
+    const key = fmtDateKey(d);
+    const dow = d.getDay() === 0 ? 6 : d.getDay()-1;
+    const diaSemana = DAYS[dow];
+    const { primero, segundo } = state.semana[diaSemana] || { primero:"", segundo:"" };
+    state.historial[key] = { primero, segundo };
+  }
+  state.lastSnapshot = todayKey;
+}
+
+/* ======= Calendario ======= */
+const WD = ["L","M","X","J","V","S","D"];
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-11
+
+function renderCalendar(){
+  // cabecera días semana
+  const wd = document.getElementById("calWeekdays");
+  if(!wd.dataset.ready){
+    WD.forEach(l => {
+      const c = document.createElement("div");
+      c.className = "cal-cell muted"; c.style.aspectRatio = "unset"; c.style.padding="8px";
+      c.innerHTML = `<header><strong>${l}</strong></header>`;
+      wd.appendChild(c);
+    });
+    wd.dataset.ready = "1";
+  }
+
+  const grid = document.getElementById("calGrid");
+  grid.innerHTML = "";
+  const title = document.getElementById("calTitle");
+  const first = new Date(calYear, calMonth, 1);
+  const firstWD = (first.getDay()+6)%7; // lunes=0
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  title.textContent = first.toLocaleDateString(undefined, { month:"long", year:"numeric" });
+
+  // días del calendario (incluye celdas previas para alinear con lunes)
+  const totalCells = firstWD + daysInMonth;
+  const todayKey = fmtDateKey(new Date());
+
+  for(let i=0;i<totalCells;i++){
+    const cell = document.createElement("div");
+    cell.className = "cal-cell";
+    const dayNum = i - firstWD + 1;
+    let dateObj, muted=false;
+    if(i < firstWD){
+      // días del mes anterior (opcional: dejar vacíos)
+      muted = true;
+      cell.classList.add("muted");
+      cell.innerHTML = `<header><span></span><span></span></header>`;
+      grid.appendChild(cell);
+      continue;
+    } else {
+      dateObj = new Date(calYear, calMonth, dayNum);
+    }
+    const key = fmtDateKey(dateObj);
+    const rec = state.historial[key] || null;
+    const isToday = key === todayKey;
+    if(isToday) cell.classList.add("today");
+
+    const pIcon = rec ? getIcon(rec.primero, 'primero') : "";
+    const sIcon = rec ? getIcon(rec.segundo, 'segundo') : "";
+
+    cell.innerHTML = `
+      <header><span>${dayNum}</span><span style="opacity:.7">${rec ? "✓" : ""}</span></header>
+      <div class="meal">${rec ? pIcon+" "+sIcon : "<span style='opacity:.4'>—</span>"}</div>
+    `;
+    cell.title = rec ? `1º: ${rec.primero || "—"} | 2º: ${rec.segundo || "—"}` : "Sin registro";
+    cell.onclick = ()=>{
+      const det = document.getElementById("calDetails");
+      det.innerHTML = `<strong>${key}</strong> — ${rec ? `1º: ${rec.primero || "—"} · 2º: ${rec.segundo || "—"}` : "Sin registro"}`;
+    };
+    grid.appendChild(cell);
+  }
+}
+
+/* ======= Eventos ======= */
+document.getElementById("btnAddPrimero").onclick = ()=>{
+  const el = document.getElementById("nuevoPrimero");
+  const v = titleCase(el.value);
+  if(!v) return;
+  if(!state.primeros.includes(v)){ state.primeros.push(v); el.value=""; sync(); }
+};
+
+document.getElementById("btnAddSegundo").onclick = ()=>{
+  const el = document.getElementById("nuevoSegundo");
+  const v = titleCase(el.value);
+  if(!v) return;
+  if(!state.segundos.includes(v)){ state.segundos.push(v); el.value=""; sync(); }
+};
+
+document.getElementById("btnVaciarSemana").onclick = ()=>{
+  if(confirm("¿Vaciar todas las selecciones de la semana?")){
+    DAYS.forEach(d => state.semana[d] = {primero:"", segundo:""});
+    sync();
+  }
+};
+
+document.getElementById("btnImprimir").onclick = ()=>{ window.print(); };
+document.getElementById("btnRestablecer").onclick = ()=>{
+  if(confirm("¿Restablecer listas y semana a los valores iniciales?")){
+    state.primeros = DEFAULTS.primeros.slice();
+    state.segundos = DEFAULTS.segundos.slice();
+    DAYS.forEach(d => state.semana[d] = {primero:"", segundo:""});
+    state.historial = {};
+    state.lastSnapshot = null;
+    sync();
+  }
+};
+document.getElementById("btnGuardarHoy").onclick = ()=> snapshotHoy(true);
+
+// Exportar/Importar (ahora incluye histórico)
+document.getElementById("btnExportar").onclick = ()=>{
+  const data = {
+    primeros: state.primeros,
+    segundos: state.segundos,
+    semana: state.semana,
+    historial: state.historial,
+    lastSnapshot: state.lastSnapshot
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "config_menu.json";
+  document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); a.remove();
+};
+
+document.getElementById("btnImportar").onclick = ()=> document.getElementById("fileImportar").click();
+document.getElementById("fileImportar").addEventListener("change", (e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(Array.isArray(data.primeros) && Array.isArray(data.segundos) && typeof data.semana === "object"){
+        state.primeros = data.primeros.map(titleCase);
+        state.segundos = data.segundos.map(titleCase);
+        state.semana = data.semana;
+        state.historial = data.historial || {};
+        state.lastSnapshot = data.lastSnapshot || null;
+        sync();
+      } else { alert("Archivo no válido."); }
+    }catch(err){ alert("No se pudo leer el archivo."); }
+  };
+  reader.readAsText(file);
+});
+
+// Calendario navegación
+document.getElementById("prevMonth").onclick = ()=>{ calMonth--; if(calMonth<0){ calMonth=11; calYear--; } renderCalendar(); };
+document.getElementById("nextMonth").onclick = ()=>{ calMonth++; if(calMonth>11){ calMonth=0; calYear++; } renderCalendar(); };
+document.getElementById("btnHoy").onclick = ()=>{ const now=new Date(); calYear=now.getFullYear(); calMonth=now.getMonth(); renderCalendar(); };
+document.getElementById("btnBorrarHist").onclick = ()=>{
+  if(confirm("¿Borrar todo el histórico?")){
+    state.historial = {}; state.lastSnapshot = null; sync();
+  }
+};
+
+// Ayuda
+document.getElementById("docAyuda").onclick = (e)=>{
+  e.preventDefault();
+  alert("• Añade platos en el gestor de la izquierda.\n• Planifica la semana seleccionando 1º y 2º.\n• Pulsa 'Guardar hoy' para registrar el menú diario.\n• Si dejas la página abierta, guardará automáticamente al llegar medianoche.\n• Exporta/Importa para hacer copia de seguridad.");
+};
+
+/* ======= Inicio ======= */
+// Ajuste inicial de lastSnapshot (si nunca se guardó)
+if(!state.lastSnapshot){ state.lastSnapshot = fmtDateKey(new Date()); }
+reconciliarHistorial();
+renderListas();
+renderSemana();
+renderCalendar();
+programarMedianoche();
+
+/* ============
+NOTA PARA APK (resumen):
+- Puedes empaquetar este HTML como app Android con:
+  A) Capacitor (recomendado): npm init; npm i @capacitor/core @capacitor/cli; npx cap init; colocar este HTML como /dist/index.html; npx cap add android; npx cap copy; abrir Android Studio; build APK/AAB.
+  B) Cordova: cordova create; cordova platform add android; cordova build android; coloca este HTML en www/ y establece <content src="index.html" />.
+  C) WebView nativo: crear proyecto Android, usar WebView para cargar archivo local (assets) y habilitar localStorage.
+  D) PWA + TWA (Play Store): convertir en PWA (manifest + service worker) y empaquetar con bubblewrap.
+============ */
+</script>
 </body>
 </html>
-
+"""
+path = "/mnt/data/planificador_menus_historial.html"
+with open(path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+path
