@@ -146,287 +146,259 @@
     </div>
 
 <script>
-    const canvas = document.getElementById('roofCanvas');
-    const ctx = canvas.getContext('2d');
-    const zonesContainer = document.getElementById('zonesContainer');
-    const addZoneBtn = document.getElementById('addZoneBtn');
-    const totalPanelsEl = document.getElementById('totalPanels');
-    const totalClampsEl = document.getElementById('totalClamps');
-    const toolbar = document.getElementById('canvas-toolbar');
-    const assetPanel = document.getElementById('asset-panel');
-    const assetProfile = document.getElementById('asset-profile');
-    const textureSelector = document.getElementById('texture-selector');
-    const panelWidthInput = document.getElementById('panel-width');
-    const panelHeightInput = document.getElementById('panel-height');
-    const profileLengthInput = document.getElementById('profile-length');
+(() => {
+  const app = document.getElementById('apps-content');
+  if (!app) return; // no afecta a otras secciones
 
-    const PROFILE_VISUAL_WIDTH = 40;
-    const CLAMP_MID_WIDTH = 40;
-    const CLAMP_END_WIDTH = 25;
-    const CLAMP_HEIGHT = 50;
+  // Helpers
+  const qs  = (sel) => app.querySelector(sel);
 
-    let state = {
-        zones: [], profiles: [], panels: [], clamps: [],
-        mode: 'move', selectedObject: null, isDragging: false, isPanning: false,
-        dragOffset: { x: 0, y: 0 }, panStart: { x: 0, y: 0 },
-        scale: 0.05, panOffset: { x: 50, y: 50 }
-    };
-    let zoneCounter = 0; let elementCounter = 0;
+  // DOM dentro de #apps-content
+  const canvas            = qs('#roofCanvas');
+  const ctx               = canvas?.getContext('2d');
+  const zonesContainer    = qs('#zonesContainer');
+  const addZoneBtn        = qs('#addZoneBtn');
+  const totalPanelsEl     = qs('#totalPanels');
+  const totalClampsEl     = qs('#totalClamps');
+  const toolbar           = qs('#canvas-toolbar');
+  const assetPanel        = qs('#asset-panel');
+  const assetProfile      = qs('#asset-profile');
+  const textureSelector   = qs('#texture-selector');
+  const panelWidthInput   = qs('#panel-width');
+  const panelHeightInput  = qs('#panel-height');
+  const profileLengthInput= qs('#profile-length');
 
-    function addZone(width = 5970, height = 3420) {
-        zoneCounter++;
-        const zone = { id: `zone-${zoneCounter}`, width, height };
-        state.zones.push(zone); renderZoneControls(); draw();
+  if (!canvas || !ctx || !zonesContainer || !addZoneBtn || !toolbar ||
+      !assetPanel || !assetProfile || !textureSelector ||
+      !panelWidthInput || !panelHeightInput || !profileLengthInput) return;
+
+  // Constantes visuales
+  const PROFILE_VISUAL_WIDTH = 40;
+  const CLAMP_MID_WIDTH = 40;
+  const CLAMP_END_WIDTH = 25;
+  const CLAMP_HEIGHT = 50;
+
+  // Estado
+  let state = {
+    zones: [], profiles: [], panels: [], clamps: [],
+    mode: 'move', selectedObject: null, isDragging: false, isPanning: false,
+    dragOffset: { x: 0, y: 0 }, panStart: { x: 0, y: 0 },
+    scale: 0.05, panOffset: { x: 50, y: 50 }
+  };
+  let zoneCounter = 0; let elementCounter = 0;
+
+  // Zonas
+  function addZone(width = 5970, height = 3420) {
+    zoneCounter++;
+    const zone = { id: `zone-${zoneCounter}`, width, height };
+    state.zones.push(zone); renderZoneControls(); draw();
+  }
+  function removeZone(id) {
+    state.zones = state.zones.filter(z => z.id !== id); renderZoneControls(); draw();
+  }
+  function updateZone(id, field, value) {
+    const zone = state.zones.find(z => z.id === id);
+    if (zone) { zone[field] = parseInt(value) || 0; draw(); }
+  }
+  function renderZoneControls() {
+    zonesContainer.innerHTML = state.zones.map(zone => `
+      <div class="bg-gray-700/50 p-3 rounded-lg">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="font-bold text-md text-blue-300">Zona ${zone.id.split('-')[1]}</h3>
+          <button class="remove-zone-btn text-red-400 hover:text-red-300" data-id="${zone.id}">✕</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="text-xs">Ancho<input type="number" value="${zone.width}" data-field="width" data-id="${zone.id}" class="zone-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
+          <label class="text-xs">Alto<input type="number" value="${zone.height}" data-field="height" data-id="${zone.id}" class="zone-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
+        </div>
+      </div>`).join('');
+  }
+
+  // Dibujo
+  function draw() {
+    const parent = canvas.parentElement;
+    canvas.width = parent.clientWidth; canvas.height = parent.clientHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(state.panOffset.x, state.panOffset.y); ctx.scale(state.scale, state.scale);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)'; ctx.lineWidth = 5 / state.scale; ctx.setLineDash([15 / state.scale, 15 / state.scale]);
+    state.zones.forEach(z => ctx.strokeRect(0, 0, z.width, z.height));
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#9ca3af';
+    state.profiles.forEach(p => ctx.fillRect(p.x, p.y, p.width, p.height));
+
+    state.panels.forEach(p => {
+      ctx.fillStyle = 'rgba(30, 58, 138, 0.85)';
+      ctx.fillRect(p.x, p.y, p.width, p.height);
+      ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 15 / state.scale;
+      ctx.strokeRect(p.x, p.y, p.width, p.height);
+    });
+
+    state.clamps.forEach(c => {
+      ctx.fillStyle = c.clampType === 'mid' ? 'rgba(234, 179, 8, 0.9)' : 'rgba(168, 85, 247, 0.9)';
+      ctx.fillRect(c.x, c.y, c.width, c.height);
+    });
+
+    if (state.selectedObject) {
+      ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 20 / state.scale;
+      const s = state.selectedObject; ctx.strokeRect(s.x, s.y, s.width, s.height);
     }
-    function removeZone(id) {
-        state.zones = state.zones.filter(z => z.id !== id); renderZoneControls(); draw();
-    }
-    function updateZone(id, field, value) {
-        const zone = state.zones.find(z => z.id === id);
-        if (zone) { zone[field] = parseInt(value) || 0; draw(); }
-    }
-    function renderZoneControls() {
-        zonesContainer.innerHTML = state.zones.map(zone => `
-            <div class="bg-gray-700/50 p-3 rounded-lg">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-bold text-md text-blue-300">Zona ${zone.id.split('-')[1]}</h3>
-                    <button class="remove-zone-btn text-red-400 hover:text-red-300" data-id="${zone.id}">✕</button>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <label class="text-xs">Ancho<input type="number" value="${zone.width}" data-field="width" data-id="${zone.id}" class="zone-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
-                    <label class="text-xs">Alto<input type="number" value="${zone.height}" data-field="height" data-id="${zone.id}" class="zone-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
-                </div>
-            </div>`).join('');
-    }
+    ctx.restore();
+    updateTotals();
+  }
 
-    function draw() {
-        const parent = canvas.parentElement;
-        canvas.width = parent.clientWidth; canvas.height = parent.clientHeight;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.save();
-        ctx.translate(state.panOffset.x, state.panOffset.y); ctx.scale(state.scale, state.scale);
-
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)'; ctx.lineWidth = 5 / state.scale; ctx.setLineDash([15 / state.scale, 15 / state.scale]);
-        state.zones.forEach(z => ctx.strokeRect(0, 0, z.width, z.height));
-        ctx.setLineDash([]);
-
-        ctx.fillStyle = '#9ca3af';
-        state.profiles.forEach(p => ctx.fillRect(p.x, p.y, p.width, p.height));
-
-        state.panels.forEach(p => {
-            ctx.fillStyle = 'rgba(30, 58, 138, 0.85)';
-            ctx.fillRect(p.x, p.y, p.width, p.height);
-            ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 15 / state.scale;
-            ctx.strokeRect(p.x, p.y, p.width, p.height);
-        });
-        
-        state.clamps.forEach(c => {
-            ctx.fillStyle = c.clampType === 'mid' ? 'rgba(234, 179, 8, 0.9)' : 'rgba(168, 85, 247, 0.9)';
-            ctx.fillRect(c.x, c.y, c.width, c.height);
-        });
-
-        if (state.selectedObject) {
-            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 20 / state.scale;
-            const s = state.selectedObject;
-            ctx.strokeRect(s.x, s.y, s.width, s.height);
+  // Cálculo de clamps
+  function updateClamps() {
+    state.clamps = [];
+    state.profiles.forEach(p => {
+      const panelsOnProfile = [];
+      const isHorizProfile = p.width > p.height;
+      state.panels.forEach(panel => {
+        const isVertPanel = panel.height > panel.width;
+        if (isHorizProfile && isVertPanel) {
+          const y_overlap = panel.y < p.y + p.height && panel.y + panel.height > p.y;
+          const x_midpoint_inside = (panel.x + panel.width/2) > p.x && (panel.x + panel.width/2) < p.x + p.width;
+          if (y_overlap && x_midpoint_inside) panelsOnProfile.push(panel);
+        } else if (!isHorizProfile && !isVertPanel) {
+          const x_overlap = panel.x < p.x + p.width && panel.x + panel.width > p.x;
+          const y_midpoint_inside = (panel.y + panel.height/2) > p.y && (panel.y + panel.height/2) < p.y + p.height;
+          if (x_overlap && y_midpoint_inside) panelsOnProfile.push(panel);
         }
-        ctx.restore();
-        updateTotals();
-    }
-    
-    function updateClamps() {
-        state.clamps = [];
-        state.profiles.forEach(p => {
-            const panelsOnProfile = [];
-            const isHorizProfile = p.width > p.height;
-            
-            state.panels.forEach(panel => {
-                const isVertPanel = panel.height > panel.width;
-                if (isHorizProfile && isVertPanel) {
-                    const y_overlap = panel.y < p.y + p.height && panel.y + panel.height > p.y;
-                    const x_midpoint_inside = (panel.x + panel.width/2) > p.x && (panel.x + panel.width/2) < p.x + p.width;
-                    if(y_overlap && x_midpoint_inside) panelsOnProfile.push(panel);
-                } else if (!isHorizProfile && !isVertPanel) {
-                    const x_overlap = panel.x < p.x + p.width && panel.x + panel.width > p.x;
-                    const y_midpoint_inside = (panel.y + panel.height/2) > p.y && (panel.y + panel.height/2) < p.y + p.height;
-                    if(x_overlap && y_midpoint_inside) panelsOnProfile.push(panel);
-                }
-            });
-
-            if (isHorizProfile) panelsOnProfile.sort((a, b) => a.x - b.x);
-            else panelsOnProfile.sort((a, b) => a.y - b.y);
-
-            if (panelsOnProfile.length > 0) {
-                const first = panelsOnProfile[0];
-                const last = panelsOnProfile[panelsOnProfile.length - 1];
-                if(isHorizProfile) {
-                    state.clamps.push({x: first.x - CLAMP_END_WIDTH, y: p.y, width: CLAMP_END_WIDTH, height: CLAMP_HEIGHT, clampType: 'end'});
-                    state.clamps.push({x: last.x + last.width, y: p.y, width: CLAMP_END_WIDTH, height: CLAMP_HEIGHT, clampType: 'end'});
-                } else {
-                    state.clamps.push({y: first.y - CLAMP_END_WIDTH, x: p.x, height: CLAMP_END_WIDTH, width: CLAMP_HEIGHT, clampType: 'end'});
-                    state.clamps.push({y: last.y + last.height, x: p.x, height: CLAMP_END_WIDTH, width: CLAMP_HEIGHT, clampType: 'end'});
-                }
-            }
-
-            for (let i = 0; i < panelsOnProfile.length - 1; i++) {
-                const p1 = panelsOnProfile[i];
-                const p2 = panelsOnProfile[i+1];
-                if (isHorizProfile) {
-                    const gap = p2.x - (p1.x + p1.width);
-                    if (gap > 0 && gap < 100) {
-                        state.clamps.push({x: p1.x + p1.width + gap/2 - CLAMP_MID_WIDTH/2, y: p.y, width: CLAMP_MID_WIDTH, height: CLAMP_HEIGHT, clampType: 'mid'});
-                    }
-                } else {
-                    const gap = p2.y - (p1.y + p1.height);
-                    if (gap > 0 && gap < 100) {
-                        state.clamps.push({y: p1.y + p1.height + gap/2 - CLAMP_MID_WIDTH/2, x: p.x, height: CLAMP_MID_WIDTH, width: CLAMP_HEIGHT, clampType: 'mid'});
-                    }
-                }
-            }
-        });
-        draw();
-    }
-
-    function getObjectAt(worldX, worldY) {
-        for (const p of [...state.panels].reverse()) {
-            if (worldX > p.x && worldX < p.x + p.width && worldY > p.y && worldY < p.y + p.height) return p;
+      });
+      if (isHorizProfile) panelsOnProfile.sort((a,b)=>a.x-b.x); else panelsOnProfile.sort((a,b)=>a.y-b.y);
+      if (panelsOnProfile.length > 0) {
+        const first = panelsOnProfile[0], last = panelsOnProfile[panelsOnProfile.length-1];
+        if (isHorizProfile) {
+          state.clamps.push({x:first.x-CLAMP_END_WIDTH,y:p.y,width:CLAMP_END_WIDTH,height:CLAMP_HEIGHT,clampType:'end'});
+          state.clamps.push({x:last.x+last.width,y:p.y,width:CLAMP_END_WIDTH,height:CLAMP_HEIGHT,clampType:'end'});
+        } else {
+          state.clamps.push({y:first.y-CLAMP_END_WIDTH,x:p.x,height:CLAMP_END_WIDTH,width:CLAMP_HEIGHT,clampType:'end'});
+          state.clamps.push({y:last.y+last.height,x:p.x,height:CLAMP_END_WIDTH,width:CLAMP_HEIGHT,clampType:'end'});
         }
-        for (const p of [...state.profiles].reverse()) {
-            if (worldX > p.x && worldX < p.x + p.width && worldY > p.y && worldY < p.y + p.height) return p;
+      }
+      for (let i=0;i<panelsOnProfile.length-1;i++){
+        const p1=panelsOnProfile[i], p2=panelsOnProfile[i+1];
+        if (isHorizProfile){
+          const gap=p2.x-(p1.x+p1.width);
+          if (gap>0 && gap<100) state.clamps.push({x:p1.x+p1.width+gap/2-CLAMP_MID_WIDTH/2,y:p.y,width:CLAMP_MID_WIDTH,height:CLAMP_HEIGHT,clampType:'mid'});
+        } else {
+          const gap=p2.y-(p1.y+p1.height);
+          if (gap>0 && gap<100) state.clamps.push({y:p1.y+p1.height+gap/2-CLAMP_MID_WIDTH/2,x:p.x,height:CLAMP_MID_WIDTH,width:CLAMP_HEIGHT,clampType:'mid'});
         }
-        return null;
-    }
-    
-    function handleMouseDown(e) {
-        if (e.button === 2) { // Clic derecho para mover la vista
-            state.isPanning = true;
-            state.panStart = { x: e.clientX, y: e.clientY };
-            return;
-        }
-        const worldPos = worldMousePos(e.clientX, e.clientY);
-        const object = getObjectAt(worldPos.x, worldPos.y);
-        state.selectedObject = object;
+      }
+    });
+    draw();
+  }
 
-        if (state.mode === 'move' && object) {
-            state.isDragging = true;
-            state.dragOffset.x = worldPos.x - object.x;
-            state.dragOffset.y = worldPos.y - object.y;
-        } else if (state.mode === 'delete' && object) {
-            if (object.type === 'panel') state.panels = state.panels.filter(p => p.id !== object.id);
-            if (object.type === 'profile') state.profiles = state.profiles.filter(p => p.id !== object.id);
-            state.selectedObject = null;
-            updateClamps();
-        }
-        draw();
-    }
-    function handleMouseMove(e) {
-        if (state.isPanning) {
-            const dx = e.clientX - state.panStart.x;
-            const dy = e.clientY - state.panStart.y;
-            state.panOffset.x += dx;
-            state.panOffset.y += dy;
-            state.panStart = { x: e.clientX, y: e.clientY };
-            draw();
-            return;
-        }
-        if (state.isDragging && state.selectedObject) {
-            const worldPos = worldMousePos(e.clientX, e.clientY);
-            state.selectedObject.x = worldPos.x - state.dragOffset.x;
-            state.selectedObject.y = worldPos.y - state.dragOffset.y;
-            draw();
-        }
-    }
-    function handleMouseUp(e) { 
-        if(state.isDragging) updateClamps();
-        state.isDragging = false; 
-        state.isPanning = false;
-    }
-    function handleWheel(e) {
-        e.preventDefault();
-        const zoomIntensity = 0.1;
-        const wheel = e.deltaY < 0 ? 1 : -1;
-        const zoom = Math.exp(wheel * zoomIntensity);
-        const mousePos = worldMousePos(e.clientX, e.clientY);
-        state.panOffset.x -= mousePos.x * (zoom - 1);
-        state.panOffset.y -= mousePos.y * (zoom - 1);
-        state.scale *= zoom;
-        draw();
-    }
+  // Picking
+  function getObjectAt(worldX, worldY) {
+    for (const p of [...state.panels].reverse()) if (worldX>p.x && worldX<p.x+p.width && worldY>p.y && worldY<p.y+p.height) return p;
+    for (const p of [...state.profiles].reverse()) if (worldX>p.x && worldX<p.x+p.width && worldY>p.y && worldY<p.y+p.height) return p;
+    return null;
+  }
 
-    function setupDragAndDrop() {
-        assetPanel.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', 'panel'));
-        assetProfile.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', 'profileH'));
+  // Interacción canvas
+  function worldMousePos(screenX, screenY) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (screenX - rect.left - state.panOffset.x) / state.scale;
+    const y = (screenY - rect.top  - state.panOffset.y) / state.scale;
+    return { x, y };
+  }
+  function handleMouseDown(e){
+    if (e.button===2){ state.isPanning=true; state.panStart={x:e.clientX,y:e.clientY}; return;}
+    const worldPos=worldMousePos(e.clientX,e.clientY);
+    const object=getObjectAt(worldPos.x,worldPos.y);
+    state.selectedObject=object;
+    if (state.mode==='move' && object){
+      state.isDragging=true;
+      state.dragOffset.x=worldPos.x-object.x;
+      state.dragOffset.y=worldPos.y-object.y;
+    } else if (state.mode==='delete' && object){
+      if (object.type==='panel') state.panels=state.panels.filter(p=>p.id!==object.id);
+      if (object.type==='profile') state.profiles=state.profiles.filter(p=>p.id!==object.id);
+      state.selectedObject=null; updateClamps();
+    }
+    draw();
+  }
+  function handleMouseMove(e){
+    if (state.isPanning){
+      const dx=e.clientX-state.panStart.x, dy=e.clientY-state.panStart.y;
+      state.panOffset.x+=dx; state.panOffset.y+=dy;
+      state.panStart={x:e.clientX,y:e.clientY}; draw(); return;
+    }
+    if (state.isDragging && state.selectedObject){
+      const worldPos=worldMousePos(e.clientX,e.clientY);
+      state.selectedObject.x=worldPos.x-state.dragOffset.x;
+      state.selectedObject.y=worldPos.y-state.dragOffset.y; draw();
+    }
+  }
+  function handleMouseUp(){ if (state.isDragging) updateClamps(); state.isDragging=false; state.isPanning=false; }
+  function handleWheel(e){
+    e.preventDefault();
+    const zoomIntensity=0.1, wheel=e.deltaY<0?1:-1, zoom=Math.exp(wheel*zoomIntensity);
+    const mousePos=worldMousePos(e.clientX,e.clientY);
+    state.panOffset.x -= mousePos.x * (zoom - 1);
+    state.panOffset.y -= mousePos.y * (zoom - 1);
+    state.scale *= zoom; draw();
+  }
 
-        canvas.addEventListener('dragover', e => e.preventDefault());
-        canvas.addEventListener('drop', e => {
-            e.preventDefault();
-            const type = e.dataTransfer.getData('text/plain');
-            const worldPos = worldMousePos(e.clientX, e.clientY);
-            elementCounter++;
-            const id = `el-${elementCounter}`;
-            
-            const panelW = parseInt(panelWidthInput.value);
-            const panelH = parseInt(panelHeightInput.value);
-            const profileL = parseInt(profileLengthInput.value);
+  // DnD
+  function setupDragAndDrop(){
+    assetPanel.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', 'panel'));
+    assetProfile.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', 'profileH'));
+    canvas.addEventListener('dragover', e => e.preventDefault());
+    canvas.addEventListener('drop', e => {
+      e.preventDefault();
+      const type = e.dataTransfer.getData('text/plain');
+      const worldPos = worldMousePos(e.clientX, e.clientY);
+      elementCounter++; const id = `el-${elementCounter}`;
+      const panelW = parseInt(panelWidthInput.value);
+      const panelH = parseInt(panelHeightInput.value);
+      const profileL = parseInt(profileLengthInput.value);
+      if (type==='panel'){
+        state.panels.push({ id, type:'panel', x:worldPos.x-panelW/2, y:worldPos.y-panelH/2, width:panelW, height:panelH });
+      } else if (type==='profileH'){
+        state.profiles.push({ id, type:'profile', x:worldPos.x-profileL/2, y:worldPos.y-PROFILE_VISUAL_WIDTH/2, width:profileL, height:PROFILE_VISUAL_WIDTH });
+      }
+      updateClamps();
+    });
+  }
 
-            if (type === 'panel') {
-                state.panels.push({ id, type: 'panel', x: worldPos.x - panelW/2, y: worldPos.y - panelH/2, width: panelW, height: panelH });
-            } else if (type === 'profileH') {
-                state.profiles.push({ id, type: 'profile', x: worldPos.x - profileL/2, y: worldPos.y - PROFILE_VISUAL_WIDTH/2, width: profileL, height: PROFILE_VISUAL_WIDTH });
-            }
-            updateClamps();
-        });
-    }
-    
-    function updateTotals() { 
-        totalPanelsEl.textContent = state.panels.length;
-        totalClampsEl.textContent = state.clamps.length;
-    }
-    function worldMousePos(screenX, screenY) {
-        const rect = canvas.getBoundingClientRect();
-        const x = (screenX - rect.left - state.panOffset.x) / state.scale;
-        const y = (screenY - rect.top - state.panOffset.y) / state.scale;
-        return { x, y };
-    }
-    function setupEventListeners() {
-        addZoneBtn.addEventListener('click', () => addZone());
-        zonesContainer.addEventListener('input', e => {
-            if (e.target.classList.contains('zone-input')) updateZone(e.target.dataset.id, e.target.dataset.field, e.target.value);
-        });
-        zonesContainer.addEventListener('click', e => {
-            if (e.target.classList.contains('remove-zone-btn')) removeZone(e.target.dataset.id);
-        });
-        toolbar.addEventListener('click', e => {
-            const button = e.target.closest('.tool-btn');
-            if (button) {
-                state.mode = button.dataset.mode;
-                document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-            }
-        });
-        textureSelector.addEventListener('click', e => {
-            const thumb = e.target.closest('.texture-thumb');
-            if (thumb) {
-                const textureUrl = thumb.dataset.texture;
-                canvas.style.backgroundImage = `url(${textureUrl})`;
-                document.querySelectorAll('.texture-thumb').forEach(t => t.classList.remove('active'));
-                thumb.classList.add('active');
-            }
-        });
+  function updateTotals(){ totalPanelsEl.textContent = state.panels.length; totalClampsEl.textContent = state.clamps.length; }
 
-        canvas.addEventListener('mousedown', handleMouseDown);
-        canvas.addEventListener('mousemove', handleMouseMove);
-        canvas.addEventListener('mouseup', handleMouseUp);
-        canvas.addEventListener('mouseleave', () => { state.isDragging = false; state.isPanning = false; });
-        canvas.addEventListener('wheel', handleWheel);
-        canvas.addEventListener('contextmenu', e => e.preventDefault());
-        new ResizeObserver(draw).observe(canvas.parentElement);
-    }
-    
-    addZone();
-    setupEventListeners();
-    setupDragAndDrop();
-    document.querySelector('.texture-thumb').click();
+  // Eventos UI
+  function setupEventListeners(){
+    addZoneBtn.addEventListener('click', () => addZone());
+    zonesContainer.addEventListener('input', e => { if (e.target.classList.contains('zone-input')) updateZone(e.target.dataset.id, e.target.dataset.field, e.target.value); });
+    zonesContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-zone-btn')) removeZone(e.target.dataset.id); });
+    toolbar.addEventListener('click', e => {
+      const button = e.target.closest('.tool-btn');
+      if (button){ state.mode = button.dataset.mode; app.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active')); button.classList.add('active'); }
+    });
+    textureSelector.addEventListener('click', e => {
+      const thumb = e.target.closest('.texture-thumb'); if (!thumb) return;
+      const textureUrl = thumb.dataset.texture;
+      canvas.style.backgroundImage = `url(${textureUrl})`;
+      app.querySelectorAll('.texture-thumb').forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
+    });
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('mouseleave', () => { state.isDragging=false; state.isPanning=false; });
+    canvas.addEventListener('wheel', handleWheel, { passive:false });
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+    new ResizeObserver(draw).observe(canvas.parentElement);
+  }
+
+  // Init seguro
+  addZone();
+  setupEventListeners();
+  setupDragAndDrop();
+  const firstTex = app.querySelector('.texture-thumb'); if (firstTex) firstTex.click();
+})();
 </script>
 </body>
 </html>
