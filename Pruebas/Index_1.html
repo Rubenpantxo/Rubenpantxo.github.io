@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo - Rubenpantxo.com</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo general con la textura de cuaderno y la fuente principal */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Textura de cuaderno sutil. Se puede cambiar por cualquier otra imagen. */
+            background-color: #fdfdf8;
+            background-image:
+                linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
+                linear-gradient(#eee .1em, transparent .1em);
+            background-size: 100% 1.2em;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Estilo para el título principal, con una fuente que parece escrita a mano */
+        .titulo-principal {
+            font-family: 'Kalam', cursive;
+            color: #003366; /* Un azul oscuro */
+        }
+
+        /* Contenedor de los botones de navegación */
+        #main-nav {
+            transition: transform 0.5s ease-in-out;
+        }
+
+        /* Estilo de cada botón de navegación */
+        .nav-item {
+            font-family: 'Kalam', cursive;
+            font-weight: 700;
+            background-color: #ffffff;
+            border: 2px solid #333;
+            box-shadow: 5px 5px 0px #333;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease, box-shadow 0.2s ease, font-size 0.3s ease;
+        }
+
+        .nav-item:hover {
+            box-shadow: 2px 2px 0px #333;
+            transform: translate(3px, 3px);
+        }
+
+        /* La "cuerda" que cuelga de cada botón */
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 40px; /* Longitud de la cuerda */
+            background: linear-gradient(to bottom, #8B4513, #D2691E); /* Marrón de cuerda */
+            z-index: -1;
+        }
+
+        /* --- LÓGICA DE ANIMACIÓN --- */
+        /* Cuando se abre una sección, se añade la clase 'section-open' al body */
+        body.section-open .nav-item {
+            /* Por defecto, todos los botones suben */
+            transform: translateY(-300px);
+            opacity: 0;
+            pointer-events: none; /* Evita que se pueda hacer clic cuando están ocultos */
+        }
+
+        /* El botón activo (el que se ha clicado) se queda en su sitio y actúa como título */
+        body.section-open .nav-item.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+            box-shadow: 2px 2px 0px #1a73e8;
+            border-color: #1a73e8;
+            font-size: 1.5rem; /* Hacemos el texto más grande para que parezca un título */
+        }
+
+        /* Estilo de los iconos de la esquina (interrogante y volver) */
+        .corner-icon {
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            border: 2px solid #333;
+        }
+        
+        /* NUEVO ESTILO: Botón de interrogante inspirado en la imagen */
+        #contact-toggle {
+            background-color: #ffde59; /* Amarillo */
+            color: #333;
+            font-weight: bold;
+            box-shadow: 3px 3px 0 #333, inset 2px 2px 0px rgba(255,255,255,0.5);
+        }
+        
+        #back-arrow {
+            background-color: #dc3545; /* Rojo */
+            color: white;
+            box-shadow: 3px 3px 0 #333;
+        }
+
+        /* Animación para la aparición y desaparición de los iconos */
+        .icon-hidden {
+            transform: scale(0);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Contenedor de los logos de redes sociales */
+        #social-links {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .social-hidden {
+            opacity: 0;
+            transform: translateY(-20px);
+            pointer-events: none;
+        }
+        
+        /* Contenedor del contenido de cada sección */
+        .content-section {
+            transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+        }
+
+        .content-hidden {
+            opacity: 0;
+            transform: translateY(30px);
+            display: none;
+        }
+        
+        /* ----- Estilos para la aplicación de diseño solar ----- */
+        .result-card { background: linear-gradient(145deg, #1e3a8a, #3b82f6); }
+        .card { background-color: rgba(55, 65, 81, 0.5); border: 1px solid #4b5567; }
+        .tool-btn.active { background-color: #3b82f6; color: white; transform: scale(1.05); box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        .asset { cursor: grab; transition: transform 0.2s ease; }
+        .asset:hover { transform: scale(1.05); }
+        .asset:active { cursor: grabbing; }
+        .texture-thumb { cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s ease; background-size: cover; background-position: center; }
+        .texture-thumb:hover, .texture-thumb.active { border-color: #3b82f6; }
+        #canvas-container { position: relative; }
+        #roofCanvas { background-size: 250px; background-repeat: repeat; image-rendering: auto; }
+        /* Estilo para la cumbrera en la paleta de componentes */
+        .ridge-asset-visual {
+            width: 80%;
+            height: 10px;
+            background: linear-gradient(90deg, #6b7280, #d1d5db, #6b7280);
+            border-radius: 5px;
+        }
+
+        /* Oculta el logo base64 antiguo y muestra el nuevo de GitHub */
+        img[alt="Logo Rubenpantxo"][src^="data:image"] {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 sm:p-8 transition-all duration-500">
+
+    <div class="max-w-5xl mx-auto">
+
+        <header class="relative text-center py-6">
+            <div class="flex justify-center items-center gap-4">
+                <img src="https://Rubenpantxo.github.io/img/logo.PNG" alt="Logo Rubenpantxo" class="h-16">
+                <h1 class="titulo-principal text-5xl md:text-7xl font-bold">Rubenpantxo.com</h1>
+            </div>
+            
+            <div id="contact-toggle" class="corner-icon flex items-center justify-center">?</div>
+            <div id="back-arrow" class="corner-icon flex items-center justify-center icon-hidden">↩</div>
+
+            <div id="social-links" class="absolute top-20 right-8 mt-2 flex flex-col items-center gap-4 social-hidden">
+                <a href="#" class="text-3xl text-pink-600 hover:scale-110 transition-transform"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-3xl text-red-600 hover:scale-110 transition-transform"><i class="fas fa-envelope"></i></a>
+                <a href="#" class="text-3xl text-gray-800 hover:scale-110 transition-transform"><i class="fab fa-github"></i></a>
+            </div>
+        </header>
+
+        <nav id="main-nav" class="flex flex-col sm:flex-row justify-center items-center gap-8 sm:gap-12 mt-8">
+            <div class="nav-item text-xl p-4 rounded-lg" data-section="noticias">Noticias y Artículos</div>
+            <div class="nav-item text-xl p-4 rounded-lg" data-section="apps">Apps y Entretenimiento</div>
+            <div class="nav-item text-xl p-4 rounded-lg" data-section="enlaces">Enlaces Web</div>
+        </nav>
+
+        <main id="content-container" class="mt-16">
+            
+            <section id="noticias-content" class="content-section content-hidden">
+                <div class="grid md:grid-cols-2 gap-8 items-start pt-8">
+                    <div class="space-y-6">
+                        <h3 class="text-2xl font-bold border-b-2 pb-2 border-gray-400">Últimas de Tecnología</h3>
+                        
+                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
+                            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAH0A+gDASIAAhEBAxEB/8QAHQAAAQQDAQEAAAAAAAAAAAAABwAFBggBAgMECf/EAE4QAAEDAwIEAwUEBgYHBgQHAQECAwQABQYRBxIhMQgTQRQiUWEVUnGBFjIzQlKhCCNicqKxFjQ2N0R0stElJjdUZIOzwcInRFRkg6L/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A0z0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p-f-h6j/4AA/8B3h/hU03/wA+Fv8A/R5n/wC6gP8AgO8P8Kmm/wDnzg/+jzf/AN1ATQ+Cnh2D/qE6af8As1//AN1Sjwn4dj/qE6Z+dp/6qA3/AOEU8P8A/QJ0z87T/wBUf8Ip4f8A+gTpn52n/qgJg+GPD6f+gRpY/wC7SP8A4qT/AIRzQP8AoEaV/wCMR/8AFQG/PhzQP+gTpf8A4xH/AMVDw5oJ/wCgTpf/AIxH/wAVAb/8I7oH/QI0v/xiP/ipP+Ee0D/oE6X/AOMR/wDFQG/Ph7QP+gTpf/jEf/FRHh7QP+gRpf8A4xH/AMVAb/8ACPaB/wBAjS//ABiP/iojw9oH/QI0v/xiP/ioDf/hHtA/6BGl/wDjEf8AxUf8I/oH/QI0v/xiP/ioDf8A4R/QP+gRpf8A4xH/AMVPjw/oA/6BGlf+MR/8VAbEeINAH/QI0r/xiP8A4qcPA3hz/oFWX/lVAbA8A+HD/wBAuy/8qp/8ID4d/wCgXZf+VUBL4C8O/wDQJs//ACqnx4E8O/8AQJs//KqAlfAPhz/oE2f/AJVT/wCAfhz/AKBNn/5VQE3/AAP8N/8AQIs//AChT14E8O/8AQJs//ACqgJf+EDw3/ANAqy/8AKf8A1VIfBPhsf9Aqy/8AIf8A1UBsLwf4b/6A9l/5D/1VIeE/Df8A0B7L/wAh/wDVQGwPBnhsf9Aey/8AIf8A1Up8H+G/+gPZf+Q/9VAbA8HeGx/0B7L/AMh/6qPDnho/9Aey/wDIf+qgNgeDvDY/6A1l/wCQP9VJ/wAIb4a/6A1l/wCQH9UBsDwb4a/6A1l/5Af1R/whvhr/AKA1l/5Af1QGweEPDX/QGsv/ACU/1Uv/AAhvhr/oDWX/AJAf1QGwPCHhn/oDWX/kp/qpR4Q8M/8AQHsv/JT/AFUBKDwX4ZH/AEB7L/yU/wBSnx4J8Nf9Aey/8h/6qAn/AOFM8Nf9Aey/8h/6qUeEvDZ/6A1l/wCSH+qgJh4O8N/9Aey/8h/6qA8G+Gj/ANAey/8AIf8AqgJg8F+Gf+gPZf8AkP8A6qP+EL8M/wDQHsv/ACH/AKqAn/4QvwwP+gPZf+Q/9VJ/whnhn/oD2X/kP/VQE3/CG+GR/wBAey/8lP8AVT/APCFeGf+gTZf+Q/9VATDwf4Z/wCgTZf+Q/8AVT/APCH+Gv+gTZf+Q/9VASjwj4a/wCgTZf+Q/8AVQeEvDX/AEB7L/yH/qoCb/hCfDP/AEB7L/yH/qpyeD/DMf8AzBrL/wAh/wCqgJ1PCXhqP/mDWX/kh/qpP+ER8Of9Aay/8kP9VATDwj4b/wCgNZf+Sn+qlHhTw3/0B7L/AMlP9VASY8KeGv8AoD2X/kp/qpR4V8Nf9Aey/wDJT/VQEx4X8Of9Aiy/8lP9VJ/wr4c/6BFl/wCSn+qgIjw14dP/AECLH/yU/wBVRnwn4eP/ADBLD/yU/wBVARfhTw8f+YJYf+Sn+qpHhTw8f+YJYf8AkJ/qoDV3VvwL0H1T8PNOa9/N9v6T4e09f/mGWLf9zZFAf6qB8P6eP+Ydbf8AksKAPh9T/wCQdbf+SwoD4fU9v+Ydbf8AkIUA/UFPb/mHW3/kIUA/UFPb/mHW3/kIUA/UFPb/AJh1t/5CFAV9T2/5h1t/5CFAV9Q09v8AmG23/kIUBX1DTm/5h1r/AOQhQH1DTm/5htr/AOQhQGv1LTm/5htr/wCShQH1LTj/AMw22/8AJQoDFxpsf/MNtv8AyUKAxcaZP/zDbf8A8lCgP1HTP+gbbf8AkoUA/UVP/wA8+2/8lCgMXFOT/wA862/8lCgMXFOA/wA862/8lCgM/wD/AP6DrT/yUKA//9k=" alt="Noticia sobre disco óptico" class="w-24 h-24 rounded-md object-cover">
+                            <div>
+                                <h4 class="font-bold text-lg">Disco óptico de 125 TB</h4>
+                                <p class="text-sm text-gray-700">Un equipo chino presenta un soporte óptico con densidad récord, relevante para archivo frío, pero aún en fase de investigación sin cifras de coste, velocidad o durabilidad.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
+                             <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAE2ApsDASIAAhEBAxEB/8QAGwAAAgMBAQEAAAAAAAAAAAAAAgMAAQQFBgf/xAA3EAACAgEDAwMCBAYCAQUBAAAAAQIRAwQSEiEFMUFREyJhFHGBkUKhscEGFSIjM0Ji0eHxJDNy/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAQEAAwEAAwEBAQEAAAABEQISIQMxQVFhE3EiMv/aAAwDAQACEQMRAD8A9XJ2FHYo7FHk7CjsUdijsUeTYUdijsUdiPJ2FHdiu7FdiPJ2FHYou7FdiPJ2FHYo7sV2I8nZk7FHYo7FHyNjspdjuz0FdiPJ2NlS7Fdiy9CrsR5OxsqXYrsV2K8nY2VLsV2LL0H2I8nZXZUuxXZku7FdiPk7K7KXYrsS7sV2I+RsqXZXYrsS7FdiPJ2NlS7FdiXYq7EeVs7FLYrsS7FdiPK2dljYrsV2JLsV2I8rZ2WOxXYkuxXYjytnZkuxXYkuxXYjytnZY7FdiS7FdiPK2dijsV2JXYq7EeVsdkuxXYkuxXYjytjsqXYrsSXYq7EeTY7KXYrsSXYrsR5WxsqXYrsSXYrsR5Wx2VLsV2JXYrsR5WxsqXYrsSXYrsR5WxsqXYrsSXYrsR5NjZUuxXYkuxXYjybGyj0XYkuxXYjybGyj0K7EuxXYjybGyj0K7EuxXYjybGyj0XYkuxXYjyNlHouxJdiuxHk2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTZR6FdiXYrsR5NlHoV2JdiuxHk2UehXYl2K7EeTY2UehXYl2K7EeTZR6FdiXYrsR5NlHoV2JdiuxHk2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7-v//Z" alt="Noticia sobre perro-robot" class="w-24 h-24 rounded-md object-cover">
+                            <div>
+                                <h4 class="font-bold text-lg">Perro-robot “Black Panther 2.0”</h4>
+                                <p class="text-sm text-gray-700">Asegura cubrir 100 m en menos de 10 s (>36 km/h), un salto frente a modelos comerciales. Se necesita verificación independiente de las condiciones de prueba y su autonomía.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
+                            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAEsA7gDASIAAhEBAxEB/8QAHAAAAQUBAQEAAAAAAAAAAAAABQIDBAYHAAEI/8QAWhAAAQMCBAIECAoFBwcHCgcAAQIDBAURAAYSIQcxE0FRYSIUcYGRoQgyUpLB0SNCUrFSYnOC0uEkorPh8BYkM0Njc5OzwvFEVWR1g5SjGEVUdZXVJ0aV/8QAGQEBAAMBAQAAAAAAAAAAAAAAAAECAwQF/8QALhEBAAIBBAEDAwQCAwADAAAAAQIRAxIhBBMxQVEiYXEygcEFFJGhsRWhwZLw/9oADAMBAAIRAxEAPwDsoAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAoo-v/8-v//Z" alt="Noticia sobre Photon Matrix" class="w-24 h-24 rounded-md object-cover">
+                            <div>
+                                <h4 class="font-bold text-lg">“Photon Matrix” anti-mosquitos</h4>
+                                <p class="text-sm text-gray-700">Afirma usar IA y láseres para abatir hasta 40 mosquitos por segundo. Viable en entornos controlados, pero depende de la seguridad ocular, consumo y coste para su adopción.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="p-4 border-dashed border-4 rounded-lg bg-white/50 h-full min-h-[300px] flex items-center justify-center sticky top-24">
+                        <p class="text-gray-500 text-lg">Aquí irá el dibujo decorativo</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="apps-content" class="content-section content-hidden text-center">
+                <div class="w-full max-w-full mx-auto flex flex-col lg:flex-row gap-4 h-[95vh]">
+                    <div class="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
+                        <header class="text-center">
+                            <h1 class="text-2xl font-bold text-blue-400">Diseño Solar Visual</h1>
+                        </header>
+                        <div class="card p-4 rounded-xl">
+                            <h2 class="text-xl font-bold mb-3">Componentes</h2>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div id="asset-panel" draggable="true" class="asset bg-gray-800 p-2 rounded-lg flex flex-col items-center justify-center text-center">
+                                    <img src="img/Panel1800x1134.png" alt="Panel Solar" class="max-h-20 object-contain pointer-events-none">
+                                    <span class="text-xs mt-1">Panel</span>
+                                </div>
+                                <div id="asset-profile" draggable="true" class="asset bg-gray-800 p-2 rounded-lg flex flex-col items-center justify-center text-center">
+                                    <img src="img/Perfil3500x60.png" alt="Perfil de Montaje" class="h-20 object-contain pointer-events-none transform -rotate-45">
+                                    <span class="text-xs mt-1">Perfil</span>
+                                </div>
+                                <div id="asset-ridge" draggable="true" class="asset bg-gray-800 p-2 rounded-lg flex flex-col items-center justify-center text-center">
+                                    <div class="ridge-asset-visual"></div>
+                                    <span class="text-xs mt-1">Cumbrera</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card p-4 rounded-xl">
+                            <details>
+                                <summary class="text-xl font-bold cursor-pointer">Configuración</summary>
+                                <div class="mt-3 space-y-3">
+                                    <div>
+                                        <h4 class="font-semibold text-sm mb-1 text-gray-300">Panel Solar</h4>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <label class="text-xs">Ancho (mm)<input id="panel-width" type="number" value="1134" class="config-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
+                                            <label class="text-xs">Alto (mm)<input id="panel-height" type="number" value="1800" class="config-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-sm mb-1 text-gray-300">Perfil</h4>
+                                        <div class="grid grid-cols-1 gap-2">
+                                            <label class="text-xs">Longitud (mm)<input id="profile-length" type="number" value="3500" class="config-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="result-card text-white p-4 rounded-xl shadow-lg text-center flex-grow flex flex-col justify-center">
+                            <h3 class="text-md font-medium opacity-80">Paneles / Piezas</h3>
+                            <div class="flex justify-around items-center mt-2">
+                                <div class="text-center">
+                                    <p id="totalPanels" class="text-4xl font-bold">0</p>
+                                    <span class="text-xs opacity-80">Paneles</span>
+                                </div>
+                                <div class="text-center">
+                                    <p id="totalClamps" class="text-4xl font-bold">0</p>
+                                    <span class="text-xs opacity-80">Piezas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full lg:w-1/2 xl:w-3/5 h-full rounded-lg shadow-2xl border border-blue-500/30 p-2 flex flex-col gap-2">
+                        <div id="canvas-toolbar" class="flex items-center justify-between p-2 bg-gray-800/50 rounded-lg">
+                            <div class="flex gap-2">
+                                <button data-mode="move" class="tool-btn active bg-gray-700 p-2 rounded-lg" title="Mover y Seleccionar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M5 9l-3 3 3 3"></path><path d="M9 5l3-3 3 3"></path><path d="M15 19l-3 3-3-3"></path><path d="M19 9l3 3-3 3"></path><path d="M2 12h20"></path><path d="M12 2v20"></path>
+                                    </svg>
+                                </button>
+                                <button data-mode="delete" class="tool-btn bg-gray-700 p-2 rounded-lg" title="Borrar Elemento">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="text-sm text-gray-400">Rueda del ratón: Zoom. Clic derecho: Mover vista.</div>
+                        </div>
+                        <div id="canvas-container" class="w-full h-full bg-gray-800 rounded-lg overflow-hidden">
+                            <canvas id="roofCanvas" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+                    <div class="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
+                        <div class="card p-4 rounded-xl">
+                            <h2 class="text-xl font-bold mb-3">Textura del Tejado</h2>
+                            <div id="texture-selector" class="grid grid-cols-2 gap-2">
+                                <div data-texture="img/tejas.jpg" class="texture-thumb active aspect-square rounded" style="background-image: url('img/tejas.jpg')" alt="Teja Tradicional"></div>
+                                <div data-texture="img/tejas_2.jpg" class="texture-thumb aspect-square rounded" style="background-image: url('img/tejas_2.jpg')" alt="Teja Plana"></div>
+                                <div data-texture="img/tejas_3.jpg" class="texture-thumb aspect-square rounded" style="background-image: url('img/tejas_3.jpg')" alt="Pizarra Oscura"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    (function() {
+                        const app = document.getElementById('apps-content');
+                        if (!app) return;
+
+                        const canvas = app.querySelector('#roofCanvas');
+                        const ctx = canvas.getContext('2d');
+                        const totalPanelsEl = app.querySelector('#totalPanels');
+                        const totalClampsEl = app.querySelector('#totalClamps');
+                        const toolbar = app.querySelector('#canvas-toolbar');
+                        const assetPanel = app.querySelector('#asset-panel');
+                        const assetProfile = app.querySelector('#asset-profile');
+                        const assetRidge = app.querySelector('#asset-ridge');
+                        const textureSelector = app.querySelector('#texture-selector');
+                        const panelWidthInput = app.querySelector('#panel-width');
+                        const panelHeightInput = app.querySelector('#panel-height');
+                        const profileLengthInput = app.querySelector('#profile-length');
+
+                        const PROFILE_VISUAL_WIDTH = 40;
+                        const RIDGE_VISUAL_HEIGHT = 10;
+                        const CLAMP_MID_WIDTH = 40;
+                        const CLAMP_END_WIDTH = 25;
+                        const CLAMP_HEIGHT = 50;
+
+                        let state = {
+                            profiles: [], panels: [], clamps: [], ridges: [],
+                            ghostPanel: null,
+                            mode: 'move', selectedObject: null, isDragging: false, isPanning: false,
+                            dragOffset: { x: 0, y: 0 }, panStart: { x: 0, y: 0 },
+                            scale: 0.05, panOffset: { x: 50, y: 50 }
+                        };
+                        let elementCounter = 0;
+
+                        function draw() {
+                            const parent = canvas.parentElement;
+                            if (parent.clientWidth === 0 || parent.clientHeight === 0) return;
+                            canvas.width = parent.clientWidth;
+                            canvas.height = parent.clientHeight;
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            ctx.save();
+                            ctx.translate(state.panOffset.x, state.panOffset.y);
+                            ctx.scale(state.scale, state.scale);
+
+                            ctx.fillStyle = '#fca5a5'; // Red for ridges
+                            state.ridges.forEach(r => {
+                                ctx.fillRect(r.x, r.y, r.width, r.height);
+                            });
+
+                            ctx.fillStyle = '#9ca3af'; // Gray for profiles
+                            state.profiles.forEach(p => {
+                                ctx.fillRect(p.x, p.y, p.width, p.height);
+                            });
+
+                            state.panels.forEach(p => {
+                                ctx.fillStyle = 'rgba(30, 58, 138, 0.85)';
+                                ctx.fillRect(p.x, p.y, p.width, p.height);
+                                ctx.strokeStyle = '#3b82f6';
+                                ctx.lineWidth = 15 / state.scale;
+                                ctx.strokeRect(p.x, p.y, p.width, p.height);
+                            });
+                            
+                            state.clamps.forEach(c => {
+                                ctx.fillStyle = c.clampType === 'mid' ? 'rgba(234, 179, 8, 0.9)' : 'rgba(168, 85, 247, 0.9)';
+                                ctx.fillRect(c.x, c.y, c.width, c.height);
+                            });
+                            
+                            if (state.ghostPanel) {
+                                const gp = state.ghostPanel;
+                                ctx.globalAlpha = 0.6;
+                                ctx.fillStyle = gp.isValid ? 'rgba(74, 222, 128, 0.5)' : 'rgba(248, 113, 113, 0.5)';
+                                ctx.fillRect(gp.x, gp.y, gp.width, gp.height);
+                                ctx.strokeStyle = gp.isValid ? '#22c55e' : '#ef4444';
+                                ctx.lineWidth = 15 / state.scale;
+                                ctx.strokeRect(gp.x, gp.y, gp.width, gp.height);
+                                ctx.globalAlpha = 1.0;
+                            }
+
+                            if (state.selectedObject) {
+                                ctx.strokeStyle = '#f59e0b';
+                                ctx.lineWidth = 20 / state.scale;
+                                const s = state.selectedObject;
+                                ctx.strokeRect(s.x, s.y, s.width, s.height);
+                            }
+                            ctx.restore();
+                            updateTotals();
+                        }
+                        
+                        function checkPlacementValidity(panel) {
+                            let supportingProfiles = 0;
+                            const isPanelVertical = panel.height > panel.width;
+                            
+                            for (const profile of state.profiles) {
+                                const isProfileHorizontal = profile.width > profile.height;
+                                // Vertical panels need horizontal profiles
+                                if (isPanelVertical && isProfileHorizontal) {
+                                    const profileY = profile.y + profile.height / 2;
+                                    const panelCoversProfileX = panel.x < profile.x + profile.width && panel.x + panel.width > profile.x;
+                                    const profileSupportsPanelY = profileY > panel.y && profileY < panel.y + panel.height;
+                                    if(panelCoversProfileX && profileSupportsPanelY) {
+                                        supportingProfiles++;
+                                    }
+                                }
+                                // Horizontal panels need vertical profiles (logic can be added here if needed)
+                            }
+                            return supportingProfiles >= 2;
+                        }
+
+                        function updateClamps() {
+                            state.clamps = [];
+                             state.profiles.forEach(function(p) {
+                                const panelsOnProfile = [];
+                                const isHorizProfile = p.width > p.height;
+                                state.panels.forEach(function(panel) {
+                                    const isVertPanel = panel.height > panel.width;
+                                    if (isHorizProfile && isVertPanel) {
+                                        const profileY = p.y + p.height / 2;
+                                        if (panel.x < p.x + p.width && panel.x + panel.width > p.x && 
+                                            profileY > panel.y && profileY < panel.y + panel.height) {
+                                            panelsOnProfile.push(panel);
+                                        }
+                                    } 
+                                });
+                                if (isHorizProfile) panelsOnProfile.sort((a, b) => a.x - b.x);
+                                
+                                if (panelsOnProfile.length > 0) {
+                                    const first = panelsOnProfile[0];
+                                    const last = panelsOnProfile[panelsOnProfile.length - 1];
+                                    const clampY = p.y + p.height / 2 - CLAMP_HEIGHT / 2;
+                                    // End clamps
+                                    state.clamps.push({ x: first.x - CLAMP_END_WIDTH / 2, y: clampY, width: CLAMP_END_WIDTH, height: CLAMP_HEIGHT, clampType: 'end' });
+                                    state.clamps.push({ x: last.x + last.width - CLAMP_END_WIDTH/2, y: clampY, width: CLAMP_END_WIDTH, height: CLAMP_HEIGHT, clampType: 'end' });
+                                }
+                                // Mid clamps
+                                for (let i = 0; i < panelsOnProfile.length - 1; i++) {
+                                    const p1 = panelsOnProfile[i];
+                                    const p2 = panelsOnProfile[i + 1];
+                                    const gap = p2.x - (p1.x + p1.width);
+                                    if (gap >= 0 && gap < 100) { // Allow small gap for clamps
+                                         const clampY = p.y + p.height / 2 - CLAMP_HEIGHT / 2;
+                                         const clampX = p1.x + p1.width + gap / 2 - CLAMP_MID_WIDTH / 2;
+                                         state.clamps.push({ x: clampX, y: clampY, width: CLAMP_MID_WIDTH, height: CLAMP_HEIGHT, clampType: 'mid' });
+                                    }
+                                }
+                            });
+                            draw();
+                        }
+
+                        function getObjectAt(worldX, worldY) {
+                            const collections = [state.panels, state.profiles, state.ridges];
+                            for (const collection of collections) {
+                                for (let i = collection.length - 1; i >= 0; i--) {
+                                    const item = collection[i];
+                                    if (worldX > item.x && worldX < item.x + item.width && worldY > item.y && worldY < item.y + item.height) return item;
+                                }
+                            }
+                            return null;
+                        }
+
+                        function handleMouseDown(e) {
+                            if (e.button === 2) {
+                                state.isPanning = true;
+                                state.panStart = { x: e.clientX, y: e.clientY };
+                                return;
+                            }
+                            const worldPos = worldMousePos(e.clientX, e.clientY);
+                            const object = getObjectAt(worldPos.x, worldPos.y);
+                            state.selectedObject = object;
+                            if (state.mode === 'move' && object) {
+                                state.isDragging = true;
+                                state.dragOffset.x = worldPos.x - object.x;
+                                state.dragOffset.y = worldPos.y - object.y;
+                            } else if (state.mode === 'delete' && object) {
+                                state.panels = state.panels.filter(p => p.id !== object.id);
+                                state.profiles = state.profiles.filter(p => p.id !== object.id);
+                                state.ridges = state.ridges.filter(p => p.id !== object.id);
+                                state.selectedObject = null;
+                                updateClamps();
+                            }
+                            draw();
+                        }
+                        function handleMouseMove(e) {
+                            if (state.isPanning) {
+                                state.panOffset.x += e.clientX - state.panStart.x;
+                                state.panOffset.y += e.clientY - state.panStart.y;
+                                state.panStart = { x: e.clientX, y: e.clientY };
+                                draw();
+                                return;
+                            }
+                            if (state.isDragging && state.selectedObject) {
+                                const worldPos = worldMousePos(e.clientX, e.clientY);
+                                state.selectedObject.x = worldPos.x - state.dragOffset.x;
+                                state.selectedObject.y = worldPos.y - state.dragOffset.y;
+                                draw();
+                            }
+                        }
+                        function handleMouseUp(e) {
+                            if (state.isDragging) updateClamps();
+                            state.isDragging = false;
+                            state.isPanning = false;
+                        }
+                        function handleWheel(e) {
+                            e.preventDefault();
+                            const zoomIntensity = 0.1;
+                            const wheel = e.deltaY < 0 ? 1 : -1;
+                            const zoom = Math.exp(wheel * zoomIntensity);
+                            const mousePos = worldMousePos(e.clientX, e.clientY);
+                            state.panOffset.x -= mousePos.x * (zoom - 1);
+                            state.panOffset.y -= mousePos.y * (zoom - 1);
+                            state.scale *= zoom;
+                            draw();
+                        }
+
+                        function setupDragAndDrop() {
+                            const assets = [{el: assetPanel, type: 'panel'}, {el: assetProfile, type: 'profile'}, {el: assetRidge, type: 'ridge'}];
+                            assets.forEach(asset => {
+                                asset.el.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', asset.type));
+                            });
+                            
+                            canvas.addEventListener('dragover', e => {
+                                e.preventDefault();
+                                const type = e.dataTransfer.getData('text/plain');
+                                if (type === 'panel') {
+                                    const worldPos = worldMousePos(e.clientX, e.clientY);
+                                    const panelW = parseInt(panelWidthInput.value);
+                                    const panelH = parseInt(panelHeightInput.value);
+                                    const ghost = { x: worldPos.x - panelW / 2, y: worldPos.y - panelH / 2, width: panelW, height: panelH };
+                                    ghost.isValid = checkPlacementValidity(ghost);
+                                    state.ghostPanel = ghost;
+                                    draw();
+                                }
+                            });
+                            
+                            canvas.addEventListener('dragleave', e => {
+                                state.ghostPanel = null;
+                                draw();
+                            });
+
+                            canvas.addEventListener('drop', e => {
+                                e.preventDefault();
+                                const type = e.dataTransfer.getData('text/plain');
+                                const worldPos = worldMousePos(e.clientX, e.clientY);
+                                elementCounter++;
+                                const id = 'el-' + elementCounter;
+                                
+                                if (type === 'panel' && state.ghostPanel && state.ghostPanel.isValid) {
+                                    state.panels.push({ id, type: 'panel', ...state.ghostPanel });
+                                } else if (type === 'profile') {
+                                    const profileL = parseInt(profileLengthInput.value);
+                                    state.profiles.push({ id, type: 'profile', x: worldPos.x - profileL / 2, y: worldPos.y - PROFILE_VISUAL_WIDTH / 2, width: profileL, height: PROFILE_VISUAL_WIDTH });
+                                } else if (type === 'ridge') {
+                                    state.ridges.push({ id, type: 'ridge', x: -10000, y: worldPos.y - RIDGE_VISUAL_HEIGHT / 2, width: 20000, height: RIDGE_VISUAL_HEIGHT });
+                                }
+                                state.ghostPanel = null;
+                                updateClamps();
+                            });
+                        }
+
+                        function updateTotals() {
+                            totalPanelsEl.textContent = state.panels.length;
+                            totalClampsEl.textContent = state.clamps.length;
+                        }
+                        function worldMousePos(screenX, screenY) {
+                            const rect = canvas.getBoundingClientRect();
+                            const x = (screenX - rect.left - state.panOffset.x) / state.scale;
+                            const y = (screenY - rect.top - state.panOffset.y) / state.scale;
+                            return { x: x, y: y };
+                        }
+                        function setupEventListeners() {
+                            toolbar.addEventListener('click', e => {
+                                const button = e.target.closest('.tool-btn');
+                                if (button) {
+                                    state.mode = button.dataset.mode;
+                                    app.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+                                    button.classList.add('active');
+                                }
+                            });
+                            textureSelector.addEventListener('click', e => {
+                                const thumb = e.target.closest('.texture-thumb');
+                                if (thumb) {
+                                    canvas.style.backgroundImage = `url('${thumb.dataset.texture}')`;
+                                    app.querySelectorAll('.texture-thumb').forEach(t => t.classList.remove('active'));
+                                    thumb.classList.add('active');
+                                }
+                            });
+                            canvas.addEventListener('mousedown', handleMouseDown);
+                            canvas.addEventListener('mousemove', handleMouseMove);
+                            canvas.addEventListener('mouseup', handleMouseUp);
+                            canvas.addEventListener('mouseleave', () => { state.isDragging = false; state.isPanning = false; });
+                            canvas.addEventListener('wheel', handleWheel);
+                            canvas.addEventListener('contextmenu', e => e.preventDefault());
+                            
+                            new ResizeObserver(draw).observe(canvas.parentElement);
+                            
+                             // Redraw when configuration changes
+                            panelWidthInput.addEventListener('change', draw);
+                            panelHeightInput.addEventListener('change', draw);
+                            profileLengthInput.addEventListener('change', draw);
+                        }
+                        // Inicialización
+                        setupEventListeners();
+                        setupDragAndDrop();
+                        const firstThumb = app.querySelector('.texture-thumb');
+                        if (firstThumb) firstThumb.click();
+                        draw(); // Initial draw
+                    })();
+                </script>
+            </section>
+
+            <section id="enlaces-content" class="content-section content-hidden">
+                <div class="pt-8">
+                    <h3 class="text-2xl font-bold border-b-2 pb-2 border-gray-400 mb-6">Enlaces de Interés</h3>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        
+                        <a href="https://comparamapas.navarra.es/?lang=es" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-map-location-dot text-2xl text-green-600"></i>
+                                <h4 class="font-bold text-lg">Comparador de Mapas Navarra</h4>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-2">Visualiza y compara diferentes mapas y ortofotos de la región de Navarra.</p>
+                        </a>
+
+                        <a href="https://idena.navarra.es/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-database text-2xl text-blue-800"></i>
+                                <h4 class="font-bold text-lg">IDENA</h4>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-2">Infraestructura de Datos Espaciales de Navarra. Cartografía y datos geográficos.</p>
+                        </a>
+
+                        <a href="https://tinywow.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-toolbox text-2xl text-orange-500"></i>
+                                <h4 class="font-bold text-lg">TinyWow</h4>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-2">Herramientas online gratuitas para PDF, imágenes, vídeos y más.</p>
+                        </a>
+
+                        <a href="https://alison.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-graduation-cap text-2xl text-purple-600"></i>
+                                <h4 class="font-bold text-lg">Alison</h4>
+                            </div>
+                             <p class="text-sm text-gray-700 mt-2">Plataforma de aprendizaje con miles de cursos online gratuitos.</p>
+                        </a>
+
+                        <a href="https://app.diagrams.net/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-project-diagram text-2xl text-yellow-500"></i>
+                                <h4 class="font-bold text-lg">Diagrams.net</h4>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-2">Herramienta gratuita para crear diagramas de flujo, mapas mentales y más.</p>
+                        </a>
+                        
+                        <a href="https://aistudio.google.com/prompts/new_chat" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-robot text-2xl text-blue-500"></i>
+                                <h4 class="font-bold text-lg">Google AI Studio</h4>
+                            </div>
+                             <p class="text-sm text-gray-700 mt-2">Experimenta y crea con los modelos de inteligencia artificial de Google.</p>
+                        </a>
+                        
+                        <a href="https://www.midjourney.com/home" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-paint-brush text-2xl text-indigo-600"></i>
+                                <h4 class="font-bold text-lg">Midjourney</h4>
+                            </div>
+                             <p class="text-sm text-gray-700 mt-2">Generador de imágenes a partir de texto mediante inteligencia artificial.</p>
+                        </a>
+                        
+                        <a href="https://mega.nz/folder/Uc4U3KpL#uzR3-BaRzcS9DZNo3nAxaw/folder/5RJQQLwD" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-cloud text-2xl text-red-500"></i>
+                                <h4 class="font-bold text-lg">Almacenamiento en la Nube</h4>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-2">Accede a una carpeta compartida con archivos y recursos.</p>
+                        </a>
+
+                    </div>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navItems = document.querySelectorAll('.nav-item');
+            const contentSections = document.querySelectorAll('.content-section');
+            const contactToggle = document.getElementById('contact-toggle');
+            const socialLinks = document.getElementById('social-links');
+            const backArrow = document.getElementById('back-arrow');
+            const body = document.body;
+
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (body.classList.contains('section-open')) return;
+                    const sectionId = item.dataset.section;
+                    const targetSection = document.getElementById(sectionId + '-content');
+                    body.classList.add('section-open');
+                    navItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    contactToggle.classList.add('icon-hidden');
+                    backArrow.classList.remove('icon-hidden');
+                    contentSections.forEach(section => section.classList.add('content-hidden'));
+                    if(targetSection) {
+                        targetSection.classList.remove('content-hidden');
+                        targetSection.style.display = 'block';
+                        // Dispatch a resize event to ensure canvas-based apps redraw correctly
+                        window.dispatchEvent(new Event('resize'));
+                    }
+                });
+            });
+
+            backArrow.addEventListener('click', () => {
+                body.classList.remove('section-open');
+                navItems.forEach(item => item.classList.remove('active'));
+                backArrow.classList.add('icon-hidden');
+                contactToggle.classList.remove('icon-hidden');
+                contentSections.forEach(section => {
+                    section.classList.add('content-hidden');
+                     setTimeout(() => {
+                        if (!body.classList.contains('section-open')) {
+                           section.style.display = 'none';
+                        }
+                    }, 500);
+                });
+                socialLinks.classList.add('social-hidden');
+            });
+
+            contactToggle.addEventListener('click', () => {
+                if (!body.classList.contains('section-open')) {
+                    socialLinks.classList.toggle('social-hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
