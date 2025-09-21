@@ -234,6 +234,67 @@
         img[alt="Logo Rubenpantxo"][src^="data:image"] {
             display: none;
         }
+
+        .app-card {
+            border: 2px solid #333;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            background-color: #ffffff;
+            box-shadow: 5px 5px 0px rgba(51, 51, 51, 0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            text-align: left;
+        }
+        .app-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 8px 8px 0px rgba(26, 115, 232, 0.35);
+        }
+        .app-card.active {
+            border-color: #1a73e8;
+            box-shadow: 6px 6px 0px rgba(26, 115, 232, 0.5);
+        }
+        .app-card__icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+        .app-card.active .app-card__icon {
+            background-color: #1a73e8;
+            color: #ffffff;
+        }
+        .keyword-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(59, 130, 246, 0.6);
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #1d4ed8;
+            font-size: 0.75rem;
+            text-transform: lowercase;
+            letter-spacing: 0.02em;
+        }
+        .link-group {
+            border: 2px dashed rgba(148, 163, 184, 0.6);
+            border-radius: 1rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+        }
+        .link-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .link-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(15, 118, 110, 0.2);
+        }
+        .news-card {
+            border-left: 6px solid #1d4ed8;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-4 sm:p-8 transition-all duration-500">
@@ -276,39 +337,26 @@
             <section id="noticias-content" class="content-section content-hidden">
                 <!-- El título H2 ha sido eliminado. El botón activo ahora sirve de título. -->
                 <div class="grid md:grid-cols-2 gap-8 items-start pt-8">
+                    
                     <!-- Columna Izquierda: Noticias -->
                     <div class="space-y-6">
-                        <h3 class="text-2xl font-bold border-b-2 pb-2 border-gray-400">Últimas de Tecnología</h3>
-                        
-                        <!-- Noticia 1 -->
-                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
-                            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAH0A+gDASIAAhEBAxEB/8QAHQAAAQQDAQEAAAAAAAAAAAAABwAFBggBAgMECf/EAE4QAAEDAwIEAwUEBgYHBgQHAQECAwQABQYRBxIhMQgTQRQiUWEVUnGBFjIzQlKhCCNicqKxFjQ2N0R0stElJjdUZIOzwcInRFRkg6L/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A0z0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p0p-f-h6j/4AA/8B3h/hU03/wA+Fv8A/R5n/wC6gP8AgO8P8Kmm/wDnzg/+jzf/AN1ATQ+Cnh2D/qE6af8As1//AN1Sjwn4dj/qE6Z+dp/6qA3/AOEU8P8A/QJ0z87T/wBUf8Ip4f8A+gTpn52n/qgJg+GPD6f+gRpY/wC7SP8A4qT/AIRzQP8AoEaV/wCMR/8AFQG/PhzQP+gTpf8A4xH/AMVDw5oJ/wCgTpf/AIxH/wAVAb/8I7oH/QI0v/xiP/ipP+Ee0D/oE6X/AOMR/wDFQG/Ph7QP+gTpf/jEf/FRHh7QP+gRpf8A4xH/AMVAb/8ACPaB/wBAjS//ABiP/iojw9oH/QI0v/xiP/ioDf/hHtA/6BGl/wDjEf8AxUf8I/oH/QI0v/xiP/ioDf8A4R/QP+gRpf8A4xH/AMVPjw/oA/6BGlf+MR/8VAbEeINAH/QI0r/xiP8A4qcPA3hz/oFWX/lVAbA8A+HD/wBAuy/8qp/8ID4d/wCgXZf+VUBL4C8O/wDQJs//ACqnx4E8O/8AQJs//KqAlfAPhz/oE2f/AJVT/wCAfhz/AKBNn/5VQE3/AAP8N/8AQIs//AChT14E8O/8AQJs//ACqgJf+EDw3/ANAqy/8AKf8A1VIfBPhsf9Aqy/8AIf8A1UBsLwf4b/6A9l/5D/1VIeE/Df8A0B7L/wAh/wDVQGwPBnhsf9Aey/8AIf8A1Up8H+G/+gPZf+Q/9VAbA8HeGx/0B7L/AMh/6qPDnho/9Aey/wDIf+qgNgeDvDY/6A1l/wCQP9VJ/wAIb4a/6A1l/wCQH9UBsDwb4a/6A1l/5Af1R/whvhr/AKA1l/5Af1QGweEPDX/QGsv/ACU/1Uv/AAhvhr/oDWX/AJAf1QGwPCHhn/oDWX/kp/qpR4Q8M/8AQHsv/JT/AFUBKDwX4ZH/AEB7L/yU/wBSnx4J8Nf9Aey/8h/6qAn/AOFM8Nf9Aey/8h/6qUeEvDZ/6A1l/wCSH+qgJh4O8N/9Aey/8h/6qA8G+Gj/ANAey/8AIf8AqgJg8F+Gf+gPZf8AkP8A6qP+EL8M/wDQHsv/ACH/AKqAn/4QvwwP+gPZf+Q/9VJ/whnhn/oD2X/kP/VQE3/CG+GR/wBAey/8lP8AVT/APCFeGf+gTZf+Q/9VATDwf4Z/wCgTZf+Q/8AVT/APCH+Gv+gTZf+Q/9VASjwj4a/wCgTZf+Q/8AVQeEvDX/AEB7L/yH/qoCb/hCfDP/AEB7L/yH/qpyeD/DMf8AzBrL/wAh/wCqgJ1PCXhqP/mDWX/kh/qpP+ER8Of9Aay/8kP9VATDwj4b/wCgNZf+Sn+qlHhTw3/0B7L/AMlP9VASY8KeGv8AoD2X/kp/qpR4V8Nf9Aey/wDJT/VQEx4X8Of9Aiy/8lP9VJ/wr4c/6BFl/wCSn+qgIjw14dP/AECLH/yU/wBVRnwn4eP/ADBLD/yU/wBVARfhTw8f+YJYf+Sn+qpHhTw8f+YJYf8AkJ/qoDV3VvwL0H1T8PNOa9/N9v6T4e09f/mGWLf9zZFAf6qB8P6eP+Ydbf8AksKAPh9T/wCQdbf+SwoD4fU9v+Ydbf8AkIUA/UFPb/mHW3/kIUA/UFPb/mHW3/kIUA/UFPb/AJh1t/5CFAV9T2/5h1t/5CFAV9Q09v8AmG23/kIUBX1DTm/5h1r/AOQhQH1DTm/5htr/AOQhQGv1LTm/5htr/wCShQH1LTj/AMw22/8AJQoDFxpsf/MNtv8AyUKAxcaZP/zDbf8A8lCgP1HTP+gbbf8AkoUA/UVP/wA8+2/8lCgMXFOT/wA862/8lCgMXFOA/wA862/8lCgM/wD/AP6DrT/yUKA//9k=" alt="Noticia sobre disco óptico" class="w-24 h-24 rounded-md object-cover">
+                        <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                             <div>
-                                <h4 class="font-bold text-lg">Disco óptico de 125 TB</h4>
-                                <p class="text-sm text-gray-700">Un equipo chino presenta un soporte óptico con densidad récord, relevante para archivo frío, pero aún en fase de investigación sin cifras de coste, velocidad o durabilidad.</p>
+                                <h3 class="text-2xl font-bold border-b-2 pb-2 border-gray-400">Últimas de Tecnología</h3>
+                                <p class="text-sm text-gray-600">Gestiona las noticias editando el archivo <code class="bg-gray-100 px-1 py-0.5 rounded">js/site-data.js</code>.</p>
+                            </div>
+                            <div class="flex flex-col gap-2 text-sm text-gray-700 md:flex-row md:items-center">
+                                <label for="news-filter" class="font-semibold">Filtrar por temática</label>
+                                <select id="news-filter" class="rounded-lg border-2 border-gray-400 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                    <option value="all">Todas</option>
+                                </select>
                             </div>
                         </div>
-
-                        <!-- Noticia 3 -->
-                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
-                             <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAE2ApsDASIAAhEBAxEB/8QAGwAAAgMBAQEAAAAAAAAAAAAAAgMAAQQFBgf/xAA3EAACAgEDAwMCBAYCAQUBAAAAAQIRAwQSEiEFMUFREyJhFHGBkUKhscEGFSIjM0Ji0eHxJDNy/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAhEQEBAQEAAwEAAwEBAQEAAAABEQISIQMxQVFhE3EiMv/aAAwDAQACEQMRAD8A9XJ2FHYo7FHk7CjsUdijsUeTYUdijsUdiPJ2FHdiu7FdiPJ2FHYou7FdiPJ2FHYo7sV2I8nZk7FHYo7FHyNjspdjuz0FdiPJ2NlS7Fdiy9CrsR5OxsqXYrsV2K8nY2VLsV2LL0H2I8nZXZUuxXZku7FdiPk7K7KXYrsS7sV2I+RsqXZXYrsS7FdiPJ2NlS7FdiXYq7EeVs7FLYrsS7FdiPK2dljYrsV2JLsV2I8rZ2WOxXYkuxXYjytnZkuxXYkuxXYjytnZY7FdiS7FdiPK2dijsV2JXYq7EeVsdkuxXYkuxXYjytjsqXYrsSXYq7EeTY7KXYrsSXYrsR5WxsqXYrsSXYrsR5Wx2VLsV2JXYrsR5WxsqXYrsSXYrsR5WxsqXYrsSXYrsR5NjZUuxXYkuxXYjybGyj0XYkuxXYjybGyj0K7EuxXYjybGyj0K7EuxXYjybGyj0XYkuxXYjyNlHouxJdiuxHk2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTZR6FdiXYrsR5NlHoV2JdiuxHk2UehXYl2K7EeTY2UehXYl2K7EeTZR6FdiXYrsR5NlHoV2JdiuxHk2UehXYl2K7EeTZR6FdiXYrsR5NlHoV2JdiuxHk2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTZR6FdiXYrsR5NlHoV2JdiuxHk2UehXYl2K7EeTZR6FdiXYrsR5NlHoV2JdiuxHk2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7EeTY2UehXYl2K7e-v//Z" alt="Noticia sobre perro-robot" class="w-24 h-24 rounded-md object-cover">
-                            <div>
-                                <h4 class="font-bold text-lg">Perro-robot “Black Panther 2.0”</h4>
-                                <p class="text-sm text-gray-700">Asegura cubrir 100 m en menos de 10 s (>36 km/h), un salto frente a modelos comerciales. Se necesita verificación independiente de las condiciones de prueba y su autonomía.</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Noticia 4 -->
-                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
-                            <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAEsA7gDASIAAhEBAxEB/8QAHAAAAQUBAQEAAAAAAAAAAAAABQIDBAYHAAEI/8QAWhAAAQMCBAIECAoFBwcHCgcAAQIDBAURAAYSIQcxE0FRYSIUcYGRoQgyUpLB0SNCUrFSYnOC0uEkorPh8BYkM0Njc5OzwvFEVWR1g5SjGEVUdZXVJ0aV/8QAGQEBAAMBAQAAAAAAAAAAAAAAAAECAwQF/8QALhEBAAIBBAEDAwQCAwADAAAAAQIRAxIhBBMxQVEiYXEygcEFFJGhsRWhwZLw/9oADAMBAAIRAxEAPwDsoAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAooAoo-p(img, Noti_5)" alt="Noticia sobre Photon Matrix" class="w-24 h-24 rounded-md object-cover">
-                            <div>
-                                <h4 class="font-bold text-lg">“Photon Matrix” anti-mosquitos</h4>
-                                <p class="text-sm text-gray-700">Afirma usar IA y láseres para abatir hasta 40 mosquitos por segundo. Viable en entornos controlados, pero depende de la seguridad ocular, consumo y coste para su adopción.</p>
-                            </div>
-                        </div>
-
+                        <div id="news-last-update" class="text-xs uppercase tracking-wide text-gray-500"></div>
+                        <div id="news-list" class="space-y-4"></div>
                     </div>
                     <!-- Columna Derecha: Dibujo -->
+
                     <div class="p-4 border-dashed border-4 rounded-lg bg-white/50 h-full min-h-[300px] flex items-center justify-center sticky top-24">
                         <p class="text-gray-500 text-lg">Aquí irá el dibujo decorativo</p>
                     </div>
@@ -316,499 +364,504 @@
             </section>
 
             <!-- Sección 2: Apps y Entretenimiento -->
-            <section id="apps-content" class="content-section content-hidden text-center">
-                <!-- Aplicación de Cálculo de Paneles Solares -->
-                <div class="w-full max-w-full mx-auto flex flex-col lg:flex-row gap-4 h-[95vh]">
-                    <!-- Panel de Controles Izquierdo -->
-                    <div class="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
-                        <header class="text-center">
-                            <h1 class="text-2xl font-bold text-blue-400">Diseño Solar Visual</h1>
-                        </header>
-                        <div class="card p-4 rounded-xl">
-                            <h2 class="text-xl font-bold mb-3">Componentes</h2>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div id="asset-panel" draggable="true" class="asset bg-gray-800 p-2 rounded-lg flex flex-col items-center justify-center text-center aspect-w-3 aspect-h-4">
-                                    <img src="img/Panel1800x1134.png" alt="Panel Solar" class="max-h-24 object-contain pointer-events-none">
-                                    <span class="text-xs mt-1">Panel</span>
-                                </div>
-                                <div id="asset-profile" draggable="true" class="asset bg-gray-800 p-2 rounded-lg flex flex-col items-center justify-center text-center">
-                                    <img src="img/Perfil3500x60.png" alt="Perfil de Montaje" class="h-24 object-contain pointer-events-none transform -rotate-45">
-                                    <span class="text-xs mt-1">Perfil</span>
-                                </div>
+            <section id="apps-content" class="content-section content-hidden">
+                <div class="space-y-10 pt-8">
+                    <div class="rounded-2xl border-4 border-dashed border-blue-300/70 bg-white/90 p-6 shadow-lg">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                            <div class="text-left">
+                                <h3 class="text-2xl font-bold text-blue-800">Centro de aplicaciones</h3>
+                                <p class="text-sm text-gray-600 max-w-2xl">Selecciona una tarjeta para abrir la herramienta correspondiente. Puedes añadir nuevas aplicaciones desde <code class="bg-blue-100 px-1 py-0.5 rounded">js/site-data.js</code>.</p>
+                            </div>
+                            <button id="apps-reset" class="self-start rounded-lg border-2 border-blue-500 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-500 hover:text-white">Limpiar selección</button>
+                        </div>
+                        <div id="apps-grid" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+                    </div>
+
+                    <div class="rounded-2xl border-2 border-blue-200 bg-slate-900/80 p-4 sm:p-6 shadow-2xl">
+                        <div id="app-placeholder" class="flex min-h-[220px] items-center justify-center text-center text-slate-200">
+                            <div>
+                                <p class="text-lg font-semibold">Selecciona una aplicación del panel superior.</p>
+                                <p class="mt-2 text-sm text-slate-300">El contenido se cargará aquí sin salir de la página principal.</p>
                             </div>
                         </div>
-                        <!-- Configuración de Componentes -->
-                        <div class="card p-4 rounded-xl">
-                            <h2 class="text-xl font-bold mb-3">Configuración</h2>
-                            <div class="space-y-3">
-                                <div>
-                                    <h4 class="font-semibold text-sm mb-1 text-gray-300">Panel Solar</h4>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <label class="text-xs">Ancho (mm)<input id="panel-width" type="number" value="1134" class="config-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
-                                        <label class="text-xs">Alto (mm)<input id="panel-height" type="number" value="1800" class="config-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
+                        <div id="app-panels" class="space-y-6">
+                            <div class="app-panel hidden" data-app-panel="solar-designer">
+                                <!-- Aplicación de Cálculo de Paneles Solares -->
+                                <div class="w-full max-w-full mx-auto flex flex-col lg:flex-row gap-4 h-[95vh]">
+                                    <!-- Panel de Controles Izquierdo -->
+                                    <div class="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
+                                        <header class="text-center">
+                                            <h1 class="text-2xl font-bold text-blue-400">Diseño Solar Visual</h1>
+                                        </header>
+                                        <div class="card p-4 rounded-xl">
+                                            <h2 class="text-xl font-bold mb-3">Componentes</h2>
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <div id="asset-panel" draggable="true" class="asset bg-gray-800 p-2 rounded-lg flex flex-col items-center justify-center text-center aspect-w-3 aspect-h-4">
+                                                    <img src="img/Panel1800x1134.png" alt="Panel Solar" class="max-h-24 object-contain pointer-events-none">
+                                                    <span class="text-xs mt-1">Panel</span>
+                                                </div>
+                                                <div id="asset-profile" draggable="true" class="asset bg-gray-800 p-2 rounded-lg flex flex-col items-center justify-center text-center">
+                                                    <img src="img/Perfil3500x60.png" alt="Perfil de Montaje" class="h-24 object-contain pointer-events-none transform -rotate-45">
+                                                    <span class="text-xs mt-1">Perfil</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Configuración de Componentes -->
+                                        <div class="card p-4 rounded-xl">
+                                            <h2 class="text-xl font-bold mb-3">Configuración</h2>
+                                            <div class="space-y-3">
+                                                <div>
+                                                    <h4 class="font-semibold text-sm mb-1 text-gray-300">Panel Solar</h4>
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <label class="text-xs">Ancho (mm)<input id="panel-width" type="number" value="1134" class="config-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
+                                                        <label class="text-xs">Alto (mm)<input id="panel-height" type="number" value="1800" class="config-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-semibold text-sm mb-1 text-gray-300">Perfil</h4>
+                                                    <div class="grid grid-cols-1 gap-2">
+                                                        <label class="text-xs">Longitud (mm)<input id="profile-length" type="number" value="3500" class="config-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="result-card text-white p-4 rounded-xl shadow-lg text-center flex-grow flex flex-col justify-center">
+                                            <h3 class="text-md font-medium opacity-80">Paneles / Piezas</h3>
+                                            <div class="flex justify-around items-center mt-2">
+                                                <div class="text-center">
+                                                    <p id="totalPanels" class="text-4xl font-bold">0</p>
+                                                    <span class="text-xs opacity-80">Paneles</span>
+                                                </div>
+                                                <div class="text-center">
+                                                    <p id="totalClamps" class="text-4xl font-bold">0</p>
+                                                    <span class="text-xs opacity-80">Piezas</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Panel Central (Canvas) -->
+                                    <div class="w-full lg:w-1/2 xl:w-3/5 h-full rounded-lg shadow-2xl border border-blue-500/30 p-2 flex flex-col gap-2">
+                                        <div id="canvas-toolbar" class="flex items-center justify-between p-2 bg-gray-800/50 rounded-lg">
+                                            <div class="flex gap-2">
+                                                <button data-mode="move" class="tool-btn active bg-gray-700 p-2 rounded-lg" title="Mover y Seleccionar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M5 9l-3 3 3 3"></path>
+                                                        <path d="M9 5l3-3 3 3"></path>
+                                                        <path d="M15 19l-3 3-3-3"></path>
+                                                        <path d="M19 9l3 3-3 3"></path>
+                                                        <path d="M2 12h20"></path>
+                                                        <path d="M12 2v20"></path>
+                                                    </svg>
+                                                </button>
+                                                <button data-mode="delete" class="tool-btn bg-gray-700 p-2 rounded-lg" title="Borrar Elemento">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="text-sm text-gray-400">Rueda del ratón: Zoom. Clic derecho: Mover vista.</div>
+                                        </div>
+                                        <div id="canvas-container" class="w-full h-full bg-gray-800 rounded-lg">
+                                            <canvas id="roofCanvas" class="w-full h-full"></canvas>
+                                        </div>
+                                    </div>
+                                    <!-- Panel Derecho -->
+                                    <div class="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
+                                        <div class="card p-4 rounded-xl">
+                                            <h2 class="text-xl font-bold mb-3">Textura del Tejado</h2>
+                                            <div id="texture-selector" class="grid grid-cols-2 gap-2">
+                                                <div data-texture="img/tejas.jpg" class="texture-thumb active aspect-square rounded" style="background-image: url('img/tejas.jpg')" alt="Teja Tradicional"></div>
+                                                <div data-texture="img/tejas_2.jpg" class="texture-thumb aspect-square rounded" style="background-image: url('img/tejas_2.jpg')" alt="Teja Plana"></div>
+                                                <div data-texture="img/tejas_3.jpg" class="texture-thumb aspect-square rounded" style="background-image: url('img/tejas_3.jpg')" alt="Pizarra Oscura"></div>
+                                                <div data-texture="img/tejas_3.jpg" class="texture-thumb aspect-square rounded" style="background-image: url('img/tejas_3.jpg')" alt="Teja Mixta"></div>
+                                            </div>
+                                        </div>
+                                        <div id="controls-container" class="card p-4 rounded-xl flex-grow overflow-y-auto">
+                                            <h2 class="text-xl font-bold mb-3">Zonas del Tejado</h2>
+                                            <div id="zonesContainer" class="space-y-4"></div>
+                                            <button id="addZoneBtn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">+ Añadir Zona</button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <h4 class="font-semibold text-sm mb-1 text-gray-300">Perfil</h4>
-                                    <div class="grid grid-cols-1 gap-2">
-                                        <label class="text-xs">Longitud (mm)<input id="profile-length" type="number" value="3500" class="config-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>
+                                <script>
+                                    (function() {
+                                        const appSection = document.getElementById('apps-content');
+                                        if (!appSection) return;
+                                        const panel = appSection.querySelector('[data-app-panel="solar-designer"]');
+                                        if (!panel) return;
+
+                                        const canvas = panel.querySelector('#roofCanvas');
+                                        const ctx = canvas.getContext('2d');
+                                        const zonesContainer = panel.querySelector('#zonesContainer');
+                                        const addZoneBtn = panel.querySelector('#addZoneBtn');
+                                        const totalPanelsEl = panel.querySelector('#totalPanels');
+                                        const totalClampsEl = panel.querySelector('#totalClamps');
+                                        const toolbar = panel.querySelector('#canvas-toolbar');
+                                        const assetPanel = panel.querySelector('#asset-panel');
+                                        const assetProfile = panel.querySelector('#asset-profile');
+                                        const textureSelector = panel.querySelector('#texture-selector');
+                                        const panelWidthInput = panel.querySelector('#panel-width');
+                                        const panelHeightInput = panel.querySelector('#panel-height');
+                                        const profileLengthInput = panel.querySelector('#profile-length');
+
+                                        const PROFILE_VISUAL_WIDTH = 40;
+                                        const CLAMP_MID_WIDTH = 40;
+                                        const CLAMP_END_WIDTH = 25;
+                                        const CLAMP_HEIGHT = 50;
+
+                                        let state = {
+                                            zones: [], profiles: [], panels: [], clamps: [],
+                                            mode: 'move', selectedObject: null, isDragging: false, isPanning: false,
+                                            dragOffset: { x: 0, y: 0 }, panStart: { x: 0, y: 0 },
+                                            scale: 0.05, panOffset: { x: 50, y: 50 }
+                                        };
+                                        let zoneCounter = 0; let elementCounter = 0;
+
+                                        function updateCanvasSize() {
+                                            const parent = canvas.parentElement;
+                                            canvas.width = parent.clientWidth;
+                                            canvas.height = parent.clientHeight;
+                                        }
+
+                                        function addZone(width = 5970, height = 3420) {
+                                            zoneCounter++;
+                                            const zone = { id: 'zone-' + zoneCounter, width: width, height: height };
+                                            state.zones.push(zone);
+                                            renderZoneControls();
+                                            draw();
+                                        }
+                                        function removeZone(id) {
+                                            state.zones = state.zones.filter(function(z) { return z.id !== id; });
+                                            renderZoneControls();
+                                            draw();
+                                        }
+                                        function updateZone(id, field, value) {
+                                            const zone = state.zones.find(function(z) { return z.id === id; });
+                                            if (zone) {
+                                                zone[field] = parseInt(value) || 0;
+                                                draw();
+                                            }
+                                        }
+                                        function renderZoneControls() {
+                                            zonesContainer.innerHTML = state.zones.map(function(zone) {
+                                                return '<div class="bg-gray-700/50 p-3 rounded-lg">' +
+                                                    '<div class="flex justify-between items-center mb-2">' +
+                                                    '<h3 class="font-bold text-md text-blue-300">Zona ' + zone.id.split('-')[1] + '</h3>' +
+                                                    '<button class="remove-zone-btn text-red-400 hover:text-red-300" data-id="' + zone.id + '">✕</button>' +
+                                                    '</div>' +
+                                                    '<div class="grid grid-cols-2 gap-2">' +
+                                                    '<label class="text-xs">Ancho<input type="number" value="' + zone.width + '" data-field="width" data-id="' + zone.id + '" class="zone-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>' +
+                                                    '<label class="text-xs">Alto<input type="number" value="' + zone.height + '" data-field="height" data-id="' + zone.id + '" class="zone-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>' +
+                                                    '</div>' +
+                                                '</div>';
+                                            }).join('');
+                                        }
+
+                                        function draw() {
+                                            if (panel.classList.contains('hidden')) return;
+                                            updateCanvasSize();
+                                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                            ctx.save();
+                                            ctx.translate(state.panOffset.x, state.panOffset.y);
+                                            ctx.scale(state.scale, state.scale);
+
+                                            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+                                            ctx.lineWidth = 5 / state.scale;
+                                            ctx.setLineDash([15 / state.scale, 15 / state.scale]);
+                                            state.zones.forEach(function(z) { ctx.strokeRect(0, 0, z.width, z.height); });
+                                            ctx.setLineDash([]);
+
+                                            ctx.fillStyle = '#9ca3af';
+                                            state.profiles.forEach(function(p) { ctx.fillRect(p.x, p.y, p.width, p.height); });
+
+                                            state.panels.forEach(function(p) {
+                                                ctx.fillStyle = 'rgba(30, 58, 138, 0.85)';
+                                                ctx.fillRect(p.x, p.y, p.width, p.height);
+                                                ctx.strokeStyle = '#3b82f6';
+                                                ctx.lineWidth = 15 / state.scale;
+                                                ctx.strokeRect(p.x, p.y, p.width, p.height);
+                                            });
+
+                                            state.clamps.forEach(function(c) {
+                                                ctx.fillStyle = c.clampType === 'mid' ? 'rgba(234, 179, 8, 0.9)' : 'rgba(168, 85, 247, 0.9)';
+                                                ctx.fillRect(c.x, c.y, c.width, c.height);
+                                            });
+
+                                            if (state.selectedObject) {
+                                                ctx.strokeStyle = '#f59e0b';
+                                                ctx.lineWidth = 20 / state.scale;
+                                                const s = state.selectedObject;
+                                                ctx.strokeRect(s.x, s.y, s.width, s.height);
+                                            }
+                                            ctx.restore();
+                                            updateTotals();
+                                        }
+
+                                        function updateClamps() {
+                                            state.clamps = [];
+                                            state.profiles.forEach(function(p) {
+                                                const panelsOnProfile = [];
+                                                const isHorizProfile = p.width > p.height;
+                                                state.panels.forEach(function(panelItem) {
+                                                    const isVertPanel = panelItem.height > panelItem.width;
+                                                    if (isHorizProfile && isVertPanel) {
+                                                        const y_overlap = panelItem.y < p.y + p.height && panelItem.y + panelItem.height > p.y;
+                                                        const x_midpoint_inside = (panelItem.x + panelItem.width / 2) > p.x && (panelItem.x + panelItem.width / 2) < p.x + p.width;
+                                                        if (y_overlap && x_midpoint_inside) panelsOnProfile.push(panelItem);
+                                                    } else if (!isHorizProfile && !isVertPanel) {
+                                                        const x_overlap = panelItem.x < p.x + p.width && panelItem.x + panelItem.width > p.x;
+                                                        const y_midpoint_inside = (panelItem.y + panelItem.height / 2) > p.y && (panelItem.y + panelItem.height / 2) < p.y + p.height;
+                                                        if (x_overlap && y_midpoint_inside) panelsOnProfile.push(panelItem);
+                                                    }
+                                                });
+                                                if (isHorizProfile) panelsOnProfile.sort(function(a, b) { return a.x - b.x; });
+                                                else panelsOnProfile.sort(function(a, b) { return a.y - b.y; });
+                                                if (panelsOnProfile.length > 0) {
+                                                    const first = panelsOnProfile[0];
+                                                    const last = panelsOnProfile[panelsOnProfile.length - 1];
+                                                    if (isHorizProfile) {
+                                                        state.clamps.push({ x: first.x - CLAMP_END_WIDTH, y: p.y, width: CLAMP_END_WIDTH, height: CLAMP_HEIGHT, clampType: 'end' });
+                                                        state.clamps.push({ x: last.x + last.width, y: p.y, width: CLAMP_END_WIDTH, height: CLAMP_HEIGHT, clampType: 'end' });
+                                                    } else {
+                                                        state.clamps.push({ y: first.y - CLAMP_END_WIDTH, x: p.x, height: CLAMP_END_WIDTH, width: CLAMP_HEIGHT, clampType: 'end' });
+                                                        state.clamps.push({ y: last.y + last.height, x: p.x, height: CLAMP_END_WIDTH, width: CLAMP_HEIGHT, clampType: 'end' });
+                                                    }
+                                                }
+                                                for (let i = 0; i < panelsOnProfile.length - 1; i++) {
+                                                    const p1 = panelsOnProfile[i];
+                                                    const p2 = panelsOnProfile[i + 1];
+                                                    if (isHorizProfile) {
+                                                        const gap = p2.x - (p1.x + p1.width);
+                                                        if (gap > 0 && gap < 100) {
+                                                            state.clamps.push({ x: p1.x + p1.width + gap / 2 - CLAMP_MID_WIDTH / 2, y: p.y, width: CLAMP_MID_WIDTH, height: CLAMP_HEIGHT, clampType: 'mid' });
+                                                        }
+                                                    } else {
+                                                        const gap = p2.y - (p1.y + p1.height);
+                                                        if (gap > 0 && gap < 100) {
+                                                            state.clamps.push({ y: p1.y + p1.height + gap / 2 - CLAMP_MID_WIDTH / 2, x: p.x, height: CLAMP_MID_WIDTH, width: CLAMP_HEIGHT, clampType: 'mid' });
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                            draw();
+                                        }
+
+                                        function getObjectAt(worldX, worldY) {
+                                            for (let i = state.panels.length - 1; i >= 0; i--) {
+                                                const pItem = state.panels[i];
+                                                if (worldX > pItem.x && worldX < pItem.x + pItem.width && worldY > pItem.y && worldY < pItem.y + pItem.height) return pItem;
+                                            }
+                                            for (let i = state.profiles.length - 1; i >= 0; i--) {
+                                                const pItem = state.profiles[i];
+                                                if (worldX > pItem.x && worldX < pItem.x + pItem.width && worldY > pItem.y && worldY < pItem.y + pItem.height) return pItem;
+                                            }
+                                            return null;
+                                        }
+
+                                        function handleMouseDown(e) {
+                                            if (e.button === 2) {
+                                                state.isPanning = true;
+                                                state.panStart = { x: e.clientX, y: e.clientY };
+                                                return;
+                                            }
+                                            const worldPos = worldMousePos(e.clientX, e.clientY);
+                                            const object = getObjectAt(worldPos.x, worldPos.y);
+                                            state.selectedObject = object;
+                                            if (state.mode === 'move' && object) {
+                                                state.isDragging = true;
+                                                state.dragOffset.x = worldPos.x - object.x;
+                                                state.dragOffset.y = worldPos.y - object.y;
+                                            } else if (state.mode === 'delete' && object) {
+                                                if (object.type === 'panel') {
+                                                    state.panels = state.panels.filter(function(p) { return p.id !== object.id; });
+                                                }
+                                                if (object.type === 'profile') {
+                                                    state.profiles = state.profiles.filter(function(p) { return p.id !== object.id; });
+                                                }
+                                                state.selectedObject = null;
+                                                updateClamps();
+                                            }
+                                            draw();
+                                        }
+                                        function handleMouseMove(e) {
+                                            if (state.isPanning) {
+                                                const dx = e.clientX - state.panStart.x;
+                                                const dy = e.clientY - state.panStart.y;
+                                                state.panOffset.x += dx;
+                                                state.panOffset.y += dy;
+                                                state.panStart = { x: e.clientX, y: e.clientY };
+                                                draw();
+                                                return;
+                                            }
+                                            if (state.isDragging && state.selectedObject) {
+                                                const worldPos = worldMousePos(e.clientX, e.clientY);
+                                                state.selectedObject.x = worldPos.x - state.dragOffset.x;
+                                                state.selectedObject.y = worldPos.y - state.dragOffset.y;
+                                                draw();
+                                            }
+                                        }
+                                        function handleMouseUp() {
+                                            if (state.isDragging) updateClamps();
+                                            state.isDragging = false;
+                                            state.isPanning = false;
+                                        }
+                                        function handleWheel(e) {
+                                            e.preventDefault();
+                                            const zoomIntensity = 0.1;
+                                            const wheel = e.deltaY < 0 ? 1 : -1;
+                                            const zoom = Math.exp(wheel * zoomIntensity);
+                                            const mousePos = worldMousePos(e.clientX, e.clientY);
+                                            state.panOffset.x -= mousePos.x * (zoom - 1);
+                                            state.panOffset.y -= mousePos.y * (zoom - 1);
+                                            state.scale *= zoom;
+                                            draw();
+                                        }
+
+                                        function setupDragAndDrop() {
+                                            assetPanel.addEventListener('dragstart', function(e) { e.dataTransfer.setData('text/plain', 'panel'); });
+                                            assetProfile.addEventListener('dragstart', function(e) { e.dataTransfer.setData('text/plain', 'profileH'); });
+                                            canvas.addEventListener('dragover', function(e) { e.preventDefault(); });
+                                            canvas.addEventListener('drop', function(e) {
+                                                e.preventDefault();
+                                                const type = e.dataTransfer.getData('text/plain');
+                                                const worldPos = worldMousePos(e.clientX, e.clientY);
+                                                elementCounter++;
+                                                const id = 'el-' + elementCounter;
+                                                const panelW = parseInt(panelWidthInput.value);
+                                                const panelH = parseInt(panelHeightInput.value);
+                                                const profileL = parseInt(profileLengthInput.value);
+                                                if (type === 'panel') {
+                                                    state.panels.push({ id: id, type: 'panel', x: worldPos.x - panelW / 2, y: worldPos.y - panelH / 2, width: panelW, height: panelH });
+                                                } else if (type === 'profileH') {
+                                                    state.profiles.push({ id: id, type: 'profile', x: worldPos.x - profileL / 2, y: worldPos.y - PROFILE_VISUAL_WIDTH / 2, width: profileL, height: PROFILE_VISUAL_WIDTH });
+                                                }
+                                                updateClamps();
+                                            });
+                                        }
+
+                                        function updateTotals() {
+                                            totalPanelsEl.textContent = state.panels.length;
+                                            totalClampsEl.textContent = state.clamps.length;
+                                        }
+                                        function worldMousePos(screenX, screenY) {
+                                            const rect = canvas.getBoundingClientRect();
+                                            const x = (screenX - rect.left - state.panOffset.x) / state.scale;
+                                            const y = (screenY - rect.top - state.panOffset.y) / state.scale;
+                                            return { x: x, y: y };
+                                        }
+
+                                        function switchMode(mode) {
+                                            state.mode = mode;
+                                            toolbar.querySelectorAll('.tool-btn').forEach(function(btn) {
+                                                btn.classList.toggle('active', btn.dataset.mode === mode);
+                                            });
+                                        }
+
+                                        toolbar.addEventListener('click', function(e) {
+                                            const btn = e.target.closest('.tool-btn');
+                                            if (!btn) return;
+                                            switchMode(btn.dataset.mode);
+                                        });
+
+                                        zonesContainer.addEventListener('input', function(e) {
+                                            if (!e.target.classList.contains('zone-input')) return;
+                                            updateZone(e.target.dataset.id, e.target.dataset.field, e.target.value);
+                                        });
+
+                                        zonesContainer.addEventListener('click', function(e) {
+                                            if (!e.target.classList.contains('remove-zone-btn')) return;
+                                            removeZone(e.target.dataset.id);
+                                        });
+
+                                        textureSelector.addEventListener('click', function(e) {
+                                            const target = e.target.closest('[data-texture]');
+                                            if (!target) return;
+                                            textureSelector.querySelectorAll('.texture-thumb').forEach(function(el) { el.classList.remove('active'); });
+                                            target.classList.add('active');
+                                            canvas.style.backgroundImage = "url('" + target.dataset.texture + "')";
+                                        });
+
+                                        canvas.addEventListener('mousedown', handleMouseDown);
+                                        canvas.addEventListener('mousemove', handleMouseMove);
+                                        window.addEventListener('mouseup', handleMouseUp);
+                                        canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+                                        canvas.addEventListener('wheel', handleWheel, { passive: false });
+
+                                        setupDragAndDrop();
+                                        addZoneBtn.addEventListener('click', function() { addZone(); });
+                                        addZone();
+
+                                        panel.addEventListener('app:activated', function() {
+                                            requestAnimationFrame(function() {
+                                                draw();
+                                            });
+                                        });
+                                        panel.addEventListener('app:deactivated', function() {
+                                            state.isDragging = false;
+                                            state.isPanning = false;
+                                        });
+                                        window.addEventListener('resize', function() {
+                                            if (!panel.classList.contains('hidden')) {
+                                                draw();
+                                            }
+                                        });
+                                    })();
+                                </script>
+                            </div>
+                            <div class="app-panel hidden text-left text-white" data-app-panel="menu-planner">
+                                <div class="grid gap-6 md:grid-cols-[2fr,1fr] md:items-center">
+                                    <div class="space-y-3">
+                                        <h4 class="text-xl font-bold">Planificador semanal de menús</h4>
+                                        <p class="text-sm text-slate-200">Organiza tus comidas arrastrando y soltando platos, genera automáticamente la lista de la compra y guarda tus menús en el navegador.</p>
+                                        <ul class="list-disc list-inside space-y-1 text-sm text-slate-300">
+                                            <li>Catálogo editable de primeros y segundos platos con iconos.</li>
+                                            <li>Calendario semanal que puedes duplicar, limpiar o guardar.</li>
+                                            <li>Lista de la compra con extras y recordatorios.</li>
+                                        </ul>
+                                        <div class="flex flex-wrap gap-2 pt-2">
+                                            <span class="keyword-badge">hogar</span>
+                                            <span class="keyword-badge">organización</span>
+                                            <span class="keyword-badge">meal planning</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <a href="Pruebas/Index_1.html" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-full bg-blue-500 px-5 py-3 font-semibold text-white shadow-lg transition hover:bg-blue-600">
+                                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            Abrir en nueva pestaña
+                                        </a>
+                                        <p class="mt-3 text-xs text-slate-300">Se abrirá en una pestaña nueva para mantener esta vista.</p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="result-card text-white p-4 rounded-xl shadow-lg text-center flex-grow flex flex-col justify-center">
-                            <h3 class="text-md font-medium opacity-80">Paneles / Piezas</h3>
-                            <div class="flex justify-around items-center mt-2">
-                                <div class="text-center">
-                                    <p id="totalPanels" class="text-4xl font-bold">0</p>
-                                    <span class="text-xs opacity-80">Paneles</span>
-                                </div>
-                                <div class="text-center">
-                                    <p id="totalClamps" class="text-4xl font-bold">0</p>
-                                    <span class="text-xs opacity-80">Piezas</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Panel Central (Canvas) -->
-                    <div class="w-full lg:w-1/2 xl:w-3/5 h-full rounded-lg shadow-2xl border border-blue-500/30 p-2 flex flex-col gap-2">
-                        <div id="canvas-toolbar" class="flex items-center justify-between p-2 bg-gray-800/50 rounded-lg">
-                            <div class="flex gap-2">
-                                <button data-mode="move" class="tool-btn active bg-gray-700 p-2 rounded-lg" title="Mover y Seleccionar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M5 9l-3 3 3 3"></path>
-                                        <path d="M9 5l3-3 3 3"></path>
-                                        <path d="M15 19l-3 3-3-3"></path>
-                                        <path d="M19 9l3 3-3 3"></path>
-                                        <path d="M2 12h20"></path>
-                                        <path d="M12 2v20"></path>
-                                    </svg>
-                                </button>
-                                <button data-mode="delete" class="tool-btn bg-gray-700 p-2 rounded-lg" title="Borrar Elemento">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="text-sm text-gray-400">Rueda del ratón: Zoom. Clic derecho: Mover vista.</div>
-                        </div>
-                        <div id="canvas-container" class="w-full h-full bg-gray-800 rounded-lg">
-                            <canvas id="roofCanvas" class="w-full h-full"></canvas>
-                        </div>
-                    </div>
-                    <!-- Panel Derecho -->
-                    <div class="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
-                        <div class="card p-4 rounded-xl">
-                            <h2 class="text-xl font-bold mb-3">Textura del Tejado</h2>
-                            <div id="texture-selector" class="grid grid-cols-2 gap-2">
-                                <div data-texture="img/tejas.jpg" class="texture-thumb active aspect-square rounded" style="background-image: url('img/tejas.jpg')" alt="Teja Tradicional"></div>
-                                <div data-texture="img/tejas_2.jpg" class="texture-thumb aspect-square rounded" style="background-image: url('img/tejas_2.jpg')" alt="Teja Plana"></div>
-                                <div data-texture="img/tejas_3.jpg" class="texture-thumb aspect-square rounded" style="background-image: url('img/tejas_3.jpg')" alt="Pizarra Oscura"></div>
-                                <div data-texture="img/tejas_3.jpg" class="texture-thumb aspect-square rounded" style="background-image: url('img/tejas_3.jpg')" alt="Teja Mixta"></div>
-                            </div>
-                        </div>
-                        <div id="controls-container" class="card p-4 rounded-xl flex-grow overflow-y-auto">
-                            <h2 class="text-xl font-bold mb-3">Zonas del Tejado</h2>
-                            <div id="zonesContainer" class="space-y-4"></div>
-                            <button id="addZoneBtn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">+ Añadir Zona</button>
                         </div>
                     </div>
                 </div>
-                <script>
-                    // Código JavaScript para la aplicación de diseño solar
-                    (function() {
-                        const app = document.getElementById('apps-content');
-                        if (!app) return;
-
-                        // Elementos dentro de la sección de apps
-                        const canvas = app.querySelector('#roofCanvas');
-                        const ctx = canvas.getContext('2d');
-                        const zonesContainer = app.querySelector('#zonesContainer');
-                        const addZoneBtn = app.querySelector('#addZoneBtn');
-                        const totalPanelsEl = app.querySelector('#totalPanels');
-                        const totalClampsEl = app.querySelector('#totalClamps');
-                        const toolbar = app.querySelector('#canvas-toolbar');
-                        const assetPanel = app.querySelector('#asset-panel');
-                        const assetProfile = app.querySelector('#asset-profile');
-                        const textureSelector = app.querySelector('#texture-selector');
-                        const panelWidthInput = app.querySelector('#panel-width');
-                        const panelHeightInput = app.querySelector('#panel-height');
-                        const profileLengthInput = app.querySelector('#profile-length');
-
-                        const PROFILE_VISUAL_WIDTH = 40;
-                        const CLAMP_MID_WIDTH = 40;
-                        const CLAMP_END_WIDTH = 25;
-                        const CLAMP_HEIGHT = 50;
-
-                        let state = {
-                            zones: [], profiles: [], panels: [], clamps: [],
-                            mode: 'move', selectedObject: null, isDragging: false, isPanning: false,
-                            dragOffset: { x: 0, y: 0 }, panStart: { x: 0, y: 0 },
-                            scale: 0.05, panOffset: { x: 50, y: 50 }
-                        };
-                        let zoneCounter = 0; let elementCounter = 0;
-
-                        function addZone(width = 5970, height = 3420) {
-                            zoneCounter++;
-                            const zone = { id: 'zone-' + zoneCounter, width: width, height: height };
-                            state.zones.push(zone);
-                            renderZoneControls();
-                            draw();
-                        }
-                        function removeZone(id) {
-                            state.zones = state.zones.filter(function(z) { return z.id !== id; });
-                            renderZoneControls();
-                            draw();
-                        }
-                        function updateZone(id, field, value) {
-                            const zone = state.zones.find(function(z) { return z.id === id; });
-                            if (zone) {
-                                zone[field] = parseInt(value) || 0;
-                                draw();
-                            }
-                        }
-                        function renderZoneControls() {
-                            zonesContainer.innerHTML = state.zones.map(function(zone) {
-                                return '<div class="bg-gray-700/50 p-3 rounded-lg">' +
-                                    '<div class="flex justify-between items-center mb-2">' +
-                                    '<h3 class="font-bold text-md text-blue-300">Zona ' + zone.id.split('-')[1] + '</h3>' +
-                                    '<button class="remove-zone-btn text-red-400 hover:text-red-300" data-id="' + zone.id + '">✕</button>' +
-                                    '</div>' +
-                                    '<div class="grid grid-cols-2 gap-2">' +
-                                    '<label class="text-xs">Ancho<input type="number" value="' + zone.width + '" data-field="width" data-id="' + zone.id + '" class="zone-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>' +
-                                    '<label class="text-xs">Alto<input type="number" value="' + zone.height + '" data-field="height" data-id="' + zone.id + '" class="zone-input mt-1 w-full bg-gray-800 rounded p-1 text-sm"></label>' +
-                                    '</div>' +
-                                '</div>';
-                            }).join('');
-                        }
-
-                        function draw() {
-                            const parent = canvas.parentElement;
-                            canvas.width = parent.clientWidth;
-                            canvas.height = parent.clientHeight;
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                            ctx.save();
-                            ctx.translate(state.panOffset.x, state.panOffset.y);
-                            ctx.scale(state.scale, state.scale);
-
-                            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-                            ctx.lineWidth = 5 / state.scale;
-                            ctx.setLineDash([15 / state.scale, 15 / state.scale]);
-                            state.zones.forEach(function(z) { ctx.strokeRect(0, 0, z.width, z.height); });
-                            ctx.setLineDash([]);
-
-                            ctx.fillStyle = '#9ca3af';
-                            state.profiles.forEach(function(p) { ctx.fillRect(p.x, p.y, p.width, p.height); });
-
-                            state.panels.forEach(function(p) {
-                                ctx.fillStyle = 'rgba(30, 58, 138, 0.85)';
-                                ctx.fillRect(p.x, p.y, p.width, p.height);
-                                ctx.strokeStyle = '#3b82f6';
-                                ctx.lineWidth = 15 / state.scale;
-                                ctx.strokeRect(p.x, p.y, p.width, p.height);
-                            });
-                            
-                            state.clamps.forEach(function(c) {
-                                ctx.fillStyle = c.clampType === 'mid' ? 'rgba(234, 179, 8, 0.9)' : 'rgba(168, 85, 247, 0.9)';
-                                ctx.fillRect(c.x, c.y, c.width, c.height);
-                            });
-
-                            if (state.selectedObject) {
-                                ctx.strokeStyle = '#f59e0b';
-                                ctx.lineWidth = 20 / state.scale;
-                                const s = state.selectedObject;
-                                ctx.strokeRect(s.x, s.y, s.width, s.height);
-                            }
-                            ctx.restore();
-                            updateTotals();
-                        }
-
-                        function updateClamps() {
-                            state.clamps = [];
-                            state.profiles.forEach(function(p) {
-                                const panelsOnProfile = [];
-                                const isHorizProfile = p.width > p.height;
-                                state.panels.forEach(function(panel) {
-                                    const isVertPanel = panel.height > panel.width;
-                                    if (isHorizProfile && isVertPanel) {
-                                        const y_overlap = panel.y < p.y + p.height && panel.y + panel.height > p.y;
-                                        const x_midpoint_inside = (panel.x + panel.width / 2) > p.x && (panel.x + panel.width / 2) < p.x + p.width;
-                                        if (y_overlap && x_midpoint_inside) panelsOnProfile.push(panel);
-                                    } else if (!isHorizProfile && !isVertPanel) {
-                                        const x_overlap = panel.x < p.x + p.width && panel.x + panel.width > p.x;
-                                        const y_midpoint_inside = (panel.y + panel.height / 2) > p.y && (panel.y + panel.height / 2) < p.y + p.height;
-                                        if (x_overlap && y_midpoint_inside) panelsOnProfile.push(panel);
-                                    }
-                                });
-                                if (isHorizProfile) panelsOnProfile.sort(function(a, b) { return a.x - b.x; });
-                                else panelsOnProfile.sort(function(a, b) { return a.y - b.y; });
-                                if (panelsOnProfile.length > 0) {
-                                    const first = panelsOnProfile[0];
-                                    const last = panelsOnProfile[panelsOnProfile.length - 1];
-                                    if (isHorizProfile) {
-                                        state.clamps.push({ x: first.x - CLAMP_END_WIDTH, y: p.y, width: CLAMP_END_WIDTH, height: CLAMP_HEIGHT, clampType: 'end' });
-                                        state.clamps.push({ x: last.x + last.width, y: p.y, width: CLAMP_END_WIDTH, height: CLAMP_HEIGHT, clampType: 'end' });
-                                    } else {
-                                        state.clamps.push({ y: first.y - CLAMP_END_WIDTH, x: p.x, height: CLAMP_END_WIDTH, width: CLAMP_HEIGHT, clampType: 'end' });
-                                        state.clamps.push({ y: last.y + last.height, x: p.x, height: CLAMP_END_WIDTH, width: CLAMP_HEIGHT, clampType: 'end' });
-                                    }
-                                }
-                                for (let i = 0; i < panelsOnProfile.length - 1; i++) {
-                                    const p1 = panelsOnProfile[i];
-                                    const p2 = panelsOnProfile[i + 1];
-                                    if (isHorizProfile) {
-                                        const gap = p2.x - (p1.x + p1.width);
-                                        if (gap > 0 && gap < 100) {
-                                            state.clamps.push({ x: p1.x + p1.width + gap / 2 - CLAMP_MID_WIDTH / 2, y: p.y, width: CLAMP_MID_WIDTH, height: CLAMP_HEIGHT, clampType: 'mid' });
-                                        }
-                                    } else {
-                                        const gap = p2.y - (p1.y + p1.height);
-                                        if (gap > 0 && gap < 100) {
-                                            state.clamps.push({ y: p1.y + p1.height + gap / 2 - CLAMP_MID_WIDTH / 2, x: p.x, height: CLAMP_MID_WIDTH, width: CLAMP_HEIGHT, clampType: 'mid' });
-                                        }
-                                    }
-                                }
-                            });
-                            draw();
-                        }
-
-                        function getObjectAt(worldX, worldY) {
-                            for (let i = state.panels.length - 1; i >= 0; i--) {
-                                const pItem = state.panels[i];
-                                if (worldX > pItem.x && worldX < pItem.x + pItem.width && worldY > pItem.y && worldY < pItem.y + pItem.height) return pItem;
-                            }
-                            for (let i = state.profiles.length - 1; i >= 0; i--) {
-                                const pItem = state.profiles[i];
-                                if (worldX > pItem.x && worldX < pItem.x + pItem.width && worldY > pItem.y && worldY < pItem.y + pItem.height) return pItem;
-                            }
-                            return null;
-                        }
-
-                        function handleMouseDown(e) {
-                            if (e.button === 2) {
-                                state.isPanning = true;
-                                state.panStart = { x: e.clientX, y: e.clientY };
-                                return;
-                            }
-                            const worldPos = worldMousePos(e.clientX, e.clientY);
-                            const object = getObjectAt(worldPos.x, worldPos.y);
-                            state.selectedObject = object;
-                            if (state.mode === 'move' && object) {
-                                state.isDragging = true;
-                                state.dragOffset.x = worldPos.x - object.x;
-                                state.dragOffset.y = worldPos.y - object.y;
-                            } else if (state.mode === 'delete' && object) {
-                                if (object.type === 'panel') {
-                                    state.panels = state.panels.filter(function(p) { return p.id !== object.id; });
-                                }
-                                if (object.type === 'profile') {
-                                    state.profiles = state.profiles.filter(function(p) { return p.id !== object.id; });
-                                }
-                                state.selectedObject = null;
-                                updateClamps();
-                            }
-                            draw();
-                        }
-                        function handleMouseMove(e) {
-                            if (state.isPanning) {
-                                const dx = e.clientX - state.panStart.x;
-                                const dy = e.clientY - state.panStart.y;
-                                state.panOffset.x += dx;
-                                state.panOffset.y += dy;
-                                state.panStart = { x: e.clientX, y: e.clientY };
-                                draw();
-                                return;
-                            }
-                            if (state.isDragging && state.selectedObject) {
-                                const worldPos = worldMousePos(e.clientX, e.clientY);
-                                state.selectedObject.x = worldPos.x - state.dragOffset.x;
-                                state.selectedObject.y = worldPos.y - state.dragOffset.y;
-                                draw();
-                            }
-                        }
-                        function handleMouseUp(e) {
-                            if (state.isDragging) updateClamps();
-                            state.isDragging = false;
-                            state.isPanning = false;
-                        }
-                        function handleWheel(e) {
-                            e.preventDefault();
-                            const zoomIntensity = 0.1;
-                            const wheel = e.deltaY < 0 ? 1 : -1;
-                            const zoom = Math.exp(wheel * zoomIntensity);
-                            const mousePos = worldMousePos(e.clientX, e.clientY);
-                            state.panOffset.x -= mousePos.x * (zoom - 1);
-                            state.panOffset.y -= mousePos.y * (zoom - 1);
-                            state.scale *= zoom;
-                            draw();
-                        }
-
-                        function setupDragAndDrop() {
-                            assetPanel.addEventListener('dragstart', function(e) { e.dataTransfer.setData('text/plain', 'panel'); });
-                            assetProfile.addEventListener('dragstart', function(e) { e.dataTransfer.setData('text/plain', 'profileH'); });
-                            canvas.addEventListener('dragover', function(e) { e.preventDefault(); });
-                            canvas.addEventListener('drop', function(e) {
-                                e.preventDefault();
-                                const type = e.dataTransfer.getData('text/plain');
-                                const worldPos = worldMousePos(e.clientX, e.clientY);
-                                elementCounter++;
-                                const id = 'el-' + elementCounter;
-                                const panelW = parseInt(panelWidthInput.value);
-                                const panelH = parseInt(panelHeightInput.value);
-                                const profileL = parseInt(profileLengthInput.value);
-                                if (type === 'panel') {
-                                    state.panels.push({ id: id, type: 'panel', x: worldPos.x - panelW / 2, y: worldPos.y - panelH / 2, width: panelW, height: panelH });
-                                } else if (type === 'profileH') {
-                                    state.profiles.push({ id: id, type: 'profile', x: worldPos.x - profileL / 2, y: worldPos.y - PROFILE_VISUAL_WIDTH / 2, width: profileL, height: PROFILE_VISUAL_WIDTH });
-                                }
-                                updateClamps();
-                            });
-                        }
-
-                        function updateTotals() {
-                            totalPanelsEl.textContent = state.panels.length;
-                            totalClampsEl.textContent = state.clamps.length;
-                        }
-                        function worldMousePos(screenX, screenY) {
-                            const rect = canvas.getBoundingClientRect();
-                            const x = (screenX - rect.left - state.panOffset.x) / state.scale;
-                            const y = (screenY - rect.top - state.panOffset.y) / state.scale;
-                            return { x: x, y: y };
-                        }
-                        function setupEventListeners() {
-                            addZoneBtn.addEventListener('click', function() { addZone(); });
-                            zonesContainer.addEventListener('input', function(e) {
-                                if (e.target.classList.contains('zone-input')) updateZone(e.target.dataset.id, e.target.dataset.field, e.target.value);
-                            });
-                            zonesContainer.addEventListener('click', function(e) {
-                                if (e.target.classList.contains('remove-zone-btn')) removeZone(e.target.dataset.id);
-                            });
-                            toolbar.addEventListener('click', function(e) {
-                                const button = e.target.closest('.tool-btn');
-                                if (button) {
-                                    state.mode = button.dataset.mode;
-                                    app.querySelectorAll('.tool-btn').forEach(function(btn) { btn.classList.remove('active'); });
-                                    button.classList.add('active');
-                                }
-                            });
-                            textureSelector.addEventListener('click', function(e) {
-                                const thumb = e.target.closest('.texture-thumb');
-                                if (thumb) {
-                                    const textureUrl = thumb.dataset.texture;
-                                    canvas.style.backgroundImage = 'url(' + textureUrl + ')';
-                                    app.querySelectorAll('.texture-thumb').forEach(function(t) { t.classList.remove('active'); });
-                                    thumb.classList.add('active');
-                                }
-                            });
-                            canvas.addEventListener('mousedown', handleMouseDown);
-                            canvas.addEventListener('mousemove', handleMouseMove);
-                            canvas.addEventListener('mouseup', handleMouseUp);
-                            canvas.addEventListener('mouseleave', function() { state.isDragging = false; state.isPanning = false; });
-                            canvas.addEventListener('wheel', handleWheel);
-                            canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-                            new ResizeObserver(draw).observe(canvas.parentElement);
-                        }
-                        // Inicialización
-                        addZone();
-                        setupEventListeners();
-                        setupDragAndDrop();
-                        const firstThumb = app.querySelector('.texture-thumb');
-                        if (firstThumb) firstThumb.click();
-                    })();
-                </script>
             </section>
-
-            <!-- Sección 3: Enlaces Web -->
+<!-- Sección 3: Enlaces Web -->
             <section id="enlaces-content" class="content-section content-hidden">
-                <div class="pt-8">
-                    <h3 class="text-2xl font-bold border-b-2 pb-2 border-gray-400 mb-6">Enlaces de Interés</h3>
-                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        
-                        <!-- Tarjeta de Enlace 1 -->
-                        <a href="https://comparamapas.navarra.es/?lang=es" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-map-location-dot text-2xl text-green-600"></i>
-                                <h4 class="font-bold text-lg">Comparador de Mapas Navarra</h4>
-                            </div>
-                            <p class="text-sm text-gray-700 mt-2">Visualiza y compara diferentes mapas y ortofotos de la región de Navarra.</p>
-                        </a>
-
-                        <!-- Tarjeta de Enlace 2 -->
-                        <a href="https://idena.navarra.es/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-database text-2xl text-blue-800"></i>
-                                <h4 class="font-bold text-lg">IDENA</h4>
-                            </div>
-                            <p class="text-sm text-gray-700 mt-2">Infraestructura de Datos Espaciales de Navarra. Cartografía y datos geográficos.</p>
-                        </a>
-
-                        <!-- Tarjeta de Enlace 3 -->
-                        <a href="https://tinywow.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-toolbox text-2xl text-orange-500"></i>
-                                <h4 class="font-bold text-lg">TinyWow</h4>
-                            </div>
-                            <p class="text-sm text-gray-700 mt-2">Herramientas online gratuitas para PDF, imágenes, vídeos y más.</p>
-                        </a>
-
-                        <!-- Tarjeta de Enlace 4 -->
-                        <a href="https://alison.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-graduation-cap text-2xl text-purple-600"></i>
-                                <h4 class="font-bold text-lg">Alison</h4>
-                            </div>
-                             <p class="text-sm text-gray-700 mt-2">Plataforma de aprendizaje con miles de cursos online gratuitos.</p>
-                        </a>
-
-                        <!-- Tarjeta de Enlace 5 -->
-                        <a href="https://app.diagrams.net/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-project-diagram text-2xl text-yellow-500"></i>
-                                <h4 class="font-bold text-lg">Diagrams.net</h4>
-                            </div>
-                            <p class="text-sm text-gray-700 mt-2">Herramienta gratuita para crear diagramas de flujo, mapas mentales y más.</p>
-                        </a>
-                        
-                        <!-- Tarjeta de Enlace 6 -->
-                        <a href="https://aistudio.google.com/prompts/new_chat" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-robot text-2xl text-blue-500"></i>
-                                <h4 class="font-bold text-lg">Google AI Studio</h4>
-                            </div>
-                             <p class="text-sm text-gray-700 mt-2">Experimenta y crea con los modelos de inteligencia artificial de Google.</p>
-                        </a>
-                        
-                        <!-- Tarjeta de Enlace 7 -->
-                        <a href="https://www.midjourney.com/home" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-paint-brush text-2xl text-indigo-600"></i>
-                                <h4 class="font-bold text-lg">Midjourney</h4>
-                            </div>
-                             <p class="text-sm text-gray-700 mt-2">Generador de imágenes a partir de texto mediante inteligencia artificial.</p>
-                        </a>
-                        
-                        <!-- Tarjeta de Enlace 8 -->
-                        <a href="https://mega.nz/folder/Uc4U3KpL#uzR3-BaRzcS9DZNo3nAxaw/folder/5RJQQLwD" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-cloud text-2xl text-red-500"></i>
-                                <h4 class="font-bold text-lg">Almacenamiento en la Nube</h4>
-                            </div>
-                            <p class="text-sm text-gray-700 mt-2">Accede a una carpeta compartida con archivos y recursos.</p>
-                        </a>
-
+                <div class="pt-8 space-y-8">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-2xl font-bold border-b-2 pb-2 border-gray-400">Enlaces de Interés</h3>
+                            <p class="text-sm text-gray-600">Agrupados por temática para localizar recursos rápidamente.</p>
+                        </div>
+                        <p class="text-xs text-gray-500">Gestiona el listado desde <code class="bg-gray-100 px-1 py-0.5 rounded">js/site-data.js</code>.</p>
                     </div>
+                    <div id="link-groups" class="space-y-6"></div>
                 </div>
             </section>
         </main>
 
     </div>
 
+    <script src="js/site-data.js"></script>
     <script>
+        const pageState = { activeAppId: null };
+
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Seleccionamos todos los elementos necesarios del DOM ---
             const navItems = document.querySelectorAll('.nav-item');
             const contentSections = document.querySelectorAll('.content-section');
             const contactToggle = document.getElementById('contact-toggle');
@@ -816,71 +869,406 @@
             const backArrow = document.getElementById('back-arrow');
             const body = document.body;
 
-            // --- LÓGICA PARA LOS 3 APARTADOS PRINCIPALES ---
             navItems.forEach(item => {
                 item.addEventListener('click', () => {
-                    // Si ya hay una sección abierta, no hacemos nada para forzar a usar "volver"
                     if (body.classList.contains('section-open')) return;
-
                     const sectionId = item.dataset.section;
                     const targetSection = document.getElementById(sectionId + '-content');
-
-                    // 1. Añadimos la clase 'section-open' al body para iniciar la animación de subida
                     body.classList.add('section-open');
-                    
-                    // 2. Marcamos el botón clicado como 'active' para que no suba
                     navItems.forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
-
-                    // 3. Ocultamos el interrogante y mostramos la flecha de volver
                     contactToggle.classList.add('icon-hidden');
                     backArrow.classList.remove('icon-hidden');
-                    
-                    // 4. Mostramos el contenido de la sección correspondiente
                     contentSections.forEach(section => section.classList.add('content-hidden'));
-                    if(targetSection) {
+                    if (targetSection) {
                         targetSection.classList.remove('content-hidden');
-                        // Forzamos a que se muestre con display block para que la animación de opacidad funcione
                         targetSection.style.display = 'block';
                     }
                 });
             });
 
-            // --- LÓGICA PARA LA FLECHA DE VOLVER ---
             backArrow.addEventListener('click', () => {
-                // 1. Quitamos 'section-open' para que los botones vuelvan a bajar
                 body.classList.remove('section-open');
-
-                // 2. Quitamos la clase 'active' de todos los botones
                 navItems.forEach(item => item.classList.remove('active'));
-
-                // 3. Ocultamos la flecha y mostramos de nuevo el interrogante
                 backArrow.classList.add('icon-hidden');
                 contactToggle.classList.remove('icon-hidden');
-                
-                // 4. Ocultamos todo el contenido
                 contentSections.forEach(section => {
                     section.classList.add('content-hidden');
-                    // Esperamos a que la animación termine para poner display: none
-                     setTimeout(() => {
+                    setTimeout(() => {
                         if (!body.classList.contains('section-open')) {
-                           section.style.display = 'none';
+                            section.style.display = 'none';
                         }
                     }, 500);
                 });
-
-                // Ocultamos las redes sociales si estuvieran abiertas
                 socialLinks.classList.add('social-hidden');
             });
 
-            // --- LÓGICA PARA EL INTERROGANTE (MOSTRAR REDES) ---
             contactToggle.addEventListener('click', () => {
-                // Solo funciona si no estamos dentro de una sección
                 if (!body.classList.contains('section-open')) {
                     socialLinks.classList.toggle('social-hidden');
                 }
             });
+
+            setupNews(getDataArray('news'));
+            setupApps(getDataArray('apps'));
+            setupLinks(getDataArray('linkGroups'));
         });
+
+        function getDataArray(key) {
+            if (window.siteData && Array.isArray(window.siteData[key])) {
+                return window.siteData[key];
+            }
+            return [];
+        }
+
+        function setupNews(newsItems) {
+            const newsList = document.getElementById('news-list');
+            const filterSelect = document.getElementById('news-filter');
+            const lastUpdateLabel = document.getElementById('news-last-update');
+            if (!newsList || !filterSelect) return;
+
+            const items = Array.isArray(newsItems) ? newsItems.slice() : [];
+            items.sort((a, b) => {
+                const dateA = new Date(a && a.publishedAt ? a.publishedAt : 0);
+                const dateB = new Date(b && b.publishedAt ? b.publishedAt : 0);
+                return dateB - dateA;
+            });
+
+            const tags = [];
+            items.forEach(item => {
+                if (item && Array.isArray(item.tags)) {
+                    item.tags.forEach(tag => {
+                        if (tag && !tags.includes(tag)) {
+                            tags.push(tag);
+                        }
+                    });
+                }
+            });
+            tags.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+            filterSelect.innerHTML = '<option value="all">Todas</option>' + tags.map(tag => '<option value="' + tag + '">' + tag + '</option>').join('');
+
+            if (lastUpdateLabel) {
+                if (items.length > 0) {
+                    lastUpdateLabel.textContent = 'Actualizado el ' + formatDateToSpanish(items[0].publishedAt);
+                } else {
+                    lastUpdateLabel.textContent = 'Añade noticias en js/site-data.js para mostrarlas aquí.';
+                }
+            }
+
+            function render(selectedTag) {
+                const filtered = selectedTag && selectedTag !== 'all'
+                    ? items.filter(item => Array.isArray(item.tags) && item.tags.includes(selectedTag))
+                    : items;
+                newsList.innerHTML = '';
+                if (!filtered.length) {
+                    const empty = document.createElement('p');
+                    empty.className = 'rounded-lg border border-dashed border-blue-300 bg-white/80 p-4 text-sm text-gray-600';
+                    empty.textContent = 'No hay noticias en esta categoría por ahora.';
+                    newsList.appendChild(empty);
+                    return;
+                }
+                filtered.forEach(item => {
+                    newsList.appendChild(createNewsCard(item));
+                });
+            }
+
+            filterSelect.addEventListener('change', event => {
+                render(event.target.value);
+            });
+
+            render(filterSelect.value || 'all');
+        }
+
+        function createNewsCard(item) {
+            const article = document.createElement('article');
+            article.className = 'news-card flex gap-4 rounded-xl bg-white/90 p-4 shadow-md';
+
+            const mediaWrapper = document.createElement('div');
+            mediaWrapper.className = 'flex-shrink-0';
+            if (item && item.image) {
+                const img = document.createElement('img');
+                img.src = item.image;
+                img.alt = item.title ? 'Imagen de ' + item.title : 'Imagen de la noticia';
+                img.className = 'h-24 w-24 rounded-lg object-cover shadow';
+                mediaWrapper.appendChild(img);
+            } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'flex h-24 w-24 items-center justify-center rounded-lg bg-blue-100 text-blue-600 shadow';
+                placeholder.innerHTML = '<i class="fa-solid fa-newspaper text-2xl"></i>';
+                mediaWrapper.appendChild(placeholder);
+            }
+            article.appendChild(mediaWrapper);
+
+            const content = document.createElement('div');
+            content.className = 'flex-1 space-y-2';
+
+            const title = document.createElement('h4');
+            title.className = 'text-lg font-bold text-blue-900';
+            title.textContent = item && item.title ? item.title : 'Noticia sin título';
+            content.appendChild(title);
+
+            if (item && (item.summary || item.description)) {
+                const summary = document.createElement('p');
+                summary.className = 'text-sm text-gray-700';
+                summary.textContent = item.summary || item.description;
+                content.appendChild(summary);
+            }
+
+            if (item && Array.isArray(item.tags) && item.tags.length) {
+                const tagsWrapper = document.createElement('div');
+                tagsWrapper.className = 'flex flex-wrap gap-2';
+                item.tags.forEach(tag => {
+                    if (!tag) return;
+                    const badge = document.createElement('span');
+                    badge.className = 'keyword-badge bg-blue-100/60 text-blue-700';
+                    badge.textContent = tag;
+                    tagsWrapper.appendChild(badge);
+                });
+                content.appendChild(tagsWrapper);
+            }
+
+            const meta = document.createElement('div');
+            meta.className = 'flex flex-wrap items-center gap-4 text-xs text-gray-500';
+            const dateText = formatDateToSpanish(item && item.publishedAt);
+            if (dateText) {
+                const dateSpan = document.createElement('span');
+                dateSpan.innerHTML = '<i class="fa-regular fa-calendar"></i> ' + dateText;
+                meta.appendChild(dateSpan);
+            }
+            if (item && item.source) {
+                const sourceSpan = document.createElement('span');
+                sourceSpan.innerHTML = '<i class="fa-solid fa-globe"></i> ' + item.source;
+                meta.appendChild(sourceSpan);
+            }
+            if (meta.children.length) {
+                content.appendChild(meta);
+            }
+
+            if (item && item.link) {
+                const action = document.createElement('a');
+                action.href = item.link;
+                action.target = '_blank';
+                action.rel = 'noopener noreferrer';
+                action.className = 'inline-flex items-center gap-2 text-sm font-semibold text-blue-600 transition hover:text-blue-800';
+                action.innerHTML = 'Leer más <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>';
+                content.appendChild(action);
+            }
+
+            article.appendChild(content);
+            return article;
+        }
+
+        function formatDateToSpanish(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '';
+            return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function setupApps(apps) {
+            const grid = document.getElementById('apps-grid');
+            const placeholder = document.getElementById('app-placeholder');
+            const panelsContainer = document.getElementById('app-panels');
+            const resetBtn = document.getElementById('apps-reset');
+            if (!grid || !panelsContainer) return;
+
+            const placeholderDefault = placeholder ? placeholder.innerHTML : '';
+            grid.innerHTML = '';
+
+            const panelElements = Array.from(panelsContainer.querySelectorAll('[data-app-panel]'));
+            const panelMap = {};
+            panelElements.forEach(panel => {
+                panel.classList.add('hidden');
+                panelMap[panel.dataset.appPanel] = panel;
+            });
+
+            function setActiveApp(appId) {
+                pageState.activeAppId = appId || null;
+                const activePanel = appId ? panelMap[appId] : null;
+                panelElements.forEach(panel => {
+                    const isActive = panel.dataset.appPanel === appId;
+                    panel.classList.toggle('hidden', !isActive);
+                    panel.dispatchEvent(new Event(isActive ? 'app:activated' : 'app:deactivated'));
+                });
+                Array.from(grid.querySelectorAll('.app-card')).forEach(card => {
+                    card.classList.toggle('active', card.dataset.appId === appId);
+                });
+                if (placeholder) {
+                    if (activePanel) {
+                        placeholder.classList.add('hidden');
+                    } else {
+                        placeholder.classList.remove('hidden');
+                        placeholder.innerHTML = placeholderDefault;
+                        if (appId) {
+                            placeholder.innerHTML = '<div><p class="text-lg font-semibold">Esta aplicación todavía no tiene contenido embebido.</p><p class="mt-2 text-sm text-slate-300">Añade un contenedor con <code>data-app-panel="' + appId + '"</code> para mostrarlo automáticamente.</p></div>';
+                            const appData = Array.isArray(apps) ? apps.find(app => app && app.id === appId) : null;
+                            if (appData && appData.description) {
+                                placeholder.innerHTML += '<p class="mt-2 text-sm text-slate-200">' + appData.description + '</p>';
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!apps || !apps.length) {
+                const message = document.createElement('p');
+                message.className = 'rounded-lg border border-dashed border-blue-300 bg-white/80 p-4 text-center text-sm text-gray-600';
+                message.textContent = 'No hay aplicaciones configuradas todavía. Añádelas en js/site-data.js.';
+                grid.appendChild(message);
+                setActiveApp(null);
+                if (resetBtn) resetBtn.classList.add('hidden');
+                return;
+            }
+
+            apps.forEach(app => {
+                if (!app || !app.id) return;
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.dataset.appId = app.id;
+                card.className = 'app-card flex h-full flex-col gap-3 focus:outline-none focus:ring-4 focus:ring-blue-200';
+
+                const heading = document.createElement('div');
+                heading.className = 'flex items-center gap-3';
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'app-card__icon';
+                iconSpan.innerHTML = '<i class="' + (app.icon || 'fa-solid fa-cube') + '"></i>';
+                heading.appendChild(iconSpan);
+                const titleWrapper = document.createElement('div');
+                titleWrapper.innerHTML = '<h4 class="text-lg font-bold text-slate-900">' + (app.title || 'Aplicación sin título') + '</h4>' + (app.subtitle ? '<p class="text-xs uppercase tracking-wide text-slate-500">' + app.subtitle + '</p>' : '');
+                heading.appendChild(titleWrapper);
+                card.appendChild(heading);
+
+                if (app.description) {
+                    const desc = document.createElement('p');
+                    desc.className = 'text-sm text-slate-600';
+                    desc.textContent = app.description;
+                    card.appendChild(desc);
+                }
+
+                if (Array.isArray(app.keywords) && app.keywords.length) {
+                    const keywords = document.createElement('div');
+                    keywords.className = 'flex flex-wrap gap-2';
+                    app.keywords.forEach(keyword => {
+                        if (!keyword) return;
+                        const badge = document.createElement('span');
+                        badge.className = 'keyword-badge';
+                        badge.textContent = keyword;
+                        keywords.appendChild(badge);
+                    });
+                    card.appendChild(keywords);
+                }
+
+                card.addEventListener('click', () => {
+                    if (pageState.activeAppId === app.id) return;
+                    setActiveApp(app.id);
+                });
+
+                grid.appendChild(card);
+            });
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    setActiveApp(null);
+                });
+            }
+
+            setActiveApp(null);
+        }
+
+        function setupLinks(linkGroups) {
+            const container = document.getElementById('link-groups');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!linkGroups || !linkGroups.length) {
+                const message = document.createElement('p');
+                message.className = 'rounded-lg border border-dashed border-emerald-200 bg-white/80 p-4 text-sm text-gray-600';
+                message.textContent = 'Añade enlaces en js/site-data.js para mostrarlos agrupados aquí.';
+                container.appendChild(message);
+                return;
+            }
+
+            linkGroups.forEach(group => {
+                if (!group) return;
+                const section = document.createElement('section');
+                section.className = 'link-group p-6 shadow-lg';
+
+                const header = document.createElement('div');
+                header.className = 'flex items-start gap-3';
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'text-2xl text-cyan-700';
+                iconSpan.innerHTML = '<i class="' + (group.icon || 'fa-solid fa-link') + '"></i>';
+                header.appendChild(iconSpan);
+                const textWrapper = document.createElement('div');
+                const title = document.createElement('h4');
+                title.className = 'text-xl font-bold text-slate-800';
+                title.textContent = group.title || 'Grupo sin título';
+                textWrapper.appendChild(title);
+                if (group.description) {
+                    const desc = document.createElement('p');
+                    desc.className = 'text-sm text-slate-600';
+                    desc.textContent = group.description;
+                    textWrapper.appendChild(desc);
+                }
+                header.appendChild(textWrapper);
+                section.appendChild(header);
+
+                const grid = document.createElement('div');
+                grid.className = 'mt-4 grid gap-4 md:grid-cols-2';
+                if (Array.isArray(group.links)) {
+                    group.links.forEach(link => {
+                        grid.appendChild(createLinkCard(link));
+                    });
+                }
+                if (grid.children.length === 0) {
+                    const empty = document.createElement('p');
+                    empty.className = 'rounded-lg border border-dashed border-cyan-200 bg-white/70 p-4 text-sm text-gray-600';
+                    empty.textContent = 'No hay enlaces en este grupo todavía.';
+                    grid.appendChild(empty);
+                }
+                section.appendChild(grid);
+                container.appendChild(section);
+            });
+        }
+
+        function createLinkCard(link) {
+            const anchor = document.createElement('a');
+            if (link && link.url) {
+                anchor.href = link.url;
+                anchor.target = '_blank';
+                anchor.rel = 'noopener noreferrer';
+            } else {
+                anchor.href = '#';
+                anchor.addEventListener('click', event => event.preventDefault());
+            }
+            anchor.className = 'link-card block rounded-xl border border-cyan-100/80 bg-white/90 p-4 shadow-sm focus:outline-none focus:ring-4 focus:ring-cyan-200';
+
+            const header = document.createElement('div');
+            header.className = 'flex items-center gap-3 text-cyan-700';
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'text-xl';
+            iconSpan.innerHTML = '<i class="' + (link && link.icon ? link.icon : 'fa-solid fa-arrow-up-right-from-square') + '"></i>';
+            header.appendChild(iconSpan);
+            const title = document.createElement('h5');
+            title.className = 'text-lg font-semibold text-slate-800';
+            title.textContent = link && link.label ? link.label : 'Recurso sin nombre';
+            header.appendChild(title);
+            anchor.appendChild(header);
+
+            if (link && link.description) {
+                const desc = document.createElement('p');
+                desc.className = 'mt-2 text-sm text-gray-700';
+                desc.textContent = link.description;
+                anchor.appendChild(desc);
+            }
+
+            const footer = document.createElement('span');
+            footer.className = 'mt-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-cyan-600';
+            footer.innerHTML = 'Visitar recurso <i class="fa-solid fa-arrow-up-right-from-square text-[0.65rem]"></i>';
+            anchor.appendChild(footer);
+
+            return anchor;
+        }
     </script>
 </body>
 </html>
