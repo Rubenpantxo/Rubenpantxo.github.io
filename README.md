@@ -93,6 +93,10 @@ Puedes añadir tantos grupos o enlaces como necesites. El orden en el archivo se
 * **Pruebas locales**: abre `index.html` en tu navegador o utiliza una extensión como “Live Server” de VS Code para recargar automáticamente.
 * **Control de versiones**: usa `git status` para comprobar qué archivos cambiaste y `git diff` para ver las diferencias antes de subirlas.
 
+### ¿Conflictos de fusión en tu PR?
+
+Si GitHub avisa de conflictos al intentar fusionar los cambios, sigue la [guía paso a paso](docs/guia-conflictos-merge.md) para actualizarlos desde tu ordenador. Encontrarás instrucciones específicas para `index.html`, `js/site-data.js` y `js/home-sections.js`.
+
 ## Créditos
 
 Proyecto basado en el esqueleto de HTML5 Boilerplate y adaptado para Rubenpantxo.com.
