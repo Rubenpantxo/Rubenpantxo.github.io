@@ -1,3 +1,7 @@
+// Archivo único para mantener el contenido editable de la página principal.
+// Modifica estos arrays para añadir noticias, aplicaciones o grupos de enlaces
+// sin tocar el HTML. Usa el formato indicado en README.md para evitar errores.
+
 window.siteData = {
   news: [
     {
