@@ -259,3 +259,12 @@ h1.title {
         font-size: 1.2em;
     }
 }
+
+/* Botón CTA: efecto de “subir” al pulsar */
+.cta {
+    transition: transform .25s ease;
+}
+
+.cta.cta-rise {
+    transform: translateY(-12px);
+}
