@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Círculo Perfecto · Txapeldunak</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+
+        /* Patron de fondo animado */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            animation: drift 20s ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-50px, -50px); }
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Canvas con marco suave */
+        .canvas-wrapper {
+            position: relative;
+            width: 90vw;
+            height: 90vh;
+            max-width: 900px;
+            max-height: 900px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            box-shadow: 
+                0 25px 60px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            overflow: hidden;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        /* Botón Bolígrafo - flotante en esquina superior derecha */
+        .pen-btn-wrapper {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            z-index: 25;
+        }
+
+        #penBtn {
+            padding: 14px 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            color: #1a1a1a;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: visible;
+        }
+
+        #penBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.25);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        #penBtn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        #penColor {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #000000;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        #penBtn:hover #penColor {
+            transform: scale(1.2) rotate(180deg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Botón TOP - flotante en esquina superior izquierda */
+        .top-btn-wrapper {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            z-index: 25;
+        }
+
+        #topBtn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 30px rgba(240, 147, 251, 0.4);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #topBtn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        #topBtn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        #topBtn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 40px rgba(240, 147, 251, 0.5);
+        }
+
+        #topBtn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        #topBtn.show {
+            display: flex;
+            animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            60% { transform: scale(1.1) rotate(10deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        /* Instrucciones con glassmorphism */
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            z-index: 5;
+            padding: 48px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .instructions p {
+            font-size: 1.25rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* Overlay de resultado con efecto de entrada */
+        .result-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(30px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            border-radius: 32px;
+        }
+
+        .result-overlay.show {
+            display: flex;
+            animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .score {
+            font-size: 7rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+            animation: scoreReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+            letter-spacing: -2px;
+        }
+
+        @keyframes scoreReveal {
+            from {
+                transform: scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .message {
+            font-size: 1.75rem;
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .try-again {
+            padding: 18px 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.125rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 35px rgba(102, 126, 234, 0.35);
+            animation: fadeInUp 0.6s ease-out 0.6s both;
+        }
+
+        .try-again:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 45px rgba(102, 126, 234, 0.45);
+        }
+
+        .try-again:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        /* Botón Txapela - estilo Figma moderno */
+        .stats-panel {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            z-index: 25;
+        }
+
+        .txapela-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            position: relative;
+            overflow: visible;
+            padding: 8px;
+        }
+
+        .txapela-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1));
+            transition: all 0.3s ease;
+        }
+
+        .txapela-btn:hover {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        .txapela-btn:hover img {
+            transform: scale(1.1);
+        }
+
+        .txapela-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Drawer de estadísticas - estilo Figma */
+        .stats-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(30px);
+            box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.15);
+            border-radius: 40px 40px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 30;
+            padding: 32px;
+            border-top: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .stats-drawer.open {
+            transform: translateY(0);
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .stats-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stats-title img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        .back-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: scale(1.15) rotate(-15deg);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+
+        .stats-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+            padding: 24px 28px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .stat-item:hover {
+            transform: translateX(8px);
+            border-color: rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .stat-label {
+            font-size: 1.125rem;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        /* Cuadrícula sutil integrada */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.15;
+            background-image: 
+                repeating-linear-gradient(0deg, rgba(102, 126, 234, 0.1) 0px, transparent 1px, transparent 40px, rgba(102, 126, 234, 0.1) 41px),
+                repeating-linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0px, transparent 1px, transparent 40px, rgba(102, 126, 234, 0.1) 41px);
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .instructions h1 {
+                font-size: 2rem;
+            }
+            
+            .instructions p {
+                font-size: 1rem;
+            }
+
+            .score {
+                font-size: 4rem;
+            }
+
+            .message {
+                font-size: 1.25rem;
+                padding: 0 20px;
+            }
+
+            .pen-btn-wrapper {
+                top: 16px;
+                right: 16px;
+            }
+
+            .top-btn-wrapper {
+                top: 16px;
+                left: 16px;
+            }
+
+            #penBtn, #topBtn {
+                font-size: 0.75rem;
+                padding: 10px 18px;
+            }
+
+            .stats-drawer {
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="canvas-wrapper">
+            <div class="grid-overlay"></div>
+            <canvas id="canvas"></canvas>
+
+            <div class="pen-btn-wrapper">
+                <button id="penBtn">
+                    <span id="penColor"></span>
+                    <span>Color</span>
+                </button>
+            </div>
+
+            <div class="top-btn-wrapper">
+                <button id="topBtn">
+                    🏆 TOP
+                </button>
+            </div>
+
+            <div class="instructions" id="instructions">
+                <h1>Haz un redondel perfecto</h1>
+                <p>Haz clic o toca y arrastra 2πr</p>
+            </div>
+
+            <div class="result-overlay" id="resultOverlay">
+                <div class="score" id="scoreDisplay">0%</div>
+                <div class="message" id="messageDisplay"></div>
+                <button class="try-again" id="tryAgainBtn">Intentar de nuevo</button>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <button class="txapela-btn" id="txapelaBtn">
+                <img src="https://i.imgur.com/placeholder.png" alt="Txapela" onerror="this.innerHTML='🧢'; this.style.fontSize='2rem';">
+            </button>
+        </div>
+
+        <div class="stats-drawer" id="statsDrawer">
+            <div class="stats-header">
+                <h2 class="stats-title">
+                    <img src="https://i.imgur.com/placeholder.png" alt="Txapela" onerror="this.style.display='none';">
+                    Los mejores
+                </h2>
+                <button class="back-btn" id="backBtn">←</button>
+            </div>
+            <div class="stats-content">
+                <div class="stat-item">
+                    <span class="stat-label">Mejor puntuación</span>
+                    <span class="stat-value" id="bestScoreValue">0%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Intentos totales</span>
+                    <span class="stat-value" id="attemptsValue">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            isDrawing: false,
+            points: [],
+            bestScore: 0,
+            attempts: 0,
+            result: null,
+            currentColorIndex: 0,
+            colors: [
+                { hex: '#000000', name: 'Negro' },
+                { hex: '#667eea', name: 'Púrpura' },
+                { hex: '#f5576c', name: 'Carmesí' },
+                { hex: '#10B981', name: 'Esmeralda' },
+                { hex: '#f093fb', name: 'Rosa' },
+                { hex: '#F59E0B', name: 'Ámbar' },
+                { hex: '#4facfe', name: 'Azul' },
+                { hex: '#14B8A6', name: 'Turquesa' }
+            ],
+            currentColor: '#000000',
+            statsOpen: false
+        };
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const topBtn = document.getElementById('topBtn');
+        const penBtn = document.getElementById('penBtn');
+        const penColor = document.getElementById('penColor');
+        const instructions = document.getElementById('instructions');
+        const resultOverlay = document.getElementById('resultOverlay');
+        const tryAgainBtn = document.getElementById('tryAgainBtn');
+        const txapelaBtn = document.getElementById('txapelaBtn');
+        const statsDrawer = document.getElementById('statsDrawer');
+        const backBtn = document.getElementById('backBtn');
+        const bestScoreValue = document.getElementById('bestScoreValue');
+        const attemptsValue = document.getElementById('attemptsValue');
+
+        function setupCanvas() {
+            const wrapper = canvas.parentElement;
+            const rect = wrapper.getBoundingClientRect();
+            const scale = window.devicePixelRatio || 1;
+            
+            canvas.width = rect.width * scale;
+            canvas.height = rect.height * scale;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            ctx.scale(scale, scale);
+            
+            drawCanvas();
+        }
+
+        function drawCanvas() {
+            const width = canvas.width / (window.devicePixelRatio || 1);
+            const height = canvas.height / (window.devicePixelRatio || 1);
+            
+            ctx.fillStyle = 'transparent';
+            ctx.clearRect(0, 0, width, height);
+            
+            if (state.points.length > 1) {
+                ctx.strokeStyle = state.currentColor;
+                ctx.lineWidth = 4;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.shadowColor = state.currentColor;
+                ctx.shadowBlur = 8;
+                
+                ctx.beginPath();
+                ctx.moveTo(state.points[0].x, state.points[0].y);
+                
+                for (let i = 1; i < state.points.length; i++) {
+                    ctx.lineTo(state.points[i].x, state.points[i].y);
+                }
+                
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function evaluateCircle(points) {
+            if (points.length < 10) {
+                return { score: 0, message: "¡Dibuja un círculo completo!" };
+            }
+
+            const center = points.reduce((acc, point) => ({
+                x: acc.x + point.x,
+                y: acc.y + point.y
+            }), { x: 0, y: 0 });
+            
+            center.x /= points.length;
+            center.y /= points.length;
+
+            let avgRadius = 0;
+            for (const point of points) {
+                const distance = Math.sqrt(
+                    Math.pow(point.x - center.x, 2) + 
+                    Math.pow(point.y - center.y, 2)
+                );
+                avgRadius += distance;
+            }
+            avgRadius /= points.length;
+
+            let radiusVariance = 0;
+            for (const point of points) {
+                const distance = Math.sqrt(
+                    Math.pow(point.x - center.x, 2) + 
+                    Math.pow(point.y - center.y, 2)
+                );
+                radiusVariance += Math.pow(distance - avgRadius, 2);
+            }
+            radiusVariance = Math.sqrt(radiusVariance / points.length);
+
+            const startPoint = points[0];
+            const endPoint = points[points.length - 1];
+            const closureDistance = Math.sqrt(
+                Math.pow(endPoint.x - startPoint.x, 2) + 
+                Math.pow(endPoint.y - startPoint.y, 2)
+            );
+            const maxClosureDistance = avgRadius * 0.2;
+            const isClosed = closureDistance < maxClosureDistance;
+
+            const maxVariance = avgRadius * 0.5;
+            const varianceScore = Math.max(0, 1 - (radiusVariance / maxVariance));
+            const closureScore = isClosed ? 1 : 0.5;
+            
+            let totalScore = Math.round((varianceScore * 0.6 + closureScore * 0.4) * 100);
+            totalScore = Math.max(0, Math.min(100, totalScore));
+
+            let message;
+            if (totalScore >= 95) {
+                message = "¡Círculo perfecto! ¡Eres un verdadero artista! ✨";
+            } else if (totalScore >= 85) {
+                message = "¡Excelente! ¡Casi perfecto! 🎯";
+            } else if (totalScore >= 75) {
+                message = "¡Gran trabajo! ¡Muy circular! 👏";
+            } else if (totalScore >= 60) {
+                message = "¡Buen esfuerzo! ¡Sigue practicando! 💪";
+            } else if (totalScore >= 40) {
+                message = "¡No está mal! ¿Intentar más despacio? 🖊️";
+            } else if (totalScore >= 20) {
+                message = "¡Inténtalo de nuevo! ¡La práctica hace al maestro! 🔄";
+            } else {
+                message = "Hmm, ¡eso parece más arte abstracto! 🎨";
+            }
+
+            return { score: totalScore, message, isClosed };
+        }
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        function getTouchPos(e) {
+            if (e.touches.length === 0) return null;
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: e.touches[0].clientX - rect.left,
+                y: e.touches[0].clientY - rect.top
+            };
+        }
+
+        function startDrawing(pos) {
+            if (!pos) return;
+            state.isDrawing = true;
+            state.points = [pos];
+            state.result = null;
+            resultOverlay.classList.remove('show');
+            instructions.style.display = 'none';
+        }
+
+        function draw(pos) {
+            if (!pos || !state.isDrawing || state.result) return;
+            state.points.push(pos);
+            drawCanvas();
+        }
+
+        function stopDrawing() {
+            if (!state.isDrawing || state.result) return;
+            state.isDrawing = false;
+            
+            const evaluation = evaluateCircle(state.points);
+            state.result = evaluation;
+            state.attempts++;
+            
+            if (evaluation.score > state.bestScore) {
+                state.bestScore = evaluation.score;
+            }
+
+            updateStats();
+            showResult();
+        }
+
+        function showResult() {
+            document.getElementById('scoreDisplay').textContent = `${state.result.score}%`;
+            document.getElementById('messageDisplay').textContent = state.result.message;
+            resultOverlay.classList.add('show');
+            topBtn.classList.add('show');
+        }
+
+        function updateStats() {
+            bestScoreValue.textContent = state.bestScore + '%';
+            attemptsValue.textContent = state.attempts;
+        }
+
+        function clearCanvas() {
+            state.points = [];
+            state.result = null;
+            state.isDrawing = false;
+            resultOverlay.classList.remove('show');
+            instructions.style.display = 'block';
+            topBtn.classList.remove('show');
+            drawCanvas();
+        }
+
+        function addToTop() {
+            topBtn.classList.remove('show');
+            clearCanvas();
+        }
+
+        function changePenColor() {
+            state.currentColorIndex = (state.currentColorIndex + 1) % state.colors.length;
+            state.currentColor = state.colors[state.currentColorIndex].hex;
+            penColor.style.background = state.currentColor;
+        }
+
+        function toggleStats() {
+            state.statsOpen = !state.statsOpen;
+            if (state.statsOpen) {
+                statsDrawer.classList.add('open');
+            } else {
+                statsDrawer.classList.remove('open');
+            }
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startDrawing(getMousePos(e));
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            e.preventDefault();
+            draw(getMousePos(e));
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            e.preventDefault();
+            stopDrawing();
+        });
+
+        canvas.addEventListener('mouseleave', (e) => {
+            if (state.isDrawing) {
+                stopDrawing();
+            }
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startDrawing(getTouchPos(e));
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            draw(getTouchPos(e));
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            stopDrawing();
+        });
+
+        topBtn.addEventListener('click', addToTop);
+        penBtn.addEventListener('click', changePenColor);
+        tryAgainBtn.addEventListener('click', clearCanvas);
+        txapelaBtn.addEventListener('click', toggleStats);
+        backBtn.addEventListener('click', toggleStats);
+
+        window.addEventListener('resize', setupCanvas);
+
+        setupCanvas();
+    </script>
+</body>
+</html>
