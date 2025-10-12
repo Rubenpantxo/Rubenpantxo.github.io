@@ -203,9 +203,44 @@
 
     function formatDateToSpanish(dateString) {
         if (!dateString) return '';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return '';
+
+        const date = parseDateWithoutUtcShift(dateString);
+        if (!date) return '';
+
         return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function parseDateWithoutUtcShift(value) {
+        if (!value) return null;
+
+        const raw = typeof value === 'string' ? value.trim() : value;
+        if (!raw) return null;
+
+        if (typeof raw === 'string') {
+            const dateOnlyMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (dateOnlyMatch) {
+                const [, year, month, day] = dateOnlyMatch;
+                const localDate = new Date(Number(year), Number(month) - 1, Number(day));
+                if (!isNaN(localDate.getTime())) return localDate;
+            }
+
+            const localDateTimeMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?$/);
+            if (localDateTimeMatch) {
+                const [, year, month, day, hours, minutes, seconds = '0'] = localDateTimeMatch;
+                const localDate = new Date(
+                    Number(year),
+                    Number(month) - 1,
+                    Number(day),
+                    Number(hours),
+                    Number(minutes),
+                    Number(seconds)
+                );
+                if (!isNaN(localDate.getTime())) return localDate;
+            }
+        }
+
+        const parsed = new Date(value);
+        return isNaN(parsed.getTime()) ? null : parsed;
     }
 
     function setupApps(apps) {
