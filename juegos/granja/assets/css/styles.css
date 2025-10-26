@@ -1,0 +1,597 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    background: linear-gradient(135deg, #4fb3d4 0%, #2d8ca8 100%);
+    height: 100vh;
+}
+
+/* Botón de Tienda */
+.shop-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 80px;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.shop-button:hover {
+    background: rgba(0, 0, 0, 0.95);
+    transform: scale(1.05);
+}
+
+/* Mensaje Superior */
+.top-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    z-index: 90;
+    max-width: 600px;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Escena de la Granja */
+.farm-scene {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #4fb3d4 0%, #3da5c4 50%, #2d8ca8 100%);
+}
+
+/* Parcela de Cultivo */
+.plot {
+    position: absolute;
+    width: 150px;
+    height: 120px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.plot-ground {
+    width: 100%;
+    height: 100%;
+    background: #8b7355;
+    transform: rotateX(60deg) rotateZ(45deg);
+    transform-style: preserve-3d;
+    border: 2px solid #6d5a45;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.plot:hover .plot-ground {
+    filter: brightness(1.2);
+}
+
+.plot.selected .plot-ground {
+    border: 3px solid yellow;
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+}
+
+.plot.planted .plot-ground {
+    background: #6b5940;
+}
+
+/* Cultivo en la parcela */
+.crop-visual {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 50px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: growCrop 0.5s ease forwards;
+}
+
+@keyframes growCrop {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) scale(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+/* Icono flotante sobre parcela */
+.floating-icon {
+    position: absolute;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 150, 0, 0.9);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.floating-icon:hover {
+    transform: translateX(-50%) scale(1.1);
+}
+
+.floating-icon.coins {
+    background: rgba(255, 215, 0, 0.9);
+    color: #000;
+}
+
+.floating-icon.harvest-ready {
+    background: rgba(0, 180, 0, 0.95);
+    width: auto;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.floating-icon.harvest-ready .big-text {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.floating-icon.harvest-ready .small-text {
+    font-size: 12px;
+}
+
+/* Icono de agua/herramienta */
+.tool-icon {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(50, 100, 200, 0.9);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    animation: bounceIn 0.5s ease;
+}
+
+@keyframes bounceIn {
+    0% { transform: translateX(-50%) scale(0); }
+    50% { transform: translateX(-50%) scale(1.2); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+/* Modal de Tienda */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: #2a2a2a;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 12px;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    background: #1a1a1a;
+    padding: 15px 20px;
+    align-items: center;
+    position: relative;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 12px 20px;
+    background: transparent;
+    color: #888;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-button.active {
+    color: white;
+    background: #333;
+    border-radius: 8px;
+}
+
+.tab-button:hover {
+    color: white;
+}
+
+.close-button {
+    position: absolute;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-button:hover {
+    color: #ff4444;
+    transform: rotate(90deg);
+}
+
+.tab-content {
+    display: none;
+    padding: 40px;
+    min-height: 400px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Grid de Cultivos */
+.crops-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.crop-item {
+    background: #333;
+    padding: 30px 20px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+}
+
+.crop-item:hover {
+    background: #444;
+    transform: translateY(-5px);
+    border-color: #4fb3d4;
+}
+
+.crop-item.selected {
+    border-color: #4fb3d4;
+    box-shadow: 0 0 20px rgba(79, 179, 212, 0.5);
+}
+
+.crop-icon {
+    font-size: 64px;
+    margin-bottom: 15px;
+}
+
+.crop-item h3 {
+    color: white;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.crop-cost {
+    color: white;
+    font-size: 16px;
+}
+
+.crop-cost.cost-multiple {
+    color: #ff6666;
+}
+
+.crop-item.affordable .crop-cost {
+    color: #66ff66;
+}
+
+/* Grid de Mejoras */
+.upgrades-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+}
+
+.upgrade-item {
+    background: #333;
+    padding: 30px 20px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+}
+
+.upgrade-item:hover {
+    background: #444;
+    transform: translateY(-5px);
+    border-color: #4fb3d4;
+}
+
+.upgrade-item.purchased {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #666;
+}
+
+.upgrade-icon {
+    font-size: 64px;
+    margin-bottom: 15px;
+}
+
+.upgrade-item h3 {
+    color: white;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.upgrade-cost {
+    color: #ff6666;
+    font-size: 16px;
+}
+
+.upgrade-item.affordable .upgrade-cost {
+    color: #66ff66;
+}
+
+/* Configuración */
+.settings-content {
+    color: white;
+}
+
+.settings-content h3 {
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+.setting-item {
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: #333;
+    border-radius: 8px;
+}
+
+.setting-item label {
+    font-size: 18px;
+}
+
+.setting-item select,
+.setting-item input[type="checkbox"] {
+    padding: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Panel de Información */
+.info-panel {
+    position: fixed;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 350px;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 12px;
+    padding: 30px;
+    color: white;
+    z-index: 80;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+.info-header h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid white;
+    padding-bottom: 15px;
+}
+
+.info-content {
+    margin-top: 20px;
+}
+
+.status-section {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.status-section h3 {
+    font-size: 22px;
+    color: #4fb3d4;
+}
+
+.growth-section h4 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 30px;
+    background: #333;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid #555;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4fb3d4, #66ff66);
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 15px;
+}
+
+/* Botón de Cancelar */
+.cancel-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #cc0000;
+    color: white;
+    border: none;
+    padding: 20px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+}
+
+.cancel-button:hover {
+    background: #ff0000;
+    transform: scale(1.05);
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+    50% { box-shadow: 0 0 0 15px rgba(255, 0, 0, 0); }
+}
+
+/* Contador de Recursos */
+.resources-counter {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 8px;
+    font-size: 18px;
+    display: flex;
+    gap: 30px;
+    z-index: 100;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.resources-counter strong {
+    color: #66ff66;
+    font-size: 22px;
+}
+
+/* Botón de Volver */
+.back-button {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    border: 2px solid white;
+    padding: 15px 60px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-50%) scale(1.05);
+}
+
+/* Animación de cosecha */
+@keyframes harvestAnimation {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-100px) scale(1.5);
+    }
+}
+
+.harvest-animation {
+    animation: harvestAnimation 1s ease forwards;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .crops-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .upgrades-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-panel {
+        width: 90%;
+        right: 5%;
+    }
+}
