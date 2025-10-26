@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Granja - Simulador Agrícola</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <!-- Botón de Tienda -->
+    <button class="shop-button" id="shopButton">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+        </svg>
+    </button>
+
+    <!-- Mensaje Superior -->
+    <div class="top-message" id="topMessage">
+        Haz clic en el botón de tienda en la esquina superior izquierda para comprar cultivos.
+    </div>
+
+    <!-- Escena Principal de la Granja -->
+    <div class="farm-scene" id="farmScene">
+        <!-- Parcelas de cultivo se generarán aquí -->
+    </div>
+
+    <!-- Panel de Información Lateral -->
+    <div class="info-panel" id="infoPanel" style="display: none;">
+        <div class="info-header">
+            <h2 id="cropName">Trigo</h2>
+        </div>
+        <div class="info-content">
+            <div class="status-section">
+                <h3 id="cropStatus">Creciendo</h3>
+            </div>
+            <div class="growth-section">
+                <h4>Crecimiento</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Tienda -->
+    <div class="modal" id="shopModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="tab-button active" data-tab="crops">Cultivos</button>
+                <button class="tab-button" data-tab="upgrades">Mejoras</button>
+                <button class="tab-button" data-tab="settings">Configuración</button>
+                <button class="close-button" id="closeModal">✕</button>
+            </div>
+            
+            <!-- Tab de Cultivos -->
+            <div class="tab-content active" id="cropsTab">
+                <div class="crops-grid">
+                    <div class="crop-item" data-crop="wheat">
+                        <div class="crop-icon">🌾</div>
+                        <h3>Trigo</h3>
+                        <p class="crop-cost">1 semilla</p>
+                    </div>
+                    <div class="crop-item" data-crop="corn">
+                        <div class="crop-icon">🌽</div>
+                        <h3>Maíz</h3>
+                        <p class="crop-cost cost-multiple">2 semillas, 1 moneda</p>
+                    </div>
+                    <div class="crop-item" data-crop="potato">
+                        <div class="crop-icon">🥔</div>
+                        <h3>Patata</h3>
+                        <p class="crop-cost cost-multiple">2 semillas, 1 moneda</p>
+                    </div>
+                    <div class="crop-item" data-crop="tomato">
+                        <div class="crop-icon">🍅</div>
+                        <h3>Tomate</h3>
+                        <p class="crop-cost cost-multiple">3 semillas, 25 monedas</p>
+                    </div>
+                    <div class="crop-item" data-crop="strawberry">
+                        <div class="crop-icon">🍓</div>
+                        <h3>Fresa</h3>
+                        <p class="crop-cost cost-multiple">3 semillas, 25 monedas</p>
+                    </div>
+                    <div class="crop-item" data-crop="pumpkin">
+                        <div class="crop-icon">🎃</div>
+                        <h3>Calabaza</h3>
+                        <p class="crop-cost cost-multiple">4 semillas, 50 monedas</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab de Mejoras -->
+            <div class="tab-content" id="upgradesTab">
+                <div class="upgrades-grid">
+                    <div class="upgrade-item" data-upgrade="sickle">
+                        <div class="upgrade-icon">🔪</div>
+                        <h3>Hoz</h3>
+                        <p class="upgrade-cost">5 monedas</p>
+                    </div>
+                    <div class="upgrade-item" data-upgrade="watering">
+                        <div class="upgrade-icon">💧</div>
+                        <h3>Regadera</h3>
+                        <p class="upgrade-cost">10 monedas</p>
+                    </div>
+                    <div class="upgrade-item" data-upgrade="expand">
+                        <div class="upgrade-icon">↗️</div>
+                        <h3>Expandir Granja I</h3>
+                        <p class="upgrade-cost">10 monedas</p>
+                    </div>
+                    <div class="upgrade-item" data-upgrade="shovel">
+                        <div class="upgrade-icon">⛏️</div>
+                        <h3>Pala</h3>
+                        <p class="upgrade-cost">50 monedas</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab de Configuración -->
+            <div class="tab-content" id="settingsTab">
+                <div class="settings-content">
+                    <h3>Configuración del Juego</h3>
+                    <div class="setting-item">
+                        <label>Velocidad de crecimiento:</label>
+                        <select id="growthSpeed">
+                            <option value="1">Normal</option>
+                            <option value="0.5">Lenta</option>
+                            <option value="2">Rápida</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>Sonido:</label>
+                        <input type="checkbox" id="soundToggle" checked>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón de Cancelar (durante plantación) -->
+    <button class="cancel-button" id="cancelButton" style="display: none;">
+        ✕ Cancelar ✕
+    </button>
+
+    <!-- Contador de Recursos -->
+    <div class="resources-counter">
+        <span>Semillas: <strong id="seedsCount">1</strong></span>
+        <span>Monedas: <strong id="coinsCount">0</strong></span>
+    </div>
+
+    <!-- Botón de Volver (en panel de info) -->
+    <button class="back-button" id="backButton" style="display: none;">Volver</button>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
