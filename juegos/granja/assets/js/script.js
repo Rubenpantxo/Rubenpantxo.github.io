@@ -2,6 +2,12 @@
 // CONFIGURACIÓN DEL JUEGO
 // ============================================
 
+const MAP_CONFIG = {
+    center: [42.0305, -1.649],
+    zoom: 16,
+    maxZoom: 19
+};
+
 const GAME_CONFIG = {
     crops: {
         wheat: {
@@ -110,13 +116,39 @@ const gameState = {
 // INICIALIZACIÓN
 // ============================================
 
+let farmMap = null;
+
 document.addEventListener('DOMContentLoaded', () => {
+    initializeMap();
     initializePlots();
     setupEventListeners();
     updateResourceDisplay();
     loadGameState();
     updateTopMessage('Haz clic en el botón de tienda en la esquina superior izquierda para comprar cultivos.');
 });
+
+function initializeMap() {
+    if (!window.L) {
+        console.warn('Leaflet no está disponible.');
+        return;
+    }
+
+    farmMap = L.map('map', {
+        zoomControl: true,
+        attributionControl: true,
+        scrollWheelZoom: true
+    }).setView(MAP_CONFIG.center, MAP_CONFIG.zoom);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: MAP_CONFIG.maxZoom,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(farmMap);
+
+    L.marker(MAP_CONFIG.center, { keyboard: false })
+        .addTo(farmMap)
+        .bindPopup('Cabanillas, Navarra')
+        .openPopup();
+}
 
 // Crear las parcelas de cultivo
 function initializePlots() {
