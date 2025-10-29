@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Granja - Simulador Agrícola</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin="">
 </head>
 <body>
+    <div id="map"></div>
+
     <!-- Botón de Tienda -->
     <button class="shop-button" id="shopButton">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
@@ -149,6 +152,7 @@
     <!-- Botón de Volver (en panel de info) -->
     <button class="back-button" id="backButton" style="display: none;">Volver</button>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha512-nMMMy0Cw/dqCv31qgG1D+N66wz+kkpFmS6r30YIOCwRvDDDeZPAHDq6cNruM3aMcGZ+mt2rt7AzrkG4QG0w0A==" crossorigin=""></script>
     <script src="assets/js/script.js"></script>
 </body>
 </html>
