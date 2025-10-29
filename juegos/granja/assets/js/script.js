@@ -148,6 +148,12 @@ function initializeMap() {
         .addTo(farmMap)
         .bindPopup('Cabanillas, Navarra')
         .openPopup();
+
+    window.addEventListener('resize', () => {
+        if (farmMap) {
+            farmMap.invalidateSize();
+        }
+    });
 }
 
 // Crear las parcelas de cultivo
