@@ -7,8 +7,17 @@
 body {
     font-family: 'Arial', sans-serif;
     overflow: hidden;
-    background: linear-gradient(135deg, #4fb3d4 0%, #2d8ca8 100%);
+    background: #0b1d2a;
     height: 100vh;
+}
+
+#map {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
 }
 
 /* Botón de Tienda */
@@ -62,7 +71,8 @@ body {
     height: 100vh;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, #4fb3d4 0%, #3da5c4 50%, #2d8ca8 100%);
+    background: transparent;
+    pointer-events: none;
 }
 
 /* Parcela de Cultivo */
@@ -72,6 +82,7 @@ body {
     height: 120px;
     cursor: pointer;
     transition: all 0.3s ease;
+    pointer-events: auto;
 }
 
 .plot-ground {
