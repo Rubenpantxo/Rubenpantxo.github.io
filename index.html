@@ -151,29 +151,122 @@
         #app-placas-container #canvas-container { position: relative; }
         #app-placas-container #roofCanvas { background-size: 250px; background-repeat: repeat; image-rendering: auto; }
 
-        /* Estilos para las categorías de enlaces */
+        /* Estilos neumorfistas para las categorías de enlaces */
         .category-card {
-            transition: all 0.3s ease;
-            border-radius: 0.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 1.5rem;
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background: #e8e8e3;
+            box-shadow:
+                12px 12px 24px rgba(163, 177, 198, 0.4),
+                -12px -12px 24px rgba(255, 255, 255, 0.9);
+            position: relative;
         }
 
         .category-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-4px);
+            box-shadow:
+                12px 12px 24px rgba(163, 177, 198, 0.4),
+                -12px -12px 24px rgba(255, 255, 255, 0.9),
+                0 0 40px rgba(59, 130, 246, 0.3),
+                0 0 80px rgba(59, 130, 246, 0.15);
         }
 
         .category-card:active {
-            transform: translateY(-4px) scale(1.01);
+            transform: translateY(-2px);
+            box-shadow:
+                8px 8px 16px rgba(163, 177, 198, 0.4),
+                -8px -8px 16px rgba(255, 255, 255, 0.9);
         }
 
         .category-card > div:first-child {
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            background: linear-gradient(145deg, #f0f0eb, #e0e0db);
+            box-shadow: inset 5px 5px 10px rgba(163, 177, 198, 0.2),
+                        inset -5px -5px 10px rgba(255, 255, 255, 0.7);
         }
 
         .category-card:hover > div:first-child {
-            filter: brightness(1.1);
+            background: linear-gradient(145deg, #f5f5f0, #e5e5e0);
+            box-shadow: inset 5px 5px 10px rgba(163, 177, 198, 0.15),
+                        inset -5px -5px 10px rgba(255, 255, 255, 0.8),
+                        0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Iconos con efecto neon */
+        .category-card .category-icon {
+            filter: drop-shadow(0 0 0px transparent);
+            transition: filter 0.4s ease;
+        }
+
+        .category-card:hover .category-icon {
+            filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 15px currentColor);
+        }
+
+        /* Estilos neumorfistas para enlaces individuales */
+        .link-card-neumorph {
+            background: #e8e8e3;
+            border-radius: 1.2rem;
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                8px 8px 16px rgba(163, 177, 198, 0.4),
+                -8px -8px 16px rgba(255, 255, 255, 0.9);
+            border: none;
+        }
+
+        .link-card-neumorph:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                10px 10px 20px rgba(163, 177, 198, 0.4),
+                -10px -10px 20px rgba(255, 255, 255, 0.9),
+                0 0 30px rgba(59, 130, 246, 0.4),
+                0 0 60px rgba(59, 130, 246, 0.2);
+        }
+
+        .link-card-neumorph:active {
+            transform: translateY(-2px);
+            box-shadow:
+                5px 5px 10px rgba(163, 177, 198, 0.4),
+                -5px -5px 10px rgba(255, 255, 255, 0.9);
+        }
+
+        .link-card-neumorph .link-icon {
+            filter: drop-shadow(0 0 0px transparent);
+            transition: filter 0.3s ease;
+        }
+
+        .link-card-neumorph:hover .link-icon {
+            filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 0 12px currentColor);
+        }
+
+        /* Botón volver con estilo neumorfista */
+        .neumorph-button {
+            background: #e8e8e3;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            box-shadow:
+                8px 8px 16px rgba(163, 177, 198, 0.4),
+                -8px -8px 16px rgba(255, 255, 255, 0.9);
+            border: none;
+        }
+
+        .neumorph-button:hover {
+            box-shadow:
+                10px 10px 20px rgba(163, 177, 198, 0.4),
+                -10px -10px 20px rgba(255, 255, 255, 0.9),
+                0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .neumorph-button:active {
+            box-shadow:
+                inset 4px 4px 8px rgba(163, 177, 198, 0.4),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+        }
+
+        /* Sección de enlaces con fondo neumorfista */
+        #enlaces-content {
+            background: #f5f5f0;
         }
     </style>
 </head>
@@ -303,89 +396,89 @@
 
                         <!-- Mapas -->
                         <div class="category-card cursor-pointer" data-category="mapas">
-                            <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
-                                <i class="fas fa-map-marked-alt text-6xl text-white mb-2"></i>
-                                <h4 class="text-xl font-bold text-white">Mapas</h4>
+                            <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
+                                <i class="fas fa-map-marked-alt text-6xl text-green-600 mb-2 category-icon"></i>
+                                <h4 class="text-xl font-bold text-gray-800">Mapas</h4>
                             </div>
-                            <div class="bg-white rounded-b-lg p-3 border-x border-b border-gray-300">
-                                <p class="text-sm text-gray-600 text-center">3 recursos</p>
+                            <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
+                                <p class="text-sm text-gray-700 text-center font-semibold">3 recursos</p>
                             </div>
                         </div>
 
                         <!-- IAs -->
                         <div class="category-card cursor-pointer" data-category="ias">
-                            <div class="bg-gradient-to-br from-purple-400 to-purple-600 rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
-                                <i class="fas fa-brain text-6xl text-white mb-2"></i>
-                                <h4 class="text-xl font-bold text-white">IAs</h4>
+                            <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
+                                <i class="fas fa-brain text-6xl text-purple-600 mb-2 category-icon"></i>
+                                <h4 class="text-xl font-bold text-gray-800">IAs</h4>
                             </div>
-                            <div class="bg-white rounded-b-lg p-3 border-x border-b border-gray-300">
-                                <p class="text-sm text-gray-600 text-center">4 recursos</p>
+                            <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
+                                <p class="text-sm text-gray-700 text-center font-semibold">4 recursos</p>
                             </div>
                         </div>
 
                         <!-- Esquemas -->
                         <div class="category-card cursor-pointer" data-category="esquemas">
-                            <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
-                                <i class="fas fa-project-diagram text-6xl text-white mb-2"></i>
-                                <h4 class="text-xl font-bold text-white">Esquemas</h4>
+                            <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
+                                <i class="fas fa-project-diagram text-6xl text-yellow-600 mb-2 category-icon"></i>
+                                <h4 class="text-xl font-bold text-gray-800">Esquemas</h4>
                             </div>
-                            <div class="bg-white rounded-b-lg p-3 border-x border-b border-gray-300">
-                                <p class="text-sm text-gray-600 text-center">1 recurso</p>
+                            <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
+                                <p class="text-sm text-gray-700 text-center font-semibold">1 recurso</p>
                             </div>
                         </div>
 
                         <!-- Developing -->
                         <div class="category-card cursor-pointer" data-category="developing">
-                            <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
-                                <i class="fas fa-code text-6xl text-white mb-2"></i>
-                                <h4 class="text-xl font-bold text-white">Developing</h4>
+                            <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
+                                <i class="fas fa-code text-6xl text-blue-600 mb-2 category-icon"></i>
+                                <h4 class="text-xl font-bold text-gray-800">Developing</h4>
                             </div>
-                            <div class="bg-white rounded-b-lg p-3 border-x border-b border-gray-300">
-                                <p class="text-sm text-gray-600 text-center">7 recursos</p>
+                            <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
+                                <p class="text-sm text-gray-700 text-center font-semibold">7 recursos</p>
                             </div>
                         </div>
 
                         <!-- Blogs -->
                         <div class="category-card cursor-pointer" data-category="blogs">
-                            <div class="bg-gradient-to-br from-pink-400 to-pink-600 rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
-                                <i class="fas fa-blog text-6xl text-white mb-2"></i>
-                                <h4 class="text-xl font-bold text-white">Blogs</h4>
+                            <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
+                                <i class="fas fa-blog text-6xl text-pink-600 mb-2 category-icon"></i>
+                                <h4 class="text-xl font-bold text-gray-800">Blogs</h4>
                             </div>
-                            <div class="bg-white rounded-b-lg p-3 border-x border-b border-gray-300">
-                                <p class="text-sm text-gray-600 text-center">1 recurso</p>
+                            <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
+                                <p class="text-sm text-gray-700 text-center font-semibold">1 recurso</p>
                             </div>
                         </div>
 
                         <!-- Multimedia -->
                         <div class="category-card cursor-pointer" data-category="multimedia">
-                            <div class="bg-gradient-to-br from-orange-400 to-orange-600 rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
-                                <i class="fas fa-photo-video text-6xl text-white mb-2"></i>
-                                <h4 class="text-xl font-bold text-white">Multimedia</h4>
+                            <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
+                                <i class="fas fa-photo-video text-6xl text-orange-600 mb-2 category-icon"></i>
+                                <h4 class="text-xl font-bold text-gray-800">Multimedia</h4>
                             </div>
-                            <div class="bg-white rounded-b-lg p-3 border-x border-b border-gray-300">
-                                <p class="text-sm text-gray-600 text-center">2 recursos</p>
+                            <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
+                                <p class="text-sm text-gray-700 text-center font-semibold">2 recursos</p>
                             </div>
                         </div>
 
                         <!-- Seguridad -->
                         <div class="category-card cursor-pointer" data-category="seguridad">
-                            <div class="bg-gradient-to-br from-red-400 to-red-600 rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
-                                <i class="fas fa-shield-alt text-6xl text-white mb-2"></i>
-                                <h4 class="text-xl font-bold text-white">Seguridad</h4>
+                            <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
+                                <i class="fas fa-shield-alt text-6xl text-red-600 mb-2 category-icon"></i>
+                                <h4 class="text-xl font-bold text-gray-800">Seguridad</h4>
                             </div>
-                            <div class="bg-white rounded-b-lg p-3 border-x border-b border-gray-300">
-                                <p class="text-sm text-gray-600 text-center">1 recurso</p>
+                            <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
+                                <p class="text-sm text-gray-700 text-center font-semibold">1 recurso</p>
                             </div>
                         </div>
 
                         <!-- Curiosidades -->
                         <div class="category-card cursor-pointer" data-category="curiosidades">
-                            <div class="bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
-                                <i class="fas fa-lightbulb text-6xl text-white mb-2"></i>
-                                <h4 class="text-xl font-bold text-white">Curiosidades</h4>
+                            <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
+                                <i class="fas fa-lightbulb text-6xl text-cyan-600 mb-2 category-icon"></i>
+                                <h4 class="text-xl font-bold text-gray-800">Curiosidades</h4>
                             </div>
-                            <div class="bg-white rounded-b-lg p-3 border-x border-b border-gray-300">
-                                <p class="text-sm text-gray-600 text-center">5 recursos</p>
+                            <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
+                                <p class="text-sm text-gray-700 text-center font-semibold">5 recursos</p>
                             </div>
                         </div>
 
@@ -393,7 +486,7 @@
 
                     <!-- Contenedor de enlaces por categoría (ocultos inicialmente) -->
                     <div id="category-links-container" class="hidden">
-                        <button id="back-to-categories" class="mb-6 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2">
+                        <button id="back-to-categories" class="neumorph-button mb-6 px-6 py-3 text-gray-700 font-semibold flex items-center gap-2">
                             <i class="fas fa-arrow-left"></i> Volver a Categorías
                         </button>
 
@@ -402,17 +495,17 @@
                         <!-- Mapas -->
                         <div id="links-mapas" class="category-links hidden">
                             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <a href="https://comparamapas.navarra.es/?lang=es" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-map-location-dot text-2xl text-green-600"></i><h4 class="font-bold text-lg">Comparador Mapas Navarra</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Visualiza y compara diferentes mapas y ortofotos de la región de Navarra.</p>
+                                <a href="https://comparamapas.navarra.es/?lang=es" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-map-location-dot text-2xl text-green-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Comparador Mapas Navarra</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Visualiza y compara diferentes mapas y ortofotos de la región de Navarra.</p>
                                 </a>
-                                <a href="https://idena.navarra.es/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-database text-2xl text-blue-800"></i><h4 class="font-bold text-lg">IDENA</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Infraestructura de Datos Espaciales de Navarra. Cartografía y datos geográficos.</p>
+                                <a href="https://idena.navarra.es/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-database text-2xl text-blue-800 link-icon"></i><h4 class="font-bold text-lg text-gray-800">IDENA</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Infraestructura de Datos Espaciales de Navarra. Cartografía y datos geográficos.</p>
                                 </a>
-                                <a href="https://visgl.github.io/react-google-maps/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-map-marked-alt text-2xl text-red-500"></i><h4 class="font-bold text-lg">React Google Maps</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Componentes de React para integrar Google Maps en tus aplicaciones.</p>
+                                <a href="https://visgl.github.io/react-google-maps/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-map-marked-alt text-2xl text-red-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">React Google Maps</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Componentes de React para integrar Google Maps en tus aplicaciones.</p>
                                 </a>
                             </div>
                         </div>
@@ -420,21 +513,21 @@
                         <!-- IAs -->
                         <div id="links-ias" class="category-links hidden">
                             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <a href="https://aistudio.google.com/prompts/new_chat" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-robot text-2xl text-blue-500"></i><h4 class="font-bold text-lg">Google AI Studio</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Experimenta y crea con los modelos de inteligencia artificial de Google.</p>
+                                <a href="https://aistudio.google.com/prompts/new_chat" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-robot text-2xl text-blue-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Google AI Studio</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Experimenta y crea con los modelos de inteligencia artificial de Google.</p>
                                 </a>
-                                <a href="https://openai.com/es-ES/gpt-5/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-brain text-2xl text-teal-500"></i><h4 class="font-bold text-lg">ChatGPT 5</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Accede a los modelos de lenguaje avanzados de OpenAI para tareas de IA.</p>
+                                <a href="https://openai.com/es-ES/gpt-5/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-brain text-2xl text-teal-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">ChatGPT 5</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Accede a los modelos de lenguaje avanzados de OpenAI para tareas de IA.</p>
                                 </a>
-                                <a href="https://www.anthropic.com/claude/sonnet" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-microchip text-2xl text-violet-500"></i><h4 class="font-bold text-lg">Claude Sonnet 4</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Modelo de IA de Anthropic para programación y razonamiento complejo.</p>
+                                <a href="https://www.anthropic.com/claude/sonnet" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-microchip text-2xl text-violet-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Claude Sonnet 4</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Modelo de IA de Anthropic para programación y razonamiento complejo.</p>
                                 </a>
-                                <a href="https://www.midjourney.com/home" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-paint-brush text-2xl text-indigo-600"></i><h4 class="font-bold text-lg">Midjourney</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Generador de imágenes a partir de texto mediante inteligencia artificial.</p>
+                                <a href="https://www.midjourney.com/home" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-paint-brush text-2xl text-indigo-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Midjourney</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Generador de imágenes a partir de texto mediante inteligencia artificial.</p>
                                 </a>
                             </div>
                         </div>
@@ -442,9 +535,9 @@
                         <!-- Esquemas -->
                         <div id="links-esquemas" class="category-links hidden">
                             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <a href="https://app.diagrams.net/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-project-diagram text-2xl text-yellow-500"></i><h4 class="font-bold text-lg">Diagrams.net</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Herramienta gratuita para crear diagramas de flujo, mapas mentales y más.</p>
+                                <a href="https://app.diagrams.net/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-project-diagram text-2xl text-yellow-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Diagrams.net</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Herramienta gratuita para crear diagramas de flujo, mapas mentales y más.</p>
                                 </a>
                             </div>
                         </div>
@@ -452,33 +545,33 @@
                         <!-- Developing -->
                         <div id="links-developing" class="category-links hidden">
                             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <a href="https://vercel.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-server text-2xl text-gray-800"></i><h4 class="font-bold text-lg">Vercel</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Plataforma de hosting para desplegar aplicaciones web modernas y rápidas.</p>
+                                <a href="https://vercel.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-server text-2xl text-gray-800 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Vercel</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Plataforma de hosting para desplegar aplicaciones web modernas y rápidas.</p>
                                 </a>
-                                <a href="https://astro.build/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-rocket text-2xl text-orange-500"></i><h4 class="font-bold text-lg">Astro</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Framework web para construir sitios rápidos y centrados en el contenido.</p>
+                                <a href="https://astro.build/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-rocket text-2xl text-orange-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Astro</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Framework web para construir sitios rápidos y centrados en el contenido.</p>
                                 </a>
-                                <a href="https://supabase.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-bolt text-2xl text-green-500"></i><h4 class="font-bold text-lg">Supabase</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Alternativa a Firebase con base de datos, autenticación y más.</p>
+                                <a href="https://supabase.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-bolt text-2xl text-green-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Supabase</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Alternativa a Firebase con base de datos, autenticación y más.</p>
                                 </a>
-                                <a href="https://pnpm.io/es/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-box-open text-2xl text-yellow-400"></i><h4 class="font-bold text-lg">pnpm</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Gestor de paquetes rápido y eficiente en el uso de disco para JavaScript.</p>
+                                <a href="https://pnpm.io/es/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-box-open text-2xl text-yellow-400 link-icon"></i><h4 class="font-bold text-lg text-gray-800">pnpm</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Gestor de paquetes rápido y eficiente en el uso de disco para JavaScript.</p>
                                 </a>
-                                <a href="https://windsurf.com/editor" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-code text-2xl text-sky-500"></i><h4 class="font-bold text-lg">Windsurf Editor</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Editor de código colaborativo en tiempo real para desarrollo en equipo.</p>
+                                <a href="https://windsurf.com/editor" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-code text-2xl text-sky-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Windsurf Editor</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Editor de código colaborativo en tiempo real para desarrollo en equipo.</p>
                                 </a>
-                                <a href="https://www.cloudflare.com/es-es/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-shield-halved text-2xl text-orange-600"></i><h4 class="font-bold text-lg">Cloudflare</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Servicios de seguridad, rendimiento y CDN para sitios y aplicaciones web.</p>
+                                <a href="https://www.cloudflare.com/es-es/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-shield-halved text-2xl text-orange-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Cloudflare</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Servicios de seguridad, rendimiento y CDN para sitios y aplicaciones web.</p>
                                 </a>
-                                <a href="https://www.radix-ui.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-cubes text-2xl text-gray-900"></i><h4 class="font-bold text-lg">Radix UI</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Componentes de interfaz de usuario de bajo nivel para aplicaciones React.</p>
+                                <a href="https://www.radix-ui.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-cubes text-2xl text-gray-900 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Radix UI</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Componentes de interfaz de usuario de bajo nivel para aplicaciones React.</p>
                                 </a>
                             </div>
                         </div>
@@ -486,9 +579,9 @@
                         <!-- Blogs -->
                         <div id="links-blogs" class="category-links hidden">
                             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <a href="https://www.theunwindai.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-newspaper text-2xl text-blue-400"></i><h4 class="font-bold text-lg">The Unwind AI</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Newsletter y recursos para mantenerse al día con la inteligencia artificial.</p>
+                                <a href="https://www.theunwindai.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-newspaper text-2xl text-blue-400 link-icon"></i><h4 class="font-bold text-lg text-gray-800">The Unwind AI</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Newsletter y recursos para mantenerse al día con la inteligencia artificial.</p>
                                 </a>
                             </div>
                         </div>
@@ -496,13 +589,13 @@
                         <!-- Multimedia -->
                         <div id="links-multimedia" class="category-links hidden">
                             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <a href="https://tinywow.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-toolbox text-2xl text-orange-500"></i><h4 class="font-bold text-lg">TinyWow</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Herramientas online gratuitas para PDF, imágenes, vídeos y más.</p>
+                                <a href="https://tinywow.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-toolbox text-2xl text-orange-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">TinyWow</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Herramientas online gratuitas para PDF, imágenes, vídeos y más.</p>
                                 </a>
-                                <a href="https://mega.nz/folder/Uc4U3KpL#uzR3-BaRzcS9DZNo3nAxaw/folder/5RJQQLwD" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-cloud text-2xl text-red-500"></i><h4 class="font-bold text-lg">Almacenamiento Nube</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Accede a una carpeta compartida con archivos y recursos.</p>
+                                <a href="https://mega.nz/folder/Uc4U3KpL#uzR3-BaRzcS9DZNo3nAxaw/folder/5RJQQLwD" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-cloud text-2xl text-red-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Almacenamiento Nube</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Accede a una carpeta compartida con archivos y recursos.</p>
                                 </a>
                             </div>
                         </div>
@@ -510,9 +603,9 @@
                         <!-- Seguridad -->
                         <div id="links-seguridad" class="category-links hidden">
                             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <a href="https://www.surveillancewatch.io/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-video text-2xl text-gray-600"></i><h4 class="font-bold text-lg">SurveillanceWatch</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Monitoriza y recibe alertas sobre vulnerabilidades de seguridad.</p>
+                                <a href="https://www.surveillancewatch.io/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-video text-2xl text-gray-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">SurveillanceWatch</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Monitoriza y recibe alertas sobre vulnerabilidades de seguridad.</p>
                                 </a>
                             </div>
                         </div>
@@ -520,25 +613,25 @@
                         <!-- Curiosidades -->
                         <div id="links-curiosidades" class="category-links hidden">
                             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <a href="https://alison.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-graduation-cap text-2xl text-purple-600"></i><h4 class="font-bold text-lg">Alison</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Plataforma de aprendizaje con miles de cursos online gratuitos.</p>
+                                <a href="https://alison.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-graduation-cap text-2xl text-purple-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Alison</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Plataforma de aprendizaje con miles de cursos online gratuitos.</p>
                                 </a>
-                                <a href="https://visualgo.net/en" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-shapes text-2xl text-lime-600"></i><h4 class="font-bold text-lg">VisuAlgo</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Visualiza algoritmos y estructuras de datos de forma interactiva.</p>
+                                <a href="https://visualgo.net/en" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-shapes text-2xl text-lime-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">VisuAlgo</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Visualiza algoritmos y estructuras de datos de forma interactiva.</p>
                                 </a>
-                                <a href="https://stan-smith.github.io/FossFLOW/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-sitemap text-2xl text-cyan-600"></i><h4 class="font-bold text-lg">FossFLOW</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Visualizador de flujos de trabajo de código abierto para análisis de datos.</p>
+                                <a href="https://stan-smith.github.io/FossFLOW/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-sitemap text-2xl text-cyan-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">FossFLOW</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Visualizador de flujos de trabajo de código abierto para análisis de datos.</p>
                                 </a>
-                                <a href="https://posthog.com/" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-chart-line text-2xl text-yellow-500"></i><h4 class="font-bold text-lg">PostHog</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">Plataforma de análisis de productos y datos para desarrolladores.</p>
+                                <a href="https://posthog.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-chart-line text-2xl text-yellow-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">PostHog</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Plataforma de análisis de productos y datos para desarrolladores.</p>
                                 </a>
-                                <a href="https://www.firecrawl.dev/pricing" target="_blank" class="block p-4 border rounded-lg bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all">
-                                    <div class="flex items-center gap-3"><i class="fas fa-spider text-2xl text-red-600"></i><h4 class="font-bold text-lg">Firecrawl</h4></div>
-                                    <p class="text-sm text-gray-700 mt-2">API para rastrear y convertir sitios web en datos estructurados y fiables.</p>
+                                <a href="https://www.firecrawl.dev/pricing" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-spider text-2xl text-red-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Firecrawl</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">API para rastrear y convertir sitios web en datos estructurados y fiables.</p>
                                 </a>
                             </div>
                         </div>
