@@ -34,24 +34,60 @@
             transition: transform 0.5s ease-in-out;
         }
 
-        /* Estilo de cada botón de navegación */
+        /* Estilo de cada botón de navegación con efecto glassmorfismo */
         .nav-item {
             font-family: 'Kalam', cursive;
             font-weight: 700;
-            background-color: #ffffff;
-            border: 2px solid #333;
-            box-shadow: 5px 5px 0px #333;
+            /* Glassmorfismo */
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow:
+                0 8px 32px 0 rgba(31, 38, 135, 0.15),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.1);
             position: relative;
             cursor: pointer;
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease, box-shadow 0.2s ease, font-size 0.3s ease;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            overflow: hidden;
+            color: #2c3e50;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         .nav-item:hover {
-            box-shadow: 2px 2px 0px #333;
-            transform: translate(3px, 3px);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow:
+                0 8px 32px 0 rgba(31, 38, 135, 0.25),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
+                0 0 30px rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
         }
 
-        /* La "cuerda" que cuelga de cada botón */
+        /* Efecto de tinta china sobre cristal */
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(44, 62, 80, 0.3) 20%,
+                rgba(44, 62, 80, 0.6) 50%,
+                rgba(44, 62, 80, 0.3) 80%,
+                transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-item:hover::after {
+            opacity: 1;
+        }
+
+        /* La "cuerda" que cuelga de cada botón - ahora más translúcida */
         .nav-item::before {
             content: '';
             position: absolute;
@@ -59,9 +95,46 @@
             left: 50%;
             transform: translateX(-50%);
             width: 2px;
-            height: 40px; /* Longitud de la cuerda */
-            background: linear-gradient(to bottom, #8B4513, #D2691E); /* Marrón de cuerda */
+            height: 40px;
+            background: linear-gradient(to bottom,
+                rgba(139, 69, 19, 0.4),
+                rgba(210, 105, 30, 0.6));
             z-index: -1;
+        }
+
+        /* Animación typewriter para el texto */
+        @keyframes typewriter {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes inkBleed {
+            0% {
+                filter: blur(1px) opacity(0.7);
+            }
+            50% {
+                filter: blur(0.5px) opacity(0.85);
+            }
+            100% {
+                filter: blur(0px) opacity(1);
+            }
+        }
+
+        .nav-item .typewriter-text {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typewriter 2s steps(30) 0.5s forwards, inkBleed 2s ease-in-out 0.5s forwards;
+            width: 0;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-item.animated .typewriter-text {
+            width: 100%;
         }
 
         /* --- LÓGICA DE ANIMACIÓN --- */
@@ -78,9 +151,14 @@
             transform: translateY(0);
             opacity: 1;
             pointer-events: auto;
-            box-shadow: 2px 2px 0px #1a73e8;
-            border-color: #1a73e8;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            box-shadow:
+                0 8px 32px 0 rgba(59, 130, 246, 0.3),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
+                0 0 40px rgba(59, 130, 246, 0.4);
             font-size: 1.5rem; /* Hacemos el texto más grande para que parezca un título */
+            color: #1a73e8;
         }
 
         /* Estilo de los iconos de la esquina (interrogante y volver) */
@@ -291,10 +369,18 @@
         </header>
 
         <nav id="main-nav" class="flex flex-col sm:flex-row justify-center items-center gap-8 sm:gap-12 mt-8">
-            <div class="nav-item text-xl p-4 rounded-lg" data-section="noticias">Noticias y Artículos</div>
-            <div class="nav-item text-xl p-4 rounded-lg" data-section="apps">Aplicaciones</div>
-            <div class="nav-item text-xl p-4 rounded-lg" data-section="games">Juegos</div>
-            <div class="nav-item text-xl p-4 rounded-lg" data-section="enlaces">Enlaces Web</div>
+            <div class="nav-item text-xl p-4 rounded-lg" data-section="noticias">
+                <span class="typewriter-text">Noticias y Artículos</span>
+            </div>
+            <div class="nav-item text-xl p-4 rounded-lg" data-section="apps">
+                <span class="typewriter-text">Aplicaciones</span>
+            </div>
+            <div class="nav-item text-xl p-4 rounded-lg" data-section="games">
+                <span class="typewriter-text">Juegos</span>
+            </div>
+            <div class="nav-item text-xl p-4 rounded-lg" data-section="enlaces">
+                <span class="typewriter-text">Enlaces Web</span>
+            </div>
         </nav>
 
         <main id="content-container" class="mt-16">
@@ -650,6 +736,22 @@
             const socialLinks = document.getElementById('social-links');
             const backArrow = document.getElementById('back-arrow');
             const body = document.body;
+
+            // Efecto typewriter - iniciar animación escalonada
+            setTimeout(() => {
+                navItems.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.add('animated');
+                        const typewriterSpan = item.querySelector('.typewriter-text');
+                        if (typewriterSpan) {
+                            typewriterSpan.style.animation = `
+                                typewriter 1.5s steps(${typewriterSpan.textContent.length}) ${index * 0.3}s forwards,
+                                inkBleed 1.5s ease-in-out ${index * 0.3}s forwards
+                            `;
+                        }
+                    }, index * 400);
+                });
+            }, 500);
 
             const placasAppContent = `
                 <div class="w-full max-w-full mx-auto flex flex-col lg:flex-row gap-4 h-[calc(100vh-4rem)] p-4">
