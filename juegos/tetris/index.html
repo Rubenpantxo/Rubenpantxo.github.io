@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Agrícola - La Cosecha Perfecta</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98D982 40%, #8B7355 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Nubes animadas */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+            opacity: 0.7;
+            animation: float 20s infinite;
+        }
+
+        .cloud::before {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+        }
+
+        .cloud1 {
+            width: 100px;
+            height: 40px;
+            top: 20%;
+            animation-duration: 25s;
+        }
+
+        .cloud1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud2 {
+            width: 80px;
+            height: 35px;
+            top: 30%;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+
+        .cloud2::before {
+            width: 60px;
+            height: 40px;
+            top: -20px;
+            right: 15px;
+        }
+
+        @keyframes float {
+            0% { left: -200px; }
+            100% { left: calc(100% + 200px); }
+        }
+
+        .game-container {
+            background: rgba(255, 248, 220, 0.95);
+            border: 8px solid #8B4513;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            gap: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .game-board {
+            position: relative;
+        }
+
+        canvas {
+            border: 4px solid #654321;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+            background-image:
+                repeating-linear-gradient(
+                    0deg,
+                    #8B7355,
+                    #8B7355 2px,
+                    #7A6248 2px,
+                    #7A6248 4px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(101, 67, 33, 0.1),
+                    rgba(101, 67, 33, 0.1) 20px,
+                    transparent 20px,
+                    transparent 40px
+                );
+            background-size: 100% 100%, 40px 40px;
+        }
+
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 200px;
+        }
+
+        .score-board {
+            background: #F5DEB3;
+            border: 3px solid #8B4513;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .score-board h3 {
+            color: #654321;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 1.1em;
+            color: #4A3628;
+        }
+
+        .score-value {
+            font-weight: 600;
+            color: #2D5016;
+        }
+
+        .controls {
+            background: #F5DEB3;
+            border: 3px solid #8B4513;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls h3 {
+            color: #654321;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 0.9em;
+            color: #4A3628;
+        }
+
+        .key {
+            background: #8B4513;
+            color: #FFF8DC;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        button {
+            background: linear-gradient(135deg, #8FBC8F, #6B8E23);
+            color: white;
+            border: 3px solid #556B2F;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-family: 'Fredoka', sans-serif;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #9ACD32, #6B8E23);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(139, 69, 19, 0.95);
+            color: #FFF8DC;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 20;
+        }
+
+        .game-over h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .game-over p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .next-piece {
+            background: #F5DEB3;
+            border: 3px solid #8B4513;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .next-piece h3 {
+            color: #654321;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .next-canvas {
+            border: 2px solid #654321;
+            border-radius: 5px;
+            background: rgba(139, 115, 85, 0.1);
+        }
+
+        /* Decoraciones de granja */
+        .farm-decoration {
+            position: absolute;
+            z-index: 1;
+        }
+
+        .barn {
+            bottom: 10px;
+            right: 10px;
+            width: 60px;
+            height: 60px;
+            background: #8B4513;
+            position: absolute;
+        }
+
+        .barn::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 25px solid #B22222;
+            top: -25px;
+        }
+
+        .title {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #2D5016;
+            font-size: 2em;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
+        }
+
+        .title::before {
+            content: '🌾';
+            margin-right: 10px;
+        }
+
+        .title::after {
+            content: '🚜';
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Nubes decorativas -->
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+
+    <!-- Decoración de granero -->
+    <div class="barn"></div>
+
+    <div class="game-container">
+        <h1 class="title">Tetris Agrícola</h1>
+
+        <div class="game-board">
+            <canvas id="gameCanvas" width="300" height="600"></canvas>
+            <div class="game-over" id="gameOver">
+                <h2>¡Cosecha Completada!</h2>
+                <p>Puntuación Final: <span id="finalScore">0</span></p>
+                <button onclick="resetGame()">Nueva Siembra</button>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="score-board">
+                <h3>🌻 Estadísticas</h3>
+                <div class="score-item">
+                    <span>Cosecha:</span>
+                    <span class="score-value" id="score">0</span>
+                </div>
+                <div class="score-item">
+                    <span>Líneas:</span>
+                    <span class="score-value" id="lines">0</span>
+                </div>
+                <div class="score-item">
+                    <span>Nivel:</span>
+                    <span class="score-value" id="level">1</span>
+                </div>
+            </div>
+
+            <div class="next-piece">
+                <h3>🌱 Próxima Herramienta</h3>
+                <canvas id="nextCanvas" class="next-canvas" width="120" height="100"></canvas>
+            </div>
+
+            <div class="controls">
+                <h3>🎮 Controles</h3>
+                <div class="control-item">
+                    <span>Mover:</span>
+                    <span><span class="key">←</span> <span class="key">→</span></span>
+                </div>
+                <div class="control-item">
+                    <span>Rotar:</span>
+                    <span class="key">↑</span>
+                </div>
+                <div class="control-item">
+                    <span>Acelerar:</span>
+                    <span class="key">↓</span>
+                </div>
+                <div class="control-item">
+                    <span>Pausa:</span>
+                    <span class="key">P</span>
+                </div>
+            </div>
+
+            <button id="startBtn" onclick="startGame()">🌾 Comenzar Siembra</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const nextCanvas = document.getElementById('nextCanvas');
+        const nextCtx = nextCanvas.getContext('2d');
+
+        const COLS = 10;
+        const ROWS = 20;
+        const BLOCK_SIZE = 30;
+
+        let board = [];
+        let currentPiece = null;
+        let nextPiece = null;
+        let score = 0;
+        let lines = 0;
+        let level = 1;
+        let gameOver = false;
+        let isPaused = false;
+        let dropTime = 1000;
+        let lastDrop = 0;
+
+        // Definición de las piezas agrícolas
+        const PIECES = {
+            // Tajadera (I - línea)
+            I: {
+                shape: [
+                    [1, 1, 1, 1]
+                ],
+                color: '#8B4513',
+                pattern: 'tajadera',
+                name: 'Tajadera'
+            },
+            // Cubo (O - cuadrado)
+            O: {
+                shape: [
+                    [1, 1],
+                    [1, 1]
+                ],
+                color: '#4682B4',
+                pattern: 'cubo',
+                name: 'Cubo'
+            },
+            // Plantadora (T)
+            T: {
+                shape: [
+                    [0, 1, 0],
+                    [1, 1, 1]
+                ],
+                color: '#DAA520',
+                pattern: 'plantadora',
+                name: 'Plantadora'
+            },
+            // Alcachofa Verde (S)
+            S: {
+                shape: [
+                    [0, 1, 1],
+                    [1, 1, 0]
+                ],
+                color: '#228B22',
+                pattern: 'alcachofa',
+                name: 'Alcachofa'
+            },
+            // Alcachofa Morada (Z)
+            Z: {
+                shape: [
+                    [1, 1, 0],
+                    [0, 1, 1]
+                ],
+                color: '#9370DB',
+                pattern: 'alcachofa2',
+                name: 'Alcachofa Morada'
+            },
+            // Bota (J)
+            J: {
+                shape: [
+                    [1, 0, 0],
+                    [1, 1, 1]
+                ],
+                color: '#8B0000',
+                pattern: 'bota',
+                name: 'Bota'
+            },
+            // Bota Inversa (L)
+            L: {
+                shape: [
+                    [0, 0, 1],
+                    [1, 1, 1]
+                ],
+                color: '#D2691E',
+                pattern: 'bota2',
+                name: 'Bota Clara'
+            }
+        };
+
+        class Piece {
+            constructor(type) {
+                this.type = type;
+                this.shape = PIECES[type].shape;
+                this.color = PIECES[type].color;
+                this.pattern = PIECES[type].pattern;
+                this.name = PIECES[type].name;
+                this.x = Math.floor((COLS - this.shape[0].length) / 2);
+                this.y = 0;
+            }
+
+            rotate() {
+                const rotated = [];
+                const rows = this.shape.length;
+                const cols = this.shape[0].length;
+
+                for (let i = 0; i < cols; i++) {
+                    rotated[i] = [];
+                    for (let j = rows - 1; j >= 0; j--) {
+                        rotated[i].push(this.shape[j][i]);
+                    }
+                }
+
+                return rotated;
+            }
+        }
+
+        function initBoard() {
+            board = Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
+        }
+
+        function drawBlock(x, y, color, pattern, ctx = ctx, blockSize = BLOCK_SIZE) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+
+            // Añadir textura según el tipo de herramienta
+            ctx.save();
+            ctx.globalAlpha = 0.3;
+
+            if (pattern === 'tajadera') {
+                // Líneas verticales para la tajadera
+                ctx.strokeStyle = '#654321';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < blockSize; i += 4) {
+                    ctx.beginPath();
+                    ctx.moveTo(x * blockSize + i, y * blockSize);
+                    ctx.lineTo(x * blockSize + i, y * blockSize + blockSize);
+                    ctx.stroke();
+                }
+            } else if (pattern === 'cubo') {
+                // Patrón de madera para el cubo
+                ctx.fillStyle = '#654321';
+                for (let i = 0; i < blockSize; i += 6) {
+                    ctx.fillRect(x * blockSize, y * blockSize + i, blockSize, 2);
+                }
+            } else if (pattern === 'plantadora') {
+                // Puntos para la plantadora
+                ctx.fillStyle = '#4A4A4A';
+                for (let i = 5; i < blockSize; i += 10) {
+                    for (let j = 5; j < blockSize; j += 10) {
+                        ctx.beginPath();
+                        ctx.arc(x * blockSize + i, y * blockSize + j, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            } else if (pattern.includes('alcachofa')) {
+                // Textura de hojas para las alcachofas
+                ctx.strokeStyle = '#2F4F2F';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < blockSize; i += 8) {
+                    ctx.beginPath();
+                    ctx.moveTo(x * blockSize + i, y * blockSize);
+                    ctx.lineTo(x * blockSize + blockSize, y * blockSize + i);
+                    ctx.stroke();
+                }
+            } else if (pattern.includes('bota')) {
+                // Textura de cuero para las botas
+                ctx.fillStyle = '#3E2723';
+                ctx.beginPath();
+                ctx.arc(x * blockSize + blockSize/2, y * blockSize + blockSize/2, blockSize/4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+
+            // Borde de la pieza
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x * blockSize + 1, y * blockSize + 1, blockSize - 2, blockSize - 2);
+
+            // Efecto de profundidad
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillRect(x * blockSize + 2, y * blockSize + 2, blockSize - 4, 4);
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(x * blockSize + 2, y * blockSize + blockSize - 6, blockSize - 4, 4);
+        }
+
+        function drawBoard() {
+            // Limpiar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar surcos del campo
+            ctx.strokeStyle = 'rgba(101, 67, 33, 0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < ROWS; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, i * BLOCK_SIZE);
+                ctx.lineTo(canvas.width, i * BLOCK_SIZE);
+                ctx.stroke();
+            }
+
+            // Dibujar bloques del tablero
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    if (board[row][col]) {
+                        drawBlock(col, row, board[row][col].color, board[row][col].pattern);
+                    }
+                }
+            }
+
+            // Dibujar pieza actual
+            if (currentPiece && !gameOver) {
+                for (let row = 0; row < currentPiece.shape.length; row++) {
+                    for (let col = 0; col < currentPiece.shape[row].length; col++) {
+                        if (currentPiece.shape[row][col]) {
+                            drawBlock(
+                                currentPiece.x + col,
+                                currentPiece.y + row,
+                                currentPiece.color,
+                                currentPiece.pattern
+                            );
+                        }
+                    }
+                }
+
+                // Dibujar sombra de la pieza
+                drawGhostPiece();
+            }
+        }
+
+        function drawGhostPiece() {
+            let ghostY = currentPiece.y;
+            while (isValidMove(currentPiece.shape, currentPiece.x, ghostY + 1)) {
+                ghostY++;
+            }
+
+            ctx.save();
+            ctx.globalAlpha = 0.3;
+            for (let row = 0; row < currentPiece.shape.length; row++) {
+                for (let col = 0; col < currentPiece.shape[row].length; col++) {
+                    if (currentPiece.shape[row][col]) {
+                        ctx.fillStyle = currentPiece.color;
+                        ctx.fillRect(
+                            (currentPiece.x + col) * BLOCK_SIZE,
+                            (ghostY + row) * BLOCK_SIZE,
+                            BLOCK_SIZE,
+                            BLOCK_SIZE
+                        );
+                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                        ctx.strokeRect(
+                            (currentPiece.x + col) * BLOCK_SIZE,
+                            (ghostY + row) * BLOCK_SIZE,
+                            BLOCK_SIZE,
+                            BLOCK_SIZE
+                        );
+                    }
+                }
+            }
+            ctx.restore();
+        }
+
+        function drawNextPiece() {
+            nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+
+            if (nextPiece) {
+                const blockSize = 20;
+                const offsetX = (nextCanvas.width - nextPiece.shape[0].length * blockSize) / 2;
+                const offsetY = (nextCanvas.height - nextPiece.shape.length * blockSize) / 2;
+
+                for (let row = 0; row < nextPiece.shape.length; row++) {
+                    for (let col = 0; col < nextPiece.shape[row].length; col++) {
+                        if (nextPiece.shape[row][col]) {
+                            drawBlock(
+                                offsetX / blockSize + col,
+                                offsetY / blockSize + row,
+                                nextPiece.color,
+                                nextPiece.pattern,
+                                nextCtx,
+                                blockSize
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        function isValidMove(shape, offsetX, offsetY) {
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    if (shape[row][col]) {
+                        const newX = offsetX + col;
+                        const newY = offsetY + row;
+
+                        if (newX < 0 || newX >= COLS || newY >= ROWS) {
+                            return false;
+                        }
+
+                        if (newY >= 0 && board[newY][newX]) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        function lockPiece() {
+            for (let row = 0; row < currentPiece.shape.length; row++) {
+                for (let col = 0; col < currentPiece.shape[row].length; col++) {
+                    if (currentPiece.shape[row][col]) {
+                        const y = currentPiece.y + row;
+                        const x = currentPiece.x + col;
+
+                        if (y < 0) {
+                            gameOver = true;
+                            showGameOver();
+                            return;
+                        }
+
+                        board[y][x] = {
+                            color: currentPiece.color,
+                            pattern: currentPiece.pattern
+                        };
+                    }
+                }
+            }
+
+            clearLines();
+            spawnPiece();
+        }
+
+        function clearLines() {
+            let linesCleared = 0;
+
+            for (let row = ROWS - 1; row >= 0; row--) {
+                if (board[row].every(cell => cell)) {
+                    board.splice(row, 1);
+                    board.unshift(Array(COLS).fill(0));
+                    linesCleared++;
+                    row++;
+                }
+            }
+
+            if (linesCleared > 0) {
+                lines += linesCleared;
+                score += linesCleared * 100 * level;
+
+                // Aumentar nivel cada 10 líneas
+                level = Math.floor(lines / 10) + 1;
+                dropTime = Math.max(100, 1000 - (level - 1) * 100);
+
+                updateScore();
+
+                // Efecto visual de líneas completadas
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                setTimeout(() => drawBoard(), 100);
+            }
+        }
+
+        function spawnPiece() {
+            const pieces = Object.keys(PIECES);
+
+            if (!nextPiece) {
+                nextPiece = new Piece(pieces[Math.floor(Math.random() * pieces.length)]);
+            }
+
+            currentPiece = nextPiece;
+            nextPiece = new Piece(pieces[Math.floor(Math.random() * pieces.length)]);
+
+            drawNextPiece();
+
+            if (!isValidMove(currentPiece.shape, currentPiece.x, currentPiece.y)) {
+                gameOver = true;
+                showGameOver();
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('lines').textContent = lines;
+            document.getElementById('level').textContent = level;
+        }
+
+        function showGameOver() {
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').style.display = 'block';
+            document.getElementById('startBtn').textContent = '🌾 Nueva Siembra';
+            document.getElementById('startBtn').disabled = false;
+        }
+
+        function resetGame() {
+            initBoard();
+            score = 0;
+            lines = 0;
+            level = 1;
+            dropTime = 1000;
+            gameOver = false;
+            isPaused = false;
+            currentPiece = null;
+            nextPiece = null;
+            updateScore();
+            document.getElementById('gameOver').style.display = 'none';
+            startGame();
+        }
+
+        function startGame() {
+            if (gameOver) {
+                resetGame();
+                return;
+            }
+
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('startBtn').textContent = '🚜 Cultivando...';
+            spawnPiece();
+            gameLoop();
+        }
+
+        function gameLoop(currentTime = 0) {
+            if (gameOver) return;
+
+            if (!isPaused) {
+                if (currentTime - lastDrop > dropTime) {
+                    moveDown();
+                    lastDrop = currentTime;
+                }
+                drawBoard();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function moveLeft() {
+            if (!currentPiece || gameOver || isPaused) return;
+            if (isValidMove(currentPiece.shape, currentPiece.x - 1, currentPiece.y)) {
+                currentPiece.x--;
+                drawBoard();
+            }
+        }
+
+        function moveRight() {
+            if (!currentPiece || gameOver || isPaused) return;
+            if (isValidMove(currentPiece.shape, currentPiece.x + 1, currentPiece.y)) {
+                currentPiece.x++;
+                drawBoard();
+            }
+        }
+
+        function moveDown() {
+            if (!currentPiece || gameOver || isPaused) return;
+            if (isValidMove(currentPiece.shape, currentPiece.x, currentPiece.y + 1)) {
+                currentPiece.y++;
+            } else {
+                lockPiece();
+            }
+        }
+
+        function hardDrop() {
+            if (!currentPiece || gameOver || isPaused) return;
+            while (isValidMove(currentPiece.shape, currentPiece.x, currentPiece.y + 1)) {
+                currentPiece.y++;
+                score += 2;
+            }
+            lockPiece();
+            updateScore();
+        }
+
+        function rotatePiece() {
+            if (!currentPiece || gameOver || isPaused) return;
+            const rotated = currentPiece.rotate();
+            if (isValidMove(rotated, currentPiece.x, currentPiece.y)) {
+                currentPiece.shape = rotated;
+                drawBoard();
+            }
+        }
+
+        function togglePause() {
+            if (gameOver) return;
+            isPaused = !isPaused;
+            if (isPaused) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 30px Fredoka';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSA', canvas.width / 2, canvas.height / 2);
+                ctx.font = '18px Fredoka';
+                ctx.fillText('Presiona P para continuar', canvas.width / 2, canvas.height / 2 + 40);
+            }
+        }
+
+        // Controles del teclado
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    moveLeft();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    moveRight();
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    moveDown();
+                    score++;
+                    updateScore();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    rotatePiece();
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    hardDrop();
+                    break;
+                case 'p':
+                case 'P':
+                    e.preventDefault();
+                    togglePause();
+                    break;
+            }
+        });
+
+        // Controles táctiles para móvil
+        let touchStartX = null;
+        let touchStartY = null;
+
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!touchStartX || !touchStartY) return;
+
+            const touchEndX = e.touches[0].clientX;
+            const touchEndY = e.touches[0].clientY;
+
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 50) {
+                    moveRight();
+                    touchStartX = touchEndX;
+                } else if (diffX < -50) {
+                    moveLeft();
+                    touchStartX = touchEndX;
+                }
+            } else {
+                if (diffY > 50) {
+                    moveDown();
+                    touchStartY = touchEndY;
+                }
+            }
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            const touchEndTime = new Date().getTime();
+            const touchDuration = touchEndTime - (window.lastTouchEnd || 0);
+
+            if (touchDuration < 200) {
+                rotatePiece();
+            }
+
+            window.lastTouchEnd = touchEndTime;
+            touchStartX = null;
+            touchStartY = null;
+        });
+
+        // Inicializar el juego
+        initBoard();
+        drawBoard();
+        updateScore();
+    </script>
+</body>
+</html>
