@@ -488,71 +488,75 @@
             board = Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
         }
 
-        function drawBlock(x, y, color, pattern, ctx = ctx, blockSize = BLOCK_SIZE) {
-            ctx.fillStyle = color;
-            ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+        function drawBlock(x, y, color, pattern, context, blockSize) {
+            // Usar valores por defecto si no se proporcionan
+            if (!context) context = ctx;
+            if (!blockSize) blockSize = BLOCK_SIZE;
+
+            context.fillStyle = color;
+            context.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
 
             // Añadir textura según el tipo de herramienta
-            ctx.save();
-            ctx.globalAlpha = 0.3;
+            context.save();
+            context.globalAlpha = 0.3;
 
             if (pattern === 'tajadera') {
                 // Líneas verticales para la tajadera
-                ctx.strokeStyle = '#654321';
-                ctx.lineWidth = 2;
+                context.strokeStyle = '#654321';
+                context.lineWidth = 2;
                 for (let i = 0; i < blockSize; i += 4) {
-                    ctx.beginPath();
-                    ctx.moveTo(x * blockSize + i, y * blockSize);
-                    ctx.lineTo(x * blockSize + i, y * blockSize + blockSize);
-                    ctx.stroke();
+                    context.beginPath();
+                    context.moveTo(x * blockSize + i, y * blockSize);
+                    context.lineTo(x * blockSize + i, y * blockSize + blockSize);
+                    context.stroke();
                 }
             } else if (pattern === 'cubo') {
                 // Patrón de madera para el cubo
-                ctx.fillStyle = '#654321';
+                context.fillStyle = '#654321';
                 for (let i = 0; i < blockSize; i += 6) {
-                    ctx.fillRect(x * blockSize, y * blockSize + i, blockSize, 2);
+                    context.fillRect(x * blockSize, y * blockSize + i, blockSize, 2);
                 }
             } else if (pattern === 'plantadora') {
                 // Puntos para la plantadora
-                ctx.fillStyle = '#4A4A4A';
+                context.fillStyle = '#4A4A4A';
                 for (let i = 5; i < blockSize; i += 10) {
                     for (let j = 5; j < blockSize; j += 10) {
-                        ctx.beginPath();
-                        ctx.arc(x * blockSize + i, y * blockSize + j, 2, 0, Math.PI * 2);
-                        ctx.fill();
+                        context.beginPath();
+                        context.arc(x * blockSize + i, y * blockSize + j, 2, 0, Math.PI * 2);
+                        context.fill();
                     }
                 }
             } else if (pattern.includes('alcachofa')) {
                 // Textura de hojas para las alcachofas
-                ctx.strokeStyle = '#2F4F2F';
-                ctx.lineWidth = 1;
+                context.strokeStyle = '#2F4F2F';
+                context.lineWidth = 1;
                 for (let i = 0; i < blockSize; i += 8) {
-                    ctx.beginPath();
-                    ctx.moveTo(x * blockSize + i, y * blockSize);
-                    ctx.lineTo(x * blockSize + blockSize, y * blockSize + i);
-                    ctx.stroke();
+                    context.beginPath();
+                    context.moveTo(x * blockSize + i, y * blockSize);
+                    context.lineTo(x * blockSize + blockSize, y * blockSize + i);
+                    context.stroke();
                 }
             } else if (pattern.includes('bota')) {
                 // Textura de cuero para las botas
-                ctx.fillStyle = '#3E2723';
-                ctx.beginPath();
-                ctx.arc(x * blockSize + blockSize/2, y * blockSize + blockSize/2, blockSize/4, 0, Math.PI * 2);
-                ctx.fill();
+                context.fillStyle = '#3E2723';
+                context.beginPath();
+                context.arc(x * blockSize + blockSize/2, y * blockSize + blockSize/2, blockSize/4, 0, Math.PI * 2);
+                context.fill();
             }
 
-            ctx.restore();
+            context.restore();
 
             // Borde de la pieza
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x * blockSize + 1, y * blockSize + 1, blockSize - 2, blockSize - 2);
+            context.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+            context.lineWidth = 2;
+            context.strokeRect(x * blockSize + 1, y * blockSize + 1, blockSize - 2, blockSize - 2);
 
             // Efecto de profundidad
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.fillRect(x * blockSize + 2, y * blockSize + 2, blockSize - 4, 4);
+            context.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            context.fillRect(x * blockSize + 2, y * blockSize + 2, blockSize - 4, 4);
 
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.fillRect(x * blockSize + 2, y * blockSize + blockSize - 6, blockSize - 4, 4);
+            context.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            context.fillRect(x * blockSize + 2, y * blockSize + blockSize - 6, blockSize - 4, 4);
         }
 
         function drawBoard() {
