@@ -386,61 +386,525 @@
         <main id="content-container" class="mt-16">
             
             <section id="noticias-content" class="content-section content-hidden">
-                <div class="grid md:grid-cols-2 gap-8 items-start pt-8">
-                    <div class="space-y-6">
-                        <h3 class="text-2xl font-bold border-b-2 pb-2 border-gray-400">Últimas de Tecnología y Salud</h3>
-                        
-                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
-                            <img src="img/Noticias/Img_Noti_1.png" alt="Render del IBM Quantum System Two en Euskadi" loading="lazy" class="w-24 h-24 rounded-md object-cover">
-                            <div>
-                                <h4 class="font-bold text-lg">Primer 'IBM Quantum System Two' de Europa en Euskadi</h4>
-                                <p class="text-sm text-gray-700">El Gobierno Vasco e IBM instalarán en el IBM-Euskadi Quantum Computational Center el primer ordenador cuántico de este tipo fuera de EE.UU., impulsando la investigación y el desarrollo tecnológico en la región.</p>
-                                <a href="https://www.basquequantum.eus/es/noticias/gobierno-vasco-e-ibm-anuncian-instalacion-del-primer-ibm-quantum-system-two-europa-ibm" target="_blank" class="text-xs text-blue-500 hover:underline mt-1 inline-block">Leer más...</a>
-                            </div>
-                        </div>
-                        
-                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
-                            <img src="img/Noticias/Img_Noti_2.png" alt="Hilo robótico guiado para el cerebro" loading="lazy" class="w-24 h-24 rounded-md object-cover">
-                            <div>
-                                <h4 class="font-bold text-lg">Hilo Robótico para Vasos Sanguíneos del Cerebro</h4>
-                                <p class="text-sm text-gray-700">Investigadores del MIT han desarrollado un hilo robótico, controlado magnéticamente, capaz de navegar por los vasos sanguíneos del cerebro para tratar aneurismas y derrames sin necesidad de cirugía invasiva.</p>
-                                <a href="https://news.mit.edu/2019/robot-brain-blood-vessels-0828" target="_blank" class="text-xs text-blue-500 hover:underline mt-1 inline-block">Leer más...</a>
-                            </div>
-                        </div>
-
-                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
-                            <img src="img/Noticias/Img_Noti_3.png" alt="Paciente recibe ultrasonido focalizado para el Parkinson" loading="lazy" class="w-24 h-24 rounded-md object-cover">
-                            <div>
-                                <h4 class="font-bold text-lg">Avance en Parkinson: Ultrasonido Focalizado</h4>
-                                <p class="text-sm text-gray-700">El Centro Médico Sheba en Israel utiliza ultrasonido focalizado (FUS) no invasivo para tratar síntomas motores del Parkinson, permitiendo una recuperación rápida sin cirugía cerebral abierta.</p>
-                                <a href="https://www.shebaonline.org/parkinsons-treatment-focused-ultrasound/" target="_blank" class="text-xs text-blue-500 hover:underline mt-1 inline-block">Leer más...</a>
-                            </div>
-                        </div>
-
-                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
-                            <img src="img/Noticias/Img_Noti_4.jpg" alt="Ilustración de disco óptico de 125 terabytes" loading="lazy" class="w-24 h-24 rounded-md object-cover">
-                            <div>
-                                <h4 class="font-bold text-lg">Disco óptico de 125 TB</h4>
-                                <p class="text-sm text-gray-700">Un equipo chino presenta un soporte óptico con densidad récord, relevante para archivo frío, pero aún en fase de investigación sin cifras de coste, velocidad o durabilidad.</p>
-                            </div>
-                        </div>
-                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
-                             <img src="img/Noticias/Img_Noti_5.jpg" alt="Prototipo del perro robot Black Panther 2.0" loading="lazy" class="w-24 h-24 rounded-md object-cover">
-                            <div>
-                                <h4 class="font-bold text-lg">Perro-robot “Black Panther 2.0”</h4>
-                                <p class="text-sm text-gray-700">Asegura cubrir 100 m en menos de 10 s (>36 km/h), un salto frente a modelos comerciales. Se necesita verificación independiente de las condiciones de prueba y su autonomía.</p>
-                            </div>
-                        </div>
-                        <div class="p-4 border rounded-lg bg-white shadow-md flex gap-4 items-start">
-                            <img src="img/Technology.png" alt="Representación de la matriz láser Photon Matrix" loading="lazy" class="w-24 h-24 rounded-md object-cover">
-                            <div>
-                                <h4 class="font-bold text-lg">“Photon Matrix” anti-mosquitos</h4>
-                                <p class="text-sm text-gray-700">Afirma usar IA y láseres para abatir hasta 40 mosquitos por segundo. Viable en entornos controlados, pero depende de la seguridad ocular, consumo y coste para su adopción.</p>
-                            </div>
-                        </div>
+                <div class="pt-8 pb-12">
+                    <div class="mb-8">
+                        <h2 class="text-4xl font-bold text-gray-800 mb-2">Noticias Tech</h2>
+                        <p class="text-gray-600">Las últimas innovaciones en tecnología, IA, robótica y mega-ingeniería</p>
                     </div>
-                    <div class="p-4 border-dashed border-4 rounded-lg bg-white/50 h-full min-h-[300px] flex items-center justify-center sticky top-24">
-                        <p class="text-gray-500 text-lg">Aquí irá el dibujo decorativo</p>
+
+                    <!-- Grid de noticias -->
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="news-grid">
+
+                        <!-- Noticia 1: Gemini 3 -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                <i class="fas fa-brain text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Gemini 3: El Modelo de IA Más Avanzado de Google</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Google presenta Gemini 3, su modelo de inteligencia artificial más potente hasta la fecha. Gemini 3 Pro supera a versiones anteriores en razonamiento, multimodalidad y capacidades de programación...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Google presenta Gemini 3, su modelo de inteligencia artificial más potente hasta la fecha. Gemini 3 Pro supera a versiones anteriores en razonamiento, multimodalidad y capacidades de programación. El modelo está disponible para empresas a través de Vertex AI y Gemini Enterprise, permitiendo a las organizaciones aprovechar capacidades mejoradas de productividad e innovación. Este lanzamiento marca un hito importante en la carrera de la IA, posicionando a Google como líder en modelos de lenguaje avanzados para uso empresarial.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 2: Computación Cuántica Google Willow -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-cyan-500 to-blue-700 flex items-center justify-center">
+                                <i class="fas fa-atom text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Google Willow: Chip Cuántico Revolucionario</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Google anuncia el chip Willow, un procesador cuántico que reduce errores a medida que aumenta el número de qubits. Puede realizar en 5 minutos tareas que a un ordenador clásico le llevarían 10 septillones de años...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Google anuncia el chip Willow, un procesador cuántico que reduce errores a medida que aumenta el número de qubits. Puede realizar en 5 minutos tareas que a un ordenador clásico le llevarían 10 septillones de años. Este avance representa un hito crítico en la corrección de errores cuánticos, uno de los mayores desafíos de la computación cuántica. Willow demuestra que es posible escalar sistemas cuánticos manteniendo la coherencia y reduciendo la tasa de error, acercándonos a la computación cuántica práctica para resolver problemas complejos en campos como el diseño de fármacos y la energía limpia.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 3: IBM Nighthawk -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center">
+                                <i class="fas fa-microchip text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">IBM Nighthawk: 120 Qubits para la Era Cuántica</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>IBM presenta su procesador experimental Nighthawk con 120 qubits enlazados mediante 218 acopladores ajustables. Este chip permitirá ejecutar puertas cuánticas avanzadas y cálculos más complejos...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>IBM presenta su procesador experimental Nighthawk con 120 qubits enlazados mediante 218 acopladores ajustables. Este chip permitirá ejecutar puertas cuánticas avanzadas y cálculos más complejos. Se espera que esté disponible para usuarios de IBM a finales de 2025. IBM también presentó el procesador Loon, avanzando en su hoja de ruta hacia la ventaja cuántica para finales de 2026 y la computación cuántica tolerante a fallos para 2029. Estos desarrollos posicionan a IBM como líder en la carrera hacia la computación cuántica comercial viable.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 4: Microsoft Chip Majorana -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+                                <i class="fas fa-network-wired text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Microsoft Majorana 1: Qubits Topológicos</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Microsoft revela el chip Majorana 1, basado en partículas de Majorana, que podría reducir drásticamente el número de qubits necesarios para tareas complejas...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Microsoft revela el chip Majorana 1, basado en partículas de Majorana, que podría reducir drásticamente el número de qubits necesarios para tareas complejas. Los qubits topológicos prometen mayor estabilidad y menor susceptibilidad al ruido ambiental, uno de los principales obstáculos de la computación cuántica actual. 2025 ha sido declarado el año para estar listos para el cómputo cuántico, y Microsoft está invirtiendo fuertemente en esta tecnología revolucionaria que podría transformar sectores como la criptografía, la optimización logística y el descubrimiento de materiales.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 5: Cluster Kubernetes 130k nodos -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                                <i class="fas fa-server text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Google Construye el Cluster Kubernetes Más Grande: 130,000 Nodos</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Ingenieros de Google documentan cómo construyeron el cluster Kubernetes más grande conocido con 130,000 nodos, demostrando capacidades avanzadas de orquestación para despliegues a escala masiva...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Ingenieros de Google documentan cómo construyeron el cluster Kubernetes más grande conocido con 130,000 nodos, demostrando capacidades avanzadas de orquestación para despliegues a escala masiva. Este logro técnico representa un hito en la infraestructura de contenedores, permitiendo ejecutar aplicaciones distribuidas con una escala sin precedentes. El cluster maneja millones de contenedores simultáneos y procesa petabytes de datos diariamente. Google compartió detalles técnicos sobre los desafíos de red, almacenamiento y coordinación que tuvieron que superar, estableciendo nuevos estándares para la industria cloud.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 6: TPUs Ironwood -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center">
+                                <i class="fas fa-bolt text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">TPUs Ironwood y VMs Axion: Nueva Era de Hardware IA</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Google Cloud anuncia la disponibilidad general de los TPUs Ironwood y nuevas máquinas virtuales basadas en Axion, optimizadas para cargas de trabajo de IA que requieren inferencia de alto rendimiento...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Google Cloud anuncia la disponibilidad general de los TPUs Ironwood y nuevas máquinas virtuales basadas en Axion, optimizadas para cargas de trabajo de IA que requieren inferencia de alto rendimiento. Los TPUs Ironwood ofrecen mejoras significativas en velocidad y eficiencia energética para entrenar e implementar modelos de IA a escala. Las VMs Axion, basadas en procesadores ARM personalizados, proporcionan hasta 50% mejor rendimiento por watt comparado con generaciones anteriores. Esta combinación de hardware especializado posiciona a Google Cloud como plataforma líder para aplicaciones empresariales de IA moderna.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 7: IA en Hospitales Españoles -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center">
+                                <i class="fas fa-hospital text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Hospitales Españoles Adoptan IA para Resumir Estudios Médicos</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Hospitales en España implementan sistemas de IA capaces de resumir 50 folios de estudios médicos en cinco minutos. La tecnología ayuda a médicos a procesar información más rápidamente...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Hospitales en España implementan sistemas de IA capaces de resumir 50 folios de estudios médicos en cinco minutos. La tecnología ayuda a médicos a procesar información más rápidamente, mejorando la eficiencia del diagnóstico y tratamiento. Tras la aprobación de la Ley Europea de IA en junio de 2024, los sistemas de alto riesgo en salud deben cumplir requisitos estrictos de transparencia, supervisión humana y calidad de datos. El Ministerio de Salud español espera aprobar pronto la Estrategia de Inteligencia Artificial en el Sistema Nacional de Salud, estableciendo un marco para la adopción responsable de estas tecnologías transformadoras.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 8: IA para Imágenes Médicas en Málaga -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                                <i class="fas fa-x-ray text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">IA Malagueña Revoluciona Interpretación de Resonancias</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Un equipo de investigadores en Málaga desarrolla una herramienta de IA que mejora la segmentación automática de imágenes médicas, reduciendo errores en el análisis de resonancias magnéticas...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Un equipo de investigadores en Málaga desarrolla una herramienta de IA que mejora la segmentación automática de imágenes médicas, reduciendo errores en el análisis de resonancias magnéticas, tomografías y otras imágenes complejas. El estudio, publicado en la revista Mathematics en julio de 2025, presenta algoritmos avanzados que pueden identificar anomalías con precisión superior a métodos tradicionales. Esta tecnología tiene potencial para democratizar el acceso a diagnósticos de alta calidad, especialmente en áreas con escasez de radiólogos especializados, mejorando resultados de pacientes a nivel global.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 9: Inversiones masivas en IA -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-emerald-500 to-green-700 flex items-center justify-center">
+                                <i class="fas fa-chart-line text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Meta Aumenta Inversión en IA a $72 Mil Millones</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Meta incrementa su presupuesto de capital para 2025 de $66 mil millones a entre $70-72 mil millones, con expectativas de mayor gasto en años siguientes. La carrera de la IA se intensifica...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Meta incrementa su presupuesto de capital para 2025 de $66 mil millones a entre $70-72 mil millones, con expectativas de mayor gasto en años siguientes. La carrera de la IA se intensifica entre las grandes tecnológicas, con inversiones récord en centros de datos, chips especializados e investigación. Oracle alcanzó una subida histórica en bolsa tras anunciar contratos cloud cercanos a $500 mil millones. Sin embargo, expertos advierten sobre una posible burbuja: Sundar Pichai de Google señaló que todas las empresas podrían verse afectadas si estalla. La industria enfrenta el desafío de monetizar estas inversiones masivas.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 10: Agentes de IA -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center">
+                                <i class="fas fa-robot text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">2025: El Año de los Agentes de IA Autónomos</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Microsoft Build 2025 marca la era de los agentes de IA que toman decisiones y realizan tareas autónomamente. Se construye una red agéntica abierta donde los agentes actúan en representación de usuarios...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Microsoft Build 2025 marca la era de los agentes de IA que toman decisiones y realizan tareas autónomamente. Se construye una red agéntica abierta donde los agentes actúan en representación de usuarios y organizaciones. Solo el 6% de las empresas ha logrado escalar IA a nivel organizacional según datos de 2025, pero estos "altos desempeñadores" muestran impacto significativo en rentabilidad. Los agentes autónomos pueden coordinar cadenas de suministro, gestionar infraestructura IT, atender clientes 24/7 y optimizar procesos sin intervención humana constante, transformando fundamentalmente cómo operan las organizaciones modernas.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 11: Semiconductores crecimiento -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-blue-600 to-cyan-700 flex items-center justify-center">
+                                <i class="fas fa-memory text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Mercado de Semiconductores Crecerá 15% en 2025</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>IDC predice que el mercado global de semiconductores alcanzará $640 mil millones en 2025, impulsado por chips de IA y memoria HBM3/HBM4 para aceleración de inteligencia artificial...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>IDC predice que el mercado global de semiconductores alcanzará $640 mil millones en 2025, impulsado por chips de IA y memoria HBM3/HBM4 para aceleración de inteligencia artificial. El segmento de memoria crecerá más del 24%, con nueva generación HBM4 esperada en la segunda mitad de 2025. Los chips de IA generativa, esenciales para CPUs, GPUs y centros de datos, superaron expectativas en 2024 con ventas de $125 mil millones y se espera superen $150 mil millones en 2025. Este crecimiento sin precedentes refleja la transformación digital acelerada y la adopción masiva de IA en todas las industrias.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 12: Tecnología 2nm -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center">
+                                <i class="fas fa-layer-group text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">2025: Año Crítico para Chips de 2 Nanómetros</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>TSMC, Samsung e Intel entran en producción masiva de tecnología 2nm. TSMC expande fábricas en Taiwán para segunda mitad de 2025, Intel apuesta por 18A con tecnología de energía trasera...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>TSMC, Samsung e Intel entran en producción masiva de tecnología 2nm. TSMC expande fábricas en Hsinchu y Kaohsiung para segunda mitad de 2025, Samsung planea adelantarse siguiendo tendencias pasadas, e Intel se enfoca en 18A que incorpora Backside Power Delivery Network (BSPDN). Los chips de 2nm ofrecen hasta 30% más rendimiento o 50% menos consumo energético comparado con 3nm, cruciales para dispositivos móviles, IA edge computing y aplicaciones de alto rendimiento. Esta competencia entre los tres gigantes define el futuro de la industria de semiconductores para la próxima década.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 13: Robots colaborativos -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center">
+                                <i class="fas fa-hands-helping text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Cobots Democratizan la Automatización Industrial</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Los robots colaborativos o "cobots" se diseñan para interactuar directamente con humanos, complementando habilidades. Soluciones low-code permiten a trabajadores sin experiencia programar robots...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Los robots colaborativos o "cobots" se diseñan para interactuar directamente con humanos, complementando habilidades. Soluciones low-code y no-code permiten a trabajadores sin experiencia en programación configurar y operar robots, democratizando su adopción en PYMEs. El mercado de cobots creció exponencialmente en 2025, con aplicaciones en manufactura, logística, salud y agricultura. Equipados con sensores avanzados y IA, estos robots pueden adaptarse a entornos dinámicos, aprender de interacciones y trabajar de forma segura junto a personas sin barreras físicas, transformando la naturaleza del trabajo industrial y de servicios.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 14: Robot humanoide Ameca -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-amber-500 to-orange-700 flex items-center justify-center">
+                                <i class="fas fa-user-robot text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Ameca: El Robot Humanoide Más Avanzado de 2025</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Ameca replica expresiones faciales humanas con precisión sorprendente, estableciendo nuevo estándar en robótica humanoide. Integra IA avanzada para interacciones naturales y expresivas...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Ameca replica expresiones faciales humanas con precisión sorprendente, estableciendo nuevo estándar en robótica humanoide. Integra IA avanzada para interacciones naturales y expresivas, respondiendo a emociones humanas en tiempo real. El robot puede mantener contacto visual, mostrar más de 30 expresiones faciales distintas y comunicarse en múltiples idiomas. Se espera adopción generalizada de IA en robótica y auge de modelos de robótica como servicio (RaaS) para 2025. Aplicaciones potenciales incluyen atención al cliente, educación, compañía para personas mayores y representación en eventos, marcando el inicio de la era de robots verdaderamente sociales.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 15: Digital Twin robótica -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-lime-500 to-green-600 flex items-center justify-center">
+                                <i class="fas fa-clone text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Digital Twins Transforman Desarrollo de Robots</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>La tecnología Digital Twin crea réplicas virtuales de sistemas robóticos para análisis y optimización en tiempo real. Permite simular millones de escenarios sin riesgo físico...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>La tecnología Digital Twin crea réplicas virtuales de sistemas robóticos para análisis y optimización en tiempo real. Permite simular millones de escenarios sin riesgo físico, acelerando desarrollo y reduciendo costos. Los gemelos digitales integran datos de sensores, modelos físicos y algoritmos de IA para predecir comportamiento, identificar fallas potenciales y optimizar rendimiento antes del despliegue. En 2025, esta tecnología se volvió estándar en manufactura avanzada, permitiendo a empresas entrenar robots en entornos virtuales perfectamente replicados, probar modificaciones de diseño instantáneamente y mantener flotas de robots con mantenimiento predictivo preciso.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 16: Mercado robots industriales -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center">
+                                <i class="fas fa-industry text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Instalaciones de Robots Industriales Alcanzan Récord de $16.5B</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>El valor del mercado mundial de instalaciones de robots industriales alcanzó máximo histórico de $16.5 mil millones en 2025, impulsado por automatización en manufactura y logística...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>El valor del mercado mundial de instalaciones de robots industriales alcanzó máximo histórico de $16.5 mil millones en 2025, impulsado por automatización en manufactura, logística y nuevos sectores como agricultura y construcción. Asia lidera las instalaciones con 70% del mercado global, seguida por Europa y América. La integración de IA, visión artificial avanzada y capacidades de aprendizaje permite a robots modernos realizar tareas cada vez más complejas con mínima supervisión. Tendencias clave incluyen robots móviles autónomos (AMRs), brazos colaborativos de bajo costo y sistemas modulares que se adaptan rápidamente a cambios en líneas de producción.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 17: BIM en ingeniería -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center">
+                                <i class="fas fa-building text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">BIM Se Convierte en Estándar para Proyectos Complejos</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Building Information Modeling (BIM) se establece como práctica estándar en ingeniería civil e industrial. Permite colaboración en tiempo real y detección temprana de conflictos de diseño...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Building Information Modeling (BIM) se establece como práctica estándar en ingeniería civil e industrial. Permite colaboración en tiempo real entre arquitectos, ingenieros y constructores, detección temprana de conflictos de diseño y simulación precisa de costos y cronogramas. En 2025, gobiernos de múltiples países exigen BIM para proyectos de infraestructura pública. La tecnología integra modelos 3D con datos de ciclo de vida completo, facilitando mantenimiento y renovaciones futuras. Combinado con realidad aumentada, permite a equipos visualizar estructuras antes de construcción, identificar problemas y optimizar recursos, reduciendo sobrecostos hasta 20% en mega-proyectos.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 18: IA en ingeniería -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center">
+                                <i class="fas fa-drafting-compass text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">IA Redefiniendo Eficiencia Operacional en Ingeniería</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Inteligencia artificial y machine learning transforman la ingeniería industrial. Máquinas predicen fallos, optimizan procesos y toman decisiones autónomas, mejorando productividad...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Inteligencia artificial y machine learning transforman la ingeniería industrial. Máquinas predicen fallos antes que ocurran mediante análisis de patrones de vibración, temperatura y otros sensores, optimizan procesos complejos en tiempo real y toman decisiones autónomas para maximizar eficiencia. Esto mejora productividad mientras minimiza tiempos de inactividad y costos de mantenimiento. Herramientas basadas en Big Data permiten a ingenieros analizar terabytes de información operacional, identificar cuellos de botella invisibles y simular mejoras sin interrumpir producción. La combinación de IA con IoT industrial crea fábricas inteligentes que se auto-optimizan continuamente.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 19: Materiales sostenibles -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center">
+                                <i class="fas fa-leaf text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Materiales Sostenibles Transforman Construcción e Industria</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Concreto bajo en carbono, metales reciclados y composites avanzados cambian el panorama de construcción y manufactura. Sistemas energéticamente eficientes e integración de renovables se vuelven norma...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Concreto bajo en carbono, metales reciclados y composites avanzados cambian el panorama de construcción y manufactura. El concreto produce 8% de emisiones globales de CO2; nuevas fórmulas reducen esto hasta 70% usando cenizas volantes, escoria y nanotecnología. Sistemas energéticamente eficientes e integración de energías renovables se vuelven norma en nuevos edificios e instalaciones industriales. La sostenibilidad es objetivo principal del desarrollo de ingeniería para 2025, con robots diseñados con materiales ecológicos y sistemas de bajo consumo. Esta transición verde no solo reduce impacto ambiental sino que mejora rentabilidad a largo plazo mediante ahorros operativos.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 20: Prefabricación modular -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-indigo-500 to-blue-700 flex items-center justify-center">
+                                <i class="fas fa-cubes text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Construcción Modular Reduce Tiempos y Desperdicios</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Enfoques modulares y prefabricación ganan relevancia por reducir tiempos de ejecución y minimizar desperdicios. Aplicable en ingeniería civil e industrial para proyectos más eficientes...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Enfoques modulares y prefabricación ganan relevancia por reducir tiempos de ejecución hasta 50% y minimizar desperdicios de construcción hasta 90% comparado con métodos tradicionales. Módulos se fabrican en entornos controlados con precisión milimétrica, luego se ensamblan en sitio en días o semanas. Aplicable en ingeniería civil (viviendas, hospitales, escuelas) e industrial (plantas de manufactura, centros de datos). La construcción modular permite mejor control de calidad, reduce dependencia de clima y permite trabajar en ubicaciones remotas o difíciles. Combinada con diseño BIM y automatización robótica, representa el futuro de la construcción sostenible y eficiente.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 21: Inversión cuántica global -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-cyan-600 to-teal-700 flex items-center justify-center">
+                                <i class="fas fa-globe text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">$50 Mil Millones Comprometidos en Computación Cuántica</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Más de $50 mil millones han sido comprometidos globalmente en proyectos de computación cuántica. China lidera con inversión de $15.3 mil millones, seguida por EE.UU. y Europa...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Más de $50 mil millones han sido comprometidos globalmente en proyectos de computación cuántica según Quantum Insider y McKinsey. China lidera con inversión total de $15.3 mil millones, seguida por EE.UU. con $3.7 mil millones y la Unión Europea con programas multinacionales. Esta carrera geopolítica por supremacía cuántica refleja el potencial transformador de la tecnología para criptografía, diseño de materiales, optimización logística y descubrimiento de fármacos. Las Naciones Unidas declararon 2025 como Año Internacional de la Ciencia y Tecnología Cuánticas, reconociendo su impacto en el futuro de la humanidad y la necesidad de coordinación internacional.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 22: Premio Nobel física cuántica -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-yellow-600 to-amber-700 flex items-center justify-center">
+                                <i class="fas fa-medal text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Nobel de Física 2025 para Pioneros de Tecnología Cuántica</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>El Premio Nobel de Física 2025 se otorga a científicos cuyos hallazgos "abren oportunidades para desarrollar la próxima generación de tecnología cuántica"...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>El Premio Nobel de Física 2025 se otorga a científicos cuyos hallazgos "abren oportunidades para desarrollar la próxima generación de tecnología cuántica" según el CONICET. Los galardonados realizaron descubrimientos fundamentales en entrelazamiento cuántico y corrección de errores que son base de computadoras cuánticas actuales. Su trabajo teórico de décadas atrás ahora se materializa en procesadores cuánticos comerciales. El reconocimiento del Nobel subraya la transición de la mecánica cuántica de teoría abstracta a tecnología práctica que transformará comunicaciones, criptografía, sensores de precisión y simulación de sistemas moleculares para desarrollo de medicamentos y materiales revolucionarios.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 23: Memoria cuántica -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-purple-600 to-pink-700 flex items-center justify-center">
+                                <i class="fas fa-database text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Revolución de la Memoria Cuántica Redefine Computación</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Avances en memoria cuántica permiten almacenar estados cuánticos durante períodos prolongados, esencial para computación cuántica práctica. Nuevas técnicas de coherencia superan límites anteriores...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Avances en memoria cuántica permiten almacenar estados cuánticos durante períodos prolongados, esencial para computación cuántica práctica. Investigadores desarrollaron técnicas que mantienen coherencia cuántica por minutos en lugar de microsegundos, usando materiales de tierras raras y enfriamiento criogénico avanzado. Esto habilita arquitecturas de red cuántica donde información puede transmitirse entre procesadores distantes, creando "internet cuántica" para comunicaciones ultra-seguras. La memoria cuántica también permite algoritmos más complejos que requieren almacenamiento temporal de superposiciones. Estos avances de marzo 2025 acercan la visión de computadoras cuánticas tolerantes a fallos capaces de resolver problemas actualmente imposibles.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 24: UE centros de datos IA -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-blue-700 to-indigo-800 flex items-center justify-center">
+                                <i class="fas fa-server text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">UE Invierte $30B en Centros de Datos de Gigavatios para IA</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>La Unión Europea aprueba plan de inversión de $30 mil millones para construir centros de datos de gigavatios dedicados a IA, buscando soberanía tecnológica y reducir dependencia de EE.UU. y China...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>La Unión Europea aprueba plan de inversión de $30 mil millones para construir centros de datos de gigavatios dedicados a inteligencia artificial, buscando soberanía tecnológica y reducir dependencia de proveedores estadounidenses y chinos. Estas instalaciones masivas consumirán más de 1 gigavatio cada una, equivalente a la producción de una central nuclear pequeña. El proyecto incluye innovaciones en refrigeración líquida, energías renovables dedicadas y reutilización de calor residual para calefacción urbana. Los centros albergarán millones de GPUs y TPUs para entrenar modelos de IA europeos en sectores estratégicos como salud, movilidad, manufactura y servicios públicos, fortaleciendo la autonomía digital continental.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 25: Volkswagen inversión IA -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-slate-600 to-gray-700 flex items-center justify-center">
+                                <i class="fas fa-car text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Volkswagen Destinará €1,000M en IA para Vehículos Autónomos</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Volkswagen anuncia inversión de hasta €1,000 millones en inteligencia artificial para 2030, enfocado en conducción autónoma, asistentes virtuales y optimización de manufactura...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Volkswagen anuncia inversión de hasta €1,000 millones en inteligencia artificial para 2030, enfocado en conducción autónoma de nivel 4 y 5, asistentes virtuales personalizados y optimización de manufactura mediante IA. El sector automotriz experimenta transformación radical con vehículos eléctricos conectados que requieren software complejo y aprendizaje continuo. VW desarrolla plataforma de IA centralizada que se actualiza over-the-air, mejorando funciones de seguridad, entretenimiento y autonomía sin visitar talleres. La compañía también aplica IA en cadenas de suministro para predecir demanda, optimizar inventarios y reducir desperdicios, buscando mantener competitividad frente a Tesla y fabricantes chinos como BYD.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 26: Google Cloud región Turquía -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center">
+                                <i class="fas fa-cloud text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Nueva Región de Google Cloud en Turquía</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Google expande infraestructura con nueva región cloud en Turquía respaldada por inversión sustancial. Mejora residencia de datos y accesibilidad para clientes regionales...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Google expande infraestructura global con nueva región cloud en Turquía respaldada por inversión sustancial de cientos de millones de dólares. Esta expansión geográfica mejora opciones de residencia de datos para cumplir regulaciones locales y reduce latencia para usuarios en Medio Oriente y Europa del Este. La región ofrecerá servicios completos de compute, almacenamiento, bases de datos, IA/ML y análitica. Turquía se posiciona como hub tecnológico regional, atrayendo startups y empresas que buscan escalar operaciones con infraestructura cloud de clase mundial. La inversión incluye programas de formación para desarrollar talento local en cloud computing y crear ecosistema de innovación digital.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 27: Google líder en Gartner DBMS -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center">
+                                <i class="fas fa-chart-bar text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Google Líder en Gartner Magic Quadrant para DBMS Cloud</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Google reconocido como líder en el Magic Quadrant 2025 de Gartner para Sistemas de Gestión de Bases de Datos Cloud, destacando en innovación y ejecución...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Google reconocido como líder en el Magic Quadrant 2025 de Gartner para Sistemas de Gestión de Bases de Datos Cloud, destacando en capacidad de innovación y ejecución de visión. Google Cloud ofrece portafolio completo desde bases de datos relacionales (Cloud SQL, Spanner) hasta NoSQL (Firestore, Bigtable) y analítica (BigQuery). Cloud Spanner destaca por combinar consistencia global con escalabilidad horizontal, resolviendo limitaciones tradicionales de bases de datos distribuidas. BigQuery procesa petabytes en segundos con arquitectura serverless. El posicionamiento de liderazgo valida la estrategia de Google en gestión de datos moderna, crítica para aplicaciones de IA que requieren acceso rápido a información masiva.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 28: IA y ODS -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-green-500 to-lime-600 flex items-center justify-center">
+                                <i class="fas fa-globe-americas text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">ONU: IA Puede Acelerar Progreso o Exacerbar Desigualdades</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Naciones Unidas advierte que el uso de inteligencia artificial tiene potencial dual: acelerar progreso hacia Objetivos de Desarrollo Sostenible o aumentar desigualdades existentes...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Naciones Unidas advierte que el uso de inteligencia artificial tiene potencial dual: acelerar progreso hacia Objetivos de Desarrollo Sostenible o aumentar desigualdades existentes entre naciones desarrolladas y en desarrollo. En 2025, Estados miembros adoptaron el Pacto para el Futuro y Pacto Digital Global, estableciendo compromisos para mejorar gobernanza internacional de IA, promover acceso equitativo a tecnología y prevenir uso malicioso. Desafíos incluyen brecha digital, concentración de poder computacional en pocas empresas, sesgos algorítmicos que perpetúan discriminación y desplazamiento laboral. La ONU propone marcos éticos, inversión en infraestructura digital en países en desarrollo y programas de formación masiva para democratizar beneficios de IA.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 29: Google I/O 2025 -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+                                <i class="fas fa-code text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Google I/O 2025: Gemini 2.5 y AI Mode en Search</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Google I/O 2025 presenta avances en Gemini 2.5 con capacidades multimodales mejoradas y lanza AI Mode en Google Search para experiencias de búsqueda conversacionales...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Google I/O 2025, celebrado el 20 de mayo, presenta avances significativos en modelos Gemini 2.5 con capacidades multimodales mejoradas que combinan texto, imágenes, audio y video en contexto unificado. Google lanza AI Mode en Search, transformando búsquedas de palabras clave a conversaciones naturales donde usuarios hacen preguntas de seguimiento y el sistema mantiene contexto. Anuncios incluyen herramientas para desarrolladores que facilitan integración de IA generativa en aplicaciones, APIs mejoradas para personalización y nuevos servicios de IA empresarial en Google Workspace. El evento marca transición de Google de empresa de búsqueda tradicional a plataforma integral de IA que redefine interacción humano-información.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia 30: Manipuladores móviles autónomos -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-violet-600 to-fuchsia-700 flex items-center justify-center">
+                                <i class="fas fa-robot text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Manipuladores Móviles Autónomos: Tendencia Clave en Robótica</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>La Manipulación Móvil Autónoma continúa siendo tendencia valiosa en 2025 gracias a posibilidades de combinar plataforma móvil y brazo manipulador en aplicaciones logísticas e industriales...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>La Manipulación Móvil Autónoma (MMA) continúa siendo tendencia valiosa en 2025 gracias a posibilidades de combinar plataforma móvil autónoma con brazo manipulador en aplicaciones logísticas, manufactureras y de servicios. Estos sistemas pueden navegar entornos complejos, identificar objetos mediante visión artificial, planificar trayectorias de agarre óptimas y manipular ítems diversos sin programación explícita. Aplicaciones incluyen almacenes donde robots recogen pedidos, fábricas donde entregan materiales a estaciones de trabajo, hospitales donde transportan suministros médicos y agricultura donde cosechan frutas delicadas. Integración de IA permite aprendizaje continuo, adaptándose a nuevos productos y entornos dinámicos sin reconfiguración costosa.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
                     </div>
                 </div>
             </section>
@@ -1270,6 +1734,29 @@
                 // Ocultar todos los enlaces
                 document.querySelectorAll('.category-links').forEach(links => {
                     links.classList.add('hidden');
+                });
+            });
+
+            // Funcionalidad "Leer más" para noticias
+            document.querySelectorAll('.read-more-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const card = this.closest('.news-card');
+                    const preview = card.querySelector('.news-preview');
+                    const fullContent = card.querySelector('.news-full-content');
+
+                    if (fullContent.classList.contains('hidden')) {
+                        // Expandir
+                        preview.classList.add('hidden');
+                        fullContent.classList.remove('hidden');
+                        this.textContent = 'Leer menos ↑';
+                    } else {
+                        // Contraer
+                        fullContent.classList.add('hidden');
+                        preview.classList.remove('hidden');
+                        this.textContent = 'Leer más →';
+                        // Scroll suave a la tarjeta
+                        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
                 });
             });
         });
