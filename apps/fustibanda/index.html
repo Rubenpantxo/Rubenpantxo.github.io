@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Fustibanda de Fustiñana - Estudio Musical Virtual</title>
+    <meta name="description" content="Estudio musical virtual interactivo con instrumentos tradicionales y modernos. Toca marimba, batería, timbal, castañuelas y más.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;700;900&display=swap');
+
+        :root {
+            --primary: #d97706;
+            --secondary: #fbbf24;
+            --accent: #dc2626;
+            --dark: #0f0f0f;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0a0a0a 100%);
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            perspective: 1000px;
+        }
+
+        /* Glass Morphism */
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        /* --- UI CONTROLS --- */
+        .instrument-btn {
+            font-family: 'Bangers', cursive;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: 2px solid #333;
+            box-shadow: 0 4px 0 #222;
+            transition: all 0.2s;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+        }
+        .instrument-btn:hover {
+            background: linear-gradient(to bottom, #3a3a3a, #2a2a2a);
+            transform: translateY(1px);
+        }
+        .instrument-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #222;
+        }
+        .instrument-btn.active {
+            background: linear-gradient(to bottom, var(--secondary), var(--primary));
+            color: #1a0500;
+            border-color: var(--primary);
+            text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn {
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            transform: scale(1.05);
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        .control-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Volume Slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+        }
+        input[type="range"]::-webkit-slider-track {
+            background: #333;
+            height: 6px;
+            border-radius: 3px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+            margin-top: -6px;
+        }
+        input[type="range"]::-moz-range-track {
+            background: #333;
+            height: 6px;
+            border-radius: 3px;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+            border: none;
+        }
+
+        /* --- MARIMBA REALISTA --- */
+        .marimba-rail {
+            background: linear-gradient(to bottom, #2e1a12, #1a0f0a);
+            border-top: 4px solid #5d4037;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .marimba-key {
+            background-color: #5d2e2e;
+            background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px);
+            border-radius: 4px;
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,0.2),
+                inset 0 -2px 5px rgba(0,0,0,0.6),
+                0 5px 10px rgba(0,0,0,0.5);
+            position: relative;
+            cursor: pointer;
+            transform-origin: center;
+            transition: transform 0.05s;
+            border-bottom: 3px solid #3e1f1f;
+        }
+        .marimba-key:active, .marimba-key.hit {
+            transform: scale(0.96) translateY(2px);
+            filter: brightness(1.3);
+        }
+        .resonator {
+            position: absolute;
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            background: linear-gradient(90deg, #1a1a1a, #4a4a4a, #1a1a1a);
+            border-radius: 0 0 10px 10px;
+            z-index: -1;
+            box-shadow: inset 0 10px 10px rgba(0,0,0,0.8);
+        }
+
+        /* --- BATERÍA REALISTA --- */
+        .drum-set {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .drum {
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: transform 0.05s;
+        }
+        .drum:active, .drum.hit {
+            transform: scale(0.95);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.8);
+        }
+
+        .rim {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            border: 6px solid #ccc;
+            background: transparent;
+            box-shadow:
+                inset 0 2px 5px rgba(0,0,0,0.5),
+                0 2px 4px rgba(0,0,0,0.5);
+            background-image: conic-gradient(from 180deg, #999, #fff, #999, #555, #999, #fff, #999);
+            -webkit-mask: radial-gradient(transparent 65%, black 66%);
+            mask: radial-gradient(transparent 65%, black 66%);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .skin {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #f3f4f6, #d1d5db);
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 4px 4px;
+            opacity: 0.9;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        .cymbal {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fcd34d 0%, #d97706 40%, #78350f 100%);
+            background-image: repeating-radial-gradient(
+                rgba(0,0,0,0.1) 0px,
+                rgba(0,0,0,0.1) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            box-shadow: 2px 5px 10px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transform: rotateX(10deg);
+        }
+        .cymbal:active, .cymbal.hit {
+            transform: rotateX(5deg) scale(0.95);
+        }
+        .cymbal-bell {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20%; height: 20%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fef3c7, #b45309);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* --- ANÍS BOTTLE --- */
+        .bottle-glass {
+            width: 160px;
+            height: 360px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+            border-radius: 20px 20px 40px 40px;
+            position: relative;
+            margin: 0 auto;
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow:
+                inset 0 0 30px rgba(255,255,255,0.1),
+                0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            overflow: hidden;
+        }
+
+        .diamond-pattern {
+            position: absolute;
+            top: 60px; bottom: 20px; left: 5px; right: 5px;
+            background-image:
+                linear-gradient(135deg, rgba(255,255,255,0.15) 25%, transparent 25%),
+                linear-gradient(225deg, rgba(255,255,255,0.15) 25%, transparent 25%),
+                linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%),
+                linear-gradient(315deg, rgba(255,255,255,0.15) 25%, transparent 25%);
+            background-position: 10px 0, 10px 0, 0 0, 0 0;
+            background-size: 20px 20px;
+            background-repeat: repeat;
+            opacity: 0.8;
+            cursor: ns-resize;
+            z-index: 20;
+        }
+        .diamond-pattern:hover {
+            background-image:
+                linear-gradient(135deg, rgba(255,255,255,0.3) 25%, transparent 25%),
+                linear-gradient(225deg, rgba(255,255,255,0.3) 25%, transparent 25%),
+                linear-gradient(45deg, rgba(255,255,255,0.3) 25%, transparent 25%),
+                linear-gradient(315deg, rgba(255,255,255,0.3) 25%, transparent 25%);
+        }
+
+        .bottle-neck {
+            position: absolute;
+            top: -45px; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 90px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.5), rgba(255,255,255,0.2));
+            border: 1px solid rgba(255,255,255,0.3);
+            z-index: 5;
+        }
+        .bottle-cap {
+            position: absolute;
+            top: -5px; left: 50%; transform: translateX(-50%);
+            width: 54px; height: 25px;
+            background: linear-gradient(to bottom, #ef4444, #991b1b);
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+        .bottle-label {
+            position: absolute;
+            top: 100px; left: 50%;
+            transform: translateX(-50%) rotate(-3deg);
+            width: 100px; height: 100px;
+            background: #fef3c7;
+            border: 4px double #b45309;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            color: #78350f;
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        /* --- TIMBAL --- */
+        .djembe-top {
+            width: 260px; height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #e7cfa0, #c4a475);
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E");
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            border: 8px solid #3e2723;
+        }
+        .djembe-rope-ring {
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border-radius: 50%;
+            border: 4px dashed #1a1a1a;
+            pointer-events: none;
+        }
+        .djembe-body {
+            width: 200px; height: 250px;
+            background: #2e1a12;
+            margin: -40px auto 0;
+            clip-path: polygon(0 0, 100% 0, 75% 100%, 25% 100%);
+            background: linear-gradient(90deg, #1a0f0a, #3e2723, #1a0f0a);
+            position: relative;
+            z-index: 1;
+            background-image: repeating-linear-gradient(90deg, transparent 0, transparent 20px, rgba(0,0,0,0.2) 20px, rgba(0,0,0,0.2) 24px);
+        }
+
+        /* --- CASTAÑUELAS --- */
+        .castanuela {
+            width: 80px;
+            height: 120px;
+            background: radial-gradient(ellipse at 50% 40%, #8b4513, #5d2e0a);
+            border-radius: 40px 40px 60px 60px;
+            position: relative;
+            cursor: pointer;
+            box-shadow:
+                inset -5px -5px 10px rgba(0,0,0,0.5),
+                5px 5px 15px rgba(0,0,0,0.6);
+            transition: transform 0.1s;
+        }
+        .castanuela:active, .castanuela.hit {
+            transform: scale(0.95);
+        }
+        .castanuela::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1), transparent);
+            border-radius: 50%;
+        }
+        .castanuela::after {
+            content: '';
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            background: #2d1a0a;
+            border-radius: 50%;
+            box-shadow: inset 0 2px 3px rgba(0,0,0,0.8);
+        }
+
+        /* --- ZAMBOMBA --- */
+        .zambomba-container {
+            position: relative;
+            width: 200px;
+            height: 300px;
+            margin: 0 auto;
+        }
+        .zambomba-body {
+            width: 180px;
+            height: 250px;
+            background: linear-gradient(to bottom, #d4a574, #8b6f47);
+            border-radius: 10px;
+            position: relative;
+            margin: 0 auto;
+            box-shadow:
+                inset 0 0 20px rgba(0,0,0,0.3),
+                5px 10px 20px rgba(0,0,0,0.5);
+        }
+        .zambomba-membrane {
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, #f5deb3, #d2b48c);
+            border-radius: 50%;
+            position: absolute;
+            top: -90px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid #8b6f47;
+            box-shadow:
+                inset 0 0 30px rgba(0,0,0,0.2),
+                0 5px 15px rgba(0,0,0,0.4);
+            cursor: pointer;
+        }
+        .zambomba-stick {
+            width: 8px;
+            height: 150px;
+            background: linear-gradient(to right, #5d4037, #3e2723);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+        .zambomba-membrane:active,
+        .zambomba-membrane.hit {
+            transform: translateX(-50%) scale(0.98);
+        }
+
+        /* Metronome */
+        .metronome-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #333;
+            transition: background 0.05s;
+        }
+        .metronome-indicator.beat {
+            background: var(--secondary);
+            box-shadow: 0 0 20px var(--secondary);
+        }
+
+        /* Recording Indicator */
+        .recording {
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Visualizer */
+        #viz-canvas {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            opacity: 0.6;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Keyboard Hint */
+        .key-hint {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.7);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .control-panel {
+                font-size: 0.85rem;
+            }
+            .instrument-btn {
+                font-size: 0.75rem;
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <!-- Header with Logo -->
+    <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b-2 border-amber-600 shadow-2xl z-50">
+        <div class="p-4 text-center">
+            <h1 class="text-4xl font-bold mb-2" style="font-family: 'Bangers', cursive; color: var(--secondary); text-shadow: 3px 3px 6px rgba(0,0,0,0.8);">
+                <i class="fas fa-music"></i> FUSTIBANDA DE FUSTIÑANA <i class="fas fa-drum"></i>
+            </h1>
+            <p class="text-sm text-gray-400">Estudio Musical Virtual Interactivo</p>
+        </div>
+
+        <!-- Instrument Selector -->
+        <div class="flex justify-center gap-2 flex-wrap max-w-5xl mx-auto px-4 pb-4">
+            <button onclick="switchInstrument('marimba')" id="btn-marimba" class="instrument-btn active px-3 py-2 rounded text-sm sm:text-base">
+                <i class="fas fa-music"></i> Marimba
+            </button>
+            <button onclick="switchInstrument('drums')" id="btn-drums" class="instrument-btn px-3 py-2 rounded text-sm sm:text-base">
+                <i class="fas fa-drum"></i> Batería
+            </button>
+            <button onclick="switchInstrument('anis')" id="btn-anis" class="instrument-btn px-3 py-2 rounded text-sm sm:text-base">
+                <i class="fas fa-wine-bottle"></i> Anís
+            </button>
+            <button onclick="switchInstrument('timbal')" id="btn-timbal" class="instrument-btn px-3 py-2 rounded text-sm sm:text-base">
+                <i class="fas fa-drum"></i> Timbal
+            </button>
+            <button onclick="switchInstrument('castanuelas')" id="btn-castanuelas" class="instrument-btn px-3 py-2 rounded text-sm sm:text-base">
+                <i class="fas fa-hand-sparkles"></i> Castañuelas
+            </button>
+            <button onclick="switchInstrument('zambomba')" id="btn-zambomba" class="instrument-btn px-3 py-2 rounded text-sm sm:text-base">
+                <i class="fas fa-hat-wizard"></i> Zambomba
+            </button>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel p-3 flex flex-wrap items-center justify-center gap-4 text-sm z-40">
+        <!-- Volume Control -->
+        <div class="flex items-center gap-2">
+            <i class="fas fa-volume-up text-amber-500"></i>
+            <input type="range" id="volume-slider" min="0" max="100" value="80" class="w-24">
+            <span id="volume-value" class="text-xs">80%</span>
+        </div>
+
+        <!-- BPM Control -->
+        <div class="flex items-center gap-2">
+            <i class="fas fa-tachometer-alt text-blue-500"></i>
+            <input type="range" id="bpm-slider" min="60" max="180" value="120" class="w-24">
+            <span id="bpm-value" class="text-xs font-bold">120 BPM</span>
+        </div>
+
+        <!-- Metronome -->
+        <button id="metronome-btn" onclick="toggleMetronome()" class="control-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">
+            <i class="fas fa-clock"></i> Metrónomo
+        </button>
+        <div class="metronome-indicator" id="metronome-indicator"></div>
+
+        <!-- Recording -->
+        <button id="record-btn" onclick="toggleRecording()" class="control-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">
+            <i class="fas fa-circle"></i> Grabar
+        </button>
+        <button id="play-btn" onclick="playRecording()" class="control-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600" disabled>
+            <i class="fas fa-play"></i> Reproducir
+        </button>
+        <button id="clear-btn" onclick="clearRecording()" class="control-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600" disabled>
+            <i class="fas fa-trash"></i> Limpiar
+        </button>
+
+        <!-- Reverb -->
+        <button id="reverb-btn" onclick="toggleReverb()" class="control-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">
+            <i class="fas fa-water"></i> Reverb
+        </button>
+
+        <!-- Fullscreen -->
+        <button onclick="toggleFullscreen()" class="control-btn px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">
+            <i class="fas fa-expand"></i>
+        </button>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 relative flex items-center justify-center overflow-hidden" id="workspace">
+        <canvas id="viz-canvas"></canvas>
+
+        <!-- MARIMBA VIEW -->
+        <div id="view-marimba" class="instrument-view w-full max-w-4xl px-4 flex flex-col justify-end items-center h-full pb-10">
+            <div class="marimba-rail p-4 rounded-lg flex justify-center items-end gap-1 sm:gap-2 relative">
+                <!-- Keys injected by JS -->
+            </div>
+            <p class="text-gray-400 mt-4 text-sm">Toca con el ratón o teclas: Z X C V B N M ,</p>
+        </div>
+
+        <!-- DRUMS VIEW -->
+        <div id="view-drums" class="hidden instrument-view w-full h-full flex items-center justify-center p-4">
+            <div class="drum-set scale-75 sm:scale-100">
+                <div class="drum" style="width: 220px; height: 220px; bottom: 10px; left: 50%; transform: translateX(-50%); background: #111; border: 8px solid #333;" onmousedown="playDrum('kick')" ontouchstart="playDrum('kick')">
+                    <div class="absolute inset-0 rounded-full border-4 border-gray-600 opacity-50"></div>
+                    <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-700 font-bold text-4xl select-none">KICK</span>
+                    <div class="key-hint">SPACE</div>
+                </div>
+                <div class="drum" style="width: 140px; height: 140px; bottom: 80px; left: 20%;" onmousedown="playDrum('snare')" ontouchstart="playDrum('snare')">
+                    <div class="rim"></div>
+                    <div class="skin bg-gray-100"></div>
+                    <div class="key-hint">A</div>
+                </div>
+                <div class="drum" style="width: 160px; height: 160px; bottom: 40px; right: 15%;" onmousedown="playDrum('tomLow')" ontouchstart="playDrum('tomLow')">
+                    <div class="rim"></div>
+                    <div class="skin"></div>
+                    <div class="key-hint">F</div>
+                </div>
+                <div class="drum" style="width: 110px; height: 110px; top: 80px; left: 35%;" onmousedown="playDrum('tomHigh')" ontouchstart="playDrum('tomHigh')">
+                    <div class="rim"></div>
+                    <div class="skin"></div>
+                    <div class="key-hint">D</div>
+                </div>
+                <div class="drum" style="width: 120px; height: 120px; top: 80px; right: 35%;" onmousedown="playDrum('tomMid')" ontouchstart="playDrum('tomMid')">
+                    <div class="rim"></div>
+                    <div class="skin"></div>
+                    <div class="key-hint">E</div>
+                </div>
+                <div class="cymbal" style="width: 110px; height: 110px; top: 120px; left: 5%;" onmousedown="playDrum('hihatOpen')" ontouchstart="playDrum('hihatOpen')">
+                    <div class="cymbal-bell"></div>
+                    <div class="key-hint">Q</div>
+                </div>
+                <div class="cymbal" style="width: 110px; height: 110px; top: 135px; left: 5%; z-index:-1; filter: brightness(0.6);" onmousedown="playDrum('hihatClosed')" ontouchstart="playDrum('hihatClosed')"></div>
+                <div class="cymbal" style="width: 140px; height: 140px; top: 10px; left: 10%;" onmousedown="playDrum('crash')" ontouchstart="playDrum('crash')">
+                    <div class="cymbal-bell"></div>
+                    <div class="key-hint">W</div>
+                </div>
+                <div class="cymbal" style="width: 160px; height: 160px; top: 10px; right: 10%;" onmousedown="playDrum('ride')" ontouchstart="playDrum('ride')">
+                    <div class="cymbal-bell"></div>
+                    <div class="key-hint">R</div>
+                </div>
+            </div>
+            <p class="absolute bottom-4 text-gray-400 text-sm">Toca con ratón o teclado (Q W E R A D F SPACE)</p>
+        </div>
+
+        <!-- ANIS VIEW -->
+        <div id="view-anis" class="hidden instrument-view w-full h-full flex items-center justify-center">
+            <div class="bottle-glass">
+                <div class="bottle-neck">
+                    <div class="bottle-cap"></div>
+                </div>
+                <div class="bottle-label">
+                    <span class="text-xs font-bold">ANÍS</span>
+                    <span class="text-[8px]">DEL</span>
+                    <span class="text-lg font-bold">MONO</span>
+                    <span class="text-[6px] mt-1 text-red-700">DULCE</span>
+                </div>
+                <div class="diamond-pattern" id="anis-scraper"></div>
+                <div class="absolute top-0 right-0 w-full h-full bg-gradient-to-l from-white/10 to-transparent pointer-events-none"></div>
+                <div class="absolute top-10 left-2 w-2 h-32 bg-white/20 rounded-full blur-sm pointer-events-none"></div>
+            </div>
+            <div class="absolute bottom-20 text-center pointer-events-none">
+                <p class="text-yellow-500 font-bold">DESLIZA ARRIBA Y ABAJO</p>
+                <p class="text-gray-400 text-xs">Simulación de Vidrio Resonante</p>
+            </div>
+        </div>
+
+        <!-- TIMBAL VIEW -->
+        <div id="view-timbal" class="hidden instrument-view w-full h-full flex flex-col items-center justify-center pt-10">
+            <div class="relative group">
+                <div class="djembe-top" id="timbal-pad">
+                    <div class="djembe-rope-ring"></div>
+                    <div class="key-hint">T (centro) / Y (borde)</div>
+                </div>
+                <div class="djembe-body"></div>
+            </div>
+            <p class="mt-8 text-gray-400">Golpea centro (Bass) o borde (Tone) - Teclas: T (centro) Y (borde)</p>
+        </div>
+
+        <!-- CASTAÑUELAS VIEW -->
+        <div id="view-castanuelas" class="hidden instrument-view w-full h-full flex items-center justify-center gap-12">
+            <div class="text-center">
+                <div class="castanuela" id="cast-left" onmousedown="playCastanuela('left')" ontouchstart="playCastanuela('left')">
+                    <div class="key-hint">G</div>
+                </div>
+                <p class="mt-4 text-gray-400">Izquierda</p>
+            </div>
+            <div class="text-center">
+                <div class="castanuela" id="cast-right" onmousedown="playCastanuela('right')" ontouchstart="playCastanuela('right')">
+                    <div class="key-hint">H</div>
+                </div>
+                <p class="mt-4 text-gray-400">Derecha</p>
+            </div>
+            <p class="absolute bottom-20 text-gray-400 text-sm">Toca alternando G y H para ritmos flamencos</p>
+        </div>
+
+        <!-- ZAMBOMBA VIEW -->
+        <div id="view-zambomba" class="hidden instrument-view w-full h-full flex items-center justify-center">
+            <div class="zambomba-container">
+                <div class="zambomba-membrane" id="zambomba-pad" onmousedown="playZambomba()" ontouchstart="playZambomba()">
+                    <div class="zambomba-stick"></div>
+                    <div class="key-hint">J</div>
+                </div>
+                <div class="zambomba-body"></div>
+            </div>
+            <p class="absolute bottom-20 text-gray-400 text-sm">Golpea la membrana - Tecla: J</p>
+        </div>
+
+    </div>
+
+    <script>
+        // --- AUDIO ENGINE ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioContext();
+
+        // Audio Graph
+        const masterGain = ctx.createGain();
+        masterGain.gain.value = 0.8;
+
+        // Reverb (Convolver)
+        let reverbNode = null;
+        let reverbEnabled = false;
+
+        // Compressor
+        const compressor = ctx.createDynamicsCompressor();
+        compressor.threshold.value = -12;
+        compressor.knee.value = 30;
+        compressor.ratio.value = 12;
+        compressor.attack.value = 0.003;
+        compressor.release.value = 0.25;
+
+        masterGain.connect(compressor);
+        compressor.connect(ctx.destination);
+
+        // Resume audio
+        const resumeAudio = () => { if (ctx.state === 'suspended') ctx.resume(); };
+        document.body.addEventListener('click', resumeAudio, {once:true});
+        document.body.addEventListener('touchstart', resumeAudio, {once:true});
+
+        // --- REVERB SETUP ---
+        function createReverb() {
+            const convolver = ctx.createConvolver();
+            const rate = ctx.sampleRate;
+            const length = rate * 2; // 2 second reverb
+            const impulse = ctx.createBuffer(2, length, rate);
+            const impulseL = impulse.getChannelData(0);
+            const impulseR = impulse.getChannelData(1);
+
+            for (let i = 0; i < length; i++) {
+                const decay = Math.pow(1 - i / length, 2);
+                impulseL[i] = (Math.random() * 2 - 1) * decay;
+                impulseR[i] = (Math.random() * 2 - 1) * decay;
+            }
+
+            convolver.buffer = impulse;
+            return convolver;
+        }
+
+        function toggleReverb() {
+            reverbEnabled = !reverbEnabled;
+            const btn = document.getElementById('reverb-btn');
+
+            if (reverbEnabled) {
+                if (!reverbNode) reverbNode = createReverb();
+                masterGain.disconnect();
+                masterGain.connect(reverbNode);
+                reverbNode.connect(compressor);
+                btn.classList.add('active');
+            } else {
+                if (reverbNode) {
+                    masterGain.disconnect();
+                    reverbNode.disconnect();
+                }
+                masterGain.connect(compressor);
+                btn.classList.remove('active');
+            }
+        }
+
+        // --- VOLUME CONTROL ---
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeValue = document.getElementById('volume-value');
+        volumeSlider.addEventListener('input', (e) => {
+            const val = e.target.value / 100;
+            masterGain.gain.value = val;
+            volumeValue.textContent = e.target.value + '%';
+        });
+
+        // --- BPM & METRONOME ---
+        let bpm = 120;
+        let metronomeInterval = null;
+        let metronomeBeat = 0;
+
+        const bpmSlider = document.getElementById('bpm-slider');
+        const bpmValue = document.getElementById('bpm-value');
+        bpmSlider.addEventListener('input', (e) => {
+            bpm = parseInt(e.target.value);
+            bpmValue.textContent = bpm + ' BPM';
+            if (metronomeInterval) {
+                stopMetronome();
+                startMetronome();
+            }
+        });
+
+        function toggleMetronome() {
+            if (metronomeInterval) {
+                stopMetronome();
+            } else {
+                startMetronome();
+            }
+        }
+
+        function startMetronome() {
+            const interval = (60 / bpm) * 1000;
+            metronomeBeat = 0;
+
+            metronomeInterval = setInterval(() => {
+                playMetronomeClick();
+                metronomeBeat = (metronomeBeat + 1) % 4;
+            }, interval);
+
+            document.getElementById('metronome-btn').classList.add('active');
+        }
+
+        function stopMetronome() {
+            clearInterval(metronomeInterval);
+            metronomeInterval = null;
+            document.getElementById('metronome-btn').classList.remove('active');
+            document.getElementById('metronome-indicator').classList.remove('beat');
+        }
+
+        function playMetronomeClick() {
+            const t = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            // Accent on beat 1
+            osc.frequency.value = metronomeBeat === 0 ? 1200 : 800;
+            gain.gain.setValueAtTime(metronomeBeat === 0 ? 0.3 : 0.15, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination); // Direct to output, bypass master
+            osc.start(t);
+            osc.stop(t + 0.05);
+
+            // Visual feedback
+            const indicator = document.getElementById('metronome-indicator');
+            indicator.classList.add('beat');
+            setTimeout(() => indicator.classList.remove('beat'), 100);
+        }
+
+        // --- RECORDING SYSTEM ---
+        let isRecording = false;
+        let recordedNotes = [];
+        let recordingStartTime = 0;
+
+        function toggleRecording() {
+            isRecording = !isRecording;
+            const btn = document.getElementById('record-btn');
+
+            if (isRecording) {
+                recordedNotes = [];
+                recordingStartTime = Date.now();
+                btn.classList.add('active', 'recording');
+                btn.innerHTML = '<i class="fas fa-stop"></i> Detener';
+            } else {
+                btn.classList.remove('active', 'recording');
+                btn.innerHTML = '<i class="fas fa-circle"></i> Grabar';
+                if (recordedNotes.length > 0) {
+                    document.getElementById('play-btn').disabled = false;
+                    document.getElementById('clear-btn').disabled = false;
+                }
+            }
+        }
+
+        function recordNote(type, params) {
+            if (isRecording) {
+                const timestamp = Date.now() - recordingStartTime;
+                recordedNotes.push({ type, params, timestamp });
+            }
+        }
+
+        function playRecording() {
+            if (recordedNotes.length === 0) return;
+
+            const btn = document.getElementById('play-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reproduciendo...';
+
+            recordedNotes.forEach(note => {
+                setTimeout(() => {
+                    // Trigger the appropriate sound
+                    if (note.type === 'marimba') playMarimbaNote(note.params);
+                    else if (note.type === 'drum') playDrum(note.params);
+                    else if (note.type === 'anis') playAnisClick(note.params);
+                    else if (note.type === 'timbal') playTimbalSound(note.params);
+                    else if (note.type === 'castanuela') playCastanuelaSound(note.params);
+                    else if (note.type === 'zambomba') playZambombaSound();
+                }, note.timestamp);
+            });
+
+            const duration = recordedNotes[recordedNotes.length - 1].timestamp;
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-play"></i> Reproducir';
+            }, duration + 500);
+        }
+
+        function clearRecording() {
+            recordedNotes = [];
+            document.getElementById('play-btn').disabled = true;
+            document.getElementById('clear-btn').disabled = true;
+        }
+
+        // --- NOISE BUFFER ---
+        const noiseBufferSize = ctx.sampleRate * 2;
+        const noiseBuffer = ctx.createBuffer(1, noiseBufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < noiseBufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+        function createNoise() {
+            const node = ctx.createBufferSource();
+            node.buffer = noiseBuffer;
+            return node;
+        }
+
+        // --- INSTRUMENT SYNTHESIS ---
+
+        // 1. MARIMBA
+        function playMarimbaNote(freq) {
+            const t = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+
+            osc2.type = 'sine';
+            osc2.frequency.value = freq * 3.98;
+            const gain2 = ctx.createGain();
+            gain2.gain.value = 0.3;
+
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.8, t + 0.002);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+
+            osc.connect(gain);
+            osc2.connect(gain2);
+            gain2.connect(gain);
+            gain.connect(masterGain);
+
+            osc.start(t); osc.stop(t + 0.5);
+            osc2.start(t); osc2.stop(t + 0.5);
+
+            recordNote('marimba', freq);
+        }
+
+        // 2. DRUMS
+        function playDrum(type) {
+            const t = ctx.currentTime;
+
+            if (type === 'kick') {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.frequency.setValueAtTime(120, t);
+                osc.frequency.exponentialRampToValueAtTime(40, t + 0.15);
+                gain.gain.setValueAtTime(1.0, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+                osc.connect(gain); gain.connect(masterGain);
+                osc.start(t); osc.stop(t + 0.3);
+            }
+            else if (type === 'snare') {
+                const osc = ctx.createOscillator();
+                osc.frequency.setValueAtTime(180, t);
+                const oscGain = ctx.createGain();
+                oscGain.gain.setValueAtTime(0.3, t);
+                oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+                osc.connect(oscGain); oscGain.connect(masterGain);
+                osc.start(t); osc.stop(t + 0.1);
+
+                const noise = createNoise();
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.value = 2000;
+                const noiseGain = ctx.createGain();
+                noiseGain.gain.setValueAtTime(0.8, t);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+                noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(masterGain);
+                noise.start(t); noise.stop(t + 0.2);
+            }
+            else if (type === 'crash' || type === 'ride') {
+                const fund = type === 'crash' ? 300 : 400;
+                const ratios = [1, 1.45, 2.54, 4.2];
+                ratios.forEach((r, i) => {
+                    const osc = ctx.createOscillator();
+                    osc.type = i % 2 === 0 ? 'square' : 'sawtooth';
+                    osc.frequency.value = fund * r;
+                    const g = ctx.createGain();
+                    g.gain.value = type === 'crash' ? 0.08 : 0.05;
+                    g.gain.exponentialRampToValueAtTime(0.001, t + (type==='crash'?1.5:1.0));
+
+                    const hp = ctx.createBiquadFilter();
+                    hp.type = 'highpass';
+                    hp.frequency.value = 1000;
+
+                    osc.connect(hp); hp.connect(g); g.connect(masterGain);
+                    osc.start(t); osc.stop(t + 2);
+                });
+            }
+            else if (type.startsWith('tom')) {
+                const freq = type === 'tomHigh' ? 180 : (type === 'tomMid' ? 130 : 90);
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, t);
+                osc.frequency.exponentialRampToValueAtTime(freq * 0.8, t + 0.4);
+
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0.8, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+
+                osc.connect(gain); gain.connect(masterGain);
+                osc.start(t); osc.stop(t + 0.4);
+            }
+            else if (type.startsWith('hihat')) {
+                const noise = createNoise();
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.value = 8000;
+                const gain = ctx.createGain();
+                const dur = type === 'hihatOpen' ? 0.3 : 0.05;
+                gain.gain.setValueAtTime(0.4, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                noise.connect(filter); filter.connect(gain); gain.connect(masterGain);
+                noise.start(t); noise.stop(t + dur);
+            }
+
+            recordNote('drum', type);
+        }
+
+        // 3. ANIS BOTTLE
+        function playAnisClick(velocity) {
+            const t = ctx.currentTime;
+
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(2500, t);
+            osc.frequency.exponentialRampToValueAtTime(1000, t + 0.05);
+
+            const oscGain = ctx.createGain();
+            const vol = Math.min(Math.max(velocity / 15, 0.05), 0.6);
+            oscGain.gain.setValueAtTime(vol, t);
+            oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+
+            const noise = ctx.createBufferSource();
+            const bufferSize = ctx.sampleRate * 0.1;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            noise.buffer = buffer;
+
+            const noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = 'highpass';
+            noiseFilter.frequency.value = 4000;
+
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(vol * 0.8, t);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+
+            osc.connect(oscGain);
+            oscGain.connect(masterGain);
+
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(masterGain);
+
+            osc.start(t); osc.stop(t + 0.05);
+            noise.start(t); noise.stop(t + 0.05);
+
+            recordNote('anis', velocity);
+        }
+
+        // 4. TIMBAL
+        function playTimbalSound(zone) {
+            const t = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            if (zone === 'center') {
+                osc.frequency.setValueAtTime(90, t);
+                osc.frequency.exponentialRampToValueAtTime(85, t + 0.1);
+                gain.gain.setValueAtTime(1.0, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+            } else {
+                osc.frequency.setValueAtTime(350, t);
+                gain.gain.setValueAtTime(0.6, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+            }
+            osc.connect(gain); gain.connect(masterGain);
+            osc.start(t); osc.stop(t + 0.4);
+
+            recordNote('timbal', zone);
+        }
+
+        // 5. CASTAÑUELAS
+        function playCastanuelaSound(side) {
+            const t = ctx.currentTime;
+
+            // Wood click (high frequency transient)
+            const osc = ctx.createOscillator();
+            osc.type = 'square';
+            const freq = side === 'left' ? 3500 : 4000; // Slightly different pitches
+            osc.frequency.setValueAtTime(freq, t);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.5, t + 0.01);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.5, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+
+            // Add noise for wood texture
+            const noise = createNoise();
+            const noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.value = 5000;
+            noiseFilter.Q.value = 2;
+
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.3, t);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+
+            osc.connect(gain);
+            gain.connect(masterGain);
+
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(masterGain);
+
+            osc.start(t); osc.stop(t + 0.05);
+            noise.start(t); noise.stop(t + 0.05);
+
+            recordNote('castanuela', side);
+        }
+
+        // 6. ZAMBOMBA
+        function playZambombaSound() {
+            const t = ctx.currentTime;
+
+            // Deep friction sound
+            const osc = ctx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(80, t);
+            osc.frequency.linearRampToValueAtTime(60, t + 0.2);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.7, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+
+            // Friction noise
+            const noise = createNoise();
+            const noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = 'lowpass';
+            noiseFilter.frequency.value = 500;
+
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.4, t);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+
+            osc.connect(gain);
+            gain.connect(masterGain);
+
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(masterGain);
+
+            osc.start(t); osc.stop(t + 0.3);
+            noise.start(t); noise.stop(t + 0.3);
+
+            recordNote('zambomba', null);
+        }
+
+        // --- UI SETUP ---
+
+        // 1. Build Marimba
+        const marimbaContainer = document.querySelector('.marimba-rail');
+        const mNotes = [
+            {n:'C', f:261.63, k:'Z'}, {n:'D', f:293.66, k:'X'},
+            {n:'E', f:329.63, k:'C'}, {n:'F', f:349.23, k:'V'},
+            {n:'G', f:392.00, k:'B'}, {n:'A', f:440.00, k:'N'},
+            {n:'B', f:493.88, k:'M'}, {n:'C', f:523.25, k:','}
+        ];
+        mNotes.forEach((n, i) => {
+            const key = document.createElement('div');
+            key.className = 'marimba-key w-8 sm:w-12 mx-1 flex-shrink-0 flex items-end justify-center pb-2 text-yellow-100 font-bold select-none';
+            const h = 200 - (i * 10);
+            key.style.height = h + 'px';
+            key.innerHTML = `${n.n}<div class="key-hint">${n.k}</div>`;
+
+            const tube = document.createElement('div');
+            tube.className = 'resonator';
+            tube.style.height = (h * 0.6) + 'px';
+            key.appendChild(tube);
+
+            const play = (e) => {
+                e.preventDefault();
+                playMarimbaNote(n.f);
+                key.classList.add('hit');
+                setTimeout(()=>key.classList.remove('hit'), 100);
+            };
+            key.addEventListener('mousedown', play);
+            key.addEventListener('touchstart', play);
+            marimbaContainer.appendChild(key);
+        });
+
+        // 2. Anis Bottle
+        const anisScraper = document.getElementById('anis-scraper');
+        let lastY = 0;
+        let lastTime = 0;
+
+        function handleScrape(y) {
+            const now = Date.now();
+            const deltaY = Math.abs(y - lastY);
+            const dt = now - lastTime;
+
+            if (deltaY > 4) {
+                const speed = deltaY / (dt + 1);
+                playAnisClick(speed * 20);
+                lastY = y;
+                lastTime = now;
+            }
+        }
+
+        anisScraper.addEventListener('mousemove', e => { if(e.buttons===1) handleScrape(e.clientY); });
+        anisScraper.addEventListener('touchmove', e => { e.preventDefault(); handleScrape(e.touches[0].clientY); });
+        anisScraper.addEventListener('touchstart', e => { lastY = e.touches[0].clientY; lastTime=Date.now(); });
+        anisScraper.addEventListener('mousedown', e => { lastY = e.clientY; lastTime=Date.now(); });
+
+        // 3. Timbal
+        const timbalPad = document.getElementById('timbal-pad');
+        function handleTimbal(e, type) {
+            e.preventDefault();
+            const rect = timbalPad.getBoundingClientRect();
+            const x = (type==='touch'?e.touches[0].clientX:e.clientX) - rect.left;
+            const y = (type==='touch'?e.touches[0].clientY:e.clientY) - rect.top;
+            const dist = Math.sqrt(Math.pow(x - rect.width/2, 2) + Math.pow(y - rect.height/2, 2));
+
+            timbalPad.style.transform = 'scale(0.97)';
+            setTimeout(()=>timbalPad.style.transform='scale(1)', 50);
+
+            if (dist > rect.width/2 * 0.7) playTimbalSound('rim');
+            else playTimbalSound('center');
+        }
+        timbalPad.addEventListener('mousedown', e => handleTimbal(e, 'mouse'));
+        timbalPad.addEventListener('touchstart', e => handleTimbal(e, 'touch'));
+
+        // 4. Castañuelas
+        function playCastanuela(side) {
+            const elem = document.getElementById('cast-' + side);
+            elem.classList.add('hit');
+            setTimeout(() => elem.classList.remove('hit'), 100);
+            playCastanuelaSound(side);
+        }
+
+        // 5. Zambomba
+        function playZambomba() {
+            const elem = document.getElementById('zambomba-pad');
+            elem.classList.add('hit');
+            setTimeout(() => elem.classList.remove('hit'), 100);
+            playZambombaSound();
+        }
+
+        // --- KEYBOARD CONTROLS ---
+        const keyMap = {
+            // Marimba
+            'z': () => { playMarimbaNote(261.63); animateKey(0); },
+            'x': () => { playMarimbaNote(293.66); animateKey(1); },
+            'c': () => { playMarimbaNote(329.63); animateKey(2); },
+            'v': () => { playMarimbaNote(349.23); animateKey(3); },
+            'b': () => { playMarimbaNote(392.00); animateKey(4); },
+            'n': () => { playMarimbaNote(440.00); animateKey(5); },
+            'm': () => { playMarimbaNote(493.88); animateKey(6); },
+            ',': () => { playMarimbaNote(523.25); animateKey(7); },
+
+            // Drums
+            ' ': () => { playDrum('kick'); animateDrum('kick'); },
+            'q': () => { playDrum('hihatOpen'); animateDrum('hihat'); },
+            'w': () => { playDrum('crash'); animateDrum('crash'); },
+            'e': () => { playDrum('tomMid'); animateDrum('tomMid'); },
+            'r': () => { playDrum('ride'); animateDrum('ride'); },
+            'a': () => { playDrum('snare'); animateDrum('snare'); },
+            'd': () => { playDrum('tomHigh'); animateDrum('tomHigh'); },
+            'f': () => { playDrum('tomLow'); animateDrum('tomLow'); },
+
+            // Timbal
+            't': () => { playTimbalSound('center'); animateTimbal(); },
+            'y': () => { playTimbalSound('rim'); animateTimbal(); },
+
+            // Castañuelas
+            'g': () => playCastanuela('left'),
+            'h': () => playCastanuela('right'),
+
+            // Zambomba
+            'j': () => playZambomba()
+        };
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (keyMap[key]) {
+                e.preventDefault();
+                keyMap[key]();
+            }
+        });
+
+        function animateKey(index) {
+            const keys = document.querySelectorAll('.marimba-key');
+            if (keys[index]) {
+                keys[index].classList.add('hit');
+                setTimeout(() => keys[index].classList.remove('hit'), 100);
+            }
+        }
+
+        function animateDrum(type) {
+            const selector = type === 'kick' ? '.drum:first-child' :
+                           type === 'snare' ? '.drum:nth-child(2)' :
+                           type === 'tomLow' ? '.drum:nth-child(3)' :
+                           type === 'tomHigh' ? '.drum:nth-child(4)' :
+                           type === 'tomMid' ? '.drum:nth-child(5)' :
+                           type === 'hihat' ? '.cymbal:first-child' :
+                           type === 'crash' ? '.cymbal:nth-child(3)' :
+                           type === 'ride' ? '.cymbal:nth-child(4)' : null;
+
+            if (selector) {
+                const elem = document.querySelector(selector);
+                if (elem) {
+                    elem.classList.add('hit');
+                    setTimeout(() => elem.classList.remove('hit'), 100);
+                }
+            }
+        }
+
+        function animateTimbal() {
+            timbalPad.style.transform = 'scale(0.97)';
+            setTimeout(() => timbalPad.style.transform = 'scale(1)', 100);
+        }
+
+        // --- NAVIGATION ---
+        function switchInstrument(id) {
+            document.querySelectorAll('.instrument-view').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.instrument-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-'+id).classList.remove('hidden');
+            document.getElementById('btn-'+id).classList.add('active');
+            resumeAudio();
+        }
+
+        // --- FULLSCREEN ---
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // --- VISUALIZER ---
+        const canvas = document.getElementById("viz-canvas");
+        const cCtx = canvas.getContext("2d");
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 256;
+        masterGain.connect(analyser);
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = 150;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+        function draw() {
+            requestAnimationFrame(draw);
+            analyser.getByteFrequencyData(dataArr);
+
+            const gradient = cCtx.createLinearGradient(0, canvas.height, 0, 0);
+            gradient.addColorStop(0, 'rgba(217, 119, 6, 0.8)');
+            gradient.addColorStop(0.5, 'rgba(251, 191, 36, 0.6)');
+            gradient.addColorStop(1, 'rgba(252, 211, 77, 0.4)');
+
+            cCtx.fillStyle = 'rgba(15, 15, 15, 0.3)';
+            cCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const w = canvas.width / dataArr.length;
+
+            for(let i=0; i<dataArr.length; i++) {
+                const h = (dataArr[i] / 255) * canvas.height;
+                cCtx.fillStyle = gradient;
+                cCtx.fillRect(i*w, canvas.height - h, w-1, h);
+            }
+        }
+        draw();
+
+    </script>
+</body>
+</html>
