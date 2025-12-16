@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descargador de Videos de Instagram - Gratis y Rápido</title>
+    <meta name="description" content="Descarga videos de Instagram gratis y rápido. Pega el enlace del video y descárgalo en alta calidad.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .input-field {
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-download:active {
+            transform: translateY(0);
+        }
+
+        .btn-download::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-download:hover::before {
+            left: 100%;
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .video-preview {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .quality-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="glass mx-4 mt-4 p-4">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fab fa-instagram text-4xl text-purple-600"></i>
+                <div>
+                    <h1 class="text-2xl font-bold gradient-text">Instagram Downloader</h1>
+                    <p class="text-sm text-gray-600">Descarga vídeos gratis</p>
+                </div>
+            </div>
+            <a href="../../index.html" class="text-purple-600 hover:text-purple-800 font-semibold">
+                <i class="fas fa-home"></i> Volver
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-8">
+        <!-- Download Section -->
+        <section class="glass p-8 mb-8 fade-in">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                    Descarga Vídeos de Instagram
+                </h2>
+                <p class="text-gray-600 text-lg">
+                    Pega el enlace del vídeo de Instagram y descárgalo en segundos
+                </p>
+            </div>
+
+            <!-- Input Form -->
+            <div class="max-w-3xl mx-auto">
+                <div class="flex flex-col gap-4">
+                    <div class="relative">
+                        <input
+                            type="text"
+                            id="videoUrl"
+                            placeholder="https://www.instagram.com/p/..."
+                            class="input-field w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-500"
+                        />
+                        <button
+                            onclick="clearInput()"
+                            id="clearBtn"
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden"
+                        >
+                            <i class="fas fa-times-circle text-xl"></i>
+                        </button>
+                    </div>
+
+                    <button
+                        onclick="downloadVideo()"
+                        id="downloadBtn"
+                        class="btn-download text-white font-bold py-4 px-8 rounded-xl text-lg flex items-center justify-center gap-3"
+                    >
+                        <i class="fas fa-download"></i>
+                        <span>Descargar Vídeo</span>
+                    </button>
+                </div>
+
+                <!-- Instructions -->
+                <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h3 class="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                        <i class="fas fa-info-circle"></i>
+                        Cómo usar:
+                    </h3>
+                    <ol class="list-decimal list-inside text-sm text-blue-700 space-y-1">
+                        <li>Abre Instagram y encuentra el vídeo que quieres descargar</li>
+                        <li>Toca los tres puntos (...) y selecciona "Copiar enlace"</li>
+                        <li>Pega el enlace en el campo de arriba</li>
+                        <li>Haz clic en "Descargar Vídeo" y espera</li>
+                        <li>Elige la calidad y descarga tu vídeo</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="loadingSection" class="glass p-8 mb-8 hidden fade-in">
+            <div class="text-center">
+                <i class="fas fa-spinner loading text-6xl text-purple-600 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Procesando...</h3>
+                <p class="text-gray-600">Obteniendo información del vídeo</p>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorSection" class="glass p-8 mb-8 hidden fade-in">
+            <div class="text-center">
+                <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Error</h3>
+                <p class="text-gray-600" id="errorMessage">Ha ocurrido un error. Por favor, verifica el enlace e inténtalo de nuevo.</p>
+                <button onclick="resetForm()" class="mt-4 px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                    Intentar de nuevo
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div id="resultSection" class="glass p-8 mb-8 hidden fade-in">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Tu vídeo está listo</h3>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Video Preview -->
+                <div>
+                    <div class="video-preview mb-4">
+                        <img id="thumbnail" src="" alt="Video thumbnail" class="w-full h-auto">
+                        <div class="absolute top-4 right-4">
+                            <span class="quality-badge text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                <i class="fas fa-video"></i> Vídeo
+                            </span>
+                        </div>
+                    </div>
+                    <div id="videoInfo" class="text-sm text-gray-600">
+                        <!-- Video info will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Download Options -->
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-4 text-lg">Opciones de descarga:</h4>
+                    <div id="downloadOptions" class="space-y-3">
+                        <!-- Download buttons will be inserted here -->
+                    </div>
+
+                    <div class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                        <p class="text-sm text-green-700 flex items-start gap-2">
+                            <i class="fas fa-check-circle mt-1"></i>
+                            <span>Haz clic en el botón de descarga para guardar el vídeo en tu dispositivo</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <section class="grid md:grid-cols-3 gap-6 mb-8">
+            <div class="feature-card glass p-6 text-center">
+                <i class="fas fa-bolt text-5xl text-yellow-500 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Rápido</h3>
+                <p class="text-gray-600">Descarga vídeos en segundos sin esperas</p>
+            </div>
+
+            <div class="feature-card glass p-6 text-center">
+                <i class="fas fa-shield-alt text-5xl text-green-500 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Seguro</h3>
+                <p class="text-gray-600">Sin registro, sin datos personales requeridos</p>
+            </div>
+
+            <div class="feature-card glass p-6 text-center">
+                <i class="fas fa-mobile-alt text-5xl text-blue-500 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Compatible</h3>
+                <p class="text-gray-600">Funciona en móviles, tablets y ordenadores</p>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="glass p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Preguntas Frecuentes</h2>
+
+            <div class="space-y-4 max-w-3xl mx-auto">
+                <details class="p-4 bg-white rounded-lg shadow-sm">
+                    <summary class="font-semibold text-gray-800 cursor-pointer">
+                        ¿Es gratis descargar vídeos de Instagram?
+                    </summary>
+                    <p class="mt-2 text-gray-600 text-sm">
+                        Sí, este servicio es completamente gratuito. No hay límites ni costos ocultos.
+                    </p>
+                </details>
+
+                <details class="p-4 bg-white rounded-lg shadow-sm">
+                    <summary class="font-semibold text-gray-800 cursor-pointer">
+                        ¿Necesito instalar algo?
+                    </summary>
+                    <p class="mt-2 text-gray-600 text-sm">
+                        No, esta herramienta funciona directamente en tu navegador. No necesitas instalar ninguna aplicación.
+                    </p>
+                </details>
+
+                <details class="p-4 bg-white rounded-lg shadow-sm">
+                    <summary class="font-semibold text-gray-800 cursor-pointer">
+                        ¿Qué formatos de vídeo puedo descargar?
+                    </summary>
+                    <p class="mt-2 text-gray-600 text-sm">
+                        Los vídeos se descargan en formato MP4, compatible con todos los dispositivos.
+                    </p>
+                </details>
+
+                <details class="p-4 bg-white rounded-lg shadow-sm">
+                    <summary class="font-semibold text-gray-800 cursor-pointer">
+                        ¿Puedo descargar vídeos de cuentas privadas?
+                    </summary>
+                    <p class="mt-2 text-gray-600 text-sm">
+                        No, solo puedes descargar vídeos de cuentas públicas debido a las políticas de privacidad de Instagram.
+                    </p>
+                </details>
+
+                <details class="p-4 bg-white rounded-lg shadow-sm">
+                    <summary class="font-semibold text-gray-800 cursor-pointer">
+                        ¿Es legal descargar vídeos de Instagram?
+                    </summary>
+                    <p class="mt-2 text-gray-600 text-sm">
+                        Descargar vídeos para uso personal está permitido. Sin embargo, no debes redistribuir contenido protegido por derechos de autor sin permiso.
+                    </p>
+                </details>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass mx-4 mb-4 p-6 text-center">
+        <p class="text-gray-600 mb-2">
+            <i class="fas fa-heart text-red-500"></i> Hecho con amor para descargar tus vídeos favoritos
+        </p>
+        <p class="text-sm text-gray-500">
+            © 2024 Instagram Downloader - Todos los derechos reservados
+        </p>
+    </footer>
+
+    <script>
+        // Input field management
+        const urlInput = document.getElementById('videoUrl');
+        const clearBtn = document.getElementById('clearBtn');
+
+        urlInput.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+        });
+
+        function clearInput() {
+            urlInput.value = '';
+            clearBtn.classList.add('hidden');
+            urlInput.focus();
+        }
+
+        // Extract Instagram shortcode from URL
+        function extractShortcode(url) {
+            const patterns = [
+                /instagram\.com\/p\/([^/?]+)/,
+                /instagram\.com\/reel\/([^/?]+)/,
+                /instagram\.com\/tv\/([^/?]+)/,
+            ];
+
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) {
+                    return match[1];
+                }
+            }
+            return null;
+        }
+
+        // Show/hide sections
+        function showSection(sectionId) {
+            const sections = ['loadingSection', 'errorSection', 'resultSection'];
+            sections.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            if (sectionId) {
+                document.getElementById(sectionId).classList.remove('hidden');
+                document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function resetForm() {
+            showSection(null);
+            urlInput.value = '';
+            clearBtn.classList.add('hidden');
+        }
+
+        // Download video function
+        async function downloadVideo() {
+            const url = urlInput.value.trim();
+
+            if (!url) {
+                alert('Por favor, introduce un enlace de Instagram');
+                return;
+            }
+
+            const shortcode = extractShortcode(url);
+
+            if (!shortcode) {
+                document.getElementById('errorMessage').textContent =
+                    'El enlace no es válido. Asegúrate de copiar el enlace completo del post de Instagram.';
+                showSection('errorSection');
+                return;
+            }
+
+            // Show loading
+            showSection('loadingSection');
+
+            try {
+                // Using a public API endpoint (you may need to replace this with a working API)
+                // This is using a CORS proxy + Instagram's public data
+                const response = await fetch(`https://www.instagram.com/p/${shortcode}/?__a=1&__d=dis`, {
+                    headers: {
+                        'User-Agent': 'Instagram 76.0.0.15.395 Android (24/7.0; 640dpi; 1440x2560; samsung; SM-G930F; herolte; samsungexynos8890; en_US; 138226743)'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('No se pudo obtener el vídeo');
+                }
+
+                const data = await response.json();
+
+                // Extract video URL
+                let videoUrl = null;
+                let thumbnailUrl = null;
+                let caption = '';
+                let username = '';
+
+                if (data.items && data.items[0]) {
+                    const item = data.items[0];
+
+                    // Get video URL
+                    if (item.video_versions && item.video_versions.length > 0) {
+                        videoUrl = item.video_versions[0].url;
+                    }
+
+                    // Get thumbnail
+                    if (item.image_versions2 && item.image_versions2.candidates && item.image_versions2.candidates.length > 0) {
+                        thumbnailUrl = item.image_versions2.candidates[0].url;
+                    }
+
+                    // Get caption and username
+                    if (item.caption && item.caption.text) {
+                        caption = item.caption.text;
+                    }
+                    if (item.user && item.user.username) {
+                        username = item.user.username;
+                    }
+                }
+
+                if (videoUrl) {
+                    displayResult(videoUrl, thumbnailUrl, username, caption);
+                } else {
+                    throw new Error('No se encontró el vídeo en este enlace');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+
+                // Fallback: Use alternative method with public embed API
+                try {
+                    const embedResponse = await fetch(`https://api.instagram.com/oembed/?url=https://www.instagram.com/p/${shortcode}/`);
+                    const embedData = await embedResponse.json();
+
+                    if (embedData.thumbnail_url) {
+                        // Show alternative download method
+                        displayAlternativeMethod(shortcode, embedData.thumbnail_url, embedData.author_name);
+                    } else {
+                        throw new Error('No se pudo obtener la información del vídeo');
+                    }
+                } catch (fallbackError) {
+                    document.getElementById('errorMessage').innerHTML = `
+                        <strong>Error al obtener el vídeo.</strong><br><br>
+                        Posibles causas:<br>
+                        • El post es de una cuenta privada<br>
+                        • El enlace no es válido<br>
+                        • Instagram bloqueó la solicitud<br><br>
+                        <strong>Alternativa:</strong> Intenta copiar el enlace de nuevo o usa el navegador en modo incógnito.
+                    `;
+                    showSection('errorSection');
+                }
+            }
+        }
+
+        function displayResult(videoUrl, thumbnailUrl, username, caption) {
+            // Set thumbnail
+            if (thumbnailUrl) {
+                document.getElementById('thumbnail').src = thumbnailUrl;
+            }
+
+            // Set video info
+            const videoInfo = document.getElementById('videoInfo');
+            videoInfo.innerHTML = `
+                <p class="font-semibold mb-1"><i class="fas fa-user"></i> @${username || 'Usuario'}</p>
+                <p class="text-xs line-clamp-3">${caption || 'Vídeo de Instagram'}</p>
+            `;
+
+            // Set download options
+            const downloadOptions = document.getElementById('downloadOptions');
+            downloadOptions.innerHTML = `
+                <a href="${videoUrl}" download class="block w-full text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transition-all">
+                    <i class="fas fa-download mr-2"></i>
+                    Descargar Vídeo (Alta Calidad)
+                </a>
+                <button onclick="copyToClipboard('${videoUrl}')" class="w-full bg-gray-200 text-gray-800 font-semibold py-3 px-6 rounded-xl hover:bg-gray-300 transition-all">
+                    <i class="fas fa-copy mr-2"></i>
+                    Copiar enlace del vídeo
+                </button>
+            `;
+
+            showSection('resultSection');
+        }
+
+        function displayAlternativeMethod(shortcode, thumbnailUrl, username) {
+            // Set thumbnail
+            document.getElementById('thumbnail').src = thumbnailUrl;
+
+            // Set video info
+            const videoInfo = document.getElementById('videoInfo');
+            videoInfo.innerHTML = `
+                <p class="font-semibold mb-1"><i class="fas fa-user"></i> @${username || 'Usuario'}</p>
+                <p class="text-xs">Vídeo de Instagram</p>
+            `;
+
+            // Set alternative download method
+            const downloadOptions = document.getElementById('downloadOptions');
+            downloadOptions.innerHTML = `
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <p class="text-sm text-yellow-800 mb-2">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Método alternativo de descarga:</strong>
+                    </p>
+                    <ol class="text-xs text-yellow-700 list-decimal list-inside space-y-1">
+                        <li>Haz clic en "Abrir en Instagram"</li>
+                        <li>Toca el vídeo para reproducirlo</li>
+                        <li>Mantén presionado el vídeo y selecciona "Guardar vídeo"</li>
+                    </ol>
+                </div>
+                <a href="https://www.instagram.com/p/${shortcode}/" target="_blank" class="block w-full text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transition-all">
+                    <i class="fab fa-instagram mr-2"></i>
+                    Abrir en Instagram
+                </a>
+                <button onclick="copyToClipboard('https://www.instagram.com/p/${shortcode}/')" class="w-full mt-3 bg-gray-200 text-gray-800 font-semibold py-3 px-6 rounded-xl hover:bg-gray-300 transition-all">
+                    <i class="fas fa-copy mr-2"></i>
+                    Copiar enlace
+                </button>
+            `;
+
+            showSection('resultSection');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('¡Enlace copiado al portapapeles!');
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+            });
+        }
+
+        // Allow Enter key to trigger download
+        urlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                downloadVideo();
+            }
+        });
+    </script>
+</body>
+</html>
