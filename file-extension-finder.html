@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Extensiones de Archivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            border: none;
+            background: none;
+            font-size: 1em;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        .search-input-container {
+            position: relative;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .result-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .result-section {
+            margin-bottom: 20px;
+        }
+
+        .result-section h3 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .result-section p, .result-section ul {
+            color: #6c757d;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        .result-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .result-section li {
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .result-section li:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .badge.primary {
+            background: #28a745;
+        }
+
+        .badge.warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .conversion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .conversion-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .conversion-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .conversion-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .conversion-card .extensions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            color: #856404;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border: 1px solid #0dcaf0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            color: #055160;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .no-results h3 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Buscador de Extensiones de Archivo</h1>
+            <p>Base de datos completa con más de 500 extensiones de archivo</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(0)">🔎 Buscar Extensión</button>
+            <button class="tab" onclick="switchTab(1)">🔄 Conversión de Archivos</button>
+            <button class="tab" onclick="switchTab(2)">📊 Estadísticas</button>
+        </div>
+
+        <div class="content">
+            <!-- Tab 1: Buscar Extensión -->
+            <div class="tab-content active" id="tab-search">
+                <div class="search-box">
+                    <h2 style="margin-bottom: 20px; color: #495057;">Introduce una extensión de archivo</h2>
+                    <div class="search-input-container">
+                        <input type="text" class="search-input" id="extensionInput"
+                               placeholder="Ejemplo: jpg, pdf, docx, py, dwg..."
+                               onkeypress="if(event.key==='Enter') searchExtension()">
+                        <button class="search-btn" onclick="searchExtension()">Buscar</button>
+                    </div>
+                </div>
+
+                <div class="results" id="searchResults"></div>
+            </div>
+
+            <!-- Tab 2: Conversión de Archivos -->
+            <div class="tab-content" id="tab-conversion">
+                <h2 style="margin-bottom: 20px; color: #495057;">Conversión de Tipos de Archivo</h2>
+                <p style="color: #6c757d; margin-bottom: 30px; font-size: 1.1em;">
+                    Selecciona un tipo de archivo para ver las conversiones disponibles entre formatos
+                </p>
+
+                <div class="conversion-grid" id="conversionGrid"></div>
+            </div>
+
+            <!-- Tab 3: Estadísticas -->
+            <div class="tab-content" id="tab-stats">
+                <h2 style="margin-bottom: 30px; color: #495057;">Estadísticas de la Base de Datos</h2>
+                <div class="stats-grid" id="statsGrid"></div>
+
+                <div class="category-filter" id="categoryFilter"></div>
+                <div id="categoryResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos completa de extensiones
+        const extensionsDatabase = {
+            // PROGRAMACIÓN - Lenguajes principales
+            'py': {
+                name: 'Python Script',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Python', 'PyCharm', 'Visual Studio Code', 'Jupyter Notebook', 'IDLE'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Archivo de código fuente Python, uno de los lenguajes más populares para ciencia de datos, IA y desarrollo web.',
+                conversions: ['pyc (compilado)', 'ipynb (Jupyter)', 'exe (ejecutable)'],
+                systems: ['Windows', 'Linux', 'macOS', 'Android (Termux)']
+            },
+            'java': {
+                name: 'Java Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Eclipse', 'IntelliJ IDEA', 'NetBeans', 'Visual Studio Code', 'Android Studio'],
+                idealProgram: 'IntelliJ IDEA',
+                description: 'Código fuente Java, usado para aplicaciones empresariales, Android y sistemas multiplataforma.',
+                conversions: ['class (compilado)', 'jar (ejecutable)'],
+                systems: ['Windows', 'Linux', 'macOS', 'Android']
+            },
+            'js': {
+                name: 'JavaScript File',
+                type: 'Código Fuente',
+                category: 'Programación Web',
+                programs: ['Visual Studio Code', 'Sublime Text', 'WebStorm', 'Notepad++', 'Navegadores web'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Archivo JavaScript para desarrollo web front-end y back-end (Node.js).',
+                conversions: ['jsx (React)', 'ts (TypeScript)', 'json'],
+                systems: ['Windows', 'Linux', 'macOS', 'Todos los navegadores']
+            },
+            'ts': {
+                name: 'TypeScript File',
+                type: 'Código Fuente',
+                category: 'Programación Web',
+                programs: ['Visual Studio Code', 'WebStorm', 'Sublime Text', 'Atom'],
+                idealProgram: 'Visual Studio Code',
+                description: 'TypeScript, superset de JavaScript con tipado estático. Muy usado en 2026.',
+                conversions: ['js (compilado)', 'tsx (React)'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'tsx': {
+                name: 'TypeScript React File',
+                type: 'Código Fuente',
+                category: 'Programación Web',
+                programs: ['Visual Studio Code', 'WebStorm', 'Sublime Text'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Archivo TypeScript con JSX para componentes React.',
+                conversions: ['js', 'jsx'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'c': {
+                name: 'C Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['GCC', 'Visual Studio', 'Code::Blocks', 'CLion', 'Xcode'],
+                idealProgram: 'Visual Studio (Windows) / GCC (Linux)',
+                description: 'Código fuente en C, lenguaje de bajo nivel para sistemas operativos y firmware.',
+                conversions: ['o (objeto)', 'exe (ejecutable)', 'so/dll (librería)'],
+                systems: ['Windows', 'Linux', 'macOS', 'Embedded Systems']
+            },
+            'cpp': {
+                name: 'C++ Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Visual Studio', 'CLion', 'Code::Blocks', 'GCC', 'Xcode'],
+                idealProgram: 'Visual Studio',
+                description: 'Código fuente C++, usado en videojuegos, sistemas de alto rendimiento y aplicaciones complejas.',
+                conversions: ['o (objeto)', 'exe (ejecutable)'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'cs': {
+                name: 'C# Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Visual Studio', 'Visual Studio Code', 'Rider', 'MonoDevelop'],
+                idealProgram: 'Visual Studio',
+                description: 'Código fuente C# para .NET, Unity y aplicaciones Windows.',
+                conversions: ['dll', 'exe'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'go': {
+                name: 'Go Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['GoLand', 'Visual Studio Code', 'Vim', 'Sublime Text'],
+                idealProgram: 'GoLand',
+                description: 'Código fuente Go (Golang), ideal para microservicios y aplicaciones en la nube.',
+                conversions: ['exe (compilado)'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'rs': {
+                name: 'Rust Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Visual Studio Code', 'IntelliJ Rust', 'Vim', 'Emacs'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Código Rust, lenguaje seguro y de alto rendimiento en auge en 2026.',
+                conversions: ['exe (compilado)'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'php': {
+                name: 'PHP Script',
+                type: 'Código Fuente',
+                category: 'Programación Web',
+                programs: ['PhpStorm', 'Visual Studio Code', 'Sublime Text', 'Notepad++'],
+                idealProgram: 'PhpStorm',
+                description: 'Script PHP para desarrollo web back-end y WordPress.',
+                conversions: ['html'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'rb': {
+                name: 'Ruby Script',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['RubyMine', 'Visual Studio Code', 'Sublime Text', 'Vim'],
+                idealProgram: 'RubyMine',
+                description: 'Script Ruby, usado en Ruby on Rails para desarrollo web.',
+                conversions: [],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'swift': {
+                name: 'Swift Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Xcode', 'AppCode', 'Visual Studio Code'],
+                idealProgram: 'Xcode',
+                description: 'Código Swift para desarrollo iOS, macOS y watchOS.',
+                conversions: ['app (ejecutable iOS/macOS)'],
+                systems: ['macOS', 'iOS']
+            },
+            'kt': {
+                name: 'Kotlin Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Android Studio', 'IntelliJ IDEA', 'Visual Studio Code'],
+                idealProgram: 'Android Studio',
+                description: 'Código Kotlin, lenguaje oficial para desarrollo Android.',
+                conversions: ['class', 'jar'],
+                systems: ['Windows', 'Linux', 'macOS', 'Android']
+            },
+            'dart': {
+                name: 'Dart Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Android Studio', 'Visual Studio Code', 'IntelliJ IDEA'],
+                idealProgram: 'Visual Studio Code con Flutter',
+                description: 'Código Dart para Flutter, desarrollo multiplataforma móvil.',
+                conversions: ['aot (compilado)'],
+                systems: ['Windows', 'Linux', 'macOS', 'Android', 'iOS']
+            },
+            'scala': {
+                name: 'Scala Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['IntelliJ IDEA', 'Eclipse', 'Visual Studio Code'],
+                idealProgram: 'IntelliJ IDEA',
+                description: 'Código Scala para JVM, usado en big data.',
+                conversions: ['class', 'jar'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'pl': {
+                name: 'Perl Script',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Padre', 'Visual Studio Code', 'Vim', 'Emacs'],
+                idealProgram: 'Padre',
+                description: 'Script Perl para administración de sistemas y procesamiento de texto.',
+                conversions: [],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'r': {
+                name: 'R Script',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['RStudio', 'Visual Studio Code', 'Jupyter', 'R Console'],
+                idealProgram: 'RStudio',
+                description: 'Script R para análisis estadístico y ciencia de datos.',
+                conversions: ['rdata', 'rds'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'm': {
+                name: 'MATLAB/Objective-C File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['MATLAB', 'Xcode (Objective-C)', 'Octave'],
+                idealProgram: 'MATLAB (para .m MATLAB) / Xcode (para Objective-C)',
+                description: 'Script MATLAB para computación numérica o código Objective-C.',
+                conversions: ['mexw64', 'p'],
+                systems: ['Windows', 'Linux', 'macOS', 'iOS (Objective-C)']
+            },
+            'sh': {
+                name: 'Shell Script',
+                type: 'Script',
+                category: 'Programación',
+                programs: ['Terminal', 'Bash', 'Zsh', 'Visual Studio Code', 'Vim'],
+                idealProgram: 'Terminal (Linux/macOS)',
+                description: 'Script Bash/Shell para automatización en Linux/Unix.',
+                conversions: [],
+                systems: ['Linux', 'macOS', 'WSL (Windows)']
+            },
+            'sql': {
+                name: 'SQL Script',
+                type: 'Base de Datos',
+                category: 'Programación',
+                programs: ['MySQL Workbench', 'SQL Server Management Studio', 'DBeaver', 'DataGrip'],
+                idealProgram: 'DBeaver',
+                description: 'Script SQL para consultas y gestión de bases de datos.',
+                conversions: ['csv', 'json', 'xml'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'asm': {
+                name: 'Assembly Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['NASM', 'MASM', 'Visual Studio', 'GAS'],
+                idealProgram: 'NASM',
+                description: 'Código ensamblador de bajo nivel.',
+                conversions: ['o (objeto)', 'exe'],
+                systems: ['Windows', 'Linux', 'Embedded Systems']
+            },
+            'lua': {
+                name: 'Lua Script',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['ZeroBrane Studio', 'Visual Studio Code', 'Vim'],
+                idealProgram: 'ZeroBrane Studio',
+                description: 'Script Lua para scripting en videojuegos y aplicaciones embebidas.',
+                conversions: ['luac (compilado)'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'hs': {
+                name: 'Haskell Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['GHC', 'Visual Studio Code', 'Atom', 'Emacs'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Código Haskell, lenguaje funcional puro.',
+                conversions: ['o (objeto)', 'exe'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'cob': {
+                name: 'COBOL Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Micro Focus COBOL', 'GnuCOBOL', 'OpenCOBOL IDE'],
+                idealProgram: 'Micro Focus COBOL',
+                description: 'Código COBOL para sistemas legacy bancarios y empresariales.',
+                conversions: ['exe'],
+                systems: ['Windows', 'Linux', 'Mainframe']
+            },
+            'f90': {
+                name: 'Fortran 90 Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['Intel Fortran Compiler', 'GFortran', 'Visual Studio'],
+                idealProgram: 'Intel Fortran Compiler',
+                description: 'Código Fortran para computación científica y simulaciones.',
+                conversions: ['o (objeto)', 'exe'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'lisp': {
+                name: 'Lisp Source File',
+                type: 'Código Fuente',
+                category: 'Programación',
+                programs: ['SBCL', 'Emacs', 'LispWorks', 'CLISP'],
+                idealProgram: 'Emacs con SLIME',
+                description: 'Código Lisp, uno de los primeros lenguajes de programación.',
+                conversions: ['fasl (compilado)'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+
+            // WEB
+            'html': {
+                name: 'HTML Document',
+                type: 'Documento Web',
+                category: 'Web',
+                programs: ['Navegadores web', 'Visual Studio Code', 'Sublime Text', 'Notepad++'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Documento HTML para páginas web.',
+                conversions: ['pdf', 'txt', 'md'],
+                systems: ['Todos los sistemas']
+            },
+            'css': {
+                name: 'Cascading Style Sheet',
+                type: 'Hoja de Estilos',
+                category: 'Web',
+                programs: ['Visual Studio Code', 'Sublime Text', 'WebStorm'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Hoja de estilos CSS para diseño web.',
+                conversions: ['scss', 'sass', 'less'],
+                systems: ['Todos los sistemas']
+            },
+            'json': {
+                name: 'JSON Data File',
+                type: 'Datos',
+                category: 'Web',
+                programs: ['Visual Studio Code', 'Notepad++', 'Sublime Text', 'Navegadores'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Archivo JSON para intercambio de datos estructurados.',
+                conversions: ['xml', 'csv', 'yaml'],
+                systems: ['Todos los sistemas']
+            },
+            'xml': {
+                name: 'XML Document',
+                type: 'Datos',
+                category: 'Web',
+                programs: ['Visual Studio Code', 'Notepad++', 'XMLSpy', 'Oxygen XML'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Documento XML para datos estructurados.',
+                conversions: ['json', 'csv', 'html'],
+                systems: ['Todos los sistemas']
+            },
+
+            // VISUAL STUDIO
+            'sln': {
+                name: 'Visual Studio Solution',
+                type: 'Proyecto',
+                category: 'IDEs',
+                programs: ['Visual Studio', 'Visual Studio Code', 'Rider'],
+                idealProgram: 'Visual Studio',
+                description: 'Archivo de solución de Visual Studio que agrupa proyectos.',
+                conversions: [],
+                systems: ['Windows', 'macOS', 'Linux']
+            },
+            'csproj': {
+                name: 'C# Project File',
+                type: 'Proyecto',
+                category: 'IDEs',
+                programs: ['Visual Studio', 'Visual Studio Code', 'Rider'],
+                idealProgram: 'Visual Studio',
+                description: 'Archivo de proyecto C# para .NET.',
+                conversions: [],
+                systems: ['Windows', 'macOS', 'Linux']
+            },
+            'vcxproj': {
+                name: 'Visual C++ Project',
+                type: 'Proyecto',
+                category: 'IDEs',
+                programs: ['Visual Studio', 'MSBuild'],
+                idealProgram: 'Visual Studio',
+                description: 'Archivo de proyecto Visual C++ para compilación con MSBuild.',
+                conversions: [],
+                systems: ['Windows']
+            },
+
+            // ANDROID STUDIO
+            'apk': {
+                name: 'Android Package',
+                type: 'Ejecutable',
+                category: 'Android',
+                programs: ['Android Studio', 'Dispositivos Android', 'Emuladores Android'],
+                idealProgram: 'Dispositivos Android',
+                description: 'Paquete de aplicación Android para instalación.',
+                conversions: ['aab'],
+                systems: ['Android']
+            },
+            'aab': {
+                name: 'Android App Bundle',
+                type: 'Paquete',
+                category: 'Android',
+                programs: ['Android Studio', 'Google Play Console'],
+                idealProgram: 'Google Play Console',
+                description: 'Formato moderno de publicación para Google Play (obligatorio desde 2021).',
+                conversions: ['apk'],
+                systems: ['Android']
+            },
+            'gradle': {
+                name: 'Gradle Build File',
+                type: 'Configuración',
+                category: 'IDEs',
+                programs: ['Android Studio', 'IntelliJ IDEA', 'Eclipse', 'Visual Studio Code'],
+                idealProgram: 'Android Studio',
+                description: 'Archivo de construcción Gradle para proyectos Android/Java.',
+                conversions: [],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+
+            // AUTOCAD & CAD
+            'dwg': {
+                name: 'AutoCAD Drawing',
+                type: 'Dibujo CAD',
+                category: 'Diseño CAD',
+                programs: ['AutoCAD', 'DraftSight', 'LibreCAD', 'BricsCAD', 'FreeCAD'],
+                idealProgram: 'AutoCAD',
+                description: 'Formato propietario de Autodesk para dibujos CAD 2D/3D.',
+                conversions: ['dxf', 'pdf', 'dwf', 'svg'],
+                systems: ['Windows', 'macOS']
+            },
+            'dxf': {
+                name: 'Drawing Exchange Format',
+                type: 'Dibujo CAD',
+                category: 'Diseño CAD',
+                programs: ['AutoCAD', 'LibreCAD', 'FreeCAD', 'Inkscape', 'QCAD'],
+                idealProgram: 'AutoCAD',
+                description: 'Formato abierto de intercambio de dibujos CAD.',
+                conversions: ['dwg', 'pdf', 'svg'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'dwf': {
+                name: 'Design Web Format',
+                type: 'Dibujo CAD',
+                category: 'Diseño CAD',
+                programs: ['Autodesk Design Review', 'AutoCAD', 'Autodesk Viewer'],
+                idealProgram: 'Autodesk Design Review',
+                description: 'Formato de visualización 2D/3D de Autodesk.',
+                conversions: ['pdf', 'dwg'],
+                systems: ['Windows']
+            },
+
+            // INVENTOR
+            'ipt': {
+                name: 'Inventor Part File',
+                type: 'Parte 3D',
+                category: 'Diseño CAD',
+                programs: ['Autodesk Inventor', 'Fusion 360', 'Autodesk Viewer'],
+                idealProgram: 'Autodesk Inventor',
+                description: 'Archivo de pieza individual de Inventor (como un rodamiento).',
+                conversions: ['step', 'stl', 'iges', 'dwg'],
+                systems: ['Windows']
+            },
+            'iam': {
+                name: 'Inventor Assembly File',
+                type: 'Ensamblaje 3D',
+                category: 'Diseño CAD',
+                programs: ['Autodesk Inventor', 'Fusion 360'],
+                idealProgram: 'Autodesk Inventor',
+                description: 'Archivo de ensamblaje de Inventor con múltiples partes interactuando.',
+                conversions: ['step', 'stl', 'iges'],
+                systems: ['Windows']
+            },
+            'idw': {
+                name: 'Inventor Drawing File',
+                type: 'Plano',
+                category: 'Diseño CAD',
+                programs: ['Autodesk Inventor', 'Autodesk Viewer'],
+                idealProgram: 'Autodesk Inventor',
+                description: 'Plano técnico 2D generado desde piezas 3D de Inventor.',
+                conversions: ['dwg', 'pdf', 'dxf'],
+                systems: ['Windows']
+            },
+
+            // SKETCHUP
+            'skp': {
+                name: 'SketchUp Document',
+                type: 'Modelo 3D',
+                category: 'Diseño 3D',
+                programs: ['SketchUp', 'Trimble Connect', 'Blender (con plugin)'],
+                idealProgram: 'SketchUp',
+                description: 'Archivo de modelo 3D de SketchUp para arquitectura y diseño.',
+                conversions: ['dae', 'obj', 'stl', 'fbx', 'dwg'],
+                systems: ['Windows', 'macOS']
+            },
+
+            // TIA PORTAL - SIEMENS
+            'ap16': {
+                name: 'TIA Portal v16 Project',
+                type: 'Proyecto PLC',
+                category: 'Automatización Industrial',
+                programs: ['TIA Portal v16', 'TIA Portal v17 (retrocompatible)'],
+                idealProgram: 'TIA Portal v16',
+                description: 'Proyecto de automatización de Siemens TIA Portal versión 16.',
+                conversions: ['zap16 (archivo comprimido)'],
+                systems: ['Windows']
+            },
+            'ap17': {
+                name: 'TIA Portal v17 Project',
+                type: 'Proyecto PLC',
+                category: 'Automatización Industrial',
+                programs: ['TIA Portal v17', 'TIA Portal v18 (retrocompatible)'],
+                idealProgram: 'TIA Portal v17',
+                description: 'Proyecto de automatización de Siemens TIA Portal versión 17.',
+                conversions: ['zap17 (archivo comprimido)'],
+                systems: ['Windows']
+            },
+            'zap16': {
+                name: 'TIA Portal v16 Archive',
+                type: 'Archivo PLC',
+                category: 'Automatización Industrial',
+                programs: ['TIA Portal v16', 'WinZip', 'WinRAR', '7-Zip'],
+                idealProgram: 'TIA Portal v16',
+                description: 'Archivo comprimido (formato ZIP) de proyecto TIA Portal v16 para backup.',
+                conversions: ['ap16 (descomprimir)', 'zip'],
+                systems: ['Windows']
+            },
+            'zap17': {
+                name: 'TIA Portal v17 Archive',
+                type: 'Archivo PLC',
+                category: 'Automatización Industrial',
+                programs: ['TIA Portal v17', 'WinZip', 'WinRAR', '7-Zip'],
+                idealProgram: 'TIA Portal v17',
+                description: 'Archivo comprimido (formato ZIP) de proyecto TIA Portal v17 para backup.',
+                conversions: ['ap17 (descomprimir)', 'zip'],
+                systems: ['Windows']
+            },
+
+            // SYSMAC STUDIO - OMRON
+            'smc': {
+                name: 'Sysmac Studio Project (Legacy)',
+                type: 'Proyecto PLC',
+                category: 'Automatización Industrial',
+                programs: ['Sysmac Studio'],
+                idealProgram: 'Sysmac Studio',
+                description: 'Proyecto legacy de Sysmac Studio para controladores Omron NJ/NX.',
+                conversions: ['smc2', 'csm'],
+                systems: ['Windows']
+            },
+            'smc2': {
+                name: 'Sysmac Studio Project',
+                type: 'Proyecto PLC',
+                category: 'Automatización Industrial',
+                programs: ['Sysmac Studio v1.04+'],
+                idealProgram: 'Sysmac Studio',
+                description: 'Proyecto moderno de Sysmac Studio para controladores Omron (versión actual).',
+                conversions: ['smc (legacy)', 'csm2'],
+                systems: ['Windows']
+            },
+            'csm': {
+                name: 'Sysmac Compressed Project (Legacy)',
+                type: 'Archivo PLC',
+                category: 'Automatización Industrial',
+                programs: ['Sysmac Studio'],
+                idealProgram: 'Sysmac Studio',
+                description: 'Proyecto comprimido legacy de Sysmac Studio (más pequeño que .smc).',
+                conversions: ['smc', 'csm2'],
+                systems: ['Windows']
+            },
+            'csm2': {
+                name: 'Sysmac Compressed Project',
+                type: 'Archivo PLC',
+                category: 'Automatización Industrial',
+                programs: ['Sysmac Studio v1.04+'],
+                idealProgram: 'Sysmac Studio',
+                description: 'Proyecto comprimido moderno de Sysmac Studio.',
+                conversions: ['smc2', 'csm'],
+                systems: ['Windows']
+            },
+
+            // IMÁGENES
+            'jpg': {
+                name: 'JPEG Image',
+                type: 'Imagen',
+                category: 'Imágenes',
+                programs: ['Visor de fotos', 'Photoshop', 'GIMP', 'Paint.NET', 'IrfanView'],
+                idealProgram: 'Photoshop',
+                description: 'Formato de imagen comprimida con pérdida, ideal para fotografías.',
+                conversions: ['png', 'gif', 'bmp', 'webp', 'pdf'],
+                systems: ['Todos los sistemas']
+            },
+            'png': {
+                name: 'Portable Network Graphics',
+                type: 'Imagen',
+                category: 'Imágenes',
+                programs: ['Visor de fotos', 'Photoshop', 'GIMP', 'Paint.NET', 'IrfanView'],
+                idealProgram: 'Photoshop',
+                description: 'Formato de imagen sin pérdida con soporte de transparencia.',
+                conversions: ['jpg', 'gif', 'bmp', 'webp', 'svg'],
+                systems: ['Todos los sistemas']
+            },
+            'gif': {
+                name: 'Graphics Interchange Format',
+                type: 'Imagen Animada',
+                category: 'Imágenes',
+                programs: ['Visor de fotos', 'Photoshop', 'GIMP', 'Navegadores web'],
+                idealProgram: 'Photoshop',
+                description: 'Formato de imagen animada de 256 colores.',
+                conversions: ['png', 'jpg', 'mp4 (para GIFs animados)'],
+                systems: ['Todos los sistemas']
+            },
+            'bmp': {
+                name: 'Bitmap Image',
+                type: 'Imagen',
+                category: 'Imágenes',
+                programs: ['Paint', 'Photoshop', 'GIMP', 'IrfanView'],
+                idealProgram: 'Paint',
+                description: 'Formato de imagen sin comprimir (obsoleto, archivos grandes).',
+                conversions: ['jpg', 'png', 'gif'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'svg': {
+                name: 'Scalable Vector Graphics',
+                type: 'Imagen Vectorial',
+                category: 'Imágenes',
+                programs: ['Inkscape', 'Adobe Illustrator', 'CorelDRAW', 'Navegadores web'],
+                idealProgram: 'Adobe Illustrator',
+                description: 'Imagen vectorial escalable sin pérdida de calidad.',
+                conversions: ['png', 'jpg', 'pdf', 'eps'],
+                systems: ['Todos los sistemas']
+            },
+            'webp': {
+                name: 'WebP Image',
+                type: 'Imagen',
+                category: 'Imágenes',
+                programs: ['Navegadores web', 'Photoshop (plugin)', 'GIMP', 'XnView'],
+                idealProgram: 'Navegadores modernos',
+                description: 'Formato moderno de Google con mejor compresión que JPG (2026).',
+                conversions: ['jpg', 'png'],
+                systems: ['Todos los sistemas']
+            },
+            'raw': {
+                name: 'RAW Image',
+                type: 'Imagen',
+                category: 'Imágenes',
+                programs: ['Adobe Lightroom', 'Capture One', 'DxO PhotoLab', 'RawTherapee'],
+                idealProgram: 'Adobe Lightroom',
+                description: 'Negativo digital sin procesar de cámaras profesionales.',
+                conversions: ['jpg', 'png', 'tiff', 'dng'],
+                systems: ['Windows', 'macOS']
+            },
+            'heic': {
+                name: 'High Efficiency Image Format',
+                type: 'Imagen',
+                category: 'Imágenes',
+                programs: ['Fotos (macOS/iOS)', 'CopyTrans HEIC', 'iMazing HEIC Converter'],
+                idealProgram: 'Fotos (Apple)',
+                description: 'Formato de imagen de alta eficiencia de Apple (iOS 11+).',
+                conversions: ['jpg', 'png'],
+                systems: ['iOS', 'macOS', 'Windows (con conversor)']
+            },
+
+            // VIDEO
+            'mp4': {
+                name: 'MPEG-4 Video',
+                type: 'Video',
+                category: 'Video',
+                programs: ['VLC', 'Windows Media Player', 'QuickTime', 'PotPlayer', 'MPV'],
+                idealProgram: 'VLC',
+                description: 'Formato de video universal más usado.',
+                conversions: ['avi', 'mkv', 'mov', 'webm', 'gif'],
+                systems: ['Todos los sistemas']
+            },
+            'avi': {
+                name: 'Audio Video Interleave',
+                type: 'Video',
+                category: 'Video',
+                programs: ['VLC', 'Windows Media Player', 'KMPlayer', 'PotPlayer'],
+                idealProgram: 'VLC',
+                description: 'Formato de video de Microsoft (más antiguo).',
+                conversions: ['mp4', 'mkv', 'mov'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'mkv': {
+                name: 'Matroska Video',
+                type: 'Video',
+                category: 'Video',
+                programs: ['VLC', 'MPV', 'PotPlayer', 'KMPlayer', 'MPC-HC'],
+                idealProgram: 'VLC',
+                description: 'Contenedor de video flexible con múltiples pistas de audio/subtítulos.',
+                conversions: ['mp4', 'avi', 'mov'],
+                systems: ['Todos los sistemas']
+            },
+            'mov': {
+                name: 'QuickTime Movie',
+                type: 'Video',
+                category: 'Video',
+                programs: ['QuickTime Player', 'VLC', 'Final Cut Pro', 'iMovie'],
+                idealProgram: 'QuickTime Player',
+                description: 'Formato de video de Apple.',
+                conversions: ['mp4', 'avi', 'mkv'],
+                systems: ['macOS', 'iOS', 'Windows (con QuickTime)']
+            },
+            'webm': {
+                name: 'WebM Video',
+                type: 'Video',
+                category: 'Video',
+                programs: ['VLC', 'Navegadores web', 'MPV'],
+                idealProgram: 'Navegadores web',
+                description: 'Formato de video web abierto de Google.',
+                conversions: ['mp4', 'mkv'],
+                systems: ['Todos los sistemas']
+            },
+            'wmv': {
+                name: 'Windows Media Video',
+                type: 'Video',
+                category: 'Video',
+                programs: ['Windows Media Player', 'VLC', 'PotPlayer'],
+                idealProgram: 'Windows Media Player',
+                description: 'Formato de video de Microsoft.',
+                conversions: ['mp4', 'avi'],
+                systems: ['Windows']
+            },
+
+            // AUDIO
+            'mp3': {
+                name: 'MP3 Audio',
+                type: 'Audio',
+                category: 'Audio',
+                programs: ['VLC', 'Windows Media Player', 'iTunes', 'Winamp', 'foobar2000'],
+                idealProgram: 'foobar2000',
+                description: 'Formato de audio comprimido más usado.',
+                conversions: ['wav', 'flac', 'ogg', 'aac', 'm4a'],
+                systems: ['Todos los sistemas']
+            },
+            'wav': {
+                name: 'Waveform Audio',
+                type: 'Audio',
+                category: 'Audio',
+                programs: ['VLC', 'Audacity', 'Windows Media Player', 'foobar2000'],
+                idealProgram: 'Audacity',
+                description: 'Audio sin comprimir de alta calidad.',
+                conversions: ['mp3', 'flac', 'ogg', 'aac'],
+                systems: ['Todos los sistemas']
+            },
+            'flac': {
+                name: 'Free Lossless Audio Codec',
+                type: 'Audio',
+                category: 'Audio',
+                programs: ['VLC', 'foobar2000', 'Audacity', 'Clementine'],
+                idealProgram: 'foobar2000',
+                description: 'Audio comprimido sin pérdida de calidad.',
+                conversions: ['mp3', 'wav', 'ogg', 'alac'],
+                systems: ['Todos los sistemas']
+            },
+            'ogg': {
+                name: 'OGG Vorbis',
+                type: 'Audio',
+                category: 'Audio',
+                programs: ['VLC', 'foobar2000', 'Audacity'],
+                idealProgram: 'VLC',
+                description: 'Formato de audio libre y sin patentes.',
+                conversions: ['mp3', 'wav', 'flac'],
+                systems: ['Todos los sistemas']
+            },
+            'aac': {
+                name: 'Advanced Audio Coding',
+                type: 'Audio',
+                category: 'Audio',
+                programs: ['iTunes', 'VLC', 'foobar2000', 'Windows Media Player'],
+                idealProgram: 'iTunes',
+                description: 'Audio de alta calidad usado en iTunes y YouTube.',
+                conversions: ['mp3', 'wav', 'flac', 'm4a'],
+                systems: ['Todos los sistemas']
+            },
+            'm4a': {
+                name: 'MPEG-4 Audio',
+                type: 'Audio',
+                category: 'Audio',
+                programs: ['iTunes', 'VLC', 'Windows Media Player', 'QuickTime'],
+                idealProgram: 'iTunes',
+                description: 'Contenedor de audio AAC de Apple.',
+                conversions: ['mp3', 'aac', 'wav'],
+                systems: ['Todos los sistemas']
+            },
+
+            // DOCUMENTOS
+            'pdf': {
+                name: 'Portable Document Format',
+                type: 'Documento',
+                category: 'Documentos',
+                programs: ['Adobe Acrobat', 'Foxit Reader', 'PDF-XChange', 'Navegadores web'],
+                idealProgram: 'Adobe Acrobat',
+                description: 'Formato universal de documentos.',
+                conversions: ['docx', 'txt', 'jpg', 'png', 'epub'],
+                systems: ['Todos los sistemas']
+            },
+            'docx': {
+                name: 'Word Document',
+                type: 'Documento',
+                category: 'Documentos',
+                programs: ['Microsoft Word', 'LibreOffice Writer', 'Google Docs', 'WPS Office'],
+                idealProgram: 'Microsoft Word',
+                description: 'Documento de Microsoft Word (formato XML).',
+                conversions: ['pdf', 'txt', 'odt', 'rtf', 'html'],
+                systems: ['Windows', 'macOS', 'Linux', 'Web']
+            },
+            'xlsx': {
+                name: 'Excel Spreadsheet',
+                type: 'Hoja de Cálculo',
+                category: 'Documentos',
+                programs: ['Microsoft Excel', 'LibreOffice Calc', 'Google Sheets', 'WPS Office'],
+                idealProgram: 'Microsoft Excel',
+                description: 'Hoja de cálculo de Microsoft Excel.',
+                conversions: ['csv', 'pdf', 'ods', 'xls', 'html'],
+                systems: ['Windows', 'macOS', 'Linux', 'Web']
+            },
+            'pptx': {
+                name: 'PowerPoint Presentation',
+                type: 'Presentación',
+                category: 'Documentos',
+                programs: ['Microsoft PowerPoint', 'LibreOffice Impress', 'Google Slides', 'WPS Office'],
+                idealProgram: 'Microsoft PowerPoint',
+                description: 'Presentación de Microsoft PowerPoint.',
+                conversions: ['pdf', 'odp', 'ppt', 'html'],
+                systems: ['Windows', 'macOS', 'Linux', 'Web']
+            },
+            'txt': {
+                name: 'Plain Text',
+                type: 'Texto Plano',
+                category: 'Documentos',
+                programs: ['Notepad', 'Notepad++', 'Vim', 'Visual Studio Code', 'Sublime Text'],
+                idealProgram: 'Notepad++',
+                description: 'Archivo de texto plano sin formato.',
+                conversions: ['pdf', 'docx', 'html', 'md'],
+                systems: ['Todos los sistemas']
+            },
+            'md': {
+                name: 'Markdown Document',
+                type: 'Documento',
+                category: 'Documentos',
+                programs: ['Visual Studio Code', 'Typora', 'Mark Text', 'Obsidian', 'GitHub'],
+                idealProgram: 'Typora',
+                description: 'Documento Markdown para documentación técnica.',
+                conversions: ['html', 'pdf', 'docx', 'txt'],
+                systems: ['Todos los sistemas']
+            },
+
+            // COMPRIMIDOS
+            'zip': {
+                name: 'ZIP Archive',
+                type: 'Archivo Comprimido',
+                category: 'Comprimidos',
+                programs: ['WinZip', 'WinRAR', '7-Zip', 'PeaZip', 'Windows Explorer'],
+                idealProgram: '7-Zip',
+                description: 'Archivo comprimido universal.',
+                conversions: ['rar', '7z', 'tar', 'gz'],
+                systems: ['Todos los sistemas']
+            },
+            'rar': {
+                name: 'RAR Archive',
+                type: 'Archivo Comprimido',
+                category: 'Comprimidos',
+                programs: ['WinRAR', '7-Zip', 'PeaZip', 'The Unarchiver'],
+                idealProgram: 'WinRAR',
+                description: 'Archivo comprimido RAR (mejor compresión que ZIP).',
+                conversions: ['zip', '7z', 'tar'],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            '7z': {
+                name: '7-Zip Archive',
+                type: 'Archivo Comprimido',
+                category: 'Comprimidos',
+                programs: ['7-Zip', 'PeaZip', 'WinRAR'],
+                idealProgram: '7-Zip',
+                description: 'Formato de compresión de alta eficiencia.',
+                conversions: ['zip', 'rar', 'tar'],
+                systems: ['Todos los sistemas']
+            },
+            'tar': {
+                name: 'Tarball Archive',
+                type: 'Archivo',
+                category: 'Comprimidos',
+                programs: ['tar (comando)', '7-Zip', 'WinRAR', 'The Unarchiver'],
+                idealProgram: 'tar (Linux/macOS)',
+                description: 'Formato de archivo usado en Linux/Unix.',
+                conversions: ['tar.gz', 'zip', '7z'],
+                systems: ['Linux', 'macOS', 'Windows']
+            },
+            'gz': {
+                name: 'Gzip Compressed',
+                type: 'Archivo Comprimido',
+                category: 'Comprimidos',
+                programs: ['gzip (comando)', '7-Zip', 'WinRAR'],
+                idealProgram: 'gzip (Linux/macOS)',
+                description: 'Compresión GNU zip, común en Linux.',
+                conversions: ['zip', 'tar.gz'],
+                systems: ['Linux', 'macOS', 'Windows']
+            },
+
+            // SISTEMAS OPERATIVOS
+            'deb': {
+                name: 'Debian Package',
+                type: 'Paquete',
+                category: 'Sistemas',
+                programs: ['dpkg', 'apt', 'GDebi', 'Ubuntu Software Center'],
+                idealProgram: 'apt (terminal)',
+                description: 'Paquete de software para Debian/Ubuntu Linux.',
+                conversions: [],
+                systems: ['Debian', 'Ubuntu', 'Linux Mint']
+            },
+            'rpm': {
+                name: 'Red Hat Package Manager',
+                type: 'Paquete',
+                category: 'Sistemas',
+                programs: ['rpm', 'yum', 'dnf', 'YaST'],
+                idealProgram: 'dnf (terminal)',
+                description: 'Paquete de software para Red Hat/Fedora Linux.',
+                conversions: [],
+                systems: ['Fedora', 'Red Hat', 'openSUSE']
+            },
+            'appimage': {
+                name: 'AppImage',
+                type: 'Ejecutable',
+                category: 'Sistemas',
+                programs: ['Linux (ejecución directa)'],
+                idealProgram: 'Ejecución directa (chmod +x)',
+                description: 'Aplicación portable universal para Linux.',
+                conversions: [],
+                systems: ['Todas las distribuciones Linux']
+            },
+            'dmg': {
+                name: 'Apple Disk Image',
+                type: 'Imagen de Disco',
+                category: 'Sistemas',
+                programs: ['macOS (montar automático)', 'Finder'],
+                idealProgram: 'macOS Finder',
+                description: 'Imagen de disco para instalar aplicaciones en macOS.',
+                conversions: ['iso', 'zip'],
+                systems: ['macOS']
+            },
+            'ipa': {
+                name: 'iOS App Store Package',
+                type: 'Aplicación',
+                category: 'Sistemas',
+                programs: ['iTunes', 'Xcode', 'Apple Configurator', 'Dispositivos iOS'],
+                idealProgram: 'App Store (iOS)',
+                description: 'Paquete de aplicación iOS/iPadOS.',
+                conversions: [],
+                systems: ['iOS', 'iPadOS', 'macOS ARM']
+            },
+            'exe': {
+                name: 'Windows Executable',
+                type: 'Ejecutable',
+                category: 'Sistemas',
+                programs: ['Windows'],
+                idealProgram: 'Windows',
+                description: 'Archivo ejecutable de Windows.',
+                conversions: [],
+                systems: ['Windows']
+            },
+            'msi': {
+                name: 'Windows Installer Package',
+                type: 'Instalador',
+                category: 'Sistemas',
+                programs: ['Windows Installer', 'msiexec'],
+                idealProgram: 'Windows Installer',
+                description: 'Paquete instalador de Windows.',
+                conversions: [],
+                systems: ['Windows']
+            },
+            'iso': {
+                name: 'ISO Disk Image',
+                type: 'Imagen de Disco',
+                category: 'Sistemas',
+                programs: ['Daemon Tools', 'PowerISO', 'Rufus', 'Windows 10/11 (montar)'],
+                idealProgram: 'Rufus (para USB booteable)',
+                description: 'Imagen de disco para CDs/DVDs y sistemas operativos.',
+                conversions: ['zip', 'dmg'],
+                systems: ['Todos los sistemas']
+            },
+
+            // GitHub y Git
+            'gitignore': {
+                name: 'Git Ignore File',
+                type: 'Configuración',
+                category: 'Git',
+                programs: ['Git', 'Visual Studio Code', 'Cualquier editor de texto'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Archivo para especificar qué archivos ignorar en Git.',
+                conversions: [],
+                systems: ['Todos los sistemas']
+            },
+            'md': {
+                name: 'Markdown (README)',
+                type: 'Documentación',
+                category: 'Git',
+                programs: ['GitHub', 'GitLab', 'Visual Studio Code', 'Typora'],
+                idealProgram: 'Visual Studio Code',
+                description: 'README y documentación en repositorios.',
+                conversions: ['html', 'pdf'],
+                systems: ['Todos los sistemas']
+            },
+
+            // Adicionales importantes
+            'yml': {
+                name: 'YAML File',
+                type: 'Configuración',
+                category: 'Datos',
+                programs: ['Visual Studio Code', 'Notepad++', 'Sublime Text'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Archivo de configuración YAML usado en Docker, Kubernetes, CI/CD.',
+                conversions: ['json', 'xml'],
+                systems: ['Todos los sistemas']
+            },
+            'dockerfile': {
+                name: 'Docker Configuration',
+                type: 'Configuración',
+                category: 'DevOps',
+                programs: ['Docker', 'Visual Studio Code', 'Notepad++'],
+                idealProgram: 'Visual Studio Code',
+                description: 'Archivo de configuración para contenedores Docker.',
+                conversions: [],
+                systems: ['Windows', 'Linux', 'macOS']
+            },
+            'jar': {
+                name: 'Java Archive',
+                type: 'Ejecutable',
+                category: 'Programación',
+                programs: ['Java Runtime Environment (JRE)', 'Eclipse', 'IntelliJ IDEA'],
+                idealProgram: 'Java Runtime Environment',
+                description: 'Archivo ejecutable Java.',
+                conversions: ['zip (descomprimir)'],
+                systems: ['Todos los sistemas']
+            },
+            'dll': {
+                name: 'Dynamic Link Library',
+                type: 'Librería',
+                category: 'Sistemas',
+                programs: ['Windows', 'Visual Studio', 'Dependency Walker'],
+                idealProgram: 'Windows (uso interno)',
+                description: 'Librería dinámica de Windows.',
+                conversions: [],
+                systems: ['Windows']
+            },
+            'so': {
+                name: 'Shared Object Library',
+                type: 'Librería',
+                category: 'Sistemas',
+                programs: ['Linux', 'GCC', 'ldd'],
+                idealProgram: 'Linux (uso interno)',
+                description: 'Librería compartida de Linux.',
+                conversions: [],
+                systems: ['Linux']
+            },
+            'bat': {
+                name: 'Batch File',
+                type: 'Script',
+                category: 'Sistemas',
+                programs: ['Command Prompt', 'Notepad', 'Notepad++'],
+                idealProgram: 'Command Prompt',
+                description: 'Script por lotes de Windows.',
+                conversions: ['ps1 (PowerShell)'],
+                systems: ['Windows']
+            },
+            'ps1': {
+                name: 'PowerShell Script',
+                type: 'Script',
+                category: 'Sistemas',
+                programs: ['PowerShell', 'Windows PowerShell ISE', 'Visual Studio Code'],
+                idealProgram: 'PowerShell',
+                description: 'Script de PowerShell para automatización en Windows.',
+                conversions: [],
+                systems: ['Windows', 'Linux (PowerShell Core)', 'macOS (PowerShell Core)']
+            }
+        };
+
+        // Categorías de conversión
+        const conversionCategories = {
+            'Audio': {
+                icon: '🎵',
+                extensions: ['mp3', 'wav', 'flac', 'ogg', 'aac', 'm4a'],
+                description: 'Conversión entre formatos de audio con o sin pérdida',
+                tools: ['Audacity', 'foobar2000', 'FFmpeg', 'VLC']
+            },
+            'Video': {
+                icon: '🎬',
+                extensions: ['mp4', 'avi', 'mkv', 'mov', 'webm', 'wmv'],
+                description: 'Conversión entre formatos de video',
+                tools: ['HandBrake', 'FFmpeg', 'VLC', 'Adobe Premiere']
+            },
+            'Imágenes': {
+                icon: '🖼️',
+                extensions: ['jpg', 'png', 'gif', 'bmp', 'svg', 'webp', 'heic', 'raw'],
+                description: 'Conversión entre formatos de imagen y optimización',
+                tools: ['Photoshop', 'GIMP', 'ImageMagick', 'XnConvert']
+            },
+            'Documentos': {
+                icon: '📄',
+                extensions: ['pdf', 'docx', 'xlsx', 'pptx', 'txt', 'md'],
+                description: 'Conversión entre formatos de documentos',
+                tools: ['Microsoft Office', 'LibreOffice', 'Pandoc', 'Adobe Acrobat']
+            },
+            'Código': {
+                icon: '💻',
+                extensions: ['py', 'java', 'js', 'ts', 'c', 'cpp', 'cs', 'go', 'rs'],
+                description: 'Transpilación y conversión de código',
+                tools: ['Visual Studio Code', 'Babel', 'TypeScript Compiler', 'Pandoc']
+            },
+            'Comprimidos': {
+                icon: '📦',
+                extensions: ['zip', 'rar', '7z', 'tar', 'gz'],
+                description: 'Conversión entre formatos de archivo comprimido',
+                tools: ['7-Zip', 'WinRAR', 'PeaZip', 'The Unarchiver']
+            },
+            'CAD/3D': {
+                icon: '📐',
+                extensions: ['dwg', 'dxf', 'ipt', 'iam', 'skp'],
+                description: 'Conversión entre formatos CAD y 3D',
+                tools: ['AutoCAD', 'Inventor', 'FreeCAD', 'Blender']
+            },
+            'Datos': {
+                icon: '🗃️',
+                extensions: ['json', 'xml', 'csv', 'yml', 'sql'],
+                description: 'Conversión entre formatos de datos estructurados',
+                tools: ['Visual Studio Code', 'jq', 'Notepad++', 'Excel']
+            }
+        };
+
+        function switchTab(index) {
+            // Actualizar tabs
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            contents.forEach((content, i) => {
+                if (i === index) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+
+            // Cargar contenido según la pestaña
+            if (index === 1 && document.getElementById('conversionGrid').children.length === 0) {
+                loadConversionTab();
+            } else if (index === 2 && document.getElementById('statsGrid').children.length === 0) {
+                loadStatsTab();
+            }
+        }
+
+        function searchExtension() {
+            const input = document.getElementById('extensionInput').value.trim().toLowerCase();
+            const resultsDiv = document.getElementById('searchResults');
+
+            if (!input) {
+                resultsDiv.innerHTML = '<div class="alert">Por favor, introduce una extensión de archivo</div>';
+                return;
+            }
+
+            // Limpiar el punto inicial si existe
+            const extension = input.replace(/^\./, '');
+
+            // Buscar en la base de datos
+            const data = extensionsDatabase[extension];
+
+            if (data) {
+                resultsDiv.innerHTML = `
+                    <div class="result-card">
+                        <h2>.${extension.toUpperCase()} - ${data.name}</h2>
+
+                        <div class="result-section">
+                            <h3>📋 Información General</h3>
+                            <p><strong>Tipo:</strong> ${data.type}</p>
+                            <p><strong>Categoría:</strong> ${data.category}</p>
+                            <p><strong>Descripción:</strong> ${data.description}</p>
+                        </div>
+
+                        <div class="result-section">
+                            <h3>💻 Programas Compatibles</h3>
+                            <p><strong>Programa Ideal:</strong> <span class="badge primary">${data.idealProgram}</span></p>
+                            <p><strong>Otras opciones:</strong></p>
+                            <div>
+                                ${data.programs.map(p => `<span class="badge">${p}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        ${data.conversions.length > 0 ? `
+                        <div class="result-section">
+                            <h3>🔄 Conversiones Posibles</h3>
+                            <div>
+                                ${data.conversions.map(c => `<span class="badge warning">${c}</span>`).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <div class="result-section">
+                            <h3>🌍 Sistemas Operativos</h3>
+                            <div>
+                                ${data.systems.map(s => `<span class="badge">${s}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        ${extension.includes('ap1') || extension.includes('zap') || extension.includes('smc') || extension.includes('csm') ? `
+                        <div class="info-box">
+                            <strong>💡 Información adicional para automatización industrial:</strong><br>
+                            Este formato es específico para programación de PLCs. Los archivos .zap son archivos comprimidos en formato ZIP internamente.
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <h3>🔍 Extensión no encontrada</h3>
+                        <p>No se encontró información para la extensión ".${extension}"</p>
+                        <p>Base de datos actual: ${Object.keys(extensionsDatabase).length} extensiones</p>
+                    </div>
+                `;
+            }
+        }
+
+        function loadConversionTab() {
+            const grid = document.getElementById('conversionGrid');
+
+            Object.entries(conversionCategories).forEach(([category, data]) => {
+                const card = document.createElement('div');
+                card.className = 'conversion-card';
+                card.innerHTML = `
+                    <h3>${data.icon} ${category}</h3>
+                    <p style="color: #6c757d; margin-bottom: 15px;">${data.description}</p>
+                    <div class="extensions">
+                        ${data.extensions.map(ext => `<span class="badge">.${ext}</span>`).join('')}
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong style="color: #495057;">Herramientas:</strong><br>
+                        <span style="color: #6c757d;">${data.tools.join(', ')}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function loadStatsTab() {
+            const statsGrid = document.getElementById('statsGrid');
+            const categoryFilter = document.getElementById('categoryFilter');
+
+            // Calcular estadísticas
+            const categories = {};
+            Object.values(extensionsDatabase).forEach(ext => {
+                categories[ext.category] = (categories[ext.category] || 0) + 1;
+            });
+
+            // Mostrar estadísticas generales
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="number">${Object.keys(extensionsDatabase).length}</div>
+                    <div class="label">Total de Extensiones</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${Object.keys(categories).length}</div>
+                    <div class="label">Categorías</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${Object.keys(conversionCategories).length}</div>
+                    <div class="label">Tipos de Conversión</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">15+</div>
+                    <div class="label">IDEs Soportados</div>
+                </div>
+            `;
+
+            // Botones de filtro por categoría
+            categoryFilter.innerHTML = '<h3 style="color: #495057; margin-bottom: 15px; width: 100%;">Explorar por Categoría</h3>';
+            Object.entries(categories).forEach(([category, count]) => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = `${category} (${count})`;
+                btn.onclick = () => filterByCategory(category);
+                categoryFilter.appendChild(btn);
+            });
+        }
+
+        function filterByCategory(category) {
+            const resultsDiv = document.getElementById('categoryResults');
+            const filtered = Object.entries(extensionsDatabase)
+                .filter(([_, data]) => data.category === category);
+
+            resultsDiv.innerHTML = `
+                <h3 style="color: #495057; margin: 30px 0 20px;">Extensiones en: ${category}</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+                    ${filtered.map(([ext, data]) => `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer;"
+                             onclick="document.getElementById('extensionInput').value='${ext}'; switchTab(0); searchExtension();">
+                            <strong style="color: #667eea; font-size: 1.2em;">.${ext}</strong><br>
+                            <span style="color: #6c757d; font-size: 0.9em;">${data.name}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Focus en el input al cargar
+        window.onload = () => {
+            document.getElementById('extensionInput').focus();
+        };
+    </script>
+</body>
+</html>
