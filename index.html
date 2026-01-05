@@ -346,6 +346,344 @@
         #enlaces-content {
             background: #f5f5f0;
         }
+
+        /* ============================================
+           ESTILOS CARTEL "PRÓXIMAMENTE" ESTILO PIXAR
+           ============================================ */
+
+        .coming-soon-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 450px;
+            perspective: 1000px;
+            position: relative;
+        }
+
+        /* Cartel de cartón */
+        .cardboard-sign {
+            position: relative;
+            background: linear-gradient(145deg, #c9a66b 0%, #a67c52 25%, #8b5a2b 50%, #a67c52 75%, #c9a66b 100%);
+            border-radius: 15px;
+            padding: 60px 80px;
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.3),
+                inset 0 2px 10px rgba(255,255,255,0.2),
+                inset 0 -5px 20px rgba(0,0,0,0.2);
+            transform: rotate(-2deg);
+            animation: cardboard-float 4s ease-in-out infinite;
+            max-width: 90%;
+            width: 600px;
+        }
+
+        /* Textura de cartón ondulado */
+        .cardboard-sign::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(139, 90, 43, 0.3) 3px,
+                    rgba(139, 90, 43, 0.3) 6px
+                );
+            border-radius: 15px;
+            pointer-events: none;
+        }
+
+        /* Borde de cartón rasgado */
+        .cardboard-sign::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border: 4px dashed rgba(101, 67, 33, 0.5);
+            border-radius: 18px;
+            pointer-events: none;
+        }
+
+        @keyframes cardboard-float {
+            0%, 100% { transform: rotate(-2deg) translateY(0); }
+            50% { transform: rotate(-1deg) translateY(-10px); }
+        }
+
+        /* Chinchetas */
+        .thumbtack {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #c0392b);
+            border-radius: 50%;
+            box-shadow:
+                2px 3px 5px rgba(0,0,0,0.4),
+                inset -2px -2px 4px rgba(0,0,0,0.3),
+                inset 2px 2px 4px rgba(255,255,255,0.3);
+            top: 15px;
+            z-index: 10;
+        }
+
+        .thumbtack-left { left: 30px; }
+        .thumbtack-right { right: 30px; }
+
+        .thumbtack::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #fff 0%, #ffcccb 100%);
+            border-radius: 50%;
+        }
+
+        /* Cinta adhesiva */
+        .tape {
+            position: absolute;
+            width: 80px;
+            height: 25px;
+            background: linear-gradient(180deg, rgba(255,235,180,0.8) 0%, rgba(255,220,150,0.9) 100%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 5;
+        }
+
+        .tape-top-left {
+            top: -10px;
+            left: 50px;
+            transform: rotate(-15deg);
+        }
+
+        .tape-top-right {
+            top: -10px;
+            right: 50px;
+            transform: rotate(15deg);
+        }
+
+        /* Contenido del cartel */
+        .cardboard-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Mascota escribiendo */
+        .mascot-writer {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            animation: mascot-entrance 1s ease-out forwards;
+            opacity: 0;
+            transform: translateY(-50px) scale(0.5);
+        }
+
+        @keyframes mascot-entrance {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(10px) scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .mascot-image {
+            width: 100px;
+            height: auto;
+            filter: drop-shadow(3px 5px 8px rgba(0,0,0,0.3));
+            animation: mascot-bounce 2s ease-in-out infinite 1s;
+        }
+
+        @keyframes mascot-bounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-5px) rotate(-2deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(-3px) rotate(2deg); }
+        }
+
+        /* Mano con lápiz */
+        .pencil-hand {
+            position: absolute;
+            bottom: -10px;
+            right: -25px;
+            animation: writing-motion 0.5s ease-in-out infinite;
+        }
+
+        @keyframes writing-motion {
+            0%, 100% { transform: rotate(-10deg) translateX(0); }
+            50% { transform: rotate(5deg) translateX(5px); }
+        }
+
+        .pencil-svg {
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.3));
+        }
+
+        /* Texto Próximamente */
+        .handwriting-container {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .handwriting-text {
+            font-family: 'Kalam', cursive;
+            font-size: 4rem;
+            font-weight: 700;
+            color: #2c1810;
+            text-shadow:
+                2px 2px 0 rgba(255,255,255,0.3),
+                -1px -1px 0 rgba(0,0,0,0.2);
+            display: flex;
+            margin: 0;
+        }
+
+        .handwriting-text .letter {
+            opacity: 0;
+            animation: letter-appear 0.3s ease-out forwards;
+            animation-delay: var(--delay);
+            transform: translateY(20px) rotate(-10deg);
+        }
+
+        @keyframes letter-appear {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) rotate(-10deg) scale(0.5);
+            }
+            50% {
+                transform: translateY(-5px) rotate(5deg) scale(1.2);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+        }
+
+        /* Puntos animados */
+        .dots-animation {
+            display: flex;
+            margin-left: 5px;
+        }
+
+        .dots-animation .dot {
+            font-family: 'Kalam', cursive;
+            font-size: 4rem;
+            font-weight: 700;
+            color: #2c1810;
+            opacity: 0;
+            animation: dot-bounce 1s ease-in-out infinite;
+            animation-delay: var(--dot-delay);
+        }
+
+        @keyframes dot-bounce {
+            0%, 100% { opacity: 0; transform: translateY(0); }
+            20% { opacity: 1; transform: translateY(-10px); }
+            40%, 80% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Subtítulo */
+        .subtitle-text {
+            font-family: 'Kalam', cursive;
+            font-size: 1.3rem;
+            color: #4a3728;
+            opacity: 0;
+            animation: fade-in-up 0.5s ease-out forwards;
+            animation-delay: 2s;
+            text-align: center;
+        }
+
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Destellos/Sparkles */
+        .sparkles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, #ffd700 0%, transparent 70%);
+            border-radius: 50%;
+            animation: sparkle-twinkle 2s ease-in-out infinite;
+        }
+
+        .sparkle-1 { top: 20%; left: 10%; animation-delay: 0s; }
+        .sparkle-2 { top: 30%; right: 15%; animation-delay: 0.3s; }
+        .sparkle-3 { bottom: 25%; left: 20%; animation-delay: 0.6s; }
+        .sparkle-4 { bottom: 40%; right: 10%; animation-delay: 0.9s; }
+        .sparkle-5 { top: 50%; left: 5%; animation-delay: 1.2s; }
+
+        @keyframes sparkle-twinkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5) rotate(180deg);
+            }
+        }
+
+        /* Responsive para móviles */
+        @media (max-width: 640px) {
+            .cardboard-sign {
+                padding: 40px 30px;
+                width: 95%;
+            }
+
+            .handwriting-text {
+                font-size: 2.5rem;
+            }
+
+            .dots-animation .dot {
+                font-size: 2.5rem;
+            }
+
+            .mascot-image {
+                width: 70px;
+            }
+
+            .subtitle-text {
+                font-size: 1rem;
+            }
+
+            .thumbtack-left { left: 15px; }
+            .thumbtack-right { right: 15px; }
+
+            .tape-top-left { left: 20px; }
+            .tape-top-right { right: 20px; }
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-4 sm:p-8 transition-all duration-500">
@@ -395,7 +733,115 @@
                     <!-- Grid de noticias -->
                     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="news-grid">
 
-                        <!-- Noticia 1: Gemini 3 -->
+                        <!-- CES 2026: IA Transversal -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                                <i class="fas fa-microchip text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <span class="text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-1 rounded mb-2 inline-block">CES 2026</span>
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">CES 2026: La IA Se Integra en Todo</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>El CES 2026 arranca en Las Vegas con más de 140.000 asistentes. La inteligencia artificial es protagonista absoluta, integrándose en electrodomésticos, automóviles, wearables y sistemas de entretenimiento...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>El CES 2026 arranca en Las Vegas del 6 al 9 de enero con más de 140.000 asistentes y 450 empresas participantes. La inteligencia artificial es protagonista absoluta, integrándose transversalmente en todo tipo de producto. Samsung presenta su visión "Companion to AI Living" donde la IA será parte integral del día a día. LG exhibe electrodomésticos inteligentes, televisores y su nuevo robot doméstico CLOiD. Los "world models" ganan popularidad como clave para crear IA en robótica y videojuegos, mientras los agentes de IA se vuelven más autónomos y menos pasivos.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Intel Panther Lake -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center">
+                                <i class="fas fa-memory text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <span class="text-xs font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded mb-2 inline-block">CES 2026</span>
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Intel Panther Lake: Nueva Era de Procesadores con IA</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Intel presenta los procesadores Core Ultra Serie 3 "Panther Lake" en CES 2026. La nueva generación promete eficiencia extrema y capacidades de IA locales sin precedentes...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Intel celebra el 6 de enero el lanzamiento global de los procesadores Intel Core Ultra Serie 3, conocidos como "Panther Lake". Estos chips marcan una nueva era de computadoras ultraportátiles y eficientes, capaces de ejecutar funciones avanzadas de IA localmente sin depender de la nube. La arquitectura optimizada ofrece mayor rendimiento por watt y autonomía extendida. AMD responde con evolución de Ryzen AI y Qualcomm con Snapdragon X2 Elite, intensificando la competencia en procesadores con NPU integrada para aplicaciones de inteligencia artificial.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Robots Humanoides StarBot -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center">
+                                <i class="fas fa-robot text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <span class="text-xs font-semibold text-purple-600 bg-purple-100 px-2 py-1 rounded mb-2 inline-block">CES 2026</span>
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">StarBot: Robots Humanoides de Servicio Llegan al CES</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Los robots humanoides de servicio como StarBot debutan en CES 2026, diseñados para operar en restaurantes, hoteles, almacenes y hogares con percepción avanzada e interacción natural...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Uno de los focos principales del CES 2026 es la robótica humanoide de servicio, representada por proyectos como StarBot. Estos robots están diseñados para operar en entornos reales como restaurantes, hoteles, almacenes y hogares, apoyando al personal en tareas repetitivas. Los sistemas combinan percepción visual, movimiento coordinado e interacción natural, permitiendo desplazarse entre personas, comunicarse con usuarios y gestionar múltiples tareas de forma autónoma. Boston Dynamics confirma que la IA ha acelerado significativamente el desarrollo de sus robots, incluyendo su famoso perro robot Spot.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- LG CLOiD Robot Doméstico -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center">
+                                <i class="fas fa-home text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <span class="text-xs font-semibold text-red-600 bg-red-100 px-2 py-1 rounded mb-2 inline-block">CES 2026</span>
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">LG CLOiD: El Robot que Revoluciona el Hogar Inteligente</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>LG presenta CLOiD, su nuevo robot doméstico con IA avanzada en CES 2026. Integrado con electrodomésticos inteligentes, promete transformar la experiencia del hogar conectado...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>LG presenta el 5 de enero sus novedades en soluciones para el hogar, destacando el nuevo robot doméstico CLOiD. Este asistente robótico se integra con el ecosistema de electrodomésticos inteligentes de LG, incluyendo televisores, sistemas de sonido y monitores gaming. CLOiD utiliza IA para aprender las rutinas del hogar, anticipar necesidades y coordinar dispositivos automáticamente. La visión de LG es crear un hogar verdaderamente inteligente donde la tecnología trabaja en armonía para mejorar la calidad de vida de sus habitantes.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- World Models IA -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+                                <i class="fas fa-globe text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <span class="text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded mb-2 inline-block">Tendencias 2026</span>
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">World Models: La Nueva Frontera de la IA en 2026</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Los "world models" emergen como tendencia clave para 2026, superando las limitaciones de los LLMs tradicionales. Son fundamentales para crear IA en robótica y videojuegos...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>A medida que usuarios se cansan del "AI slop" y las limitaciones de los LLMs tradicionales, los "world models" ganan protagonismo en 2026. Estos modelos van más allá del procesamiento de texto, creando representaciones internas del mundo físico que permiten a la IA entender causa-efecto, física y espacialidad. Son clave para crear robots que interactúen naturalmente con el entorno y videojuegos con NPCs verdaderamente inteligentes. Se espera una IA más poderosa donde los agentes toman acciones autónomas sin requerir instrucciones humanas constantes, transformando cómo interactuamos con sistemas inteligentes.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Snapdragon X2 Elite -->
+                        <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <div class="news-image-container h-48 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                                <i class="fas fa-bolt text-white text-6xl"></i>
+                            </div>
+                            <div class="p-5">
+                                <span class="text-xs font-semibold text-amber-600 bg-amber-100 px-2 py-1 rounded mb-2 inline-block">CES 2026</span>
+                                <h3 class="font-bold text-lg mb-2 text-gray-800">Qualcomm Snapdragon X2 Elite: IA Portátil de Nueva Generación</h3>
+                                <div class="news-preview text-sm text-gray-600 mb-3">
+                                    <p>Qualcomm presenta el Snapdragon X2 Elite en CES 2026, prometiendo portátiles ultraeficientes con NPU mejorada para ejecutar modelos de IA localmente con autonomía récord...</p>
+                                </div>
+                                <div class="news-full-content hidden text-sm text-gray-600 mb-3">
+                                    <p>Qualcomm eleva la competencia en procesadores ARM para portátiles con el Snapdragon X2 Elite presentado en CES 2026. La segunda generación de su plataforma para Windows promete mejoras significativas en rendimiento CPU y GPU, pero el foco está en la NPU de nueva generación capaz de ejecutar modelos de IA complejos localmente. Los fabricantes de portátiles anuncian dispositivos con más de 24 horas de autonomía y capacidades de IA que antes solo eran posibles en la nube. La competencia con Intel Panther Lake y AMD Ryzen AI define el futuro de la computación personal inteligente.</p>
+                                </div>
+                                <button class="read-more-btn text-blue-600 hover:text-blue-800 font-semibold text-sm">Leer más →</button>
+                            </div>
+                        </article>
+
+                        <!-- Noticia: Gemini 3 -->
                         <article class="news-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
                             <div class="news-image-container h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                                 <i class="fas fa-brain text-white text-6xl"></i>
@@ -913,17 +1359,69 @@
                 <header class="section__header">
                     <h2 id="apps-title" class="text-3xl font-bold">Aplicaciones</h2>
                 </header>
-                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-4">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2">
-                        <h3 class="text-xl font-semibold">🎵 Fustibanda de Fustiñana</h3>
-                        <p class="text-sm text-gray-700">Estudio musical virtual interactivo con instrumentos tradicionales y modernos. Toca marimba, batería, timbal, castañuelas, zambomba y más. Incluye metrónomo, grabador de loops y efectos de sonido.</p>
-                        <a href="apps/fustibanda/index.html" class="text-blue-600 hover:text-blue-800 font-semibold">Abrir aplicación →</a>
-                    </article>
-                    <article class="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2">
-                        <h3 class="text-xl font-semibold">📱 Instagram Video Downloader</h3>
-                        <p class="text-sm text-gray-700">Descarga vídeos de Instagram de forma rápida y gratuita. Simplemente pega el enlace del vídeo y descárgalo en alta calidad. Compatible con posts, reels y vídeos IGTV.</p>
-                        <a href="apps/instagram-downloader/index.html" class="text-blue-600 hover:text-blue-800 font-semibold">Abrir aplicación →</a>
-                    </article>
+
+                <!-- Cartel Próximamente estilo Pixar/Warner -->
+                <div class="coming-soon-container my-8">
+                    <div class="cardboard-sign">
+                        <!-- Chinchetas decorativas -->
+                        <div class="thumbtack thumbtack-left"></div>
+                        <div class="thumbtack thumbtack-right"></div>
+
+                        <!-- Contenido del cartel -->
+                        <div class="cardboard-content">
+                            <!-- Logo animado que escribe -->
+                            <div class="mascot-writer">
+                                <img src="img/logo.PNG" alt="Mascota" class="mascot-image" id="writing-mascot">
+                                <div class="pencil-hand">
+                                    <svg class="pencil-svg" viewBox="0 0 50 50" width="40" height="40">
+                                        <polygon points="5,45 10,30 20,40" fill="#f4a460"/>
+                                        <rect x="10" y="5" width="8" height="35" rx="1" fill="#ffd700" transform="rotate(45, 14, 22)"/>
+                                        <polygon points="2,48 5,45 10,50" fill="#ffb6c1"/>
+                                        <rect x="8" y="3" width="8" height="8" fill="#2f4f4f" transform="rotate(45, 12, 7)"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Texto Próximamente con efecto handwriting -->
+                            <div class="handwriting-container">
+                                <h3 class="handwriting-text" id="proximamente-text">
+                                    <span class="letter" style="--delay: 0.1s">P</span>
+                                    <span class="letter" style="--delay: 0.2s">r</span>
+                                    <span class="letter" style="--delay: 0.3s">ó</span>
+                                    <span class="letter" style="--delay: 0.4s">x</span>
+                                    <span class="letter" style="--delay: 0.5s">i</span>
+                                    <span class="letter" style="--delay: 0.6s">m</span>
+                                    <span class="letter" style="--delay: 0.7s">a</span>
+                                    <span class="letter" style="--delay: 0.8s">m</span>
+                                    <span class="letter" style="--delay: 0.9s">e</span>
+                                    <span class="letter" style="--delay: 1.0s">n</span>
+                                    <span class="letter" style="--delay: 1.1s">t</span>
+                                    <span class="letter" style="--delay: 1.2s">e</span>
+                                </h3>
+                                <div class="dots-animation">
+                                    <span class="dot" style="--dot-delay: 1.5s">.</span>
+                                    <span class="dot" style="--dot-delay: 1.7s">.</span>
+                                    <span class="dot" style="--dot-delay: 1.9s">.</span>
+                                </div>
+                            </div>
+
+                            <!-- Subtítulo -->
+                            <p class="subtitle-text">Nuevas aplicaciones en desarrollo</p>
+                        </div>
+
+                        <!-- Cinta adhesiva decorativa -->
+                        <div class="tape tape-top-left"></div>
+                        <div class="tape tape-top-right"></div>
+                    </div>
+
+                    <!-- Efectos de partículas/destellos -->
+                    <div class="sparkles">
+                        <div class="sparkle sparkle-1"></div>
+                        <div class="sparkle sparkle-2"></div>
+                        <div class="sparkle sparkle-3"></div>
+                        <div class="sparkle sparkle-4"></div>
+                        <div class="sparkle sparkle-5"></div>
+                    </div>
                 </div>
             </section>
 
@@ -966,7 +1464,7 @@
                                 <h4 class="text-xl font-bold text-gray-800">Mapas</h4>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
-                                <p class="text-sm text-gray-700 text-center font-semibold">3 recursos</p>
+                                <p class="text-sm text-gray-700 text-center font-semibold">15 recursos</p>
                             </div>
                         </div>
 
@@ -977,7 +1475,7 @@
                                 <h4 class="text-xl font-bold text-gray-800">IAs</h4>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
-                                <p class="text-sm text-gray-700 text-center font-semibold">13 recursos</p>
+                                <p class="text-sm text-gray-700 text-center font-semibold">15 recursos</p>
                             </div>
                         </div>
 
@@ -1043,7 +1541,7 @@
                                 <h4 class="text-xl font-bold text-gray-800">Curiosidades</h4>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
-                                <p class="text-sm text-gray-700 text-center font-semibold">5 recursos</p>
+                                <p class="text-sm text-gray-700 text-center font-semibold">7 recursos</p>
                             </div>
                         </div>
 
@@ -1087,7 +1585,7 @@
                                 <h4 class="text-xl font-bold text-gray-800">Formación</h4>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
-                                <p class="text-sm text-gray-700 text-center font-semibold">10 recursos</p>
+                                <p class="text-sm text-gray-700 text-center font-semibold">11 recursos</p>
                             </div>
                         </div>
 
@@ -1131,7 +1629,7 @@
                                 <h4 class="text-xl font-bold text-gray-800">Diseño</h4>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
-                                <p class="text-sm text-gray-700 text-center font-semibold">10 recursos</p>
+                                <p class="text-sm text-gray-700 text-center font-semibold">11 recursos</p>
                             </div>
                         </div>
 
@@ -1170,6 +1668,54 @@
                                 <a href="https://visgl.github.io/react-google-maps/" target="_blank" class="link-card-neumorph block">
                                     <div class="flex items-center gap-3"><i class="fas fa-map-marked-alt text-2xl text-red-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">React Google Maps</h4></div>
                                     <p class="text-sm text-gray-600 mt-2">Componentes de React para integrar Google Maps en tus aplicaciones.</p>
+                                </a>
+                                <a href="https://cesium.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-globe-europe text-2xl text-blue-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Cesium</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Plataforma open source para crear aplicaciones geoespaciales 3D y gemelos digitales.</p>
+                                </a>
+                                <a href="https://s2maps.eu/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-satellite text-2xl text-indigo-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">S2 Maps</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Mapas satelitales de Europa basados en imágenes Sentinel-2 de alta resolución.</p>
+                                </a>
+                                <a href="https://www.3dstreet.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-road text-2xl text-amber-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">3D Street</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Herramienta para crear escenas urbanas 3D y combinarlas con mapas interactivos.</p>
+                                </a>
+                                <a href="https://earth.google.com/web/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-earth-americas text-2xl text-blue-400 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Google Earth Web</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Explora el mundo en 3D con imágenes satelitales y Street View desde el navegador.</p>
+                                </a>
+                                <a href="https://pcsitna.navarra.es/es/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-layer-group text-2xl text-teal-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">SITNA - Navarra</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Sistema de Información Territorial de Navarra con cartografía oficial.</p>
+                                </a>
+                                <a href="https://www.maptiler.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-map text-2xl text-orange-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">MapTiler</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Crea mapas personalizados con estilos únicos y APIs para desarrolladores.</p>
+                                </a>
+                                <a href="https://developers.arcgis.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-code text-2xl text-purple-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">ArcGIS Developers</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">APIs y SDKs de Esri para desarrollar aplicaciones de mapas y análisis espacial.</p>
+                                </a>
+                                <a href="https://app.topoexport.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-mountain text-2xl text-emerald-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">TopoExport</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Exporta mapas topográficos de alta calidad para senderismo y actividades outdoor.</p>
+                                </a>
+                                <a href="https://www.scne.es/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-compass text-2xl text-cyan-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">SCNE - Sistema Cartográfico</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Sistema Cartográfico Nacional de España con datos geográficos oficiales.</p>
+                                </a>
+                                <a href="https://www.csg-cnc.es/mapaciudadano.html" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-users text-2xl text-rose-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Mapa Ciudadano</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Plataforma colaborativa de cartografía ciudadana del Centro Nacional de Geografía.</p>
+                                </a>
+                                <a href="https://ideespain.github.io/mapabase/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-vector-square text-2xl text-lime-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">MapaBase España</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Mapa base de España para visualización de infraestructuras de datos espaciales.</p>
+                                </a>
+                                <a href="https://lidar.navarra.es/data/view.html" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-wave-square text-2xl text-violet-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">LiDAR Navarra</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Visualizador de datos LiDAR de Navarra con modelos digitales de elevación.</p>
                                 </a>
                             </div>
                         </div>
@@ -1224,6 +1770,14 @@
                                 <a href="https://murf.ai/" target="_blank" class="link-card-neumorph block">
                                     <div class="flex items-center gap-3"><i class="fas fa-microphone-alt text-2xl text-red-400 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Murf AI</h4></div>
                                     <p class="text-sm text-gray-600 mt-2">Voiceovers profesionales con IA para vídeos, podcasts y más.</p>
+                                </a>
+                                <a href="https://theresanaiforthat.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-wand-magic-sparkles text-2xl text-pink-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">There's An AI For That</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Directorio con miles de herramientas de IA categorizadas para cada tarea.</p>
+                                </a>
+                                <a href="https://www.dorkgpt.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-magnifying-glass-chart text-2xl text-emerald-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">DorkGPT</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Genera Google Dorks con IA para búsquedas avanzadas y OSINT.</p>
                                 </a>
                             </div>
                         </div>
@@ -1328,6 +1882,14 @@
                                 <a href="https://www.firecrawl.dev/pricing" target="_blank" class="link-card-neumorph block">
                                     <div class="flex items-center gap-3"><i class="fas fa-spider text-2xl text-red-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Firecrawl</h4></div>
                                     <p class="text-sm text-gray-600 mt-2">API para rastrear y convertir sitios web en datos estructurados y fiables.</p>
+                                </a>
+                                <a href="https://animagraffs.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-gears text-2xl text-orange-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Animagraffs</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Infografías animadas que explican cómo funcionan motores, armas y máquinas.</p>
+                                </a>
+                                <a href="https://pointerpointer.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-hand-pointer text-2xl text-blue-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Pointer Pointer</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Web curiosa que muestra fotos de personas apuntando exactamente donde está tu cursor.</p>
                                 </a>
                             </div>
                         </div>
@@ -1513,6 +2075,10 @@
                                     <div class="flex items-center gap-3"><i class="fas fa-book-reader text-2xl text-blue-700 link-icon"></i><h4 class="font-bold text-lg text-gray-800">edX</h4></div>
                                     <p class="text-sm text-gray-600 mt-2">Cursos de nivel universitario de Harvard, MIT y otras instituciones.</p>
                                 </a>
+                                <a href="https://phet.colorado.edu/es/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-flask text-2xl text-orange-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">PhET Simulaciones</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Simulaciones interactivas gratuitas de física, química, matemáticas y ciencias.</p>
+                                </a>
                             </div>
                         </div>
 
@@ -1697,6 +2263,10 @@
                                     <div class="flex items-center gap-3"><i class="fas fa-layer-group text-2xl text-yellow-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">UI8</h4></div>
                                     <p class="text-sm text-gray-600 mt-2">Assets de diseño premium: kits UI, iconos, ilustraciones y más.</p>
                                 </a>
+                                <a href="https://3dwarehouse.sketchup.com/" target="_blank" class="link-card-neumorph block">
+                                    <div class="flex items-center gap-3"><i class="fas fa-cubes text-2xl text-red-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">3D Warehouse</h4></div>
+                                    <p class="text-sm text-gray-600 mt-2">Biblioteca de modelos 3D gratuitos de SketchUp para arquitectura y diseño.</p>
+                                </a>
                             </div>
                         </div>
 
@@ -1858,7 +2428,27 @@
                     </div>
                 </div>
             `;
-            
+
+            // Función para reiniciar la animación del cartel "Próximamente"
+            function restartComingSoonAnimation() {
+                const elements = [
+                    '.mascot-writer',
+                    '.handwriting-text .letter',
+                    '.dots-animation .dot',
+                    '.subtitle-text',
+                    '.sparkle'
+                ];
+
+                elements.forEach(selector => {
+                    document.querySelectorAll(selector).forEach(el => {
+                        // Reiniciar animación quitando y volviendo a añadir las clases
+                        el.style.animation = 'none';
+                        el.offsetHeight; // Forzar reflow
+                        el.style.animation = '';
+                    });
+                });
+            }
+
             navItems.forEach(item => {
                 item.addEventListener('click', () => {
                     if (body.classList.contains('section-open')) return;
@@ -1877,11 +2467,8 @@
 
                     if(targetSection) {
                         if (sectionId === 'apps') {
-                            const container = document.getElementById('app-placas-container');
-                            if (container) {
-                                container.innerHTML = placasAppContent;
-                                setTimeout(initializePlacasApp, 0);
-                            }
+                            // Reiniciar animación del cartel "Próximamente"
+                            restartComingSoonAnimation();
                         }
                         targetSection.classList.remove('content-hidden');
                         targetSection.style.display = 'block';

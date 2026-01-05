@@ -1,0 +1,72 @@
+{
+  "ultima_actualizacion": "2026-01-05",
+  "proxima_actualizacion": "2026-04-05",
+  "noticias": [
+    {
+      "id": "ces-2026-ia",
+      "titulo": "CES 2026: La IA Se Integra en Todo",
+      "resumen": "El CES 2026 arranca en Las Vegas con más de 140.000 asistentes. La inteligencia artificial es protagonista absoluta, integrándose en electrodomésticos, automóviles, wearables y sistemas de entretenimiento...",
+      "contenido": "El CES 2026 arranca en Las Vegas del 6 al 9 de enero con más de 140.000 asistentes y 450 empresas participantes. La inteligencia artificial es protagonista absoluta, integrándose transversalmente en todo tipo de producto. Samsung presenta su visión 'Companion to AI Living' donde la IA será parte integral del día a día. LG exhibe electrodomésticos inteligentes, televisores y su nuevo robot doméstico CLOiD. Los 'world models' ganan popularidad como clave para crear IA en robótica y videojuegos, mientras los agentes de IA se vuelven más autónomos y menos pasivos.",
+      "icono": "fa-microchip",
+      "gradiente": "from-orange-500 to-red-600",
+      "etiqueta": "CES 2026",
+      "etiqueta_color": "orange",
+      "fecha": "2026-01-06"
+    },
+    {
+      "id": "intel-panther-lake",
+      "titulo": "Intel Panther Lake: Nueva Era de Procesadores con IA",
+      "resumen": "Intel presenta los procesadores Core Ultra Serie 3 'Panther Lake' en CES 2026. La nueva generación promete eficiencia extrema y capacidades de IA locales sin precedentes...",
+      "contenido": "Intel celebra el 6 de enero el lanzamiento global de los procesadores Intel Core Ultra Serie 3, conocidos como 'Panther Lake'. Estos chips marcan una nueva era de computadoras ultraportátiles y eficientes, capaces de ejecutar funciones avanzadas de IA localmente sin depender de la nube. La arquitectura optimizada ofrece mayor rendimiento por watt y autonomía extendida. AMD responde con evolución de Ryzen AI y Qualcomm con Snapdragon X2 Elite, intensificando la competencia en procesadores con NPU integrada para aplicaciones de inteligencia artificial.",
+      "icono": "fa-memory",
+      "gradiente": "from-blue-600 to-cyan-500",
+      "etiqueta": "CES 2026",
+      "etiqueta_color": "blue",
+      "fecha": "2026-01-06"
+    },
+    {
+      "id": "starbot-robots",
+      "titulo": "StarBot: Robots Humanoides de Servicio Llegan al CES",
+      "resumen": "Los robots humanoides de servicio como StarBot debutan en CES 2026, diseñados para operar en restaurantes, hoteles, almacenes y hogares con percepción avanzada e interacción natural...",
+      "contenido": "Uno de los focos principales del CES 2026 es la robótica humanoide de servicio, representada por proyectos como StarBot. Estos robots están diseñados para operar en entornos reales como restaurantes, hoteles, almacenes y hogares, apoyando al personal en tareas repetitivas. Los sistemas combinan percepción visual, movimiento coordinado e interacción natural, permitiendo desplazarse entre personas, comunicarse con usuarios y gestionar múltiples tareas de forma autónoma. Boston Dynamics confirma que la IA ha acelerado significativamente el desarrollo de sus robots, incluyendo su famoso perro robot Spot.",
+      "icono": "fa-robot",
+      "gradiente": "from-purple-600 to-pink-500",
+      "etiqueta": "CES 2026",
+      "etiqueta_color": "purple",
+      "fecha": "2026-01-06"
+    },
+    {
+      "id": "lg-cloid",
+      "titulo": "LG CLOiD: El Robot que Revoluciona el Hogar Inteligente",
+      "resumen": "LG presenta CLOiD, su nuevo robot doméstico con IA avanzada en CES 2026. Integrado con electrodomésticos inteligentes, promete transformar la experiencia del hogar conectado...",
+      "contenido": "LG presenta el 5 de enero sus novedades en soluciones para el hogar, destacando el nuevo robot doméstico CLOiD. Este asistente robótico se integra con el ecosistema de electrodomésticos inteligentes de LG, incluyendo televisores, sistemas de sonido y monitores gaming. CLOiD utiliza IA para aprender las rutinas del hogar, anticipar necesidades y coordinar dispositivos automáticamente. La visión de LG es crear un hogar verdaderamente inteligente donde la tecnología trabaja en armonía para mejorar la calidad de vida de sus habitantes.",
+      "icono": "fa-home",
+      "gradiente": "from-red-500 to-pink-600",
+      "etiqueta": "CES 2026",
+      "etiqueta_color": "red",
+      "fecha": "2026-01-05"
+    },
+    {
+      "id": "world-models",
+      "titulo": "World Models: La Nueva Frontera de la IA en 2026",
+      "resumen": "Los 'world models' emergen como tendencia clave para 2026, superando las limitaciones de los LLMs tradicionales. Son fundamentales para crear IA en robótica y videojuegos...",
+      "contenido": "A medida que usuarios se cansan del 'AI slop' y las limitaciones de los LLMs tradicionales, los 'world models' ganan protagonismo en 2026. Estos modelos van más allá del procesamiento de texto, creando representaciones internas del mundo físico que permiten a la IA entender causa-efecto, física y espacialidad. Son clave para crear robots que interactúen naturalmente con el entorno y videojuegos con NPCs verdaderamente inteligentes. Se espera una IA más poderosa donde los agentes toman acciones autónomas sin requerir instrucciones humanas constantes, transformando cómo interactuamos con sistemas inteligentes.",
+      "icono": "fa-globe",
+      "gradiente": "from-green-500 to-teal-600",
+      "etiqueta": "Tendencias 2026",
+      "etiqueta_color": "green",
+      "fecha": "2026-01-01"
+    },
+    {
+      "id": "snapdragon-x2",
+      "titulo": "Qualcomm Snapdragon X2 Elite: IA Portátil de Nueva Generación",
+      "resumen": "Qualcomm presenta el Snapdragon X2 Elite en CES 2026, prometiendo portátiles ultraeficientes con NPU mejorada para ejecutar modelos de IA localmente con autonomía récord...",
+      "contenido": "Qualcomm eleva la competencia en procesadores ARM para portátiles con el Snapdragon X2 Elite presentado en CES 2026. La segunda generación de su plataforma para Windows promete mejoras significativas en rendimiento CPU y GPU, pero el foco está en la NPU de nueva generación capaz de ejecutar modelos de IA complejos localmente. Los fabricantes de portátiles anuncian dispositivos con más de 24 horas de autonomía y capacidades de IA que antes solo eran posibles en la nube. La competencia con Intel Panther Lake y AMD Ryzen AI define el futuro de la computación personal inteligente.",
+      "icono": "fa-bolt",
+      "gradiente": "from-amber-500 to-orange-600",
+      "etiqueta": "CES 2026",
+      "etiqueta_color": "amber",
+      "fecha": "2026-01-06"
+    }
+  ]
+}
