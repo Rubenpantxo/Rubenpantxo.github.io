@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Aplicación de gestión de alumbrado público para instaladores eléctricos">
+    <meta name="author" content="Rubén Pantxo">
+    <meta name="theme-color" content="#0a0f14">
+    <title>AlumbradoPro - Gestión de Alumbrado Público</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/icons/On_farola_bac_logo.png">
+    <link rel="apple-touch-icon" href="assets/icons/On_farola_bac_logo.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- App Styles -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="assets/icons/On_farola_bac_logo.png" alt="Logo AlumbradoPro">
+                </div>
+                <span class="logo-text">AlumbradoPro</span>
+            </div>
+            <div class="location-badge" id="locationBadge">Ribafrecha, La Rioja</div>
+        </div>
+        <div class="header-stats">
+            <div class="stat stat-on">
+                <div class="stat-value" id="stat-on">0</div>
+                <div class="stat-label">Encendidas</div>
+            </div>
+            <div class="stat stat-off">
+                <div class="stat-value" id="stat-off">0</div>
+                <div class="stat-label">Apagadas</div>
+            </div>
+            <div class="stat stat-ok">
+                <div class="stat-value" id="stat-ok">0</div>
+                <div class="stat-label">Cofres OK</div>
+            </div>
+            <div class="stat stat-notok">
+                <div class="stat-value" id="stat-notok">0</div>
+                <div class="stat-label">Cofres ⚠</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Map -->
+        <div class="map-container">
+            <div id="map"></div>
+
+            <!-- Loading Indicator -->
+            <div class="loading-indicator" id="loadingIndicator">
+                <div class="loading-spinner"></div>
+                <span>Cargando capa...</span>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions" id="instructions">
+                <button class="instructions-close" onclick="closeInstructions()">✕</button>
+                <div class="instructions-title">
+                    <span>📋</span> Instrucciones
+                </div>
+                <div class="instructions-text">
+                    1. Selecciona una herramienta en el panel derecho<br>
+                    2. Haz clic en el mapa para colocar el elemento<br>
+                    3. Haz clic en un elemento para editar su estado<br>
+                    4. Usa 🚐 para marcar posición del vehículo
+                </div>
+            </div>
+
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button class="map-control-btn" id="legendBtn" onclick="toggleLegendPanel()" title="Leyenda">📑</button>
+                <button class="map-control-btn" id="layerBtn" onclick="toggleLayerPanel()" title="Capas del mapa">🗺️</button>
+                <button class="map-control-btn" onclick="centerMap()" title="Centrar mapa">🎯</button>
+            </div>
+
+            <!-- Legend Panel -->
+            <div class="legend-panel" id="legendPanel">
+                <div class="legend-panel-title">Leyenda</div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-icon"><img src="assets/icons/farola_baculo_logo.png" alt="Báculo"></span>
+                        <span>Báculo</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon"><img src="assets/icons/foco.jpg" alt="Foco"></span>
+                        <span>Foco</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon"><img src="assets/icons/farola_pared_logo.png" alt="Pared"></span>
+                        <span>Pared</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon"><img src="assets/icons/Cofred.png" alt="Cofre"></span>
+                        <span>Cofre</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon"><img src="assets/icons/Camion.jpg" alt="Vehículo"></span>
+                        <span>Vehículo</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer Panel -->
+            <div class="layer-panel" id="layerPanel">
+                <div class="layer-panel-title">Capas del Mapa</div>
+                
+                <div class="layer-section">
+                    <div class="layer-section-title">Mapa Base</div>
+                    
+                    <div class="layer-option" onclick="toggleLayer('osm')">
+                        <div class="layer-checkbox checked" id="check-osm"></div>
+                        <span class="layer-name">OpenStreetMap</span>
+                    </div>
+                    <div class="layer-desc">Callejero con nombres de calles</div>
+                    
+                    <div class="layer-option" onclick="toggleLayer('pnoa')">
+                        <div class="layer-checkbox" id="check-pnoa"></div>
+                        <span class="layer-name">PNOA Ortofoto</span>
+                    </div>
+                    <div class="layer-desc">Fotografía aérea IGN (alta resolución)</div>
+                </div>
+
+                <div class="layer-section">
+                    <div class="layer-section-title">Capas Superpuestas</div>
+                    
+                    <div class="layer-option" onclick="toggleLayer('catastro')">
+                        <div class="layer-checkbox" id="check-catastro"></div>
+                        <span class="layer-name">Catastro</span>
+                    </div>
+                    <div class="layer-desc">Delimitación de parcelas</div>
+                </div>
+            </div>
+
+            <!-- WMS Attribution -->
+            <div class="wms-attribution" id="wmsAttribution"></div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Herramientas</div>
+                <div class="tool-selector">
+                    <button class="tool-btn" data-tool="baculo" onclick="selectTool('baculo')">
+                        <div class="tool-icon"><img src="assets/icons/farola_baculo_logo.png" alt="Báculo"></div>
+                        <div class="tool-name">Báculo</div>
+                    </button>
+                    <button class="tool-btn" data-tool="foco" onclick="selectTool('foco')">
+                        <div class="tool-icon"><img src="assets/icons/foco.jpg" alt="Foco"></div>
+                        <div class="tool-name">Foco</div>
+                    </button>
+                    <button class="tool-btn" data-tool="pared" onclick="selectTool('pared')">
+                        <div class="tool-icon"><img src="assets/icons/farola_pared_logo.png" alt="Pared"></div>
+                        <div class="tool-name">Pared</div>
+                    </button>
+                    <button class="tool-btn" data-tool="cofre" onclick="selectTool('cofre')">
+                        <div class="tool-icon"><img src="assets/icons/Cofred.png" alt="Cofre"></div>
+                        <div class="tool-name">Cofre</div>
+                    </button>
+                    <button class="tool-btn" data-tool="vehiculo" onclick="selectTool('vehiculo')">
+                        <div class="tool-icon"><img src="assets/icons/Camion.jpg" alt="Vehículo"></div>
+                        <div class="tool-name">Vehículo</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-section">
+                <div class="filter-title">Filtrar por:</div>
+                <div class="filter-chips">
+                    <button class="filter-chip active" data-filter="all" onclick="filterElements('all')">Todos</button>
+                    <button class="filter-chip" data-filter="on" onclick="filterElements('on')">Encendidas</button>
+                    <button class="filter-chip" data-filter="off" onclick="filterElements('off')">Apagadas</button>
+                    <button class="filter-chip" data-filter="pending" onclick="filterElements('pending')">Pendientes</button>
+                </div>
+            </div>
+
+            <!-- Elements List -->
+            <div class="elements-list" id="elementsList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <img src="assets/icons/farola_baculo_logo.png" alt="">
+                    </div>
+                    <div class="empty-state-text">Añade elementos al mapa<br>usando las herramientas</div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="sidebar-actions">
+                <button class="action-btn action-btn-secondary" onclick="exportData()">📥 Exportar</button>
+                <button class="action-btn action-btn-primary" onclick="saveData(true)">💾 Guardar</button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span class="toast-text" id="toast-text">Guardado correctamente</span>
+    </div>
+
+    <!-- App JavaScript -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
