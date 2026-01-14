@@ -619,52 +619,6 @@ body {
 }
 
 /* ============================================
-   INSTRUCCIONES
-   ============================================ */
-.instructions {
-    position: absolute;
-    top: 80px;
-    left: 20px;
-    z-index: 500;
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    max-width: 280px;
-    box-shadow: var(--shadow);
-}
-
-.instructions-title {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.instructions-text {
-    font-size: 12px;
-    color: var(--text-secondary);
-    line-height: 1.5;
-}
-
-.instructions-close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.instructions-close:hover {
-    color: var(--text-primary);
-}
-
-/* ============================================
    MARCADORES PERSONALIZADOS
    ============================================ */
 .custom-marker {
@@ -1008,10 +962,6 @@ body {
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    .instructions {
-        max-width: calc(100% - 40px);
     }
 
     .loading-indicator {
