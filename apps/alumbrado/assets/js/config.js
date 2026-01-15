@@ -20,7 +20,7 @@ const APP_CONFIG = {
         name: 'Ribafrecha, La Rioja',
         lat: 42.3897,
         lng: -2.3567,
-        zoom: 17
+        zoom: 16
     },
     
     // Clave para localStorage

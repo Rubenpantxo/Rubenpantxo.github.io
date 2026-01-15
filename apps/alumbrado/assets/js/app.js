@@ -175,11 +175,6 @@ function showToast(icon, text) {
     }, APP_CONFIG.toastDuration);
 }
 
-function closeInstructions() {
-    document.getElementById('instructions').style.display = 'none';
-    localStorage.setItem('alumbrado-instructions-closed', 'true');
-}
-
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
 }
@@ -622,11 +617,6 @@ document.addEventListener('click', function(e) {
 
 document.addEventListener('DOMContentLoaded', function() {
     loadData();
-    
-    // Comprobar si las instrucciones fueron cerradas
-    if (localStorage.getItem('alumbrado-instructions-closed')) {
-        document.getElementById('instructions').style.display = 'none';
-    }
 });
 
 // Autoguardado silencioso
