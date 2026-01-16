@@ -46,8 +46,8 @@ const ICON_CONFIG = {
         prefix: 'B'
     },
     foco: {
-        off: 'assets/icons/foco.jpg',
-        on: 'assets/icons/foco.jpg', // Usa efecto glow para ON
+        off: 'assets/icons/Foco.png',
+        on: 'assets/icons/On_Foco.png',
         size: [32, 32],
         name: 'Foco',
         prefix: 'F'
@@ -67,7 +67,7 @@ const ICON_CONFIG = {
         prefix: 'C'
     },
     vehiculo: {
-        default: 'assets/icons/Camion.jpg',
+        default: 'assets/icons/Camion_gloobal.png',
         size: [40, 40],
         name: 'Vehículo',
         prefix: 'V'
