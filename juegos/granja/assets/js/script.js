@@ -3,8 +3,9 @@
 // ============================================
 
 const MAP_CONFIG = {
-    center: [42.0305, -1.649],
-    zoom: 16,
+    center: [42.4286, -2.4471], // Ribafrecha, La Rioja
+    zoom: 15, // Vista inicial que muestra toda la zona urbanizable
+    minZoom: 15, // No permitir alejarse más allá de esta vista
     maxZoom: 19
 };
 
@@ -136,17 +137,19 @@ function initializeMap() {
     farmMap = L.map('map', {
         zoomControl: true,
         attributionControl: true,
-        scrollWheelZoom: true
+        scrollWheelZoom: true,
+        minZoom: MAP_CONFIG.minZoom
     }).setView(MAP_CONFIG.center, MAP_CONFIG.zoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        minZoom: MAP_CONFIG.minZoom,
         maxZoom: MAP_CONFIG.maxZoom,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(farmMap);
 
     L.marker(MAP_CONFIG.center, { keyboard: false })
         .addTo(farmMap)
-        .bindPopup('Cabanillas, Navarra')
+        .bindPopup('Ribafrecha, La Rioja')
         .openPopup();
 
     window.addEventListener('resize', () => {
