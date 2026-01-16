@@ -154,6 +154,47 @@ function initializeMap() {
             farmMap.invalidateSize();
         }
     });
+
+    // Escalar iconos con el zoom del mapa
+    farmMap.on('zoomend', () => {
+        updateIconScale();
+    });
+
+    // Aplicar escala inicial
+    updateIconScale();
+}
+
+// Actualizar escala de iconos basado en el nivel de zoom
+function updateIconScale() {
+    if (!farmMap) return;
+
+    const currentZoom = farmMap.getZoom();
+    const baseZoom = MAP_CONFIG.zoom;
+
+    // Calcular factor de escala: cada nivel de zoom duplica/reduce a la mitad
+    // Usamos una escala exponencial para simular perspectiva realista
+    const scaleFactor = Math.pow(2, currentZoom - baseZoom);
+
+    // Aplicar escala a todos los iconos de cultivos
+    document.querySelectorAll('.crop-visual').forEach(icon => {
+        icon.style.transform = `translateX(-50%) scale(${scaleFactor})`;
+    });
+
+    // Aplicar escala a todos los iconos de herramientas
+    document.querySelectorAll('.tool-icon').forEach(icon => {
+        icon.style.transform = `translateX(-50%) scale(${scaleFactor})`;
+    });
+
+    // Aplicar escala a todos los iconos flotantes
+    document.querySelectorAll('.floating-icon').forEach(icon => {
+        // Los iconos flotantes ya tienen translateX(-50%), mantenerlo
+        const currentTransform = icon.style.transform || '';
+        if (currentTransform.includes('scale') && !currentTransform.includes('translateX')) {
+            icon.style.transform = `translateX(-50%) scale(${scaleFactor})`;
+        } else {
+            icon.style.transform = `translateX(-50%) scale(${scaleFactor})`;
+        }
+    });
 }
 
 // Crear las parcelas de cultivo
@@ -396,7 +437,7 @@ function plantCrop(plotId) {
     cropVisual.className = 'crop-visual';
     cropVisual.textContent = crop.icon;
     plot.element.appendChild(cropVisual);
-    
+
     // Añadir icono de agua si se tiene la mejora
     if (gameState.upgrades.watering) {
         const toolIcon = document.createElement('div');
@@ -404,7 +445,10 @@ function plantCrop(plotId) {
         toolIcon.textContent = '💧';
         plot.element.appendChild(toolIcon);
     }
-    
+
+    // Aplicar escala de zoom a los nuevos iconos
+    updateIconScale();
+
     // Iniciar crecimiento
     startGrowth(plotId);
     
@@ -469,7 +513,10 @@ function finishGrowth(plotId) {
     `;
     
     plot.element.appendChild(harvestIcon);
-    
+
+    // Aplicar escala de zoom al icono de cosecha
+    updateIconScale();
+
     updateTopMessage('¡Tus cultivos están listos para cosechar!');
 }
 
@@ -495,6 +542,9 @@ function harvestCrop(plotId) {
     rewardIcon.style.top = '-100px';
     plot.element.appendChild(rewardIcon);
     
+    // Aplicar escala de zoom al icono de recompensa
+    updateIconScale();
+
     setTimeout(() => {
         rewardIcon.style.animation = 'harvestAnimation 1s ease forwards';
         setTimeout(() => rewardIcon.remove(), 1000);
@@ -704,7 +754,10 @@ function loadGameState() {
                 cropVisual.className = 'crop-visual';
                 cropVisual.textContent = crop.icon;
                 plot.element.appendChild(cropVisual);
-                
+
+                // Aplicar escala de zoom al restaurar
+                updateIconScale();
+
                 // Continuar crecimiento si no está listo
                 if (!savedPlot.ready) {
                     startGrowth(savedPlot.id);
