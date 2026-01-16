@@ -129,11 +129,9 @@ body {
 @keyframes growCrop {
     from {
         opacity: 0;
-        transform: translateX(-50%) scale(0);
     }
     to {
         opacity: 1;
-        transform: translateX(-50%) scale(1);
     }
 }
 
@@ -206,9 +204,9 @@ body {
 }
 
 @keyframes bounceIn {
-    0% { transform: translateX(-50%) scale(0); }
-    50% { transform: translateX(-50%) scale(1.2); }
-    100% { transform: translateX(-50%) scale(1); }
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 1; }
 }
 
 /* Modal de Tienda */
