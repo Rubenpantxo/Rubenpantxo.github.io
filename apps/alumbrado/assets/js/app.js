@@ -60,6 +60,54 @@ let markers = {};
 let elementIdCounter = 1;
 let activeFilter = 'all';
 
+// Zoom de referencia para el tamaño base de los iconos
+const REFERENCE_ZOOM = 16;
+
+// ============================================
+// FUNCIONES DE ESCALADO CON ZOOM
+// ============================================
+
+/**
+ * Calcula el factor de escala basado en el nivel de zoom actual
+ * Los iconos se reducen al hacer zoom out y mantienen tamaño al hacer zoom in
+ */
+function getZoomScale() {
+    const currentZoom = map.getZoom();
+
+    if (currentZoom >= REFERENCE_ZOOM) {
+        // Zoom in: mantener tamaño base (o ligeramente mayor)
+        return 1;
+    }
+
+    // Zoom out: reducir proporcionalmente
+    // Factor exponencial para una reducción más natural
+    const zoomDiff = REFERENCE_ZOOM - currentZoom;
+    const scale = Math.pow(0.85, zoomDiff);
+
+    // Limitar el tamaño mínimo para que siempre sean visibles
+    return Math.max(scale, 0.3);
+}
+
+/**
+ * Calcula el tamaño del icono basado en el zoom actual
+ */
+function getScaledIconSize(baseSize) {
+    const scale = getZoomScale();
+    return [
+        Math.round(baseSize[0] * scale),
+        Math.round(baseSize[1] * scale)
+    ];
+}
+
+/**
+ * Actualiza todos los marcadores cuando cambia el zoom
+ */
+function updateAllMarkersSize() {
+    elements.forEach(element => {
+        updateMarker(element);
+    });
+}
+
 // ============================================
 // FUNCIONES DE CAPAS
 // ============================================
@@ -295,16 +343,17 @@ function createMarker(element) {
     const config = ICON_CONFIG[element.type];
     const imgSrc = getIconSrc(element);
     const extraClass = getMarkerClass(element);
-    
-    const iconHtml = `<div class="marker-container ${extraClass}"><img src="${imgSrc}" alt="${config.name}"></div>`;
-    
+    const scaledSize = getScaledIconSize(config.size);
+
+    const iconHtml = `<div class="marker-container ${extraClass}"><img src="${imgSrc}" alt="${config.name}" style="width:${scaledSize[0]}px;height:${scaledSize[1]}px;"></div>`;
+
     const icon = L.divIcon({
         html: iconHtml,
         className: 'custom-marker',
-        iconSize: config.size,
-        iconAnchor: [config.size[0]/2, config.size[1]/2]
+        iconSize: scaledSize,
+        iconAnchor: [scaledSize[0]/2, scaledSize[1]/2]
     });
-    
+
     const marker = L.marker([element.lat, element.lng], { icon }).addTo(map);
     marker.on('click', () => openPopup(element, marker));
     markers[element.id] = marker;
@@ -313,20 +362,21 @@ function createMarker(element) {
 function updateMarker(element) {
     const marker = markers[element.id];
     if (!marker) return;
-    
+
     const config = ICON_CONFIG[element.type];
     const imgSrc = getIconSrc(element);
     const extraClass = getMarkerClass(element);
-    
-    const iconHtml = `<div class="marker-container ${extraClass}"><img src="${imgSrc}" alt="${config.name}"></div>`;
-    
+    const scaledSize = getScaledIconSize(config.size);
+
+    const iconHtml = `<div class="marker-container ${extraClass}"><img src="${imgSrc}" alt="${config.name}" style="width:${scaledSize[0]}px;height:${scaledSize[1]}px;"></div>`;
+
     const icon = L.divIcon({
         html: iconHtml,
         className: 'custom-marker',
-        iconSize: config.size,
-        iconAnchor: [config.size[0]/2, config.size[1]/2]
+        iconSize: scaledSize,
+        iconAnchor: [scaledSize[0]/2, scaledSize[1]/2]
     });
-    
+
     marker.setIcon(icon);
 }
 
@@ -567,6 +617,11 @@ function filterElements(filter) {
 // ============================================
 // EVENT LISTENERS
 // ============================================
+
+// Evento de zoom: actualizar tamaño de todos los marcadores
+map.on('zoomend', function() {
+    updateAllMarkersSize();
+});
 
 // Click en el mapa para añadir elementos
 map.on('click', function(e) {
