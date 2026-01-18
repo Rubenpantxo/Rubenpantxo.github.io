@@ -18,8 +18,8 @@ const APP_CONFIG = {
     // Configuración de ubicación por defecto (Ribafrecha, La Rioja)
     defaultLocation: {
         name: 'Ribafrecha, La Rioja',
-        lat: 42.4020,
-        lng: -2.3680,
+        lat: 42.4005,
+        lng: -2.3750,
         zoom: 15
     },
     
