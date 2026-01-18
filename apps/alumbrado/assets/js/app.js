@@ -63,6 +63,9 @@ let activeFilter = 'all';
 // Zoom de referencia para el tamaño base de los iconos
 const REFERENCE_ZOOM = 16;
 
+// Tamaño fijo del contenedor de iconos - evita desplazamiento al hacer zoom
+const FIXED_ICON_CONTAINER = [48, 48];
+
 // ============================================
 // FUNCIONES DE ESCALADO CON ZOOM
 // ============================================
@@ -345,13 +348,15 @@ function createMarker(element) {
     const extraClass = getMarkerClass(element);
     const scaledSize = getScaledIconSize(config.size);
 
+    // Usar contenedor de tamaño fijo para evitar desplazamiento al hacer zoom
+    // La imagen se escala dentro del contenedor, pero el anchor permanece constante
     const iconHtml = `<div class="marker-container ${extraClass}"><img src="${imgSrc}" alt="${config.name}" style="width:${scaledSize[0]}px;height:${scaledSize[1]}px;"></div>`;
 
     const icon = L.divIcon({
         html: iconHtml,
         className: 'custom-marker',
-        iconSize: scaledSize,
-        iconAnchor: [scaledSize[0]/2, scaledSize[1]/2]
+        iconSize: FIXED_ICON_CONTAINER,
+        iconAnchor: [FIXED_ICON_CONTAINER[0]/2, FIXED_ICON_CONTAINER[1]/2]
     });
 
     const marker = L.marker([element.lat, element.lng], { icon }).addTo(map);
@@ -368,13 +373,14 @@ function updateMarker(element) {
     const extraClass = getMarkerClass(element);
     const scaledSize = getScaledIconSize(config.size);
 
+    // Usar contenedor de tamaño fijo para evitar desplazamiento al hacer zoom
     const iconHtml = `<div class="marker-container ${extraClass}"><img src="${imgSrc}" alt="${config.name}" style="width:${scaledSize[0]}px;height:${scaledSize[1]}px;"></div>`;
 
     const icon = L.divIcon({
         html: iconHtml,
         className: 'custom-marker',
-        iconSize: scaledSize,
-        iconAnchor: [scaledSize[0]/2, scaledSize[1]/2]
+        iconSize: FIXED_ICON_CONTAINER,
+        iconAnchor: [FIXED_ICON_CONTAINER[0]/2, FIXED_ICON_CONTAINER[1]/2]
     });
 
     marker.setIcon(icon);
