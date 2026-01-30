@@ -115,38 +115,10 @@ function updateAllMarkersSize() {
 // FUNCIONES DE CAPAS
 // ============================================
 
-function toggleLegendPanel() {
-    const panel = document.getElementById('legendPanel');
-    const layerPanel = document.getElementById('layerPanel');
-    const btn = document.getElementById('legendBtn');
-    
-    // Cerrar panel de capas si está abierto
-    layerPanel.classList.remove('show');
-    document.getElementById('layerBtn').classList.remove('active');
-    
-    // Toggle panel de leyenda
-    panel.classList.toggle('show');
-    btn.classList.toggle('active');
-}
-
-function toggleLayerPanel() {
-    const panel = document.getElementById('layerPanel');
-    const legendPanel = document.getElementById('legendPanel');
-    const btn = document.getElementById('layerBtn');
-    
-    // Cerrar panel de leyenda si está abierto
-    legendPanel.classList.remove('show');
-    document.getElementById('legendBtn').classList.remove('active');
-    
-    // Toggle panel de capas
-    panel.classList.toggle('show');
-    btn.classList.toggle('active');
-}
-
-function toggleLayer(layerId) {
+function toggleLayerFromHeader(layerId) {
     const layerInfo = mapLayers[layerId];
-    const checkbox = document.getElementById(`check-${layerId}`);
-    
+    const chip = document.getElementById(`chip-${layerId}`);
+
     if (layerInfo.isBase) {
         // Capas base: desactivar otras y activar la seleccionada
         Object.keys(mapLayers).forEach(id => {
@@ -154,18 +126,19 @@ function toggleLayer(layerId) {
             if (info.isBase && id !== layerId && info.active) {
                 map.removeLayer(info.layer);
                 info.active = false;
-                document.getElementById(`check-${id}`).classList.remove('checked');
+                const otherChip = document.getElementById(`chip-${id}`);
+                if (otherChip) otherChip.classList.remove('active');
             }
         });
-        
+
         if (!layerInfo.active) {
             showLoading();
             layerInfo.layer.addTo(map);
             layerInfo.active = true;
-            checkbox.classList.add('checked');
+            chip.classList.add('active');
             setTimeout(hideLoading, 1000);
         }
-        
+
         // Asegurar que catastro esté encima si está activo
         if (mapLayers.catastro.active) {
             mapLayers.catastro.layer.bringToFront();
@@ -175,17 +148,17 @@ function toggleLayer(layerId) {
         if (layerInfo.active) {
             map.removeLayer(layerInfo.layer);
             layerInfo.active = false;
-            checkbox.classList.remove('checked');
+            chip.classList.remove('active');
         } else {
             showLoading();
             layerInfo.layer.addTo(map);
             layerInfo.active = true;
-            checkbox.classList.add('checked');
+            chip.classList.add('active');
             layerInfo.layer.bringToFront();
             setTimeout(hideLoading, 1500);
         }
     }
-    
+
     updateAttribution();
 }
 
@@ -194,13 +167,6 @@ function updateAttribution() {
     if (mapLayers.pnoa.active) attr.push('Ortofoto: IGN PNOA');
     if (mapLayers.catastro.active) attr.push('Parcelas: Catastro');
     document.getElementById('wmsAttribution').textContent = attr.join(' | ');
-}
-
-function centerMap() {
-    map.setView(
-        [APP_CONFIG.defaultLocation.lat, APP_CONFIG.defaultLocation.lng],
-        APP_CONFIG.defaultLocation.zoom
-    );
 }
 
 // ============================================
@@ -245,7 +211,6 @@ function loadData() {
             createMarker(el);
         });
         
-        updateStats();
         updateElementsList();
     }
 }
@@ -459,7 +424,6 @@ function toggleLightStatus(id) {
     if (element) {
         element.status = element.status === STATUS.ON ? STATUS.OFF : STATUS.ON;
         updateMarker(element);
-        updateStats();
         updateElementsList();
         
         const toggle = document.querySelector('.toggle-switch');
@@ -476,7 +440,6 @@ function setCofreStatus(id, status) {
     if (element) {
         element.cofreStatus = status;
         updateMarker(element);
-        updateStats();
         updateElementsList();
         
         document.querySelectorAll('.status-toggle-btn').forEach(btn => {
@@ -500,26 +463,11 @@ function deleteElement(id) {
     }
     
     elements = elements.filter(e => e.id !== id);
-    updateStats();
     updateElementsList();
     saveData(false);
     showToast('🗑️', 'Elemento eliminado');
 }
 
-// ============================================
-// FUNCIONES DE ESTADÍSTICAS
-// ============================================
-
-function updateStats() {
-    const lightTypes = ELEMENT_TYPES.LIGHT;
-    const lights = elements.filter(e => lightTypes.includes(e.type));
-    const cofres = elements.filter(e => e.type === 'cofre');
-    
-    document.getElementById('stat-on').textContent = lights.filter(e => e.status === STATUS.ON).length;
-    document.getElementById('stat-off').textContent = lights.filter(e => e.status === STATUS.OFF).length;
-    document.getElementById('stat-ok').textContent = cofres.filter(e => e.cofreStatus === STATUS.OK).length;
-    document.getElementById('stat-notok').textContent = cofres.filter(e => e.cofreStatus === STATUS.NOTOK).length;
-}
 
 // ============================================
 // FUNCIONES DE LISTA DE ELEMENTOS
@@ -647,30 +595,12 @@ map.on('click', function(e) {
     
     elements.push(newElement);
     createMarker(newElement);
-    updateStats();
     updateElementsList();
     saveData(false);
     
     showToast('✓', `${config.name} añadido`);
 });
 
-// Cerrar paneles al hacer clic fuera
-document.addEventListener('click', function(e) {
-    const layerPanel = document.getElementById('layerPanel');
-    const legendPanel = document.getElementById('legendPanel');
-    const layerBtn = document.getElementById('layerBtn');
-    const legendBtn = document.getElementById('legendBtn');
-    
-    if (!layerPanel.contains(e.target) && !layerBtn.contains(e.target)) {
-        layerPanel.classList.remove('show');
-        layerBtn.classList.remove('active');
-    }
-    
-    if (!legendPanel.contains(e.target) && !legendBtn.contains(e.target)) {
-        legendPanel.classList.remove('show');
-        legendBtn.classList.remove('active');
-    }
-});
 
 // ============================================
 // INICIALIZACIÓN
