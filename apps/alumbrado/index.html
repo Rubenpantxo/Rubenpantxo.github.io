@@ -38,23 +38,11 @@
             </div>
             <div class="location-badge" id="locationBadge">Ribafrecha, La Rioja</div>
         </div>
-        <div class="header-stats">
-            <div class="stat stat-on">
-                <div class="stat-value" id="stat-on">0</div>
-                <div class="stat-label">Encendidas</div>
-            </div>
-            <div class="stat stat-off">
-                <div class="stat-value" id="stat-off">0</div>
-                <div class="stat-label">Apagadas</div>
-            </div>
-            <div class="stat stat-ok">
-                <div class="stat-value" id="stat-ok">0</div>
-                <div class="stat-label">Cofres OK</div>
-            </div>
-            <div class="stat stat-notok">
-                <div class="stat-value" id="stat-notok">0</div>
-                <div class="stat-label">Cofres ⚠</div>
-            </div>
+        <div class="header-layers">
+            <span class="header-layers-label">Capas:</span>
+            <button class="layer-chip active" id="chip-osm" onclick="toggleLayerFromHeader('osm')">OpenStreetMap</button>
+            <button class="layer-chip" id="chip-pnoa" onclick="toggleLayerFromHeader('pnoa')">PNOA Ortofoto</button>
+            <button class="layer-chip" id="chip-catastro" onclick="toggleLayerFromHeader('catastro')">Catastro</button>
         </div>
     </header>
 
@@ -68,71 +56,6 @@
             <div class="loading-indicator" id="loadingIndicator">
                 <div class="loading-spinner"></div>
                 <span>Cargando capa...</span>
-            </div>
-
-            <!-- Map Controls -->
-            <div class="map-controls">
-                <button class="map-control-btn" id="legendBtn" onclick="toggleLegendPanel()" title="Leyenda">📑</button>
-                <button class="map-control-btn" id="layerBtn" onclick="toggleLayerPanel()" title="Capas del mapa">🗺️</button>
-                <button class="map-control-btn" onclick="centerMap()" title="Centrar mapa">🎯</button>
-            </div>
-
-            <!-- Legend Panel -->
-            <div class="legend-panel" id="legendPanel">
-                <div class="legend-panel-title">Leyenda</div>
-                <div class="legend-items">
-                    <div class="legend-item">
-                        <span class="legend-icon"><img src="assets/icons/farola_baculo_logo.png" alt="Báculo"></span>
-                        <span>Báculo</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-icon"><img src="assets/icons/Foco.png" alt="Foco"></span>
-                        <span>Foco</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-icon"><img src="assets/icons/farola_pared_logo.png" alt="Pared"></span>
-                        <span>Pared</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-icon"><img src="assets/icons/Cofred.png" alt="Cofre"></span>
-                        <span>Cofre</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-icon"><img src="assets/icons/Camion_gloobal.png" alt="Vehículo"></span>
-                        <span>Vehículo</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Layer Panel -->
-            <div class="layer-panel" id="layerPanel">
-                <div class="layer-panel-title">Capas del Mapa</div>
-                
-                <div class="layer-section">
-                    <div class="layer-section-title">Mapa Base</div>
-                    
-                    <div class="layer-option" onclick="toggleLayer('osm')">
-                        <div class="layer-checkbox checked" id="check-osm"></div>
-                        <span class="layer-name">OpenStreetMap</span>
-                    </div>
-                    <div class="layer-desc">Callejero con nombres de calles</div>
-                    
-                    <div class="layer-option" onclick="toggleLayer('pnoa')">
-                        <div class="layer-checkbox" id="check-pnoa"></div>
-                        <span class="layer-name">PNOA Ortofoto</span>
-                    </div>
-                    <div class="layer-desc">Fotografía aérea IGN (alta resolución)</div>
-                </div>
-
-                <div class="layer-section">
-                    <div class="layer-section-title">Capas Superpuestas</div>
-                    
-                    <div class="layer-option" onclick="toggleLayer('catastro')">
-                        <div class="layer-checkbox" id="check-catastro"></div>
-                        <span class="layer-name">Catastro</span>
-                    </div>
-                    <div class="layer-desc">Delimitación de parcelas</div>
-                </div>
             </div>
 
             <!-- WMS Attribution -->
