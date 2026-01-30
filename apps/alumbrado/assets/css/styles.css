@@ -110,33 +110,44 @@ body {
     content: "📍";
 }
 
-/* Stats */
-.header-stats {
+/* Header Layer Selector */
+.header-layers {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 8px;
 }
 
-.stat {
-    text-align: center;
-}
-
-.stat-value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.stat-label {
-    font-size: 10px;
+.header-layers-label {
+    font-size: 12px;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
+    font-weight: 600;
 }
 
-.stat-on .stat-value { color: var(--accent-yellow); }
-.stat-off .stat-value { color: var(--text-secondary); }
-.stat-ok .stat-value { color: var(--accent-green); }
-.stat-notok .stat-value { color: var(--accent-red); }
+.layer-chip {
+    padding: 6px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.layer-chip:hover {
+    border-color: var(--accent-blue);
+    color: var(--text-primary);
+}
+
+.layer-chip.active {
+    border-color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--accent-blue);
+}
 
 /* ============================================
    LAYOUT PRINCIPAL
@@ -451,172 +462,6 @@ body {
     border-color: var(--text-secondary);
 }
 
-/* ============================================
-   CONTROLES DEL MAPA
-   ============================================ */
-.map-controls {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    z-index: 500;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.map-control-btn {
-    width: 44px;
-    height: 44px;
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 18px;
-    transition: all 0.2s ease;
-}
-
-.map-control-btn:hover {
-    border-color: var(--accent-yellow);
-    transform: scale(1.05);
-}
-
-.map-control-btn.active {
-    border-color: var(--accent-blue);
-    background: rgba(59, 130, 246, 0.2);
-}
-
-/* ============================================
-   PANELES FLOTANTES
-   ============================================ */
-.legend-panel,
-.layer-panel {
-    position: absolute;
-    bottom: 20px;
-    left: 70px;
-    z-index: 500;
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px;
-    box-shadow: var(--shadow);
-    display: none;
-    min-width: 180px;
-}
-
-.legend-panel.show,
-.layer-panel.show {
-    display: block;
-}
-
-.legend-panel-title,
-.layer-panel-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-}
-
-/* Legend Items */
-.legend-items {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 12px;
-}
-
-.legend-icon {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.legend-icon img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
-
-/* Layer Panel */
-.layer-panel {
-    min-width: 220px;
-}
-
-.layer-section {
-    margin-bottom: 12px;
-}
-
-.layer-section:last-child {
-    margin-bottom: 0;
-}
-
-.layer-section-title {
-    font-size: 10px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--border);
-}
-
-.layer-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    cursor: pointer;
-}
-
-.layer-option:hover {
-    color: var(--accent-yellow);
-}
-
-.layer-checkbox {
-    width: 18px;
-    height: 18px;
-    border: 2px solid var(--border);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-}
-
-.layer-checkbox.checked {
-    background: var(--accent-blue);
-    border-color: var(--accent-blue);
-}
-
-.layer-checkbox.checked::after {
-    content: '✓';
-    color: white;
-    font-size: 12px;
-}
-
-.layer-name {
-    font-size: 13px;
-}
-
-.layer-desc {
-    font-size: 10px;
-    color: var(--text-secondary);
-    margin-left: 28px;
-    margin-top: -4px;
-}
 
 /* ============================================
    MARCADORES PERSONALIZADOS
@@ -932,12 +777,17 @@ body {
         display: none;
     }
 
-    .header-stats {
-        gap: 12px;
+    .header-layers {
+        gap: 6px;
     }
 
-    .stat-value {
-        font-size: 16px;
+    .header-layers-label {
+        display: none;
+    }
+
+    .layer-chip {
+        font-size: 11px;
+        padding: 4px 10px;
     }
 
     .sidebar {
@@ -975,15 +825,8 @@ body {
 }
 
 @media (max-width: 480px) {
-    .header-stats {
-        gap: 8px;
-    }
-
-    .stat-value {
-        font-size: 14px;
-    }
-
-    .stat-label {
-        font-size: 8px;
+    .layer-chip {
+        font-size: 10px;
+        padding: 3px 8px;
     }
 }
