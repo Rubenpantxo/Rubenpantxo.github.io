@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Hub - rubenpantxo.com</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+        /* Textarea scrollbar */
+        textarea::-webkit-scrollbar { width: 4px; }
+        textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        // ==========================================
+        // Icon Components (SVG-based, replacing lucide-react)
+        // ==========================================
+        const Icon = ({ children, className = '', ...props }) => (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={className}
+                {...props}
+            >
+                {children}
+            </svg>
+        );
+
+        const Upload = (props) => (
+            <Icon {...props}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" x2="12" y1="3" y2="15" />
+            </Icon>
+        );
+
+        const ImageIcon = (props) => (
+            <Icon {...props}>
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+            </Icon>
+        );
+
+        const Code = (props) => (
+            <Icon {...props}>
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
+            </Icon>
+        );
+
+        const Download = (props) => (
+            <Icon {...props}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" x2="12" y1="15" y2="3" />
+            </Icon>
+        );
+
+        const Trash2 = (props) => (
+            <Icon {...props}>
+                <path d="M3 6h18" />
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                <line x1="10" x2="10" y1="11" y2="17" />
+                <line x1="14" x2="14" y1="11" y2="17" />
+            </Icon>
+        );
+
+        const Copy = (props) => (
+            <Icon {...props}>
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+            </Icon>
+        );
+
+        const Check = (props) => (
+            <Icon {...props}>
+                <path d="M20 6 9 17l-5-5" />
+            </Icon>
+        );
+
+        const Search = (props) => (
+            <Icon {...props}>
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+            </Icon>
+        );
+
+        const FolderOpen = (props) => (
+            <Icon {...props}>
+                <path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
+            </Icon>
+        );
+
+        const Layers = (props) => (
+            <Icon {...props}>
+                <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
+                <path d="m22.37 12.09-1.22-.55-8.32 3.79a2 2 0 0 1-1.66 0l-8.32-3.79-1.22.55a1 1 0 0 0 0 1.82l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0-.08-1.83Z" />
+                <path d="m22.37 16.09-1.22-.55-8.32 3.79a2 2 0 0 1-1.66 0l-8.32-3.79-1.22.55a1 1 0 0 0 0 1.82l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0-.08-1.83Z" />
+            </Icon>
+        );
+
+        const Sparkles = (props) => (
+            <Icon {...props}>
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                <path d="M5 3v4" />
+                <path d="M19 17v4" />
+                <path d="M3 5h4" />
+                <path d="M17 19h4" />
+            </Icon>
+        );
+
+        const X = (props) => (
+            <Icon {...props}>
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </Icon>
+        );
+
+        const ExternalLink = (props) => (
+            <Icon {...props}>
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" x2="21" y1="14" y2="3" />
+            </Icon>
+        );
+
+        const Plus = (props) => (
+            <Icon {...props}>
+                <path d="M5 12h14" />
+                <path d="M12 5v14" />
+            </Icon>
+        );
+
+        const Edit3 = (props) => (
+            <Icon {...props}>
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            </Icon>
+        );
+
+        const Save = (props) => (
+            <Icon {...props}>
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+            </Icon>
+        );
+
+        const Eye = (props) => (
+            <Icon {...props}>
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+            </Icon>
+        );
+
+        // ==========================================
+        // ResourceHub Application
+        // ==========================================
+        const STORAGE_KEYS = {
+            images: 'resourcehub_images',
+            components: 'resourcehub_components'
+        };
+
+        function ResourceHub() {
+            const [activeTab, setActiveTab] = useState('images');
+            const [images, setImages] = useState([]);
+            const [components, setComponents] = useState([]);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [processing, setProcessing] = useState(false);
+            const [copiedId, setCopiedId] = useState(null);
+            const [selectedImage, setSelectedImage] = useState(null);
+            const [selectedComponent, setSelectedComponent] = useState(null);
+            const [dragOver, setDragOver] = useState(false);
+            const [showAddComponent, setShowAddComponent] = useState(false);
+            const [newComponent, setNewComponent] = useState({ name: '', url: '', html: '', css: '', react: '', tailwind: '' });
+            const [editingComponent, setEditingComponent] = useState(null);
+            const [tolerance, setTolerance] = useState(30);
+            const [isLoaded, setIsLoaded] = useState(false);
+            const fileInputRef = useRef(null);
+
+            // Cargar datos de LocalStorage al iniciar
+            useEffect(() => {
+                try {
+                    const savedImages = localStorage.getItem(STORAGE_KEYS.images);
+                    const savedComponents = localStorage.getItem(STORAGE_KEYS.components);
+                    if (savedImages) setImages(JSON.parse(savedImages));
+                    if (savedComponents) setComponents(JSON.parse(savedComponents));
+                } catch (e) {
+                    console.error('Error loading from localStorage:', e);
+                }
+                setIsLoaded(true);
+            }, []);
+
+            // Guardar imagenes en LocalStorage (skip until initial load completes)
+            useEffect(() => {
+                if (!isLoaded) return;
+                try {
+                    localStorage.setItem(STORAGE_KEYS.images, JSON.stringify(images));
+                } catch (e) {
+                    console.error('Error saving images:', e);
+                    if (e.name === 'QuotaExceededError') {
+                        alert('Almacenamiento lleno. Elimina algunas imagenes.');
+                    }
+                }
+            }, [images, isLoaded]);
+
+            // Guardar componentes en LocalStorage (skip until initial load completes)
+            useEffect(() => {
+                if (!isLoaded) return;
+                try {
+                    localStorage.setItem(STORAGE_KEYS.components, JSON.stringify(components));
+                } catch (e) {
+                    console.error('Error saving components:', e);
+                }
+            }, [components, isLoaded]);
+
+            // Eliminar fondo mejorado
+            const removeBackground = (imageFile, customTolerance) => {
+                customTolerance = customTolerance || 30;
+                return new Promise((resolve) => {
+                    const img = new window.Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const data = imageData.data;
+
+                        // Muestrear bordes para detectar fondo
+                        const samples = [];
+                        const w = canvas.width, h = canvas.height;
+
+                        // Bordes superiores e inferiores
+                        for (let x = 0; x < w; x += Math.max(1, Math.floor(w / 20))) {
+                            samples.push((0 * w + x) * 4);
+                            samples.push(((h - 1) * w + x) * 4);
+                        }
+                        // Bordes izquierdo y derecho
+                        for (let y = 0; y < h; y += Math.max(1, Math.floor(h / 20))) {
+                            samples.push((y * w + 0) * 4);
+                            samples.push((y * w + (w - 1)) * 4);
+                        }
+
+                        // Color de fondo promedio
+                        let rSum = 0, gSum = 0, bSum = 0, count = 0;
+                        samples.forEach(i => {
+                            if (i < data.length - 3) {
+                                rSum += data[i]; gSum += data[i + 1]; bSum += data[i + 2];
+                                count++;
+                            }
+                        });
+
+                        const bgColor = {
+                            r: Math.round(rSum / count),
+                            g: Math.round(gSum / count),
+                            b: Math.round(bSum / count)
+                        };
+
+                        // Aplicar transparencia
+                        for (let i = 0; i < data.length; i += 4) {
+                            const diff = Math.abs(data[i] - bgColor.r) +
+                                Math.abs(data[i + 1] - bgColor.g) +
+                                Math.abs(data[i + 2] - bgColor.b);
+
+                            if (diff < customTolerance * 3) {
+                                const alpha = Math.min(255, Math.max(0, (diff / (customTolerance * 3)) * 255));
+                                data[i + 3] = Math.round(alpha);
+                            }
+                        }
+
+                        ctx.putImageData(imageData, 0, 0);
+                        URL.revokeObjectURL(img.src);
+                        resolve({ dataUrl: canvas.toDataURL('image/png'), bgColor });
+                    };
+                    img.onerror = () => {
+                        URL.revokeObjectURL(img.src);
+                        reject(new Error('Failed to load image'));
+                    };
+                    img.src = URL.createObjectURL(imageFile);
+                });
+            };
+
+            // Procesar imagenes
+            const handleImageUpload = async (files) => {
+                setProcessing(true);
+                const newImages = [];
+
+                for (const file of files) {
+                    if (file.type.startsWith('image/')) {
+                        try {
+                            const { dataUrl } = await removeBackground(file, tolerance);
+                            newImages.push({
+                                id: Date.now() + Math.random(),
+                                name: file.name.replace(/\.[^/.]+$/, ''),
+                                dataUrl,
+                                date: new Date().toLocaleDateString('es-ES'),
+                                size: Math.round(file.size / 1024) + ' KB'
+                            });
+                        } catch (e) {
+                            console.error('Error processing image:', e);
+                        }
+                    }
+                }
+
+                setImages(prev => [...newImages, ...prev]);
+                setProcessing(false);
+            };
+
+            // Drag & Drop
+            const handleDrop = (e) => {
+                e.preventDefault();
+                setDragOver(false);
+                handleImageUpload(Array.from(e.dataTransfer.files));
+            };
+
+            // Descargar imagen
+            const downloadImage = (image) => {
+                const link = document.createElement('a');
+                link.download = `${image.name}.png`;
+                link.href = image.dataUrl;
+                link.click();
+            };
+
+            // Descargar todas las imagenes
+            const downloadAllImages = () => {
+                filteredImages.forEach((img, i) => {
+                    setTimeout(() => downloadImage(img), i * 200);
+                });
+            };
+
+            // Copiar codigo
+            const copyCode = (code, id) => {
+                navigator.clipboard.writeText(code).catch(err => {
+                    console.error('Failed to copy to clipboard:', err);
+                });
+                setCopiedId(id);
+                setTimeout(() => setCopiedId(null), 2000);
+            };
+
+            // Guardar nuevo componente
+            const saveNewComponent = () => {
+                if (!newComponent.name) {
+                    alert('Introduce un nombre para el componente');
+                    return;
+                }
+
+                const component = {
+                    id: Date.now(),
+                    ...newComponent,
+                    date: new Date().toLocaleDateString('es-ES')
+                };
+
+                setComponents(prev => [component, ...prev]);
+                setNewComponent({ name: '', url: '', html: '', css: '', react: '', tailwind: '' });
+                setShowAddComponent(false);
+            };
+
+            // Actualizar componente existente
+            const updateComponent = () => {
+                if (!editingComponent.name) {
+                    alert('Introduce un nombre para el componente');
+                    return;
+                }
+                setComponents(prev => prev.map(c =>
+                    c.id === editingComponent.id ? { ...editingComponent } : c
+                ));
+                setEditingComponent(null);
+            };
+
+            // Filtrar
+            const filteredImages = images.filter(img =>
+                img.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            const filteredComponents = components.filter(c =>
+                c.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            // Estadisticas
+            const stats = {
+                images: images.length,
+                components: components.length,
+                storage: Math.round((JSON.stringify(images).length + JSON.stringify(components).length) / 1024)
+            };
+
+            const checkerboardStyle = {
+                backgroundImage: 'linear-gradient(45deg, #1f2937 25%, transparent 25%), linear-gradient(-45deg, #1f2937 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1f2937 75%), linear-gradient(-45deg, transparent 75%, #1f2937 75%)',
+                backgroundSize: '16px 16px',
+                backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px'
+            };
+
+            const checkerboardStyleLarge = {
+                backgroundImage: 'linear-gradient(45deg, #1f2937 25%, transparent 25%), linear-gradient(-45deg, #1f2937 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1f2937 75%), linear-gradient(-45deg, transparent 75%, #1f2937 75%)',
+                backgroundSize: '20px 20px'
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white">
+                    {/* Header */}
+                    <header className="border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-40">
+                        <div className="max-w-7xl mx-auto px-4 py-3">
+                            <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
+                                        <Layers className="w-5 h-5" />
+                                    </div>
+                                    <div className="hidden sm:block">
+                                        <h1 className="text-lg font-bold">Resource Hub</h1>
+                                        <p className="text-xs text-gray-400">rubenpantxo.com</p>
+                                    </div>
+                                </div>
+
+                                {/* Search */}
+                                <div className="relative flex-1 max-w-md">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar recursos..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
+                                    />
+                                </div>
+
+                                {/* Stats */}
+                                <div className="hidden md:flex items-center gap-4 text-xs text-gray-400">
+                                    <span>{stats.images} imgs</span>
+                                    <span>{stats.components} UI</span>
+                                    <span>{stats.storage} KB</span>
+                                </div>
+                            </div>
+
+                            {/* Tabs */}
+                            <div className="flex gap-1 mt-3">
+                                <button
+                                    onClick={() => setActiveTab('images')}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-sm font-medium transition-all ${activeTab === 'images'
+                                        ? 'bg-violet-500/20 text-violet-300 border-b-2 border-violet-500'
+                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    <ImageIcon className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Imagenes PNG</span>
+                                    <span className="sm:hidden">PNG</span>
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('components')}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-sm font-medium transition-all ${activeTab === 'components'
+                                        ? 'bg-fuchsia-500/20 text-fuchsia-300 border-b-2 border-fuchsia-500'
+                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    <Code className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Componentes UI</span>
+                                    <span className="sm:hidden">UI</span>
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 py-6">
+                        {/* === TAB: IMAGENES === */}
+                        {activeTab === 'images' && (
+                            <div className="space-y-6">
+                                {/* Upload Zone */}
+                                <div className="grid md:grid-cols-3 gap-4">
+                                    <div
+                                        onDrop={handleDrop}
+                                        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                                        onDragLeave={() => setDragOver(false)}
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className={`md:col-span-2 border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${dragOver ? 'border-violet-500 bg-violet-500/10' : 'border-white/20 hover:border-white/40 hover:bg-white/5'
+                                            }`}
+                                    >
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            onChange={(e) => handleImageUpload(Array.from(e.target.files))}
+                                            className="hidden"
+                                        />
+                                        <Upload className={`w-12 h-12 mx-auto mb-3 ${dragOver ? 'text-violet-400' : 'text-gray-500'}`} />
+                                        <p className="text-lg font-medium">{processing ? 'Procesando...' : 'Arrastra imagenes aqui'}</p>
+                                        <p className="text-sm text-gray-400 mt-1">JPG, PNG, WEBP, GIF...</p>
+                                        <div className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-violet-500/10 rounded-full text-xs text-violet-300">
+                                            <Sparkles className="w-3 h-3" />
+                                            Eliminacion automatica de fondo
+                                        </div>
+                                    </div>
+
+                                    {/* Settings */}
+                                    <div className="bg-white/5 rounded-2xl p-5 border border-white/10">
+                                        <h3 className="font-medium mb-4 flex items-center gap-2">
+                                            <Edit3 className="w-4 h-4" /> Ajustes
+                                        </h3>
+                                        <label className="block text-sm text-gray-400 mb-2">
+                                            Tolerancia de fondo: {tolerance}
+                                        </label>
+                                        <input
+                                            type="range"
+                                            min="10"
+                                            max="100"
+                                            value={tolerance}
+                                            onChange={(e) => setTolerance(Number(e.target.value))}
+                                            className="w-full accent-violet-500"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-2">
+                                            Mayor = elimina mas fondo
+                                        </p>
+
+                                        {filteredImages.length > 0 && (
+                                            <button
+                                                onClick={downloadAllImages}
+                                                className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 rounded-xl text-sm transition-colors"
+                                            >
+                                                <Download className="w-4 h-4" />
+                                                Descargar todo ({filteredImages.length})
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Image Grid */}
+                                {filteredImages.length > 0 ? (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                                        {filteredImages.map((image) => (
+                                            <div
+                                                key={image.id}
+                                                className="group relative bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-violet-500/50 transition-all"
+                                            >
+                                                <div
+                                                    className="aspect-square cursor-pointer"
+                                                    onClick={() => setSelectedImage(image)}
+                                                    style={checkerboardStyle}
+                                                >
+                                                    <img src={image.dataUrl} alt={image.name} className="w-full h-full object-contain p-2" />
+                                                </div>
+
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+                                                <div className="absolute bottom-0 left-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <p className="text-xs font-medium truncate mb-2">{image.name}</p>
+                                                    <div className="flex gap-1">
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); downloadImage(image); }}
+                                                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-violet-500 hover:bg-violet-600 rounded-lg text-xs font-medium"
+                                                        >
+                                                            <Download className="w-3 h-3" />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setImages(prev => prev.filter(i => i.id !== image.id)); }}
+                                                            className="p-1.5 bg-red-500/30 hover:bg-red-500/50 rounded-lg"
+                                                        >
+                                                            <Trash2 className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-20 text-gray-500">
+                                        <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                                        <p className="text-lg">Sin imagenes</p>
+                                        <p className="text-sm">Sube imagenes para empezar</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* === TAB: COMPONENTES UI === */}
+                        {activeTab === 'components' && (
+                            <div className="space-y-6">
+                                {/* Add Component Button */}
+                                <div className="flex justify-between items-center">
+                                    <p className="text-gray-400 text-sm">
+                                        Agrega componentes de <a href="https://uiverse.io" target="_blank" rel="noopener noreferrer" className="text-fuchsia-400 hover:underline">Uiverse.io</a> u otras fuentes
+                                    </p>
+                                    <button
+                                        onClick={() => setShowAddComponent(true)}
+                                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-fuchsia-500 to-violet-500 hover:from-fuchsia-600 hover:to-violet-600 rounded-xl font-medium text-sm transition-all"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        Agregar componente
+                                    </button>
+                                </div>
+
+                                {/* Components Grid */}
+                                {filteredComponents.length > 0 ? (
+                                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {filteredComponents.map((comp) => (
+                                            <div key={comp.id} className="bg-white/5 rounded-xl border border-white/10 hover:border-fuchsia-500/50 transition-all overflow-hidden">
+                                                <div className="p-4">
+                                                    <div className="flex items-start justify-between mb-3">
+                                                        <div>
+                                                            <h4 className="font-medium">{comp.name}</h4>
+                                                            <p className="text-xs text-gray-500">{comp.date}</p>
+                                                        </div>
+                                                        <div className="flex gap-1">
+                                                            {comp.url && (
+                                                                <a href={comp.url} target="_blank" rel="noopener noreferrer" className="p-1.5 hover:bg-white/10 rounded-lg">
+                                                                    <ExternalLink className="w-4 h-4 text-gray-400" />
+                                                                </a>
+                                                            )}
+                                                            <button onClick={() => setEditingComponent({...comp})} className="p-1.5 hover:bg-white/10 rounded-lg">
+                                                                <Edit3 className="w-4 h-4 text-gray-400" />
+                                                            </button>
+                                                            <button onClick={() => setComponents(prev => prev.filter(c => c.id !== comp.id))} className="p-1.5 hover:bg-red-500/20 rounded-lg">
+                                                                <Trash2 className="w-4 h-4 text-red-400" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Code Buttons */}
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        {[
+                                                            { key: 'html', label: 'HTML' },
+                                                            { key: 'css', label: 'CSS' },
+                                                            { key: 'react', label: 'React' },
+                                                            { key: 'tailwind', label: 'Tailwind' }
+                                                        ].map(({ key, label }) => (
+                                                            <button
+                                                                key={key}
+                                                                onClick={() => comp[key] && copyCode(comp[key], `${comp.id}-${key}`)}
+                                                                disabled={!comp[key]}
+                                                                className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${comp[key]
+                                                                    ? 'bg-white/10 hover:bg-white/20 text-white'
+                                                                    : 'bg-white/5 text-gray-600 cursor-not-allowed'
+                                                                    }`}
+                                                            >
+                                                                <span>{label}</span>
+                                                                {comp[key] && (
+                                                                    copiedId === `${comp.id}-${key}`
+                                                                        ? <Check className="w-3 h-3 text-green-400" />
+                                                                        : <Copy className="w-3 h-3" />
+                                                                )}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+
+                                                    <button
+                                                        onClick={() => setSelectedComponent(comp)}
+                                                        className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 bg-fuchsia-500/20 hover:bg-fuchsia-500/30 text-fuchsia-300 rounded-lg text-xs font-medium"
+                                                    >
+                                                        <Eye className="w-3 h-3" />
+                                                        Ver codigo completo
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-20 text-gray-500">
+                                        <Code className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                                        <p className="text-lg">Sin componentes</p>
+                                        <p className="text-sm">Agrega tu primer componente UI</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </main>
+
+                    {/* Modal: Vista previa imagen */}
+                    {selectedImage && (
+                        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
+                            <div className="bg-gray-900 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden border border-white/10" onClick={e => e.stopPropagation()}>
+                                <div className="flex items-center justify-between p-4 border-b border-white/10">
+                                    <h3 className="font-medium">{selectedImage.name}.png</h3>
+                                    <button onClick={() => setSelectedImage(null)} className="p-1.5 hover:bg-white/10 rounded-lg">
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+                                <div
+                                    className="p-8 flex items-center justify-center"
+                                    style={checkerboardStyleLarge}
+                                >
+                                    <img src={selectedImage.dataUrl} alt={selectedImage.name} className="max-h-[60vh] object-contain" />
+                                </div>
+                                <div className="p-4 border-t border-white/10 flex justify-between items-center">
+                                    <span className="text-sm text-gray-400">{selectedImage.date}</span>
+                                    <button
+                                        onClick={() => downloadImage(selectedImage)}
+                                        className="flex items-center gap-2 px-4 py-2 bg-violet-500 hover:bg-violet-600 rounded-xl font-medium text-sm"
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        Descargar PNG
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Modal: Ver codigo componente */}
+                    {selectedComponent && !editingComponent && (
+                        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedComponent(null)}>
+                            <div className="bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/10" onClick={e => e.stopPropagation()}>
+                                <div className="flex items-center justify-between p-4 border-b border-white/10">
+                                    <h3 className="font-medium">{selectedComponent.name}</h3>
+                                    <button onClick={() => setSelectedComponent(null)} className="p-1.5 hover:bg-white/10 rounded-lg">
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+                                <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+                                    {['html', 'css', 'react', 'tailwind'].map((lang) => selectedComponent[lang] && (
+                                        <div key={lang} className="bg-black/30 rounded-xl overflow-hidden">
+                                            <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
+                                                <span className="text-sm font-medium uppercase text-gray-400">{lang}</span>
+                                                <button
+                                                    onClick={() => copyCode(selectedComponent[lang], `modal-${lang}`)}
+                                                    className="flex items-center gap-1.5 px-2 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-xs"
+                                                >
+                                                    {copiedId === `modal-${lang}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                                                    Copiar
+                                                </button>
+                                            </div>
+                                            <pre className="p-4 text-sm text-gray-300 overflow-x-auto">
+                                                <code>{selectedComponent[lang]}</code>
+                                            </pre>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Modal: Agregar/Editar componente */}
+                    {(showAddComponent || editingComponent) && (
+                        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setShowAddComponent(false); setEditingComponent(null); }}>
+                            <div className="bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/10" onClick={e => e.stopPropagation()}>
+                                <div className="flex items-center justify-between p-4 border-b border-white/10">
+                                    <h3 className="font-medium">{editingComponent ? 'Editar' : 'Agregar'} Componente</h3>
+                                    <button onClick={() => { setShowAddComponent(false); setEditingComponent(null); }} className="p-1.5 hover:bg-white/10 rounded-lg">
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+                                <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm text-gray-400 mb-1">Nombre *</label>
+                                            <input
+                                                type="text"
+                                                placeholder="ej: Button Gradient"
+                                                value={editingComponent ? editingComponent.name : newComponent.name}
+                                                onChange={(e) => editingComponent
+                                                    ? setEditingComponent({ ...editingComponent, name: e.target.value })
+                                                    : setNewComponent({ ...newComponent, name: e.target.value })
+                                                }
+                                                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-fuchsia-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm text-gray-400 mb-1">URL (opcional)</label>
+                                            <input
+                                                type="url"
+                                                placeholder="https://uiverse.io/..."
+                                                value={editingComponent ? editingComponent.url : newComponent.url}
+                                                onChange={(e) => editingComponent
+                                                    ? setEditingComponent({ ...editingComponent, url: e.target.value })
+                                                    : setNewComponent({ ...newComponent, url: e.target.value })
+                                                }
+                                                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-fuchsia-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {['html', 'css', 'react', 'tailwind'].map((lang) => (
+                                        <div key={lang}>
+                                            <label className="block text-sm text-gray-400 mb-1 uppercase">{lang}</label>
+                                            <textarea
+                                                placeholder={`Pega el codigo ${lang.toUpperCase()} aqui...`}
+                                                rows={4}
+                                                value={editingComponent ? (editingComponent[lang] || '') : newComponent[lang]}
+                                                onChange={(e) => editingComponent
+                                                    ? setEditingComponent({ ...editingComponent, [lang]: e.target.value })
+                                                    : setNewComponent({ ...newComponent, [lang]: e.target.value })
+                                                }
+                                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-mono focus:outline-none focus:border-fuchsia-500 resize-none"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="p-4 border-t border-white/10 flex justify-end gap-3">
+                                    <button
+                                        onClick={() => { setShowAddComponent(false); setEditingComponent(null); }}
+                                        className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={editingComponent ? updateComponent : saveNewComponent}
+                                        className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-fuchsia-500 to-violet-500 hover:from-fuchsia-600 hover:to-violet-600 rounded-xl font-medium"
+                                    >
+                                        <Save className="w-4 h-4" />
+                                        {editingComponent ? 'Guardar cambios' : 'Agregar componente'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // ==========================================
+        // Render Application
+        // ==========================================
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(ResourceHub));
+    </script>
+</body>
+</html>
