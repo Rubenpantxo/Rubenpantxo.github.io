@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca - rubenpantxo.com</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- SVG Icon Components (replacing lucide-react) ---
+
+        const Icon = ({ children, className = '', size = 24, ...props }) => (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={size}
+                height={size}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={className}
+                {...props}
+            >
+                {children}
+            </svg>
+        );
+
+        const ArrowLeft = ({ className, ...props }) => (
+            <Icon className={`w-4 h-4 ${className || ''}`} {...props}>
+                <path d="m12 19-7-7 7-7" />
+                <path d="M19 12H5" />
+            </Icon>
+        );
+
+        const BookIcon = ({ className, ...props }) => (
+            <Icon className={`w-8 h-8 ${className || ''}`} {...props}>
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
+            </Icon>
+        );
+
+        const LibraryIcon = ({ className, ...props }) => (
+            <Icon className={`w-6 h-6 ${className || ''}`} {...props}>
+                <path d="m16 6 4 14" />
+                <path d="M12 6v14" />
+                <path d="M8 8v12" />
+                <path d="M4 4v16" />
+            </Icon>
+        );
+
+        // --- DATA & CONFIGURATION ---
+
+        const CATEGORIES = [
+            { id: 'infantiles', name: 'Infantiles', color: '#FCD34D', label: 'Amarillo' },
+            { id: 'psicologia', name: 'Psicología', color: '#FB923C', label: 'Naranja' },
+            { id: 'teologia', name: 'Teología/Creencias', color: '#86EFAC', label: 'Verde Claro' },
+            { id: 'derecho', name: 'Derecho', color: '#93C5FD', label: 'Azul Claro' },
+            { id: 'historia', name: 'Historia', color: '#D8B4FE', label: 'Morado Claro' },
+            { id: 'navarra', name: 'Navarra', color: '#EF4444', label: 'Rojo' },
+            { id: 'cocina', name: 'Cocina', color: '#A0522D', label: 'Marrón' },
+            { id: 'viajes', name: 'Viajes', color: '#22C55E', label: 'Verde Oscuro' },
+            { id: 'novelas', name: 'Novelas', color: '#9CA3AF', label: 'Gris' },
+            { id: 'ciencias', name: 'Otras ciencias', color: '#60A5FA', label: 'Azul Oscuro' },
+            { id: 'arte', name: 'Arte', color: '#991B1B', label: 'Granate' },
+            { id: 'enciclopedias', name: 'Enciclopedias / Diccionarios', color: '#C084FC', label: 'Morado Oscuro' },
+        ];
+
+        const MOCK_BOOKS = {
+            infantiles: [
+                { title: "El Principito", author: "Antoine de Saint-Exupéry" },
+                { title: "Donde viven los monstruos", author: "Maurice Sendak" },
+                { title: "La Oruga Glotona", author: "Eric Carle" },
+                { title: "Buenas noches, Luna", author: "Margaret Wise Brown" }
+            ],
+            psicologia: [
+                { title: "Pensar rápido, pensar despacio", author: "Daniel Kahneman" },
+                { title: "El hombre en busca de sentido", author: "Viktor Frankl" },
+                { title: "Inteligencia Emocional", author: "Daniel Goleman" },
+                { title: "El poder de los hábitos", author: "Charles Duhigg" }
+            ],
+            teologia: [
+                { title: "La Biblia", author: "Varios Autores" },
+                { title: "Mera Cristianidad", author: "C.S. Lewis" },
+                { title: "Confesiones", author: "San Agustín" },
+                { title: "Suma Teológica", author: "Santo Tomás de Aquino" }
+            ],
+            derecho: [
+                { title: "Introducción al Derecho", author: "Ángel Latorre" },
+                { title: "Teoría Pura del Derecho", author: "Hans Kelsen" },
+                { title: "El Espíritu de las Leyes", author: "Montesquieu" },
+                { title: "Derecho Constitucional", author: "Jorge de Esteban" }
+            ],
+            historia: [
+                { title: "Sapiens", author: "Yuval Noah Harari" },
+                { title: "Historia de España", author: "Arturo Pérez-Reverte" },
+                { title: "SPQR", author: "Mary Beard" },
+                { title: "Los cañones de agosto", author: "Barbara Tuchman" }
+            ],
+            navarra: [
+                { title: "Historia del Reino de Navarra", author: "José María Lacarra" },
+                { title: "Navarra: Castillos y Fortalezas", author: "Iñaki Sagredo" },
+                { title: "Leyendas de Navarra", author: "Varios" },
+                { title: "La cocina navarra", author: "Varios" }
+            ],
+            cocina: [
+                { title: "1080 Recetas de Cocina", author: "Simone Ortega" },
+                { title: "La cocina y los alimentos", author: "Harold McGee" },
+                { title: "Jerusalén", author: "Yotam Ottolenghi" },
+                { title: "El arte de la cocina francesa", author: "Julia Child" }
+            ],
+            viajes: [
+                { title: "En la Patagonia", author: "Bruce Chatwin" },
+                { title: "Hacia rutas salvajes", author: "Jon Krakauer" },
+                { title: "El camino más corto", author: "Manu Leguineche" },
+                { title: "Viaje al centro de la Tierra", author: "Julio Verne" }
+            ],
+            novelas: [
+                { title: "Cien años de soledad", author: "Gabriel García Márquez" },
+                { title: "1984", author: "George Orwell" },
+                { title: "Don Quijote de la Mancha", author: "Miguel de Cervantes" },
+                { title: "Orgullo y Prejuicio", author: "Jane Austen" }
+            ],
+            ciencias: [
+                { title: "Breve historia del tiempo", author: "Stephen Hawking" },
+                { title: "El gen egoísta", author: "Richard Dawkins" },
+                { title: "Cosmos", author: "Carl Sagan" },
+                { title: "El origen de las especies", author: "Charles Darwin" }
+            ],
+            arte: [
+                { title: "Historia del Arte", author: "E.H. Gombrich" },
+                { title: "De lo espiritual en el arte", author: "Wassily Kandinsky" },
+                { title: "Vidas de los artistas", author: "Giorgio Vasari" },
+                { title: "Saber ver la arquitectura", author: "Bruno Zevi" }
+            ],
+            enciclopedias: [
+                { title: "Enciclopedia Británica", author: "Varios" },
+                { title: "Diccionario de la RAE", author: "Real Academia" },
+                { title: "Diccionario María Moliner", author: "María Moliner" },
+                { title: "L'Encyclopédie", author: "Diderot & d'Alembert" }
+            ]
+        };
+
+        // --- CSS STYLES FOR BACKGROUND ---
+        const FLASHLIGHT_CSS = `
+            .flashlight-container {
+                --color-0: #fff;
+                --color-1: #111;
+                --color-2: #222;
+                --color-3: #333;
+                --color-4: #2e2e2e;
+                --color-5: #d2b48c;
+                --color-6: #b22222;
+                --color-7: #871a1a;
+                --color-8: #ff6347;
+                --color-9: #ff3814;
+                width: 100%;
+                min-height: 100vh;
+                background-color: var(--color-1);
+                background-image: linear-gradient(
+                    to top,
+                    var(--color-2) 5%,
+                    var(--color-1) 6%,
+                    var(--color-1) 7%,
+                    transparent 7%
+                ),
+                linear-gradient(to bottom, var(--color-1) 30%, transparent 80%),
+                linear-gradient(to right, var(--color-2), var(--color-4) 5%, transparent 5%),
+                linear-gradient(
+                    to right,
+                    transparent 6%,
+                    var(--color-2) 6%,
+                    var(--color-4) 9%,
+                    transparent 9%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 27%,
+                    var(--color-2) 27%,
+                    var(--color-4) 34%,
+                    transparent 34%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 51%,
+                    var(--color-2) 51%,
+                    var(--color-4) 57%,
+                    transparent 57%
+                ),
+                linear-gradient(to bottom, var(--color-1) 35%, transparent 35%),
+                linear-gradient(
+                    to right,
+                    transparent 42%,
+                    var(--color-2) 42%,
+                    var(--color-4) 44%,
+                    transparent 44%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 45%,
+                    var(--color-2) 45%,
+                    var(--color-4) 47%,
+                    transparent 47%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 48%,
+                    var(--color-2) 48%,
+                    var(--color-4) 50%,
+                    transparent 50%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 87%,
+                    var(--color-2) 87%,
+                    var(--color-4) 91%,
+                    transparent 91%
+                ),
+                linear-gradient(to bottom, var(--color-1) 37.5%, transparent 37.5%),
+                linear-gradient(
+                    to right,
+                    transparent 14%,
+                    var(--color-2) 14%,
+                    var(--color-4) 20%,
+                    transparent 20%
+                ),
+                linear-gradient(to bottom, var(--color-1) 40%, transparent 40%),
+                linear-gradient(
+                    to right,
+                    transparent 10%,
+                    var(--color-2) 10%,
+                    var(--color-4) 13%,
+                    transparent 13%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 21%,
+                    var(--color-2) 21%,
+                    #1a1a1a 25%,
+                    transparent 25%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 58%,
+                    var(--color-2) 58%,
+                    var(--color-4) 64%,
+                    transparent 64%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 92%,
+                    var(--color-2) 92%,
+                    var(--color-4) 95%,
+                    transparent 95%
+                ),
+                linear-gradient(to bottom, var(--color-1) 48%, transparent 48%),
+                linear-gradient(
+                    to right,
+                    transparent 96%,
+                    var(--color-2) 96%,
+                    #1a1a1a 99%,
+                    transparent 99%
+                ),
+                linear-gradient(
+                    to bottom,
+                    transparent 68.5%,
+                    transparent 76%,
+                    var(--color-1) 76%,
+                    var(--color-1) 77.5%,
+                    transparent 77.5%,
+                    transparent 86%,
+                    var(--color-1) 86%,
+                    var(--color-1) 87.5%,
+                    transparent 87.5%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 35%,
+                    var(--color-2) 35%,
+                    var(--color-4) 41%,
+                    transparent 41%
+                ),
+                linear-gradient(to bottom, var(--color-1) 68%, transparent 68%),
+                linear-gradient(
+                    to right,
+                    transparent 78%,
+                    var(--color-3) 78%,
+                    var(--color-3) 80%,
+                    transparent 80%,
+                    transparent 82%,
+                    var(--color-3) 82%,
+                    var(--color-3) 83%,
+                    transparent 83%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 66%,
+                    var(--color-2) 66%,
+                    var(--color-4) 85%,
+                    transparent 85%
+                );
+                background-size: 300px 150px;
+                background-position: center bottom;
+                position: relative;
+                overflow-y: auto;
+            }
+
+            .flashlight-container:before {
+                content: "";
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                background-color: var(--color-1);
+                background-image: linear-gradient(
+                    to top,
+                    var(--color-5) 5%,
+                    var(--color-1) 6%,
+                    var(--color-1) 7%,
+                    transparent 7%
+                ),
+                linear-gradient(to bottom, var(--color-1) 30%, transparent 30%),
+                linear-gradient(to right, var(--color-6), var(--color-7) 5%, transparent 5%),
+                linear-gradient(
+                    to right,
+                    transparent 6%,
+                    var(--color-8) 6%,
+                    var(--color-9) 9%,
+                    transparent 9%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 27%,
+                    #556b2f 27%,
+                    #39481f 34%,
+                    transparent 34%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 51%,
+                    #fa8072 51%,
+                    #f85441 57%,
+                    transparent 57%
+                ),
+                linear-gradient(to bottom, var(--color-1) 35%, transparent 35%),
+                linear-gradient(
+                    to right,
+                    transparent 42%,
+                    #008080 42%,
+                    #004d4d 44%,
+                    transparent 44%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 45%,
+                    #008080 45%,
+                    #004d4d 47%,
+                    transparent 47%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 48%,
+                    #008080 48%,
+                    #004d4d 50%,
+                    transparent 50%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 87%,
+                    #789 87%,
+                    #4f5d6a 91%,
+                    transparent 91%
+                ),
+                linear-gradient(to bottom, var(--color-1) 37.5%, transparent 37.5%),
+                linear-gradient(
+                    to right,
+                    transparent 14%,
+                    #bdb76b 14%,
+                    #989244 20%,
+                    transparent 20%
+                ),
+                linear-gradient(to bottom, var(--color-1) 40%, transparent 40%),
+                linear-gradient(
+                    to right,
+                    transparent 10%,
+                    #808000 10%,
+                    #4d4d00 13%,
+                    transparent 13%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 21%,
+                    #8b4513 21%,
+                    #5e2f0d 25%,
+                    transparent 25%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 58%,
+                    #8b4513 58%,
+                    #5e2f0d 64%,
+                    transparent 64%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 92%,
+                    #2f4f4f 92%,
+                    #1c2f2f 95%,
+                    transparent 95%
+                ),
+                linear-gradient(to bottom, var(--color-1) 48%, transparent 48%),
+                linear-gradient(
+                    to right,
+                    transparent 96%,
+                    #2f4f4f 96%,
+                    #1c2f2f 99%,
+                    transparent 99%
+                ),
+                linear-gradient(
+                    to bottom,
+                    transparent 68.5%,
+                    transparent 76%,
+                    var(--color-1) 76%,
+                    var(--color-1) 77.5%,
+                    transparent 77.5%,
+                    transparent 86%,
+                    var(--color-1) 86%,
+                    var(--color-1) 87.5%,
+                    transparent 87.5%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 35%,
+                    #cd5c5c 35%,
+                    #bc3a3a 41%,
+                    transparent 41%
+                ),
+                linear-gradient(to bottom, var(--color-1) 68%, transparent 68%),
+                linear-gradient(
+                    to right,
+                    transparent 78%,
+                    #bc8f8f 78%,
+                    #bc8f8f 80%,
+                    transparent 80%,
+                    transparent 82%,
+                    #bc8f8f 82%,
+                    #bc8f8f 83%,
+                    transparent 83%
+                ),
+                linear-gradient(
+                    to right,
+                    transparent 66%,
+                    #a52a2a 66%,
+                    #7c2020 85%,
+                    transparent 85%
+                );
+                background-size: 300px 150px;
+                background-position: center bottom;
+                z-index: 0;
+            }
+
+            .content-wrapper {
+                position: relative;
+                z-index: 10;
+                width: 100%;
+                min-height: 100vh;
+            }
+        `;
+
+        // --- COMPONENTS ---
+
+        const CategoryCard = ({ category, onClick }) => {
+            return (
+                <button
+                    onClick={() => onClick(category)}
+                    className="group relative w-full h-32 md:h-40 rounded-xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95 flex items-center justify-center overflow-hidden backdrop-blur-sm"
+                    style={{
+                        backgroundColor: 'transparent',
+                        borderColor: category.color,
+                        borderWidth: '2px',
+                        color: category.color,
+                        boxShadow: `0 0 10px -5px ${category.color}`
+                    }}
+                >
+                    <div className="z-10 text-center px-4">
+                        <h3 className="text-xl md:text-2xl font-bold uppercase tracking-wider font-mono drop-shadow-md">
+                            {category.name}
+                        </h3>
+                    </div>
+
+                    <div
+                        className="absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-10"
+                        style={{ backgroundColor: category.color }}
+                    />
+                </button>
+            );
+        };
+
+        const BookItem = ({ book, color }) => {
+            return (
+                <div
+                    className="relative group cursor-pointer"
+                    style={{ minHeight: '160px' }}
+                >
+                    <div
+                        className="h-full w-full rounded-lg p-4 flex flex-col items-center justify-center text-center transition-all duration-300 transform group-hover:scale-105 shadow-lg border-l-4 border-opacity-50 border-black/20"
+                        style={{
+                            backgroundColor: color,
+                            color: '#000',
+                            boxShadow: '5px 5px 15px rgba(0,0,0,0.5)'
+                        }}
+                    >
+                        <div className="absolute left-2 top-0 bottom-0 w-1 bg-black/10"></div>
+
+                        <div className="flex flex-col items-center justify-center h-full w-full transition-all duration-300">
+                            <BookIcon className="w-8 h-8 mb-2 opacity-70" />
+                            <h4 className="font-bold text-lg leading-tight transition-all duration-300 group-hover:-translate-y-2">
+                                {book.title}
+                            </h4>
+                            <div className="max-h-0 overflow-hidden group-hover:max-h-20 transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100">
+                                <p className="text-sm mt-2 font-medium border-t border-black/50 pt-1 inline-block opacity-80">
+                                    {book.author}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        function App() {
+            const [selectedCategory, setSelectedCategory] = useState(null);
+
+            return (
+                <>
+                    <style>{FLASHLIGHT_CSS}</style>
+
+                    <div className="flashlight-container font-sans text-gray-100">
+
+                        <div className="content-wrapper">
+
+                            <header className="p-6 bg-gray-900/60 backdrop-blur-md sticky top-0 z-50 border-b border-gray-800/50">
+                                <div className="max-w-7xl mx-auto flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-indigo-600/80 rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.5)]">
+                                            <LibraryIcon className="w-6 h-6 text-white" />
+                                        </div>
+                                        <h1 className="text-2xl font-bold tracking-tight text-white drop-shadow-md">
+                                            Gestor de Biblioteca
+                                        </h1>
+                                    </div>
+
+                                    {selectedCategory && (
+                                        <button
+                                            onClick={() => setSelectedCategory(null)}
+                                            className="flex items-center gap-2 px-4 py-2 bg-gray-800/80 hover:bg-gray-700/80 border border-gray-600 rounded-lg transition-colors text-sm font-medium backdrop-blur-sm"
+                                        >
+                                            <ArrowLeft className="w-4 h-4" />
+                                            Volver a Categorías
+                                        </button>
+                                    )}
+                                </div>
+                            </header>
+
+                            <main className="max-w-7xl mx-auto p-4 md:p-8">
+
+                                {!selectedCategory ? (
+                                    <div>
+                                        <h2 className="text-xl text-gray-300 mb-6 font-light drop-shadow-md">Selecciona una categoría para explorar</h2>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                                            {CATEGORIES.map((cat) => (
+                                                <CategoryCard
+                                                    key={cat.id}
+                                                    category={cat}
+                                                    onClick={setSelectedCategory}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <div className="mb-8 flex items-baseline gap-4 border-b border-gray-700/50 pb-4">
+                                            <h2
+                                                className="text-3xl md:text-4xl font-black uppercase"
+                                                style={{ color: selectedCategory.color }}
+                                            >
+                                                {selectedCategory.name}
+                                            </h2>
+                                            <span className="text-gray-400 font-medium">{MOCK_BOOKS[selectedCategory.id]?.length || 0} libros</span>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+                                            {MOCK_BOOKS[selectedCategory.id]?.map((book, index) => (
+                                                <BookItem
+                                                    key={index}
+                                                    book={book}
+                                                    color={selectedCategory.color}
+                                                />
+                                            ))}
+
+                                            {(!MOCK_BOOKS[selectedCategory.id] || MOCK_BOOKS[selectedCategory.id].length === 0) && (
+                                                <div className="col-span-full text-center py-20 text-gray-500">
+                                                    <p>No hay libros registrados en esta categoría aún.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </main>
+
+                            <footer className="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm border-t border-gray-800/50 p-2 text-center text-xs text-gray-500">
+                                Sistema de Archivo v1.1
+                            </footer>
+
+                        </div>
+                    </div>
+                </>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
