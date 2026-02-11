@@ -1,838 +1,617 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resource Hub - rubenpantxo.com</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
-        /* Textarea scrollbar */
-        textarea::-webkit-scrollbar { width: 4px; }
-        textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Biblioteca de Recursos</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--card:#12121a;--border:#1e1e2e;--acc:#a855f7;--acc2:#ec4899;--txt:#e2e2e8;--mut:#6b6b80;--ok:#22c55e}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+.hdr{background:linear-gradient(135deg,#1a1a2e,#16213e);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hdr h1{font-size:1.3rem;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tab{padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--mut);cursor:pointer;font-size:.85rem;transition:.2s}
+.tab:hover{border-color:var(--acc);color:var(--txt)}
+.tab.act{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent;font-weight:600}
+.main{max-width:1100px;margin:0 auto;padding:20px}
+.sec{display:none}.sec.act{display:block}
+.dz{border:2px dashed var(--border);border-radius:14px;padding:40px 20px;text-align:center;cursor:pointer;transition:.3s;margin-bottom:20px}
+.dz:hover,.dz.over{border-color:var(--acc);background:rgba(168,85,247,.05)}
+.dz svg{width:48px;height:48px;stroke:var(--mut);margin-bottom:12px}
+.dz p{color:var(--mut);font-size:.9rem}
+.dz .sm{font-size:.75rem;margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:.2s}
+.card:hover{border-color:var(--acc);transform:translateY(-2px)}
+.card-img{position:relative;height:180px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#1a1a2e 0% 25%,#22222e 0% 50%) 50%/16px 16px}
+.card-img img{max-width:90%;max-height:90%;object-fit:contain}
+.card-info{padding:10px 12px;display:flex;align-items:center;justify-content:space-between}
+.card-info span{font-size:.8rem;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
+.card-btns{display:flex;gap:6px}
+.ibtn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--txt);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;font-size:.8rem}
+.ibtn:hover{border-color:var(--acc);color:var(--acc)}
+.ibtn.dl:hover{border-color:var(--ok);color:var(--ok)}
+.ibtn.rm:hover{border-color:#ef4444;color:#ef4444}
+.status{padding:10px 16px;border-radius:10px;margin-bottom:16px;font-size:.85rem;display:none;align-items:center;gap:8px}
+.status.show{display:flex}
+.status.info{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);color:var(--acc)}
+.status.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--ok)}
+.status.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#ef4444}
+.url-row{display:flex;gap:8px;margin-bottom:16px}
+.url-row input{flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--txt);font-size:.9rem;outline:none}
+.url-row input:focus{border-color:var(--acc)}
+.btn{padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font-weight:600;cursor:pointer;font-size:.9rem;transition:.2s;white-space:nowrap}
+.btn:hover{opacity:.85}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.comp-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;transition:.2s}
+.comp-card:hover{border-color:var(--acc)}
+.comp-top{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+.comp-preview{width:60px;height:60px;border-radius:8px;background:#1a1a2e;border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.comp-preview iframe{width:200px;height:200px;border:none;transform:scale(.3);transform-origin:top left;pointer-events:none}
+.comp-meta{flex:1;min-width:0}
+.comp-meta h3{font-size:.95rem;font-weight:600;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.comp-meta p{font-size:.75rem;color:var(--mut)}
+.comp-actions{display:flex;gap:6px}
+.comp-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
+.comp-body.open{display:block}
+.code-tabs{display:flex;gap:4px;margin:12px 0 8px;flex-wrap:wrap}
+.ctab{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--mut);cursor:pointer;font-size:.75rem;transition:.2s}
+.ctab.act{background:var(--acc);color:#fff;border-color:var(--acc)}
+.code-block{background:#0d0d14;border:1px solid var(--border);border-radius:8px;padding:12px;max-height:300px;overflow:auto;font-family:'Cascadia Code',monospace;font-size:.8rem;line-height:1.5;white-space:pre-wrap;word-break:break-all;color:#c9d1d9;position:relative}
+.code-block .copy-btn{position:absolute;top:8px;right:8px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--mut);cursor:pointer;font-size:.7rem}
+.code-block .copy-btn:hover{color:var(--acc);border-color:var(--acc)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--acc);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:60px 20px;color:var(--mut)}
+.empty svg{width:64px;height:64px;stroke:var(--border);margin-bottom:16px}
+.processing-overlay{position:absolute;inset:0;background:rgba(10,10,15,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:14px;z-index:5}
+.processing-overlay .spinner{width:32px;height:32px;border-width:3px}
+.processing-overlay p{color:var(--mut);font-size:.85rem}
+</style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useRef, useEffect } = React;
-
-        // ==========================================
-        // Icon Components (SVG-based, replacing lucide-react)
-        // ==========================================
-        const Icon = ({ children, className = '', ...props }) => (
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={className}
-                {...props}
-            >
-                {children}
-            </svg>
-        );
-
-        const Upload = (props) => (
-            <Icon {...props}>
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" x2="12" y1="3" y2="15" />
-            </Icon>
-        );
-
-        const ImageIcon = (props) => (
-            <Icon {...props}>
-                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-            </Icon>
-        );
-
-        const Code = (props) => (
-            <Icon {...props}>
-                <polyline points="16 18 22 12 16 6" />
-                <polyline points="8 6 2 12 8 18" />
-            </Icon>
-        );
-
-        const Download = (props) => (
-            <Icon {...props}>
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" x2="12" y1="15" y2="3" />
-            </Icon>
-        );
-
-        const Trash2 = (props) => (
-            <Icon {...props}>
-                <path d="M3 6h18" />
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                <line x1="10" x2="10" y1="11" y2="17" />
-                <line x1="14" x2="14" y1="11" y2="17" />
-            </Icon>
-        );
-
-        const Copy = (props) => (
-            <Icon {...props}>
-                <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-            </Icon>
-        );
-
-        const Check = (props) => (
-            <Icon {...props}>
-                <path d="M20 6 9 17l-5-5" />
-            </Icon>
-        );
-
-        const Search = (props) => (
-            <Icon {...props}>
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-            </Icon>
-        );
-
-        const FolderOpen = (props) => (
-            <Icon {...props}>
-                <path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
-            </Icon>
-        );
-
-        const Layers = (props) => (
-            <Icon {...props}>
-                <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
-                <path d="m22.37 12.09-1.22-.55-8.32 3.79a2 2 0 0 1-1.66 0l-8.32-3.79-1.22.55a1 1 0 0 0 0 1.82l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0-.08-1.83Z" />
-                <path d="m22.37 16.09-1.22-.55-8.32 3.79a2 2 0 0 1-1.66 0l-8.32-3.79-1.22.55a1 1 0 0 0 0 1.82l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0-.08-1.83Z" />
-            </Icon>
-        );
-
-        const Sparkles = (props) => (
-            <Icon {...props}>
-                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-                <path d="M5 3v4" />
-                <path d="M19 17v4" />
-                <path d="M3 5h4" />
-                <path d="M17 19h4" />
-            </Icon>
-        );
-
-        const X = (props) => (
-            <Icon {...props}>
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-            </Icon>
-        );
-
-        const ExternalLink = (props) => (
-            <Icon {...props}>
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-                <line x1="10" x2="21" y1="14" y2="3" />
-            </Icon>
-        );
-
-        const Plus = (props) => (
-            <Icon {...props}>
-                <path d="M5 12h14" />
-                <path d="M12 5v14" />
-            </Icon>
-        );
-
-        const Edit3 = (props) => (
-            <Icon {...props}>
-                <path d="M12 20h9" />
-                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-            </Icon>
-        );
-
-        const Save = (props) => (
-            <Icon {...props}>
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                <polyline points="17 21 17 13 7 13 7 21" />
-                <polyline points="7 3 7 8 15 8" />
-            </Icon>
-        );
-
-        const Eye = (props) => (
-            <Icon {...props}>
-                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                <circle cx="12" cy="12" r="3" />
-            </Icon>
-        );
-
-        // ==========================================
-        // ResourceHub Application
-        // ==========================================
-        const STORAGE_KEYS = {
-            images: 'resourcehub_images',
-            components: 'resourcehub_components'
-        };
-
-        function ResourceHub() {
-            const [activeTab, setActiveTab] = useState('images');
-            const [images, setImages] = useState([]);
-            const [components, setComponents] = useState([]);
-            const [searchTerm, setSearchTerm] = useState('');
-            const [processing, setProcessing] = useState(false);
-            const [copiedId, setCopiedId] = useState(null);
-            const [selectedImage, setSelectedImage] = useState(null);
-            const [selectedComponent, setSelectedComponent] = useState(null);
-            const [dragOver, setDragOver] = useState(false);
-            const [showAddComponent, setShowAddComponent] = useState(false);
-            const [newComponent, setNewComponent] = useState({ name: '', url: '', html: '', css: '', react: '', tailwind: '' });
-            const [editingComponent, setEditingComponent] = useState(null);
-            const [tolerance, setTolerance] = useState(30);
-            const [isLoaded, setIsLoaded] = useState(false);
-            const fileInputRef = useRef(null);
-
-            // Cargar datos de LocalStorage al iniciar
-            useEffect(() => {
-                try {
-                    const savedImages = localStorage.getItem(STORAGE_KEYS.images);
-                    const savedComponents = localStorage.getItem(STORAGE_KEYS.components);
-                    if (savedImages) setImages(JSON.parse(savedImages));
-                    if (savedComponents) setComponents(JSON.parse(savedComponents));
-                } catch (e) {
-                    console.error('Error loading from localStorage:', e);
-                }
-                setIsLoaded(true);
-            }, []);
-
-            // Guardar imagenes en LocalStorage (skip until initial load completes)
-            useEffect(() => {
-                if (!isLoaded) return;
-                try {
-                    localStorage.setItem(STORAGE_KEYS.images, JSON.stringify(images));
-                } catch (e) {
-                    console.error('Error saving images:', e);
-                    if (e.name === 'QuotaExceededError') {
-                        alert('Almacenamiento lleno. Elimina algunas imagenes.');
-                    }
-                }
-            }, [images, isLoaded]);
-
-            // Guardar componentes en LocalStorage (skip until initial load completes)
-            useEffect(() => {
-                if (!isLoaded) return;
-                try {
-                    localStorage.setItem(STORAGE_KEYS.components, JSON.stringify(components));
-                } catch (e) {
-                    console.error('Error saving components:', e);
-                }
-            }, [components, isLoaded]);
-
-            // Eliminar fondo mejorado
-            const removeBackground = (imageFile, customTolerance) => {
-                customTolerance = customTolerance || 30;
-                return new Promise((resolve) => {
-                    const img = new window.Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        ctx.drawImage(img, 0, 0);
-
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        const data = imageData.data;
-
-                        // Muestrear bordes para detectar fondo
-                        const samples = [];
-                        const w = canvas.width, h = canvas.height;
-
-                        // Bordes superiores e inferiores
-                        for (let x = 0; x < w; x += Math.max(1, Math.floor(w / 20))) {
-                            samples.push((0 * w + x) * 4);
-                            samples.push(((h - 1) * w + x) * 4);
-                        }
-                        // Bordes izquierdo y derecho
-                        for (let y = 0; y < h; y += Math.max(1, Math.floor(h / 20))) {
-                            samples.push((y * w + 0) * 4);
-                            samples.push((y * w + (w - 1)) * 4);
-                        }
-
-                        // Color de fondo promedio
-                        let rSum = 0, gSum = 0, bSum = 0, count = 0;
-                        samples.forEach(i => {
-                            if (i < data.length - 3) {
-                                rSum += data[i]; gSum += data[i + 1]; bSum += data[i + 2];
-                                count++;
-                            }
-                        });
-
-                        const bgColor = {
-                            r: Math.round(rSum / count),
-                            g: Math.round(gSum / count),
-                            b: Math.round(bSum / count)
-                        };
-
-                        // Aplicar transparencia
-                        for (let i = 0; i < data.length; i += 4) {
-                            const diff = Math.abs(data[i] - bgColor.r) +
-                                Math.abs(data[i + 1] - bgColor.g) +
-                                Math.abs(data[i + 2] - bgColor.b);
-
-                            if (diff < customTolerance * 3) {
-                                const alpha = Math.min(255, Math.max(0, (diff / (customTolerance * 3)) * 255));
-                                data[i + 3] = Math.round(alpha);
-                            }
-                        }
-
-                        ctx.putImageData(imageData, 0, 0);
-                        URL.revokeObjectURL(img.src);
-                        resolve({ dataUrl: canvas.toDataURL('image/png'), bgColor });
-                    };
-                    img.onerror = () => {
-                        URL.revokeObjectURL(img.src);
-                        reject(new Error('Failed to load image'));
-                    };
-                    img.src = URL.createObjectURL(imageFile);
-                });
-            };
-
-            // Procesar imagenes
-            const handleImageUpload = async (files) => {
-                setProcessing(true);
-                const newImages = [];
-
-                for (const file of files) {
-                    if (file.type.startsWith('image/')) {
-                        try {
-                            const { dataUrl } = await removeBackground(file, tolerance);
-                            newImages.push({
-                                id: Date.now() + Math.random(),
-                                name: file.name.replace(/\.[^/.]+$/, ''),
-                                dataUrl,
-                                date: new Date().toLocaleDateString('es-ES'),
-                                size: Math.round(file.size / 1024) + ' KB'
-                            });
-                        } catch (e) {
-                            console.error('Error processing image:', e);
-                        }
-                    }
-                }
-
-                setImages(prev => [...newImages, ...prev]);
-                setProcessing(false);
-            };
-
-            // Drag & Drop
-            const handleDrop = (e) => {
-                e.preventDefault();
-                setDragOver(false);
-                handleImageUpload(Array.from(e.dataTransfer.files));
-            };
-
-            // Descargar imagen
-            const downloadImage = (image) => {
-                const link = document.createElement('a');
-                link.download = `${image.name}.png`;
-                link.href = image.dataUrl;
-                link.click();
-            };
-
-            // Descargar todas las imagenes
-            const downloadAllImages = () => {
-                filteredImages.forEach((img, i) => {
-                    setTimeout(() => downloadImage(img), i * 200);
-                });
-            };
-
-            // Copiar codigo
-            const copyCode = (code, id) => {
-                navigator.clipboard.writeText(code).catch(err => {
-                    console.error('Failed to copy to clipboard:', err);
-                });
-                setCopiedId(id);
-                setTimeout(() => setCopiedId(null), 2000);
-            };
-
-            // Guardar nuevo componente
-            const saveNewComponent = () => {
-                if (!newComponent.name) {
-                    alert('Introduce un nombre para el componente');
-                    return;
-                }
-
-                const component = {
-                    id: Date.now(),
-                    ...newComponent,
-                    date: new Date().toLocaleDateString('es-ES')
-                };
-
-                setComponents(prev => [component, ...prev]);
-                setNewComponent({ name: '', url: '', html: '', css: '', react: '', tailwind: '' });
-                setShowAddComponent(false);
-            };
-
-            // Actualizar componente existente
-            const updateComponent = () => {
-                if (!editingComponent.name) {
-                    alert('Introduce un nombre para el componente');
-                    return;
-                }
-                setComponents(prev => prev.map(c =>
-                    c.id === editingComponent.id ? { ...editingComponent } : c
-                ));
-                setEditingComponent(null);
-            };
-
-            // Filtrar
-            const filteredImages = images.filter(img =>
-                img.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-
-            const filteredComponents = components.filter(c =>
-                c.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-
-            // Estadisticas
-            const stats = {
-                images: images.length,
-                components: components.length,
-                storage: Math.round((JSON.stringify(images).length + JSON.stringify(components).length) / 1024)
-            };
-
-            const checkerboardStyle = {
-                backgroundImage: 'linear-gradient(45deg, #1f2937 25%, transparent 25%), linear-gradient(-45deg, #1f2937 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1f2937 75%), linear-gradient(-45deg, transparent 75%, #1f2937 75%)',
-                backgroundSize: '16px 16px',
-                backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px'
-            };
-
-            const checkerboardStyleLarge = {
-                backgroundImage: 'linear-gradient(45deg, #1f2937 25%, transparent 25%), linear-gradient(-45deg, #1f2937 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1f2937 75%), linear-gradient(-45deg, transparent 75%, #1f2937 75%)',
-                backgroundSize: '20px 20px'
-            };
-
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white">
-                    {/* Header */}
-                    <header className="border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-40">
-                        <div className="max-w-7xl mx-auto px-4 py-3">
-                            <div className="flex items-center justify-between gap-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25">
-                                        <Layers className="w-5 h-5" />
-                                    </div>
-                                    <div className="hidden sm:block">
-                                        <h1 className="text-lg font-bold">Resource Hub</h1>
-                                        <p className="text-xs text-gray-400">rubenpantxo.com</p>
-                                    </div>
-                                </div>
-
-                                {/* Search */}
-                                <div className="relative flex-1 max-w-md">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                                    <input
-                                        type="text"
-                                        placeholder="Buscar recursos..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
-                                    />
-                                </div>
-
-                                {/* Stats */}
-                                <div className="hidden md:flex items-center gap-4 text-xs text-gray-400">
-                                    <span>{stats.images} imgs</span>
-                                    <span>{stats.components} UI</span>
-                                    <span>{stats.storage} KB</span>
-                                </div>
-                            </div>
-
-                            {/* Tabs */}
-                            <div className="flex gap-1 mt-3">
-                                <button
-                                    onClick={() => setActiveTab('images')}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-sm font-medium transition-all ${activeTab === 'images'
-                                        ? 'bg-violet-500/20 text-violet-300 border-b-2 border-violet-500'
-                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
-                                        }`}
-                                >
-                                    <ImageIcon className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Imagenes PNG</span>
-                                    <span className="sm:hidden">PNG</span>
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('components')}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-t-xl text-sm font-medium transition-all ${activeTab === 'components'
-                                        ? 'bg-fuchsia-500/20 text-fuchsia-300 border-b-2 border-fuchsia-500'
-                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
-                                        }`}
-                                >
-                                    <Code className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Componentes UI</span>
-                                    <span className="sm:hidden">UI</span>
-                                </button>
-                            </div>
-                        </div>
-                    </header>
-
-                    <main className="max-w-7xl mx-auto px-4 py-6">
-                        {/* === TAB: IMAGENES === */}
-                        {activeTab === 'images' && (
-                            <div className="space-y-6">
-                                {/* Upload Zone */}
-                                <div className="grid md:grid-cols-3 gap-4">
-                                    <div
-                                        onDrop={handleDrop}
-                                        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                                        onDragLeave={() => setDragOver(false)}
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className={`md:col-span-2 border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${dragOver ? 'border-violet-500 bg-violet-500/10' : 'border-white/20 hover:border-white/40 hover:bg-white/5'
-                                            }`}
-                                    >
-                                        <input
-                                            ref={fileInputRef}
-                                            type="file"
-                                            multiple
-                                            accept="image/*"
-                                            onChange={(e) => handleImageUpload(Array.from(e.target.files))}
-                                            className="hidden"
-                                        />
-                                        <Upload className={`w-12 h-12 mx-auto mb-3 ${dragOver ? 'text-violet-400' : 'text-gray-500'}`} />
-                                        <p className="text-lg font-medium">{processing ? 'Procesando...' : 'Arrastra imagenes aqui'}</p>
-                                        <p className="text-sm text-gray-400 mt-1">JPG, PNG, WEBP, GIF...</p>
-                                        <div className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-violet-500/10 rounded-full text-xs text-violet-300">
-                                            <Sparkles className="w-3 h-3" />
-                                            Eliminacion automatica de fondo
-                                        </div>
-                                    </div>
-
-                                    {/* Settings */}
-                                    <div className="bg-white/5 rounded-2xl p-5 border border-white/10">
-                                        <h3 className="font-medium mb-4 flex items-center gap-2">
-                                            <Edit3 className="w-4 h-4" /> Ajustes
-                                        </h3>
-                                        <label className="block text-sm text-gray-400 mb-2">
-                                            Tolerancia de fondo: {tolerance}
-                                        </label>
-                                        <input
-                                            type="range"
-                                            min="10"
-                                            max="100"
-                                            value={tolerance}
-                                            onChange={(e) => setTolerance(Number(e.target.value))}
-                                            className="w-full accent-violet-500"
-                                        />
-                                        <p className="text-xs text-gray-500 mt-2">
-                                            Mayor = elimina mas fondo
-                                        </p>
-
-                                        {filteredImages.length > 0 && (
-                                            <button
-                                                onClick={downloadAllImages}
-                                                className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 rounded-xl text-sm transition-colors"
-                                            >
-                                                <Download className="w-4 h-4" />
-                                                Descargar todo ({filteredImages.length})
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Image Grid */}
-                                {filteredImages.length > 0 ? (
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                                        {filteredImages.map((image) => (
-                                            <div
-                                                key={image.id}
-                                                className="group relative bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-violet-500/50 transition-all"
-                                            >
-                                                <div
-                                                    className="aspect-square cursor-pointer"
-                                                    onClick={() => setSelectedImage(image)}
-                                                    style={checkerboardStyle}
-                                                >
-                                                    <img src={image.dataUrl} alt={image.name} className="w-full h-full object-contain p-2" />
-                                                </div>
-
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-
-                                                <div className="absolute bottom-0 left-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <p className="text-xs font-medium truncate mb-2">{image.name}</p>
-                                                    <div className="flex gap-1">
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); downloadImage(image); }}
-                                                            className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-violet-500 hover:bg-violet-600 rounded-lg text-xs font-medium"
-                                                        >
-                                                            <Download className="w-3 h-3" />
-                                                        </button>
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); setImages(prev => prev.filter(i => i.id !== image.id)); }}
-                                                            className="p-1.5 bg-red-500/30 hover:bg-red-500/50 rounded-lg"
-                                                        >
-                                                            <Trash2 className="w-3 h-3" />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-20 text-gray-500">
-                                        <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                                        <p className="text-lg">Sin imagenes</p>
-                                        <p className="text-sm">Sube imagenes para empezar</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* === TAB: COMPONENTES UI === */}
-                        {activeTab === 'components' && (
-                            <div className="space-y-6">
-                                {/* Add Component Button */}
-                                <div className="flex justify-between items-center">
-                                    <p className="text-gray-400 text-sm">
-                                        Agrega componentes de <a href="https://uiverse.io" target="_blank" rel="noopener noreferrer" className="text-fuchsia-400 hover:underline">Uiverse.io</a> u otras fuentes
-                                    </p>
-                                    <button
-                                        onClick={() => setShowAddComponent(true)}
-                                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-fuchsia-500 to-violet-500 hover:from-fuchsia-600 hover:to-violet-600 rounded-xl font-medium text-sm transition-all"
-                                    >
-                                        <Plus className="w-4 h-4" />
-                                        Agregar componente
-                                    </button>
-                                </div>
-
-                                {/* Components Grid */}
-                                {filteredComponents.length > 0 ? (
-                                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {filteredComponents.map((comp) => (
-                                            <div key={comp.id} className="bg-white/5 rounded-xl border border-white/10 hover:border-fuchsia-500/50 transition-all overflow-hidden">
-                                                <div className="p-4">
-                                                    <div className="flex items-start justify-between mb-3">
-                                                        <div>
-                                                            <h4 className="font-medium">{comp.name}</h4>
-                                                            <p className="text-xs text-gray-500">{comp.date}</p>
-                                                        </div>
-                                                        <div className="flex gap-1">
-                                                            {comp.url && (
-                                                                <a href={comp.url} target="_blank" rel="noopener noreferrer" className="p-1.5 hover:bg-white/10 rounded-lg">
-                                                                    <ExternalLink className="w-4 h-4 text-gray-400" />
-                                                                </a>
-                                                            )}
-                                                            <button onClick={() => setEditingComponent({...comp})} className="p-1.5 hover:bg-white/10 rounded-lg">
-                                                                <Edit3 className="w-4 h-4 text-gray-400" />
-                                                            </button>
-                                                            <button onClick={() => setComponents(prev => prev.filter(c => c.id !== comp.id))} className="p-1.5 hover:bg-red-500/20 rounded-lg">
-                                                                <Trash2 className="w-4 h-4 text-red-400" />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Code Buttons */}
-                                                    <div className="grid grid-cols-2 gap-2">
-                                                        {[
-                                                            { key: 'html', label: 'HTML' },
-                                                            { key: 'css', label: 'CSS' },
-                                                            { key: 'react', label: 'React' },
-                                                            { key: 'tailwind', label: 'Tailwind' }
-                                                        ].map(({ key, label }) => (
-                                                            <button
-                                                                key={key}
-                                                                onClick={() => comp[key] && copyCode(comp[key], `${comp.id}-${key}`)}
-                                                                disabled={!comp[key]}
-                                                                className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${comp[key]
-                                                                    ? 'bg-white/10 hover:bg-white/20 text-white'
-                                                                    : 'bg-white/5 text-gray-600 cursor-not-allowed'
-                                                                    }`}
-                                                            >
-                                                                <span>{label}</span>
-                                                                {comp[key] && (
-                                                                    copiedId === `${comp.id}-${key}`
-                                                                        ? <Check className="w-3 h-3 text-green-400" />
-                                                                        : <Copy className="w-3 h-3" />
-                                                                )}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-
-                                                    <button
-                                                        onClick={() => setSelectedComponent(comp)}
-                                                        className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 bg-fuchsia-500/20 hover:bg-fuchsia-500/30 text-fuchsia-300 rounded-lg text-xs font-medium"
-                                                    >
-                                                        <Eye className="w-3 h-3" />
-                                                        Ver codigo completo
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-20 text-gray-500">
-                                        <Code className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                                        <p className="text-lg">Sin componentes</p>
-                                        <p className="text-sm">Agrega tu primer componente UI</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </main>
-
-                    {/* Modal: Vista previa imagen */}
-                    {selectedImage && (
-                        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
-                            <div className="bg-gray-900 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden border border-white/10" onClick={e => e.stopPropagation()}>
-                                <div className="flex items-center justify-between p-4 border-b border-white/10">
-                                    <h3 className="font-medium">{selectedImage.name}.png</h3>
-                                    <button onClick={() => setSelectedImage(null)} className="p-1.5 hover:bg-white/10 rounded-lg">
-                                        <X className="w-5 h-5" />
-                                    </button>
-                                </div>
-                                <div
-                                    className="p-8 flex items-center justify-center"
-                                    style={checkerboardStyleLarge}
-                                >
-                                    <img src={selectedImage.dataUrl} alt={selectedImage.name} className="max-h-[60vh] object-contain" />
-                                </div>
-                                <div className="p-4 border-t border-white/10 flex justify-between items-center">
-                                    <span className="text-sm text-gray-400">{selectedImage.date}</span>
-                                    <button
-                                        onClick={() => downloadImage(selectedImage)}
-                                        className="flex items-center gap-2 px-4 py-2 bg-violet-500 hover:bg-violet-600 rounded-xl font-medium text-sm"
-                                    >
-                                        <Download className="w-4 h-4" />
-                                        Descargar PNG
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Modal: Ver codigo componente */}
-                    {selectedComponent && !editingComponent && (
-                        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedComponent(null)}>
-                            <div className="bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/10" onClick={e => e.stopPropagation()}>
-                                <div className="flex items-center justify-between p-4 border-b border-white/10">
-                                    <h3 className="font-medium">{selectedComponent.name}</h3>
-                                    <button onClick={() => setSelectedComponent(null)} className="p-1.5 hover:bg-white/10 rounded-lg">
-                                        <X className="w-5 h-5" />
-                                    </button>
-                                </div>
-                                <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
-                                    {['html', 'css', 'react', 'tailwind'].map((lang) => selectedComponent[lang] && (
-                                        <div key={lang} className="bg-black/30 rounded-xl overflow-hidden">
-                                            <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
-                                                <span className="text-sm font-medium uppercase text-gray-400">{lang}</span>
-                                                <button
-                                                    onClick={() => copyCode(selectedComponent[lang], `modal-${lang}`)}
-                                                    className="flex items-center gap-1.5 px-2 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-xs"
-                                                >
-                                                    {copiedId === `modal-${lang}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
-                                                    Copiar
-                                                </button>
-                                            </div>
-                                            <pre className="p-4 text-sm text-gray-300 overflow-x-auto">
-                                                <code>{selectedComponent[lang]}</code>
-                                            </pre>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Modal: Agregar/Editar componente */}
-                    {(showAddComponent || editingComponent) && (
-                        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setShowAddComponent(false); setEditingComponent(null); }}>
-                            <div className="bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/10" onClick={e => e.stopPropagation()}>
-                                <div className="flex items-center justify-between p-4 border-b border-white/10">
-                                    <h3 className="font-medium">{editingComponent ? 'Editar' : 'Agregar'} Componente</h3>
-                                    <button onClick={() => { setShowAddComponent(false); setEditingComponent(null); }} className="p-1.5 hover:bg-white/10 rounded-lg">
-                                        <X className="w-5 h-5" />
-                                    </button>
-                                </div>
-                                <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm text-gray-400 mb-1">Nombre *</label>
-                                            <input
-                                                type="text"
-                                                placeholder="ej: Button Gradient"
-                                                value={editingComponent ? editingComponent.name : newComponent.name}
-                                                onChange={(e) => editingComponent
-                                                    ? setEditingComponent({ ...editingComponent, name: e.target.value })
-                                                    : setNewComponent({ ...newComponent, name: e.target.value })
-                                                }
-                                                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-fuchsia-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-400 mb-1">URL (opcional)</label>
-                                            <input
-                                                type="url"
-                                                placeholder="https://uiverse.io/..."
-                                                value={editingComponent ? editingComponent.url : newComponent.url}
-                                                onChange={(e) => editingComponent
-                                                    ? setEditingComponent({ ...editingComponent, url: e.target.value })
-                                                    : setNewComponent({ ...newComponent, url: e.target.value })
-                                                }
-                                                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-fuchsia-500"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {['html', 'css', 'react', 'tailwind'].map((lang) => (
-                                        <div key={lang}>
-                                            <label className="block text-sm text-gray-400 mb-1 uppercase">{lang}</label>
-                                            <textarea
-                                                placeholder={`Pega el codigo ${lang.toUpperCase()} aqui...`}
-                                                rows={4}
-                                                value={editingComponent ? (editingComponent[lang] || '') : newComponent[lang]}
-                                                onChange={(e) => editingComponent
-                                                    ? setEditingComponent({ ...editingComponent, [lang]: e.target.value })
-                                                    : setNewComponent({ ...newComponent, [lang]: e.target.value })
-                                                }
-                                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-mono focus:outline-none focus:border-fuchsia-500 resize-none"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="p-4 border-t border-white/10 flex justify-end gap-3">
-                                    <button
-                                        onClick={() => { setShowAddComponent(false); setEditingComponent(null); }}
-                                        className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        onClick={editingComponent ? updateComponent : saveNewComponent}
-                                        className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-fuchsia-500 to-violet-500 hover:from-fuchsia-600 hover:to-violet-600 rounded-xl font-medium"
-                                    >
-                                        <Save className="w-4 h-4" />
-                                        {editingComponent ? 'Guardar cambios' : 'Agregar componente'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
+<div class="hdr">
+  <h1>&#128230; Mi Biblioteca de Recursos</h1>
+  <div class="tabs">
+    <button class="tab act" onclick="switchTab('img')">&#128444;&#65039; Im&aacute;genes</button>
+    <button class="tab" onclick="switchTab('ui')">&#129513; Componentes UI</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- SECCIÓN IMÁGENES -->
+  <div id="sec-img" class="sec act">
+    <div id="img-status" class="status"></div>
+
+    <div class="dz" id="dropzone" onclick="document.getElementById('filein').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><path d="M12 16V4m0 0L8 8m4-4l4 4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+      <p>Arrastra im&aacute;genes aqu&iacute; o haz clic para seleccionar</p>
+      <p class="sm">JPG, PNG, WEBP &mdash; Se eliminar&aacute; el fondo autom&aacute;ticamente</p>
+    </div>
+    <input type="file" id="filein" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
+
+    <div id="img-grid" class="grid"></div>
+    <div id="img-empty" class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <p>Sube im&aacute;genes para eliminar su fondo</p>
+    </div>
+  </div>
+
+  <!-- SECCIÓN COMPONENTES UI -->
+  <div id="sec-ui" class="sec">
+    <div id="ui-status" class="status"></div>
+
+    <div class="url-row">
+      <input type="text" id="url-input" placeholder="Pega la URL de Uiverse.io (ej: https://uiverse.io/autor/componente)" spellcheck="false">
+      <button class="btn" id="fetch-btn" onclick="fetchUiverse()">Importar</button>
+    </div>
+
+    <div id="ui-list"></div>
+    <div id="ui-empty" class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+      <p>Pega una URL de Uiverse.io para importar componentes</p>
+    </div>
+  </div>
+</div>
+
+<canvas id="cv" style="display:none"></canvas>
+
+<script>
+// ========== TAB SWITCHING ==========
+function switchTab(t) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('act'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('act'));
+  document.getElementById('sec-' + t).classList.add('act');
+  document.querySelectorAll('.tab')[t === 'img' ? 0 : 1].classList.add('act');
+}
+
+// ========== STATUS MESSAGES ==========
+function showStatus(id, msg, type, duration) {
+  const el = document.getElementById(id);
+  el.className = 'status show ' + type;
+  el.innerHTML = (type === 'info' ? '<div class="spinner"></div>' : type === 'ok' ? '\u2705' : '\u274C') + ' ' + msg;
+  if (duration) setTimeout(() => el.classList.remove('show'), duration);
+}
+
+// ========== DRAG & DROP ==========
+const dz = document.getElementById('dropzone');
+['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('over'); }));
+['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.remove('over'); }));
+dz.addEventListener('drop', ev => handleFiles(ev.dataTransfer.files));
+
+// ========== IMAGE PROCESSING ==========
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d', { willReadFrequently: true });
+
+function handleFiles(files) {
+  Array.from(files).forEach(f => {
+    if (!f.type.startsWith('image/')) return;
+    processImage(f);
+  });
+}
+
+function processImage(file) {
+  showStatus('img-status', 'Procesando: ' + file.name + '...', 'info');
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() {
+      const result = removeBackground(img);
+      addImageCard(file.name.replace(/\.[^.]+$/, ''), result);
+      showStatus('img-status', '\u00a1Fondo eliminado! Descarga el PNG transparente.', 'ok', 3000);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeBackground(img) {
+  const w = img.naturalWidth, h = img.naturalHeight;
+  cv.width = w; cv.height = h;
+  ctx.clearRect(0, 0, w, h);
+  ctx.drawImage(img, 0, 0);
+
+  const imageData = ctx.getImageData(0, 0, w, h);
+  const d = imageData.data;
+
+  // Sample background color from edges (top, bottom, left, right borders)
+  const samples = [];
+  const step = 4;
+  // Top edge
+  for (let x = 0; x < w; x += step) { const i = (x) * 4; samples.push([d[i], d[i+1], d[i+2]]); }
+  // Bottom edge
+  for (let x = 0; x < w; x += step) { const i = ((h-1) * w + x) * 4; samples.push([d[i], d[i+1], d[i+2]]); }
+  // Left edge
+  for (let y = 0; y < h; y += step) { const i = (y * w) * 4; samples.push([d[i], d[i+1], d[i+2]]); }
+  // Right edge
+  for (let y = 0; y < h; y += step) { const i = (y * w + w - 1) * 4; samples.push([d[i], d[i+1], d[i+2]]); }
+
+  // Find dominant color using simple clustering
+  const bgColor = getDominantColor(samples);
+  const tol = 45; // Fixed tolerance for solid bg removal
+
+  // Flood fill from all edges
+  const visited = new Uint8Array(w * h);
+  const queue = [];
+
+  // Add all edge pixels to queue
+  for (let x = 0; x < w; x++) { queue.push(x); queue.push((h-1) * w + x); }
+  for (let y = 1; y < h - 1; y++) { queue.push(y * w); queue.push(y * w + w - 1); }
+
+  // BFS flood fill
+  let qi = 0;
+  while (qi < queue.length) {
+    const pos = queue[qi++];
+    if (visited[pos]) continue;
+
+    const px = pos % w, py = (pos / w) | 0;
+    const i = pos * 4;
+    const dr = d[i] - bgColor[0], dg = d[i+1] - bgColor[1], db = d[i+2] - bgColor[2];
+    const dist = Math.sqrt(dr*dr + dg*dg + db*db);
+
+    if (dist > tol) continue;
+
+    visited[pos] = 1;
+    d[i + 3] = 0; // Make transparent
+
+    // Add neighbors
+    if (px > 0 && !visited[pos - 1]) queue.push(pos - 1);
+    if (px < w - 1 && !visited[pos + 1]) queue.push(pos + 1);
+    if (py > 0 && !visited[pos - w]) queue.push(pos - w);
+    if (py < h - 1 && !visited[pos + w]) queue.push(pos + w);
+  }
+
+  // Soften edges slightly for clean sticker look
+  softenEdges(d, w, h, visited);
+
+  ctx.putImageData(imageData, 0, 0);
+  return cv.toDataURL('image/png');
+}
+
+function getDominantColor(samples) {
+  // Simple: count frequency of quantized colors
+  const buckets = {};
+  for (const [r, g, b] of samples) {
+    const key = ((r >> 4) << 8) | ((g >> 4) << 4) | (b >> 4);
+    buckets[key] = (buckets[key] || { count: 0, r: 0, g: 0, b: 0 });
+    buckets[key].count++;
+    buckets[key].r += r; buckets[key].g += g; buckets[key].b += b;
+  }
+  let best = null, bestCount = 0;
+  for (const k in buckets) {
+    if (buckets[k].count > bestCount) { bestCount = buckets[k].count; best = buckets[k]; }
+  }
+  if (!best) return [255, 255, 255];
+  return [Math.round(best.r / best.count), Math.round(best.g / best.count), Math.round(best.b / best.count)];
+}
+
+function softenEdges(d, w, h, visited) {
+  // Find edge pixels (transparent next to opaque) and soften alpha
+  const edges = [];
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const pos = y * w + x;
+      if (!visited[pos]) {
+        // Check if any neighbor is transparent
+        if (visited[pos-1] || visited[pos+1] || visited[pos-w] || visited[pos+w]) {
+          edges.push(pos);
         }
+      }
+    }
+  }
+  // Soften edge pixels
+  for (const pos of edges) {
+    const i = pos * 4;
+    let transparentNeighbors = 0;
+    if (visited[pos-1]) transparentNeighbors++;
+    if (visited[pos+1]) transparentNeighbors++;
+    if (visited[pos-w]) transparentNeighbors++;
+    if (visited[pos+w]) transparentNeighbors++;
+    // Reduce alpha based on how many neighbors are transparent
+    d[i + 3] = Math.max(0, 255 - (transparentNeighbors * 50));
+  }
+}
 
-        // ==========================================
-        // Render Application
-        // ==========================================
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(ResourceHub));
-    </script>
+function addImageCard(name, dataUrl) {
+  document.getElementById('img-empty').style.display = 'none';
+  const grid = document.getElementById('img-grid');
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-img"><img src="${dataUrl}" alt="${name}"></div>
+    <div class="card-info">
+      <span title="${name}">${name}</span>
+      <div class="card-btns">
+        <button class="ibtn dl" title="Descargar PNG" onclick="downloadPng(this,'${name}')">\u2B07</button>
+        <button class="ibtn rm" title="Eliminar" onclick="this.closest('.card').remove();checkEmpty()">\u2715</button>
+      </div>
+    </div>`;
+  grid.prepend(card);
+}
+
+function downloadPng(btn, name) {
+  const img = btn.closest('.card').querySelector('.card-img img');
+  const a = document.createElement('a');
+  a.download = name + '_sin_fondo.png';
+  a.href = img.src;
+  a.click();
+}
+
+function checkEmpty() {
+  const grid = document.getElementById('img-grid');
+  document.getElementById('img-empty').style.display = grid.children.length ? 'none' : 'block';
+}
+
+// ========== UIVERSE FETCH ==========
+const PROXIES = [
+  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+  url => 'https://corsproxy.io/?' + encodeURIComponent(url),
+  url => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+];
+
+async function fetchWithProxy(url) {
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy(url), { signal: AbortSignal.timeout(12000) });
+      if (res.ok) return await res.text();
+    } catch(e) { /* try next proxy */ }
+  }
+  throw new Error('No se pudo acceder a la URL');
+}
+
+async function fetchUiverse() {
+  const input = document.getElementById('url-input');
+  const btn = document.getElementById('fetch-btn');
+  const url = input.value.trim();
+
+  if (!url.includes('uiverse.io')) {
+    showStatus('ui-status', 'Introduce una URL v\u00e1lida de uiverse.io', 'err', 3000);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Importando...';
+  showStatus('ui-status', 'Conectando con Uiverse.io...', 'info');
+
+  try {
+    const html = await fetchWithProxy(url);
+    const comp = parseUiverseHtml(html, url);
+
+    if (!comp.htmlCode && !comp.cssCode) {
+      showStatus('ui-status', 'No se encontr\u00f3 c\u00f3digo. Puede que la estructura de Uiverse haya cambiado. Intenta copiar el c\u00f3digo manualmente.', 'err', 5000);
+      // Still add component with URL reference
+      comp.name = comp.name || extractNameFromUrl(url);
+      addComponentCard(comp);
+    } else {
+      addComponentCard(comp);
+      showStatus('ui-status', '\u00a1Componente importado! C\u00f3digo HTML, CSS' + (comp.reactCode ? ', React' : '') + ' extra\u00eddo.', 'ok', 4000);
+    }
+
+    input.value = '';
+  } catch(e) {
+    showStatus('ui-status', 'Error: ' + e.message + '. Prueba de nuevo o copia el c\u00f3digo manualmente.', 'err', 5000);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Importar';
+}
+
+function extractNameFromUrl(url) {
+  const parts = url.replace(/\/+$/, '').split('/');
+  return parts.length >= 2 ? parts[parts.length - 1] : 'componente';
+}
+
+function parseUiverseHtml(html, url) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const comp = { url: url, name: '', htmlCode: '', cssCode: '', reactCode: '', tailwindCode: '' };
+
+  // Try to extract component name from title or h1
+  const title = doc.querySelector('title');
+  if (title) comp.name = title.textContent.replace(/\s*[-|].*$/, '').trim();
+  if (!comp.name) comp.name = extractNameFromUrl(url);
+
+  // Strategy 1: Look for code blocks in pre/code elements
+  const codeBlocks = doc.querySelectorAll('pre code, pre, code');
+  for (const block of codeBlocks) {
+    const text = block.textContent.trim();
+    if (!text) continue;
+
+    if (text.includes('<') && text.includes('>') && !text.includes('import ') && !comp.htmlCode) {
+      comp.htmlCode = text;
+    } else if ((text.includes('{') && text.includes(':') && text.includes(';') && !text.includes('import ')) && !comp.cssCode) {
+      comp.cssCode = text;
+    } else if ((text.includes('import ') || text.includes('export ') || text.includes('React') || text.includes('jsx')) && !comp.reactCode) {
+      comp.reactCode = text;
+    }
+  }
+
+  // Strategy 2: Look in script tags with JSON data (Next.js/Nuxt pattern)
+  const scripts = doc.querySelectorAll('script');
+  for (const script of scripts) {
+    const content = script.textContent;
+    if (!content) continue;
+
+    // Look for JSON structures containing code
+    const patterns = [
+      /"html"\s*:\s*"([^"]+)"/gi,
+      /"css"\s*:\s*"([^"]+)"/gi,
+      /"code"\s*:\s*"([^"]+)"/gi,
+      /"htmlCode"\s*:\s*"([^"]+)"/gi,
+      /"cssCode"\s*:\s*"([^"]+)"/gi,
+    ];
+
+    for (const pat of patterns) {
+      let m;
+      while ((m = pat.exec(content)) !== null) {
+        const decoded = m[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+        if (decoded.length < 10) continue;
+
+        const key = m[0].toLowerCase();
+        if ((key.includes('html') || key.includes('code')) && decoded.includes('<') && !comp.htmlCode) {
+          comp.htmlCode = decoded;
+        } else if (key.includes('css') && decoded.includes('{') && !comp.cssCode) {
+          comp.cssCode = decoded;
+        }
+      }
+    }
+
+    // Try to find __NEXT_DATA__ or similar JSON blobs
+    try {
+      if (content.includes('__NEXT_DATA__') || content.includes('"props"')) {
+        const jsonMatch = content.match(/\{[\s\S]*"props"[\s\S]*\}/);
+        if (jsonMatch) {
+          const data = JSON.parse(jsonMatch[0]);
+          const found = findCodeInObject(data);
+          if (found.html && !comp.htmlCode) comp.htmlCode = found.html;
+          if (found.css && !comp.cssCode) comp.cssCode = found.css;
+          if (found.react && !comp.reactCode) comp.reactCode = found.react;
+          if (found.tailwind && !comp.tailwindCode) comp.tailwindCode = found.tailwind;
+        }
+      }
+    } catch(e) { /* parsing failed, continue */ }
+  }
+
+  // Strategy 3: Look for textarea/div with code content
+  const textareas = doc.querySelectorAll('textarea, [data-code], [class*="code"]');
+  for (const el of textareas) {
+    const text = (el.value || el.textContent || '').trim();
+    if (text.length < 10) continue;
+    if (text.includes('<') && text.includes('>') && !comp.htmlCode) comp.htmlCode = text;
+    if (text.includes('{') && text.includes(':') && text.includes(';') && !comp.cssCode) comp.cssCode = text;
+  }
+
+  return comp;
+}
+
+function findCodeInObject(obj, depth) {
+  depth = depth || 0;
+  const result = { html: '', css: '', react: '', tailwind: '' };
+  if (depth > 8 || !obj || typeof obj !== 'object') return result;
+
+  for (const key in obj) {
+    const val = obj[key];
+    if (typeof val === 'string' && val.length > 15) {
+      const lk = key.toLowerCase();
+      if ((lk.includes('html') || lk === 'code') && val.includes('<') && !result.html) result.html = val;
+      if (lk.includes('css') && val.includes('{') && !result.css) result.css = val;
+      if ((lk.includes('react') || lk.includes('jsx')) && !result.react) result.react = val;
+      if (lk.includes('tailwind') && !result.tailwind) result.tailwind = val;
+    } else if (typeof val === 'object') {
+      const sub = findCodeInObject(val, depth + 1);
+      if (sub.html && !result.html) result.html = sub.html;
+      if (sub.css && !result.css) result.css = sub.css;
+      if (sub.react && !result.react) result.react = sub.react;
+      if (sub.tailwind && !result.tailwind) result.tailwind = sub.tailwind;
+    }
+  }
+  return result;
+}
+
+let compIdCounter = 0;
+
+function addComponentCard(comp) {
+  document.getElementById('ui-empty').style.display = 'none';
+  const list = document.getElementById('ui-list');
+  const id = 'comp-' + (compIdCounter++);
+
+  // Build preview HTML
+  let previewHtml = '';
+  if (comp.htmlCode && comp.cssCode) {
+    previewHtml = `<style>${comp.cssCode}</style>${comp.htmlCode}`;
+  } else if (comp.htmlCode) {
+    previewHtml = comp.htmlCode;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'comp-card';
+  card.id = id;
+
+  const availableTabs = [];
+  if (comp.htmlCode) availableTabs.push({ key: 'html', label: 'HTML' });
+  if (comp.cssCode) availableTabs.push({ key: 'css', label: 'CSS' });
+  if (comp.reactCode) availableTabs.push({ key: 'react', label: 'React' });
+  if (comp.tailwindCode) availableTabs.push({ key: 'tailwind', label: 'Tailwind' });
+
+  card.innerHTML = `
+    <div class="comp-top" onclick="toggleComp('${id}')">
+      <div class="comp-preview" id="${id}-prev"></div>
+      <div class="comp-meta">
+        <h3>${escHtml(comp.name)}</h3>
+        <p>${comp.url ? new URL(comp.url).pathname : 'Manual'} \u00b7 ${availableTabs.map(t=>t.label).join(', ')}</p>
+      </div>
+      <div class="comp-actions">
+        ${comp.url ? `<a class="ibtn" href="${escHtml(comp.url)}" target="_blank" title="Ver en Uiverse" onclick="event.stopPropagation()">\uD83D\uDD17</a>` : ''}
+        <button class="ibtn dl" title="Descargar HTML" onclick="event.stopPropagation();downloadComp('${id}')">\u2B07</button>
+        <button class="ibtn rm" title="Eliminar" onclick="event.stopPropagation();this.closest('.comp-card').remove();checkUiEmpty()">\u2715</button>
+      </div>
+    </div>
+    <div class="comp-body" id="${id}-body">
+      <div class="code-tabs" id="${id}-tabs">
+        ${availableTabs.map((t, i) => `<button class="ctab${i===0?' act':''}" onclick="showCodeTab('${id}','${t.key}')">${t.label}</button>`).join('')}
+      </div>
+      <div class="code-block" id="${id}-code">
+        <button class="copy-btn" onclick="copyCode('${id}')">Copiar</button>
+        <div id="${id}-code-content"></div>
+      </div>
+    </div>`;
+
+  list.prepend(card);
+
+  // Store code data on element
+  card._data = comp;
+  card._activeTab = availableTabs.length ? availableTabs[0].key : '';
+
+  // Set initial code display
+  if (availableTabs.length) {
+    showCodeTab(id, availableTabs[0].key);
+  }
+
+  // Create live preview
+  if (previewHtml) {
+    const prevContainer = document.getElementById(id + '-prev');
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:200px;height:200px;border:none;transform:scale(.3);transform-origin:top left;pointer-events:none;background:#1a1a2e';
+    iframe.sandbox = 'allow-same-origin';
+    prevContainer.appendChild(iframe);
+    setTimeout(() => {
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(`<!DOCTYPE html><html><head><style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#1a1a2e;color:#fff;font-family:sans-serif}</style></head><body>${previewHtml}</body></html>`);
+        iframeDoc.close();
+      } catch(e) {}
+    }, 100);
+  }
+}
+
+function toggleComp(id) {
+  const body = document.getElementById(id + '-body');
+  body.classList.toggle('open');
+}
+
+function showCodeTab(id, key) {
+  const card = document.getElementById(id);
+  card._activeTab = key;
+
+  // Update tab buttons
+  card.querySelectorAll('.ctab').forEach(t => t.classList.remove('act'));
+  const tabs = card.querySelectorAll('.ctab');
+  for (const t of tabs) { if (t.textContent.toLowerCase() === key) t.classList.add('act'); }
+
+  // Show code
+  const data = card._data;
+  let code = '';
+  if (key === 'html') code = data.htmlCode || '';
+  else if (key === 'css') code = data.cssCode || '';
+  else if (key === 'react') code = data.reactCode || '';
+  else if (key === 'tailwind') code = data.tailwindCode || '';
+
+  document.getElementById(id + '-code-content').textContent = code || '(sin c\u00f3digo disponible)';
+}
+
+function copyCode(id) {
+  const content = document.getElementById(id + '-code-content').textContent;
+  navigator.clipboard.writeText(content).then(() => {
+    const btn = document.querySelector('#' + id + ' .copy-btn');
+    btn.textContent = '\u00a1Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 1500);
+  });
+}
+
+function downloadComp(id) {
+  const card = document.getElementById(id);
+  const data = card._data;
+  let html = '<!DOCTYPE html>\n<html lang="es">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>' + escHtml(data.name) + '</title>\n';
+  if (data.cssCode) html += '<style>\n' + data.cssCode + '\n</style>\n';
+  html += '</head>\n<body>\n';
+  if (data.htmlCode) html += data.htmlCode + '\n';
+  html += '</body>\n</html>';
+
+  const a = document.createElement('a');
+  a.download = (data.name || 'componente').replace(/\s+/g, '_') + '.html';
+  a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+  a.click();
+}
+
+function checkUiEmpty() {
+  const list = document.getElementById('ui-list');
+  document.getElementById('ui-empty').style.display = list.children.length ? 'none' : 'block';
+}
+
+function escHtml(s) {
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
+// Allow Enter key to trigger import
+document.getElementById('url-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') fetchUiverse();
+});
+</script>
 </body>
 </html>
