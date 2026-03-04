@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pantxiko Notes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0d0520;
+      color: #f0e8ff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-family: 'Kalam', cursive;
+      font-size: 18px;
+      color: rgba(255,248,215,0.95);
+      flex: 1;
+    }
+
+    .status-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #444;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .status-dot.listening { background: #e8607a; box-shadow: 0 0 8px #e8607a; animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    .notes-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .note-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(240,232,255,0.9);
+      position: relative;
+      animation: slide-in 0.25s ease;
+    }
+    @keyframes slide-in { from { opacity:0; transform: translateY(8px) } to { opacity:1; transform:translateY(0) } }
+
+    .note-card .note-time {
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 4px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .note-card .note-delete {
+      position: absolute;
+      top: 8px; right: 10px;
+      background: none; border: none;
+      color: rgba(255,255,255,0.2);
+      cursor: pointer; font-size: 14px;
+      transition: color 0.18s;
+      line-height: 1;
+    }
+    .note-card .note-delete:hover { color: #e8607a; }
+
+    .interim-text {
+      padding: 10px 18px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      font-style: italic;
+      min-height: 32px;
+      flex-shrink: 0;
+    }
+
+    .controls {
+      padding: 12px 18px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+
+    .btn-mic {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #e8607a, #c0405a);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 18px rgba(232,96,122,0.45);
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-mic:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(232,96,122,0.6); }
+    .btn-mic.active {
+      background: linear-gradient(145deg, #ff8fa0, #e8607a);
+      animation: mic-pulse 1s ease-in-out infinite;
+    }
+    @keyframes mic-pulse { 0%,100%{box-shadow:0 4px 18px rgba(232,96,122,0.45)} 50%{box-shadow:0 4px 32px rgba(232,96,122,0.8)} }
+
+    .text-input-wrap {
+      flex: 1;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .text-input {
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 9px 13px;
+      font-size: 14px;
+      color: #f0e8ff;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .text-input:focus { border-color: rgba(139,92,246,0.5); }
+    .text-input::placeholder { color: rgba(255,255,255,0.25); }
+
+    .btn-send {
+      background: rgba(139,92,246,0.8);
+      border: none; color: white;
+      border-radius: 10px;
+      padding: 9px 14px;
+      cursor: pointer; font-size: 16px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-send:hover { background: rgba(139,92,246,1); }
+
+    .btn-clear {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.45);
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer; font-size: 13px;
+      transition: all 0.18s;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .btn-clear:hover { background: rgba(255,60,60,0.15); color: #e8607a; border-color: rgba(232,96,122,0.3); }
+
+    .no-support {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 10px;
+      color: rgba(255,255,255,0.4);
+      font-size: 14px;
+      text-align: center; padding: 20px;
+    }
+    .no-support span { font-size: 36px; }
+
+    .empty-state {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+      color: rgba(255,255,255,0.2);
+      font-size: 13px;
+      text-align: center;
+    }
+    .empty-state span { font-size: 32px; opacity: 0.4; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="status-dot" id="statusDot"></div>
+  <h1>🎙️ Pantxiko Notes</h1>
+</header>
+
+<div class="notes-area" id="notesArea">
+  <div class="empty-state" id="emptyState">
+    <span>🗒️</span>
+    <p>Pulsa el micrófono para dictar<br>o escribe una nota abajo</p>
+  </div>
+</div>
+
+<div class="interim-text" id="interimText"></div>
+
+<div class="controls">
+  <button class="btn-mic" id="btnMic" title="Dictar nota">🎙️</button>
+  <div class="text-input-wrap">
+    <input class="text-input" id="textInput" type="text" placeholder="Escribe una nota...">
+    <button class="btn-send" id="btnSend" title="Guardar nota">💾</button>
+    <button class="btn-clear" id="btnClear">Borrar todo</button>
+  </div>
+</div>
+
+<script>
+  const notesArea   = document.getElementById('notesArea');
+  const emptyState  = document.getElementById('emptyState');
+  const interimEl   = document.getElementById('interimText');
+  const statusDot   = document.getElementById('statusDot');
+  const btnMic      = document.getElementById('btnMic');
+  const textInput   = document.getElementById('textInput');
+  const btnSend     = document.getElementById('btnSend');
+  const btnClear    = document.getElementById('btnClear');
+
+  let notes = JSON.parse(localStorage.getItem('pantxiko-notes') || '[]');
+  let recognition = null;
+  let isListening = false;
+
+  function saveNotes() {
+    localStorage.setItem('pantxiko-notes', JSON.stringify(notes));
+  }
+
+  function renderNotes() {
+    // Remove existing note cards
+    notesArea.querySelectorAll('.note-card').forEach(n => n.remove());
+    emptyState.style.display = notes.length === 0 ? 'flex' : 'none';
+    notes.forEach((note, i) => {
+      const card = document.createElement('div');
+      card.className = 'note-card';
+      card.innerHTML = `<div class="note-time">${note.time}</div><div>${note.text}</div><button class="note-delete" data-i="${i}" title="Borrar">✕</button>`;
+      notesArea.appendChild(card);
+    });
+    notesArea.scrollTop = notesArea.scrollHeight;
+  }
+
+  function addNote(text) {
+    text = text.trim();
+    if (!text) return;
+    const now = new Date();
+    notes.push({ text, time: now.toLocaleTimeString('es', {hour:'2-digit',minute:'2-digit'}) });
+    saveNotes();
+    renderNotes();
+  }
+
+  notesArea.addEventListener('click', e => {
+    const btn = e.target.closest('.note-delete');
+    if (!btn) return;
+    const i = parseInt(btn.dataset.i);
+    notes.splice(i, 1);
+    saveNotes();
+    renderNotes();
+  });
+
+  btnClear.addEventListener('click', () => {
+    if (!notes.length) return;
+    if (confirm('¿Borrar todas las notas?')) {
+      notes = [];
+      saveNotes();
+      renderNotes();
+    }
+  });
+
+  btnSend.addEventListener('click', () => {
+    addNote(textInput.value);
+    textInput.value = '';
+  });
+
+  textInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { addNote(textInput.value); textInput.value = ''; }
+  });
+
+  // Speech Recognition
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      isListening = true;
+      btnMic.classList.add('active');
+      statusDot.classList.add('listening');
+      btnMic.textContent = '⏹️';
+    };
+
+    recognition.onend = () => {
+      isListening = false;
+      btnMic.classList.remove('active');
+      statusDot.classList.remove('listening');
+      btnMic.textContent = '🎙️';
+      interimEl.textContent = '';
+    };
+
+    recognition.onresult = e => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) {
+          addNote(t);
+        } else {
+          interim += t;
+        }
+      }
+      interimEl.textContent = interim ? '… ' + interim : '';
+    };
+
+    recognition.onerror = e => {
+      if (e.error !== 'aborted') interimEl.textContent = 'Error: ' + e.error;
+    };
+
+    btnMic.addEventListener('click', () => {
+      if (isListening) {
+        recognition.stop();
+      } else {
+        recognition.start();
+      }
+    });
+  } else {
+    btnMic.disabled = true;
+    btnMic.style.opacity = '0.35';
+    btnMic.title = 'Tu navegador no soporta reconocimiento de voz';
+  }
+
+  renderNotes();
+</script>
+</body>
+</html>
