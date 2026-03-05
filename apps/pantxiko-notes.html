@@ -10,330 +10,607 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: #0d0520;
-      color: #f0e8ff;
       height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      /* Warm sunset background */
+      background: linear-gradient(
+        160deg,
+        #1a0a00 0%,
+        #5c1a00 15%,
+        #b84000 30%,
+        #e06010 45%,
+        #f0882a 55%,
+        #e07828 65%,
+        #c85010 75%,
+        #8b2a00 88%,
+        #3a0800 100%
+      );
+      position: relative;
     }
 
+    /* Silhouette branches overlay */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse 60% 40% at 15% 20%, rgba(0,0,0,0.55) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 85% 10%, rgba(0,0,0,0.45) 0%, transparent 65%),
+        radial-gradient(ellipse 30% 60% at 5% 50%, rgba(0,0,0,0.4) 0%, transparent 70%),
+        radial-gradient(ellipse 35% 55% at 95% 40%, rgba(0,0,0,0.35) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* All content above the background */
+    header, .note-container, .bottom-bar { position: relative; z-index: 1; }
+
+    /* ===== HEADER ===== */
     header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 14px 18px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      justify-content: space-between;
+      padding: 10px 14px 6px;
       flex-shrink: 0;
     }
 
-    header h1 {
-      font-family: 'Kalam', cursive;
-      font-size: 18px;
-      color: rgba(255,248,215,0.95);
-      flex: 1;
-    }
-
-    .status-dot {
-      width: 9px; height: 9px;
-      border-radius: 50%;
-      background: #444;
-      transition: background 0.3s;
-      flex-shrink: 0;
-    }
-    .status-dot.listening { background: #e8607a; box-shadow: 0 0 8px #e8607a; animation: pulse 1.2s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-
-    .notes-area {
-      flex: 1;
-      overflow-y: auto;
-      padding: 14px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .note-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 14px;
-      line-height: 1.55;
-      color: rgba(240,232,255,0.9);
+    .header-title-wrap {
+      background: linear-gradient(135deg, #fdf8e8 0%, #f5ead5 40%, #ede0c4 70%, #fdf8e8 100%);
+      border-radius: 6px 6px 2px 2px;
+      padding: 7px 18px 8px;
       position: relative;
-      animation: slide-in 0.25s ease;
-    }
-    @keyframes slide-in { from { opacity:0; transform: translateY(8px) } to { opacity:1; transform:translateY(0) } }
-
-    .note-card .note-time {
-      font-size: 10px;
-      color: rgba(255,255,255,0.3);
-      margin-bottom: 4px;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .note-card .note-delete {
-      position: absolute;
-      top: 8px; right: 10px;
-      background: none; border: none;
-      color: rgba(255,255,255,0.2);
-      cursor: pointer; font-size: 14px;
-      transition: color 0.18s;
-      line-height: 1;
-    }
-    .note-card .note-delete:hover { color: #e8607a; }
-
-    .interim-text {
-      padding: 10px 18px;
-      font-size: 13px;
-      color: rgba(255,255,255,0.35);
-      font-style: italic;
-      min-height: 32px;
-      flex-shrink: 0;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.9);
+      /* Torn paper effect top */
+      clip-path: polygon(
+        0% 8%, 2% 0%, 5% 6%, 8% 1%, 11% 7%, 14% 2%, 17% 8%, 20% 1%,
+        23% 7%, 26% 2%, 29% 8%, 32% 1%, 35% 6%, 38% 2%, 41% 7%, 44% 1%,
+        47% 8%, 50% 2%, 53% 7%, 56% 1%, 59% 8%, 62% 2%, 65% 7%, 68% 1%,
+        71% 8%, 74% 2%, 77% 7%, 80% 1%, 83% 8%, 86% 2%, 89% 7%, 92% 2%,
+        95% 8%, 98% 1%, 100% 6%,
+        100% 100%, 0% 100%
+      );
     }
 
-    .controls {
-      padding: 12px 18px 16px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      flex-shrink: 0;
-    }
-
-    .btn-mic {
-      width: 52px; height: 52px;
-      border-radius: 50%;
-      background: linear-gradient(145deg, #e8607a, #c0405a);
-      border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
+    .header-title-wrap h1 {
+      font-family: 'Kalam', cursive;
       font-size: 22px;
-      box-shadow: 0 4px 18px rgba(232,96,122,0.45);
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .btn-mic:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(232,96,122,0.6); }
-    .btn-mic.active {
-      background: linear-gradient(145deg, #ff8fa0, #e8607a);
-      animation: mic-pulse 1s ease-in-out infinite;
-    }
-    @keyframes mic-pulse { 0%,100%{box-shadow:0 4px 18px rgba(232,96,122,0.45)} 50%{box-shadow:0 4px 32px rgba(232,96,122,0.8)} }
-
-    .text-input-wrap {
-      flex: 1;
+      font-weight: 700;
+      color: #2a1a00;
       display: flex;
-      gap: 8px;
       align-items: center;
-    }
-
-    .text-input {
-      flex: 1;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
-      padding: 9px 13px;
-      font-size: 14px;
-      color: #f0e8ff;
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .text-input:focus { border-color: rgba(139,92,246,0.5); }
-    .text-input::placeholder { color: rgba(255,255,255,0.25); }
-
-    .btn-send {
-      background: rgba(139,92,246,0.8);
-      border: none; color: white;
-      border-radius: 10px;
-      padding: 9px 14px;
-      cursor: pointer; font-size: 16px;
-      transition: background 0.2s;
-      flex-shrink: 0;
-    }
-    .btn-send:hover { background: rgba(139,92,246,1); }
-
-    .btn-clear {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.45);
-      border-radius: 10px;
-      padding: 9px 12px;
-      cursor: pointer; font-size: 13px;
-      transition: all 0.18s;
-      flex-shrink: 0;
+      gap: 7px;
       white-space: nowrap;
     }
-    .btn-clear:hover { background: rgba(255,60,60,0.15); color: #e8607a; border-color: rgba(232,96,122,0.3); }
 
-    .no-support {
-      flex: 1;
+    .btn-settings {
+      background: rgba(230,220,200,0.5);
+      border: 1.5px solid rgba(200,180,140,0.6);
+      border-radius: 10px;
+      width: 42px; height: 42px;
       display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 10px;
-      color: rgba(255,255,255,0.4);
-      font-size: 14px;
-      text-align: center; padding: 20px;
+      cursor: pointer;
+      font-size: 20px;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s;
+      color: rgba(255,255,255,0.9);
     }
-    .no-support span { font-size: 36px; }
+    .btn-settings:hover { background: rgba(255,255,255,0.25); }
 
-    .empty-state {
+    /* ===== NOTE CONTAINER ===== */
+    .note-container {
       flex: 1;
+      margin: 6px 10px 8px;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255,252,240,0.82);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.25);
+      backdrop-filter: blur(4px);
+      position: relative;
+    }
+
+    /* Notebook lines */
+    .note-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 31px,
+        rgba(120,140,170,0.35) 31px,
+        rgba(120,140,170,0.35) 32px
+      );
+      background-position: 0 44px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ===== TOOLBAR ===== */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 8px 10px;
+      background: rgba(240,235,220,0.9);
+      border-bottom: 1px solid rgba(140,120,90,0.2);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+    }
+
+    .tb-btn {
+      background: rgba(255,255,255,0.7);
+      border: 1.5px solid rgba(180,160,120,0.35);
+      border-radius: 7px;
+      width: 34px; height: 34px;
       display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 8px;
-      color: rgba(255,255,255,0.2);
+      cursor: pointer;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      color: #2a1800;
+      transition: all 0.15s;
+      user-select: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .tb-btn:hover { background: rgba(255,255,255,0.95); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .tb-btn.active { background: rgba(200,170,100,0.4); border-color: rgba(160,120,60,0.6); }
+    .tb-btn.bold { font-weight: 900; font-size: 17px; }
+    .tb-btn.italic { font-style: italic; font-size: 16px; }
+    .tb-btn.underline { text-decoration: underline; font-size: 16px; }
+
+    .tb-sep { width: 1px; height: 24px; background: rgba(140,120,90,0.3); margin: 0 3px; }
+
+    .tb-select {
+      background: rgba(255,255,255,0.7);
+      border: 1.5px solid rgba(180,160,120,0.35);
+      border-radius: 7px;
+      padding: 0 8px;
+      height: 34px;
       font-size: 13px;
-      text-align: center;
+      font-family: 'Inter', sans-serif;
+      color: #2a1800;
+      cursor: pointer;
+      outline: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .empty-state span { font-size: 32px; opacity: 0.4; }
+
+    .tb-color {
+      width: 34px; height: 34px;
+      border-radius: 7px;
+      border: 1.5px solid rgba(180,160,120,0.35);
+      cursor: pointer;
+      padding: 3px;
+      background: rgba(255,255,255,0.7);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* ===== EDITOR AREA ===== */
+    .editor-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Mascot watermark */
+    .mascot-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -52%);
+      width: 220px;
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 2;
+      user-select: none;
+    }
+
+    #editor {
+      position: absolute;
+      inset: 0;
+      padding: 10px 16px 10px 18px;
+      font-size: 15px;
+      line-height: 32px;
+      color: #1a0e00;
+      outline: none;
+      overflow-y: auto;
+      background: transparent;
+      z-index: 3;
+      font-family: 'Inter', sans-serif;
+      resize: none;
+      white-space: pre-wrap;
+    }
+    #editor:empty::before {
+      content: attr(data-placeholder);
+      color: rgba(80,60,30,0.35);
+      pointer-events: none;
+    }
+
+    /* ===== BOTTOM BAR ===== */
+    .bottom-bar {
+      display: flex;
+      gap: 8px;
+      padding: 10px 10px 12px;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 10px 6px;
+      background: rgba(230,218,195,0.55);
+      border: 1.5px solid rgba(200,178,140,0.5);
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: 'Inter', sans-serif;
+      color: rgba(255,248,230,0.95);
+      font-weight: 500;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .action-btn:hover { background: rgba(255,240,210,0.7); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.28); }
+    .action-btn:active { transform: translateY(0); }
+    .action-btn .btn-icon { font-size: 22px; line-height: 1; }
+    .action-btn.recording { background: rgba(220,80,60,0.55); border-color: rgba(220,80,60,0.7); }
+    .action-btn.recording .btn-icon { animation: mic-pulse 1s ease-in-out infinite; }
+    @keyframes mic-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
+
+    /* Settings panel */
+    .settings-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    .settings-panel.open { display: flex; }
+    .settings-box {
+      background: linear-gradient(135deg, #fdf8e8, #f0e8d0);
+      border-radius: 16px;
+      padding: 24px;
+      width: 90%; max-width: 320px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .settings-box h2 {
+      font-family: 'Kalam', cursive;
+      font-size: 18px; color: #2a1800;
+      margin-bottom: 16px;
+    }
+    .settings-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.08);
+      font-size: 14px; color: #3a2000;
+    }
+    .settings-row select {
+      border: 1px solid rgba(0,0,0,0.2); border-radius: 6px;
+      padding: 4px 8px; font-size: 13px; background: white;
+    }
+    .settings-close {
+      margin-top: 18px; width: 100%;
+      background: #b84000; color: white; border: none;
+      border-radius: 10px; padding: 10px;
+      font-family: 'Kalam', cursive; font-size: 16px; cursor: pointer;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: rgba(30,15,0,0.85); color: #fde8b0;
+      padding: 9px 20px; border-radius: 20px;
+      font-size: 13px; font-family: 'Kalam', cursive;
+      opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 200;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header>
-  <div class="status-dot" id="statusDot"></div>
-  <h1>🎙️ Pantxiko Notes</h1>
+  <div class="header-title-wrap">
+    <h1>🎙️ Pantxiko Notes 📝</h1>
+  </div>
+  <button class="btn-settings" id="btnSettings" title="Configuración">⚙️</button>
 </header>
 
-<div class="notes-area" id="notesArea">
-  <div class="empty-state" id="emptyState">
-    <span>🗒️</span>
-    <p>Pulsa el micrófono para dictar<br>o escribe una nota abajo</p>
+<!-- NOTE CONTAINER -->
+<div class="note-container">
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <button class="tb-btn bold" id="tbBold" title="Negrita">A</button>
+    <button class="tb-btn italic" id="tbItalic" title="Cursiva">I</button>
+    <button class="tb-btn underline" id="tbUnderline" title="Subrayado">U</button>
+    <div class="tb-sep"></div>
+    <input class="tb-color" type="color" id="tbColor" value="#1a0e00" title="Color de texto">
+    <select class="tb-select" id="tbFontSize" title="Tamaño">
+      <option value="13">Aa 13</option>
+      <option value="15" selected>Aa 15</option>
+      <option value="18">Aa 18</option>
+      <option value="22">Aa 22</option>
+      <option value="28">Aa 28</option>
+    </select>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="tbAlignL" title="Izquierda">&#8676;</button>
+    <button class="tb-btn" id="tbAlignC" title="Centro">&#8596;</button>
+    <button class="tb-btn" id="tbAlignR" title="Derecha">&#8677;</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="tbClear" title="Limpiar formato">&lt;&gt;</button>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="editor-wrap">
+    <!-- Mascot watermark SVG -->
+    <svg class="mascot-watermark" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(152,18)">
+        <ellipse cx="0" cy="0" rx="9" ry="7" fill="#1a1a1a" transform="rotate(-20)"/>
+        <line x1="9" y1="-3" x2="9" y2="-32" stroke="#1a1a1a" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="9" y1="-32" x2="26" y2="-40" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+      <path d="M148,110 Q160,120 148,130" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+      <path d="M155,100 Q172,115 155,130" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="86" cy="18" r="5.5" fill="#1a1a1a"/>
+      <circle cx="100" cy="15" r="5.5" fill="#1a1a1a"/>
+      <circle cx="114" cy="18" r="5.5" fill="#1a1a1a"/>
+      <rect x="76" y="28" width="48" height="9" rx="1.5" fill="#1a1a1a"/>
+      <rect x="78" y="30" width="44" height="5" rx="1" fill="#f5c518"/>
+      <rect x="76" y="42" width="48" height="9" rx="1.5" fill="#1a1a1a"/>
+      <rect x="78" y="44" width="44" height="5" rx="1" fill="#f5c518"/>
+      <!-- Microphone body - golden/amber -->
+      <rect x="88" y="56" width="24" height="44" rx="12" fill="#e8c040"/>
+      <rect x="88" y="56" width="24" height="44" rx="12" fill="none" stroke="#c09020" stroke-width="1.5"/>
+      <!-- Mic grille lines -->
+      <line x1="90" y1="65" x2="110" y2="65" stroke="rgba(0,0,0,0.25)" stroke-width="1.5"/>
+      <line x1="90" y1="72" x2="110" y2="72" stroke="rgba(0,0,0,0.25)" stroke-width="1.5"/>
+      <line x1="90" y1="79" x2="110" y2="79" stroke="rgba(0,0,0,0.25)" stroke-width="1.5"/>
+      <line x1="90" y1="86" x2="110" y2="86" stroke="rgba(0,0,0,0.25)" stroke-width="1.5"/>
+      <line x1="90" y1="93" x2="110" y2="93" stroke="rgba(0,0,0,0.25)" stroke-width="1.5"/>
+      <!-- Mic band - teal/cyan -->
+      <rect x="86" y="98" width="28" height="7" rx="3.5" fill="#40c8c0"/>
+      <rect x="86" y="98" width="28" height="7" rx="3.5" fill="none" stroke="#20a8a0" stroke-width="1"/>
+      <!-- Mic base - pink/rose -->
+      <path d="M80,105 Q80,120 100,120 Q120,120 120,105" fill="none" stroke="#e86090" stroke-width="3" stroke-linecap="round"/>
+      <line x1="100" y1="120" x2="100" y2="130" stroke="#e86090" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="100" cy="132" rx="12" ry="4" fill="none" stroke="#9040c0" stroke-width="2"/>
+      <rect x="72" y="100" width="56" height="52" rx="7" fill="none"/>
+      <polyline points="74,118 44,102 24,114" fill="none" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="126,112 156,98 178,88" fill="none" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="178" cy="88" r="5" fill="#1a1a1a"/>
+      <polyline points="86,152 64,198 48,223" fill="none" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="44" cy="225" rx="10" ry="4" fill="#1a1a1a"/>
+      <polyline points="114,152 140,196 172,213" fill="none" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="176" cy="215" rx="10" ry="4" fill="#1a1a1a"/>
+    </svg>
+
+    <div id="editor" contenteditable="true" data-placeholder="Empieza a escribir o dicta tu nota..."></div>
   </div>
 </div>
 
-<div class="interim-text" id="interimText"></div>
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <button class="action-btn" id="btnCopy">
+    <span class="btn-icon">📋</span>
+    Copiar
+  </button>
+  <button class="action-btn" id="btnSave">
+    <span class="btn-icon">💾</span>
+    Guardar
+  </button>
+  <button class="action-btn" id="btnDictate">
+    <span class="btn-icon">🔊</span>
+    Leer/Transcribir
+  </button>
+  <button class="action-btn" id="btnPdf">
+    <span class="btn-icon">📄</span>
+    Pasar a PDF
+  </button>
+</div>
 
-<div class="controls">
-  <button class="btn-mic" id="btnMic" title="Dictar nota">🎙️</button>
-  <div class="text-input-wrap">
-    <input class="text-input" id="textInput" type="text" placeholder="Escribe una nota...">
-    <button class="btn-send" id="btnSend" title="Guardar nota">💾</button>
-    <button class="btn-clear" id="btnClear">Borrar todo</button>
+<!-- SETTINGS PANEL -->
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-box">
+    <h2>⚙️ Configuración</h2>
+    <div class="settings-row">
+      <span>Idioma de voz</span>
+      <select id="voiceLang">
+        <option value="es-ES" selected>Español</option>
+        <option value="eu-ES">Euskera</option>
+        <option value="en-US">English</option>
+        <option value="fr-FR">Français</option>
+      </select>
+    </div>
+    <div class="settings-row">
+      <span>Guardar automático</span>
+      <select id="autoSave">
+        <option value="30">30 seg</option>
+        <option value="60" selected>1 min</option>
+        <option value="0">Desactivado</option>
+      </select>
+    </div>
+    <button class="settings-close" id="settingsClose">Cerrar</button>
   </div>
 </div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-  const notesArea   = document.getElementById('notesArea');
-  const emptyState  = document.getElementById('emptyState');
-  const interimEl   = document.getElementById('interimText');
-  const statusDot   = document.getElementById('statusDot');
-  const btnMic      = document.getElementById('btnMic');
-  const textInput   = document.getElementById('textInput');
-  const btnSend     = document.getElementById('btnSend');
-  const btnClear    = document.getElementById('btnClear');
+  const editor      = document.getElementById('editor');
+  const btnSettings = document.getElementById('btnSettings');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const settingsClose = document.getElementById('settingsClose');
+  const toast       = document.getElementById('toast');
 
-  let notes = JSON.parse(localStorage.getItem('pantxiko-notes') || '[]');
-  let recognition = null;
-  let isListening = false;
-
-  function saveNotes() {
-    localStorage.setItem('pantxiko-notes', JSON.stringify(notes));
+  // ---- Toast ----
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2200);
   }
 
-  function renderNotes() {
-    // Remove existing note cards
-    notesArea.querySelectorAll('.note-card').forEach(n => n.remove());
-    emptyState.style.display = notes.length === 0 ? 'flex' : 'none';
-    notes.forEach((note, i) => {
-      const card = document.createElement('div');
-      card.className = 'note-card';
-      card.innerHTML = `<div class="note-time">${note.time}</div><div>${note.text}</div><button class="note-delete" data-i="${i}" title="Borrar">✕</button>`;
-      notesArea.appendChild(card);
-    });
-    notesArea.scrollTop = notesArea.scrollHeight;
+  // ---- Restore saved content ----
+  const saved = localStorage.getItem('pantxiko-notes-content');
+  if (saved) editor.innerHTML = saved;
+
+  // ---- Auto save ----
+  let autoSaveTimer;
+  function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    const delay = parseInt(document.getElementById('autoSave')?.value || '60') * 1000;
+    if (delay > 0) autoSaveTimer = setTimeout(saveNote, delay);
+  }
+  editor.addEventListener('input', scheduleAutoSave);
+
+  function saveNote() {
+    localStorage.setItem('pantxiko-notes-content', editor.innerHTML);
+    showToast('✅ Nota guardada');
   }
 
-  function addNote(text) {
-    text = text.trim();
-    if (!text) return;
-    const now = new Date();
-    notes.push({ text, time: now.toLocaleTimeString('es', {hour:'2-digit',minute:'2-digit'}) });
-    saveNotes();
-    renderNotes();
+  // ---- Settings ----
+  btnSettings.addEventListener('click', () => settingsPanel.classList.add('open'));
+  settingsClose.addEventListener('click', () => settingsPanel.classList.remove('open'));
+  settingsPanel.addEventListener('click', e => { if (e.target === settingsPanel) settingsPanel.classList.remove('open'); });
+
+  // ---- Toolbar: formatting ----
+  function fmt(cmd, val) {
+    editor.focus();
+    document.execCommand(cmd, false, val || null);
   }
 
-  notesArea.addEventListener('click', e => {
-    const btn = e.target.closest('.note-delete');
-    if (!btn) return;
-    const i = parseInt(btn.dataset.i);
-    notes.splice(i, 1);
-    saveNotes();
-    renderNotes();
-  });
-
-  btnClear.addEventListener('click', () => {
-    if (!notes.length) return;
-    if (confirm('¿Borrar todas las notas?')) {
-      notes = [];
-      saveNotes();
-      renderNotes();
+  document.getElementById('tbBold').addEventListener('click', () => { fmt('bold'); document.getElementById('tbBold').classList.toggle('active'); });
+  document.getElementById('tbItalic').addEventListener('click', () => { fmt('italic'); document.getElementById('tbItalic').classList.toggle('active'); });
+  document.getElementById('tbUnderline').addEventListener('click', () => { fmt('underline'); document.getElementById('tbUnderline').classList.toggle('active'); });
+  document.getElementById('tbColor').addEventListener('input', e => fmt('foreColor', e.target.value));
+  document.getElementById('tbFontSize').addEventListener('change', e => {
+    const px = e.target.value;
+    const sel = window.getSelection();
+    if (sel.rangeCount) {
+      const range = sel.getRangeAt(0);
+      if (!range.collapsed) {
+        document.execCommand('fontSize', false, '7');
+        editor.querySelectorAll('font[size="7"]').forEach(el => {
+          el.removeAttribute('size');
+          el.style.fontSize = px + 'px';
+        });
+      } else {
+        editor.style.fontSize = px + 'px';
+      }
     }
   });
+  document.getElementById('tbAlignL').addEventListener('click', () => fmt('justifyLeft'));
+  document.getElementById('tbAlignC').addEventListener('click', () => fmt('justifyCenter'));
+  document.getElementById('tbAlignR').addEventListener('click', () => fmt('justifyRight'));
+  document.getElementById('tbClear').addEventListener('click', () => fmt('removeFormat'));
 
-  btnSend.addEventListener('click', () => {
-    addNote(textInput.value);
-    textInput.value = '';
+  // ---- Copy ----
+  document.getElementById('btnCopy').addEventListener('click', () => {
+    navigator.clipboard.writeText(editor.innerText).then(() => showToast('📋 Copiado al portapapeles'));
   });
 
-  textInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { addNote(textInput.value); textInput.value = ''; }
+  // ---- Save ----
+  document.getElementById('btnSave').addEventListener('click', saveNote);
+
+  // ---- PDF ----
+  document.getElementById('btnPdf').addEventListener('click', () => {
+    const w = window.open('', '_blank');
+    w.document.write(`
+      <html><head><title>Pantxiko Notes</title>
+      <style>
+        body { font-family: sans-serif; padding: 40px; background: #fdf8f0; }
+        h1 { font-family: Georgia, cursive; color: #2a1800; margin-bottom: 20px; }
+        .content { font-size: 15px; line-height: 1.7; }
+      </style></head>
+      <body><h1>🎙️ Pantxiko Notes</h1>
+      <div class="content">${editor.innerHTML}</div>
+      <script>window.onload=()=>{ window.print(); window.close(); }<\/script>
+      </body></html>
+    `);
+    w.document.close();
   });
 
-  // Speech Recognition
+  // ---- Voice Dictation ----
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  let isListening = false;
+  const btnDictate = document.getElementById('btnDictate');
 
   if (SpeechRecognition) {
     recognition = new SpeechRecognition();
-    recognition.lang = 'es-ES';
     recognition.continuous = true;
     recognition.interimResults = true;
 
+    let interimSpan = null;
+
     recognition.onstart = () => {
       isListening = true;
-      btnMic.classList.add('active');
-      statusDot.classList.add('listening');
-      btnMic.textContent = '⏹️';
+      btnDictate.classList.add('recording');
+      btnDictate.querySelector('.btn-icon').textContent = '🎙️';
+      btnDictate.lastChild.textContent = ' Dictando...';
     };
 
     recognition.onend = () => {
       isListening = false;
-      btnMic.classList.remove('active');
-      statusDot.classList.remove('listening');
-      btnMic.textContent = '🎙️';
-      interimEl.textContent = '';
+      btnDictate.classList.remove('recording');
+      btnDictate.querySelector('.btn-icon').textContent = '🔊';
+      btnDictate.lastChild.textContent = ' Leer/Transcribir';
+      if (interimSpan) { interimSpan.remove(); interimSpan = null; }
     };
 
     recognition.onresult = e => {
+      if (!interimSpan) {
+        interimSpan = document.createElement('span');
+        interimSpan.style.color = 'rgba(100,60,20,0.5)';
+        interimSpan.style.fontStyle = 'italic';
+        editor.appendChild(interimSpan);
+      }
       let interim = '';
+      let finalText = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
         if (e.results[i].isFinal) {
-          addNote(t);
+          finalText += e.results[i][0].transcript;
         } else {
-          interim += t;
+          interim += e.results[i][0].transcript;
         }
       }
-      interimEl.textContent = interim ? '… ' + interim : '';
+      if (finalText) {
+        const textNode = document.createTextNode(finalText + ' ');
+        interimSpan.before(textNode);
+        interimSpan.textContent = '';
+        saveNote();
+      }
+      interimSpan.textContent = interim;
     };
 
     recognition.onerror = e => {
-      if (e.error !== 'aborted') interimEl.textContent = 'Error: ' + e.error;
+      if (e.error !== 'aborted') showToast('⚠️ Error: ' + e.error);
     };
 
-    btnMic.addEventListener('click', () => {
+    btnDictate.addEventListener('click', () => {
       if (isListening) {
         recognition.stop();
       } else {
+        recognition.lang = document.getElementById('voiceLang')?.value || 'es-ES';
         recognition.start();
       }
     });
   } else {
-    btnMic.disabled = true;
-    btnMic.style.opacity = '0.35';
-    btnMic.title = 'Tu navegador no soporta reconocimiento de voz';
+    btnDictate.disabled = true;
+    btnDictate.style.opacity = '0.4';
+    btnDictate.title = 'Tu navegador no soporta reconocimiento de voz';
   }
-
-  renderNotes();
 </script>
 </body>
 </html>
