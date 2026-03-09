@@ -262,8 +262,8 @@
     .action-btn:active { transform: translateY(0); }
     .action-btn .btn-icon { font-size: 22px; line-height: 1; }
     .action-btn.recording { background: rgba(220,80,60,0.55); border-color: rgba(220,80,60,0.7); }
-    .action-btn.recording .btn-icon { animation: mic-pulse 1s ease-in-out infinite; }
-    @keyframes mic-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
+    .action-btn.recording #micSvg { animation: mic-pulse 0.9s ease-in-out infinite; }
+    @keyframes mic-pulse { 0%,100%{transform:scale(1) rotate(-5deg)} 50%{transform:scale(1.2) rotate(5deg)} }
 
     /* Settings panel */
     .settings-panel {
@@ -410,8 +410,34 @@
     Guardar
   </button>
   <button class="action-btn" id="btnDictate">
-    <span class="btn-icon">🔊</span>
-    Leer/Transcribir
+    <span class="btn-icon">
+      <svg id="micSvg" viewBox="0 0 100 160" xmlns="http://www.w3.org/2000/svg" width="26" height="42" style="display:block">
+        <!-- Capsule body - yellow outline -->
+        <rect x="22" y="4" width="56" height="76" rx="28" fill="white" stroke="#f5c518" stroke-width="6"/>
+        <!-- Grille lines - red -->
+        <line x1="34" y1="28" x2="44" y2="28" stroke="#e8404a" stroke-width="4" stroke-linecap="round"/>
+        <line x1="56" y1="28" x2="66" y2="28" stroke="#e8404a" stroke-width="4" stroke-linecap="round"/>
+        <line x1="31" y1="42" x2="44" y2="42" stroke="#e8404a" stroke-width="4" stroke-linecap="round"/>
+        <line x1="56" y1="42" x2="69" y2="42" stroke="#e8404a" stroke-width="4" stroke-linecap="round"/>
+        <line x1="31" y1="56" x2="44" y2="56" stroke="#e8404a" stroke-width="4" stroke-linecap="round"/>
+        <line x1="56" y1="56" x2="69" y2="56" stroke="#e8404a" stroke-width="4" stroke-linecap="round"/>
+        <line x1="34" y1="70" x2="44" y2="70" stroke="#e8404a" stroke-width="4" stroke-linecap="round"/>
+        <line x1="56" y1="70" x2="66" y2="70" stroke="#e8404a" stroke-width="4" stroke-linecap="round"/>
+        <!-- Teal band -->
+        <rect x="16" y="76" width="68" height="14" rx="7" fill="white" stroke="#18c8c0" stroke-width="5"/>
+        <!-- Pink yoke arc -->
+        <path d="M28,90 Q10,90 10,108 Q10,124 28,124" fill="none" stroke="#f050a0" stroke-width="6" stroke-linecap="round"/>
+        <path d="M72,90 Q90,90 90,108 Q90,124 72,124" fill="none" stroke="#f050a0" stroke-width="6" stroke-linecap="round"/>
+        <!-- Black vertical stem -->
+        <rect x="46" y="124" width="8" height="22" rx="4" fill="#1a1a1a"/>
+        <!-- Purple base -->
+        <rect x="18" y="144" width="64" height="12" rx="6" fill="white" stroke="#7c40c0" stroke-width="5"/>
+        <!-- Black outline overlays on capsule sides -->
+        <path d="M22,48 Q22,4 50,4 Q78,4 78,48" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+        <path d="M22,52 Q22,80 50,80 Q78,80 78,52" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+      </svg>
+    </span>
+    <span class="dictate-label">Leer/Transcribir</span>
   </button>
   <button class="action-btn" id="btnPdf">
     <span class="btn-icon">📄</span>
@@ -557,15 +583,13 @@
     recognition.onstart = () => {
       isListening = true;
       btnDictate.classList.add('recording');
-      btnDictate.querySelector('.btn-icon').textContent = '🎙️';
-      btnDictate.lastChild.textContent = ' Dictando...';
+      btnDictate.querySelector('.dictate-label').textContent = 'Dictando...';
     };
 
     recognition.onend = () => {
       isListening = false;
       btnDictate.classList.remove('recording');
-      btnDictate.querySelector('.btn-icon').textContent = '🔊';
-      btnDictate.lastChild.textContent = ' Leer/Transcribir';
+      btnDictate.querySelector('.dictate-label').textContent = 'Leer/Transcribir';
       if (interimSpan) { interimSpan.remove(); interimSpan = null; }
     };
 
