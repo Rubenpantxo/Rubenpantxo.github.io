@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabanillas - Plano Catastral de Precisión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #f1f5f9; font-family: system-ui, sans-serif; }
+        canvas { display: block; cursor: crosshair; touch-action: none; }
+        canvas:active { cursor: grabbing; }
+        ::-webkit-scrollbar { display: none; }
+
+        /* Animación de carga */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="relative h-screen w-screen selection:bg-blue-200">
+
+    <!-- Pantalla de Carga -->
+    <div id="loading-screen" class="absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex flex-col items-center justify-center text-white transition-opacity duration-500">
+        <div class="loader mb-4"></div>
+        <h2 class="text-2xl font-bold mb-2 text-center px-4">Conectando con Catastro / OSM</h2>
+        <p class="text-slate-300 text-center px-4">Descargando geometría real de Cabanillas...</p>
+        <p id="loading-status" class="text-xs text-blue-300 mt-4 font-mono text-center px-4">Iniciando petición...</p>
+    </div>
+
+    <canvas id="mapaCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('mapaCanvas');
+        const ctx = canvas.getContext('2d');
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingStatus = document.getElementById('loading-status');
+
+        // --- SISTEMA GEOGRÁFICO (Cabanillas Centro) ---
+        const CENTER_LAT = 42.0305;
+        const CENTER_LON = -1.5260;
+        const EARTH_RADIUS = 6371000; // Metros
+        let centerPoint = null;
+
+        // Conversor de Lat/Lon a Metros (Equirectangular local)
+        function latLonToMeters(lat, lon) {
+            const x = EARTH_RADIUS * lon * Math.PI / 180 * Math.cos(CENTER_LAT * Math.PI / 180);
+            const y = EARTH_RADIUS * lat * Math.PI / 180;
+            return { x, y };
+        }
+
+        // Conversor inverso: Metros a Lat/Lon
+        function metersToLatLon(x, y) {
+            const lat = y / (EARTH_RADIUS * Math.PI / 180);
+            const lon = x / (EARTH_RADIUS * Math.PI / 180 * Math.cos(CENTER_LAT * Math.PI / 180));
+            return { lat, lon };
+        }
+
+        // Iniciar el punto central en metros
+        centerPoint = latLonToMeters(CENTER_LAT, CENTER_LON);
+
+        function latLonToCanvas(lat, lon) {
+            const m = latLonToMeters(lat, lon);
+            return {
+                x: m.x - centerPoint.x,
+                y: -(m.y - centerPoint.y) // Invertir Y (Canvas Y va hacia abajo, Norte hacia arriba)
+            };
+        }
+
+        function canvasToLatLon(cx, cy) {
+            const mY = centerPoint.y - cy;
+            const mX = cx + centerPoint.x;
+            return metersToLatLon(mX, mY);
+        }
+
+        // --- ESTADO DEL MOTOR ---
+        let camera = { x: 0, y: 0, scale: 2 }; // Escala 2 significa 1 metro = 2 píxeles en pantalla
+        let isDragging = false;
+        let lastMouse = { x: 0, y: 0 };
+        let initialPinchDist = null;
+
+        // --- DATOS DEL MAPA ---
+        let vias = [];
+        let edificios = [];
+
+        // --- DESCARGA DE DATOS CATASTRALES (OpenStreetMap) ---
+        async function cargarMapaReal() {
+            try {
+                // Bounding Box para Cabanillas
+                const bbox = "42.022,-1.535,42.037,-1.515";
+                const query = `
+                    [out:json][timeout:25];
+                    (
+                      way["building"](${bbox});
+                      way["highway"](${bbox});
+                      way["waterway"](${bbox});
+                    );
+                    out body;
+                    >;
+                    out skel qt;
+                `;
+
+                loadingStatus.innerText = "Descargando polígonos desde servidor externo...";
+                const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+                const response = await fetch(url);
+
+                if (!response.ok) throw new Error("Fallo de red al conectar con OSM.");
+
+                loadingStatus.innerText = "Procesando geometría...";
+                const data = await response.json();
+
+                // Procesar nodos (puntos)
+                const nodos = {};
+                data.elements.forEach(el => {
+                    if (el.type === 'node') {
+                        nodos[el.id] = latLonToCanvas(el.lat, el.lon);
+                    }
+                });
+
+                // Procesar vías (caminos y edificios)
+                data.elements.forEach(el => {
+                    if (el.type === 'way') {
+                        const pts = el.nodes.map(nid => nodos[nid]).filter(n => n);
+                        if (pts.length < 2) return;
+
+                        if (el.tags && el.tags.building) {
+                            edificios.push(pts);
+                        } else if (el.tags && el.tags.highway) {
+                            // Grosor visual dependiendo del tipo de vía
+                            let width = 4;
+                            if (el.tags.highway === 'primary' || el.tags.highway === 'secondary') width = 8;
+                            else if (el.tags.highway === 'residential') width = 5;
+                            else if (el.tags.highway === 'track' || el.tags.highway === 'path') width = 2;
+
+                            vias.push({ pts, width, color: '#FFFFFF', isWater: false, name: el.tags.name });
+                        } else if (el.tags && el.tags.waterway) {
+                            vias.push({ pts, width: 15, color: '#3498DB', isWater: true });
+                        }
+                    }
+                });
+
+                // Ocultar pantalla de carga
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => loadingScreen.style.display = 'none', 500);
+
+                // Centrar cámara
+                resize();
+            } catch (error) {
+                loadingStatus.innerText = "Error: " + error.message;
+                loadingStatus.className = "text-xs text-red-400 mt-4 font-mono font-bold";
+                console.error(error);
+                alert("Hubo un problema al cargar los datos reales. Por favor, recarga la página.");
+            }
+        }
+
+        // --- SISTEMA DE RENDERIZADO ---
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (camera.x === 0 && camera.y === 0) {
+                camera.x = canvas.width / 2;
+                camera.y = canvas.height / 2;
+            }
+            draw();
+        }
+
+        function drawPath(pts) {
+            ctx.beginPath();
+            ctx.moveTo(pts[0].x, pts[0].y);
+            for (let i = 1; i < pts.length; i++) {
+                ctx.lineTo(pts[i].x, pts[i].y);
+            }
+        }
+
+        function draw() {
+            // Fondo base (terreno)
+            ctx.fillStyle = '#E2E8F0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(camera.x, camera.y);
+            ctx.scale(camera.scale, camera.scale);
+
+            // 1. Dibujar Calles y Ríos
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            vias.forEach(via => {
+                drawPath(via.pts);
+                ctx.strokeStyle = via.color;
+                ctx.lineWidth = via.width;
+                ctx.stroke();
+
+                // Borde suave para las calles
+                if (!via.isWater) {
+                    ctx.strokeStyle = '#CBD5E1';
+                    ctx.lineWidth = via.width + 1.5;
+                    ctx.globalCompositeOperation = 'destination-over';
+                    ctx.stroke();
+                    ctx.globalCompositeOperation = 'source-over';
+                }
+            });
+
+            // 2. Dibujar Edificios (Datos reales)
+            edificios.forEach(pts => {
+                drawPath(pts);
+                ctx.fillStyle = '#F87171'; // Color terracota suave
+                ctx.fill();
+                ctx.strokeStyle = '#DC2626'; // Borde oscuro
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+
+                // Sombreado sutil
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetY = 3;
+                ctx.shadowOffsetX = 2;
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // 3. Cuadrícula de precisión (Visible al acercar mucho)
+            if (camera.scale > 4) {
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.15)';
+                ctx.lineWidth = 1 / camera.scale;
+
+                const viewLeft = -camera.x / camera.scale;
+                const viewRight = (canvas.width - camera.x) / camera.scale;
+                const viewTop = -camera.y / camera.scale;
+                const viewBottom = (canvas.height - camera.y) / camera.scale;
+
+                const step = 5; // Cuadrícula cada 5 metros reales
+                ctx.beginPath();
+                for (let x = Math.floor(viewLeft/step)*step; x < viewRight; x += step) {
+                    ctx.moveTo(x, viewTop); ctx.lineTo(x, viewBottom);
+                }
+                for (let y = Math.floor(viewTop/step)*step; y < viewBottom; y += step) {
+                    ctx.moveTo(viewLeft, y); ctx.lineTo(viewRight, y);
+                }
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        // --- CONVERSIÓN DE EVENTOS ---
+        function screenToCanvas(sx, sy) {
+            return {
+                x: (sx - camera.x) / camera.scale,
+                y: (sy - camera.y) / camera.scale
+            };
+        }
+
+        // --- EVENTOS DEL RATÓN ---
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            if (isDragging) {
+                camera.x += (mouseX - lastMouse.x);
+                camera.y += (mouseY - lastMouse.y);
+                draw();
+            }
+
+            lastMouse = { x: mouseX, y: mouseY };
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            const rect = canvas.getBoundingClientRect();
+            lastMouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        });
+
+        canvas.addEventListener('mouseup', () => { isDragging = false; });
+        canvas.addEventListener('mouseleave', () => { isDragging = false; });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const canvasX = (mouseX - camera.x) / camera.scale;
+            const canvasY = (mouseY - camera.y) / camera.scale;
+
+            const zoomFactor = 1.15;
+            if (e.deltaY < 0) camera.scale *= zoomFactor;
+            else camera.scale /= zoomFactor;
+
+            // Escala (1x = 1 metro por pixel) hasta nivel microscópico si es necesario
+            camera.scale = Math.max(0.2, Math.min(camera.scale, 50));
+
+            camera.x = mouseX - canvasX * camera.scale;
+            camera.y = mouseY - canvasY * camera.scale;
+
+            draw();
+        }, { passive: false });
+
+        // --- GESTIÓN TÁCTIL (MÓVILES Y TABLETS) ---
+        function getPinchDistance(touches) {
+            return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+        }
+
+        function getPinchCenter(touches) {
+            return {
+                x: (touches[0].clientX + touches[1].clientX) / 2,
+                y: (touches[0].clientY + touches[1].clientY) / 2
+            };
+        }
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Evita el scroll nativo
+            const rect = canvas.getBoundingClientRect();
+
+            if (e.touches.length === 1) {
+                isDragging = true;
+                lastMouse = {
+                    x: e.touches[0].clientX - rect.left,
+                    y: e.touches[0].clientY - rect.top
+                };
+            } else if (e.touches.length === 2) {
+                isDragging = false;
+                initialPinchDist = getPinchDistance(e.touches);
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+
+            if (e.touches.length === 1 && isDragging) {
+                // Mover con 1 dedo
+                const touchX = e.touches[0].clientX - rect.left;
+                const touchY = e.touches[0].clientY - rect.top;
+
+                camera.x += (touchX - lastMouse.x);
+                camera.y += (touchY - lastMouse.y);
+                lastMouse = { x: touchX, y: touchY };
+
+                draw();
+            } else if (e.touches.length === 2) {
+                // Zoom con 2 dedos
+                const newDist = getPinchDistance(e.touches);
+                const center = getPinchCenter(e.touches);
+                const mouseX = center.x - rect.left;
+                const mouseY = center.y - rect.top;
+
+                if (initialPinchDist) {
+                    const canvasX = (mouseX - camera.x) / camera.scale;
+                    const canvasY = (mouseY - camera.y) / camera.scale;
+
+                    const zoomFactor = newDist / initialPinchDist;
+                    camera.scale *= zoomFactor;
+                    camera.scale = Math.max(0.2, Math.min(camera.scale, 50));
+
+                    camera.x = mouseX - canvasX * camera.scale;
+                    camera.y = mouseY - canvasY * camera.scale;
+
+                    draw();
+                }
+                initialPinchDist = newDist;
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (e.touches.length < 2) {
+                initialPinchDist = null;
+            }
+            if (e.touches.length === 1) {
+                const rect = canvas.getBoundingClientRect();
+                lastMouse = {
+                    x: e.touches[0].clientX - rect.left,
+                    y: e.touches[0].clientY - rect.top
+                };
+                isDragging = true;
+            } else if (e.touches.length === 0) {
+                isDragging = false;
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchcancel', () => {
+            isDragging = false;
+            initialPinchDist = null;
+        });
+
+        // Iniciar
+        window.addEventListener('resize', resize);
+        cargarMapaReal();
+
+    </script>
+</body>
+</html>
