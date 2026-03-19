@@ -75,7 +75,7 @@
 
     .header-title-wrap h1 {
       font-family: 'Kalam', cursive;
-      font-size: 22px;
+      font-size: 30px;
       font-weight: 700;
       color: #2a1a00;
       display: flex;
@@ -262,8 +262,21 @@
     .action-btn:active { transform: translateY(0); }
     .action-btn .btn-icon { font-size: 22px; line-height: 1; }
     .action-btn.recording { background: rgba(220,80,60,0.55); border-color: rgba(220,80,60,0.7); }
-    .action-btn.recording #micSvg { animation: mic-pulse 0.9s ease-in-out infinite; }
-    @keyframes mic-pulse { 0%,100%{transform:scale(1) rotate(-5deg)} 50%{transform:scale(1.2) rotate(5deg)} }
+    @keyframes mic-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
+
+    .dictate-wrap { display: flex; justify-content: center; padding: 8px 10px 0; flex-shrink: 0; }
+    .dictate-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 14px 32px; background: rgba(230,218,195,0.55); border: 1.5px solid rgba(200,178,140,0.5);
+      border-radius: 18px; cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
+      color: rgba(255,248,230,0.95); font-weight: 500; backdrop-filter: blur(8px);
+      transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .dictate-btn:hover { background: rgba(255,240,210,0.7); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.28); }
+    .dictate-btn:active { transform: translateY(0); }
+    .dictate-btn .mic-icon { width: 64px; height: 64px; object-fit: contain; display: block; }
+    .dictate-btn.recording { background: rgba(220,80,60,0.55); border-color: rgba(220,80,60,0.7); }
+    .dictate-btn.recording .mic-icon { animation: mic-pulse 0.9s ease-in-out infinite; }
 
     /* Settings panel */
     .settings-panel {
@@ -360,6 +373,14 @@
   </div>
 </div>
 
+<!-- DICTATE BUTTON -->
+<div class="dictate-wrap">
+  <button class="dictate-btn" id="btnDictate">
+    <img src="../img/IconoMicrofono.png" alt="Micrófono" class="mic-icon">
+    <span class="dictate-label">Dictar</span>
+  </button>
+</div>
+
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
   <button class="action-btn" id="btnCopy">
@@ -369,12 +390,6 @@
   <button class="action-btn" id="btnSave">
     <span class="btn-icon">💾</span>
     Guardar
-  </button>
-  <button class="action-btn" id="btnDictate">
-    <span class="btn-icon">
-      <img id="micSvg" src="../img/IconoMicrofono.png" alt="Micrófono" width="32" height="32" style="display:block">
-    </span>
-    <span class="dictate-label">Leer/Transcribir</span>
   </button>
   <button class="action-btn" id="btnPdf">
     <span class="btn-icon">📄</span>
@@ -526,7 +541,7 @@
     recognition.onend = () => {
       isListening = false;
       btnDictate.classList.remove('recording');
-      btnDictate.querySelector('.dictate-label').textContent = 'Leer/Transcribir';
+      btnDictate.querySelector('.dictate-label').textContent = 'Dictar';
       if (interimSpan) { interimSpan.remove(); interimSpan = null; }
     };
 
