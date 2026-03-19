@@ -153,7 +153,7 @@
             box-shadow: 0 3px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.9);
             clip-path: polygon(0% 8%, 2% 0%, 5% 6%, 8% 1%, 11% 7%, 14% 2%, 17% 8%, 20% 1%, 23% 7%, 26% 2%, 29% 8%, 32% 1%, 35% 6%, 38% 2%, 41% 7%, 44% 1%, 47% 8%, 50% 2%, 53% 7%, 56% 1%, 59% 8%, 62% 2%, 65% 7%, 68% 1%, 71% 8%, 74% 2%, 77% 7%, 80% 1%, 83% 8%, 86% 2%, 89% 7%, 92% 2%, 95% 8%, 98% 1%, 100% 6%, 100% 100%, 0% 100%);
         }
-        .pn-header-title-wrap h1 { font-family: 'Kalam', cursive; font-size: 22px; font-weight: 700; color: #2a1a00; display: flex; align-items: center; gap: 7px; white-space: nowrap; margin: 0; }
+        .pn-header-title-wrap h1 { font-family: 'Kalam', cursive; font-size: 30px; font-weight: 700; color: #2a1a00; display: flex; align-items: center; gap: 7px; white-space: nowrap; margin: 0; }
 
         .pn-btn-settings {
             background: rgba(230,220,200,0.5); border: 1.5px solid rgba(200,180,140,0.6); border-radius: 10px; width: 42px; height: 42px;
@@ -193,8 +193,21 @@
         .pn-action-btn:active { transform: translateY(0); }
         .pn-action-btn .btn-icon { font-size: 22px; line-height: 1; }
         .pn-action-btn.recording { background: rgba(220,80,60,0.55); border-color: rgba(220,80,60,0.7); }
-        .pn-action-btn.recording .btn-icon { animation: mic-pulse 1s ease-in-out infinite; }
         @keyframes mic-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
+
+        .pn-dictate-wrap { display: flex; justify-content: center; padding: 8px 10px 0; flex-shrink: 0; position: relative; z-index: 1; }
+        .pn-dictate-btn {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 14px 32px; background: rgba(230,218,195,0.55); border: 1.5px solid rgba(200,178,140,0.5);
+            border-radius: 18px; cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
+            color: rgba(255,248,230,0.95); font-weight: 500; backdrop-filter: blur(8px);
+            transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .pn-dictate-btn:hover { background: rgba(255,240,210,0.7); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.28); }
+        .pn-dictate-btn:active { transform: translateY(0); }
+        .pn-dictate-btn .pn-mic-icon { width: 64px; height: 64px; object-fit: contain; display: block; }
+        .pn-dictate-btn.recording { background: rgba(220,80,60,0.55); border-color: rgba(220,80,60,0.7); }
+        .pn-dictate-btn.recording .pn-mic-icon { animation: mic-pulse 0.9s ease-in-out infinite; }
 
         .pn-settings-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1100; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
         .pn-settings-panel.open { display: flex; }
@@ -248,47 +261,25 @@
                 </header>
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-6">
                     
-                    <article class="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2 hover:shadow-lg transition-shadow">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 shadow-sm p-1">
-                                <img src="img/Notes Logo.png" alt="Pantxiko Notes Logo" class="w-full h-full object-contain">
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-semibold text-gray-800">Pantxiko Notes</h3>
-                                <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Nuevo</span>
-                            </div>
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer" onclick="document.getElementById('pantxiko-notes-app').classList.remove('hidden')">
+                        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 shadow-sm p-1">
+                            <img src="img/Notes Logo.png" alt="Pantxiko Notes Logo" class="w-full h-full object-contain">
                         </div>
-                        <p class="text-sm text-gray-700">Cuaderno de notas con editor de texto enriquecido y dictado por voz. Guarda, copia y exporta tus apuntes a PDF.</p>
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Dictado por voz</span>
-                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">PDF</span>
-                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Editor rico</span>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Pantxiko Notes</h3>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Nuevo</span>
                         </div>
-                        <button onclick="document.getElementById('pantxiko-notes-app').classList.remove('hidden')" class="mt-3 inline-flex items-center text-orange-600 hover:text-orange-700 font-semibold text-left">
-                            Abrir aplicación
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </button>
                     </article>
 
-                    <article class="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2 hover:shadow-lg transition-shadow">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-3xl">🗺️</div>
-                            <div>
-                                <h3 class="text-xl font-semibold text-gray-800">Cabanillas</h3>
-                                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Mapa</span>
-                            </div>
+                    <a href="mapas/cabanillas.html" class="block">
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-3xl">🗺️</div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Cabanillas</h3>
+                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Mapa</span>
                         </div>
-                        <p class="text-sm text-gray-700">Plano catastral de precisión de Cabanillas. Visualiza edificios, calles y vías de agua con datos reales de OpenStreetMap.</p>
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Catastro</span>
-                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">OSM</span>
-                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Interactivo</span>
-                        </div>
-                        <a href="mapas/cabanillas.html" class="mt-3 inline-flex items-center text-orange-600 hover:text-orange-700 font-semibold">
-                            Abrir mapa
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </a>
                     </article>
+                    </a>
                 </div>
             </section>
 
@@ -364,10 +355,16 @@
             </div>
         </div>
 
+        <div class="pn-dictate-wrap">
+            <button class="pn-dictate-btn" id="pnBtnDictate">
+                <img src="img/IconoMicrofono.png" alt="Micrófono" class="pn-mic-icon">
+                <span class="pn-dictate-label">Dictar</span>
+            </button>
+        </div>
+
         <div class="pn-bottom-bar">
             <button class="pn-action-btn" id="pnBtnCopy"><span class="btn-icon">📋</span>Copiar</button>
             <button class="pn-action-btn" id="pnBtnSave"><span class="btn-icon">💾</span>Guardar</button>
-            <button class="pn-action-btn" id="pnBtnDictate"><span class="btn-icon">🔊</span><span>Leer/Transcribir</span></button>
             <button class="pn-action-btn" id="pnBtnPdf"><span class="btn-icon">📄</span>Pasar a PDF</button>
         </div>
 
@@ -561,15 +558,13 @@
                 recognition.onstart = () => {
                     isListening = true;
                     pnBtnDictate.classList.add('recording');
-                    pnBtnDictate.querySelector('.btn-icon').textContent = '🎙️';
-                    pnBtnDictate.querySelector('span:last-child').textContent = 'Dictando...';
+                    pnBtnDictate.querySelector('.pn-dictate-label').textContent = 'Dictando...';
                 };
 
                 recognition.onend = () => {
                     isListening = false;
                     pnBtnDictate.classList.remove('recording');
-                    pnBtnDictate.querySelector('.btn-icon').textContent = '🔊';
-                    pnBtnDictate.querySelector('span:last-child').textContent = 'Leer/Transcribir';
+                    pnBtnDictate.querySelector('.pn-dictate-label').textContent = 'Dictar';
                     if (interimSpan) { interimSpan.remove(); interimSpan = null; }
                 };
 
