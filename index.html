@@ -224,12 +224,13 @@
            ZONA PRIVADA - AUTENTICACIÓN
            ============================================ */
         #auth-btn {
-            background-color: #6366f1;
-            color: white;
-            box-shadow: 3px 3px 0 #333, inset 2px 2px 0px rgba(255,255,255,0.3);
+            background: transparent;
+            border: none;
+            box-shadow: none;
             right: 80px;
+            padding: 0;
         }
-        #auth-btn.logged-in { background-color: #10b981; }
+        #auth-btn img { width: 50px; height: 50px; object-fit: contain; display: block; }
 
         .auth-modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 2000;
@@ -284,12 +285,12 @@
             
             <div id="contact-toggle" class="corner-icon flex items-center justify-center">?</div>
             <div id="back-arrow" class="corner-icon flex items-center justify-center icon-hidden">↩</div>
-            <div id="auth-btn" class="corner-icon flex items-center justify-center" title="Zona Privada">🔒</div>
+            <div id="auth-btn" class="corner-icon flex items-center justify-center" title="Zona Privada"><img src="img/User_not_Log.png" alt="No conectado"></div>
 
             <div id="social-links" class="absolute top-20 right-8 mt-2 flex flex-col items-center gap-4 social-hidden">
-                <a href="#" class="text-3xl text-pink-600 hover:scale-110 transition-transform"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="text-3xl text-red-600 hover:scale-110 transition-transform"><i class="fas fa-envelope"></i></a>
-                <a href="#" class="text-3xl text-gray-800 hover:scale-110 transition-transform"><i class="fab fa-github"></i></a>
+                <a href="https://www.instagram.com/rubenpantxo/" target="_blank" rel="noopener" class="text-3xl text-pink-600 hover:scale-110 transition-transform"><i class="fab fa-instagram"></i></a>
+                <a href="mailto:rubenpanto@gmail.com" class="text-3xl text-red-600 hover:scale-110 transition-transform"><i class="fas fa-envelope"></i></a>
+                <a href="https://github.com/Rubenpantxo" target="_blank" rel="noopener" class="text-3xl text-gray-800 hover:scale-110 transition-transform"><i class="fab fa-github"></i></a>
             </div>
         </header>
 
@@ -335,6 +336,58 @@
                         </div>
                     </article>
                     </a>
+
+                    <a href="apps/gueb_y_jitjub.html" class="block">
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div class="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center text-3xl">🌐</div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Güeb y Jitjub</h3>
+                            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">Web</span>
+                        </div>
+                    </article>
+                    </a>
+
+                    <a href="apps/alumbrado-pro/index.html" class="block private-app hidden">
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div class="w-12 h-12 bg-yellow-50 rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 shadow-sm p-1">
+                            <img src="apps/alumbrado-pro/assets/icons/On_farola_logo.png" alt="Alumbrado" class="w-full h-full object-contain">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Alumbrado</h3>
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">Privado</span>
+                        </div>
+                    </article>
+                    </a>
+
+                    <a href="apps/biblioteca/index_biblio.html" class="block private-app hidden">
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div class="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center text-3xl">📚</div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Biblioteca</h3>
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">Privado</span>
+                        </div>
+                    </article>
+                    </a>
+
+                    <a href="apps/instagram-downloader/index_insta_down.html" class="block private-app hidden">
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div class="w-12 h-12 bg-pink-50 rounded-lg flex items-center justify-center text-3xl">📥</div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Instagram Downloader</h3>
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">Privado</span>
+                        </div>
+                    </article>
+                    </a>
+
+                    <a href="apps/resource-hub/index.html" class="block private-app hidden">
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div class="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center text-3xl">🗂️</div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Resource Hub</h3>
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">Privado</span>
+                        </div>
+                    </article>
+                    </a>
                 </div>
             </section>
 
@@ -343,25 +396,15 @@
                     <h2 class="text-3xl font-bold">Juegos</h2>
                 </header>
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-6">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2 hover:shadow-lg transition-shadow">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center text-3xl">🌾</div>
-                            <div>
-                                <h3 class="text-xl font-semibold text-gray-800">Tetris Agrícola</h3>
-                                <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Nuevo</span>
-                            </div>
+                    <a href="juegos/tetris/" class="block">
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center text-3xl">🌾</div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Tetris Agrícola</h3>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Nuevo</span>
                         </div>
-                        <p class="text-sm text-gray-700">Tetris con temática de cosecha. Encaja las piezas agrícolas, completa líneas y sube de nivel. Controles táctiles y teclado.</p>
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Puzzle</span>
-                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Arcade</span>
-                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Móvil</span>
-                        </div>
-                        <a href="juegos/tetris/" class="mt-3 inline-flex items-center text-orange-600 hover:text-orange-700 font-semibold">
-                            Jugar
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </a>
                     </article>
+                    </a>
                 </div>
             </section>
             <section id="enlaces-content" class="content-section content-hidden">
@@ -541,7 +584,7 @@
             });
 
             contactToggle.addEventListener('click', () => {
-                if (!body.classList.contains('section-open')) socialLinks.classList.toggle('social-hidden');
+                if (!body.classList.contains('section-open') && isAuthenticated()) socialLinks.classList.toggle('social-hidden');
             });
 
             // ==========================================
@@ -729,13 +772,16 @@
 
             function updateAuthUI() {
                 if (isAuthenticated()) {
-                    authBtn.textContent = '🔓';
+                    authBtn.innerHTML = '<img src="img/User_Loged.png" alt="Conectado">';
                     authBtn.classList.add('logged-in');
                     privadoNavItem.classList.add('auth-visible');
                     privadoNavItem.style.display = '';
+                    document.querySelectorAll('.private-app').forEach(el => el.classList.remove('hidden'));
                 } else {
-                    authBtn.textContent = '🔒';
+                    authBtn.innerHTML = '<img src="img/User_not_Log.png" alt="No conectado">';
                     authBtn.classList.remove('logged-in');
+                    socialLinks.classList.add('social-hidden');
+                    document.querySelectorAll('.private-app').forEach(el => el.classList.add('hidden'));
                     privadoNavItem.classList.remove('auth-visible');
                     privadoNavItem.style.display = 'none';
                     // Si está viendo la zona privada, vuelve al inicio
