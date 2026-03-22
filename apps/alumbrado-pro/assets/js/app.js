@@ -70,55 +70,58 @@ const FIXED_ICON_CONTAINER = [48, 48];
 // FUNCIONES DE ESCALADO CON ZOOM
 // ============================================
 
-/**
- * Calcula el factor de escala basado en el nivel de zoom actual
- * Los iconos se reducen al hacer zoom out y mantienen tamaño al hacer zoom in
- */
 function getZoomScale() {
     const currentZoom = map.getZoom();
-
-    if (currentZoom >= REFERENCE_ZOOM) {
-        // Zoom in: mantener tamaño base (o ligeramente mayor)
-        return 1;
-    }
-
-    // Zoom out: reducir proporcionalmente
-    // Factor exponencial para una reducción más natural
+    if (currentZoom >= REFERENCE_ZOOM) return 1;
     const zoomDiff = REFERENCE_ZOOM - currentZoom;
-    const scale = Math.pow(0.85, zoomDiff);
-
-    // Limitar el tamaño mínimo para que siempre sean visibles
-    return Math.max(scale, 0.3);
+    return Math.max(Math.pow(0.85, zoomDiff), 0.3);
 }
 
-/**
- * Calcula el tamaño del icono basado en el zoom actual
- */
 function getScaledIconSize(baseSize) {
     const scale = getZoomScale();
-    return [
-        Math.round(baseSize[0] * scale),
-        Math.round(baseSize[1] * scale)
-    ];
+    return [Math.round(baseSize[0] * scale), Math.round(baseSize[1] * scale)];
 }
 
-/**
- * Actualiza todos los marcadores cuando cambia el zoom
- */
 function updateAllMarkersSize() {
-    elements.forEach(element => {
-        updateMarker(element);
-    });
+    elements.forEach(element => updateMarker(element));
 }
 
 // ============================================
 // FUNCIONES DE CAPAS
 // ============================================
 
-function toggleLayerFromHeader(layerId) {
-    const layerInfo = mapLayers[layerId];
-    const chip = document.getElementById(`chip-${layerId}`);
+function toggleLegendPanel() {
+    const panel = document.getElementById('legendPanel');
+    const layerPanel = document.getElementById('layerPanel');
+    const btn = document.getElementById('legendBtn');
+    
+    // Cerrar panel de capas si está abierto
+    layerPanel.classList.remove('show');
+    document.getElementById('layerBtn').classList.remove('active');
+    
+    // Toggle panel de leyenda
+    panel.classList.toggle('show');
+    btn.classList.toggle('active');
+}
 
+function toggleLayerPanel() {
+    const panel = document.getElementById('layerPanel');
+    const legendPanel = document.getElementById('legendPanel');
+    const btn = document.getElementById('layerBtn');
+    
+    // Cerrar panel de leyenda si está abierto
+    legendPanel.classList.remove('show');
+    document.getElementById('legendBtn').classList.remove('active');
+    
+    // Toggle panel de capas
+    panel.classList.toggle('show');
+    btn.classList.toggle('active');
+}
+
+function toggleLayer(layerId) {
+    const layerInfo = mapLayers[layerId];
+    const checkbox = document.getElementById(`check-${layerId}`);
+    
     if (layerInfo.isBase) {
         // Capas base: desactivar otras y activar la seleccionada
         Object.keys(mapLayers).forEach(id => {
@@ -126,19 +129,18 @@ function toggleLayerFromHeader(layerId) {
             if (info.isBase && id !== layerId && info.active) {
                 map.removeLayer(info.layer);
                 info.active = false;
-                const otherChip = document.getElementById(`chip-${id}`);
-                if (otherChip) otherChip.classList.remove('active');
+                document.getElementById(`check-${id}`).classList.remove('checked');
             }
         });
-
+        
         if (!layerInfo.active) {
             showLoading();
             layerInfo.layer.addTo(map);
             layerInfo.active = true;
-            chip.classList.add('active');
+            checkbox.classList.add('checked');
             setTimeout(hideLoading, 1000);
         }
-
+        
         // Asegurar que catastro esté encima si está activo
         if (mapLayers.catastro.active) {
             mapLayers.catastro.layer.bringToFront();
@@ -148,17 +150,17 @@ function toggleLayerFromHeader(layerId) {
         if (layerInfo.active) {
             map.removeLayer(layerInfo.layer);
             layerInfo.active = false;
-            chip.classList.remove('active');
+            checkbox.classList.remove('checked');
         } else {
             showLoading();
             layerInfo.layer.addTo(map);
             layerInfo.active = true;
-            chip.classList.add('active');
+            checkbox.classList.add('checked');
             layerInfo.layer.bringToFront();
             setTimeout(hideLoading, 1500);
         }
     }
-
+    
     updateAttribution();
 }
 
@@ -167,6 +169,13 @@ function updateAttribution() {
     if (mapLayers.pnoa.active) attr.push('Ortofoto: IGN PNOA');
     if (mapLayers.catastro.active) attr.push('Parcelas: Catastro');
     document.getElementById('wmsAttribution').textContent = attr.join(' | ');
+}
+
+function centerMap() {
+    map.setView(
+        [APP_CONFIG.defaultLocation.lat, APP_CONFIG.defaultLocation.lng],
+        APP_CONFIG.defaultLocation.zoom
+    );
 }
 
 // ============================================
@@ -192,6 +201,11 @@ function showToast(icon, text) {
     }, APP_CONFIG.toastDuration);
 }
 
+function closeInstructions() {
+    document.getElementById('instructions').style.display = 'none';
+    localStorage.setItem('alumbrado-instructions-closed', 'true');
+}
+
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
 }
@@ -211,6 +225,7 @@ function loadData() {
             createMarker(el);
         });
         
+        updateStats();
         updateElementsList();
     }
 }
@@ -313,8 +328,6 @@ function createMarker(element) {
     const extraClass = getMarkerClass(element);
     const scaledSize = getScaledIconSize(config.size);
 
-    // Usar contenedor de tamaño fijo para evitar desplazamiento al hacer zoom
-    // La imagen se escala dentro del contenedor, pero el anchor permanece constante
     const iconHtml = `<div class="marker-container ${extraClass}"><img src="${imgSrc}" alt="${config.name}" style="width:${scaledSize[0]}px;height:${scaledSize[1]}px;"></div>`;
 
     const icon = L.divIcon({
@@ -338,7 +351,6 @@ function updateMarker(element) {
     const extraClass = getMarkerClass(element);
     const scaledSize = getScaledIconSize(config.size);
 
-    // Usar contenedor de tamaño fijo para evitar desplazamiento al hacer zoom
     const iconHtml = `<div class="marker-container ${extraClass}"><img src="${imgSrc}" alt="${config.name}" style="width:${scaledSize[0]}px;height:${scaledSize[1]}px;"></div>`;
 
     const icon = L.divIcon({
@@ -424,6 +436,7 @@ function toggleLightStatus(id) {
     if (element) {
         element.status = element.status === STATUS.ON ? STATUS.OFF : STATUS.ON;
         updateMarker(element);
+        updateStats();
         updateElementsList();
         
         const toggle = document.querySelector('.toggle-switch');
@@ -440,6 +453,7 @@ function setCofreStatus(id, status) {
     if (element) {
         element.cofreStatus = status;
         updateMarker(element);
+        updateStats();
         updateElementsList();
         
         document.querySelectorAll('.status-toggle-btn').forEach(btn => {
@@ -463,11 +477,26 @@ function deleteElement(id) {
     }
     
     elements = elements.filter(e => e.id !== id);
+    updateStats();
     updateElementsList();
     saveData(false);
     showToast('🗑️', 'Elemento eliminado');
 }
 
+// ============================================
+// FUNCIONES DE ESTADÍSTICAS
+// ============================================
+
+function updateStats() {
+    const lightTypes = ELEMENT_TYPES.LIGHT;
+    const lights = elements.filter(e => lightTypes.includes(e.type));
+    const cofres = elements.filter(e => e.type === 'cofre');
+    
+    document.getElementById('stat-on').textContent = lights.filter(e => e.status === STATUS.ON).length;
+    document.getElementById('stat-off').textContent = lights.filter(e => e.status === STATUS.OFF).length;
+    document.getElementById('stat-ok').textContent = cofres.filter(e => e.cofreStatus === STATUS.OK).length;
+    document.getElementById('stat-notok').textContent = cofres.filter(e => e.cofreStatus === STATUS.NOTOK).length;
+}
 
 // ============================================
 // FUNCIONES DE LISTA DE ELEMENTOS
@@ -595,12 +624,30 @@ map.on('click', function(e) {
     
     elements.push(newElement);
     createMarker(newElement);
+    updateStats();
     updateElementsList();
     saveData(false);
     
     showToast('✓', `${config.name} añadido`);
 });
 
+// Cerrar paneles al hacer clic fuera
+document.addEventListener('click', function(e) {
+    const layerPanel = document.getElementById('layerPanel');
+    const legendPanel = document.getElementById('legendPanel');
+    const layerBtn = document.getElementById('layerBtn');
+    const legendBtn = document.getElementById('legendBtn');
+    
+    if (!layerPanel.contains(e.target) && !layerBtn.contains(e.target)) {
+        layerPanel.classList.remove('show');
+        layerBtn.classList.remove('active');
+    }
+    
+    if (!legendPanel.contains(e.target) && !legendBtn.contains(e.target)) {
+        legendPanel.classList.remove('show');
+        legendBtn.classList.remove('active');
+    }
+});
 
 // ============================================
 // INICIALIZACIÓN
@@ -608,6 +655,11 @@ map.on('click', function(e) {
 
 document.addEventListener('DOMContentLoaded', function() {
     loadData();
+    
+    // Comprobar si las instrucciones fueron cerradas
+    if (localStorage.getItem('alumbrado-instructions-closed')) {
+        document.getElementById('instructions').style.display = 'none';
+    }
 });
 
 // Autoguardado silencioso
