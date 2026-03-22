@@ -219,6 +219,58 @@
 
         .pn-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(30,15,0,0.85); color: #fde8b0; padding: 9px 20px; border-radius: 20px; font-size: 13px; font-family: 'Kalam', cursive; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 1200; white-space: nowrap; }
         .pn-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ============================================
+           ZONA PRIVADA - AUTENTICACIÓN
+           ============================================ */
+        #auth-btn {
+            background-color: #6366f1;
+            color: white;
+            box-shadow: 3px 3px 0 #333, inset 2px 2px 0px rgba(255,255,255,0.3);
+            right: 80px;
+        }
+        #auth-btn.logged-in { background-color: #10b981; }
+
+        .auth-modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+        .auth-modal-overlay.hidden { display: none; }
+
+        .auth-modal-box {
+            position: relative; background: linear-gradient(135deg, #fdf8e8, #f0e8d0);
+            border-radius: 16px; padding: 32px 28px 24px; width: 90%; max-width: 340px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        .auth-modal-box h2 {
+            font-family: 'Kalam', cursive; font-size: 22px; color: #2a1800;
+            margin-bottom: 6px; text-align: center;
+        }
+        .auth-modal-subtitle { text-align: center; font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+        .auth-input {
+            width: 100%; padding: 12px 16px; border-radius: 10px;
+            border: 2px solid rgba(100,80,50,0.25); background: rgba(255,255,255,0.9);
+            font-size: 15px; font-family: 'Inter', sans-serif; outline: none;
+            transition: border-color 0.2s; box-sizing: border-box;
+        }
+        .auth-input:focus { border-color: #6366f1; }
+        .auth-btn-submit {
+            width: 100%; padding: 12px; background: #6366f1; color: white;
+            border: none; border-radius: 10px; font-size: 16px; font-family: 'Kalam', cursive;
+            cursor: pointer; margin-top: 12px; transition: background 0.2s;
+        }
+        .auth-btn-submit:hover { background: #4f46e5; }
+        .auth-error { color: #dc2626; font-size: 13px; margin-top: 8px; text-align: center; display: none; }
+        .auth-error.visible { display: block; }
+        .auth-modal-close {
+            position: absolute; top: 10px; right: 14px; background: none; border: none;
+            font-size: 20px; cursor: pointer; color: #9ca3af; line-height: 1;
+        }
+        .auth-modal-close:hover { color: #374151; }
+
+        #privado-nav-item { display: none; }
+        #privado-nav-item.auth-visible { display: flex; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-4 sm:p-8 transition-all duration-500">
@@ -232,6 +284,7 @@
             
             <div id="contact-toggle" class="corner-icon flex items-center justify-center">?</div>
             <div id="back-arrow" class="corner-icon flex items-center justify-center icon-hidden">↩</div>
+            <div id="auth-btn" class="corner-icon flex items-center justify-center" title="Zona Privada">🔒</div>
 
             <div id="social-links" class="absolute top-20 right-8 mt-2 flex flex-col items-center gap-4 social-hidden">
                 <a href="#" class="text-3xl text-pink-600 hover:scale-110 transition-transform"><i class="fab fa-instagram"></i></a>
@@ -250,6 +303,9 @@
             <div class="nav-item text-xl p-4 rounded-lg" data-section="enlaces">
                 <span class="typewriter-text">Enlaces Web</span>
             </div>
+            <div class="nav-item text-xl p-4 rounded-lg" id="privado-nav-item" data-section="privado">
+                <span class="typewriter-text">🔓 Zona Privada</span>
+            </div>
         </nav>
 
         <main id="content-container" class="mt-16">
@@ -257,7 +313,6 @@
 <section id="apps" class="content-section content-hidden section section--apps" aria-labelledby="apps-title">
                 <header class="section__header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <h2 id="apps-title" class="text-3xl font-bold">Aplicaciones</h2>
-                    <button class="cta bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold px-6 py-2 rounded-lg shadow-md transition-transform" type="button">Explorar</button>
                 </header>
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-6">
                     
@@ -311,6 +366,28 @@
             </section>
             <section id="enlaces-content" class="content-section content-hidden">
                 </section>
+
+            <section id="privado" class="content-section content-hidden section">
+                <header class="section__header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h2 class="text-3xl font-bold">🔓 Zona Privada</h2>
+                    <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-colors" type="button">
+                        Cerrar sesión
+                    </button>
+                </header>
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-6">
+                    <!-- Añade aquí el contenido privado que quieras -->
+                    <article class="bg-white rounded-lg shadow-md p-6 flex flex-col gap-3 hover:shadow-lg transition-shadow">
+                        <div class="text-4xl">🎉</div>
+                        <h3 class="text-xl font-semibold text-gray-800">Bienvenido</h3>
+                        <p class="text-gray-600 text-sm">Este es el espacio privado. Solo quienes tengan la contraseña pueden verlo.</p>
+                    </article>
+                    <article class="bg-white rounded-lg shadow-md p-6 flex flex-col gap-3 hover:shadow-lg transition-shadow">
+                        <div class="text-4xl">📁</div>
+                        <h3 class="text-xl font-semibold text-gray-800">Contenido Exclusivo</h3>
+                        <p class="text-gray-600 text-sm">Aquí puedes añadir aplicaciones, archivos, enlaces o cualquier contenido privado.</p>
+                    </article>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -393,6 +470,18 @@
         </div>
 
         <div class="pn-toast" id="pnToast"></div>
+    </div>
+
+    <!-- Modal de login - Zona Privada -->
+    <div id="auth-modal" class="auth-modal-overlay hidden">
+        <div class="auth-modal-box">
+            <button class="auth-modal-close" id="auth-modal-close" title="Cerrar">✕</button>
+            <h2>🔐 Zona Privada</h2>
+            <p class="auth-modal-subtitle">Introduce la contraseña para acceder</p>
+            <input type="password" id="auth-password-input" class="auth-input" placeholder="Contraseña..." autocomplete="current-password">
+            <button id="auth-submit-btn" class="auth-btn-submit">Entrar</button>
+            <p id="auth-error-msg" class="auth-error">Contraseña incorrecta ❌</p>
+        </div>
     </div>
 
     <script>
@@ -606,6 +695,107 @@
                 pnBtnDictate.style.opacity = '0.4';
                 pnBtnDictate.title = 'Tu navegador no soporta reconocimiento de voz';
             }
+
+            // ==========================================
+            // ZONA PRIVADA - AUTENTICACIÓN
+            // ==========================================
+            // Contraseña por defecto: "pantxo"
+            // Para cambiar la contraseña, abre la consola del navegador y ejecuta:
+            //   const h = async p => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(p)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+            //   h('tu_nueva_contraseña').then(console.log);
+            // Copia el resultado y pégalo en PASSWORD_HASH:
+            const PASSWORD_HASH = '07aec214ed14010f3b309e4f70f01cbc13693d5b94f29417be473bdbeb620e5f';
+            const AUTH_SESSION_KEY = 'pantxo-zona-privada-auth';
+
+            const authBtn = document.getElementById('auth-btn');
+            const authModal = document.getElementById('auth-modal');
+            const authModalClose = document.getElementById('auth-modal-close');
+            const authPasswordInput = document.getElementById('auth-password-input');
+            const authSubmitBtn = document.getElementById('auth-submit-btn');
+            const authErrorMsg = document.getElementById('auth-error-msg');
+            const privadoNavItem = document.getElementById('privado-nav-item');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            async function sha256(message) {
+                const msgBuffer = new TextEncoder().encode(message);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                return Array.from(new Uint8Array(hashBuffer))
+                    .map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+
+            function isAuthenticated() {
+                return sessionStorage.getItem(AUTH_SESSION_KEY) === 'true';
+            }
+
+            function updateAuthUI() {
+                if (isAuthenticated()) {
+                    authBtn.textContent = '🔓';
+                    authBtn.classList.add('logged-in');
+                    privadoNavItem.classList.add('auth-visible');
+                    privadoNavItem.style.display = '';
+                } else {
+                    authBtn.textContent = '🔒';
+                    authBtn.classList.remove('logged-in');
+                    privadoNavItem.classList.remove('auth-visible');
+                    privadoNavItem.style.display = 'none';
+                    // Si está viendo la zona privada, vuelve al inicio
+                    const privadoSection = document.getElementById('privado');
+                    if (privadoSection && !privadoSection.classList.contains('content-hidden')) {
+                        backArrow.click();
+                    }
+                }
+            }
+
+            function openAuthModal() {
+                authModal.classList.remove('hidden');
+                authErrorMsg.classList.remove('visible');
+                authPasswordInput.value = '';
+                setTimeout(() => authPasswordInput.focus(), 100);
+            }
+
+            function closeAuthModal() {
+                authModal.classList.add('hidden');
+                authErrorMsg.classList.remove('visible');
+                authPasswordInput.value = '';
+            }
+
+            authBtn.addEventListener('click', () => {
+                if (isAuthenticated()) {
+                    sessionStorage.removeItem(AUTH_SESSION_KEY);
+                    updateAuthUI();
+                } else {
+                    openAuthModal();
+                }
+            });
+
+            authModalClose.addEventListener('click', closeAuthModal);
+            authModal.addEventListener('click', e => { if (e.target === authModal) closeAuthModal(); });
+
+            async function handleLogin() {
+                const password = authPasswordInput.value;
+                if (!password) return;
+                const hash = await sha256(password);
+                if (hash === PASSWORD_HASH) {
+                    sessionStorage.setItem(AUTH_SESSION_KEY, 'true');
+                    closeAuthModal();
+                    updateAuthUI();
+                } else {
+                    authErrorMsg.classList.add('visible');
+                    authPasswordInput.value = '';
+                    authPasswordInput.focus();
+                }
+            }
+
+            authSubmitBtn.addEventListener('click', handleLogin);
+            authPasswordInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+
+            logoutBtn.addEventListener('click', () => {
+                sessionStorage.removeItem(AUTH_SESSION_KEY);
+                updateAuthUI();
+            });
+
+            // Verificar estado al cargar la página
+            updateAuthUI();
         });
     </script>
 </body>
