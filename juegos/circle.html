@@ -3,9 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Círculo Perfecto · Txapeldunak</title>
+    <title>Circle &middot; Txapeldunak</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        :root {
+            --bg: #07070a;
+            --surface: #0d0d12;
+            --surface-2: #13131a;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-accent: rgba(0, 232, 255, 0.2);
+            --accent: #00e8ff;
+            --accent-dim: rgba(0, 232, 255, 0.12);
+            --accent-glow: rgba(0, 232, 255, 0.35);
+            --text-primary: #e8e8f0;
+            --text-secondary: #5a5a70;
+            --text-muted: #2e2e3a;
+            --score-a: #00e8ff;
+            --score-b: #7b5ef8;
+            --danger: #ff4d6d;
+            --success: #00e8a0;
+        }
 
         * {
             margin: 0;
@@ -14,863 +32,1084 @@
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Syne', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            height: 100vh;
+            width: 100vw;
             overflow: hidden;
             touch-action: none;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            position: relative;
         }
 
-        /* Patron de fondo animado */
-        body::before {
+        body::after {
             content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
-            animation: drift 20s ease-in-out infinite;
-        }
-
-        @keyframes drift {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-50px, -50px); }
-        }
-
-        .container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Canvas con marco suave */
-        .canvas-wrapper {
-            position: relative;
-            width: 90vw;
-            height: 90vh;
-            max-width: 900px;
-            max-height: 900px;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            box-shadow: 
-                0 25px 60px rgba(0, 0, 0, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.6);
-            overflow: hidden;
-        }
-
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            cursor: crosshair;
-        }
-
-        /* Botón Bolígrafo - flotante en esquina superior derecha */
-        .pen-btn-wrapper {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            z-index: 25;
-        }
-
-        #penBtn {
-            padding: 14px 24px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            color: #1a1a1a;
-            border: 2px solid rgba(102, 126, 234, 0.2);
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 600;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            position: relative;
-            overflow: visible;
-        }
-
-        #penBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.25);
-            border-color: rgba(102, 126, 234, 0.4);
-        }
-
-        #penBtn:active {
-            transform: translateY(0) scale(0.98);
-        }
-
-        #penColor {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: #000000;
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s ease;
-        }
-
-        #penBtn:hover #penColor {
-            transform: scale(1.2) rotate(180deg);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        }
-
-        /* Botón TOP - flotante en esquina superior izquierda */
-        .top-btn-wrapper {
-            position: absolute;
-            top: 24px;
-            left: 24px;
-            z-index: 25;
-        }
-
-        #topBtn {
-            padding: 14px 28px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 700;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 8px 30px rgba(240, 147, 251, 0.4);
-            display: none;
-            align-items: center;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        #topBtn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        #topBtn:active::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        #topBtn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 12px 40px rgba(240, 147, 251, 0.5);
-        }
-
-        #topBtn:active {
-            transform: translateY(-1px) scale(1.02);
-        }
-
-        #topBtn.show {
-            display: flex;
-            animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-            60% { transform: scale(1.1) rotate(10deg); }
-            100% { transform: scale(1) rotate(0); opacity: 1; }
-        }
-
-        /* Instrucciones con glassmorphism */
-        .instructions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            pointer-events: none;
-            z-index: 5;
-            padding: 48px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-        }
-
-        .instructions h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 16px;
-            letter-spacing: -1px;
-        }
-
-        .instructions p {
-            font-size: 1.25rem;
-            color: #6b7280;
-            font-weight: 500;
-        }
-
-        /* Overlay de resultado con efecto de entrada */
-        .result-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(30px);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 20;
-            border-radius: 32px;
-        }
-
-        .result-overlay.show {
-            display: flex;
-            animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .score {
-            font-size: 7rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 24px;
-            animation: scoreReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
-            letter-spacing: -2px;
-        }
-
-        @keyframes scoreReveal {
-            from {
-                transform: scale(0) rotate(-180deg);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1) rotate(0);
-                opacity: 1;
-            }
-        }
-
-        .message {
-            font-size: 1.75rem;
-            color: #374151;
-            font-weight: 600;
-            margin-bottom: 40px;
-            animation: fadeInUp 0.6s ease-out 0.4s both;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .try-again {
-            padding: 18px 48px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 1.125rem;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 35px rgba(102, 126, 234, 0.35);
-            animation: fadeInUp 0.6s ease-out 0.6s both;
-        }
-
-        .try-again:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 45px rgba(102, 126, 234, 0.45);
-        }
-
-        .try-again:active {
-            transform: translateY(-1px) scale(1.02);
-        }
-
-        /* Botón Txapela - estilo Figma moderno */
-        .stats-panel {
-            position: absolute;
-            bottom: 24px;
-            left: 24px;
-            z-index: 25;
-        }
-
-        .txapela-btn {
-            width: 110px;
-            height: 110px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            padding: 0;
-        }
-
-        .txapela-btn img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.25));
-            transition: transform 0.3s ease;
-        }
-
-        .txapela-btn:hover {
-            transform: scale(1.1) rotate(3deg);
-        }
-
-        .txapela-btn:hover img {
-            transform: scale(1.05);
-        }
-
-        .txapela-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Drawer de estadísticas - estilo Figma */
-        .stats-drawer {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 45vh;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(30px);
-            box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.15);
-            border-radius: 40px 40px 0 0;
-            transform: translateY(100%);
-            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 30;
-            padding: 32px;
-            border-top: 2px solid rgba(102, 126, 234, 0.1);
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: 0.5;
         }
 
-        .stats-drawer.open {
-            transform: translateY(0);
+        /* ─── Layout ─── */
+        .app {
+            display: grid;
+            grid-template-rows: 56px 1fr;
+            height: 100vh;
+            width: 100vw;
         }
 
-        .stats-header {
+        /* ─── Header ─── */
+        .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
+            justify-content: space-between;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(7, 7, 10, 0.9);
+            backdrop-filter: blur(20px);
+            position: relative;
+            z-index: 10;
         }
 
-        .stats-title {
-            font-size: 1.75rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .header-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .stats-title img {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        .logo-mark {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            position: relative;
+            flex-shrink: 0;
         }
 
-        .back-btn {
-            width: 52px;
-            height: 52px;
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
+            background: var(--accent);
+            opacity: 0.2;
+        }
+
+        .logo-mark::after {
+            content: '';
+            position: absolute;
+            inset: 9px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .game-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+        }
+
+        .game-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.75rem;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
         }
 
-        .back-btn:hover {
-            transform: scale(1.15) rotate(-15deg);
-            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        .icon-btn:hover {
+            background: var(--surface-2);
+            border-color: var(--border-accent);
+            color: var(--accent);
         }
 
-        .back-btn:active {
-            transform: scale(0.95);
+        .icon-btn.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
-        .stats-content {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-
-        .stat-item {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
-            padding: 24px 28px;
-            border-radius: 20px;
+        .color-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            cursor: pointer;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            gap: 0;
+            padding: 8px;
+        }
+
+        .color-btn:hover {
+            border-color: var(--border-accent);
+            transform: scale(1.05);
+        }
+
+        .color-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
             transition: all 0.3s ease;
-            border: 2px solid rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 8px currentColor;
         }
 
-        .stat-item:hover {
-            transform: translateX(8px);
-            border-color: rgba(102, 126, 234, 0.3);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        .divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+            margin: 0 4px;
         }
 
-        .stat-label {
-            font-size: 1.125rem;
-            color: #374151;
+        .txapela-btn-header {
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.75rem;
             font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
         }
 
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -1px;
+        .txapela-btn-header:hover {
+            background: var(--surface-2);
+            border-color: var(--border-accent);
+            color: var(--accent);
         }
 
-        /* Cuadrícula sutil integrada */
-        .grid-overlay {
+        .txapela-img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        /* ─── Canvas Area ─── */
+        .canvas-area {
+            position: relative;
+            overflow: hidden;
+            background: var(--surface);
+        }
+
+        #canvas {
             position: absolute;
-            top: 0;
-            left: 0;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+            z-index: 2;
+        }
+
+        #guideCanvas {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            opacity: 0.15;
-            background-image: 
-                repeating-linear-gradient(0deg, rgba(102, 126, 234, 0.1) 0px, transparent 1px, transparent 40px, rgba(102, 126, 234, 0.1) 41px),
-                repeating-linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0px, transparent 1px, transparent 40px, rgba(102, 126, 234, 0.1) 41px);
+            z-index: 1;
         }
 
-        /* Responsive */
+        /* ─── Start screen ─── */
+        .start-screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .start-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .start-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--border-accent);
+            position: relative;
+            margin-bottom: 24px;
+            animation: pulse-ring 3s ease-in-out infinite;
+        }
+
+        .start-icon::before {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 232, 255, 0.15);
+        }
+
+        .start-icon::after {
+            content: '';
+            position: absolute;
+            inset: 22px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 232, 255, 0.25);
+            background: var(--accent-dim);
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 232, 255, 0.0); }
+            50% { box-shadow: 0 0 0 20px rgba(0, 232, 255, 0.0), 0 0 40px rgba(0, 232, 255, 0.08); }
+        }
+
+        .start-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .start-hint {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── Result Overlay ─── */
+        .result-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(7, 7, 10, 0.96);
+            backdrop-filter: blur(40px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .result-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .score-arc-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-bottom: 32px;
+        }
+
+        #scoreArc {
+            position: absolute;
+            inset: 0;
+            transform: rotate(-90deg);
+        }
+
+        .score-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            line-height: 1;
+            animation: countUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.7); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .score-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .result-message {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            text-align: center;
+            padding: 0 40px;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+        }
+
+        .result-grade {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 12px;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+        }
+
+        .btn-primary {
+            height: 44px;
+            padding: 0 28px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #33edff;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0, 232, 255, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            height: 44px;
+            padding: 0 20px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--border-accent);
+            color: var(--accent);
+        }
+
+        /* ─── Stats Drawer ─── */
+        .stats-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .stats-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .stats-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            width: min(480px, 100vw);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+            z-index: 51;
+            padding: 0;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .stats-drawer.open {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .drawer-handle {
+            width: 36px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 16px auto 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .drawer-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+        }
+
+        .drawer-title img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            opacity: 0.9;
+        }
+
+        .drawer-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .drawer-close:hover {
+            border-color: var(--border-accent);
+            color: var(--accent);
+        }
+
+        .drawer-body {
+            padding: 20px 24px 32px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: border-color 0.2s ease;
+        }
+
+        .stat-row:hover {
+            border-color: var(--border-accent);
+        }
+
+        .stat-row-label {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .stat-row-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -0.02em;
+        }
+
+        /* ─── Live Score Indicator ─── */
+        .live-score {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 6;
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .live-score.show {
+            display: flex;
+        }
+
+        .live-score-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .live-score-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* ─── Drawing status indicator ─── */
+        .draw-status {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            z-index: 6;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .draw-status.active {
+            opacity: 1;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: blink 1s ease infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .status-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* ─── Responsive ─── */
         @media (max-width: 640px) {
-            .instructions h1 {
-                font-size: 2rem;
+            .header {
+                padding: 0 16px;
             }
+            .game-subtitle { display: none; }
+            .divider { display: none; }
 
-            .instructions p {
-                font-size: 1rem;
-            }
+            .score-number { font-size: 2.8rem; }
+            .score-arc-wrapper { width: 160px; height: 160px; }
 
-            .score {
-                font-size: 4rem;
-            }
-
-            .message {
-                font-size: 1.25rem;
-                padding: 0 20px;
-            }
-
-            .pen-btn-wrapper {
-                top: 16px;
-                right: 16px;
-            }
-
-            .top-btn-wrapper {
-                top: 16px;
-                left: 16px;
-            }
-
-            #penBtn, #topBtn {
-                font-size: 0.75rem;
-                padding: 10px 18px;
-            }
-
-            .txapela-btn {
-                width: 90px;
-                height: 90px;
-            }
-
-            .stats-drawer {
-                height: 50vh;
-            }
+            .result-message { font-size: 0.95rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="canvas-wrapper">
-            <div class="grid-overlay"></div>
+    <div class="app">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo-mark"></div>
+                <div class="game-title">Circle</div>
+            </div>
+            <div class="header-right">
+                <button class="color-btn" id="colorBtn" title="Cambiar color">
+                    <span class="color-dot" id="colorDot"></span>
+                </button>
+                <div class="divider"></div>
+                <button class="txapela-btn-header" id="txapelaBtn">
+                    <img src="../img/TXAPELDUNAK.png" class="txapela-img" alt="Txapela"
+                         onerror="this.style.display='none'">
+                    <span>Ranking</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Canvas Area -->
+        <div class="canvas-area">
+            <canvas id="guideCanvas"></canvas>
             <canvas id="canvas"></canvas>
 
-            <div class="pen-btn-wrapper">
-                <button id="penBtn">
-                    <span id="penColor"></span>
-                    <span>Color</span>
-                </button>
+            <!-- Start screen -->
+            <div class="start-screen" id="startScreen">
+                <div class="start-icon"></div>
+                <div class="start-title">Dibuja un c&iacute;rculo</div>
+                <div class="start-hint">Haz clic y arrastra &middot; 2&pi;r</div>
             </div>
 
-            <div class="top-btn-wrapper">
-                <button id="topBtn">
-                    🏆 TOP
-                </button>
+            <!-- Drawing status -->
+            <div class="draw-status" id="drawStatus">
+                <div class="status-dot"></div>
+                <span class="status-text">Dibujando&hellip;</span>
             </div>
 
-            <div class="instructions" id="instructions">
-                <h1>Haz un redondel perfecto</h1>
-                <p>Haz clic o toca y arrastra 2πr</p>
-            </div>
-
+            <!-- Result Overlay -->
             <div class="result-overlay" id="resultOverlay">
-                <div class="score" id="scoreDisplay">0%</div>
-                <div class="message" id="messageDisplay"></div>
-                <button class="try-again" id="tryAgainBtn">Intentar de nuevo</button>
-            </div>
-        </div>
-
-        <div class="stats-panel">
-            <button class="txapela-btn" id="txapelaBtn">
-                <img src="../img/TXAPELDUNAK.png" alt="Txapela" onerror="this.innerHTML='🧢'; this.style.fontSize='2rem';">
-            </button>
-        </div>
-
-        <div class="stats-drawer" id="statsDrawer">
-            <div class="stats-header">
-                <h2 class="stats-title">
-                    <img src="../img/TXAPELDUNAK.png" alt="Txapela" onerror="this.style.display='none';">
-                    Los mejores
-                </h2>
-                <button class="back-btn" id="backBtn">←</button>
-            </div>
-            <div class="stats-content">
-                <div class="stat-item">
-                    <span class="stat-label">Mejor puntuación</span>
-                    <span class="stat-value" id="bestScoreValue">0%</span>
+                <div class="score-arc-wrapper">
+                    <svg id="scoreArc" viewBox="0 0 200 200" fill="none">
+                        <circle cx="100" cy="100" r="85"
+                                stroke="rgba(255,255,255,0.04)"
+                                stroke-width="8"
+                                stroke-linecap="round"
+                                fill="none"/>
+                        <circle cx="100" cy="100" r="85"
+                                stroke="url(#arcGrad)"
+                                stroke-width="8"
+                                stroke-linecap="round"
+                                fill="none"
+                                id="arcProgress"
+                                stroke-dasharray="534"
+                                stroke-dashoffset="534"/>
+                        <defs>
+                            <linearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#00e8ff"/>
+                                <stop offset="100%" stop-color="#7b5ef8"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="score-center">
+                        <div class="score-number" id="scoreDisplay">0%</div>
+                        <div class="score-label">precisi&oacute;n</div>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-label">Intentos totales</span>
-                    <span class="stat-value" id="attemptsValue">0</span>
+
+                <div class="result-message" id="messageDisplay"></div>
+                <div class="result-grade" id="gradeDisplay"></div>
+
+                <div class="result-actions">
+                    <button class="btn-primary" id="tryAgainBtn">Intentar de nuevo</button>
+                    <button class="btn-secondary" id="viewStatsBtn">Ver ranking</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Stats overlay + drawer -->
+    <div class="stats-overlay" id="statsOverlay"></div>
+    <div class="stats-drawer" id="statsDrawer">
+        <div class="drawer-handle"></div>
+        <div class="drawer-header">
+            <div class="drawer-title">
+                <img src="../img/TXAPELDUNAK.png" alt="Txapela"
+                     onerror="this.style.display='none'">
+                Txapeldunak
+            </div>
+            <button class="drawer-close" id="drawerClose">&times;</button>
+        </div>
+        <div class="drawer-body">
+            <div class="stat-row">
+                <span class="stat-row-label">Mejor puntuaci&oacute;n</span>
+                <span class="stat-row-value" id="bestScoreValue">&mdash;</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Intentos totales</span>
+                <span class="stat-row-value" id="attemptsValue">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-row-label">Media de precisi&oacute;n</span>
+                <span class="stat-row-value" id="avgScoreValue">&mdash;</span>
+            </div>
+        </div>
+    </div>
+
     <script>
+        /* ─── State ─── */
         const state = {
             isDrawing: false,
             points: [],
             bestScore: 0,
+            totalScore: 0,
             attempts: 0,
             result: null,
-            currentColorIndex: 0,
+            colorIndex: 0,
             colors: [
-                { hex: '#000000', name: 'Negro' },
-                { hex: '#667eea', name: 'Púrpura' },
-                { hex: '#f5576c', name: 'Carmesí' },
-                { hex: '#10B981', name: 'Esmeralda' },
-                { hex: '#f093fb', name: 'Rosa' },
-                { hex: '#F59E0B', name: 'Ámbar' },
-                { hex: '#4facfe', name: 'Azul' },
-                { hex: '#14B8A6', name: 'Turquesa' }
+                { hex: '#00e8ff', glow: 'rgba(0, 232, 255, 0.4)' },
+                { hex: '#7b5ef8', glow: 'rgba(123, 94, 248, 0.4)' },
+                { hex: '#ff4d6d', glow: 'rgba(255, 77, 109, 0.4)' },
+                { hex: '#00e8a0', glow: 'rgba(0, 232, 160, 0.4)' },
+                { hex: '#f5c518', glow: 'rgba(245, 197, 24, 0.4)' },
+                { hex: '#ff8c42', glow: 'rgba(255, 140, 66, 0.4)' },
+                { hex: '#e8e8f0', glow: 'rgba(232, 232, 240, 0.3)' },
             ],
-            currentColor: '#000000',
             statsOpen: false
         };
 
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const topBtn = document.getElementById('topBtn');
-        const penBtn = document.getElementById('penBtn');
-        const penColor = document.getElementById('penColor');
-        const instructions = document.getElementById('instructions');
-        const resultOverlay = document.getElementById('resultOverlay');
-        const tryAgainBtn = document.getElementById('tryAgainBtn');
-        const txapelaBtn = document.getElementById('txapelaBtn');
-        const statsDrawer = document.getElementById('statsDrawer');
-        const backBtn = document.getElementById('backBtn');
-        const bestScoreValue = document.getElementById('bestScoreValue');
-        const attemptsValue = document.getElementById('attemptsValue');
+        /* ─── DOM ─── */
+        const canvas       = document.getElementById('canvas');
+        const guideCanvas  = document.getElementById('guideCanvas');
+        const ctx          = canvas.getContext('2d');
+        const gctx         = guideCanvas.getContext('2d');
+        const startScreen  = document.getElementById('startScreen');
+        const resultOverlay= document.getElementById('resultOverlay');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const messageDisplay = document.getElementById('messageDisplay');
+        const gradeDisplay = document.getElementById('gradeDisplay');
+        const arcProgress  = document.getElementById('arcProgress');
+        const tryAgainBtn  = document.getElementById('tryAgainBtn');
+        const viewStatsBtn = document.getElementById('viewStatsBtn');
+        const colorBtn     = document.getElementById('colorBtn');
+        const colorDot     = document.getElementById('colorDot');
+        const txapelaBtn   = document.getElementById('txapelaBtn');
+        const statsOverlay = document.getElementById('statsOverlay');
+        const statsDrawer  = document.getElementById('statsDrawer');
+        const drawerClose  = document.getElementById('drawerClose');
+        const drawStatus   = document.getElementById('drawStatus');
 
+        const bestScoreEl  = document.getElementById('bestScoreValue');
+        const attemptsEl   = document.getElementById('attemptsValue');
+        const avgScoreEl   = document.getElementById('avgScoreValue');
+
+        /* ─── Setup ─── */
         function setupCanvas() {
-            const wrapper = canvas.parentElement;
-            const rect = wrapper.getBoundingClientRect();
-            const scale = window.devicePixelRatio || 1;
-            
-            canvas.width = rect.width * scale;
-            canvas.height = rect.height * scale;
-            canvas.style.width = rect.width + 'px';
-            canvas.style.height = rect.height + 'px';
-            ctx.scale(scale, scale);
-            
-            drawCanvas();
+            const dpr = window.devicePixelRatio || 1;
+            const area = canvas.parentElement.getBoundingClientRect();
+
+            [canvas, guideCanvas].forEach(c => {
+                c.width  = area.width  * dpr;
+                c.height = area.height * dpr;
+                c.style.width  = area.width  + 'px';
+                c.style.height = area.height + 'px';
+            });
+
+            ctx.scale(dpr, dpr);
+            gctx.scale(dpr, dpr);
+
+            drawGuides();
+            redraw();
         }
 
-        function drawCanvas() {
-            const width = canvas.width / (window.devicePixelRatio || 1);
-            const height = canvas.height / (window.devicePixelRatio || 1);
-            
-            ctx.fillStyle = 'transparent';
-            ctx.clearRect(0, 0, width, height);
-            
-            if (state.points.length > 1) {
-                ctx.strokeStyle = state.currentColor;
-                ctx.lineWidth = 4;
-                ctx.lineJoin = 'round';
-                ctx.lineCap = 'round';
-                ctx.shadowColor = state.currentColor;
-                ctx.shadowBlur = 8;
-                
-                ctx.beginPath();
-                ctx.moveTo(state.points[0].x, state.points[0].y);
-                
-                for (let i = 1; i < state.points.length; i++) {
-                    ctx.lineTo(state.points[i].x, state.points[i].y);
-                }
-                
-                ctx.stroke();
-                ctx.shadowBlur = 0;
+        /* ─── Guide rings ─── */
+        function drawGuides() {
+            const dpr = window.devicePixelRatio || 1;
+            const W = guideCanvas.width  / dpr;
+            const H = guideCanvas.height / dpr;
+            const cx = W / 2;
+            const cy = H / 2;
+            const maxR = Math.min(W, H) * 0.42;
+
+            gctx.clearRect(0, 0, W, H);
+
+            gctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            gctx.lineWidth = 1;
+            gctx.setLineDash([4, 8]);
+            gctx.beginPath();
+            gctx.moveTo(cx, 0); gctx.lineTo(cx, H);
+            gctx.moveTo(0, cy); gctx.lineTo(W, cy);
+            gctx.stroke();
+            gctx.setLineDash([]);
+
+            const rings = 4;
+            for (let i = 1; i <= rings; i++) {
+                const r = (maxR / rings) * i;
+                const alpha = 0.025 + (i / rings) * 0.03;
+                gctx.strokeStyle = `rgba(0, 232, 255, ${alpha})`;
+                gctx.lineWidth = i === rings ? 1.5 : 1;
+                gctx.beginPath();
+                gctx.arc(cx, cy, r, 0, Math.PI * 2);
+                gctx.stroke();
+            }
+
+            gctx.fillStyle = 'rgba(0, 232, 255, 0.12)';
+            gctx.beginPath();
+            gctx.arc(cx, cy, 3, 0, Math.PI * 2);
+            gctx.fill();
+        }
+
+        /* ─── Drawing ─── */
+        function redraw() {
+            const dpr = window.devicePixelRatio || 1;
+            const W = canvas.width  / dpr;
+            const H = canvas.height / dpr;
+
+            ctx.clearRect(0, 0, W, H);
+
+            if (state.points.length < 2) return;
+
+            const color = state.colors[state.colorIndex];
+
+            ctx.save();
+            ctx.strokeStyle = color.hex;
+            ctx.lineWidth = 10;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.globalAlpha = 0.1;
+            ctx.filter = 'blur(6px)';
+            tracePath();
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.strokeStyle = color.hex;
+            ctx.lineWidth = 2.5;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.globalAlpha = 0.95;
+            tracePath();
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function tracePath() {
+            ctx.beginPath();
+            ctx.moveTo(state.points[0].x, state.points[0].y);
+            for (let i = 1; i < state.points.length; i++) {
+                ctx.lineTo(state.points[i].x, state.points[i].y);
             }
         }
 
-        function evaluateCircle(points) {
-            if (points.length < 10) {
-                return { score: 0, message: "¡Dibuja un círculo completo!" };
-            }
+        function drawBestFitCircle(cx, cy, r) {
+            const color = state.colors[state.colorIndex];
+            ctx.save();
+            ctx.strokeStyle = color.hex;
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.2;
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
 
-            const center = points.reduce((acc, point) => ({
-                x: acc.x + point.x,
-                y: acc.y + point.y
-            }), { x: 0, y: 0 });
-            
-            center.x /= points.length;
-            center.y /= points.length;
+        /* ─── Evaluation ─── */
+        function evaluateCircle(pts) {
+            if (pts.length < 10) return { score: 0, message: 'Dibuja un c\u00EDrculo completo', grade: null };
 
-            let avgRadius = 0;
-            for (const point of points) {
-                const distance = Math.sqrt(
-                    Math.pow(point.x - center.x, 2) + 
-                    Math.pow(point.y - center.y, 2)
-                );
-                avgRadius += distance;
-            }
-            avgRadius /= points.length;
+            const cx = pts.reduce((a, p) => a + p.x, 0) / pts.length;
+            const cy = pts.reduce((a, p) => a + p.y, 0) / pts.length;
 
-            let radiusVariance = 0;
-            for (const point of points) {
-                const distance = Math.sqrt(
-                    Math.pow(point.x - center.x, 2) + 
-                    Math.pow(point.y - center.y, 2)
-                );
-                radiusVariance += Math.pow(distance - avgRadius, 2);
-            }
-            radiusVariance = Math.sqrt(radiusVariance / points.length);
+            const radii = pts.map(p => Math.hypot(p.x - cx, p.y - cy));
+            const avgR  = radii.reduce((a, r) => a + r, 0) / radii.length;
+            const varR  = Math.sqrt(radii.reduce((a, r) => a + (r - avgR) ** 2, 0) / radii.length);
 
-            const startPoint = points[0];
-            const endPoint = points[points.length - 1];
-            const closureDistance = Math.sqrt(
-                Math.pow(endPoint.x - startPoint.x, 2) + 
-                Math.pow(endPoint.y - startPoint.y, 2)
-            );
-            const maxClosureDistance = avgRadius * 0.2;
-            const isClosed = closureDistance < maxClosureDistance;
+            const startP = pts[0], endP = pts[pts.length - 1];
+            const closureDist = Math.hypot(endP.x - startP.x, endP.y - startP.y);
+            const isClosed    = closureDist < avgR * 0.22;
 
-            const maxVariance = avgRadius * 0.5;
-            const varianceScore = Math.max(0, 1 - (radiusVariance / maxVariance));
-            const closureScore = isClosed ? 1 : 0.5;
-            
-            let totalScore = Math.round((varianceScore * 0.6 + closureScore * 0.4) * 100);
-            totalScore = Math.max(0, Math.min(100, totalScore));
+            const varianceScore = Math.max(0, 1 - varR / (avgR * 0.5));
+            const closureScore  = isClosed ? 1 : Math.max(0, 1 - closureDist / (avgR * 1.5));
 
-            let message;
-            if (totalScore >= 95) {
-                message = "¡Círculo perfecto! ¡Eres un verdadero artista! ✨";
-            } else if (totalScore >= 85) {
-                message = "¡Excelente! ¡Casi perfecto! 🎯";
-            } else if (totalScore >= 75) {
-                message = "¡Gran trabajo! ¡Muy circular! 👏";
-            } else if (totalScore >= 60) {
-                message = "¡Buen esfuerzo! ¡Sigue practicando! 💪";
-            } else if (totalScore >= 40) {
-                message = "¡No está mal! ¿Intentar más despacio? 🖊️";
-            } else if (totalScore >= 20) {
-                message = "¡Inténtalo de nuevo! ¡La práctica hace al maestro! 🔄";
+            let score = Math.round((varianceScore * 0.65 + closureScore * 0.35) * 100);
+            score = Math.max(0, Math.min(100, score));
+
+            let message, grade, gradeColor;
+            if (score >= 96) {
+                message = 'Perfecci\u00F3n absoluta'; grade = 'S+'; gradeColor = '#f5c518';
+            } else if (score >= 90) {
+                message = 'Nivel maestro'; grade = 'S'; gradeColor = '#f5c518';
+            } else if (score >= 82) {
+                message = 'Excelente precisi\u00F3n'; grade = 'A+'; gradeColor = '#00e8a0';
+            } else if (score >= 74) {
+                message = 'Muy buen trazo'; grade = 'A'; gradeColor = '#00e8a0';
+            } else if (score >= 64) {
+                message = 'Buen trabajo'; grade = 'B'; gradeColor = '#00e8ff';
+            } else if (score >= 50) {
+                message = 'Sigue practicando'; grade = 'C'; gradeColor = '#7b5ef8';
+            } else if (score >= 30) {
+                message = '\u00BFLo intentamos m\u00E1s despacio?'; grade = 'D'; gradeColor = '#ff8c42';
             } else {
-                message = "Hmm, ¡eso parece más arte abstracto! 🎨";
+                message = 'Arte abstracto puro'; grade = 'F'; gradeColor = '#ff4d6d';
             }
 
-            return { score: totalScore, message, isClosed };
+            return { score, message, grade, gradeColor, cx, cy, avgR };
         }
 
-        function getMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            };
+        /* ─── Input handling ─── */
+        function getPos(e) {
+            const r = canvas.getBoundingClientRect();
+            if (e.touches) {
+                if (!e.touches.length) return null;
+                return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+            }
+            return { x: e.clientX - r.left, y: e.clientY - r.top };
         }
 
-        function getTouchPos(e) {
-            if (e.touches.length === 0) return null;
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: e.touches[0].clientX - rect.left,
-                y: e.touches[0].clientY - rect.top
-            };
-        }
-
-        function startDrawing(pos) {
+        function startDraw(e) {
+            const pos = getPos(e);
             if (!pos) return;
             state.isDrawing = true;
-            state.points = [pos];
-            state.result = null;
+            state.points    = [pos];
+            state.result    = null;
             resultOverlay.classList.remove('show');
-            instructions.style.display = 'none';
+            startScreen.classList.add('hidden');
+            drawStatus.classList.add('active');
+            redraw();
         }
 
-        function draw(pos) {
-            if (!pos || !state.isDrawing || state.result) return;
+        function moveDraw(e) {
+            if (!state.isDrawing || state.result) return;
+            const pos = getPos(e);
+            if (!pos) return;
             state.points.push(pos);
-            drawCanvas();
+            redraw();
         }
 
-        function stopDrawing() {
+        function endDraw() {
             if (!state.isDrawing || state.result) return;
             state.isDrawing = false;
-            
-            const evaluation = evaluateCircle(state.points);
-            state.result = evaluation;
+            drawStatus.classList.remove('active');
+
+            const ev = evaluateCircle(state.points);
+            state.result   = ev;
             state.attempts++;
-            
-            if (evaluation.score > state.bestScore) {
-                state.bestScore = evaluation.score;
-            }
+            state.totalScore += ev.score;
+            if (ev.score > state.bestScore) state.bestScore = ev.score;
+
+            if (ev.cx != null) drawBestFitCircle(ev.cx, ev.cy, ev.avgR);
 
             updateStats();
-            showResult();
+            showResult(ev);
         }
 
-        function showResult() {
-            document.getElementById('scoreDisplay').textContent = `${state.result.score}%`;
-            document.getElementById('messageDisplay').textContent = state.result.message;
+        /* ─── Result display ─── */
+        function showResult(ev) {
+            scoreDisplay.textContent = ev.score + '%';
+            messageDisplay.textContent = ev.message;
+
+            if (ev.grade) {
+                gradeDisplay.textContent = 'Calificaci\u00F3n: ' + ev.grade;
+                gradeDisplay.style.color = ev.gradeColor || 'var(--text-secondary)';
+            } else {
+                gradeDisplay.textContent = '';
+            }
+
+            const circumference = 2 * Math.PI * 85;
+            const offset = circumference * (1 - ev.score / 100);
+            arcProgress.style.transition = 'none';
+            arcProgress.style.strokeDashoffset = circumference;
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    arcProgress.style.transition = 'stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1)';
+                    arcProgress.style.strokeDashoffset = offset;
+                });
+            });
+
             resultOverlay.classList.add('show');
-            topBtn.classList.add('show');
         }
 
-        function updateStats() {
-            bestScoreValue.textContent = state.bestScore + '%';
-            attemptsValue.textContent = state.attempts;
-        }
-
-        function clearCanvas() {
-            state.points = [];
-            state.result = null;
+        function resetGame() {
+            state.points    = [];
+            state.result    = null;
             state.isDrawing = false;
             resultOverlay.classList.remove('show');
-            instructions.style.display = 'block';
-            topBtn.classList.remove('show');
-            drawCanvas();
+            startScreen.classList.remove('hidden');
+            redraw();
         }
 
-        function addToTop() {
-            topBtn.classList.remove('show');
-            clearCanvas();
+        /* ─── Stats ─── */
+        function updateStats() {
+            bestScoreEl.textContent = state.bestScore > 0 ? state.bestScore + '%' : '\u2014';
+            attemptsEl.textContent  = state.attempts;
+            const avg = state.attempts > 0 ? Math.round(state.totalScore / state.attempts) : null;
+            avgScoreEl.textContent  = avg != null ? avg + '%' : '\u2014';
         }
 
-        function changePenColor() {
-            state.currentColorIndex = (state.currentColorIndex + 1) % state.colors.length;
-            state.currentColor = state.colors[state.currentColorIndex].hex;
-            penColor.style.background = state.currentColor;
+        function toggleStats(open) {
+            state.statsOpen = open ?? !state.statsOpen;
+            statsDrawer.classList.toggle('open', state.statsOpen);
+            statsOverlay.classList.toggle('open', state.statsOpen);
         }
 
-        function toggleStats() {
-            state.statsOpen = !state.statsOpen;
-            if (state.statsOpen) {
-                statsDrawer.classList.add('open');
-            } else {
-                statsDrawer.classList.remove('open');
-            }
+        /* ─── Color ─── */
+        function cycleColor() {
+            state.colorIndex = (state.colorIndex + 1) % state.colors.length;
+            colorDot.style.background = state.colors[state.colorIndex].hex;
+            colorDot.style.boxShadow  = `0 0 8px ${state.colors[state.colorIndex].glow}`;
         }
 
-        canvas.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            startDrawing(getMousePos(e));
-        });
+        colorDot.style.background = state.colors[0].hex;
+        colorDot.style.boxShadow  = `0 0 8px ${state.colors[0].glow}`;
 
-        canvas.addEventListener('mousemove', (e) => {
-            e.preventDefault();
-            draw(getMousePos(e));
-        });
+        /* ─── Events ─── */
+        canvas.addEventListener('mousedown',  e => { e.preventDefault(); startDraw(e); });
+        canvas.addEventListener('mousemove',  e => { e.preventDefault(); moveDraw(e); });
+        canvas.addEventListener('mouseup',    e => { e.preventDefault(); endDraw(); });
+        canvas.addEventListener('mouseleave', () => { if (state.isDrawing) endDraw(); });
 
-        canvas.addEventListener('mouseup', (e) => {
-            e.preventDefault();
-            stopDrawing();
-        });
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e); }, { passive: false });
+        canvas.addEventListener('touchmove',  e => { e.preventDefault(); moveDraw(e); }, { passive: false });
+        canvas.addEventListener('touchend',   e => { e.preventDefault(); endDraw(); },   { passive: false });
 
-        canvas.addEventListener('mouseleave', (e) => {
-            if (state.isDrawing) {
-                stopDrawing();
-            }
-        });
+        tryAgainBtn.addEventListener('click',  resetGame);
+        viewStatsBtn.addEventListener('click', () => { resetGame(); toggleStats(true); });
+        colorBtn.addEventListener('click',     cycleColor);
 
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            startDrawing(getTouchPos(e));
-        });
-
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            draw(getTouchPos(e));
-        });
-
-        canvas.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            stopDrawing();
-        });
-
-        topBtn.addEventListener('click', addToTop);
-        penBtn.addEventListener('click', changePenColor);
-        tryAgainBtn.addEventListener('click', clearCanvas);
-        txapelaBtn.addEventListener('click', toggleStats);
-        backBtn.addEventListener('click', toggleStats);
+        txapelaBtn.addEventListener('click',  () => toggleStats(true));
+        statsOverlay.addEventListener('click',() => toggleStats(false));
+        drawerClose.addEventListener('click', () => toggleStats(false));
 
         window.addEventListener('resize', setupCanvas);
 
+        /* ─── Init ─── */
         setupCanvas();
     </script>
 </body>
