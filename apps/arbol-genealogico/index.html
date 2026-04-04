@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌳 Árbol Genealógico Familiar</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- ====== HEADER ====== -->
+  <header class="site-header">
+    <div class="header-content">
+      <div class="header-logo">
+        <span class="tree-icon">🌳</span>
+        <div>
+          <h1>Árbol Genealógico Familiar</h1>
+          <p class="header-subtitle">Preservando la memoria de cada generación</p>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <button class="nav-btn active" onclick="showSection('tree')"><i class="fas fa-sitemap"></i> Árbol</button>
+        <button class="nav-btn" onclick="showSection('members')"><i class="fas fa-users"></i> Miembros</button>
+        <button class="nav-btn" onclick="showSection('comments')"><i class="fas fa-comments"></i> Comentarios</button>
+        <button class="nav-btn btn-add" onclick="openAddMemberModal()"><i class="fas fa-plus"></i> Añadir</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ====== MAIN CONTENT ====== -->
+  <main class="main-content">
+
+    <!-- ===== SECCIÓN: ÁRBOL VISUAL ===== -->
+    <section id="section-tree" class="section active">
+      <div class="section-header">
+        <h2><i class="fas fa-sitemap"></i> Árbol Genealógico</h2>
+        <div class="tree-controls">
+          <button class="ctrl-btn" onclick="zoomIn()"><i class="fas fa-search-plus"></i></button>
+          <button class="ctrl-btn" onclick="zoomOut()"><i class="fas fa-search-minus"></i></button>
+          <button class="ctrl-btn" onclick="resetZoom()"><i class="fas fa-compress-arrows-alt"></i></button>
+          <span class="zoom-label" id="zoom-label">100%</span>
+        </div>
+      </div>
+      <div class="tree-container" id="tree-container">
+        <div class="tree-viewport" id="tree-viewport">
+          <div class="tree-canvas" id="tree-canvas">
+            <!-- Generado dinámicamente por JS -->
+          </div>
+        </div>
+      </div>
+      <div class="tree-legend">
+        <span class="legend-item"><span class="legend-dot male"></span> Hombre</span>
+        <span class="legend-item"><span class="legend-dot female"></span> Mujer</span>
+        <span class="legend-item"><span class="legend-dot deceased"></span> Fallecido/a</span>
+        <span class="legend-item"><span class="legend-line couple"></span> Pareja</span>
+        <span class="legend-item"><span class="legend-line child"></span> Descendencia</span>
+      </div>
+    </section>
+
+    <!-- ===== SECCIÓN: LISTA DE MIEMBROS ===== -->
+    <section id="section-members" class="section">
+      <div class="section-header">
+        <h2><i class="fas fa-users"></i> Todos los Miembros</h2>
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" id="search-members" placeholder="Buscar miembro..." oninput="filterMembers()" />
+        </div>
+      </div>
+      <div class="members-grid" id="members-grid">
+        <!-- Generado por JS -->
+      </div>
+    </section>
+
+    <!-- ===== SECCIÓN: COMENTARIOS Y DUDAS ===== -->
+    <section id="section-comments" class="section">
+      <div class="section-header">
+        <h2><i class="fas fa-comments"></i> Comentarios y Dudas</h2>
+        <button class="btn-primary" onclick="openCommentModal()">
+          <i class="fas fa-plus"></i> Nuevo comentario
+        </button>
+      </div>
+
+      <!-- Filtros de comentarios -->
+      <div class="comment-filters">
+        <button class="filter-btn active" onclick="filterComments('all', this)">
+          <i class="fas fa-list"></i> Todos
+        </button>
+        <button class="filter-btn" onclick="filterComments('question', this)">
+          <i class="fas fa-question-circle"></i> Dudas
+        </button>
+        <button class="filter-btn" onclick="filterComments('comment', this)">
+          <i class="fas fa-comment"></i> Comentarios
+        </button>
+        <button class="filter-btn" onclick="filterComments('correction', this)">
+          <i class="fas fa-edit"></i> Correcciones
+        </button>
+        <button class="filter-btn" onclick="filterComments('pending', this)">
+          <i class="fas fa-clock"></i> Pendientes
+        </button>
+        <button class="filter-btn" onclick="filterComments('answered', this)">
+          <i class="fas fa-check-circle"></i> Respondidos
+        </button>
+      </div>
+
+      <div class="comments-list" id="comments-list">
+        <!-- Generado por JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====== MODAL: PERFIL DE MIEMBRO ====== -->
+  <div class="modal-overlay" id="modal-member-profile" onclick="closeModalOutside(event, 'modal-member-profile')">
+    <div class="modal modal-large">
+      <button class="modal-close" onclick="closeModal('modal-member-profile')"><i class="fas fa-times"></i></button>
+      <div class="profile-modal-content" id="profile-modal-content">
+        <!-- Generado dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== MODAL: AÑADIR / EDITAR MIEMBRO ====== -->
+  <div class="modal-overlay" id="modal-add-member" onclick="closeModalOutside(event, 'modal-add-member')">
+    <div class="modal modal-medium">
+      <button class="modal-close" onclick="closeModal('modal-add-member')"><i class="fas fa-times"></i></button>
+      <h2 class="modal-title" id="modal-add-title"><i class="fas fa-user-plus"></i> Añadir Miembro</h2>
+      <form id="form-add-member" onsubmit="saveMember(event)">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Nombre completo *</label>
+            <input type="text" id="fm-name" placeholder="Ej: María García López" required />
+          </div>
+          <div class="form-group">
+            <label>Género *</label>
+            <select id="fm-gender" required>
+              <option value="">-- Seleccionar --</option>
+              <option value="male">Hombre</option>
+              <option value="female">Mujer</option>
+              <option value="other">Otro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Generación</label>
+            <select id="fm-generation">
+              <option value="-2">Bisabuelos</option>
+              <option value="-1">Abuelos</option>
+              <option value="0">Padres</option>
+              <option value="1" selected>Tu generación</option>
+              <option value="2">Hijos</option>
+              <option value="3">Nietos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Año de nacimiento</label>
+            <input type="number" id="fm-birth" placeholder="Ej: 1945" min="1800" max="2026" />
+          </div>
+          <div class="form-group">
+            <label>Año de fallecimiento</label>
+            <input type="number" id="fm-death" placeholder="Dejar vacío si vive" min="1800" max="2026" />
+          </div>
+          <div class="form-group full">
+            <label>Lugar de nacimiento</label>
+            <input type="text" id="fm-birthplace" placeholder="Ej: Barcelona, España" />
+          </div>
+          <div class="form-group full">
+            <label>URL de foto</label>
+            <input type="url" id="fm-photo" placeholder="https://..." />
+          </div>
+          <div class="form-group full">
+            <label><i class="fas fa-video"></i> URL de vídeo (YouTube, MP4...)</label>
+            <input type="url" id="fm-video" placeholder="https://youtube.com/watch?v=..." />
+          </div>
+          <div class="form-group full">
+            <label><i class="fas fa-microphone"></i> URL de audio (MP3, grabación...)</label>
+            <input type="url" id="fm-audio" placeholder="https://..." />
+          </div>
+          <div class="form-group full">
+            <label>Etiquetas / Profesiones</label>
+            <input type="text" id="fm-tags" placeholder="agricultor, músico, maestro (separados por comas)" />
+          </div>
+          <div class="form-group full">
+            <label>Biografía</label>
+            <textarea id="fm-biography" rows="4" placeholder="Escribe una breve historia de esta persona..."></textarea>
+          </div>
+        </div>
+        <input type="hidden" id="fm-edit-id" value="" />
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('modal-add-member')">Cancelar</button>
+          <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====== MODAL: AÑADIR COMENTARIO ====== -->
+  <div class="modal-overlay" id="modal-comment" onclick="closeModalOutside(event, 'modal-comment')">
+    <div class="modal modal-medium">
+      <button class="modal-close" onclick="closeModal('modal-comment')"><i class="fas fa-times"></i></button>
+      <h2 class="modal-title"><i class="fas fa-comment-plus"></i> Nuevo Comentario o Duda</h2>
+      <form id="form-comment" onsubmit="saveComment(event)">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Tu nombre *</label>
+            <input type="text" id="fc-author" placeholder="¿Cómo te llamas?" required />
+          </div>
+          <div class="form-group">
+            <label>Tipo *</label>
+            <select id="fc-type" required>
+              <option value="comment">💬 Comentario</option>
+              <option value="question">❓ Duda / Pregunta</option>
+              <option value="correction">✏️ Corrección</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Miembro relacionado (opcional)</label>
+            <select id="fc-member">
+              <option value="">-- General --</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Comentario o duda *</label>
+            <textarea id="fc-content" rows="5" placeholder="Escribe aquí tu comentario, duda o corrección..." required></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('modal-comment')">Cancelar</button>
+          <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Enviar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====== MODAL: RESPONDER COMENTARIO ====== -->
+  <div class="modal-overlay" id="modal-reply" onclick="closeModalOutside(event, 'modal-reply')">
+    <div class="modal modal-medium">
+      <button class="modal-close" onclick="closeModal('modal-reply')"><i class="fas fa-times"></i></button>
+      <h2 class="modal-title"><i class="fas fa-reply"></i> Responder Comentario</h2>
+      <div id="reply-original" class="reply-original-box"></div>
+      <form id="form-reply" onsubmit="saveReply(event)">
+        <div class="form-group">
+          <label>Respuesta *</label>
+          <textarea id="fr-reply" rows="4" placeholder="Escribe la respuesta o aclaración..." required></textarea>
+        </div>
+        <input type="hidden" id="fr-comment-id" />
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('modal-reply')">Cancelar</button>
+          <button type="submit" class="btn-primary"><i class="fas fa-check"></i> Guardar respuesta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====== TOAST NOTIFICATION ====== -->
+  <div class="toast" id="toast"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
