@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <meta name="theme-color" content="#001133" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tekken Barrio" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>TEKKEN BARRIO PS1</title>
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/loading.css" />
+  <link rel="stylesheet" href="css/menu.css" />
+  <link rel="stylesheet" href="css/select.css" />
+  <link rel="stylesheet" href="css/battle.css" />
+  <link rel="stylesheet" href="css/victory.css" />
+  <link rel="stylesheet" href="css/credits.css" />
+  <link rel="stylesheet" href="css/options.css" />
+  <link rel="stylesheet" href="css/tournament.css" />
+  <link rel="stylesheet" href="css/touch.css" />
+</head>
+<body>
+  <div id="game">
+    <div id="scene-root"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Touch Controls (móvil) -->
+    <div id="touch-controls" class="touch-controls hidden">
+      <div class="touch-dpad">
+        <button class="touch-btn dpad-up" data-key="ArrowUp">▲</button>
+        <button class="touch-btn dpad-left" data-key="ArrowLeft">◀</button>
+        <button class="touch-btn dpad-right" data-key="ArrowRight">▶</button>
+        <button class="touch-btn dpad-down" data-key="ArrowDown">▼</button>
+      </div>
+      <div class="touch-actions">
+        <button class="touch-btn act-block" data-key="Shift">BLK</button>
+        <button class="touch-btn act-punch" data-key="z">PUN</button>
+        <button class="touch-btn act-kick" data-key="x">KCK</button>
+        <button class="touch-btn act-confirm" data-key=" ">OK</button>
+      </div>
+      <button class="touch-btn touch-pause" data-key="p">II</button>
+      <button class="touch-btn touch-back" data-key="Escape">ESC</button>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/touch.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/scene-manager.js"></script>
+
+  <script src="scenes/loading.js"></script>
+  <script src="scenes/menu.js"></script>
+  <script src="scenes/options.js"></script>
+  <script src="scenes/select.js"></script>
+  <script src="scenes/battle.js"></script>
+  <script src="scenes/victory.js"></script>
+  <script src="scenes/credits.js"></script>
+  <script src="scenes/tournament.js"></script>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
