@@ -1,0 +1,53 @@
+.credits-scene {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  background: radial-gradient(ellipse at center, #001122 0%, #000 80%);
+  position: relative; overflow: hidden;
+  padding: 30px 16px 70px;
+}
+
+.credits-scroll {
+  width: 100%; max-width: 700px; text-align: center;
+  animation: creditsScroll 30s linear infinite;
+}
+
+@keyframes creditsScroll {
+  from { transform: translateY(80vh); }
+  to { transform: translateY(-100%); }
+}
+
+.credits-block { margin-bottom: 50px; }
+
+.credits-block h2 {
+  font-size: 24px; color: var(--yellow);
+  text-shadow: 3px 3px 0 var(--red), 5px 5px 0 #000;
+  margin-bottom: 14px; letter-spacing: 4px;
+}
+
+.credits-block h3 {
+  font-size: 14px; color: var(--cyan);
+  text-shadow: 2px 2px 0 #000;
+  margin-bottom: 12px; letter-spacing: 2px;
+}
+
+.credits-block p {
+  font-size: 10px; color: #fff;
+  text-shadow: 2px 2px 0 #000;
+  line-height: 2.2; letter-spacing: 1px;
+}
+
+.credits-block .role { color: var(--green); font-size: 9px; margin-bottom: 4px; }
+
+.credits-back {
+  position: absolute; bottom: 14px; width: 100%;
+  text-align: center; font-size: 10px;
+  color: var(--yellow); animation: blink 1s infinite;
+  text-shadow: 2px 2px 0 #000; z-index: 5;
+}
+
+@media (max-width: 768px) {
+  .credits-block h2 { font-size: 16px; letter-spacing: 2px; }
+  .credits-block h3 { font-size: 11px; }
+  .credits-block p { font-size: 8px; }
+  .credits-back { font-size: 8px; }
+}

@@ -1,0 +1,87 @@
+.touch-controls {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 70;
+}
+
+.touch-btn {
+  pointer-events: auto;
+  position: absolute;
+  background: rgba(0,0,0,0.55);
+  color: var(--cyan);
+  border: 3px solid var(--cyan);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  width: 60px; height: 60px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  text-shadow: 1px 1px 0 #000;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  transition: transform 0.06s, background 0.06s;
+}
+
+.touch-btn:active {
+  transform: scale(0.92);
+  background: rgba(0,229,255,0.5);
+  color: #000;
+}
+
+/* DPAD */
+.touch-dpad {
+  position: absolute;
+  bottom: 18px; left: 18px;
+  width: 180px; height: 180px;
+  pointer-events: none;
+}
+
+.dpad-up    { left: 60px; top: 0; }
+.dpad-left  { left: 0;    top: 60px; }
+.dpad-right { left: 120px; top: 60px; }
+.dpad-down  { left: 60px; top: 120px; }
+
+/* ACTIONS */
+.touch-actions {
+  position: absolute;
+  bottom: 18px; right: 18px;
+  width: 200px; height: 180px;
+  pointer-events: none;
+}
+
+.act-block   { right: 130px; top: 60px;  border-color: var(--magenta); color: var(--magenta); font-size: 10px; }
+.act-punch   { right: 60px;  top: 0;     border-color: var(--red);     color: var(--red);     font-size: 10px; }
+.act-kick    { right: 0;     top: 60px;  border-color: var(--yellow);  color: var(--yellow);  font-size: 10px; }
+.act-confirm { right: 60px;  top: 120px; border-color: var(--green);   color: var(--green);   font-size: 10px; }
+
+.touch-pause {
+  position: absolute;
+  top: 70px; right: 14px;
+  width: 42px; height: 42px;
+  font-size: 12px;
+  border-color: var(--yellow); color: var(--yellow);
+}
+
+.touch-back {
+  position: absolute;
+  top: 70px; left: 14px;
+  width: 42px; height: 42px;
+  font-size: 10px;
+  border-color: var(--red); color: var(--red);
+}
+
+@media (max-width: 480px) {
+  .touch-btn { width: 50px; height: 50px; font-size: 13px; }
+  .touch-dpad { width: 150px; height: 150px; bottom: 12px; left: 12px; }
+  .dpad-up    { left: 50px; top: 0; }
+  .dpad-left  { left: 0;    top: 50px; }
+  .dpad-right { left: 100px; top: 50px; }
+  .dpad-down  { left: 50px; top: 100px; }
+  .touch-actions { width: 170px; height: 150px; bottom: 12px; right: 12px; }
+  .act-block   { right: 110px; top: 50px;  font-size: 8px; }
+  .act-punch   { right: 50px;  top: 0;     font-size: 8px; }
+  .act-kick    { right: 0;     top: 50px;  font-size: 8px; }
+  .act-confirm { right: 50px;  top: 100px; font-size: 8px; }
+  .touch-pause { width: 36px; height: 36px; top: 60px; }
+  .touch-back  { width: 36px; height: 36px; top: 60px; font-size: 8px; }
+}

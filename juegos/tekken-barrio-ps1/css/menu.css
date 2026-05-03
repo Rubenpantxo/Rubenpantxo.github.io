@@ -1,0 +1,83 @@
+.menu-scene {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background:
+    linear-gradient(rgba(0,255,255,0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,255,0.10) 1px, transparent 1px),
+    radial-gradient(ellipse at center, #002a55 0%, #000814 80%);
+  background-size: 40px 40px, 40px 40px, auto;
+  position: relative; padding: 30px 20px;
+}
+
+.menu-logo { text-align: center; margin-bottom: 30px; }
+
+.menu-logo .line1 {
+  font-size: 56px; letter-spacing: 6px; color: var(--yellow);
+  text-shadow: 4px 4px 0 var(--red), 8px 8px 0 #000;
+  animation: glow 1.2s infinite alternate;
+}
+
+.menu-logo .line2 {
+  font-size: 24px; letter-spacing: 8px; color: var(--cyan);
+  margin-top: 14px; text-shadow: 3px 3px 0 #000;
+}
+
+.menu-logo .ps1-tag {
+  font-size: 11px; color: var(--green); margin-top: 14px;
+  letter-spacing: 4px; border: 3px solid var(--green);
+  display: inline-block; padding: 5px 12px;
+  box-shadow: 0 0 12px var(--green);
+}
+
+.menu-stats {
+  display: flex; gap: 12px; margin: 16px 0;
+  font-size: 9px; color: #aaa;
+}
+
+.menu-stats .stat {
+  background: rgba(0,0,0,0.5); border: 2px solid var(--cyan);
+  padding: 6px 10px; color: var(--cyan);
+}
+
+.menu-stats .stat strong { color: var(--yellow); }
+
+.menu-options {
+  display: flex; flex-direction: column;
+  gap: 10px; align-items: center; margin-top: 8px;
+}
+
+.menu-option {
+  font-size: 16px; letter-spacing: 3px; color: #fff;
+  padding: 10px 24px; border: 4px solid transparent;
+  cursor: pointer; text-shadow: 2px 2px 0 #000;
+  transition: all 0.1s ease; min-width: 320px; text-align: center;
+}
+
+.menu-option.active {
+  border-color: var(--green); color: var(--yellow);
+  background: rgba(0,255,102,0.08);
+  box-shadow: 0 0 18px var(--green);
+}
+
+.menu-option.active::before { content: "▶ "; color: var(--green); }
+.menu-option.active::after { content: " ◀"; color: var(--green); }
+
+.menu-press {
+  position: absolute; bottom: 26px; width: 100%;
+  text-align: center; font-size: 11px; color: var(--yellow);
+  animation: blink 1s infinite; text-shadow: 2px 2px 0 #000;
+}
+
+.menu-copyright {
+  position: absolute; bottom: 8px; width: 100%;
+  text-align: center; font-size: 8px; color: #666; letter-spacing: 3px;
+}
+
+@media (max-width: 768px) {
+  .menu-logo .line1 { font-size: 32px; letter-spacing: 3px; }
+  .menu-logo .line2 { font-size: 14px; letter-spacing: 4px; }
+  .menu-option { font-size: 11px; min-width: 260px; padding: 8px 16px; letter-spacing: 2px; }
+  .menu-press { font-size: 8px; }
+  .menu-stats { flex-wrap: wrap; justify-content: center; }
+  .menu-stats .stat { font-size: 7px; padding: 4px 6px; }
+}

@@ -1,0 +1,97 @@
+.victory-scene {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: radial-gradient(circle at center, #2a0066 0%, #110033 50%, #000 100%);
+  position: relative; padding: 20px;
+  overflow-y: auto;
+}
+
+.victory-scene::before {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent 0, transparent 60px,
+    rgba(255,255,0,0.04) 60px, rgba(255,255,0,0.04) 62px
+  );
+  pointer-events: none;
+}
+
+.victory-title {
+  font-size: 56px; color: var(--yellow);
+  text-shadow: 5px 5px 0 var(--red), 10px 10px 0 #000, 0 0 30px var(--yellow);
+  letter-spacing: 8px; margin-bottom: 16px;
+  animation: victoryPulse 0.8s infinite alternate;
+  z-index: 2;
+}
+
+@keyframes victoryPulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+
+.victory-winner {
+  font-size: 22px; color: var(--cyan);
+  text-shadow: 3px 3px 0 #000;
+  letter-spacing: 3px; margin-bottom: 20px; z-index: 2;
+}
+
+.victory-portrait {
+  width: 240px; height: 240px;
+  background: radial-gradient(circle at center, #fff7cc, #ffaa00, #ff3300);
+  border: 5px solid var(--yellow);
+  box-shadow: 0 0 40px var(--yellow), inset 0 0 30px rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px; position: relative; z-index: 2; overflow: hidden;
+}
+
+.victory-portrait::before {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-conic-gradient(
+    rgba(255,255,0,0) 0deg,
+    rgba(255,255,0,0.15) 5deg,
+    rgba(255,255,0,0) 10deg
+  );
+  animation: rays 6s linear infinite; pointer-events: none;
+}
+
+@keyframes rays { to { transform: rotate(360deg); } }
+
+.victory-portrait img {
+  width: 90%; height: 90%; object-fit: contain;
+  image-rendering: pixelated; position: relative; z-index: 2;
+}
+
+.victory-quote {
+  font-size: 12px; color: #fff;
+  text-shadow: 2px 2px 0 #000; text-align: center;
+  max-width: 600px; line-height: 1.8;
+  margin-bottom: 20px; z-index: 2;
+}
+
+.victory-options {
+  display: flex; flex-direction: column;
+  gap: 10px; align-items: center; z-index: 2;
+}
+
+.victory-option {
+  font-size: 12px; color: #fff;
+  padding: 8px 22px; border: 3px solid transparent;
+  cursor: pointer; text-shadow: 2px 2px 0 #000;
+  letter-spacing: 2px; min-width: 260px; text-align: center;
+}
+
+.victory-option.active {
+  border-color: var(--green); color: var(--yellow);
+  background: rgba(0,255,102,0.1);
+  box-shadow: 0 0 16px var(--green);
+}
+
+.victory-option.active::before { content: "▶ "; color: var(--green); }
+.victory-option.active::after { content: " ◀"; color: var(--green); }
+
+@media (max-width: 768px) {
+  .victory-title { font-size: 36px; letter-spacing: 4px; }
+  .victory-winner { font-size: 14px; }
+  .victory-portrait { width: 160px; height: 160px; }
+  .victory-quote { font-size: 9px; }
+  .victory-option { font-size: 10px; min-width: 220px; }
+}
