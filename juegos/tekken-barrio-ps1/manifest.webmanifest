@@ -1,0 +1,16 @@
+{
+  "name": "Tekken Barrio PS1",
+  "short_name": "TekkenBarrio",
+  "description": "Juego de pelea arcade estilo PS1 con 15 luchadores del barrio",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#001133",
+  "theme_color": "#001133",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["games", "entertainment"]
+}
