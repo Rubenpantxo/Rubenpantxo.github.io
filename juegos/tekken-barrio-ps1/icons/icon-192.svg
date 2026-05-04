@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+<rect x="0.00" y="0.00" width="192.00" height="192.00" fill="#001133"/>
+<rect x="9.6" y="9.6" width="172.8" height="172.8" fill="none" stroke="#ff3030" stroke-width="4.8"/>
+<line x1="9.0" y1="9.6" x2="9.0" y2="182.4" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="29.0" y1="9.6" x2="29.0" y2="182.4" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="49.0" y1="9.6" x2="49.0" y2="182.4" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="69.0" y1="9.6" x2="69.0" y2="182.4" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="89.0" y1="9.6" x2="89.0" y2="182.4" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="109.0" y1="9.6" x2="109.0" y2="182.4" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="129.0" y1="9.6" x2="129.0" y2="182.4" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="149.0" y1="9.6" x2="149.0" y2="182.4" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="169.0" y1="9.6" x2="169.0" y2="182.4" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="9.6" y1="9.0" x2="182.4" y2="9.0" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="9.6" y1="29.0" x2="182.4" y2="29.0" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="9.6" y1="49.0" x2="182.4" y2="49.0" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="9.6" y1="69.0" x2="182.4" y2="69.0" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="9.6" y1="89.0" x2="182.4" y2="89.0" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="9.6" y1="109.0" x2="182.4" y2="109.0" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="9.6" y1="129.0" x2="182.4" y2="129.0" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="9.6" y1="149.0" x2="182.4" y2="149.0" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<line x1="9.6" y1="169.0" x2="182.4" y2="169.0" stroke="#00e5ff" stroke-width="1.0" stroke-opacity="0.12"/>
+<text x="102.0" y="136.6" font-family="'Press Start 2P',monospace,sans-serif" font-size="76.80000000000001" font-weight="bold" fill="rgba(0,0,0,0.75)" text-anchor="middle">VS</text>
+<text x="100.0" y="134.6" font-family="'Press Start 2P',monospace,sans-serif" font-size="76.80000000000001" font-weight="bold" fill="#000000" text-anchor="middle">VS</text>
+<text x="98.0" y="132.6" font-family="'Press Start 2P',monospace,sans-serif" font-size="76.80000000000001" font-weight="bold" fill="rgba(0,0,0,0.75)" text-anchor="middle">VS</text>
+<text x="96.0" y="130.6" font-family="'Press Start 2P',monospace,sans-serif" font-size="76.80000000000001" font-weight="bold" fill="#ffe600" text-anchor="middle">VS</text>
+<text x="100.0" y="161.4" font-family="'Press Start 2P',monospace,sans-serif" font-size="17.28" font-weight="bold" fill="rgba(0,0,0,0.75)" text-anchor="middle">TEKKEN BARRIO</text>
+<text x="98.0" y="159.4" font-family="'Press Start 2P',monospace,sans-serif" font-size="17.28" font-weight="bold" fill="#000000" text-anchor="middle">TEKKEN BARRIO</text>
+<text x="98.0" y="159.4" font-family="'Press Start 2P',monospace,sans-serif" font-size="17.28" font-weight="bold" fill="rgba(0,0,0,0.75)" text-anchor="middle">TEKKEN BARRIO</text>
+<text x="96.0" y="157.4" font-family="'Press Start 2P',monospace,sans-serif" font-size="17.28" font-weight="bold" fill="#00e5ff" text-anchor="middle">TEKKEN BARRIO</text>
+</svg>
