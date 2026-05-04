@@ -174,10 +174,19 @@
 .pause-overlay p { font-size: 11px; color: #fff; text-shadow: 2px 2px 0 #000; letter-spacing: 2px; }
 
 @media (max-width: 768px) {
-  .fighter { width: 90px; height: 140px; bottom: 40px; }
+  /* Reserve bottom area for touch controls (~200px) */
+  .battle-scene { padding-bottom: 200px; }
+  .fighter { width: 90px; height: 130px; bottom: 28px; }
   .hud-name { font-size: 9px; }
   .hud-timer { font-size: 20px; padding: 3px 8px; }
   .hud-round-label { font-size: 7px; }
   .announcer { font-size: 32px; letter-spacing: 3px; }
   .pause-overlay h2 { font-size: 28px; }
+}
+
+@media (max-width: 480px) {
+  .battle-scene { padding-bottom: 190px; }
+  .fighter { width: 78px; height: 115px; bottom: 22px; }
+  .hud-bar { height: 16px; }
+  .hud-center { width: 80px; }
 }

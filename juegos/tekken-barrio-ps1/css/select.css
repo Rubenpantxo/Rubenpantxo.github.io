@@ -198,14 +198,23 @@
 }
 
 @media (max-width: 700px) {
-  .select-main { flex-direction: column; padding: 10px; gap: 10px; }
-  .preview { width: 100%; flex-direction: row; align-items: center; padding: 8px; }
+  /* Padding bottom to clear touch controls */
+  .select-scene { padding-bottom: 200px; }
+  .select-main { flex-direction: column; padding: 8px; gap: 8px; }
+  .preview { width: 100%; flex-direction: row; align-items: center; padding: 6px; }
   .preview .player-tag { align-self: center; margin: 0 8px 0 0; }
   .preview-name { display: none; }
-  .portrait-frame { width: 80px; height: 80px; padding: 3px; flex-shrink: 0; }
+  .portrait-frame { width: 70px; height: 70px; padding: 3px; flex-shrink: 0; }
   .preview-desc { display: none; }
   .stat-box { font-size: 7px; padding: 3px; }
   .preview-ready { font-size: 12px; margin-left: auto; }
   .char-grid { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(3, 1fr); }
   .char-name { font-size: 6px; }
+}
+
+@media (max-width: 480px) {
+  .select-scene { padding-bottom: 190px; }
+  .portrait-frame { width: 58px; height: 58px; }
+  .char-card { padding: 3px; }
+  .char-name { font-size: 5px; min-height: 14px; }
 }

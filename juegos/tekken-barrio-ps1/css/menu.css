@@ -74,10 +74,22 @@
 }
 
 @media (max-width: 768px) {
+  /* Padding bottom to avoid touch controls overlap */
+  .menu-scene { padding-bottom: 200px; padding-top: 16px; }
+  .menu-logo { margin-bottom: 18px; }
   .menu-logo .line1 { font-size: 32px; letter-spacing: 3px; }
   .menu-logo .line2 { font-size: 14px; letter-spacing: 4px; }
-  .menu-option { font-size: 11px; min-width: 260px; padding: 8px 16px; letter-spacing: 2px; }
-  .menu-press { font-size: 8px; }
-  .menu-stats { flex-wrap: wrap; justify-content: center; }
+  .menu-option { font-size: 11px; min-width: 240px; padding: 8px 14px; letter-spacing: 2px; }
+  .menu-press { font-size: 8px; bottom: 210px; }
+  .menu-copyright { bottom: 200px; }
+  .menu-stats { flex-wrap: wrap; justify-content: center; margin: 10px 0; }
   .menu-stats .stat { font-size: 7px; padding: 4px 6px; }
+}
+
+@media (max-width: 480px) {
+  .menu-scene { padding-bottom: 190px; }
+  .menu-logo .line1 { font-size: 24px; letter-spacing: 2px; }
+  .menu-logo .ps1-tag { font-size: 9px; padding: 4px 8px; }
+  .menu-option { font-size: 9px; min-width: 200px; padding: 7px 10px; }
+  .menu-stats { gap: 6px; }
 }
