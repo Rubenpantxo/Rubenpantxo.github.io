@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoGrow Cabanillas — Guía de Cultivo Cannabis y Huerto</title>
+<style>
+/* ========== VARIABLES ========== */
+:root {
+  --bg: #f3f6ed;
+  --bg-card: #ffffff;
+  --bg-dark: #2d3a1a;
+  --bg-olive: #4a5a1a;
+  --bg-cream: #f0ebd0;
+  --primary: #5d8a4e;
+  --primary-dark: #2c4a22;
+  --primary-light: #93b874;
+  --accent-lime: #a8c93a;
+  --accent-amber: #d4a017;
+  --text: #1f2818;
+  --text-soft: #4a5742;
+  --text-muted: #6b7660;
+  --text-on-dark: #f0ebd0;
+  --indica: #7b1fa2;
+  --sativa: #e65100;
+  --hibrido: #1565c0;
+  --auto: #c62828;
+  --cbd: #00897b;
+  --frutas: #c0392b;
+  --verduras: #27ae60;
+  --vistosas: #d63384;
+  --raras: #6f42c1;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.18);
+}
+
+/* ========== RESET ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+img { max-width: 100%; }
+button { cursor: pointer; font: inherit; }
+h1,h2,h3,h4 { line-height: 1.3; }
+
+/* ========== HEADER ========== */
+.app-header {
+  text-align: center;
+  padding: 36px 20px 20px;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-olive) 100%);
+  color: var(--text-on-dark);
+}
+.app-header h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; }
+.app-header h1 span { color: var(--accent-lime); }
+.app-header p { font-size: 1rem; max-width: 700px; margin: 0 auto; opacity: .85; }
+
+/* ========== TABS ========== */
+.tab-nav {
+  display: flex; justify-content: center; gap: 6px;
+  background: var(--bg-dark); padding: 0 16px 16px;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  background: rgba(255,255,255,.1); color: var(--text-on-dark);
+  border: 1.5px solid rgba(255,255,255,.2);
+  padding: 10px 22px; border-radius: 30px;
+  font-weight: 700; font-size: .95rem;
+  transition: all .25s;
+}
+.tab-btn:hover { background: rgba(255,255,255,.2); }
+.tab-btn.active {
+  background: var(--accent-lime); color: var(--bg-dark);
+  border-color: var(--accent-lime);
+}
+
+/* ========== SEARCH ========== */
+.search-bar {
+  max-width: 600px; margin: 24px auto 0; padding: 0 16px;
+}
+.search-bar input {
+  width: 100%; padding: 12px 18px; font-size: 1rem;
+  border: 2px solid var(--primary-light); border-radius: 30px;
+  background: var(--bg-card); color: var(--text);
+  outline: none; transition: border-color .2s;
+}
+.search-bar input:focus { border-color: var(--primary); }
+.search-bar input::placeholder { color: var(--text-muted); }
+
+/* ========== FILTERS ========== */
+.filter-bar {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 8px; padding: 16px; max-width: 900px; margin: 0 auto;
+}
+.filter-btn {
+  background: var(--bg-card); color: var(--text-soft);
+  border: 1.5px solid #ccd5c0; border-radius: 20px;
+  padding: 7px 18px; font-size: .88rem; font-weight: 600;
+  transition: all .2s;
+}
+.filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+.filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* ========== GRID ========== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px; max-width: 1200px; margin: 0 auto;
+  padding: 8px 16px 40px;
+}
+
+/* ========== CARDS ========== */
+.card {
+  background: var(--bg-card); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow);
+  border-top: 5px solid var(--primary-light);
+  cursor: pointer; transition: transform .25s, box-shadow .25s;
+  position: relative;
+}
+.card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.card--indica  { border-top-color: var(--indica); }
+.card--sativa  { border-top-color: var(--sativa); }
+.card--hibrido { border-top-color: var(--hibrido); }
+.card--auto    { border-top-color: var(--auto); }
+.card--cbd     { border-top-color: var(--cbd); }
+
+.card__badge {
+  display: inline-block; padding: 3px 12px; border-radius: 12px;
+  font-size: .75rem; font-weight: 700; color: #fff; margin-bottom: 10px;
+}
+.badge--indica  { background: var(--indica); }
+.badge--sativa  { background: var(--sativa); }
+.badge--hibrido { background: var(--hibrido); }
+.badge--auto    { background: var(--auto); }
+.badge--cbd     { background: var(--cbd); }
+.badge--frutas  { background: var(--frutas); }
+.badge--verduras{ background: var(--verduras); }
+.badge--vistosas{ background: var(--vistosas); }
+.badge--raras   { background: var(--raras); }
+
+.card__title { font-size: 1.25rem; color: var(--primary-dark); margin-bottom: 8px; }
+.card__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.tag {
+  background: var(--bg); color: var(--text-soft);
+  padding: 3px 10px; border-radius: var(--radius-sm);
+  font-size: .78rem; font-weight: 600;
+}
+.card__summary {
+  font-size: .92rem; color: var(--text-soft);
+  display: -webkit-box; -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical; overflow: hidden;
+  margin-bottom: 12px;
+}
+.card__meta { display: flex; gap: 16px; font-size: .82rem; color: var(--text-muted); margin-bottom: 10px; }
+.card__cta { display: block; text-align: right; font-size: .85rem; color: var(--primary); font-weight: 700; }
+.empty-msg { grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px; font-size: 1.1rem; }
+
+/* ========== MODAL ========== */
+#modal {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; justify-content: center; align-items: center;
+  background: rgba(30,45,20,.65); backdrop-filter: blur(4px);
+  padding: 20px; opacity: 0; transition: opacity .3s;
+  pointer-events: none;
+}
+#modal.is-visible { opacity: 1; pointer-events: auto; }
+.modal-inner {
+  background: var(--bg); width: 100%; max-width: 860px;
+  max-height: 88vh; overflow-y: auto;
+  border-radius: 18px; box-shadow: var(--shadow-lg);
+  position: relative; padding: 0;
+}
+.modal-close {
+  position: absolute; top: 14px; right: 18px; z-index: 10;
+  background: rgba(255,255,255,.85); border: none;
+  width: 36px; height: 36px; border-radius: 50%;
+  font-size: 1.4rem; line-height: 1; display: flex;
+  align-items: center; justify-content: center;
+  transition: transform .2s;
+}
+.modal-close:hover { transform: rotate(90deg); }
+
+.modal-header {
+  padding: 28px 30px 18px; border-bottom: 2px solid var(--primary-light);
+}
+.modal-header h2 { font-size: 1.8rem; color: var(--primary-dark); }
+.modal-ratio { color: var(--text-muted); font-size: .95rem; margin-top: 4px; }
+.modal-badge { font-size: .8rem; margin-bottom: 8px; display: inline-block; padding: 3px 14px; border-radius: 12px; color: #fff; font-weight: 700; }
+.modal-header--indica  { border-bottom-color: var(--indica); }
+.modal-header--sativa  { border-bottom-color: var(--sativa); }
+.modal-header--hibrido { border-bottom-color: var(--hibrido); }
+.modal-header--auto    { border-bottom-color: var(--auto); }
+.modal-header--cbd     { border-bottom-color: var(--cbd); }
+
+.modal-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px; padding: 20px 30px;
+}
+.modal-box {
+  background: var(--bg-card); padding: 14px 18px;
+  border-radius: 10px; border-left: 4px solid var(--primary);
+}
+.modal-box h4 { color: var(--primary); font-size: .85rem; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.modal-box p { font-size: .95rem; font-weight: 500; }
+.modal-detail {
+  background: var(--bg-card); padding: 22px 28px;
+  border-radius: 10px; margin: 0 30px 14px;
+}
+.modal-detail h4 { color: var(--primary-dark); font-size: 1.1rem; margin-bottom: 10px; }
+.modal-detail p { text-align: justify; font-size: .95rem; color: var(--text-soft); }
+.modal-detail--tricomas { border-left: 4px solid var(--accent-amber); }
+.modal-detail--tricomas h4 { color: var(--accent-amber); }
+#modal-body { padding-bottom: 24px; }
+
+/* ========== GUIDE SECTION ========== */
+.guide-wrapper { max-width: 1000px; margin: 0 auto; padding: 16px; }
+.guide-intro { text-align: center; padding: 20px 16px 10px; color: var(--text-soft); font-size: 1.05rem; max-width: 800px; margin: 0 auto; }
+
+/* --- Infographic blocks --- */
+.infographic {
+  background: var(--bg-dark); border-radius: var(--radius);
+  padding: 30px; margin-bottom: 24px; color: var(--text-on-dark);
+  overflow: hidden;
+}
+.infographic h3 {
+  font-size: 1.6rem; font-weight: 900; text-transform: uppercase;
+  color: var(--accent-lime); margin-bottom: 20px;
+  letter-spacing: 2px; text-align: center;
+}
+.infographic-subtitle { text-align: center; color: var(--bg-cream); opacity: .8; margin-bottom: 20px; font-size: .95rem; }
+
+/* Phases timeline */
+.phases-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.phase-card {
+  flex: 1 1 160px; max-width: 200px;
+  background: rgba(255,255,255,.08); border-radius: 12px;
+  padding: 18px 14px; text-align: center;
+  border: 1px solid rgba(168,201,58,.25);
+  transition: transform .2s;
+}
+.phase-card:hover { transform: scale(1.04); }
+.phase-num {
+  font-size: 2.4rem; font-weight: 900; color: var(--accent-lime);
+  line-height: 1; margin-bottom: 8px;
+}
+.phase-title { font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
+.phase-desc { font-size: .82rem; opacity: .8; }
+.phase-icon { font-size: 2rem; margin-bottom: 6px; }
+
+/* Trichomes */
+.trich-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.trich-card {
+  flex: 1 1 140px; max-width: 180px; text-align: center;
+  background: rgba(255,255,255,.06); border-radius: 12px;
+  padding: 20px 12px; border: 1px solid rgba(255,255,255,.1);
+}
+.trich-circle {
+  width: 64px; height: 64px; border-radius: 50%;
+  margin: 0 auto 12px; border: 3px solid rgba(255,255,255,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+}
+.trich-clear { background: rgba(255,255,255,.25); }
+.trich-milky { background: rgba(255,255,255,.7); }
+.trich-amber { background: rgba(212,160,23,.7); }
+.trich-label { font-weight: 700; font-size: .95rem; margin-bottom: 6px; }
+.trich-desc { font-size: .8rem; opacity: .8; }
+.trich-verdict {
+  margin-top: 20px; padding: 16px;
+  background: rgba(168,201,58,.15); border-radius: 10px;
+  text-align: center; font-size: .95rem; border: 1px solid rgba(168,201,58,.3);
+}
+.trich-verdict strong { color: var(--accent-lime); }
+
+/* Indica vs Sativa */
+.vs-container { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; align-items: stretch; }
+.vs-card {
+  flex: 1 1 250px; max-width: 400px;
+  background: rgba(255,255,255,.06); border-radius: 12px;
+  padding: 24px; border: 1px solid rgba(255,255,255,.1);
+}
+.vs-card h4 { font-size: 1.3rem; margin-bottom: 14px; text-align: center; }
+.vs-card--indica h4 { color: #ce93d8; }
+.vs-card--sativa h4 { color: #ffb74d; }
+.vs-list { list-style: none; }
+.vs-list li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.08); font-size: .9rem; }
+.vs-list li:last-child { border-bottom: none; }
+.vs-list strong { color: var(--accent-lime); margin-right: 6px; }
+
+/* Techniques grid */
+.tech-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.tech-card {
+  background: rgba(255,255,255,.07); border-radius: 12px;
+  padding: 18px; border: 1px solid rgba(168,201,58,.2);
+  text-align: center;
+}
+.tech-icon { font-size: 2.2rem; margin-bottom: 8px; }
+.tech-name { font-weight: 700; font-size: 1rem; color: var(--accent-lime); margin-bottom: 6px; }
+.tech-desc { font-size: .82rem; opacity: .85; }
+
+/* Pests grid */
+.pest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.pest-card {
+  background: rgba(255,255,255,.06); border-radius: 10px;
+  padding: 16px; border-left: 4px solid var(--auto);
+}
+.pest-name { font-weight: 700; font-size: .95rem; color: #ef9a9a; margin-bottom: 4px; }
+.pest-symptom { font-size: .82rem; opacity: .8; margin-bottom: 6px; }
+.pest-fix { font-size: .82rem; color: var(--accent-lime); }
+
+/* NPK bars */
+.npk-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.npk-phase {
+  flex: 1 1 130px; max-width: 170px; text-align: center;
+  background: rgba(255,255,255,.06); border-radius: 10px;
+  padding: 16px 10px;
+}
+.npk-phase-name { font-weight: 700; margin-bottom: 12px; font-size: .9rem; }
+.npk-bars { display: flex; justify-content: center; gap: 8px; align-items: flex-end; height: 100px; }
+.npk-bar {
+  width: 28px; border-radius: 4px 4px 0 0;
+  display: flex; align-items: flex-end; justify-content: center;
+  font-size: .7rem; font-weight: 700; color: #fff; padding-bottom: 4px;
+}
+.npk-n { background: #43a047; }
+.npk-p { background: #e65100; }
+.npk-k { background: #1565c0; }
+.npk-legend { display: flex; gap: 16px; justify-content: center; margin-top: 16px; font-size: .85rem; }
+.npk-dot { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: middle; }
+
+/* Curing */
+.cure-steps { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.cure-step {
+  flex: 1 1 200px; max-width: 260px; text-align: center;
+  background: rgba(255,255,255,.06); border-radius: 12px;
+  padding: 20px; border: 1px solid rgba(255,255,255,.1);
+}
+.cure-step-icon { font-size: 2.2rem; margin-bottom: 8px; }
+.cure-step-title { font-weight: 700; font-size: 1rem; color: var(--accent-lime); margin-bottom: 6px; }
+.cure-step-desc { font-size: .82rem; opacity: .85; }
+
+/* Leaf language */
+.leaf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+.leaf-card {
+  text-align: center; background: rgba(255,255,255,.06);
+  border-radius: 10px; padding: 16px 10px;
+  border: 1px solid rgba(255,255,255,.08);
+}
+.leaf-icon { font-size: 2.2rem; margin-bottom: 8px; }
+.leaf-symptom { font-weight: 700; font-size: .85rem; margin-bottom: 4px; }
+.leaf-cause { font-size: .78rem; opacity: .8; }
+
+/* ========== ACCORDION ========== */
+.accordion-trigger {
+  width: 100%; background: var(--bg-card);
+  border: 1px solid #dde5d0; border-radius: var(--radius);
+  padding: 16px 20px; margin-bottom: 2px;
+  font-size: 1.05rem; font-weight: 700; color: var(--primary-dark);
+  text-align: left; display: flex; align-items: center; gap: 10px;
+  transition: background .2s;
+}
+.accordion-trigger:hover { background: #eef3e6; }
+.accordion-trigger::after {
+  content: '+'; margin-left: auto; font-size: 1.4rem; color: var(--primary);
+  transition: transform .25s;
+}
+.accordion-trigger.is-open::after { content: '−'; }
+.accordion-content { padding: 0 4px 16px; }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .app-header h1 { font-size: 1.7rem; }
+  .tab-btn { padding: 8px 14px; font-size: .85rem; }
+  .grid { grid-template-columns: 1fr; }
+  .modal-inner { max-height: 95vh; }
+  .modal-grid { grid-template-columns: 1fr; }
+  .modal-detail { margin: 0 14px 14px; padding: 16px; }
+  .modal-header { padding: 20px 16px 14px; }
+  .phases-row { flex-direction: column; align-items: center; }
+  .phase-card { max-width: 100%; }
+  .vs-container { flex-direction: column; }
+  .infographic { padding: 20px 16px; }
+  .tech-grid { grid-template-columns: 1fr 1fr; }
+  .npk-row { gap: 10px; }
+}
+@media (max-width: 400px) {
+  .tech-grid { grid-template-columns: 1fr; }
+  .leaf-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="app-header">
+  <h1><span>Eco</span>Grow Cabanillas</h1>
+  <p>Guía maestra de cultivo de cannabis y huerto ecológico para el clima de la Ribera de Navarra</p>
+</header>
+
+<!-- ============ TABS ============ -->
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="genetics">🧬 Genéticas</button>
+  <button class="tab-btn" data-tab="guide">📖 Guía de Cultivo</button>
+  <button class="tab-btn" data-tab="garden">🥕 Amigas del Huerto</button>
+</nav>
+
+<!-- ============ SEARCH ============ -->
+<div class="search-bar">
+  <input type="search" id="search-input" placeholder="Buscar genética, planta, plaga, técnica...">
+</div>
+
+<!-- ====================================================
+     SECTION: GENÉTICAS
+     ==================================================== -->
+<section class="app-section" id="genetics-section">
+  <nav class="filter-bar">
+    <button class="filter-btn active" data-strain-filter="all">Todas</button>
+    <button class="filter-btn" data-strain-filter="indica">Índica</button>
+    <button class="filter-btn" data-strain-filter="sativa">Sativa</button>
+    <button class="filter-btn" data-strain-filter="hibrido">Híbrido</button>
+    <button class="filter-btn" data-strain-filter="auto">Autoflorecientes</button>
+    <button class="filter-btn" data-strain-filter="cbd">CBD / Cáñamo</button>
+  </nav>
+  <div class="grid" id="strain-grid"></div>
+</section>
+
+<!-- ====================================================
+     SECTION: GUÍA DE CULTIVO
+     ==================================================== -->
+<section class="app-section" id="guide-section" hidden>
+  <p class="guide-intro">Todo lo que necesitas saber para cultivar cannabis con éxito en la Ribera de Navarra. Infografías, datos técnicos y consejos prácticos.</p>
+  <div class="guide-wrapper">
+
+    <!-- INFOGRAPHIC 1: FASES DEL CICLO -->
+    <div class="infographic">
+      <h3>Fases del Ciclo de Cultivo</h3>
+      <p class="infographic-subtitle">Desde la semilla hasta la cosecha — cada fase tiene sus reglas</p>
+      <div class="phases-row">
+        <div class="phase-card">
+          <div class="phase-icon">🌱</div>
+          <div class="phase-num">1</div>
+          <div class="phase-title">Germinación</div>
+          <div class="phase-desc">1-7 días. Temp. 20-25°C. Humedad alta (70-80%). Sin luz directa. Método servilleta húmeda o jiffy.</div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-icon">🌿</div>
+          <div class="phase-num">2</div>
+          <div class="phase-title">Vegetativo</div>
+          <div class="phase-desc">2-8 semanas. Luz 18h/6h. Temp 24-28°C. N alto (NPK 3-1-2). Aquí se aplican las podas y el LST.</div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-icon">🌸</div>
+          <div class="phase-num">3</div>
+          <div class="phase-title">Prefloración</div>
+          <div class="phase-desc">1-2 semanas. Cambiar a 12/12 (fotoperiódicas). Se revelan los sexos. Eliminar machos si hay.</div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-icon">💐</div>
+          <div class="phase-num">4</div>
+          <div class="phase-title">Cogollación</div>
+          <div class="phase-desc">4-10 semanas. P y K altos (NPK 1-3-3). Los cogollos engordan. HR &lt;55%. Vigilar plagas y moho.</div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-icon">🔬</div>
+          <div class="phase-num">5</div>
+          <div class="phase-title">Maduración</div>
+          <div class="phase-desc">Últimas 2 sem. Lavado de raíces (solo agua). Los tricomas cambian de color. Observar con lupa x60.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFOGRAPHIC 2: TRICOMAS Y COSECHA -->
+    <div class="infographic">
+      <h3>Tricomas — Cuándo Cosechar</h3>
+      <p class="infographic-subtitle">El secreto de la cosecha perfecta está en el color de los tricomas. Usa una lupa x60 o microscopio USB.</p>
+      <div class="trich-row">
+        <div class="trich-card">
+          <div class="trich-circle trich-clear">💎</div>
+          <div class="trich-label">Claros / Transparentes</div>
+          <div class="trich-desc">Planta inmadura. THC aún no ha alcanzado su pico. NO cosechar. Esperar.</div>
+        </div>
+        <div class="trich-card">
+          <div class="trich-circle trich-milky">🥛</div>
+          <div class="trich-label">Lechosos / Opacos</div>
+          <div class="trich-desc">THC en su punto máximo. Efecto cerebral, eufórico, energizante. Momento óptimo para sativas.</div>
+        </div>
+        <div class="trich-card">
+          <div class="trich-circle trich-amber">🍯</div>
+          <div class="trich-label">Ámbar / Marrones</div>
+          <div class="trich-desc">THC degradándose a CBN. Efecto más sedante, corporal, "couchlock". Ideal para uso nocturno/medicinal.</div>
+        </div>
+      </div>
+      <div class="trich-verdict">
+        <strong>Regla de oro:</strong> 70% lechosos + 25% ámbar + 5% claros = cosecha equilibrada.<br>
+        Más lechosos → efecto más cerebral. Más ámbar → efecto más corporal/sedante.
+      </div>
+    </div>
+
+    <!-- INFOGRAPHIC 3: INDICA VS SATIVA -->
+    <div class="infographic">
+      <h3>Índica vs Sativa</h3>
+      <p class="infographic-subtitle">Dos subespecies, dos mundos. Conoce sus diferencias para elegir la genética adecuada.</p>
+      <div class="vs-container">
+        <div class="vs-card vs-card--indica">
+          <h4>🟣 Índica</h4>
+          <ul class="vs-list">
+            <li><strong>Porte:</strong> Baja y compacta (60-150 cm)</li>
+            <li><strong>Hojas:</strong> Anchas, dedos gruesos, verde oscuro</li>
+            <li><strong>Internodos:</strong> Cortos (estructura densa)</li>
+            <li><strong>Floración:</strong> Rápida (7-9 semanas)</li>
+            <li><strong>Cogollos:</strong> Densos, compactos, pesados</li>
+            <li><strong>Efecto:</strong> Corporal, relajante, sedante</li>
+            <li><strong>Uso:</strong> Nocturno, dolor, insomnio, ansiedad</li>
+            <li><strong>Clima:</strong> Montaña, fríos, cortas horas de luz</li>
+            <li><strong>Terpenos:</strong> Mirceno, linalool (terroso, herbal)</li>
+          </ul>
+        </div>
+        <div class="vs-card vs-card--sativa">
+          <h4>🟠 Sativa</h4>
+          <ul class="vs-list">
+            <li><strong>Porte:</strong> Alta y espigada (150-300+ cm)</li>
+            <li><strong>Hojas:</strong> Estrechas, dedos finos, verde claro</li>
+            <li><strong>Internodos:</strong> Largos (estructura abierta)</li>
+            <li><strong>Floración:</strong> Lenta (10-14 semanas)</li>
+            <li><strong>Cogollos:</strong> Alargados, aireados, esponjosos</li>
+            <li><strong>Efecto:</strong> Cerebral, eufórico, creativo</li>
+            <li><strong>Uso:</strong> Diurno, creatividad, socialización, foco</li>
+            <li><strong>Clima:</strong> Tropical/ecuatorial, largas horas de luz</li>
+            <li><strong>Terpenos:</strong> Limoneno, pineno (cítrico, fresco)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFOGRAPHIC 4: TÉCNICAS DE ENTRENAMIENTO -->
+    <div class="infographic">
+      <h3>Técnicas de Entrenamiento</h3>
+      <p class="infographic-subtitle">Controla la forma de tu planta para maximizar rendimiento y aprovechar cada fotón de luz</p>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tech-icon">✂️</div>
+          <div class="tech-name">Topping</div>
+          <div class="tech-desc">Cortar el ápice principal para crear 2 colas. Se aplica en vegetativo. Multiplica los puntos de floración. 5-7 días de recuperación.</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🔪</div>
+          <div class="tech-name">FIM (F*ck I Missed)</div>
+          <div class="tech-desc">Similar al topping pero cortando solo el 75% del brote apical. Genera 3-5 nuevas colas en vez de 2. Menos estrés que el topping.</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🪢</div>
+          <div class="tech-name">LST (Low Stress Training)</div>
+          <div class="tech-desc">Doblar y anclar ramas con alambre/cuerda sin cortar. Apto para autoflorecientes. Crea canopia uniforme. Sin tiempo de recuperación.</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🕸️</div>
+          <div class="tech-name">SCROG (Screen of Green)</div>
+          <div class="tech-desc">Red horizontal a 40-50 cm del suelo. Las ramas se tejen por la malla creando un dosel plano. Maximiza luz. Ideal en interior.</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🌊</div>
+          <div class="tech-name">SOG (Sea of Green)</div>
+          <div class="tech-desc">Muchas plantas pequeñas (1 cola por planta) en poco espacio. Vegetativo muy corto (1-2 sem). Requiere clones para homogeneidad.</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🍃</div>
+          <div class="tech-name">Defoliación</div>
+          <div class="tech-desc">Retirar hojas de abanico que bloquean luz a cogollos. Dos momentos: día 1 y día 21 de floración. NUNCA en autos (excepto mínima).</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">💪</div>
+          <div class="tech-name">Supercropping</div>
+          <div class="tech-desc">Doblar el tallo hasta "romper" el interior sin romper la piel. Se forma un "nudillo" que refuerza la rama. Aumenta flujo de nutrientes.</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🧊</div>
+          <div class="tech-name">Estrés Final</div>
+          <div class="tech-desc">48h de oscuridad total antes de cosechar. Riego con agua helada. Controvertido, pero muchos cultivadores reportan más resina.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFOGRAPHIC 5: PLAGAS Y ENFERMEDADES -->
+    <div class="infographic">
+      <h3>Plagas y Enfermedades del Cannabis</h3>
+      <p class="infographic-subtitle">Identifica rápido, actúa pronto. Tratamientos ecológicos para cada amenaza.</p>
+      <div class="pest-grid">
+        <div class="pest-card">
+          <div class="pest-name">🕷️ Araña Roja</div>
+          <div class="pest-symptom">Puntitos amarillos en hojas. Telarañas finas bajo las hojas. Ambiente seco y caluroso.</div>
+          <div class="pest-fix">Aceite de neem, Phytoseiulus persimilis (depredador), subir humedad a 60%.</div>
+        </div>
+        <div class="pest-card">
+          <div class="pest-name">🦟 Trips</div>
+          <div class="pest-symptom">Marcas plateadas/bronceadas en hojas. Puntos negros (excrementos). Hojas rizadas.</div>
+          <div class="pest-fix">Spinosad, jabón potásico, trampas cromáticas azules, Amblyseius cucumeris.</div>
+        </div>
+        <div class="pest-card">
+          <div class="pest-name">🪰 Mosca Blanca</div>
+          <div class="pest-symptom">Nube blanca al agitar la planta. Melaza pegajosa en hojas. Fumagina negra.</div>
+          <div class="pest-fix">Jabón potásico, trampas amarillas, Encarsia formosa (avispa parasitoide).</div>
+        </div>
+        <div class="pest-card">
+          <div class="pest-name">🐛 Orugas</div>
+          <div class="pest-symptom">Hojas mordidas. Excrementos verdes/negros. Cogollos perforados con pudrición interior.</div>
+          <div class="pest-fix">Bacillus thuringiensis (BT) foliar. Inspección manual. Trampas de feromonas.</div>
+        </div>
+        <div class="pest-card">
+          <div class="pest-name">⚪ Oídio</div>
+          <div class="pest-symptom">Polvo blanco en superficie de hojas. Aparece con contrastes térmicos y HR alta.</div>
+          <div class="pest-fix">Bicarbonato potásico + agua. Cola de caballo. Azufre micronizado. Ventilar.</div>
+        </div>
+        <div class="pest-card">
+          <div class="pest-name">🟤 Botrytis (Moho Gris)</div>
+          <div class="pest-symptom">Cogollos marrones/grises por dentro. Hojas que se arrancan fácilmente. Olor a podredumbre. MUY PELIGROSA.</div>
+          <div class="pest-fix">Retirar material afectado. No compostar. Mejorar ventilación. Trichoderma preventivo. No hay cura; solo prevención.</div>
+        </div>
+        <div class="pest-card">
+          <div class="pest-name">🟫 Fusarium</div>
+          <div class="pest-symptom">Raíces marrones. Amarillamiento parcial (solo un lado). Planta se marchita y muere.</div>
+          <div class="pest-fix">No tiene cura. Prevención: no encharcar, Trichoderma en sustrato, rotación de macetas.</div>
+        </div>
+        <div class="pest-card">
+          <div class="pest-name">🪲 Pulgón</div>
+          <div class="pest-symptom">Colonias en brotes tiernos y envés. Melaza. Hojas arrugadas. Atrae hormigas.</div>
+          <div class="pest-fix">Jabón potásico, aceite de neem, mariquitas (Coccinella), crisopas.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFOGRAPHIC 6: LENGUAJE DE LAS HOJAS -->
+    <div class="infographic">
+      <h3>Aprende el Lenguaje de tus Plantas</h3>
+      <p class="infographic-subtitle">Las hojas hablan. Aprende a leer sus síntomas para corregir problemas a tiempo.</p>
+      <div class="leaf-grid">
+        <div class="leaf-card">
+          <div class="leaf-icon">🟡</div>
+          <div class="leaf-symptom">Hojas inferiores amarillas</div>
+          <div class="leaf-cause">Deficiencia de Nitrógeno (N). Subir N en riego. Normal en floración tardía.</div>
+        </div>
+        <div class="leaf-card">
+          <div class="leaf-icon">🟣</div>
+          <div class="leaf-symptom">Tallos/hojas púrpuras</div>
+          <div class="leaf-cause">Deficiencia de Fósforo (P) o genética. Si hay frío, subir temperatura primero.</div>
+        </div>
+        <div class="leaf-card">
+          <div class="leaf-icon">🔥</div>
+          <div class="leaf-symptom">Puntas quemadas</div>
+          <div class="leaf-cause">Exceso de nutrientes (nutrient burn). Hacer lavado de raíces. Reducir EC.</div>
+        </div>
+        <div class="leaf-card">
+          <div class="leaf-icon">🥀</div>
+          <div class="leaf-symptom">Hojas caídas/flácidas</div>
+          <div class="leaf-cause">Exceso de riego (hojas pesadas) o falta de riego (hojas finas/secas). Levantar la maceta para comprobar peso.</div>
+        </div>
+        <div class="leaf-card">
+          <div class="leaf-icon">🟤</div>
+          <div class="leaf-symptom">Bordes marrones secos</div>
+          <div class="leaf-cause">Deficiencia de Potasio (K). Muy común en floración avanzada. Subir K.</div>
+        </div>
+        <div class="leaf-card">
+          <div class="leaf-icon">⬜</div>
+          <div class="leaf-symptom">Clorosis intervenal</div>
+          <div class="leaf-cause">Def. de Hierro o Magnesio. Hojas amarillas con nervios verdes. Comprobar pH (bloqueo).</div>
+        </div>
+        <div class="leaf-card">
+          <div class="leaf-icon">🕳️</div>
+          <div class="leaf-symptom">Agujeros en hojas</div>
+          <div class="leaf-cause">Insectos masticadores (orugas, saltamontes). Inspeccionar envés. BT o retirada manual.</div>
+        </div>
+        <div class="leaf-card">
+          <div class="leaf-icon">🌀</div>
+          <div class="leaf-symptom">Hojas enrolladas (garra)</div>
+          <div class="leaf-cause">Exceso de N (garra), calor extremo, o riego excesivo. Identificar por contexto.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFOGRAPHIC 7: NPK POR FASE -->
+    <div class="infographic">
+      <h3>Nutrición por Fase — NPK</h3>
+      <p class="infographic-subtitle">Nitrógeno (N), Fósforo (P) y Potasio (K): las proporciones cambian con cada etapa</p>
+      <div class="npk-row">
+        <div class="npk-phase">
+          <div class="npk-phase-name">Plántula</div>
+          <div class="npk-bars">
+            <div class="npk-bar npk-n" style="height:30px">N</div>
+            <div class="npk-bar npk-p" style="height:20px">P</div>
+            <div class="npk-bar npk-k" style="height:15px">K</div>
+          </div>
+          <div style="margin-top:8px;font-size:.75rem;opacity:.7">EC: 0.4-0.6</div>
+        </div>
+        <div class="npk-phase">
+          <div class="npk-phase-name">Vegetativo</div>
+          <div class="npk-bars">
+            <div class="npk-bar npk-n" style="height:80px">N</div>
+            <div class="npk-bar npk-p" style="height:35px">P</div>
+            <div class="npk-bar npk-k" style="height:40px">K</div>
+          </div>
+          <div style="margin-top:8px;font-size:.75rem;opacity:.7">EC: 0.8-1.2</div>
+        </div>
+        <div class="npk-phase">
+          <div class="npk-phase-name">Floración Temprana</div>
+          <div class="npk-bars">
+            <div class="npk-bar npk-n" style="height:40px">N</div>
+            <div class="npk-bar npk-p" style="height:65px">P</div>
+            <div class="npk-bar npk-k" style="height:55px">K</div>
+          </div>
+          <div style="margin-top:8px;font-size:.75rem;opacity:.7">EC: 1.2-1.6</div>
+        </div>
+        <div class="npk-phase">
+          <div class="npk-phase-name">Cogollación</div>
+          <div class="npk-bars">
+            <div class="npk-bar npk-n" style="height:20px">N</div>
+            <div class="npk-bar npk-p" style="height:85px">P</div>
+            <div class="npk-bar npk-k" style="height:90px">K</div>
+          </div>
+          <div style="margin-top:8px;font-size:.75rem;opacity:.7">EC: 1.4-1.8</div>
+        </div>
+        <div class="npk-phase">
+          <div class="npk-phase-name">Lavado Final</div>
+          <div class="npk-bars">
+            <div class="npk-bar npk-n" style="height:5px">N</div>
+            <div class="npk-bar npk-p" style="height:5px">P</div>
+            <div class="npk-bar npk-k" style="height:5px">K</div>
+          </div>
+          <div style="margin-top:8px;font-size:.75rem;opacity:.7">EC: 0 (solo agua)</div>
+        </div>
+      </div>
+      <div class="npk-legend">
+        <span><span class="npk-dot" style="background:#43a047"></span>Nitrógeno (N)</span>
+        <span><span class="npk-dot" style="background:#e65100"></span>Fósforo (P)</span>
+        <span><span class="npk-dot" style="background:#1565c0"></span>Potasio (K)</span>
+      </div>
+      <div class="trich-verdict" style="margin-top:20px">
+        <strong>pH ideal:</strong> Tierra 6.0 - 7.0 &nbsp;|&nbsp; Coco/Hidro 5.5 - 6.5<br>
+        Un pH incorrecto bloquea la absorción de nutrientes aunque estén en el sustrato.
+      </div>
+    </div>
+
+    <!-- INFOGRAPHIC 8: SECADO Y CURADO -->
+    <div class="infographic">
+      <h3>Secado y Curado</h3>
+      <p class="infographic-subtitle">El 50% de la calidad final del cogollo depende del post-cosecha. No arruines meses de trabajo.</p>
+      <div class="cure-steps">
+        <div class="cure-step">
+          <div class="cure-step-icon">✂️</div>
+          <div class="cure-step-title">1. Manicurado</div>
+          <div class="cure-step-desc">Cortar ramas. Retirar hojas grandes (húmedo o seco según preferencia). Las hojas de azúcar se guardan para extracciones.</div>
+        </div>
+        <div class="cure-step">
+          <div class="cure-step-icon">🌡️</div>
+          <div class="cure-step-title">2. Secado</div>
+          <div class="cure-step-desc">10-14 días. Temp 18-22°C. HR 55-62%. Oscuridad total. Ventilación indirecta. Las ramas pequeñas deben quebrarse (no doblarse).</div>
+        </div>
+        <div class="cure-step">
+          <div class="cure-step-icon">🫙</div>
+          <div class="cure-step-title">3. Curado</div>
+          <div class="cure-step-desc">Tarros de cristal herméticos al 75% de capacidad. 20-22°C, 60-62% HR. Sobre Boveda 62% opcional.</div>
+        </div>
+        <div class="cure-step">
+          <div class="cure-step-icon">💨</div>
+          <div class="cure-step-title">4. Burping</div>
+          <div class="cure-step-desc">Abrir tarros 15 min/día las primeras 2 semanas. Luego 2-3 veces/semana. Mínimo: 4 semanas. Óptimo: 2-3 meses. Premium: 6 meses.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /guide-wrapper -->
+</section>
+
+<!-- ====================================================
+     SECTION: AMIGAS DEL HUERTO
+     ==================================================== -->
+<section class="app-section" id="garden-section" hidden>
+  <p class="guide-intro">Tu huerto es un ecosistema. Estas plantas compañeras mejoran tu suelo, repelen plagas y te alimentan todo el año.</p>
+  <nav class="filter-bar">
+    <button class="filter-btn active" data-garden-filter="frutas">🍎 Frutales</button>
+    <button class="filter-btn" data-garden-filter="verduras">🥬 Verduras</button>
+    <button class="filter-btn" data-garden-filter="vistosas">🌺 Flores</button>
+    <button class="filter-btn" data-garden-filter="raras">🌵 Exóticas</button>
+  </nav>
+  <div class="grid" id="garden-grid"></div>
+</section>
+
+<!-- ============ MODAL ============ -->
+<div id="modal" role="dialog" aria-modal="true" aria-hidden="true" hidden>
+  <div class="modal-inner">
+    <button class="modal-close" aria-label="Cerrar">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
