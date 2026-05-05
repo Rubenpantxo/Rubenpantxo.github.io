@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Format Explorer · Atelier Sienna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* === ATELIER SIENNA — see DESIGN.md === */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  /* Surfaces */
+  --bg-0:#FBF7EF;          /* limestone page */
+  --bg-1:#F5EFE3;          /* surface-raised: sidebar / app strip / center */
+  --bg-2:#FFFFFF;          /* paper card */
+  --bg-3:#EFE8D9;          /* surface-sunken: inputs, table heads, chips */
+  --bg-4:#E8DFC8;
+  --bg-card:#FFFFFF;
+  --bg-card-h:#FCF9F3;
+  --bg-glass:rgba(251,247,239,.92); /* matte, not glass */
+  /* Ink */
+  --tx-0:#1A1816;          /* primary ink */
+  --tx-1:#2E2A25;          /* body */
+  --tx-2:#5C5750;          /* secondary */
+  --tx-3:#7C7468;          /* muted */
+  --tx-4:#A89E8C;          /* faint */
+  /* Borders */
+  --bd:#E5DCC8;
+  --bd-h:#CFC2A4;
+  --bd-acc:#CFC2A4;
+  /* Accents — sienna is the only interaction color.
+     The "c-*" variable names are kept for back-compat with existing JSX
+     references; their values are now warm-palette equivalents. */
+  --c-cyan:#B0432A;        /* PRIMARY → Boston Clay (sienna) */
+  --c-purple:#6B4076;      /* plum */
+  --c-pink:#D26244;        /* coral */
+  --c-green:#5D7339;       /* sage */
+  --c-amber:#C8901C;       /* saffron */
+  --c-red:#8C2A30;         /* wine */
+  --c-blue:#3F6F9A;        /* sky */
+  --c-orange:#D26244;      /* coral (alias) */
+  --c-brown:#7E5634;       /* earth */
+  --c-lime:#476939;        /* moss */
+  /* Tints — used for soft-ink backgrounds (focus rings, chips) */
+  --gl-cyan:rgba(176,67,42,.10);
+  --gl-purple:rgba(107,64,118,.09);
+  --gl-green:rgba(93,115,57,.10);
+  --gl-amber:rgba(200,144,28,.12);
+  /* Shadows — warm, paper-physical */
+  --shadow-1:0 1px 0 rgba(26,24,22,.04),0 1px 2px rgba(26,24,22,.06);
+  --shadow-2:0 4px 14px rgba(26,24,22,.09),0 1px 2px rgba(26,24,22,.05);
+  --shadow-3:0 24px 50px rgba(26,24,22,.18),0 6px 14px rgba(26,24,22,.08);
+  /* Accent fill — solid sienna (kept var name for back-compat) */
+  --grad-acc:#B0432A;
+  --grad-soft:linear-gradient(135deg,rgba(176,67,42,.06),rgba(176,67,42,.02));
+  --ease:cubic-bezier(.4,0,.2,1);--ease-bounce:cubic-bezier(.34,1.56,.64,1);
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-0);color:var(--tx-1);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 8% 4%,rgba(176,67,42,.025),transparent 65%),
+    radial-gradient(ellipse 50% 60% at 92% 96%,rgba(126,86,52,.03),transparent 70%);
+}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(rgba(26,24,22,.05) 1px,transparent 1px);
+  background-size:3px 3px;opacity:.35;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 35%,transparent 80%);
+}
+#app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column}
+
+/* === HEADER === */
+.hdr{display:flex;align-items:center;gap:18px;padding:14px 24px;border-bottom:1px solid var(--bd);background:var(--bg-glass);flex-shrink:0;position:relative;z-index:20}
+.hdr::after{content:'';position:absolute;left:24px;right:24px;bottom:-1px;height:2px;background:var(--c-cyan);opacity:.5;border-radius:2px;width:42px}
+.brand{display:flex;align-items:center;gap:13px}
+.brand-mark{width:42px;height:42px;border-radius:8px;background:var(--bg-0);display:grid;place-items:center;font:600 18px/1 'Fraunces',serif;color:var(--c-cyan);letter-spacing:-.04em;border:1.5px solid var(--c-cyan);box-shadow:inset 0 -2px 0 var(--c-cyan)}
+.brand-tx h1{font:600 20px/1.05 'Fraunces',serif;letter-spacing:-.025em;color:var(--tx-0)}
+.brand-tx p{font:600 9px/1 'Inter',sans-serif;color:var(--tx-3);letter-spacing:.18em;text-transform:uppercase;margin-top:5px}
+
+.search{position:relative;flex:1;max-width:540px;margin:0 auto}
+.search input{width:100%;padding:11px 50px 11px 42px;background:var(--bg-3);border:1px solid transparent;border-radius:6px;color:var(--tx-0);font:400 14px/1 'Inter';outline:none;transition:all .25s var(--ease)}
+.search input:focus{border-color:var(--c-cyan);background:var(--bg-2);box-shadow:0 0 0 3px var(--gl-cyan)}
+.search input::placeholder{color:var(--tx-3)}
+.search-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--tx-3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;transition:stroke .25s}
+.search input:focus~.search-ic{stroke:var(--c-cyan)}
+.search-kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font:600 10px/1 'JetBrains Mono',monospace;color:var(--tx-3);background:var(--bg-2);padding:4px 7px;border-radius:4px;border:1px solid var(--bd);pointer-events:none}
+
+.hdr-actions{display:flex;align-items:center;gap:8px}
+.hdr-btn{height:38px;padding:0 14px;border-radius:6px;background:transparent;border:1px solid var(--bd);color:var(--tx-1);font:500 12px/1 'Inter';cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s var(--ease);outline:none}
+.hdr-btn:hover{background:var(--bg-3);border-color:var(--bd-h);color:var(--tx-0)}
+.hdr-btn:focus-visible{box-shadow:0 0 0 3px var(--gl-cyan);border-color:var(--c-cyan)}
+.hdr-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hdr-btn.icon-only{width:38px;padding:0;justify-content:center}
+.hdr-btn.primary{background:var(--c-cyan);color:#FFFFFF;border-color:var(--c-cyan);font-weight:600;box-shadow:var(--shadow-1)}
+.hdr-btn.primary:hover{background:#92341E;border-color:#92341E;color:#FFFFFF;transform:translateY(-1px);box-shadow:var(--shadow-2)}
+
+/* === BODY LAYOUT === */
+.body{flex:1;display:flex;overflow:hidden;min-height:0}
+
+/* === SIDEBAR === */
+.side{width:236px;min-width:236px;background:var(--bg-1);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden}
+.side-h{padding:20px 18px 10px;display:flex;align-items:center;justify-content:space-between}
+.side-h-tx{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);letter-spacing:.16em;text-transform:uppercase}
+.side-h-ct{font:600 11px/1 'JetBrains Mono',monospace;color:var(--tx-2);background:var(--bg-2);padding:3px 8px;border-radius:4px;border:1px solid var(--bd)}
+.side-list{flex:1;overflow-y:auto;padding:0 10px 8px}
+.cat{display:flex;align-items:center;gap:11px;padding:9px 11px;cursor:pointer;border-radius:6px;position:relative;transition:all .18s var(--ease);margin-bottom:1px;border:1px solid transparent}
+.cat:hover{background:var(--bg-2)}
+.cat.active{background:var(--bg-2);border-color:var(--bd);box-shadow:inset 3px 0 0 var(--cat-cl,var(--c-cyan)),var(--shadow-1)}
+.cat.active .cat-name{color:var(--tx-0);font-weight:600}
+.cat-ico{width:28px;height:28px;border-radius:5px;display:grid;place-items:center;font-size:14px;flex-shrink:0;background:color-mix(in srgb,var(--cat-cl,var(--c-cyan)) 14%,var(--bg-2));border:1px solid color-mix(in srgb,var(--cat-cl,var(--c-cyan)) 28%,var(--bd));transition:all .2s var(--ease)}
+.cat:hover .cat-ico{transform:scale(1.04)}
+.cat-name{flex:1;font:500 13px/1.2 'Inter';color:var(--tx-1);transition:color .2s}
+.cat-count{font:600 10px/1 'JetBrains Mono',monospace;color:var(--tx-3);min-width:24px;text-align:right}
+.cat-info{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;background:var(--bg-3);border:1px solid var(--bd);color:var(--tx-3);cursor:pointer;font:700 9px/1 'Inter',sans-serif;display:none;align-items:center;justify-content:center;transition:all .2s}
+.cat:hover .cat-info{display:flex}
+.cat-info:hover{background:var(--cat-cl,var(--c-cyan));color:#FFFFFF;border-color:var(--cat-cl,var(--c-cyan));transform:translateY(-50%) scale(1.1)}
+
+.side-foot{padding:12px 14px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:6px;background:var(--bg-1)}
+.side-stat{display:flex;justify-content:space-between;align-items:center;font:500 11px/1 'Inter',sans-serif;color:var(--tx-3)}
+.side-stat strong{color:var(--tx-0);font-weight:600;font-family:'JetBrains Mono',monospace}
+
+/* === CENTER === */
+.center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg-0)}
+.cnt-h{padding:18px 26px;display:flex;align-items:flex-end;gap:16px;border-bottom:1px solid var(--bd);background:var(--bg-0);flex-shrink:0}
+.cnt-title{font:600 26px/1.05 'Fraunces',serif;color:var(--tx-0);letter-spacing:-.02em}
+.cnt-title small{display:block;font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);letter-spacing:.16em;text-transform:uppercase;margin-top:8px;font-weight:600}
+.cnt-h-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.chip{padding:6px 12px;border-radius:999px;background:var(--bg-3);border:1px solid var(--bd);color:var(--tx-2);font:500 11px/1 'Inter';display:flex;align-items:center;gap:6px;transition:all .2s}
+.chip strong{color:var(--tx-0);font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* === EXTENSION GRID === */
+.cnt-body{flex:1;overflow-y:auto;padding:20px 26px 12px;scrollbar-gutter:stable}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:10px}
+.ext{position:relative;padding:13px 6px;text-align:center;font:600 12.5px/1 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.04em;color:var(--tx-1);background:var(--bg-card);border:1px solid var(--bd);border-radius:6px;cursor:pointer;overflow:hidden;transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .18s,color .18s,background .2s;animation:fade-up .22s var(--ease) both;outline:none;box-shadow:var(--shadow-1)}
+.ext::before{content:'';position:absolute;inset:0;background:var(--grad-soft);opacity:0;transition:opacity .25s;pointer-events:none}
+.ext span{position:relative;z-index:1}
+.ext-pop{position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--tx-4);opacity:.5}
+.ext-pop.high{background:var(--c-amber);opacity:1}
+.ext:hover{transform:translateY(-2px);box-shadow:var(--shadow-2);border-color:var(--bd-h);color:var(--tx-0)}
+.ext:hover::before{opacity:.6}
+.ext:focus-visible{box-shadow:0 0 0 3px var(--gl-cyan);border-color:var(--c-cyan)}
+.ext.sel{border-color:var(--c-cyan);color:var(--c-cyan);background:#FFFFFF;box-shadow:0 0 0 1.5px var(--c-cyan),var(--shadow-2)}
+.ext.hl{border-color:var(--app-cl,var(--c-cyan));color:var(--app-cl,var(--c-cyan));background:color-mix(in srgb,var(--app-cl,var(--c-cyan)) 7%,var(--bg-card));box-shadow:0 0 0 1px color-mix(in srgb,var(--app-cl,var(--c-cyan)) 60%,transparent),var(--shadow-1)}
+.ext.dim{opacity:.36;filter:saturate(.5)}
+@keyframes fade-up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.cnt-body-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:var(--tx-3);text-align:center}
+.cnt-body-empty svg{width:48px;height:48px;margin-bottom:14px;stroke:var(--tx-4);fill:none;stroke-width:1.5}
+.cnt-body-empty h3{font:600 19px/1.3 'Fraunces',serif;color:var(--tx-1);margin-bottom:6px;letter-spacing:-.015em}
+.cnt-body-empty p{font:400 13px/1.55 'Inter';max-width:360px;color:var(--tx-2)}
+
+/* === APP STRIP === */
+.app-strip{border-top:1px solid var(--bd);background:var(--bg-1);flex-shrink:0;display:flex;flex-direction:column}
+.app-strip-h{padding:12px 26px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--bd)}
+.app-strip-h-l{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);letter-spacing:.16em;text-transform:uppercase}
+.app-search{position:relative;width:220px}
+.app-search input{width:100%;padding:7px 12px 7px 30px;background:var(--bg-2);border:1px solid var(--bd);border-radius:5px;color:var(--tx-1);font:400 12px/1 'Inter';outline:none;transition:all .2s}
+.app-search input:focus{border-color:var(--c-cyan);box-shadow:0 0 0 2px var(--gl-cyan)}
+.app-search svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--tx-3);fill:none;stroke-width:2;pointer-events:none}
+.app-strip-h-r{margin-left:auto;display:flex;align-items:center;gap:6px}
+.app-mini-btn{width:28px;height:28px;border-radius:5px;background:var(--bg-2);border:1px dashed var(--bd-h);color:var(--tx-2);cursor:pointer;display:grid;place-items:center;font-size:14px;transition:all .2s var(--ease);outline:none}
+.app-mini-btn:hover{border-color:var(--c-cyan);border-style:solid;color:var(--c-cyan);background:var(--gl-cyan)}
+.app-mini-btn:focus-visible{box-shadow:0 0 0 2px var(--gl-cyan)}
+.app-mini-btn.ghost:hover{transform:none}
+.app-list{display:flex;gap:8px;padding:12px 26px;overflow-x:auto;scrollbar-width:none}
+.app-list::-webkit-scrollbar{display:none}
+.app-card{position:relative;flex-shrink:0;display:flex;align-items:center;gap:9px;padding:8px 14px 8px 12px;border-radius:6px;background:var(--bg-2);border:1px solid var(--bd);cursor:pointer;overflow:hidden;transition:all .2s var(--ease);outline:none;min-width:114px;box-shadow:var(--shadow-1)}
+.app-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--app-cl);opacity:0;transition:opacity .25s}
+.app-card:hover{transform:translateY(-1px);border-color:var(--bd-h);box-shadow:var(--shadow-2)}
+.app-card:hover::before{opacity:.45}
+.app-card:focus-visible{box-shadow:0 0 0 2px var(--gl-cyan);border-color:var(--c-cyan)}
+.app-card.act{border-color:var(--app-cl);background:color-mix(in srgb,var(--app-cl) 4%,var(--bg-2));box-shadow:0 0 0 1px var(--app-cl),var(--shadow-1)}
+.app-card.act::before{opacity:1}
+.app-card.act .app-name{color:var(--app-cl);font-weight:600}
+.app-dot{width:8px;height:8px;border-radius:50%;background:var(--app-cl);flex-shrink:0;position:relative;z-index:1}
+.app-name{font:500 13px/1 'Inter';color:var(--tx-1);position:relative;z-index:1;white-space:nowrap;transition:color .2s}
+.app-cov{font:600 9px/1 'JetBrains Mono',monospace;color:var(--tx-3);position:relative;z-index:1;background:var(--bg-3);padding:2px 5px;border-radius:3px;letter-spacing:.04em}
+.app-card.act .app-cov{color:var(--app-cl);background:color-mix(in srgb,var(--app-cl) 15%,var(--bg-3))}
+.app-card-rm{position:absolute;top:3px;right:3px;width:14px;height:14px;border-radius:50%;background:var(--bg-3);border:none;color:var(--tx-3);font:700 9px/1 'Inter',sans-serif;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:2}
+.app-card:hover .app-card-rm{display:flex}
+.app-card-rm:hover{background:var(--c-red);color:#FFFFFF}
+
+/* === RIGHT INFO PANEL === */
+.info{width:0;min-width:0;overflow:hidden;background:var(--bg-0);border-left:1px solid var(--bd);transition:width .35s var(--ease),min-width .35s var(--ease);display:flex;flex-direction:column}
+.info.open{width:400px;min-width:400px}
+.info-inner{flex:1;overflow-y:auto;padding:0 0 18px}
+.info-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:var(--bg-2);border:1px solid var(--bd);color:var(--tx-3);cursor:pointer;display:grid;place-items:center;font-size:14px;z-index:5;transition:all .2s;outline:none}
+.info-close:hover{border-color:var(--c-red);color:var(--c-red);background:#FFFFFF}
+.info-hero{position:relative;padding:26px 24px 20px;margin:16px 16px 0;border-radius:10px;background:var(--bg-2);border:1px solid var(--bd);overflow:hidden;box-shadow:var(--shadow-1)}
+.info-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cat-cl,var(--c-cyan))}
+.info-hero::after{display:none}
+.info-ext{font:600 44px/1 'Fraunces',serif;color:var(--cat-cl,var(--c-cyan));margin-bottom:8px;letter-spacing:-.04em;font-variation-settings:"opsz" 144}
+.info-cat{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.18em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.info-cat-dot{width:7px;height:7px;border-radius:50%;background:var(--cat-cl,var(--c-cyan))}
+.info-name{font:600 19px/1.25 'Fraunces',serif;color:var(--tx-0);margin-bottom:10px;letter-spacing:-.018em}
+.info-desc{font:400 13.5px/1.6 'Inter';color:var(--tx-1);margin-bottom:8px}
+.info-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}
+.info-tag{font:600 9.5px/1 'Inter',sans-serif;color:var(--tx-2);background:var(--bg-3);border:1px solid var(--bd);padding:4px 8px;border-radius:3px;letter-spacing:.1em;text-transform:uppercase}
+.info-tag.acc{color:#FFFFFF;border-color:var(--c-cyan);background:var(--c-cyan)}
+.info-tag.warn{color:#7A5A0F;border-color:#E8C97D;background:#FBEFD4}
+.info-tag.dead{color:#7A2226;border-color:#E1B5B7;background:#F4D9D9}
+
+.info-pop{margin-top:18px;display:flex;align-items:center;gap:10px}
+.info-pop-l{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.14em}
+.info-pop-bar{flex:1;height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden;position:relative}
+.info-pop-bar-fill{height:100%;background:var(--cat-cl,var(--c-cyan));border-radius:2px;transition:width .6s var(--ease)}
+.info-pop-v{font:600 11px/1 'JetBrains Mono',monospace;color:var(--tx-0);min-width:30px;text-align:right}
+
+.info-meta{margin:16px;padding:0;background:var(--bg-2);border:1px solid var(--bd);border-radius:8px;overflow:hidden;box-shadow:var(--shadow-1)}
+.meta-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--bd);transition:background .15s}
+.meta-row:last-child{border-bottom:none}
+.meta-row:hover{background:var(--bg-card-h)}
+.meta-k{font:600 10px/1.2 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.14em}
+.meta-v{font:500 12px/1.3 'JetBrains Mono',monospace;color:var(--tx-0);text-align:right;max-width:60%}
+.meta-v.mono-sm{font-size:11px}
+
+.info-rec{margin:16px;padding:16px 18px;border-radius:8px;background:var(--bg-2);border:1px solid var(--bd);border-left:3px solid var(--c-green);position:relative;overflow:hidden;cursor:pointer;transition:all .2s var(--ease);box-shadow:var(--shadow-1)}
+.info-rec:hover{border-color:var(--c-green);border-left-color:var(--c-green);transform:translateY(-1px);box-shadow:var(--shadow-2)}
+.info-rec-l{font:700 9.5px/1 'Inter',sans-serif;color:var(--c-green);text-transform:uppercase;letter-spacing:.18em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.info-rec-name{font:600 17px/1.2 'Fraunces',serif;color:var(--tx-0);margin-bottom:6px;display:flex;align-items:center;gap:9px;letter-spacing:-.015em}
+.info-rec-name .ad{width:9px;height:9px;border-radius:50%;background:var(--app-cl)}
+.info-rec-reason{font:400 12px/1.5 'Inter';color:var(--tx-2)}
+
+.info-section{margin:0 16px 16px}
+.info-section-h{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.info-section-h::before{content:'';width:3px;height:11px;background:var(--cat-cl,var(--c-cyan));border-radius:1.5px}
+.app-comp-list{display:flex;flex-direction:column;gap:4px}
+.app-comp-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;background:var(--bg-2);border:1px solid var(--bd);cursor:pointer;transition:all .18s;outline:none;box-shadow:var(--shadow-1)}
+.app-comp-item:hover{border-color:var(--bd-h);transform:translateX(2px);background:#FFFFFF;box-shadow:var(--shadow-2)}
+.app-comp-item:focus-visible{box-shadow:0 0 0 2px var(--gl-cyan);border-color:var(--c-cyan)}
+.app-comp-item .ad{width:8px;height:8px;border-radius:50%;background:var(--app-cl);flex-shrink:0}
+.app-comp-name{font:500 13px/1 'Inter';color:var(--tx-0);flex:1}
+.app-comp-tag{font:600 9px/1 'Inter',sans-serif;background:var(--bg-3);padding:3px 7px;border-radius:3px;color:var(--tx-2);text-transform:uppercase;letter-spacing:.1em}
+
+.alt-list{display:flex;flex-direction:column;gap:4px}
+.alt-item{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:5px;background:#FBEFD4;border:1px solid #E8C97D;font:400 12px/1.2 'Inter';color:#5C4505}
+.alt-item::before{content:'★';color:var(--c-amber);font-size:11px}
+
+.related-list{display:flex;flex-wrap:wrap;gap:5px}
+.related-pill{padding:5px 10px;font:600 10.5px/1 'JetBrains Mono',monospace;background:var(--bg-3);border:1px solid var(--bd);border-radius:4px;cursor:pointer;color:var(--tx-1);transition:all .18s;outline:none;letter-spacing:.04em}
+.related-pill:hover{border-color:var(--c-cyan);color:var(--c-cyan);background:#FFFFFF;transform:translateY(-1px)}
+
+/* === MODAL === */
+.overlay{position:fixed;inset:0;background:rgba(26,24,22,.45);z-index:300;display:flex;align-items:center;justify-content:center;animation:fade-in .2s var(--ease);padding:24px}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg-0);border:1px solid var(--bd);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-3);animation:modal-in .3s var(--ease-bounce);max-height:88vh}
+@keyframes modal-in{from{transform:translateY(20px) scale(.97);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.modal-h{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--bg-2)}
+.modal-t{font:600 19px/1.2 'Fraunces',serif;display:flex;align-items:center;gap:10px;letter-spacing:-.018em;color:var(--tx-0)}
+.modal-t small{font:600 11px/1 'Inter',sans-serif;color:var(--tx-3);font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.modal-c{width:30px;height:30px;border-radius:50%;border:1px solid var(--bd);background:transparent;color:var(--tx-2);cursor:pointer;font-size:14px;display:grid;place-items:center;transition:all .18s;outline:none}
+.modal-c:hover{border-color:var(--c-red);color:var(--c-red);background:#FFFFFF}
+.modal-b{flex:1;overflow:auto;min-height:0;background:var(--bg-0)}
+
+/* Comparison Table */
+.cmp-modal{width:96%;max-width:1140px}
+.cmp-toolbar{padding:14px 24px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--bd);background:var(--bg-1);flex-wrap:wrap}
+.cmp-search{flex:1;min-width:160px;max-width:280px;position:relative}
+.cmp-search input{width:100%;padding:8px 12px 8px 30px;background:var(--bg-2);border:1px solid var(--bd);border-radius:5px;color:var(--tx-0);font:400 12px/1 'Inter';outline:none}
+.cmp-search input:focus{border-color:var(--c-cyan);box-shadow:0 0 0 2px var(--gl-cyan)}
+.cmp-search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;stroke:var(--tx-3);fill:none;stroke-width:2}
+.cmp-stat{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.14em;display:flex;align-items:center;gap:8px}
+.cmp-stat strong{color:var(--tx-0);font-family:'JetBrains Mono',monospace}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;background:var(--bg-2)}
+.tbl th{padding:12px 16px;text-align:left;background:var(--bg-3);color:var(--tx-2);font:600 10px/1.1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.14em;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:1;white-space:nowrap}
+.tbl td{padding:10px 16px;border-bottom:1px solid var(--bd);color:var(--tx-1);font:400 12.5px/1.4 'Inter';vertical-align:middle}
+.tbl td:first-child{font:700 12px/1 'JetBrains Mono',monospace;color:var(--tx-0);white-space:nowrap;letter-spacing:.04em}
+.tbl tr:hover td{background:var(--bg-card-h)}
+.tbl tr.subhead td{background:var(--bg-3);color:var(--cat-cl,var(--c-cyan))!important;font:700 10px/1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.18em;padding:10px 16px;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)}
+.tbl tr.subhead td::before{content:'◆  '}
+.tbl-cell-y{color:var(--c-green)!important;font-weight:600}
+.tbl-cell-n{color:var(--c-red)!important;opacity:.65}
+.tbl-cell-mut{color:var(--tx-3)!important}
+
+/* Add app modal */
+.add-modal{width:520px;max-width:96%;max-height:88vh}
+.add-body{padding:24px;overflow-y:auto;flex:1;background:var(--bg-2)}
+.field{margin-bottom:18px}
+.field-l{display:block;font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.14em;margin-bottom:9px}
+.field-input{width:100%;padding:10px 14px;background:var(--bg-3);border:1px solid var(--bd);border-radius:5px;color:var(--tx-0);font:400 14px 'Inter';outline:none;transition:all .2s}
+.field-input:focus{border-color:var(--c-cyan);background:#FFFFFF;box-shadow:0 0 0 3px var(--gl-cyan)}
+.swatches{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}
+.swatch{aspect-ratio:1;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .18s var(--ease);outline:none;box-shadow:var(--shadow-1)}
+.swatch:hover{transform:scale(1.15)}
+.swatch:focus-visible{box-shadow:0 0 0 2px var(--c-cyan)}
+.swatch.sel{border-color:var(--bg-2);box-shadow:0 0 0 2px currentColor,var(--shadow-1)}
+.fmt-grid{display:flex;flex-wrap:wrap;gap:5px;max-height:220px;overflow-y:auto;padding:8px;border:1px solid var(--bd);background:var(--bg-3);border-radius:6px}
+.fmt-pill{padding:5px 10px;font:600 10px/1 'JetBrains Mono',monospace;text-transform:uppercase;background:var(--bg-2);border:1px solid var(--bd);border-radius:4px;cursor:pointer;color:var(--tx-2);transition:all .14s;outline:none;letter-spacing:.04em}
+.fmt-pill:hover{border-color:var(--bd-h);color:var(--tx-0);background:#FFFFFF}
+.fmt-pill:focus-visible{box-shadow:0 0 0 2px var(--gl-cyan);border-color:var(--c-cyan)}
+.fmt-pill.sel{border-color:var(--c-cyan);color:#FFFFFF;background:var(--c-cyan);box-shadow:var(--shadow-1)}
+.fmt-bulk{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.fmt-bulk-btn{padding:5px 11px;font:600 10px/1 'Inter',sans-serif;text-transform:uppercase;background:var(--bg-2);border:1px solid var(--bd);border-radius:4px;cursor:pointer;color:var(--tx-2);transition:all .15s;outline:none;letter-spacing:.1em}
+.fmt-bulk-btn:hover{border-color:var(--c-cyan);color:var(--c-cyan);background:#FFFFFF}
+.modal-foot{padding:16px 24px;display:flex;gap:10px;border-top:1px solid var(--bd);background:var(--bg-1);justify-content:flex-end}
+.btn{padding:10px 20px;border-radius:6px;font:600 13px/1 'Inter';cursor:pointer;border:1px solid transparent;transition:all .2s var(--ease);outline:none}
+.btn:focus-visible{box-shadow:0 0 0 3px var(--gl-cyan)}
+.btn-primary{background:var(--c-cyan);color:#FFFFFF;border-color:var(--c-cyan);box-shadow:var(--shadow-1)}
+.btn-primary:hover{background:#92341E;border-color:#92341E;transform:translateY(-1px);box-shadow:var(--shadow-2)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:transparent;border-color:var(--bd);color:var(--tx-1)}
+.btn-ghost:hover{background:var(--bg-3);border-color:var(--bd-h);color:var(--tx-0)}
+
+/* Stats Dashboard */
+.stats-modal{width:880px;max-width:96%;max-height:88vh}
+.stats-body{padding:24px;overflow-y:auto;flex:1;display:grid;grid-template-columns:1fr 1fr;gap:18px;background:var(--bg-0)}
+.stats-card{background:var(--bg-2);border:1px solid var(--bd);border-radius:10px;padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow-1)}
+.stats-card.full{grid-column:1/-1}
+.stats-card-h{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.18em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.stats-card-h::before{content:'';width:3px;height:11px;background:var(--c-cyan);border-radius:1.5px}
+.stats-big{display:flex;align-items:baseline;gap:9px;margin-bottom:8px}
+.stats-big-n{font:600 42px/1 'Fraunces',serif;color:var(--c-cyan);letter-spacing:-.04em;font-variation-settings:"opsz" 144}
+.stats-big-l{font:500 12px/1 'Inter';color:var(--tx-3)}
+.stats-bar{height:6px;background:var(--bg-3);border-radius:3px;overflow:hidden;position:relative;margin:6px 0}
+.stats-bar-fill{height:100%;border-radius:3px;transition:width .8s var(--ease)}
+.stats-row{display:grid;grid-template-columns:96px 1fr 52px;gap:12px;align-items:center;padding:7px 0;font:500 11.5px/1.2 'Inter';color:var(--tx-1)}
+.stats-row .stats-bar{margin:0;flex:1}
+.stats-row strong{color:var(--tx-0);font-weight:600;text-align:right;font:600 11px/1 'JetBrains Mono',monospace}
+.stats-row-name{display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stats-row-name .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* Tooltip */
+.tooltip{position:fixed;background:var(--tx-0);border:1px solid var(--tx-0);border-radius:5px;padding:7px 11px;font:500 11.5px/1.4 'Inter';color:var(--bg-0);box-shadow:var(--shadow-2);z-index:500;pointer-events:none;max-width:260px;animation:tt-in .15s var(--ease) both}
+@keyframes tt-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Toast */
+.toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:400;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--bg-2);border:1px solid var(--bd);border-left:3px solid var(--c-green);border-radius:6px;padding:11px 18px;color:var(--tx-1);font:500 12.5px/1.4 'Inter';box-shadow:var(--shadow-3);animation:toast-in .3s var(--ease-bounce);min-width:240px;max-width:380px}
+.toast.err{border-left-color:var(--c-red)}
+.toast.warn{border-left-color:var(--c-amber)}
+@keyframes toast-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Drag overlay */
+.drop-overlay{position:fixed;inset:0;background:rgba(176,67,42,.06);z-index:600;display:flex;align-items:center;justify-content:center;border:3px dashed var(--c-cyan);pointer-events:none;animation:fade-in .2s}
+.drop-card{background:var(--bg-2);border:1.5px solid var(--c-cyan);border-radius:14px;padding:40px 52px;text-align:center;box-shadow:var(--shadow-3)}
+.drop-card svg{width:48px;height:48px;stroke:var(--c-cyan);fill:none;stroke-width:1.5;margin-bottom:16px}
+.drop-card h2{font:600 26px/1 'Fraunces',serif;color:var(--tx-0);margin-bottom:6px;letter-spacing:-.02em}
+.drop-card p{font:400 13.5px/1.5 'Inter';color:var(--tx-2)}
+
+/* Scrollbars */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd-h);border-radius:4px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--tx-3);background-clip:padding-box;border:2px solid transparent}
+
+/* Selection */
+::selection{background:color-mix(in srgb,var(--c-cyan) 28%,transparent);color:var(--tx-0)}
+
+/* Responsive */
+@media (max-width:1100px){.info.open{width:340px;min-width:340px}.side{width:200px;min-width:200px}}
+@media (max-width:880px){.side{display:none}.search{max-width:none}.brand-tx{display:none}.info.open{width:300px;min-width:300px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useMemo,useRef,useEffect,useCallback}=React;
+
+// ============================================================
+// CATEGORIES & EXTENSIONS
+// ============================================================
+const CATS={
+  imagen:{n:'Imagen',i:'\u{1F5BC}\uFE0F',cl:'#6B4076',
+    e:['PNG','JPG','JPEG','GIF','WEBP','AVIF','SVG','PSD','TIFF','BMP','HEIC','HEIF','ICO','EXR','HDR','CR2','NEF','ARW','DNG','RAW','RAF','ORF','TGA','XCF','PCX','PBM','PGM','PPM','PAM','JP2','JFIF','JNG','MNG','PCD','PICT','SGI','SUN','WBMP','XBM','XPM','XCF','DDS','FAX','FITS']},
+  documento:{n:'Documento',i:'\u{1F4C4}',cl:'#2D5F6B',
+    e:['PDF','DOCX','DOC','TXT','RTF','HTML','MD','ODT','TEX','PAGES','WPS','ABW','SXW','XPS','OXPS','DJVU','CHM','PS','EPUB','AZW3']},
+  hoja:{n:'Hoja de cálculo',i:'\u{1F4CA}',cl:'#5D7339',
+    e:['XLSX','XLS','CSV','ODS','TSV','NUMBERS','XLSM','XLT','XLTX','XLTM','GNUMERIC','SXC','DBF','PARQUET']},
+  ebook:{n:'Libro electrónico',i:'\u{1F4DA}',cl:'#D26244',
+    e:['EPUB','MOBI','AZW','AZW3','KFX','FB2','LIT','LRF','PDB','RB','SNB','TCR','PRC','OPF','IBA']},
+  audio:{n:'Audio',i:'\u{1F3B5}',cl:'#A0506A',
+    e:['MP3','WAV','FLAC','AAC','OGG','OPUS','M4A','AIFF','WMA','APE','AC3','ALAC','DSD','DSF','DTS','MIDI','MID','AU','AMR','GSM','RA','SPX','TAK','TTA','VOC','VOX','MOD','S3M','XM','IT','RAM','PLS','M3U']},
+  comprimido:{n:'Archivo comprimido',i:'\u{1F4E6}',cl:'#C8901C',
+    e:['ZIP','RAR','7Z','TAR','GZ','BZ2','XZ','LZ','LZ4','LZMA','TGZ','TBZ2','ZSTD','Z','CAB','ARJ','LHA','ACE','PEA','SIT','SITX','ALZ','UHA','WIM','PAQ','CPIO','DEB','RPM','PKG','APK','IPA','SNAP','FLATPAK']},
+  video:{n:'Vídeo',i:'\u{1F3AC}',cl:'#8C2A30',
+    e:['MP4','MKV','AVI','MOV','WEBM','FLV','WMV','MPG','MPEG','M4V','M2TS','MTS','TS','3GP','3G2','VOB','OGV','MXF','HEVC','AV1','PRORES','RM','RMVB','ASF','F4V','DV','DIVX','XVID','SWF','TOD','VP8','VP9']},
+  presentacion:{n:'Presentación',i:'\u{1F3A6}',cl:'#3F6F9A',
+    e:['PPTX','PPT','ODP','KEY','POT','POTM','POTX','PPS','PPSM','PPSX','PPTM','SHF','SHOW','PEZ']},
+  fuente:{n:'Fuente',i:'\u{1F524}',cl:'#476939',
+    e:['TTF','OTF','WOFF','WOFF2','EOT','TTC','OTC','PFA','PFB','BDF','PSF','SFD','UFO','PFM','AFM','FON','FNT','SVG','VFC']},
+  vector:{n:'Vector',i:'\u270F\uFE0F',cl:'#2D5F6B',
+    e:['SVG','AI','EPS','PDF','CDR','EMF','WMF','DXF','PLT','HPGL','WPG','CGM','SK','SK1','CMX','FH','PS','XAR']},
+  cad:{n:'CAD / 3D',i:'\u{1F4D0}',cl:'#6B4076',
+    e:['DWG','DXF','STEP','STP','IGES','IGS','STL','OBJ','FBX','3DS','DAE','SKP','USDZ','GLB','GLTF','3DM','3MF','AMF','BREP','IFC','JT','SAT','X3D','VRML','WRL','PLY','BLEND','C4D','MA','MB','MAX','LWO']},
+  codigo:{n:'Código / Dev',i:'\u{1F4BB}',cl:'#5D7339',
+    e:['JS','TS','JSX','TSX','PY','GO','RS','C','CPP','H','HPP','CS','JAVA','KT','SWIFT','RB','PHP','HTML','CSS','SCSS','SASS','LESS','VUE','SVELTE','JSON','XML','YAML','YML','TOML','INI','SQL','SH','BAT','PS1','LUA','R','DART','SCALA','CLJ','EX','ELM','HS','ML','PL','PROTO','GRAPHQL']},
+  seguridad:{n:'Seguridad',i:'\u{1F510}',cl:'#C8901C',
+    e:['PEM','CRT','CER','KEY','PFX','P12','P7B','P7C','DER','CSR','GPG','PGP','ASC','SIG','KEYSTORE','JKS','BKS','OVPN','CONF','HASH','MD5','SHA','HTPASSWD']},
+  movil:{n:'Móvil',i:'\u{1F4F1}',cl:'#A0506A',
+    e:['APK','IPA','AAB','XAPK','APKM','OBB','PLIST','MOBILEPROVISION','ENT','ITS','TIPA','IDF','XCAPPDATA','MOBILECONFIG']},
+  juego:{n:'Juegos',i:'\u{1F47E}',cl:'#D26244',
+    e:['SAV','SAVE','GBA','NES','SNES','N64','GB','GBC','NDS','3DS','ISO','BIN','CUE','CHD','ROM','SMC','SMD','GG','PCE','PSP','PKG','XCI','NSP','UNITY3D','UNITYPACKAGE','PAK','VPK','BSP']},
+  bd:{n:'Base de datos',i:'\u{1F5C4}\uFE0F',cl:'#3F6F9A',
+    e:['SQL','SQLITE','SQLITE3','DB','DB3','MDB','ACCDB','DBF','MYD','FRM','BAK','SDF','PARQUET','AVRO','ORC','ARROW','HDF5','H5','REDIS','MONGO','BSON','RDB','LDB']},
+  disco:{n:'Imagen de disco',i:'\u{1F4BF}',cl:'#7E5634',
+    e:['ISO','IMG','DMG','VHD','VHDX','VMDK','VDI','QCOW2','RAW','HDD','BIN','CUE','NRG','MDF','MDS','TOAST','UDF','HFS','HFSPLUS','EXT4','NTFS']},
+  email:{n:'Email',i:'\u2709\uFE0F',cl:'#476939',
+    e:['EML','MSG','MBOX','PST','OST','EMLX','VCF','ICS','MHT','MHTML','OFT','PST','OXPS','DBX']},
+};
+
+// Color groups from the tldraw design (Morado, Verde Claro, Amarillo, Naranja, Marrón, Verde, Azul)
+const GROUPS={
+  morado:{n:'Morado',cl:'#6B4076',cats:['imagen','cad']},
+  verdeClaro:{n:'Verde Claro',cl:'#476939',cats:['fuente','email']},
+  amarillo:{n:'Amarillo',cl:'#C8901C',cats:['comprimido','seguridad']},
+  naranja:{n:'Naranja',cl:'#D26244',cats:['ebook','juego']},
+  marron:{n:'Marrón',cl:'#7E5634',cats:['disco']},
+  verde:{n:'Verde',cl:'#5D7339',cats:['hoja','codigo']},
+  azul:{n:'Azul',cl:'#3F6F9A',cats:['presentacion','bd']},
+  rosa:{n:'Rosa',cl:'#A0506A',cats:['audio','movil']},
+  cyan:{n:'Cyan',cl:'#2D5F6B',cats:['documento','vector']},
+  rojo:{n:'Rojo',cl:'#8C2A30',cats:['video']},
+};
+
+// ============================================================
+// FORMAT DETAILS — RICH METADATA
+// ============================================================
+const D={
+  // Imagen
+  PNG:{f:'Portable Network Graphics',d:'Formato sin pérdida con transparencia alfa. Estándar web para gráficos, iconos y capturas de pantalla.',t:'Raster',l:'No',tr:'Sí (alfa 8-bit)',a:'No (APNG sí)',c:'16.7M (32-bit)',co:'Deflate',y:1996,s:'Sin pérdida',mime:'image/png',magic:'89 50 4E 47',pop:10,rel:['JPG','WEBP','AVIF','APNG'],alts:['WEBP (web moderno)','AVIF (mejor compresión)']},
+  JPG:{f:'Joint Photographic Experts Group',d:'Compresión con pérdida ideal para fotografías. Alta compresión manteniendo calidad visual aceptable.',t:'Raster',l:'Sí',tr:'No',a:'No',c:'16.7M (24-bit)',co:'DCT',y:1992,s:'Con pérdida',mime:'image/jpeg',magic:'FF D8 FF',pop:10,rel:['JPEG','WEBP','HEIC','AVIF'],alts:['WEBP','HEIC','AVIF']},
+  JPEG:{f:'Joint Photographic Experts Group',d:'Alias de JPG. Mismo codec y formato, solo cambia la extensión. Idéntico en funcionalidad.',t:'Raster',l:'Sí',tr:'No',a:'No',c:'16.7M',co:'DCT',y:1992,s:'Con pérdida',mime:'image/jpeg',magic:'FF D8 FF',pop:10,rel:['JPG'],alts:[]},
+  GIF:{f:'Graphics Interchange Format',d:'Formato clásico de animación limitado a 256 colores por frame. Aún popular para memes y reacciones.',t:'Raster',l:'No',tr:'Sí (1-bit)',a:'Sí',c:'256',co:'LZW',y:1987,s:'Animado',mime:'image/gif',magic:'47 49 46 38',pop:9,rel:['APNG','WEBP','MP4'],alts:['APNG','WEBP animado','MP4']},
+  WEBP:{f:'Web Picture Format (Google)',d:'Formato moderno que soporta compresión con y sin pérdida, transparencia y animación. Reemplaza JPG/PNG/GIF en web.',t:'Raster',l:'Ambos',tr:'Sí',a:'Sí',c:'16.7M',co:'VP8/VP8L',y:2010,s:'Moderno',mime:'image/webp',magic:'52 49 46 46',pop:9,rel:['AVIF','PNG','JPG'],alts:['AVIF (más eficiente)']},
+  AVIF:{f:'AV1 Image File Format',d:'Próxima generación basado en codec AV1. Superior compresión a WEBP con soporte HDR y 10/12-bit.',t:'Raster',l:'Ambos',tr:'Sí',a:'Sí',c:'16.7M+ (HDR)',co:'AV1',y:2019,s:'Moderno',mime:'image/avif',pop:7,rel:['WEBP','HEIC','JXL'],alts:['JXL (futuro)']},
+  SVG:{f:'Scalable Vector Graphics',d:'Formato vectorial XML escalable infinitamente sin pérdida. Estándar web para iconos y gráficos.',t:'Vector',l:'N/A',tr:'Sí',a:'Sí (SMIL/CSS)',c:'Ilimitado',co:'Ninguna/GZIP',y:2001,s:'Vector',mime:'image/svg+xml',pop:10,rel:['AI','EPS','PDF'],alts:['Lottie (animación)']},
+  PSD:{f:'Adobe Photoshop Document',d:'Nativo de Photoshop. Conserva capas, máscaras, canales, efectos y toda la información de edición.',t:'Raster/Capas',l:'No',tr:'Sí',a:'No',c:'48-bit+',co:'RLE/ZIP',y:1990,s:'Edición',mime:'image/vnd.adobe.photoshop',magic:'38 42 50 53',pop:10,rel:['XCF','AFPHOTO','TIFF'],alts:['XCF (GIMP)','AFPHOTO (Affinity)']},
+  TIFF:{f:'Tagged Image File Format',d:'Formato profesional versátil usado en impresión y fotografía. Soporta múltiples páginas y modos de color.',t:'Raster',l:'Ambos',tr:'Sí',a:'No',c:'48-bit+',co:'LZW/ZIP/JPEG',y:1986,s:'Profesional',mime:'image/tiff',magic:'49 49 2A 00',pop:8,rel:['DNG','PSD'],alts:['DNG','PSD','EXR']},
+  BMP:{f:'Bitmap Image File',d:'Formato básico de Windows sin compresión. Archivos grandes pero lectura rápida. Uso residual.',t:'Raster',l:'No',tr:'Limitada',a:'No',c:'16.7M',co:'Ninguna/RLE',y:1986,s:'Legacy',mime:'image/bmp',magic:'42 4D',pop:5,rel:['PNG','TIFF'],alts:['PNG (mejor)']},
+  HEIC:{f:'High Efficiency Image Container',d:'Formato por defecto de fotos en iPhone/iOS. Mayor calidad que JPEG a la mitad de tamaño.',t:'Raster',l:'Sí',tr:'Sí',a:'Sí',c:'16.7M+',co:'HEVC',y:2015,s:'Moderno',mime:'image/heic',pop:8,rel:['HEIF','AVIF'],alts:['AVIF','JPG']},
+  HEIF:{f:'High Efficiency Image Format',d:'Contenedor del que HEIC es variante. Almacena secuencias de imágenes y metadatos EXIF avanzados.',t:'Raster',l:'Sí',tr:'Sí',a:'Sí',c:'16.7M+',co:'HEVC/AV1',y:2015,s:'Moderno',mime:'image/heif',pop:7,rel:['HEIC','AVIF'],alts:[]},
+  ICO:{f:'Icon File Format',d:'Formato de iconos de Windows. Puede contener múltiples resoluciones en un solo archivo.',t:'Raster',l:'No',tr:'Sí',a:'No',c:'16.7M',co:'PNG/BMP',y:1985,s:'Sistema',mime:'image/x-icon',magic:'00 00 01 00',pop:7,rel:['ICNS','PNG'],alts:['ICNS (Apple)']},
+  EXR:{f:'OpenEXR (ILM)',d:'HDR 32-bit float usado en VFX y cine. Soporta canales arbitrarios y compresión sin pérdida.',t:'HDR Raster',l:'No',tr:'Sí',a:'No',c:'HDR 32-bit float',co:'ZIP/PIZ/DWAA',y:2003,s:'HDR/VFX',mime:'image/x-exr',pop:7,rel:['HDR','TIFF'],alts:['HDR','TIFF 32f']},
+  HDR:{f:'Radiance HDR',d:'Imagen de alto rango dinámico para iluminación y environment maps en 3D.',t:'HDR Raster',l:'No',tr:'No',a:'No',c:'HDR 32-bit',co:'RLE',y:1989,s:'HDR/VFX',pop:6,rel:['EXR'],alts:['EXR (mejor)']},
+  CR2:{f:'Canon Raw 2',d:'RAW propietario de cámaras Canon. Datos del sensor sin procesamiento.',t:'RAW',l:'No',tr:'No',a:'No',c:'14-bit',co:'Lossless JPEG',y:2004,s:'RAW',pop:7,rel:['CR3','DNG','NEF','ARW'],alts:['DNG (universal)']},
+  NEF:{f:'Nikon Electronic Format',d:'RAW propietario de Nikon. Incluye datos del sensor y metadatos de cámara.',t:'RAW',l:'No',tr:'No',a:'No',c:'12-14 bit',co:'Lossless/Lossy',y:1999,s:'RAW',pop:7,rel:['DNG','CR2','ARW'],alts:['DNG']},
+  ARW:{f:'Sony Alpha Raw',d:'RAW de cámaras Sony Alpha. Basado en TIFF con datos sin procesar del sensor CMOS.',t:'RAW',l:'No',tr:'No',a:'No',c:'14-bit',co:'Propietario',y:2006,s:'RAW',pop:7,rel:['DNG','CR2','NEF'],alts:['DNG']},
+  DNG:{f:'Digital Negative (Adobe)',d:'RAW abierto de Adobe. Estándar universal para archivos RAW, compatible con cualquier editor.',t:'RAW',l:'No',tr:'No',a:'No',c:'16-bit',co:'Lossless JPEG',y:2004,s:'RAW',pop:8,rel:['CR2','NEF','ARW'],alts:[]},
+  TGA:{f:'Truevision TGA (Targa)',d:'Raster usado en videojuegos y VFX. Soporta transparencia alfa y es rápido de procesar.',t:'Raster',l:'No',tr:'Sí',a:'No',c:'32-bit',co:'RLE/Ninguna',y:1984,s:'Gaming/VFX',pop:5,rel:['PNG','BMP'],alts:['PNG']},
+  XCF:{f:'eXperimental Computing Facility',d:'Nativo de GIMP. Conserva capas, canales, paths y toda la información de edición.',t:'Raster/Capas',l:'No',tr:'Sí',a:'No',c:'32-bit',co:'ZIP/RLE',y:1996,s:'Edición',mime:'image/x-xcf',pop:5,rel:['PSD','AFPHOTO'],alts:['PSD']},
+  RAW:{f:'Raw Image (genérico)',d:'Datos sin procesar del sensor de la cámara, sin demosaico. Requiere conversión específica de cada fabricante.',t:'RAW',l:'No',tr:'No',a:'No',c:'12-16 bit',co:'Variable',y:1990,s:'RAW',pop:7,rel:['DNG','CR2','NEF','ARW'],alts:['DNG']},
+  // Documento
+  PDF:{f:'Portable Document Format',d:'Estándar universal de documentos. Mantiene formato idéntico en cualquier dispositivo. Soporta texto, imágenes, formularios.',t:'Documento mixto',l:'Variable',tr:'Sí',a:'No',c:'N/A',co:'Varios',y:1993,s:'Universal',mime:'application/pdf',magic:'25 50 44 46',pop:10,rel:['XPS','DJVU','EPUB'],alts:['EPUB (texto fluido)']},
+  DOCX:{f:'Microsoft Word Open XML',d:'Formato estándar de Microsoft Word. Basado en XML comprimido en ZIP. Soporta estilos, tablas, imágenes.',t:'Documento texto',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'ZIP/XML',y:2007,s:'Office',mime:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',pop:10,rel:['DOC','ODT','PAGES'],alts:['ODT (libre)','PDF (final)']},
+  DOC:{f:'Microsoft Word Binary',d:'Formato legacy de Word (97-2003). Binario propietario, aún ampliamente compatible.',t:'Documento texto',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'OLE2',y:1997,s:'Office Legacy',mime:'application/msword',pop:7,rel:['DOCX','ODT'],alts:['DOCX (moderno)']},
+  TXT:{f:'Plain Text',d:'Texto plano sin formato. Universal, ligero, legible por cualquier sistema.',t:'Texto plano',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1960,s:'Básico',mime:'text/plain',pop:10,rel:['MD','RTF'],alts:['MD (estructurado)']},
+  RTF:{f:'Rich Text Format',d:'Texto enriquecido de Microsoft. Compatible con casi cualquier procesador de texto.',t:'Texto enriquecido',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1987,s:'Universal',mime:'application/rtf',pop:6,rel:['DOC','DOCX'],alts:['DOCX']},
+  HTML:{f:'HyperText Markup Language',d:'Lenguaje de marcado web. Define estructura y contenido de páginas. Interpretado por navegadores.',t:'Marcado web',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna/GZIP',y:1993,s:'Web',mime:'text/html',pop:10,rel:['HTM','XHTML','MD'],alts:['MD']},
+  MD:{f:'Markdown',d:'Sintaxis ligera de marcado. Texto plano con formato simple. Renderizable a HTML/PDF.',t:'Marcado',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:2004,s:'Web',mime:'text/markdown',pop:10,rel:['TXT','HTML','RST'],alts:['TXT']},
+  ODT:{f:'Open Document Text',d:'Formato abierto de texto (LibreOffice/OpenOffice). Estándar ISO basado en XML.',t:'Documento texto',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'ZIP/XML',y:2005,s:'Open Source',mime:'application/vnd.oasis.opendocument.text',pop:7,rel:['DOCX','DOC'],alts:['DOCX']},
+  TEX:{f:'LaTeX Source',d:'Código fuente LaTeX para tipografía científica/académica. Compila a PDF.',t:'Código',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1978,s:'Académico',pop:7,rel:['PDF','BIB'],alts:['Markdown + Pandoc']},
+  // Hoja
+  XLSX:{f:'Microsoft Excel Open XML',d:'Formato moderno de Excel. Basado en XML/ZIP. Sin límite práctico de filas (1M+).',t:'Hoja de cálculo',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'ZIP/XML',y:2007,s:'Office',pop:10,rel:['XLS','ODS','CSV'],alts:['CSV','ODS']},
+  XLS:{f:'Microsoft Excel Binary',d:'Legacy de hojas de cálculo Excel (97-2003). Binario con límite de 65536 filas.',t:'Hoja de cálculo',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'OLE2',y:1997,s:'Office Legacy',pop:7,rel:['XLSX','ODS'],alts:['XLSX']},
+  CSV:{f:'Comma-Separated Values',d:'Datos tabulares separados por comas. Universal para intercambio de datos entre aplicaciones.',t:'Datos tabulares',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1972,s:'Datos',mime:'text/csv',pop:10,rel:['TSV','XLSX','JSON'],alts:['TSV','Parquet']},
+  ODS:{f:'OpenDocument Spreadsheet',d:'Formato abierto de hojas de cálculo (LibreOffice Calc). Estándar ISO basado en XML.',t:'Hoja de cálculo',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'ZIP/XML',y:2005,s:'Open Source',pop:6,rel:['XLSX','XLS'],alts:['XLSX']},
+  TSV:{f:'Tab-Separated Values',d:'Datos tabulares separados por tabs. Útil cuando las comas aparecen en datos.',t:'Datos tabulares',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1980,s:'Datos',pop:7,rel:['CSV'],alts:['CSV']},
+  PARQUET:{f:'Apache Parquet',d:'Formato columnar comprimido para big data. Excelente para análisis y data lakes.',t:'Datos columnar',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Snappy/GZIP',y:2013,s:'Big Data',pop:8,rel:['ORC','AVRO','ARROW'],alts:['ORC','Arrow']},
+  // Audio
+  MP3:{f:'MPEG Audio Layer III',d:'El formato de audio comprimido más popular. Buena relación calidad/tamaño a 128-320kbps.',t:'Audio comprimido',l:'Sí',tr:'N/A',a:'N/A',c:'N/A',co:'MPEG-1 Layer 3',y:1993,s:'Con pérdida',mime:'audio/mpeg',magic:'49 44 33 / FF FB',pop:10,rel:['AAC','OGG','OPUS'],alts:['OPUS','AAC']},
+  WAV:{f:'Waveform Audio File',d:'Audio sin comprimir de Microsoft/IBM. Calidad perfecta (PCM) pero archivos grandes.',t:'Audio sin comprimir',l:'No',tr:'N/A',a:'N/A',c:'N/A',co:'PCM/Ninguna',y:1991,s:'Sin pérdida',mime:'audio/wav',magic:'52 49 46 46',pop:9,rel:['AIFF','FLAC'],alts:['FLAC (comprimido sin pérdida)']},
+  FLAC:{f:'Free Lossless Audio Codec',d:'Audio comprimido sin pérdida. Reduce tamaño ~50% sin perder calidad. Favorito de audiófilos.',t:'Audio sin pérdida',l:'No',tr:'N/A',a:'N/A',c:'N/A',co:'FLAC',y:2001,s:'Sin pérdida',mime:'audio/flac',pop:9,rel:['ALAC','WAV'],alts:['ALAC (Apple)']},
+  AAC:{f:'Advanced Audio Coding',d:'Sucesor de MP3 con mejor calidad a mismo bitrate. Formato de Apple Music y YouTube.',t:'Audio comprimido',l:'Sí',tr:'N/A',a:'N/A',c:'N/A',co:'AAC',y:1997,s:'Con pérdida',mime:'audio/aac',pop:10,rel:['MP3','M4A'],alts:['OPUS']},
+  OGG:{f:'Ogg Vorbis',d:'Formato libre de audio comprimido. Mejor que MP3 a bitrates bajos. Muy usado en videojuegos.',t:'Audio comprimido',l:'Sí',tr:'N/A',a:'N/A',c:'N/A',co:'Vorbis',y:2000,s:'Libre',mime:'audio/ogg',pop:7,rel:['OPUS','MP3'],alts:['OPUS']},
+  OPUS:{f:'Opus Interactive Audio Codec',d:'Codec de audio más eficiente actual. Ideal para streaming y VoIP. Superior a MP3/AAC/Vorbis.',t:'Audio comprimido',l:'Sí',tr:'N/A',a:'N/A',c:'N/A',co:'Opus (CELT+SILK)',y:2012,s:'Moderno',mime:'audio/opus',pop:9,rel:['AAC','OGG'],alts:[]},
+  AIFF:{f:'Audio Interchange File Format',d:'Equivalente Apple a WAV. Audio sin comprimir de alta calidad para producción musical Mac.',t:'Audio sin comprimir',l:'No',tr:'N/A',a:'N/A',c:'N/A',co:'PCM/Ninguna',y:1988,s:'Sin pérdida',pop:7,rel:['WAV','ALAC'],alts:['ALAC']},
+  M4A:{f:'MPEG-4 Audio',d:'Contenedor de audio de Apple basado en AAC. Formato de iTunes Store y Apple Music.',t:'Audio comprimido',l:'Sí/No (ALAC)',tr:'N/A',a:'N/A',c:'N/A',co:'AAC/ALAC',y:2001,s:'Apple',pop:9,rel:['AAC','ALAC'],alts:['MP3']},
+  WMA:{f:'Windows Media Audio',d:'Formato de audio de Microsoft. Comparable a MP3 pero con DRM propietario. En declive.',t:'Audio comprimido',l:'Sí',tr:'N/A',a:'N/A',c:'N/A',co:'WMA',y:1999,s:'Microsoft',pop:4,rel:['MP3','AAC'],alts:['AAC']},
+  ALAC:{f:'Apple Lossless Audio Codec',d:'Equivalente Apple a FLAC. Audio sin pérdida en contenedor M4A. Soporte nativo en iOS.',t:'Audio sin pérdida',l:'No',tr:'N/A',a:'N/A',c:'N/A',co:'ALAC',y:2004,s:'Sin pérdida',pop:7,rel:['FLAC','M4A'],alts:['FLAC']},
+  MIDI:{f:'Musical Instrument Digital Interface',d:'Datos de notas musicales (no audio). Compatible con cualquier sintetizador. Archivos diminutos.',t:'Datos musicales',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1983,s:'Universal',mime:'audio/midi',pop:7,rel:['MID','MOD'],alts:[]},
+  // Vídeo
+  MP4:{f:'MPEG-4 Part 14',d:'Contenedor de vídeo más usado del mundo. Soporta H.264/H.265, audio AAC. Universal.',t:'Contenedor',l:'Sí',tr:'No',a:'N/A',c:'N/A',co:'H.264/H.265/AV1',y:2001,s:'Universal',mime:'video/mp4',pop:10,rel:['MOV','MKV','WEBM'],alts:['WEBM (web)']},
+  MKV:{f:'Matroska Video',d:'Contenedor abierto muy flexible. Soporta múltiples pistas de audio/subtítulos y casi cualquier codec.',t:'Contenedor',l:'Variable',tr:'No',a:'N/A',c:'N/A',co:'Variable',y:2002,s:'Abierto',mime:'video/x-matroska',pop:9,rel:['MP4','WEBM'],alts:['MP4']},
+  AVI:{f:'Audio Video Interleave',d:'Contenedor legacy de Microsoft. Simple pero limitado. Compatible con reproductores antiguos.',t:'Contenedor',l:'Variable',tr:'No',a:'N/A',c:'N/A',co:'Variable',y:1992,s:'Legacy',pop:5,rel:['MP4','MOV'],alts:['MP4']},
+  MOV:{f:'Apple QuickTime Movie',d:'Contenedor nativo de Apple/QuickTime. Calidad profesional para edición de vídeo.',t:'Contenedor',l:'Variable',tr:'Sí (ProRes 4444)',a:'N/A',c:'N/A',co:'ProRes/H.264',y:1991,s:'Apple',mime:'video/quicktime',pop:9,rel:['MP4','MXF'],alts:['MP4']},
+  WEBM:{f:'WebM Video Format',d:'Formato libre de Google para web. Usa codecs VP8/VP9/AV1. Nativo en navegadores.',t:'Contenedor',l:'Sí',tr:'Sí (VP9)',a:'N/A',c:'N/A',co:'VP8/VP9/AV1',y:2010,s:'Web',mime:'video/webm',pop:9,rel:['MP4','OGV'],alts:['MP4']},
+  FLV:{f:'Flash Video',d:'Formato de Adobe Flash. Obsoleto tras la muerte de Flash pero presente en archivos antiguos.',t:'Contenedor',l:'Sí',tr:'No',a:'N/A',c:'N/A',co:'H.263/H.264',y:2003,s:'Legacy',pop:3,rel:['MP4'],alts:['MP4']},
+  WMV:{f:'Windows Media Video',d:'Formato de vídeo de Microsoft. Con DRM propietario. Reemplazado por MP4/MKV.',t:'Contenedor',l:'Sí',tr:'No',a:'N/A',c:'N/A',co:'WMV',y:1999,s:'Microsoft',pop:4,rel:['MP4','AVI'],alts:['MP4']},
+  HEVC:{f:'High Efficiency Video Coding',d:'Codec H.265 de nueva generación. 50% más eficiente que H.264. Usado en 4K/8K.',t:'Codec',l:'Sí',tr:'No',a:'N/A',c:'10-bit+',co:'H.265',y:2013,s:'Moderno',pop:8,rel:['AV1','H264'],alts:['AV1']},
+  AV1:{f:'AOMedia Video 1',d:'Codec libre de nueva generación. 30% más eficiente que HEVC. Adoptado por Netflix, YouTube.',t:'Codec',l:'Sí',tr:'No',a:'N/A',c:'10-12bit',co:'AV1',y:2018,s:'Moderno',pop:8,rel:['HEVC','VP9'],alts:[]},
+  // Comprimido
+  ZIP:{f:'ZIP Archive',d:'Formato de compresión más universal. Soportado nativamente por todos los SO.',t:'Comprimido',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Deflate/LZMA',y:1989,s:'Universal',mime:'application/zip',magic:'50 4B 03 04',pop:10,rel:['7Z','RAR'],alts:['7Z (mejor ratio)']},
+  RAR:{f:'Roshal Archive',d:'Propietario con mejor compresión que ZIP. Soporta volúmenes y recuperación de errores.',t:'Comprimido',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'RAR',y:1993,s:'Propietario',mime:'application/x-rar',pop:8,rel:['ZIP','7Z'],alts:['7Z (libre)']},
+  '7Z':{f:'7-Zip Archive',d:'Formato abierto con la mejor ratio de compresión disponible (LZMA2). Libre.',t:'Comprimido',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'LZMA/LZMA2',y:1999,s:'Libre',mime:'application/x-7z-compressed',pop:8,rel:['ZIP','RAR'],alts:[]},
+  TAR:{f:'Tape Archive',d:'Empaquetador Unix que agrupa archivos sin comprimir. Se combina con gzip/bzip2.',t:'Empaquetador',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1979,s:'Unix',pop:8,rel:['TGZ','TBZ2'],alts:[]},
+  GZ:{f:'GNU Zip',d:'Compresor Unix de propósito general. A menudo combinado con TAR (.tar.gz).',t:'Comprimido',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Deflate',y:1992,s:'Unix',pop:9,rel:['BZ2','XZ','ZSTD'],alts:['ZSTD (más rápido)']},
+  ZSTD:{f:'Zstandard (Facebook)',d:'Compresor moderno con balance excelente entre velocidad y ratio. Reemplazo moderno a gzip.',t:'Comprimido',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Zstd',y:2016,s:'Moderno',pop:8,rel:['GZ','XZ','LZ4'],alts:[]},
+  // CAD/3D
+  FBX:{f:'Filmbox (Autodesk)',d:'Estándar de facto para intercambio 3D con animaciones, materiales y esqueletos.',t:'3D',l:'N/A',tr:'N/A',a:'Sí',c:'N/A',co:'Propietario',y:1996,s:'Intercambio',pop:9,rel:['GLB','DAE','OBJ'],alts:['GLB (web)','USD (cine)']},
+  OBJ:{f:'Wavefront Object',d:'Formato 3D simple y universal. Solo geometría y materiales básicos. Sin animación.',t:'3D Geometría',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'Ninguna',y:1992,s:'Básico',pop:9,rel:['STL','PLY','FBX'],alts:['glTF']},
+  GLB:{f:'GL Transmission Format Binary',d:'Versión binaria de glTF. "El JPEG del 3D". Optimizado para web y tiempo real.',t:'3D Binario',l:'N/A',tr:'N/A',a:'Sí',c:'N/A',co:'Draco/KTX2',y:2017,s:'Web/RT',mime:'model/gltf-binary',pop:9,rel:['GLTF','USDZ'],alts:[]},
+  GLTF:{f:'GL Transmission Format',d:'Formato abierto de Khronos Group. Estándar emergente para 3D en web.',t:'3D JSON',l:'N/A',tr:'N/A',a:'Sí',c:'N/A',co:'Draco',y:2015,s:'Web/RT',mime:'model/gltf+json',pop:9,rel:['GLB','USDZ'],alts:['GLB (binario)']},
+  STL:{f:'Stereolithography',d:'Mallas trianguladas para impresión 3D. Sin color, textura ni animación.',t:'3D Malla',l:'N/A',tr:'N/A',a:'No',c:'No',co:'Ninguna',y:1987,s:'Impresión 3D',pop:8,rel:['OBJ','3MF'],alts:['3MF (mejor)']},
+  DAE:{f:'Collada Digital Asset Exchange',d:'Formato abierto XML para intercambio 3D. Reemplazado gradualmente por glTF.',t:'3D/XML',l:'N/A',tr:'N/A',a:'Sí',c:'N/A',co:'Ninguna',y:2004,s:'Intercambio',pop:6,rel:['FBX','GLTF'],alts:['glTF']},
+  SKP:{f:'SketchUp Document',d:'Nativo de SketchUp. Ideal para modelado arquitectónico con componentes y materiales.',t:'3D/BIM',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'Propietario',y:2000,s:'Arquitectura',pop:7,rel:['DAE','OBJ'],alts:[]},
+  USDZ:{f:'Universal Scene Description Zipped',d:'Formato de Apple para realidad aumentada (AR). Nativo en iOS/iPadOS.',t:'3D/AR',l:'N/A',tr:'N/A',a:'Sí',c:'N/A',co:'ZIP',y:2018,s:'AR/Apple',pop:7,rel:['GLB','USD'],alts:['GLB']},
+  DXF:{f:'Drawing Exchange Format',d:'CAD abierto de Autodesk para intercambio de dibujos 2D/3D. Universal entre software CAD.',t:'CAD',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'Ninguna',y:1982,s:'CAD 2D',pop:8,rel:['DWG','STEP'],alts:[]},
+  DWG:{f:'AutoCAD Drawing',d:'Nativo de AutoCAD. Estándar de la industria CAD. Propietario de Autodesk.',t:'CAD',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'Propietario',y:1982,s:'CAD 2D/3D',pop:9,rel:['DXF'],alts:['DXF']},
+  STEP:{f:'Standard for Exchange of Product Data',d:'Estándar ISO para intercambio de modelos CAD 3D. Conserva geometría exacta (BREP).',t:'CAD/BREP',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'Ninguna',y:1994,s:'CAD 3D',pop:8,rel:['IGES','SAT'],alts:[]},
+  IFC:{f:'Industry Foundation Classes',d:'Estándar abierto para BIM (Building Information Modeling).',t:'BIM',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'Ninguna/ZIP',y:1997,s:'BIM',pop:7,rel:['SKP'],alts:[]},
+  // Vector
+  AI:{f:'Adobe Illustrator',d:'Nativo de Illustrator. Basado en PDF/EPS. Estándar en diseño gráfico profesional.',t:'Vector',l:'N/A',tr:'Sí',a:'No',c:'Ilimitado',co:'Propietario',y:1987,s:'Profesional',pop:9,rel:['EPS','SVG','PDF'],alts:['SVG']},
+  EPS:{f:'Encapsulated PostScript',d:'Vector legacy para impresión. Compatible con casi cualquier software de diseño.',t:'Vector',l:'N/A',tr:'Limitada',a:'No',c:'Ilimitado',co:'Ninguna',y:1987,s:'Impresión',pop:7,rel:['AI','PDF'],alts:['PDF']},
+  CDR:{f:'CorelDRAW',d:'Nativo de CorelDRAW. Propietario pero ampliamente usado en señalización y corte.',t:'Vector',l:'N/A',tr:'Sí',a:'No',c:'Ilimitado',co:'Propietario',y:1989,s:'Profesional',pop:6,rel:['AI','SVG'],alts:['SVG']},
+  // Presentación
+  PPTX:{f:'PowerPoint Open XML',d:'Estándar de Microsoft PowerPoint. Soporta animaciones, transiciones, vídeo embebido.',t:'Presentación',l:'N/A',tr:'N/A',a:'Sí',c:'N/A',co:'ZIP/XML',y:2007,s:'Office',pop:10,rel:['PPT','ODP','KEY'],alts:['ODP (libre)','KEY (Apple)']},
+  ODP:{f:'OpenDocument Presentation',d:'Formato abierto de presentaciones (LibreOffice Impress). Estándar ISO.',t:'Presentación',l:'N/A',tr:'N/A',a:'Sí',c:'N/A',co:'ZIP/XML',y:2005,s:'Open Source',pop:6,rel:['PPTX'],alts:['PPTX']},
+  PPT:{f:'PowerPoint Binary',d:'Legacy de PowerPoint (97-2003). Binario propietario pero ampliamente compatible.',t:'Presentación',l:'N/A',tr:'N/A',a:'Sí',c:'N/A',co:'OLE2',y:1997,s:'Office Legacy',pop:6,rel:['PPTX'],alts:['PPTX']},
+  KEY:{f:'Apple Keynote',d:'Presentaciones nativas de Apple. Excelente diseño y animaciones.',t:'Presentación',l:'N/A',tr:'N/A',a:'Sí',c:'N/A',co:'ZIP/XML',y:2003,s:'Apple',pop:7,rel:['PPTX'],alts:['PPTX (compat.)']},
+  // Ebook
+  EPUB:{f:'Electronic Publication',d:'Estándar abierto de ebooks. Basado en HTML/CSS/ZIP. Texto fluido (reflowable).',t:'Libro electrónico',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'ZIP/XML',y:2007,s:'Abierto',mime:'application/epub+zip',pop:10,rel:['MOBI','AZW3'],alts:[]},
+  MOBI:{f:'Mobipocket',d:'Formato de ebook Amazon/Kindle. Reemplazado gradualmente por AZW3/KFX.',t:'Libro electrónico',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'PalmDOC',y:2000,s:'Amazon',pop:7,rel:['AZW3','EPUB'],alts:['EPUB']},
+  AZW3:{f:'Amazon Kindle Format 8',d:'Formato moderno de Kindle. Basado en HTML5/CSS3 con tipografía avanzada.',t:'Libro electrónico',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'Propietario',y:2011,s:'Amazon',pop:8,rel:['MOBI','EPUB'],alts:['EPUB']},
+  // Fuente
+  TTF:{f:'TrueType Font',d:'Formato de fuente de Apple/Microsoft. Contornos cuadráticos. Universal en todos los SO.',t:'Fuente',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'Ninguna',y:1991,s:'Desktop',mime:'font/ttf',pop:10,rel:['OTF','WOFF'],alts:['OTF']},
+  OTF:{f:'OpenType Font',d:'Evolución de TrueType. Soporta ligaduras, variantes estilísticas y contornos cúbicos (CFF).',t:'Fuente',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'CFF',y:1996,s:'Desktop',mime:'font/otf',pop:10,rel:['TTF','WOFF2'],alts:['TTF']},
+  WOFF:{f:'Web Open Font Format',d:'Fuente optimizada para web. TTF/OTF comprimido con metadatos adicionales.',t:'Fuente Web',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'Brotli/GZIP',y:2009,s:'Web',mime:'font/woff',pop:9,rel:['WOFF2','TTF'],alts:['WOFF2 (mejor)']},
+  WOFF2:{f:'Web Open Font Format 2',d:'Sucesor de WOFF con compresión Brotli. Estándar moderno para fuentes web.',t:'Fuente Web',l:'N/A',tr:'N/A',a:'No',c:'N/A',co:'Brotli',y:2014,s:'Web',mime:'font/woff2',pop:10,rel:['WOFF','TTF'],alts:[]},
+  // Código
+  JS:{f:'JavaScript',d:'Lenguaje de programación principal de la web. Ejecutado por navegadores y Node.js.',t:'Código',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1995,s:'Web',mime:'text/javascript',pop:10,rel:['TS','MJS'],alts:['TS (typed)']},
+  TS:{f:'TypeScript',d:'JavaScript con tipos estáticos. Compila a JS. Estándar en proyectos grandes.',t:'Código',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:2012,s:'Web',pop:10,rel:['JS','TSX'],alts:[]},
+  PY:{f:'Python',d:'Lenguaje de scripting popular. Usado en data science, ML, web, automatización.',t:'Código',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1991,s:'General',pop:10,rel:['IPYNB'],alts:[]},
+  RS:{f:'Rust',d:'Lenguaje de sistemas con memory safety. Sustituto moderno de C/C++.',t:'Código',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:2010,s:'Sistemas',pop:8,rel:['C','CPP','GO'],alts:[]},
+  GO:{f:'Go (Golang)',d:'Lenguaje de Google. Concurrencia simple, compilación rápida, binarios estáticos.',t:'Código',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:2009,s:'Sistemas',pop:9,rel:['RS','C'],alts:[]},
+  JSON:{f:'JavaScript Object Notation',d:'Formato de intercambio de datos. Texto plano legible. Estándar de APIs web.',t:'Datos',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:2001,s:'Datos',mime:'application/json',pop:10,rel:['XML','YAML','TOML'],alts:['YAML','TOML']},
+  XML:{f:'eXtensible Markup Language',d:'Marcado extensible para datos jerárquicos. Estándar legacy en muchos formatos.',t:'Datos',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1998,s:'Datos',pop:8,rel:['JSON','YAML'],alts:['JSON']},
+  YAML:{f:'YAML Ain\'t Markup Language',d:'Formato de configuración legible por humanos. Estándar en DevOps (Kubernetes, Ansible).',t:'Datos',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:2001,s:'Datos',pop:9,rel:['JSON','TOML'],alts:['TOML']},
+  // Seguridad
+  PEM:{f:'Privacy Enhanced Mail',d:'Certificado o clave codificada en Base64. Formato textual con cabeceras BEGIN/END.',t:'Certificado',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1993,s:'Seguridad',pop:9,rel:['CRT','DER','KEY'],alts:[]},
+  CRT:{f:'Certificate',d:'Certificado X.509. Suele ser PEM o DER. Identifica entidades en TLS/SSL.',t:'Certificado',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1988,s:'Seguridad',pop:8,rel:['PEM','CER','DER'],alts:[]},
+  PFX:{f:'Personal Information Exchange',d:'Contenedor PKCS#12 con certificado y clave privada. Protegido por contraseña.',t:'Certificado',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Cifrado',y:1996,s:'Seguridad',pop:7,rel:['P12','CRT'],alts:[]},
+  GPG:{f:'GNU Privacy Guard',d:'Archivo cifrado/firmado por GPG. Implementación libre de OpenPGP.',t:'Cifrado',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Cifrado',y:1999,s:'Seguridad',pop:7,rel:['PGP','ASC'],alts:[]},
+  // Móvil
+  APK:{f:'Android Package',d:'Paquete de aplicación Android. Es un ZIP con código DEX, recursos y manifiesto.',t:'Paquete app',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'ZIP',y:2008,s:'Android',pop:10,rel:['AAB','XAPK'],alts:['AAB (Play Store)']},
+  IPA:{f:'iOS App Archive',d:'Paquete de aplicación iOS. Es un ZIP con binario, recursos y firma de Apple.',t:'Paquete app',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'ZIP',y:2008,s:'iOS',pop:10,rel:['XCAPPDATA'],alts:[]},
+  AAB:{f:'Android App Bundle',d:'Formato moderno para Play Store. Genera APKs optimizados por dispositivo.',t:'Paquete app',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'ZIP',y:2018,s:'Android',pop:9,rel:['APK'],alts:[]},
+  // Juegos
+  ROM:{f:'Read-Only Memory',d:'Volcado de memoria de cartucho de videojuego clásico. Genérico para emuladores.',t:'ROM',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Variable',y:1980,s:'Emulación',pop:8,rel:['NES','SNES','GBA'],alts:[]},
+  // BD
+  SQL:{f:'Structured Query Language',d:'Script de consultas/definiciones SQL. Texto plano ejecutable en cualquier SGBD.',t:'Script BD',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1974,s:'BD',pop:10,rel:['SQLITE','MYD'],alts:[]},
+  SQLITE:{f:'SQLite Database',d:'BD relacional embebida en un solo archivo. La BD más desplegada del mundo.',t:'BD relacional',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:2000,s:'BD embebida',pop:10,rel:['DB','SQL'],alts:[]},
+  // Disco
+  ISO:{f:'ISO 9660 Image',d:'Imagen exacta de disco óptico (CD/DVD). Estándar para distribuir SO.',t:'Imagen disco',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1988,s:'Óptico',pop:9,rel:['IMG','BIN','UDF'],alts:[]},
+  IMG:{f:'Disk Image',d:'Imagen genérica de disco/USB. Volcado bit a bit del medio.',t:'Imagen disco',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1980,s:'Genérico',pop:8,rel:['ISO','RAW'],alts:[]},
+  DMG:{f:'Apple Disk Image',d:'Imagen de disco macOS. Usada para distribuir aplicaciones en Mac.',t:'Imagen disco',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Variable',y:1999,s:'Apple',pop:8,rel:['ISO','PKG'],alts:[]},
+  VHD:{f:'Virtual Hard Disk',d:'Disco virtual de Microsoft Hyper-V. Compatible con varias plataformas de virtualización.',t:'Disco virtual',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Variable',y:2003,s:'Virtualización',pop:6,rel:['VHDX','VMDK','VDI'],alts:[]},
+  VMDK:{f:'VMware Virtual Disk',d:'Disco virtual de VMware. Estándar de facto en entornos empresariales.',t:'Disco virtual',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Variable',y:1998,s:'Virtualización',pop:7,rel:['VHD','VDI'],alts:[]},
+  // Email
+  EML:{f:'Email Message',d:'Mensaje de email individual en formato MIME. Universal entre clientes de correo.',t:'Email',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1982,s:'Universal',mime:'message/rfc822',pop:8,rel:['MSG','MBOX'],alts:[]},
+  MBOX:{f:'Mailbox',d:'Buzón completo de emails en un único archivo. Usado por Thunderbird/Apple Mail.',t:'Email/buzón',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1971,s:'Unix',pop:7,rel:['EML','PST'],alts:[]},
+  PST:{f:'Personal Storage Table (Outlook)',d:'Buzón completo de Outlook. Contiene emails, contactos, calendarios.',t:'Email/buzón',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Variable',y:1996,s:'Microsoft',pop:8,rel:['MSG','OST'],alts:[]},
+};
+
+// ============================================================
+// APPS — PRELOADED CATALOG
+// ============================================================
+const APPS=[
+  {id:'photoshop',nm:'Photoshop',cl:'#31A8FF',vd:'Adobe',cat:'Imagen',
+    fm:['PSD','PNG','JPG','JPEG','GIF','BMP','TIFF','WEBP','AVIF','SVG','EPS','PDF','ICO','EXR','HDR','HEIC','HEIF','DNG','CR2','NEF','ARW','TGA','PCX','PBM','PGM','PPM','RAW','XCF']},
+  {id:'illustrator',nm:'Illustrator',cl:'#FF9A00',vd:'Adobe',cat:'Vector',
+    fm:['AI','SVG','EPS','PDF','PSD','PNG','JPG','JPEG','GIF','BMP','TIFF','WEBP','EMF','WMF','DXF','CDR']},
+  {id:'premiere',nm:'Premiere Pro',cl:'#9999FF',vd:'Adobe',cat:'Vídeo',
+    fm:['MP4','MOV','AVI','MKV','WEBM','FLV','WMV','MPG','MPEG','M2TS','MTS','3GP','VOB','MXF','GIF','PNG','JPG','JPEG','TIFF','PSD','AI','EPS','WAV','MP3','AAC','FLAC','AIFF','OGG','HEVC','AV1']},
+  {id:'aftereffects',nm:'After Effects',cl:'#CF96FD',vd:'Adobe',cat:'Vídeo/Motion',
+    fm:['MP4','MOV','AVI','FLV','MXF','PNG','JPG','JPEG','PSD','AI','EPS','TIFF','GIF','BMP','EXR','HDR','SVG','WAV','MP3','AAC','AIFF','OBJ','GLB','FBX']},
+  {id:'figma',nm:'Figma',cl:'#A259FF',vd:'Figma Inc.',cat:'Diseño UI',
+    fm:['SVG','PNG','JPG','JPEG','GIF','PDF']},
+  {id:'blender',nm:'Blender',cl:'#E87D0D',vd:'Blender Foundation',cat:'3D',
+    fm:['FBX','OBJ','GLB','GLTF','STL','PLY','DAE','3DS','X3D','SVG','BMP','PNG','JPG','JPEG','TIFF','EXR','HDR','AVI','MP4','MOV','MPEG','WAV','MP3']},
+  {id:'vscode',nm:'VS Code',cl:'#007ACC',vd:'Microsoft',cat:'Editor código',
+    fm:['HTML','CSS','CSV','TXT','SVG','JSON','XML','MD','JS','TS','JSX','TSX','PY','GO','RS','C','CPP','H','HPP','CS','JAVA','KT','SWIFT','RB','PHP','SCSS','SASS','LESS','VUE','SVELTE','YAML','YML','TOML','INI','SQL','SH','BAT','PS1','LUA','R','DART','SCALA','EX','HS','ML','PROTO','GRAPHQL']},
+  {id:'unity',nm:'Unity',cl:'#000000',vd:'Unity',cat:'Game engine',
+    fm:['FBX','OBJ','DAE','3DS','GLB','GLTF','DXF','PNG','JPG','JPEG','BMP','TGA','TIFF','PSD','EXR','HDR','GIF','MP3','WAV','OGG','AIFF','MP4','MOV','WEBM','C','CS','JS']},
+  {id:'unreal',nm:'Unreal Engine',cl:'#0E1128',vd:'Epic Games',cat:'Game engine',
+    fm:['FBX','OBJ','GLB','GLTF','USD','USDZ','PNG','JPG','JPEG','TGA','EXR','HDR','PSD','MP4','MOV','WAV','OGG','MP3','CPP','H','HPP']},
+  {id:'sketchup',nm:'SketchUp',cl:'#005F9E',vd:'Trimble',cat:'CAD/Arch',
+    fm:['SKP','DWG','DXF','3DS','DAE','FBX','OBJ','STL','USDZ','GLB','GLTF','IFC','PNG','JPG','JPEG','TIFF','BMP','PDF','EPS']},
+  {id:'davinci',nm:'DaVinci Resolve',cl:'#E34B2C',vd:'Blackmagic',cat:'Vídeo',
+    fm:['MP4','MOV','AVI','MKV','MXF','WEBM','MTS','M2TS','MPG','MPEG','WMV','FLV','3GP','EXR','TIFF','PNG','JPG','JPEG','BMP','WAV','MP3','AAC','FLAC','AIFF','OGG','OPUS','HEVC','AV1','PRORES']},
+  {id:'audacity',nm:'Audacity',cl:'#0067B3',vd:'Audacity Team',cat:'Audio',
+    fm:['MP3','WAV','FLAC','OGG','OPUS','M4A','AIFF','AAC','WMA','AC3','AU','AMR','APE','MIDI']},
+  {id:'logicpro',nm:'Logic Pro',cl:'#888888',vd:'Apple',cat:'Audio/DAW',
+    fm:['MP3','WAV','FLAC','AAC','AIFF','M4A','ALAC','OGG','MIDI','MID']},
+  {id:'word',nm:'Word',cl:'#2B579A',vd:'Microsoft',cat:'Documento',
+    fm:['DOCX','DOC','TXT','RTF','PDF','HTML','ODT','XPS']},
+  {id:'excel',nm:'Excel',cl:'#217346',vd:'Microsoft',cat:'Hoja',
+    fm:['XLSX','XLS','CSV','TSV','ODS','TXT','XLSM','XLT','XLTX','PARQUET']},
+  {id:'powerpoint',nm:'PowerPoint',cl:'#D24726',vd:'Microsoft',cat:'Presentación',
+    fm:['PPTX','PPT','ODP','POT','POTX','PPS','PPSX','PDF']},
+  {id:'libreoffice',nm:'LibreOffice',cl:'#18A303',vd:'TDF',cat:'Suite',
+    fm:['ODT','ODS','ODP','DOCX','DOC','XLSX','XLS','PPTX','PPT','TXT','RTF','CSV','PDF','HTML']},
+  {id:'gimp',nm:'GIMP',cl:'#5C5543',vd:'GNU',cat:'Imagen',
+    fm:['XCF','PNG','JPG','JPEG','GIF','BMP','TIFF','WEBP','SVG','EPS','PDF','PSD','ICO','TGA','PCX','PBM','PGM','PPM','HDR','EXR']},
+  {id:'inkscape',nm:'Inkscape',cl:'#000000',vd:'Inkscape Team',cat:'Vector',
+    fm:['SVG','PDF','EPS','AI','PNG','JPG','JPEG','GIF','BMP','TIFF','EMF','WMF','DXF','CDR']},
+  {id:'autocad',nm:'AutoCAD',cl:'#E51937',vd:'Autodesk',cat:'CAD',
+    fm:['DWG','DXF','STEP','STP','IGES','IGS','STL','PDF','PNG','JPG','JPEG','BMP','TIFF']},
+  {id:'fusion360',nm:'Fusion 360',cl:'#FF6F00',vd:'Autodesk',cat:'CAD/3D',
+    fm:['DWG','DXF','STEP','STP','IGES','IGS','STL','OBJ','FBX','SAT','3MF','PDF']},
+  {id:'vlc',nm:'VLC',cl:'#FF8800',vd:'VideoLAN',cat:'Reproductor',
+    fm:['MP4','MKV','AVI','MOV','WEBM','FLV','WMV','MPG','MPEG','M4V','M2TS','MTS','TS','3GP','VOB','OGV','MXF','HEVC','AV1','RM','RMVB','MP3','WAV','FLAC','AAC','OGG','OPUS','M4A','AIFF','WMA','MIDI']},
+  {id:'handbrake',nm:'HandBrake',cl:'#1A1A1A',vd:'HandBrake Team',cat:'Conversión',
+    fm:['MP4','MKV','MOV','M4V','AVI','MPG','MPEG','TS','M2TS','MTS','VOB','WEBM','HEVC','AV1']},
+  {id:'7zip',nm:'7-Zip',cl:'#0E62E3',vd:'Igor Pavlov',cat:'Archivador',
+    fm:['7Z','ZIP','RAR','TAR','GZ','BZ2','XZ','LZ','LZMA','TGZ','TBZ2','ZSTD','Z','CAB','ARJ','LHA','ISO','WIM','CPIO','DEB','RPM','APK','IPA']},
+  {id:'calibre',nm:'Calibre',cl:'#B22222',vd:'Calibre Team',cat:'Ebook',
+    fm:['EPUB','MOBI','AZW','AZW3','KFX','FB2','LIT','LRF','PDB','RB','SNB','TCR','PDF','HTML','TXT','RTF','DOCX']},
+];
+
+// Warm Atelier swatch palette — curated to live on a cream page (each color
+// has ≥4.5:1 contrast on #FBF7EF). Brand-color slots are kept (Photoshop blue,
+// Illustrator orange, Figma purple) so users can match real app identities.
+const APP_COLORS=['#B0432A','#92341E','#D26244','#A0506A','#8C2A30','#6B4076','#4F3A66','#3F6F9A','#2D5F6B','#3E5C57','#5D7339','#476939','#7E6F2A','#C8901C','#7E5634','#5C4530','#1A1816','#5C5750','#A8907C','#31A8FF','#FF9A00','#A259FF','#E34B2C','#217346','#2B579A','#D24726','#0067B3','#E51937','#FF6F00','#5C5543'];
+
+// Extra apps that work with specific extensions (community / external suggestions)
+const ALT_APPS={
+  PNG:['Affinity Photo','Krita','Paint.NET','Pixelmator','Procreate'],
+  JPG:['Affinity Photo','Lightroom','RawTherapee','darktable'],
+  JPEG:['Affinity Photo','Lightroom','RawTherapee'],
+  SVG:['Affinity Designer','Sketch','Vectornator'],
+  PDF:['Acrobat','Foxit','Preview','PDFgear','Sumatra'],
+  MP4:['QuickTime','Kdenlive','Shotcut','OpenShot','OBS Studio'],
+  MP3:['foobar2000','iTunes','MusicBee','Winamp'],
+  WAV:['Pro Tools','Ableton Live','Reaper','FL Studio'],
+  FLAC:['foobar2000','MusicBee','Vox'],
+  MKV:['MPV','PotPlayer','MediaInfo'],
+  FBX:['Maya','3ds Max','Cinema 4D','Houdini','Godot'],
+  OBJ:['Maya','3ds Max','Cinema 4D','MeshLab','MeshMixer'],
+  GLB:['Three.js','Babylon.js','Godot','Spline'],
+  STL:['Cura','PrusaSlicer','MeshMixer','FreeCAD','Bambu Studio'],
+  DAE:['Maya','Cinema 4D','Godot'],
+  PPTX:['Keynote','Google Slides','Canva','Slidev'],
+  DOCX:['Google Docs','Pages','Notion'],
+  XLSX:['Google Sheets','Numbers','Airtable'],
+  EPUB:['Apple Books','Kobo','Sigil','Pocketbook','FBReader'],
+  PSD:['Affinity Photo','Krita','Photopea','Pixelmator'],
+  AI:['Affinity Designer','Vectorio','Boxy SVG'],
+  EPS:['Scribus','Affinity Designer'],
+  DXF:['LibreCAD','BricsCAD','QCAD','OnShape'],
+  DWG:['BricsCAD','DraftSight','OnShape'],
+  TTF:['FontForge','Glyphs','FontLab','Birdfont'],
+  OTF:['FontForge','Glyphs','RoboFont'],
+  GIF:['ScreenToGif','EZGIF','LICEcap','Gifski'],
+  WEBP:['Squoosh','ImageMagick','GIMP'],
+  AVIF:['Squoosh','ImageMagick','Affinity'],
+  HEIC:['Preview','iMazing','iCloud','CopyTrans'],
+  EXR:['Nuke','Natron','Fusion'],
+  TIFF:['IrfanView','XnView','Affinity Photo'],
+  AVI:['MediaInfo','MPV'],
+  MOV:['Final Cut Pro','iMovie','MPV'],
+  WEBM:['MPV','FFmpeg','PotPlayer'],
+  SKP:['Enscape','V-Ray','Lumion','Twinmotion'],
+  USDZ:['Reality Composer','Omniverse','3D Viewer'],
+  STEP:['SolidWorks','OnShape','FreeCAD','PTC Creo'],
+  IFC:['Revit','ArchiCAD','BIMcollab','BIMvision'],
+  CDR:['Affinity Designer','XaraDesigner'],
+  OGG:['foobar2000','MusicBee'],
+  OPUS:['FFmpeg','MusicBee'],
+  AIFF:['Pro Tools','Ableton'],
+  BMP:['IrfanView','XnView','Pixelmator'],
+  ICO:['IcoFX','GreenFish Icon Editor','Axialis'],
+  HDR:['Nuke','Natron','HDRI Haven','Picturenaut'],
+  CR2:['Lightroom','RawTherapee','darktable','Capture One'],
+  NEF:['Lightroom','RawTherapee','Capture NX-D','darktable'],
+  DNG:['Lightroom','Camera Raw','RawTherapee','darktable'],
+  TGA:['IrfanView','XnView','GIMP'],
+  RAR:['WinRAR','PeaZip','BetterZip','Keka'],
+  '7Z':['PeaZip','Keka','BetterZip'],
+  TAR:['tar (CLI)','PeaZip'],
+  WMV:['Windows Media Player','PotPlayer'],
+  FLV:['MPV','PotPlayer'],
+  HEVC:['MPV','PotPlayer','MediaInfo'],
+  AV1:['MPV','FFmpeg','dav1d'],
+  ZIP:['PeaZip','WinZip','Keka','The Unarchiver'],
+  GZ:['gzip (CLI)','PeaZip'],
+  ZSTD:['zstd (CLI)','7-Zip ZS'],
+  HTML:['Sublime Text','Notepad++','Brackets','Webstorm'],
+  CSS:['Sublime Text','Notepad++','Webstorm','Atom'],
+  JS:['WebStorm','Sublime Text','Atom','Vim'],
+  TS:['WebStorm','Sublime Text','IntelliJ'],
+  JSON:['JSON Editor','Notepad++','Sublime Text'],
+  XML:['XML Notepad','Notepad++','Oxygen XML'],
+  YAML:['Sublime Text','Notepad++'],
+  CSV:['Numbers','Google Sheets','Tableau','OpenRefine'],
+  PY:['PyCharm','Spyder','Jupyter','Sublime Text','Cursor'],
+  GO:['GoLand','Vim','Sublime Text'],
+  RS:['CLion','RustRover','IntelliJ Rust'],
+  APK:['Android Studio','APK Editor','Bundletool'],
+  IPA:['Xcode','iMazing','3uTools'],
+  SQL:['DBeaver','DataGrip','TablePlus','Beekeeper Studio','HeidiSQL'],
+  SQLITE:['DB Browser','DBeaver','SQLiteStudio','TablePlus'],
+  ISO:['Rufus','Etcher','Daemon Tools','UltraISO'],
+  IMG:['Etcher','Rufus','Win32 Disk Imager'],
+  DMG:['Disk Utility','7-Zip','PeaZip'],
+  EML:['Thunderbird','Outlook','Apple Mail','Mailbird'],
+  MBOX:['Thunderbird','MailMate','MBOX Viewer'],
+  PST:['Outlook','Kernel PST Viewer','Thunderbird (importer)'],
+  MD:['Typora','Obsidian','iA Writer','Mark Text','Logseq'],
+  TXT:['Notepad++','Sublime Text','Vim','BBEdit'],
+  GLTF:['Three.js','Babylon.js','glTF Viewer'],
+  PEM:['OpenSSL','XCA','KeyStore Explorer'],
+  CRT:['OpenSSL','XCA','MMC'],
+  GPG:['GnuPG','Kleopatra','GPG Suite'],
+  ROM:['RetroArch','OpenEmu','MAME','Higan'],
+  VHD:['Hyper-V','VirtualBox','VMware'],
+  VMDK:['VMware','VirtualBox'],
+  PARQUET:['DuckDB','Apache Drill','Parquet Tools','Tad','Pandas'],
+};
+
+// ============================================================
+// MAIN APP
+// ============================================================
+const STORAGE_KEY='format-explorer-v2-state';
+function loadState(){
+  try{
+    const s=localStorage.getItem(STORAGE_KEY);
+    if(s) return JSON.parse(s);
+  }catch(e){}
+  return null;
+}
+function saveState(s){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s))}catch(e){}
+}
+
+function App(){
+  const saved=loadState();
+  const [cat,setCat]=useState(saved?.cat||'imagen');
+  const [ext,setExt]=useState(null);
+  const [app,setApp]=useState(null);
+  const [search,setSearch]=useState('');
+  const [appSearch,setAppSearch]=useState('');
+  const [apps,setApps]=useState(saved?.apps||APPS);
+  const [showAdd,setShowAdd]=useState(false);
+  const [editApp,setEditApp]=useState(null);
+  const [showCmp,setShowCmp]=useState(null);
+  const [showStats,setShowStats]=useState(false);
+  const [showHelp,setShowHelp]=useState(false);
+  const [toasts,setToasts]=useState([]);
+  const [dragActive,setDragActive]=useState(false);
+  const searchRef=useRef(null);
+
+  // Persist state
+  useEffect(()=>{saveState({cat,apps})},[cat,apps]);
+
+  const toast=useCallback((msg,kind='info')=>{
+    const id=Math.random().toString(36).slice(2);
+    setToasts(t=>[...t,{id,msg,kind}]);
+    setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3200);
+  },[]);
+
+  // All extensions across all categories
+  const allExt=useMemo(()=>{
+    const s=new Set();
+    Object.values(CATS).forEach(c=>c.e.forEach(x=>s.add(x)));
+    return [...s].sort();
+  },[]);
+
+  // Search across extensions, full names and apps
+  const searchResult=useMemo(()=>{
+    if(!search.trim())return null;
+    const q=search.toUpperCase().trim();
+    const exts=new Set();
+    const cats=new Set();
+    Object.entries(CATS).forEach(([k,c])=>c.e.forEach(x=>{
+      if(x.includes(q)){exts.add(x);cats.add(k)}
+      const info=D[x];
+      if(info && info.f.toUpperCase().includes(q)){exts.add(x);cats.add(k)}
+    }));
+    return {exts:[...exts].sort(),cats:[...cats]};
+  },[search]);
+
+  // Current extensions
+  const currentExt=useMemo(()=>{
+    if(searchResult&&searchResult.exts.length>0)return searchResult.exts;
+    return CATS[cat]?.e||[];
+  },[cat,searchResult]);
+
+  const activeApp=useMemo(()=>apps.find(a=>a.id===app),[app,apps]);
+  const activeAppFmt=useMemo(()=>new Set(activeApp?activeApp.fm:[]),[activeApp]);
+
+  const filteredApps=useMemo(()=>{
+    if(!appSearch.trim())return apps;
+    const q=appSearch.toLowerCase();
+    return apps.filter(a=>a.nm.toLowerCase().includes(q)||(a.vd||'').toLowerCase().includes(q));
+  },[apps,appSearch]);
+
+  // Apps by coverage of current extension
+  const compatibleApps=useMemo(()=>ext?apps.filter(a=>a.fm.includes(ext)):[],[ext,apps]);
+  const altApps=useMemo(()=>ext?(ALT_APPS[ext]||[]):[],[ext]);
+
+  // Recommended app for current extension: highest popularity weighted by coverage of current category
+  const recommended=useMemo(()=>{
+    if(!ext||compatibleApps.length===0)return null;
+    const catExts=CATS[cat]?.e||[];
+    const scored=compatibleApps.map(a=>{
+      const inCat=a.fm.filter(f=>catExts.includes(f)).length;
+      const cov=catExts.length>0?(inCat/catExts.length):0;
+      const total=a.fm.length;
+      const score=cov*0.6+Math.min(total/40,1)*0.4;
+      return {...a,score,coverage:cov,inCat};
+    }).sort((a,b)=>b.score-a.score);
+    return scored[0];
+  },[ext,compatibleApps,cat]);
+
+  // Compute coverage per app within current category (for the strip badge)
+  const appCoverage=useMemo(()=>{
+    const catExts=CATS[cat]?.e||[];
+    const m={};
+    apps.forEach(a=>{
+      const cov=catExts.filter(x=>a.fm.includes(x)).length;
+      m[a.id]={count:cov,pct:catExts.length?Math.round(100*cov/catExts.length):0};
+    });
+    return m;
+  },[cat,apps]);
+
+  // Reset extension when category changes
+  useEffect(()=>{setExt(null)},[cat]);
+
+  // Keyboard shortcuts
+  useEffect(()=>{
+    const onKey=(e)=>{
+      if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+      if(e.key==='/'){e.preventDefault();searchRef.current?.focus()}
+      if(e.key==='Escape'){
+        if(showAdd)setShowAdd(false);
+        else if(editApp)setEditApp(null);
+        else if(showCmp)setShowCmp(null);
+        else if(showStats)setShowStats(false);
+        else if(showHelp)setShowHelp(false);
+        else if(ext)setExt(null);
+        else if(app)setApp(null);
+      }
+      if(e.key==='?'){e.preventDefault();setShowHelp(true)}
+    };
+    window.addEventListener('keydown',onKey);
+    return()=>window.removeEventListener('keydown',onKey);
+  },[ext,app,showAdd,editApp,showCmp,showStats,showHelp]);
+
+  // Drag and drop file detection
+  useEffect(()=>{
+    let dragCounter=0;
+    const onDragEnter=(e)=>{
+      e.preventDefault();
+      if(e.dataTransfer&&e.dataTransfer.types.includes('Files')){
+        dragCounter++;
+        setDragActive(true);
+      }
+    };
+    const onDragLeave=(e)=>{
+      e.preventDefault();
+      dragCounter--;
+      if(dragCounter<=0){dragCounter=0;setDragActive(false)}
+    };
+    const onDragOver=(e)=>e.preventDefault();
+    const onDrop=(e)=>{
+      e.preventDefault();
+      dragCounter=0;
+      setDragActive(false);
+      const file=e.dataTransfer.files[0];
+      if(!file)return;
+      const parts=file.name.split('.');
+      if(parts.length<2){toast('Sin extensión detectable','warn');return}
+      const ex=parts.pop().toUpperCase();
+      // Find category
+      let foundCat=null;
+      for(const [k,c] of Object.entries(CATS)){
+        if(c.e.includes(ex)){foundCat=k;break}
+      }
+      if(foundCat){
+        setCat(foundCat);
+        setExt(ex);
+        setSearch('');
+        toast(`.${ex} detectado en ${CATS[foundCat].n}`,'info');
+      }else{
+        toast(`.${ex} no está en ningún catálogo`,'warn');
+      }
+    };
+    window.addEventListener('dragenter',onDragEnter);
+    window.addEventListener('dragleave',onDragLeave);
+    window.addEventListener('dragover',onDragOver);
+    window.addEventListener('drop',onDrop);
+    return()=>{
+      window.removeEventListener('dragenter',onDragEnter);
+      window.removeEventListener('dragleave',onDragLeave);
+      window.removeEventListener('dragover',onDragOver);
+      window.removeEventListener('drop',onDrop);
+    };
+  },[toast]);
+
+  const onAddApp=(a)=>{
+    setApps(p=>[...p,a]);
+    setShowAdd(false);
+    toast(`Aplicación añadida: ${a.nm}`,'info');
+  };
+
+  const onEditApp=(a)=>{
+    setApps(p=>p.map(x=>x.id===a.id?a:x));
+    setEditApp(null);
+    toast(`Actualizado: ${a.nm}`,'info');
+  };
+
+  const onRemoveApp=(id)=>{
+    const a=apps.find(x=>x.id===id);
+    setApps(p=>p.filter(x=>x.id!==id));
+    if(app===id)setApp(null);
+    toast(`Eliminado: ${a?.nm||'app'}`,'warn');
+  };
+
+  const totalFmt=allExt.length;
+  const coveredFmt=useMemo(()=>{
+    const s=new Set();
+    apps.forEach(a=>a.fm.forEach(f=>s.add(f)));
+    return s.size;
+  },[apps]);
+
+  return (<>
+    <header className="hdr">
+      <div className="brand">
+        <div className="brand-mark">FX</div>
+        <div className="brand-tx">
+          <h1>Format Explorer</h1>
+          <p>v2 · file compatibility tool</p>
+        </div>
+      </div>
+      <div className="search">
+        <input ref={searchRef} value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar formato o nombre… (.png, joint photographic, raw…)" aria-label="Buscar"/>
+        <svg className="search-ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        {!search && <span className="search-kbd">/</span>}
+      </div>
+      <div className="hdr-actions">
+        <button className="hdr-btn" onClick={()=>setShowStats(true)} title="Panel de estadísticas">
+          <svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8"/><rect x="10" y="8" width="4" height="13"/><rect x="17" y="3" width="4" height="18"/></svg>
+          <span>Stats</span>
+        </button>
+        <button className="hdr-btn" onClick={()=>setShowHelp(true)} title="Ayuda (?)">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </button>
+        <button className="hdr-btn primary" onClick={()=>setShowAdd(true)}>
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Añadir app</span>
+        </button>
+      </div>
+    </header>
+
+    <div className="body">
+      <aside className="side">
+        <div className="side-h">
+          <div className="side-h-tx">Categorías</div>
+          <div className="side-h-ct">{Object.keys(CATS).length}</div>
+        </div>
+        <div className="side-list">
+          {Object.entries(CATS).map(([k,c])=>(
+            <div key={k} className={`cat${cat===k?' active':''}`} style={{'--cat-cl':c.cl}} onClick={()=>{setCat(k);setSearch('')}} role="button" tabIndex={0} onKeyDown={e=>e.key==='Enter'&&(setCat(k),setSearch(''))}>
+              <div className="cat-ico">{c.i}</div>
+              <span className="cat-name">{c.n}</span>
+              <span className="cat-count">{c.e.length}</span>
+              <button className="cat-info" onClick={e=>{e.stopPropagation();setShowCmp(k)}} title="Tabla comparativa">i</button>
+            </div>
+          ))}
+        </div>
+        <div className="side-foot">
+          <div className="side-stat"><span>Total formatos</span><strong>{totalFmt}</strong></div>
+          <div className="side-stat"><span>Tus apps cubren</span><strong>{coveredFmt}</strong></div>
+        </div>
+      </aside>
+
+      <main className="center">
+        <div className="cnt-h">
+          <div>
+            <div className="cnt-title">
+              {searchResult?<>Resultados de búsqueda<small>{searchResult.exts.length} formato{searchResult.exts.length!==1?'s':''} para "{search}"</small></>:
+              <>{CATS[cat].i} {CATS[cat].n}<small>{CATS[cat].e.length} formatos · click para ver detalles</small></>}
+            </div>
+          </div>
+          <div className="cnt-h-actions">
+            {activeApp&&<div className="chip" style={{borderColor:activeApp.cl,color:activeApp.cl}}>
+              <span style={{width:7,height:7,borderRadius:99,background:activeApp.cl}}/>
+              <span>{activeApp.nm}</span>
+              <strong>{appCoverage[activeApp.id]?.count||0}/{CATS[cat].e.length}</strong>
+            </div>}
+            <button className="hdr-btn" onClick={()=>setShowCmp(cat)} title="Tabla comparativa de la categoría">
+              <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <span>Comparar</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="cnt-body" style={{'--cat-cl':CATS[cat].cl,'--cat-grad':CATS[cat].cl}}>
+          {currentExt.length===0?
+            <div className="cnt-body-empty">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <h3>Sin resultados</h3>
+              <p>No hay formatos que coincidan con "{search}". Prueba con otra búsqueda o despeja la barra.</p>
+            </div>
+          :
+            <div className="grid">
+              {currentExt.map((x,i)=>{
+                const hl=app&&activeAppFmt.has(x);
+                const sl=ext===x;
+                const dim=app&&!activeAppFmt.has(x)&&!sl;
+                const info=D[x];
+                const pop=info?.pop||0;
+                return (<div key={x} className={`ext${sl?' sel':''}${hl?' hl':''}${dim?' dim':''}`} style={{animationDelay:`${i*.012}s`,'--app-cl':hl?activeApp.cl:undefined}} onClick={()=>setExt(ext===x?null:x)} role="button" tabIndex={0} onKeyDown={e=>e.key==='Enter'&&setExt(ext===x?null:x)} title={info?info.f:x}>
+                  <span>{x}</span>
+                  {pop>=8&&<span className="ext-pop high"/>}
+                </div>);
+              })}
+            </div>
+          }
+        </div>
+
+        <div className="app-strip">
+          <div className="app-strip-h">
+            <div className="app-strip-h-l">Aplicaciones · {apps.length}</div>
+            <div className="app-search">
+              <input value={appSearch} onChange={e=>setAppSearch(e.target.value)} placeholder="Buscar app…" aria-label="Buscar app"/>
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <div className="app-strip-h-r">
+              {app&&<button className="app-mini-btn ghost" onClick={()=>setApp(null)} title="Deseleccionar app">✕</button>}
+              <button className="app-mini-btn" onClick={()=>setShowAdd(true)} title="Añadir app">+</button>
+            </div>
+          </div>
+          <div className="app-list">
+            {filteredApps.map(a=>{
+              const cov=appCoverage[a.id];
+              return (<div key={a.id} className={`app-card${app===a.id?' act':''}`} style={{'--app-cl':a.cl}} onClick={()=>setApp(app===a.id?null:a.id)} onContextMenu={e=>{e.preventDefault();setEditApp(a)}} role="button" tabIndex={0} title={`${a.nm} · ${a.vd||''} · ${a.fm.length} formatos · click derecho para editar`}>
+                <span className="app-dot"/>
+                <span className="app-name">{a.nm}</span>
+                <span className="app-cov">{cov?.pct||0}%</span>
+                <button className="app-card-rm" onClick={e=>{e.stopPropagation();onRemoveApp(a.id)}} title="Eliminar">×</button>
+              </div>);
+            })}
+            {filteredApps.length===0&&<div style={{padding:'20px 16px',color:'var(--tx-3)',fontSize:12}}>Sin coincidencias</div>}
+          </div>
+        </div>
+      </main>
+
+      <aside className={`info${ext?' open':''}`}>
+        {ext&&<InfoPanel ext={ext} cat={cat} compatibleApps={compatibleApps} altApps={altApps} recommended={recommended} onClose={()=>setExt(null)} onSelectApp={id=>setApp(id)} onSelectExt={x=>setExt(x)}/>}
+      </aside>
+    </div>
+
+    {showAdd&&<AddAppModal allExt={allExt} onClose={()=>setShowAdd(false)} onAdd={onAddApp}/>}
+    {editApp&&<AddAppModal allExt={allExt} initial={editApp} onClose={()=>setEditApp(null)} onAdd={onEditApp} title="Editar Aplicación"/>}
+    {showCmp&&<CompareModal catKey={showCmp} onClose={()=>setShowCmp(null)} apps={apps}/>}
+    {showStats&&<StatsModal apps={apps} onClose={()=>setShowStats(false)}/>}
+    {showHelp&&<HelpModal onClose={()=>setShowHelp(false)}/>}
+
+    {dragActive&&<div className="drop-overlay">
+      <div className="drop-card">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <h2>Suelta el archivo</h2>
+        <p>Detectaré la extensión y abriré sus detalles automáticamente</p>
+      </div>
+    </div>}
+
+    <div className="toast-wrap">
+      {toasts.map(t=><div key={t.id} className={`toast ${t.kind==='warn'?'warn':t.kind==='err'?'err':''}`}>{t.msg}</div>)}
+    </div>
+  </>);
+}
+
+// ============================================================
+// INFO PANEL
+// ============================================================
+function InfoPanel({ext,cat,compatibleApps,altApps,recommended,onClose,onSelectApp,onSelectExt}){
+  const info=D[ext];
+  const ct=Object.entries(CATS).find(([_,c])=>c.e.includes(ext));
+  const catCl=ct?ct[1].cl:'#B0432A';
+  const grad=catCl;
+  const tags=[];
+  if(info){
+    if(info.s)tags.push({t:info.s,k:info.s.includes('Legacy')?'dead':info.s.includes('Moderno')?'acc':'norm'});
+    if(info.l==='Sí')tags.push({t:'Lossy',k:'warn'});
+    if(info.l==='No')tags.push({t:'Lossless',k:'acc'});
+    if(info.tr==='Sí')tags.push({t:'Transparente',k:'norm'});
+    if(info.a==='Sí')tags.push({t:'Animado',k:'norm'});
+  }
+  return (<div style={{position:'relative',height:'100%','--cat-cl':catCl,'--cat-grad':grad}}>
+    <button className="info-close" onClick={onClose} title="Cerrar">✕</button>
+    <div className="info-inner">
+      <div className="info-hero">
+        <div className="info-ext">.{ext}</div>
+        <div className="info-cat"><span className="info-cat-dot"/>{ct?`${ct[1].i} ${ct[1].n}`:'General'}{info?.y&&<>· {info.y}</>}</div>
+        {info?<>
+          <div className="info-name">{info.f}</div>
+          <div className="info-desc">{info.d}</div>
+          {tags.length>0&&<div className="info-tags">
+            {tags.map((t,i)=><span key={i} className={`info-tag ${t.k==='acc'?'acc':t.k==='warn'?'warn':t.k==='dead'?'dead':''}`}>{t.t}</span>)}
+          </div>}
+          {info.pop&&<div className="info-pop">
+            <span className="info-pop-l">Popularidad</span>
+            <div className="info-pop-bar"><div className="info-pop-bar-fill" style={{width:`${info.pop*10}%`}}/></div>
+            <span className="info-pop-v">{info.pop}/10</span>
+          </div>}
+        </>:<div style={{color:'var(--tx-3)',fontStyle:'italic',fontSize:13}}>Información detallada no disponible para .{ext}</div>}
+      </div>
+
+      {info&&<div className="info-meta">
+        {info.t&&info.t!=='N/A'&&<div className="meta-row"><span className="meta-k">Tipo</span><span className="meta-v">{info.t}</span></div>}
+        {info.l&&info.l!=='N/A'&&<div className="meta-row"><span className="meta-k">Pérdida</span><span className="meta-v">{info.l}</span></div>}
+        {info.tr&&info.tr!=='N/A'&&<div className="meta-row"><span className="meta-k">Transparencia</span><span className="meta-v">{info.tr}</span></div>}
+        {info.a&&info.a!=='N/A'&&<div className="meta-row"><span className="meta-k">Animación</span><span className="meta-v">{info.a}</span></div>}
+        {info.c&&info.c!=='N/A'&&<div className="meta-row"><span className="meta-k">Color</span><span className="meta-v">{info.c}</span></div>}
+        {info.co&&info.co!=='N/A'&&<div className="meta-row"><span className="meta-k">Compresión</span><span className="meta-v">{info.co}</span></div>}
+        {info.mime&&<div className="meta-row"><span className="meta-k">MIME</span><span className="meta-v mono-sm">{info.mime}</span></div>}
+        {info.magic&&<div className="meta-row"><span className="meta-k">Magic bytes</span><span className="meta-v mono-sm">{info.magic}</span></div>}
+      </div>}
+
+      {recommended&&<div className="info-rec" style={{'--app-cl':recommended.cl}} onClick={()=>onSelectApp(recommended.id)}>
+        <div className="info-rec-l">★ App recomendada</div>
+        <div className="info-rec-name"><span className="ad"/>{recommended.nm}</div>
+        <div className="info-rec-reason">Cubre {recommended.inCat}/{(CATS[cat]?.e||[]).length} formatos de esta categoría · {recommended.fm.length} formatos en total</div>
+      </div>}
+
+      {compatibleApps.length>0&&<div className="info-section">
+        <div className="info-section-h">✓ En tu lista · {compatibleApps.length}</div>
+        <div className="app-comp-list">
+          {compatibleApps.map(a=><div key={a.id} className="app-comp-item" style={{'--app-cl':a.cl}} onClick={()=>onSelectApp(a.id)} role="button" tabIndex={0}>
+            <span className="ad"/>
+            <span className="app-comp-name">{a.nm}</span>
+            <span className="app-comp-tag">I/O</span>
+          </div>)}
+        </div>
+      </div>}
+
+      {compatibleApps.length===0&&<div className="info-section">
+        <div style={{padding:'10px 12px',background:'rgba(248,113,113,.06)',border:'1px solid rgba(248,113,113,.2)',borderRadius:9,fontSize:12,lineHeight:1.5,color:'var(--tx-2)'}}>
+          Ninguna de tus apps soporta <strong style={{color:'var(--c-red)'}}>.{ext}</strong>. Mira las recomendaciones de abajo o añade una nueva app.
+        </div>
+      </div>}
+
+      {altApps.length>0&&<div className="info-section">
+        <div className="info-section-h">★ También funciona con</div>
+        <div className="alt-list">
+          {altApps.map(n=><div key={n} className="alt-item">{n}</div>)}
+        </div>
+      </div>}
+
+      {info?.rel&&info.rel.length>0&&<div className="info-section">
+        <div className="info-section-h">⇄ Formatos relacionados</div>
+        <div className="related-list">
+          {info.rel.map(x=><span key={x} className="related-pill" onClick={()=>onSelectExt(x)} role="button" tabIndex={0}>.{x}</span>)}
+        </div>
+      </div>}
+
+      {info?.alts&&info.alts.length>0&&<div className="info-section">
+        <div className="info-section-h">→ Alternativas modernas</div>
+        <div className="alt-list">
+          {info.alts.map(a=><div key={a} className="alt-item">{a}</div>)}
+        </div>
+      </div>}
+    </div>
+  </div>);
+}
+
+// ============================================================
+// COMPARE MODAL
+// ============================================================
+function CompareModal({catKey,onClose,apps}){
+  const c=CATS[catKey];
+  const [filter,setFilter]=useState('');
+  if(!c)return null;
+
+  const isImg=catKey==='imagen';
+  const isAud=catKey==='audio';
+  const isVid=catKey==='video';
+  const is3D=catKey==='cad';
+  const isDoc=['documento','hoja','presentacion','ebook'].includes(catKey);
+
+  const filtered=useMemo(()=>{
+    if(!filter.trim())return c.e;
+    const q=filter.toUpperCase();
+    return c.e.filter(x=>{
+      if(x.includes(q))return true;
+      const inf=D[x];
+      return inf&&inf.f.toUpperCase().includes(q);
+    });
+  },[filter,c.e]);
+
+  // Group by sub-status
+  const groups={};
+  filtered.forEach(x=>{
+    const inf=D[x];
+    const sg=inf?.s||'Otros';
+    if(!groups[sg])groups[sg]=[];
+    groups[sg].push({x,info:inf});
+  });
+
+  const cellClass=(v)=>{
+    if(!v||v==='—')return 'tbl-cell-mut';
+    if(v==='Sí')return 'tbl-cell-y';
+    if(v==='No')return 'tbl-cell-n';
+    return '';
+  };
+
+  const colSpan=isImg?9:isAud?7:isVid?7:is3D?8:isDoc?7:7;
+
+  return (<div className="overlay" onClick={onClose}>
+    <div className="modal cmp-modal" onClick={e=>e.stopPropagation()} style={{'--cat-cl':c.cl}}>
+      <div className="modal-h">
+        <div className="modal-t">
+          <span style={{fontSize:18}}>{c.i}</span>
+          <span>Comparativa — {c.n}</span>
+          <small>{c.e.length} formatos · {Object.keys(groups).length} subgrupos</small>
+        </div>
+        <button className="modal-c" onClick={onClose}>✕</button>
+      </div>
+      <div className="cmp-toolbar">
+        <div className="cmp-search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Filtrar formato o nombre…"/>
+        </div>
+        <div className="cmp-stat">Mostrando <strong>{filtered.length}</strong> / {c.e.length}</div>
+      </div>
+      <div className="modal-b">
+        <table className="tbl">
+          <thead><tr>
+            <th>Ext.</th><th>Nombre completo</th><th>Tipo</th>
+            {isImg&&<><th>Pérdida</th><th>Transp.</th><th>Anim.</th><th>Color</th></>}
+            {isAud&&<><th>Pérdida</th><th>Codec</th></>}
+            {isVid&&<><th>Pérdida</th><th>Codec</th></>}
+            {is3D&&<><th>Anim.</th><th>Color</th><th>BREP</th></>}
+            {isDoc&&<><th>Compresión</th></>}
+            <th>Año</th><th>Pop.</th>
+          </tr></thead>
+          <tbody>
+            {Object.entries(groups).map(([sg,items])=><React.Fragment key={sg}>
+              <tr className="subhead"><td colSpan={colSpan}>{sg} · {items.length}</td></tr>
+              {items.map(({x,info})=><tr key={x}>
+                <td>.{x}</td>
+                <td>{info?.f||'—'}</td>
+                <td>{info?.t||'—'}</td>
+                {isImg&&<>
+                  <td className={cellClass(info?.l)}>{info?.l||'—'}</td>
+                  <td className={cellClass(info?.tr)}>{info?.tr||'—'}</td>
+                  <td className={cellClass(info?.a)}>{info?.a||'—'}</td>
+                  <td>{info?.c||'—'}</td>
+                </>}
+                {isAud&&<>
+                  <td className={cellClass(info?.l)}>{info?.l||'—'}</td>
+                  <td>{info?.co||'—'}</td>
+                </>}
+                {isVid&&<>
+                  <td className={cellClass(info?.l)}>{info?.l||'—'}</td>
+                  <td>{info?.co||'—'}</td>
+                </>}
+                {is3D&&<>
+                  <td className={cellClass(info?.a)}>{info?.a||'—'}</td>
+                  <td>{info?.c||'—'}</td>
+                  <td>{info?.t?.includes('BREP')?'Sí':info?.t?.includes('Malla')?'No':'—'}</td>
+                </>}
+                {isDoc&&<td>{info?.co||'—'}</td>}
+                <td>{info?.y||'—'}</td>
+                <td><small style={{color:info?.pop>=8?'var(--c-amber)':info?.pop>=5?'var(--c-cyan)':'var(--tx-3)'}}>{info?.pop?'★'.repeat(Math.ceil(info.pop/2)):'—'}</small></td>
+              </tr>)}
+            </React.Fragment>)}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>);
+}
+
+// ============================================================
+// ADD/EDIT APP MODAL
+// ============================================================
+function AddAppModal({allExt,onClose,onAdd,initial,title='Añadir Aplicación'}){
+  const [nm,setNm]=useState(initial?.nm||'');
+  const [vd,setVd]=useState(initial?.vd||'');
+  const [cl,setCl]=useState(initial?.cl||APP_COLORS[0]);
+  const [sf,setSf]=useState(new Set(initial?.fm||[]));
+  const [fs,setFs]=useState('');
+
+  const filtered=useMemo(()=>{
+    if(!fs.trim())return allExt;
+    const q=fs.toUpperCase();
+    return allExt.filter(e=>e.includes(q));
+  },[fs,allExt]);
+
+  const toggle=(x)=>{
+    const n=new Set(sf);
+    n.has(x)?n.delete(x):n.add(x);
+    setSf(n);
+  };
+
+  const bulkAdd=(catKey)=>{
+    const n=new Set(sf);
+    CATS[catKey].e.forEach(x=>n.add(x));
+    setSf(n);
+  };
+
+  const submit=()=>{
+    if(!nm.trim())return;
+    const data={
+      id:initial?.id||(nm.toLowerCase().replace(/\s+/g,'-')+'-'+Date.now()),
+      nm:nm.trim(),
+      vd:vd.trim()||undefined,
+      cl,
+      fm:[...sf]
+    };
+    onAdd(data);
+  };
+
+  return (<div className="overlay" onClick={onClose}>
+    <div className="modal add-modal" onClick={e=>e.stopPropagation()}>
+      <div className="modal-h">
+        <div className="modal-t">{title}<small>· {sf.size} formato{sf.size!==1?'s':''}</small></div>
+        <button className="modal-c" onClick={onClose}>✕</button>
+      </div>
+      <div className="add-body">
+        <div className="field">
+          <label className="field-l">Nombre</label>
+          <input className="field-input" type="text" value={nm} onChange={e=>setNm(e.target.value)} placeholder="Ej: Krita, Ableton Live…" autoFocus/>
+        </div>
+        <div className="field">
+          <label className="field-l">Vendor / Empresa (opcional)</label>
+          <input className="field-input" type="text" value={vd} onChange={e=>setVd(e.target.value)} placeholder="Ej: Adobe, Apple…"/>
+        </div>
+        <div className="field">
+          <label className="field-l">Color identificativo</label>
+          <div className="swatches">
+            {APP_COLORS.map(c=><div key={c} className={`swatch${cl===c?' sl':''}`} style={{background:c,color:c}} onClick={()=>setCl(c)} role="button" tabIndex={0}/>)}
+          </div>
+        </div>
+        <div className="field">
+          <label className="field-l">Formatos soportados ({sf.size})</label>
+          <div className="fmt-bulk">
+            {Object.entries(CATS).slice(0,10).map(([k,c])=>
+              <button key={k} className="fmt-bulk-btn" onClick={()=>bulkAdd(k)} type="button">+ {c.n}</button>
+            )}
+            {sf.size>0&&<button className="fmt-bulk-btn" onClick={()=>setSf(new Set())} type="button" style={{color:'var(--c-red)',borderColor:'rgba(248,113,113,.3)'}}>Limpiar</button>}
+          </div>
+          <input className="field-input" type="text" value={fs} onChange={e=>setFs(e.target.value)} placeholder="Filtrar formatos…" style={{marginBottom:8}}/>
+          <div className="fmt-grid">
+            {filtered.map(e=><div key={e} className={`fmt-pill${sf.has(e)?' sel':''}`} onClick={()=>toggle(e)} role="button" tabIndex={0}>{e}</div>)}
+          </div>
+        </div>
+      </div>
+      <div className="modal-foot">
+        <button className="btn btn-ghost" onClick={onClose}>Cancelar</button>
+        <button className="btn btn-primary" onClick={submit} disabled={!nm.trim()}>{initial?'Guardar':'Añadir'}</button>
+      </div>
+    </div>
+  </div>);
+}
+
+// ============================================================
+// STATS MODAL
+// ============================================================
+function StatsModal({apps,onClose}){
+  const totalFmt=useMemo(()=>{
+    const s=new Set();
+    Object.values(CATS).forEach(c=>c.e.forEach(x=>s.add(x)));
+    return s.size;
+  },[]);
+  const allYour=useMemo(()=>{
+    const s=new Set();
+    apps.forEach(a=>a.fm.forEach(f=>s.add(f)));
+    return s;
+  },[apps]);
+  const coveragePct=Math.round(100*allYour.size/totalFmt);
+
+  // Coverage per category
+  const catCov=useMemo(()=>Object.entries(CATS).map(([k,c])=>{
+    const cov=c.e.filter(x=>allYour.has(x)).length;
+    return {k,n:c.n,cl:c.cl,total:c.e.length,cov,pct:Math.round(100*cov/c.e.length)};
+  }),[allYour]);
+
+  // Apps ranked by total fmt
+  const appsRanked=useMemo(()=>[...apps].sort((a,b)=>b.fm.length-a.fm.length),[apps]);
+
+  // Format gaps - formats no app supports
+  const gaps=useMemo(()=>{
+    const out=[];
+    Object.entries(CATS).forEach(([k,c])=>{
+      c.e.forEach(x=>{if(!allYour.has(x))out.push({x,c:c.n,cl:c.cl})});
+    });
+    return out.slice(0,40);
+  },[allYour]);
+
+  return (<div className="overlay" onClick={onClose}>
+    <div className="modal stats-modal" onClick={e=>e.stopPropagation()}>
+      <div className="modal-h">
+        <div className="modal-t">📊 Panel de estadísticas<small>· tu cobertura de formatos</small></div>
+        <button className="modal-c" onClick={onClose}>✕</button>
+      </div>
+      <div className="modal-b stats-body">
+        <div className="stats-card">
+          <div className="stats-card-h">Cobertura global</div>
+          <div className="stats-big"><span className="stats-big-n">{allYour.size}</span><span className="stats-big-l">/ {totalFmt} formatos</span></div>
+          <div className="stats-bar"><div className="stats-bar-fill" style={{width:`${coveragePct}%`,background:'var(--grad-acc)'}}/></div>
+          <div style={{fontSize:11,color:'var(--tx-3)',marginTop:4}}>{coveragePct}% del catálogo</div>
+        </div>
+        <div className="stats-card">
+          <div className="stats-card-h">Apps registradas</div>
+          <div className="stats-big"><span className="stats-big-n" style={{color:'var(--c-purple)'}}>{apps.length}</span><span className="stats-big-l">aplicaciones</span></div>
+          <div style={{fontSize:11,color:'var(--tx-3)',marginTop:4}}>Promedio: {Math.round(apps.reduce((s,a)=>s+a.fm.length,0)/Math.max(apps.length,1))} formatos por app</div>
+        </div>
+
+        <div className="stats-card full">
+          <div className="stats-card-h">Cobertura por categoría</div>
+          {catCov.map(c=><div key={c.k} className="stats-row">
+            <div className="stats-row-name"><span className="dot" style={{background:c.cl}}/>{c.n}</div>
+            <div className="stats-bar"><div className="stats-bar-fill" style={{width:`${c.pct}%`,background:c.cl}}/></div>
+            <strong>{c.cov}/{c.total}</strong>
+          </div>)}
+        </div>
+
+        <div className="stats-card full">
+          <div className="stats-card-h">Top apps por nº formatos</div>
+          {appsRanked.slice(0,12).map(a=><div key={a.id} className="stats-row">
+            <div className="stats-row-name"><span className="dot" style={{background:a.cl}}/>{a.nm}</div>
+            <div className="stats-bar"><div className="stats-bar-fill" style={{width:`${Math.min(100,(a.fm.length/Math.max(...appsRanked.map(x=>x.fm.length)))*100)}%`,background:a.cl}}/></div>
+            <strong>{a.fm.length}</strong>
+          </div>)}
+        </div>
+
+        {gaps.length>0&&<div className="stats-card full">
+          <div className="stats-card-h">⚠ Formatos sin cobertura ({gaps.length}{gaps.length>=40?'+':''})</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+            {gaps.map(g=><span key={g.x} style={{padding:'4px 9px',background:'var(--bg-3)',border:`1px solid ${g.cl}55`,borderRadius:5,font:'600 10px/1 JetBrains Mono,monospace',color:g.cl}}>.{g.x}</span>)}
+          </div>
+        </div>}
+      </div>
+    </div>
+  </div>);
+}
+
+// ============================================================
+// HELP MODAL
+// ============================================================
+function HelpModal({onClose}){
+  return (<div className="overlay" onClick={onClose}>
+    <div className="modal" onClick={e=>e.stopPropagation()} style={{width:520,maxWidth:'96%'}}>
+      <div className="modal-h">
+        <div className="modal-t">💡 Cómo usar Format Explorer</div>
+        <button className="modal-c" onClick={onClose}>✕</button>
+      </div>
+      <div className="modal-b" style={{padding:'18px 22px'}}>
+        <div style={{display:'flex',flexDirection:'column',gap:14}}>
+          <Hint k="/" t="Enfocar la barra de búsqueda"/>
+          <Hint k="Esc" t="Cerrar paneles, modales o limpiar selección"/>
+          <Hint k="?" t="Mostrar esta ayuda"/>
+          <Hint k="Click ext." t="Ver detalles del formato (panel derecho)"/>
+          <Hint k="Click app" t="Resaltar formatos compatibles en color"/>
+          <Hint k="Click ⓘ" t="Tabla comparativa de la categoría"/>
+          <Hint k="Click 📊" t="Panel de estadísticas y cobertura"/>
+          <Hint k="Click derecho app" t="Editar app"/>
+          <Hint k="Drag & drop" t="Suelta un archivo y se detectará la extensión"/>
+          <Hint k="Persistencia" t="Tus apps se guardan automáticamente en este navegador"/>
+        </div>
+      </div>
+    </div>
+  </div>);
+}
+function Hint({k,t}){
+  return (<div style={{display:'flex',gap:14,alignItems:'center'}}>
+    <span style={{font:'600 11px/1 JetBrains Mono,monospace',color:'var(--c-cyan)',background:'var(--gl-cyan)',padding:'5px 10px',borderRadius:6,minWidth:120,textAlign:'center'}}>{k}</span>
+    <span style={{fontSize:13,color:'var(--tx-1)'}}>{t}</span>
+  </div>);
+}
+
+ReactDOM.render(<App/>,document.getElementById('app'));
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+.options-scene {
+  flex: 1; display: flex; flex-direction: column;
+  background: linear-gradient(var(--bg1), #000);
+  padding: 0; position: relative;
+}
+
+.options-body {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 30px 20px;
+  overflow-y: auto;
+}
+
+.options-title {
+  font-size: 32px; color: var(--yellow);
+  text-shadow: 3px 3px 0 var(--red), 6px 6px 0 #000;
+  letter-spacing: 4px; margin-bottom: 30px;
+}
+
+.options-list {
+  width: 100%; max-width: 600px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+.option-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 18px;
+  border: 3px solid var(--cyan);
+  background: rgba(0,30,60,0.5);
+  font-size: 11px; color: #fff;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.option-row.active {
+  border-color: var(--green);
+  background: rgba(0,255,102,0.1);
+  box-shadow: 0 0 14px var(--green);
+}
+
+.option-row .label { color: var(--yellow); letter-spacing: 1px; }
+
+.option-row .value {
+  color: var(--cyan); display: flex; align-items: center; gap: 10px;
+  font-size: 11px;
+}
+
+.option-row .value .arrow { color: var(--green); font-size: 14px; }
+
+.option-row .slider {
+  display: inline-block; width: 100px; height: 12px;
+  background: #000; border: 2px solid var(--cyan);
+  position: relative;
+}
+
+.option-row.active .slider { border-color: var(--green); }
+
+.option-row .slider-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--green), var(--yellow));
+}
+
+.options-controls-info {
+  margin-top: 24px;
+  font-size: 9px;
+  color: #888;
+  text-align: center;
+  letter-spacing: 2px;
+  line-height: 1.8;
+}
+
+.options-back {
+  margin-top: 24px;
+  padding: 10px 24px;
+  background: transparent;
+  border: 3px solid var(--red);
+  color: var(--red);
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.options-back:hover, .options-back.active {
+  background: var(--red); color: #000;
+  box-shadow: 0 0 14px var(--red);
+}
+
+@media (max-width: 768px) {
+  .options-title { font-size: 20px; }
+  .option-row { font-size: 9px; padding: 8px 12px; }
+  .option-row .value { font-size: 9px; }
+}

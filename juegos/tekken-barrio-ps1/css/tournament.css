@@ -1,0 +1,175 @@
+.tournament-scene {
+  flex: 1; display: flex; flex-direction: column;
+  background:
+    radial-gradient(ellipse at top, #002255 0%, #000 70%);
+  padding: 0; position: relative;
+}
+
+.tournament-body {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 24px 16px;
+  overflow-y: auto;
+}
+
+.tournament-title {
+  font-size: 30px; color: var(--yellow);
+  text-shadow: 3px 3px 0 var(--purple), 6px 6px 0 #000;
+  letter-spacing: 6px; margin-bottom: 8px;
+}
+
+.tournament-subtitle {
+  font-size: 11px; color: var(--cyan);
+  text-shadow: 2px 2px 0 #000;
+  margin-bottom: 24px; letter-spacing: 3px;
+}
+
+.bracket {
+  display: flex; gap: 30px;
+  align-items: stretch;
+}
+
+.bracket-round {
+  display: flex; flex-direction: column;
+  justify-content: space-around;
+  gap: 12px;
+}
+
+.bracket-round-label {
+  font-size: 11px; color: var(--green);
+  text-align: center; margin-bottom: 8px;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.bracket-match {
+  display: flex; flex-direction: column;
+  border: 3px solid var(--cyan);
+  background: rgba(0,30,60,0.6);
+  padding: 6px; min-width: 180px;
+  box-shadow: 0 0 8px rgba(0,229,255,0.3);
+}
+
+.bracket-match.next {
+  border-color: var(--yellow);
+  box-shadow: 0 0 16px var(--yellow);
+  animation: glow 1s infinite alternate;
+}
+
+.bracket-match.done { opacity: 0.55; }
+
+.bracket-fighter {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px;
+  border-bottom: 1px dashed rgba(255,255,255,0.2);
+  font-size: 8px;
+  min-height: 30px;
+}
+
+.bracket-fighter:last-child { border-bottom: 0; }
+
+.bracket-fighter.player { color: var(--green); }
+.bracket-fighter.cpu { color: #ccc; }
+.bracket-fighter.winner {
+  color: var(--yellow); font-weight: bold;
+  background: rgba(255,230,0,0.1);
+  text-shadow: 1px 1px 0 #000;
+}
+.bracket-fighter.loser { opacity: 0.4; text-decoration: line-through; }
+.bracket-fighter.tbd { color: #666; font-style: italic; }
+
+.bracket-fighter .mini-portrait {
+  width: 24px; height: 24px;
+  background: #223344;
+  border: 1px solid #000;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+.bracket-fighter .mini-portrait img {
+  width: 100%; height: 100%; object-fit: contain;
+}
+
+.tournament-status {
+  margin-top: 24px; padding: 14px 22px;
+  border: 3px solid var(--green);
+  font-size: 11px; color: var(--yellow);
+  text-shadow: 2px 2px 0 #000;
+  letter-spacing: 2px; text-align: center;
+  background: rgba(0,255,102,0.08);
+}
+
+.tournament-actions {
+  display: flex; gap: 14px; margin-top: 18px;
+}
+
+.tournament-btn {
+  padding: 10px 22px;
+  border: 3px solid var(--green);
+  background: transparent; color: var(--green);
+  font-family: inherit; font-size: 11px;
+  cursor: pointer; letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.tournament-btn.active, .tournament-btn:hover {
+  background: var(--green); color: #000;
+  box-shadow: 0 0 14px var(--green);
+}
+
+.tournament-btn.danger {
+  border-color: var(--red); color: var(--red);
+}
+
+.tournament-btn.danger.active, .tournament-btn.danger:hover {
+  background: var(--red); color: #000;
+  box-shadow: 0 0 14px var(--red);
+}
+
+.champion-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.92);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 60; gap: 18px; padding: 20px;
+}
+
+.champion-overlay.show { display: flex; }
+
+.champion-overlay h2 {
+  font-size: 50px; color: var(--yellow);
+  text-shadow: 4px 4px 0 var(--red), 8px 8px 0 #000;
+  letter-spacing: 6px;
+  animation: victoryPulse 0.8s infinite alternate;
+  text-align: center;
+}
+
+.champion-overlay .champ-name {
+  font-size: 18px; color: var(--cyan);
+  text-shadow: 2px 2px 0 #000;
+  letter-spacing: 3px; text-align: center;
+}
+
+.champion-overlay img {
+  width: 200px; height: 200px;
+  border: 5px solid var(--yellow);
+  box-shadow: 0 0 30px var(--yellow);
+  background: radial-gradient(circle, #fff7cc, #ffaa00);
+  object-fit: contain;
+}
+
+@media (max-width: 900px) {
+  .bracket { gap: 14px; flex-wrap: nowrap; overflow-x: auto; padding: 6px; }
+  .bracket-match { min-width: 130px; }
+  .bracket-fighter { font-size: 7px; }
+  .bracket-fighter .mini-portrait { width: 18px; height: 18px; }
+}
+
+@media (max-width: 768px) {
+  .tournament-title { font-size: 18px; letter-spacing: 3px; }
+  .tournament-subtitle { font-size: 8px; }
+  .tournament-status { font-size: 9px; }
+  .champion-overlay h2 { font-size: 28px; letter-spacing: 3px; }
+  .champion-overlay .champ-name { font-size: 12px; }
+  .champion-overlay img { width: 140px; height: 140px; }
+}
