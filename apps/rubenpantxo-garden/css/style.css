@@ -30,9 +30,7 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
   height: 68px;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 24px;
-  background: rgba(20,30,20,.85);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  background: rgba(20,30,20,.98);
   border-bottom: 1px solid rgba(255,255,255,.08);
   z-index: 500;
   color: #f4ece2;
@@ -131,7 +129,6 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
   box-shadow: 0 6px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.6);
   transition: all 280ms cubic-bezier(.34,1.56,.64,1);
   z-index: 10;
-  backdrop-filter: blur(12px);
 }
 .hotspot img {
   width: 44px; height: 44px; object-fit: contain;
@@ -159,14 +156,13 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
   font-family: 'Vito', sans-serif;
   font-size: 12px; font-weight: 700;
   color: #fff;
-  background: rgba(20,30,20,.85);
+  background: rgba(20,30,20,.98);
   padding: 4px 10px;
   border-radius: var(--radius-pill);
   white-space: nowrap;
   opacity: 0;
   transition: all var(--t-base);
   pointer-events: none;
-  backdrop-filter: blur(8px);
   letter-spacing: .3px;
 }
 .hotspot:hover {
@@ -183,8 +179,7 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
   position: fixed;
   bottom: 24px; left: 50%; transform: translateX(-50%);
   display: flex; gap: 4px;
-  background: rgba(20,30,20,.85);
-  backdrop-filter: blur(20px) saturate(140%);
+  background: rgba(20,30,20,.98);
   border: 1px solid rgba(255,255,255,.08);
   border-radius: var(--radius-pill);
   padding: 6px;
@@ -305,8 +300,7 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
 }
 .modal-backdrop {
   position: absolute; inset: 0;
-  background: rgba(10,20,10,.55);
-  backdrop-filter: blur(8px);
+  background: rgba(10,20,10,.80);
   animation: fadeIn 240ms ease-out;
 }
 .modal-content {
@@ -368,7 +362,6 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
   box-shadow: var(--shadow-lg);
   opacity: 0;
   transition: all var(--t-base);
-  backdrop-filter: blur(12px);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.success { background: rgba(40,90,40,.95); }
@@ -398,8 +391,6 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
     overflow: hidden;
     padding: 0 12px;
     height: 56px;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
     background: rgba(20,30,20,.98);
   }
   .view { padding-top: 56px; }
@@ -410,25 +401,11 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
   .brand-sub { display: none; }
   .brand-logo { width: 32px; height: 32px; }
 
-  /* Eliminar backdrop-filter de hotspots — causa blur en mobile Chrome */
-  .hotspot {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    background: rgba(255,255,255,.95);
-  }
-  .hotspot-label {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-
-  /* Mini-nav opaco sin backdrop-filter */
+  /* Mini-nav compacto */
   .mini-nav {
     bottom: 12px;
     padding: 4px;
     gap: 2px;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    background: rgba(20,30,20,.98);
     left: 50%;
     transform: translateX(-50%);
     max-width: 96vw;
