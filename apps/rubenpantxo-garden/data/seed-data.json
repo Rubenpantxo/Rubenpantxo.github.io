@@ -1,0 +1,230 @@
+{
+  "_comment": "Datos iniciales del huerto de Rubén - Mayo 2026",
+  "plantas": [
+    {
+      "id": "p001",
+      "nombre": "Jealousy #1",
+      "raza": "Jealousy",
+      "banco": "Barney's Farm",
+      "ubicacion": "invernadero",
+      "fase": "crecimiento",
+      "semana": 2,
+      "fecha_inicio": "2026-04-28",
+      "notas": "Plantada en invernadero junto a las demás"
+    },
+    {
+      "id": "p002",
+      "nombre": "Jealousy #2",
+      "raza": "Jealousy",
+      "banco": "Barney's Farm",
+      "ubicacion": "invernadero",
+      "fase": "crecimiento",
+      "semana": 2,
+      "fecha_inicio": "2026-04-28",
+      "notas": ""
+    },
+    {
+      "id": "p003",
+      "nombre": "Nordle #1",
+      "raza": "Nordle",
+      "banco": "Sweet Seeds",
+      "ubicacion": "invernadero",
+      "fase": "crecimiento",
+      "semana": 2,
+      "fecha_inicio": "2026-04-28",
+      "notas": ""
+    },
+    {
+      "id": "p004",
+      "nombre": "Nordle #2",
+      "raza": "Nordle",
+      "banco": "Sweet Seeds",
+      "ubicacion": "invernadero",
+      "fase": "crecimiento",
+      "semana": 2,
+      "fecha_inicio": "2026-04-28",
+      "notas": ""
+    },
+    {
+      "id": "p005",
+      "nombre": "Jealousy SM",
+      "raza": "Jealousy",
+      "banco": "Barney's Farm",
+      "ubicacion": "semillero",
+      "fase": "enraizamiento",
+      "semana": 1,
+      "fecha_inicio": "2026-05-08",
+      "notas": "Final de la fase de enraizamiento - listo para transplante"
+    },
+    {
+      "id": "p006",
+      "nombre": "Nordle SM",
+      "raza": "Nordle",
+      "banco": "Sweet Seeds",
+      "ubicacion": "semillero",
+      "fase": "enraizamiento",
+      "semana": 1,
+      "fecha_inicio": "2026-05-08",
+      "notas": "Final de la fase de enraizamiento - listo para transplante"
+    },
+    {
+      "id": "p007",
+      "nombre": "Monster #1",
+      "raza": "Monster",
+      "banco": "Eva Seeds",
+      "ubicacion": "germinacion",
+      "fase": "germinacion",
+      "semana": 0,
+      "fecha_inicio": "2026-05-13",
+      "notas": "Germinando"
+    },
+    {
+      "id": "p008",
+      "nombre": "Monster #2",
+      "raza": "Monster",
+      "banco": "Eva Seeds",
+      "ubicacion": "germinacion",
+      "fase": "germinacion",
+      "semana": 0,
+      "fecha_inicio": "2026-05-13",
+      "notas": "Germinando"
+    },
+    {
+      "id": "p009",
+      "nombre": "Monster #3",
+      "raza": "Monster",
+      "banco": "Eva Seeds",
+      "ubicacion": "germinacion",
+      "fase": "germinacion",
+      "semana": 0,
+      "fecha_inicio": "2026-05-13",
+      "notas": "Germinando"
+    },
+    {
+      "id": "p010",
+      "nombre": "Monster #4",
+      "raza": "Monster",
+      "banco": "Eva Seeds",
+      "ubicacion": "germinacion",
+      "fase": "germinacion",
+      "semana": 0,
+      "fecha_inicio": "2026-05-13",
+      "notas": "Germinando"
+    },
+    {
+      "id": "p011",
+      "nombre": "Jack Herer",
+      "raza": "Jack Herer",
+      "banco": "Sensi Seeds",
+      "ubicacion": "germinacion",
+      "fase": "germinacion",
+      "semana": 0,
+      "fecha_inicio": "2026-05-13",
+      "notas": "Germinando"
+    }
+  ],
+  "stock": [
+    { "id": "s001", "nombre": "Top Roots", "marca": "Top Crop", "categoria": "enraizante", "cantidad_ml": 250, "dosis": "0,5-1 ml/L" },
+    { "id": "s002", "nombre": "Soil A", "marca": "Top Crop", "categoria": "fertilizante-base", "cantidad_ml": 1000, "dosis": "1-2,5 ml/L según semana" },
+    { "id": "s003", "nombre": "Soil B", "marca": "Top Crop", "categoria": "fertilizante-base", "cantidad_ml": 1000, "dosis": "1-2,5 ml/L según semana" },
+    { "id": "s004", "nombre": "Big One", "marca": "Top Crop", "categoria": "estimulador", "cantidad_ml": 250, "dosis": "2 ml/L (vía foliar)" },
+    { "id": "s005", "nombre": "PK 13-14", "marca": "Top Crop", "categoria": "floracion", "cantidad_ml": 500, "dosis": "0,5-1,5 ml/L" },
+    { "id": "s006", "nombre": "Top Candy", "marca": "Top Crop", "categoria": "engorde", "cantidad_ml": 500, "dosis": "1-2 ml/L" },
+    { "id": "s007", "nombre": "Micro Vita", "marca": "Top Crop", "categoria": "biologico", "cantidad_g": 100, "dosis": "2-5 g/10L" }
+  ],
+  "lista_compra": [
+    { "id": "lc001", "producto": "Top Bud", "prioridad": "media", "notas": "Para fase final de floración" }
+  ],
+  "tiendas": [
+    { "nombre": "420 Growshop", "tipo": "growshop" },
+    { "nombre": "Tecnocultivo", "tipo": "growshop" },
+    { "nombre": "Diosa Planta", "tipo": "growshop" },
+    { "nombre": "Yervagüena", "tipo": "growshop" },
+    { "nombre": "Growbarato", "tipo": "growshop" },
+    { "nombre": "Eurogrow", "tipo": "growshop" }
+  ],
+  "bancos_semillas": [
+    { "nombre": "Dinafem Seeds" },
+    { "nombre": "Eva Seeds" },
+    { "nombre": "Sweet Seeds" },
+    { "nombre": "Barney's Farm" },
+    { "nombre": "Sensi Seeds" }
+  ],
+  "tabla_topcrop_soil": {
+    "_comment": "Tabla de cultivo Top Crop para sustrato SOIL",
+    "fases": [
+      { "semana": 1, "fase": "enraizamiento", "horas_luz": 18, "productos": [{ "nombre": "Top Roots", "dosis_min": 0.5, "dosis_max": 1.0, "unidad": "ml/L" }] },
+      { "semana": 2, "fase": "crecimiento", "horas_luz": 18, "productos": [
+        { "nombre": "Soil A", "dosis_min": 1.0, "dosis_max": 1.5, "unidad": "ml/L" },
+        { "nombre": "Soil B", "dosis_min": 1.0, "dosis_max": 1.5, "unidad": "ml/L" }
+      ]},
+      { "semana": 3, "fase": "crecimiento", "horas_luz": 18, "productos": [
+        { "nombre": "Soil A", "dosis_min": 1.5, "dosis_max": 2.0, "unidad": "ml/L" },
+        { "nombre": "Soil B", "dosis_min": 1.5, "dosis_max": 2.0, "unidad": "ml/L" },
+        { "nombre": "Big One", "dosis_min": 2.0, "dosis_max": 2.0, "unidad": "ml/L (foliar)" },
+        { "nombre": "Micro Vita", "dosis_min": 2.0, "dosis_max": 5.0, "unidad": "g/10L" }
+      ]},
+      { "semana": 4, "fase": "floracion", "horas_luz": 12, "productos": [
+        { "nombre": "Soil A", "dosis_min": 2.0, "dosis_max": 2.5, "unidad": "ml/L" },
+        { "nombre": "Soil B", "dosis_min": 2.0, "dosis_max": 2.5, "unidad": "ml/L" },
+        { "nombre": "Big One", "dosis_min": 2.0, "dosis_max": 2.0, "unidad": "ml/L (foliar)" }
+      ]},
+      { "semana": 5, "fase": "floracion", "horas_luz": 12, "productos": [
+        { "nombre": "Soil A", "dosis_min": 2.5, "dosis_max": 3.0, "unidad": "ml/L" },
+        { "nombre": "Soil B", "dosis_min": 2.5, "dosis_max": 3.0, "unidad": "ml/L" },
+        { "nombre": "Micro Vita", "dosis_min": 2.0, "dosis_max": 5.0, "unidad": "g/10L" }
+      ]},
+      { "semana": 6, "fase": "floracion", "horas_luz": 12, "productos": [
+        { "nombre": "Soil A", "dosis_min": 2.5, "dosis_max": 3.0, "unidad": "ml/L" },
+        { "nombre": "Soil B", "dosis_min": 2.5, "dosis_max": 3.0, "unidad": "ml/L" },
+        { "nombre": "PK 13-14", "dosis_min": 0.5, "dosis_max": 1.0, "unidad": "ml/L" }
+      ]},
+      { "semana": 7, "fase": "floracion", "horas_luz": 12, "productos": [
+        { "nombre": "Soil A", "dosis_min": 2.5, "dosis_max": 3.0, "unidad": "ml/L" },
+        { "nombre": "Soil B", "dosis_min": 2.5, "dosis_max": 3.0, "unidad": "ml/L" },
+        { "nombre": "PK 13-14", "dosis_min": 0.5, "dosis_max": 1.0, "unidad": "ml/L" },
+        { "nombre": "Top Candy", "dosis_min": 1.0, "dosis_max": 2.0, "unidad": "ml/L" }
+      ]},
+      { "semana": 8, "fase": "floracion", "horas_luz": 12, "productos": [
+        { "nombre": "PK 13-14", "dosis_min": 1.0, "dosis_max": 1.5, "unidad": "ml/L" },
+        { "nombre": "Top Candy", "dosis_min": 1.0, "dosis_max": 2.0, "unidad": "ml/L" }
+      ]},
+      { "semana": 9, "fase": "floracion", "horas_luz": 12, "productos": [
+        { "nombre": "PK 13-14", "dosis_min": 1.0, "dosis_max": 1.5, "unidad": "ml/L" },
+        { "nombre": "Top Candy", "dosis_min": 1.0, "dosis_max": 2.0, "unidad": "ml/L" }
+      ]},
+      { "semana": 10, "fase": "floracion", "horas_luz": 12, "productos": [
+        { "nombre": "Top Bud", "dosis_min": 0.5, "dosis_max": 1.0, "unidad": "ml/L" }
+      ]},
+      { "semana": 11, "fase": "cosecha", "horas_luz": 12, "productos": [{ "nombre": "Lavado de raíces", "dosis_min": 0, "dosis_max": 0, "unidad": "solo agua" }] }
+    ]
+  },
+  "bidones": [
+    { "id": "b1", "nombre": "Bidón 1", "capacidad_litros": 200, "nivel_porcentaje": 75 },
+    { "id": "b2", "nombre": "Bidón 2", "capacidad_litros": 200, "nivel_porcentaje": 60 }
+  ],
+  "alertas_activas": [],
+  "calendario_riego": [],
+  "calendario_lunar_2026": {
+    "_comment": "Fases lunares clave 2026 - simplificadas",
+    "eventos": [
+      { "fecha": "2026-05-21", "fase": "Luna nueva", "consejo": "Flujo de savia bajo - ideal para podar" },
+      { "fecha": "2026-05-28", "fase": "Cuarto creciente", "consejo": "Crecimiento foliar - bueno para transplante" },
+      { "fecha": "2026-06-04", "fase": "Luna llena", "consejo": "Flujo de savia alto - ideal para riego con nutrientes" },
+      { "fecha": "2026-06-11", "fase": "Cuarto menguante", "consejo": "Bueno para enraizar y germinar" }
+    ]
+  },
+  "infografias_disponibles": [
+    { "id": "info1", "titulo": "Carencias y excesos del cannabis", "imagen": "assets/icons/infografia-carencias.jpg", "categoria": "diagnostico" },
+    { "id": "info2", "titulo": "Calendario lunar cannabis", "imagen": "assets/icons/infografia-lunar-cannabis.jpg", "categoria": "calendario" },
+    { "id": "info3", "titulo": "Tabla Top Crop completa", "imagen": "assets/icons/tabla-topcrop-completa.webp", "categoria": "tabla-cultivo" },
+    { "id": "info4", "titulo": "Tabla cultivo SOIL", "imagen": "assets/img/tabla-topcrop-soil.jpg", "categoria": "tabla-cultivo" },
+    { "id": "info5", "titulo": "Tipos de poda", "imagen": "assets/icons/info-tipos-poda.png", "categoria": "tecnicas" },
+    { "id": "info6", "titulo": "Poda y técnicas", "imagen": "assets/icons/info-poda-tecnicas.png", "categoria": "tecnicas" },
+    { "id": "info7", "titulo": "Macetas - blanca vs negra", "imagen": "assets/icons/info-macetas.png", "categoria": "material" },
+    { "id": "info8", "titulo": "PH de la tierra", "imagen": "assets/icons/info-ph.jpg", "categoria": "diagnostico" },
+    { "id": "info9", "titulo": "Sustrato", "imagen": "assets/icons/info-sustrato.jpg", "categoria": "material" },
+    { "id": "info10", "titulo": "Cuidados transplante", "imagen": "assets/icons/cuidados-transplante.png", "categoria": "tecnicas" },
+    { "id": "info11", "titulo": "Semanas interior vs exterior", "imagen": "assets/icons/semanas-int-vs-ext.png", "categoria": "ciclo" }
+  ]
+}
