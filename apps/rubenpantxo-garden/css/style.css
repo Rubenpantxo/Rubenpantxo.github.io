@@ -23,26 +23,6 @@ input:focus, select:focus, textarea:focus {
 }
 label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 6px; }
 
-/* === BLOQUEO MÓVIL === */
-#mobile-block {
-  display: none;
-  position: fixed; inset: 0;
-  background: linear-gradient(135deg, #1a1f1a 0%, #2a3a2a 100%);
-  z-index: 9999;
-  align-items: center; justify-content: center;
-  padding: 32px;
-  text-align: center;
-  color: #f4ece2;
-}
-.mobile-block-inner { max-width: 420px; }
-.mobile-block-inner img { width: 80px; margin: 0 auto 24px; filter: drop-shadow(0 4px 16px rgba(0,0,0,.4)); }
-.mobile-block-inner h2 { font-family: 'Vito', sans-serif; font-size: 28px; margin-bottom: 16px; }
-.mobile-block-inner p { font-size: 15px; line-height: 1.6; margin-bottom: 12px; opacity: .9; }
-.mobile-block-hint { font-style: italic; opacity: .7; font-size: 14px; }
-@media (max-width: 1023px) {
-  #mobile-block { display: flex; }
-  body > *:not(#mobile-block) { display: none !important; }
-}
 
 /* === TOP BAR === */
 #top-bar {
