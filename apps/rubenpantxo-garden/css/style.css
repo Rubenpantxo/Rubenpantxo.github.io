@@ -390,4 +390,26 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: rgba(0,0,0,.04); }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,.18); border-radius: 5px; }
+
+/* === MÓVIL === */
+@media (max-width: 768px) {
+  #top-bar {
+    overflow: hidden;
+    padding: 0 12px;
+    height: 56px;
+  }
+  .view { padding-top: 56px; }
+  .hub-stage { height: calc(100vh - 56px); overflow: auto; }
+  .top-bar-center { display: none; }
+  .actions-menu { display: none; }
+  .brand-name { font-size: 14px; }
+  .brand-sub { display: none; }
+  .brand-logo { width: 32px; height: 32px; }
+  .mini-nav { bottom: 12px; padding: 4px; gap: 2px; }
+  .mini-nav-btn { padding: 6px 10px; font-size: 10px; }
+  .mini-nav-btn img { width: 18px; height: 18px; }
+  .modal-content { width: 95vw; padding: 20px; }
+  .modal-content.wide { width: 95vw; }
+  .section { padding: 20px 16px 100px; }
+}
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.28); }
