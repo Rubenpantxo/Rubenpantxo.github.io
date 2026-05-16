@@ -1,0 +1,30 @@
+/* === FUENTES LOCALES === */
+@font-face {
+  font-family: 'Kestaik';
+  src: url('../assets/fonts/Kestaikpersonaluise.ttf') format('truetype'),
+       url('../assets/fonts/Kestaikpersonaluise.otf') format('opentype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Vito';
+  src: url('../assets/fonts/Vito-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Coolvetica';
+  src: url('../assets/fonts/Coolvetica-RgIt.otf') format('opentype');
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ketika';
+  src: url('../assets/fonts/Ketika-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'CFPlants';
+  src: url('../assets/fonts/CFPlantsandFlowers-Regular.ttf') format('truetype');
+  font-display: swap;
+}
