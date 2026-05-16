@@ -393,23 +393,55 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
 
 /* === MÓVIL === */
 @media (max-width: 768px) {
+  /* Top bar */
   #top-bar {
     overflow: hidden;
     padding: 0 12px;
     height: 56px;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(20,30,20,.98);
   }
   .view { padding-top: 56px; }
-  .hub-stage { height: calc(100vh - 56px); overflow: auto; }
-  .top-bar-center { display: none; }
-  .actions-menu { display: none; }
+  .hub-stage { height: calc(100vh - 56px); overflow: hidden; }
+  .top-bar-center { display: none !important; }
+  .actions-menu { display: none !important; }
   .brand-name { font-size: 14px; }
   .brand-sub { display: none; }
   .brand-logo { width: 32px; height: 32px; }
-  .mini-nav { bottom: 12px; padding: 4px; gap: 2px; }
-  .mini-nav-btn { padding: 6px 10px; font-size: 10px; }
+
+  /* Eliminar backdrop-filter de hotspots — causa blur en mobile Chrome */
+  .hotspot {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(255,255,255,.95);
+  }
+  .hotspot-label {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Mini-nav opaco sin backdrop-filter */
+  .mini-nav {
+    bottom: 12px;
+    padding: 4px;
+    gap: 2px;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(20,30,20,.98);
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 96vw;
+  }
+  .mini-nav-btn { padding: 6px 8px; font-size: 10px; }
   .mini-nav-btn img { width: 18px; height: 18px; }
+
+  /* Modales y secciones */
   .modal-content { width: 95vw; padding: 20px; }
   .modal-content.wide { width: 95vw; }
   .section { padding: 20px 16px 100px; }
+
+  /* Asegurar que el modal oculto no interfiere */
+  #modal-root[hidden] { display: none !important; }
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.28); }
