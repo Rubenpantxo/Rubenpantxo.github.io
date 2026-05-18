@@ -9,7 +9,6 @@ const Watering = (() => {
     const plantas = Storage.get('plantas') || [];
     const tabla = Storage.get('tabla_topcrop_soil') || { fases: [] };
 
-    // Calcular semana media de las plantas activas (excluyendo cosecha y germinación)
     const activas = plantas.filter(p => p.fase !== 'cosecha' && p.fase !== 'germinacion');
     const semanaPromedio = activas.length > 0
       ? Math.round(activas.reduce((s, p) => s + (p.semana || 0), 0) / activas.length) : 1;
@@ -44,7 +43,7 @@ const Watering = (() => {
         </div>
 
         <div class="watering-actions">
-          <button class="btn" onclick="Watering.markWatered()">💧 Marcar como regado HOY</button>
+          <button class="btn" id="btn-water-all">💧 Regar TODAS hoy</button>
           <button class="btn btn-ghost" onclick="Watering.showTable()">📊 Ver tabla completa Top Crop</button>
           <button class="btn btn-ghost" onclick="Watering.history()">📅 Histórico de riegos</button>
         </div>
@@ -52,7 +51,7 @@ const Watering = (() => {
         <div class="watering-recommendation" style="margin-top:24px;">
           <h3>📊 Estado de riego por planta</h3>
           <table class="topcrop-table">
-            <thead><tr><th>Planta</th><th>Fase</th><th>Semana</th><th>Próximo riego</th></tr></thead>
+            <thead><tr><th>Planta</th><th>Fase</th><th>Sem.</th><th>Último riego</th><th>Regar</th></tr></thead>
             <tbody>
               ${plantas.map(p => `
                 <tr>
@@ -60,6 +59,7 @@ const Watering = (() => {
                   <td><span class="topcrop-phase-tag ${p.fase}">${Plants.PHASE_LABELS[p.fase]}</span></td>
                   <td>${p.semana}</td>
                   <td>${nextWatering(p)}</td>
+                  <td><button class="btn-water-plant" data-id="${escapeHtml(p.id)}" title="Registrar riego">💧</button></td>
                 </tr>
               `).join('')}
             </tbody>
@@ -68,7 +68,7 @@ const Watering = (() => {
       </section>
     `;
 
-    // Listeners de sliders
+    // Listeners de sliders de bidones
     document.querySelectorAll('.bidon-slider').forEach(s => {
       s.addEventListener('input', e => {
         const id = e.target.dataset.id;
@@ -77,6 +77,17 @@ const Watering = (() => {
         const card = e.target.closest('.bidon-card');
         card.querySelector('.bidon-fill').style.height = val + '%';
         card.querySelector('.bidon-level-value').textContent = val;
+      });
+    });
+
+    // Botón regar todas
+    document.getElementById('btn-water-all').addEventListener('click', markWatered);
+
+    // Botones regar planta individual
+    document.querySelectorAll('.btn-water-plant').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = (Storage.get('plantas') || []).find(x => x.id === btn.dataset.id);
+        if (p) waterPlant(p.id, p.nombre);
       });
     });
   }
@@ -123,8 +134,13 @@ const Watering = (() => {
   }
 
   function markWatered() {
+    markWateredDate(new Date().toISOString().slice(0,10));
+    Toast.show('💧 Riego registrado para todas las plantas', 'success');
+    render();
+  }
+
+  function markWateredDate(fecha) {
     const plantas = Storage.get('plantas') || [];
-    const fecha = new Date().toISOString().slice(0,10);
     const calendario = Storage.get('calendario_riego') || [];
     plantas.forEach(p => {
       calendario.push({
@@ -136,13 +152,26 @@ const Watering = (() => {
       });
     });
     Storage.set('calendario_riego', calendario);
-    Toast.show('💧 Riego registrado para todas las plantas', 'success');
+  }
+
+  function waterPlant(id, nombre) {
+    waterPlantDate(id, nombre, new Date().toISOString().slice(0,10));
+    Toast.show(`💧 ${nombre} regada`, 'success');
     render();
+  }
+
+  function waterPlantDate(id, nombre, fecha) {
+    Storage.listAdd('calendario_riego', {
+      planta_id: id,
+      planta_nombre: nombre,
+      fecha,
+      producto_aplicado: 'Según tabla'
+    });
   }
 
   function showTable() {
     const tabla = Storage.get('tabla_topcrop_soil') || { fases: [] };
-    const html = `
+    Modal.open(`
       <h2 class="modal-title">📊 Tabla de cultivo Top Crop · SOIL</h2>
       <p class="modal-subtitle">Dosis recomendadas por semana y fase del ciclo</p>
       <div style="overflow-x:auto;">
@@ -169,8 +198,7 @@ const Watering = (() => {
       <div class="modal-actions">
         <button class="btn" onclick="Modal.close()">Cerrar</button>
       </div>
-    `;
-    Modal.open(html, { wide: true });
+    `, { wide: true });
   }
 
   function history() {
@@ -197,5 +225,5 @@ const Watering = (() => {
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  return { render, markWatered, showTable, history };
+  return { render, markWatered, markWateredDate, waterPlant, waterPlantDate, showTable, history };
 })();

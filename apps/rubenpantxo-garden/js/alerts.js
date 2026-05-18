@@ -8,6 +8,7 @@ const Alerts = (() => {
     const plantas = Storage.get('plantas') || [];
     const bidones = Storage.get('bidones') || [];
     const calendario = Storage.get('calendario_riego') || [];
+    const descartadas = Storage.get('alertas_descartadas') || [];
     const today = new Date();
 
     // Alertas: riego olvidado (>2 días)
@@ -44,7 +45,7 @@ const Alerts = (() => {
       }
     });
 
-    // Alertas: cambio de fase próximo (semana 3, 4, 10)
+    // Alertas: cambio de fase próximo
     plantas.forEach(p => {
       if (p.fase === 'crecimiento' && p.semana >= 3) {
         alerts.push({
@@ -81,14 +82,16 @@ const Alerts = (() => {
       }
     });
 
-    // Alertas guardadas manualmente
-    const manuales = Storage.get('alertas_activas') || [];
-    return [...alerts, ...manuales];
+    // Alertas manuales
+    const manuales = (Storage.get('alertas_activas') || []).map(a => ({ ...a, _manual: true }));
+
+    return [...alerts, ...manuales].filter(a => !descartadas.includes(a.id));
   }
 
   function render() {
     const container = document.getElementById('section-container');
     const alerts = compute();
+    const descartadas = Storage.get('alertas_descartadas') || [];
 
     container.innerHTML = `
       <section class="section theme-alertas">
@@ -100,8 +103,9 @@ const Alerts = (() => {
               <p class="section-subtitle">${alerts.length} alertas activas en tu huerto</p>
             </div>
           </div>
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button class="btn btn-ghost" onclick="Router.go('hub')">← Volver</button>
+            ${descartadas.length > 0 ? `<button class="btn btn-ghost" onclick="Alerts.clearDismissed()">↺ Restablecer (${descartadas.length})</button>` : ''}
             <button class="btn" onclick="Alerts.openManualForm()">＋ Nueva alerta</button>
           </div>
         </div>
@@ -143,19 +147,45 @@ const Alerts = (() => {
         </div>
       </section>
     `;
+
+    // Bind dismiss buttons via delegation to avoid inline onclick with data
+    container.querySelectorAll('.alert-dismiss').forEach(btn => {
+      btn.addEventListener('click', () => dismiss(btn.dataset.id, btn.dataset.manual === '1'));
+    });
   }
 
   function renderAlert(a) {
     return `
       <div class="alert-row ${a.nivel === 'danger' ? 'danger' : ''}">
-        <img src="assets/icons/${a.icono}" alt="">
+        <img src="assets/icons/${escapeHtml(a.icono)}" alt="">
         <div class="alert-content">
           <h4>${escapeHtml(a.titulo)}</h4>
           <p>${escapeHtml(a.descripcion)}</p>
         </div>
         <span class="alert-time">${escapeHtml(a.tiempo)}</span>
+        <button class="alert-dismiss" data-id="${escapeHtml(a.id)}" data-manual="${a._manual ? '1' : '0'}" title="Descartar alerta">✕</button>
       </div>
     `;
+  }
+
+  function dismiss(id, isManual) {
+    if (isManual) {
+      Storage.listRemove('alertas_activas', id);
+    } else {
+      const descartadas = Storage.get('alertas_descartadas') || [];
+      if (!descartadas.includes(id)) {
+        descartadas.push(id);
+        Storage.set('alertas_descartadas', descartadas);
+      }
+    }
+    render();
+    App.updateTopBar();
+  }
+
+  function clearDismissed() {
+    Storage.set('alertas_descartadas', []);
+    render();
+    App.updateTopBar();
   }
 
   function openManualForm() {
@@ -190,6 +220,7 @@ const Alerts = (() => {
       const iconMap = { meteo: 'alerta-meteorologia.png', plaga: 'plagas.png', manual: 'alertas.png' };
       Storage.listAdd('alertas_activas', {
         ...data,
+        _manual: true,
         icono: iconMap[data.tipo] || 'alertas.png',
         nivel: 'warn',
         tiempo: 'Ahora'
@@ -206,5 +237,5 @@ const Alerts = (() => {
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  return { render, compute, openManualForm };
+  return { render, compute, openManualForm, dismiss, clearDismissed };
 })();
