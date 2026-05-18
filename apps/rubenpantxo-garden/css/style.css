@@ -104,24 +104,29 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
 .view.active { display: block; animation: fadeIn 320ms ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-#hub-view { position: relative; }
+#hub-view { position: relative; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 68px); }
+#hub-view.view.active { display: flex; }
 .hub-stage {
   position: relative;
-  width: 100%;
-  height: calc(100vh - 68px);
+  aspect-ratio: 648 / 544;
+  width: min(100%, calc((100vh - 68px) * 648 / 544));
   max-height: calc(100vh - 68px);
+  margin: 0 auto;
   overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
+  container-type: inline-size;
 }
 .hub-bg {
-  width: 100%; height: 100%; object-fit: cover; object-position: center;
+  width: 100%; height: 100%; object-fit: contain;
   filter: brightness(.95) contrast(1.02) saturate(1.05);
+  pointer-events: none;
 }
 
 /* === HOTSPOTS === */
 .hotspot {
   position: absolute;
-  width: 72px; height: 72px;
+  width: 11cqw; height: 11cqw;
+  min-width: 40px; min-height: 40px;
+  max-width: 80px; max-height: 80px;
   display: flex; align-items: center; justify-content: center;
   background: rgba(255,255,255,.92);
   border: 2px solid rgba(255,255,255,.6);
@@ -131,7 +136,7 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
   z-index: 10;
 }
 .hotspot img {
-  width: 44px; height: 44px; object-fit: contain;
+  width: 60%; height: 60%; object-fit: contain;
   pointer-events: none;
   transition: transform var(--t-base);
 }
@@ -298,6 +303,7 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
   position: fixed; inset: 0; z-index: 1000;
   display: flex; align-items: center; justify-content: center;
 }
+.modal-root[hidden] { display: none !important; }
 .modal-backdrop {
   position: absolute; inset: 0;
   background: rgba(10,20,10,.80);
@@ -394,7 +400,11 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
     background: rgba(20,30,20,.98);
   }
   .view { padding-top: 56px; }
-  .hub-stage { height: calc(100vh - 56px); overflow: hidden; }
+  #hub-view { min-height: calc(100vh - 56px); }
+  .hub-stage {
+    width: min(100%, calc((100vh - 56px) * 648 / 544));
+    max-height: calc(100vh - 56px);
+  }
   .top-bar-center { display: none !important; }
   .actions-menu { display: none !important; }
   .brand-name { font-size: 14px; }
@@ -417,8 +427,5 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
   .modal-content { width: 95vw; padding: 20px; }
   .modal-content.wide { width: 95vw; }
   .section { padding: 20px 16px 100px; }
-
-  /* Asegurar que el modal oculto no interfiere */
-  #modal-root[hidden] { display: none !important; }
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.28); }
