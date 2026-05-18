@@ -104,7 +104,7 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); text-transfo
 .view.active { display: block; animation: fadeIn 320ms ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-#hub-view { position: relative; align-items: center; justify-content: center; min-height: calc(100vh - 68px); }
+#hub-view { position: relative; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 68px); }
 #hub-view.view.active { display: flex; }
 .hub-stage {
   position: relative;

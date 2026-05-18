@@ -205,10 +205,6 @@ const CalendarView = (() => {
         else if (currentTab === 'general') showDay(cell.dataset.date);
       });
     });
-
-    document.querySelectorAll('#cal-body .cal-day-lunar[data-date]') .forEach(cell => {
-      // lunar tab clicks handled via inline onclick on the element
-    });
   }
 
   function showAddWateringModal(date) {
