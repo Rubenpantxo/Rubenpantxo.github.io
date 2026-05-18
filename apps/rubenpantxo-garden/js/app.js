@@ -59,10 +59,12 @@ const Router = (() => {
   function showHub() {
     document.getElementById('hub-view').classList.add('active');
     document.getElementById('section-container').innerHTML = '';
+    document.getElementById('top-bar').hidden = false;
     updateNavActive('hub');
   }
   function hideHub() {
     document.getElementById('hub-view').classList.remove('active');
+    document.getElementById('top-bar').hidden = true;
   }
 
   function go(route) {
