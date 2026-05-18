@@ -56,7 +56,7 @@ const CalendarView = (() => {
     `;
 
     // Bind watering add buttons in riego tab
-    if (tab === 'riego') bindRiegoAdd();
+    bindCalDays();
   }
 
   function renderGrid(tab) {
@@ -96,12 +96,19 @@ const CalendarView = (() => {
             const isToday = c.date === todayStr;
             const watered = calendario.some(e => e.fecha === c.date);
             const moon = getMoonPhase(new Date(c.date + 'T12:00:00Z'));
-            const showMoon = tab === 'general' || tab === 'riego';
-            return `<div class="cal-day ${isToday ? 'today' : ''} ${watered && tab === 'riego' ? 'watered' : ''}"
+            if (tab === 'riego') {
+              return `<div class="cal-day ${isToday ? 'today' : ''} ${watered ? 'watered' : ''}"
+                           data-date="${c.date}"
+                           title="${watered ? 'Regado' : 'Sin riego'}">
+                <span class="cal-day-num">${c.day}</span>
+                ${watered ? `<span class="cal-moon">💧</span>` : ''}
+              </div>`;
+            }
+            return `<div class="cal-day ${isToday ? 'today' : ''}"
                          data-date="${c.date}"
                          title="${moon.name} · ${moon.consejo}">
               <span class="cal-day-num">${c.day}</span>
-              ${showMoon ? `<span class="cal-moon">${moon.emoji}</span>` : ''}
+              <span class="cal-moon">${moon.emoji}</span>
             </div>`;
           }).join('')}
         </div>
@@ -188,19 +195,14 @@ const CalendarView = (() => {
     `;
   }
 
-  function bindRiegoAdd() {
+  function bindCalDays() {
     const btn = document.getElementById('btn-add-riego-today');
-    if (btn) {
-      btn.addEventListener('click', () => {
-        showAddWateringModal(new Date().toISOString().slice(0,10));
-      });
-    }
-    // Click on day cell in riego tab
+    if (btn) btn.addEventListener('click', () => showAddWateringModal(new Date().toISOString().slice(0,10)));
+
     document.querySelectorAll('#cal-body .cal-day[data-date]').forEach(cell => {
       cell.addEventListener('click', () => {
-        const date = cell.dataset.date;
-        if (currentTab === 'riego') showAddWateringModal(date);
-        else if (currentTab === 'general') showDay(date);
+        if (currentTab === 'riego') showAddWateringModal(cell.dataset.date);
+        else if (currentTab === 'general') showDay(cell.dataset.date);
       });
     });
   }
@@ -286,13 +288,13 @@ const CalendarView = (() => {
     currentMonth--;
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
     document.getElementById('cal-body').innerHTML = currentTab === 'lunar' ? renderLunar() : renderGrid(currentTab);
-    if (currentTab === 'riego') bindRiegoAdd();
+    bindCalDays();
   }
   function nextMonth() {
     currentMonth++;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     document.getElementById('cal-body').innerHTML = currentTab === 'lunar' ? renderLunar() : renderGrid(currentTab);
-    if (currentTab === 'riego') bindRiegoAdd();
+    bindCalDays();
   }
 
   function escapeHtml(s) {
