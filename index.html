@@ -229,8 +229,10 @@
             box-shadow: none;
             right: 80px;
             padding: 0;
+            width: 100px;
+            height: 100px;
         }
-        #auth-btn img { width: 50px; height: 50px; object-fit: contain; display: block; }
+        #auth-btn img { width: 100px; height: 100px; object-fit: contain; display: block; }
 
         .auth-modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 2000;
@@ -269,9 +271,6 @@
             font-size: 20px; cursor: pointer; color: #9ca3af; line-height: 1;
         }
         .auth-modal-close:hover { color: #374151; }
-
-        #privado-nav-item { display: none; }
-        #privado-nav-item.auth-visible { display: flex; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-4 sm:p-8 transition-all duration-500">
@@ -303,9 +302,6 @@
             </div>
             <div class="nav-item text-xl p-4 rounded-lg" data-section="enlaces">
                 <span class="typewriter-text">Enlaces Web</span>
-            </div>
-            <div class="nav-item text-xl p-4 rounded-lg" id="privado-nav-item" data-section="privado">
-                <span class="typewriter-text">🔓 Zona Privada</span>
             </div>
         </nav>
 
@@ -474,20 +470,7 @@
                         </div>
                     </article>
                     </a>
-                </div>
-            </section>
-            <section id="enlaces-content" class="content-section content-hidden">
-                </section>
-
-            <section id="privado" class="content-section content-hidden section">
-                <header class="section__header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <h2 class="text-3xl font-bold">🔓 Zona Privada</h2>
-                    <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-colors" type="button">
-                        Cerrar sesión
-                    </button>
-                </header>
-                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-6">
-                    <a href="juegos/granja/granja.html" class="block">
+                    <a href="juegos/granja/granja.html" class="block private-app hidden">
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center text-3xl">🌾</div>
                         <div>
@@ -498,6 +481,8 @@
                     </a>
                 </div>
             </section>
+            <section id="enlaces-content" class="content-section content-hidden">
+                </section>
         </main>
     </div>
 
@@ -823,8 +808,6 @@
             const authPasswordInput = document.getElementById('auth-password-input');
             const authSubmitBtn = document.getElementById('auth-submit-btn');
             const authErrorMsg = document.getElementById('auth-error-msg');
-            const privadoNavItem = document.getElementById('privado-nav-item');
-            const logoutBtn = document.getElementById('logout-btn');
 
             async function sha256(message) {
                 const msgBuffer = new TextEncoder().encode(message);
@@ -841,21 +824,12 @@
                 if (isAuthenticated()) {
                     authBtn.innerHTML = '<img src="img/User_Loged.png" alt="Conectado">';
                     authBtn.classList.add('logged-in');
-                    privadoNavItem.classList.add('auth-visible');
-                    privadoNavItem.style.display = '';
                     document.querySelectorAll('.private-app').forEach(el => el.classList.remove('hidden'));
                 } else {
                     authBtn.innerHTML = '<img src="img/User_not_Log.png" alt="No conectado">';
                     authBtn.classList.remove('logged-in');
                     socialLinks.classList.add('social-hidden');
                     document.querySelectorAll('.private-app').forEach(el => el.classList.add('hidden'));
-                    privadoNavItem.classList.remove('auth-visible');
-                    privadoNavItem.style.display = 'none';
-                    // Si está viendo la zona privada, vuelve al inicio
-                    const privadoSection = document.getElementById('privado');
-                    if (privadoSection && !privadoSection.classList.contains('content-hidden')) {
-                        backArrow.click();
-                    }
                 }
             }
 
@@ -901,11 +875,6 @@
 
             authSubmitBtn.addEventListener('click', handleLogin);
             authPasswordInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
-
-            logoutBtn.addEventListener('click', () => {
-                sessionStorage.removeItem(AUTH_SESSION_KEY);
-                updateAuthUI();
-            });
 
             // Verificar estado al cargar la página
             updateAuthUI();
