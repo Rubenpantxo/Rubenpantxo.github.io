@@ -1,90 +1,67 @@
-# Proyecto Web Standard
+# Rubenpantxo.com
 
-Plantillas y **estructura** de carpetas **Standard** para un **proyecto Web**.
+Sitio web personal de Rubenpantxo, alojado en GitHub Pages bajo el dominio [rubenpantxo.com](https://rubenpantxo.com).
+
+Hub estático que reúne aplicaciones, juegos y enlaces propios. Incluye una zona privada con autenticación por contraseña para apps de uso personal.
 
 ## Estructura
 
-	Proyecto-Web-Standard/
-	├── css
-	│   ├── vendors
-	│   │   ├── LICENSE.md
-	│   │   └── normalize.css
-	│   └── style.css
-	├── js
-	│   ├── vendors
-	│   │   ├── LICENSE.md
-	│   │   └── modernizr-custom.js
-	│   └── main.js
-	├── 404.html
-	├── .gitignore
-	├── .htaccess
-	├── humans.txt
-	├── index.html
-	├── LICENSE
-	├── README.md
-	└── robots.txt
+```
+.
+├── index.html              # Landing principal con secciones y router
+├── 404.html                # Página de error
+├── CNAME                   # Dominio personalizado
+├── .htaccess               # Cabeceras de seguridad y reglas del servidor
+├── robots.txt
+├── CSS/                    # Estilos globales
+├── js/                     # Scripts
+├── img/                    # Logos e iconos del sitio
+├── docs/                   # Notas internas (guías, recursos)
+├── mapas/                  # Mapas embebidos
+├── apps/                   # Aplicaciones
+│   ├── alumbrado-pro/      # (privada)
+│   ├── arbol-genealogico/  # Árbol genealógico
+│   ├── biblioteca/         # (privada)
+│   ├── format-explorer.html
+│   ├── gueb_y_jitjub.html
+│   ├── instagram-downloader/   # (privada)
+│   ├── pantxiko-notes.html
+│   ├── plants/
+│   ├── qibla.html          # Brújula Qibla
+│   ├── resource-hub/       # (privada)
+│   └── rubenpantxo-garden/ # Solo logo; la app vive en un repo privado independiente
+└── juegos/                 # Juegos
+    ├── Chess3D/
+    ├── circle.html
+    ├── flappy-bardenas.html
+    ├── granja/             # (privada)
+    ├── tekken-barrio-ps1/
+    └── tetris/
+```
 
-## Componentes
+## Zona privada
 
-**Boilerplate v5.3.0** para la estructura de carpetas, el _archivo 404.html_
-y el _.htaccess_ completos.
+Algunas apps y juegos están marcados con la clase `private-app` y permanecen ocultos hasta que el usuario se autentica desde el icono de la esquina superior derecha del index. La autenticación es cliente-side (hash SHA-256 contra `PASSWORD_HASH` en `index.html`) y la sesión se guarda en `sessionStorage`.
 
-* Copyright (c) HTML5 Boilerplate
-* [Licencia](https://github.com/h5bp/html5-boilerplate/blob/master/LICENSE.txt)
-* [Web](https://html5boilerplate.com)
-* [GitHub](https://github.com/h5bp/html5-boilerplate)
-* [Docs](https://github.com/h5bp/html5-boilerplate/blob/5.3.0/dist/doc/TOC.md)
-* [Twitter](https://twitter.com/h5bp)
-* Autores:
-	- [Mathias Bynens](https://twitter.com/mathias)
-	- [Hans Christian Reinl](https://twitter.com/drublic)
-	- [Cătălin Mariș](https://twitter.com/alrra)
-	- [Nicolas Gallagher](https://twitter.com/necolas)
-	- [Paul Irish](https://twitter.com/paul_irish)
-	- [Divya Manian](https://twitter.com/divya)
+> Nota: como el hash viaja en el HTML, la zona privada solo sirve para ocultar contenido del visitante casual, no protege secretos.
 
-**Normalize v3.0.3** en la carpeta **css/vendors**.
+## Stack
 
-* Copyright (c) Nicolas Gallagher and Jonathan Neal
-* [Licencia](https://github.com/necolas/normalize.css/blob/master/LICENSE.md)
-* [Web](http://necolas.github.io/normalize.css)
-* [GitHub](https://github.com/necolas/normalize.css)
-* [Docs](http://nicolasgallagher.com/about-normalize-css)
-* Autores:
-	- [Nicolas Gallagher](https://twitter.com/necolas)
-	- [Jonathan Neal](https://twitter.com/jon_neal)
+- HTML / CSS / JavaScript vanilla
+- Tailwind CSS y Font Awesome vía CDN
+- Sin build step: cualquier servidor estático sirve el sitio
+- GitHub Pages como hosting
 
-**Modenizr 3.3.1 (Custom Build)** en la carpeta **js/vendors** con el test de
-unidades de medida _VH_ de _CSS_.
+## Desarrollo local
 
-* Copyright (c) Modernizr
-* [Licencia](https://opensource.org/licenses/MIT)
-* [Web](https://modernizr.com)
-* [GiHub](https://github.com/Modernizr/Modernizr)
-* [Docs](https://modernizr.com/docs)
-* [Twitter](https://twitter.com/modernizr)
-* Autores:
- - [Faruk Ateş](https://twitter.com/KuraFire)
- - [Paul Irish](https://twitter.com/paul_irish)
- - [Alex Sexton](https://twitter.com/SlexAxton)
- - [Ryan Seddon](https://twitter.com/ryanseddon)
- - [Patrick Kettner](https://twitter.com/patrickkettner)
- - [Stu Cox](https://twitter.com/StuCoxMedia)
- - [Richard Herrera](https://twitter.com/doctyper)
+```bash
+python3 -m http.server 8000
+# o
+npx serve .
+```
 
-## JavaScript
-
-En el archivo **main.js** está escrita la llamada al test para la unidad de
-medida _VH_ de _CSS_.
-
-## Agradecimientos
-
-**Un gran agradecimiento a todos los miembros** de los equipos de desarrrollo de
-[Boilerplate](https://html5boilerplate.com),
-[Normalize](http://necolas.github.io/normalize.css) y
-[Modernizr](https://modernizr.com).
+Luego abre <http://localhost:8000>.
 
 ## Licencia
 
-Proyecto creado por [Bcasal](http://bcasal.es)
-bajo [Licencia MIT](https://github.com/BCasal/Proyecto-Web-Standard/blob/master/LICENSE).
+MIT — ver [`LICENSE.txt`](LICENSE.txt).
