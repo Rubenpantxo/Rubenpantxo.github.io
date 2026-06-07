@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Cesta Punta · Jai Alai Arcade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+  html,body{height:100%;overflow:hidden;background:#000;font-family:'Press Start 2P',monospace}
+  body{display:flex;align-items:center;justify-content:center;touch-action:none}
+  #stage{position:relative;width:100%;height:100%;max-width:480px;max-height:854px;background:#04121f;
+         box-shadow:0 0 60px rgba(60,160,230,.18),0 0 0 2px #16384d;overflow:hidden}
+  canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;cursor:pointer}
+  /* CRT scanline overlay (igual estética que el resto de juegos del sitio) */
+  #stage::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 2px,transparent 2px 4px);
+    mix-blend-mode:multiply;z-index:10
+  }
+  #stage::before{
+    content:'';position:absolute;inset:0;pointer-events:none;z-index:11;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.5) 100%)
+  }
+  .hint{position:absolute;bottom:6px;left:0;right:0;text-align:center;color:#bfe6ff;font-size:7px;
+        opacity:.55;z-index:12;letter-spacing:1px;text-shadow:1px 1px 0 #000}
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="game"></canvas>
+    <div class="hint">MUEVE: ← →  /  ARRASTRA · LANZA: ESPACIO / TAP</div>
+  </div>
+
+<script>
+(()=>{
+"use strict";
+// ════════════════════════════════════════════════════════════════════════
+//  CESTA PUNTA · JAI ALAI ARCADE
+//  Estilo retro-arcade (homenaje a los juegos de raqueta de recreativa)
+//  pero ambientado en un frontón de pelota vasca: cesta punta sobre el
+//  frontis, jugadores del circuito y frontones oficiales.
+// ════════════════════════════════════════════════════════════════════════
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const W = 360, H = 640;
+canvas.width = W; canvas.height = H;
+ctx.imageSmoothingEnabled = false;
+
+// ─── AUDIO (Web Audio, sin assets) ──────────────────────────────────────
+let actx;
+const initAudio = () => { if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); };
+const beep = (freq=440,dur=0.08,type='square',vol=0.15)=>{
+  if(!actx) return;
+  const t = actx.currentTime;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type=type; o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(vol,t);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g).connect(actx.destination);
+  o.start(t); o.stop(t+dur);
+};
+const sfx = {
+  wall:  ()=>{ beep(220,.05,'square',.18); },            // pelota contra frontis/pared
+  hit:   ()=>{ beep(520,.04,'square',.16); setTimeout(()=>beep(760,.05,'square',.12),18); }, // atxiki+jaurti
+  point: ()=>{ beep(880,.07,'square',.2); setTimeout(()=>beep(1320,.1,'square',.2),70); },
+  fault: ()=>{ beep(160,.15,'sawtooth',.22); setTimeout(()=>beep(90,.2,'sawtooth',.18),90); },
+  win:   ()=>{ [660,880,990,1320].forEach((f,i)=>setTimeout(()=>beep(f,.12,'square',.2),i*120)); },
+  ui:    ()=>{ beep(600,.04,'square',.12); }
+};
+
+// ─── DATOS: FRONTONES OFICIALES Y JUGADORES DEL CIRCUITO ────────────────
+// Frontones de cesta punta / Jai Alai reconocidos del circuito mundial.
+const FRONTONES = [
+  { id:'BIZKAIA', name:'FRONTÓN BIZKAIA', city:'Bilbao',          wall:'#1a6fb0', floor:'#1d2630', accent:'#39b0ff' },
+  { id:'GERNIKA', name:'JAI ALAI GERNIKA', city:'Gernika',        wall:'#15803d', floor:'#15211a', accent:'#34d36a' },
+  { id:'MEXICO',  name:'FRONTÓN MÉXICO',  city:'Ciudad de México',wall:'#b8323a', floor:'#231417', accent:'#ff5a64' },
+  { id:'MAGIC',   name:'MAGIC CITY',      city:'Miami',           wall:'#7b2db8', floor:'#1a1426', accent:'#c06bff' },
+  { id:'DANIA',   name:'DANIA BEACH',     city:'Florida',         wall:'#0e8c93', floor:'#0f2024', accent:'#3ce0e0' },
+  { id:'DONIBANE',name:'DONIBANE LOHIZUNE',city:'Saint-Jean',     wall:'#c06a18', floor:'#241a10', accent:'#ffaa3c' },
+];
+
+// Jugadores del circuito de cesta punta (apellidos de juego habituales).
+const JUGADORES = [
+  { id:'GOIKO',  name:'GOIKOETXEA', txapelas:6, color:'#e23b3b', skin:'#e8b890' }, // rojo
+  { id:'BEREI',  name:'BEREIKUA',   txapelas:4, color:'#2f6fe0', skin:'#d8a070' }, // azul
+  { id:'FORON',  name:'FORONDA',    txapelas:3, color:'#e6c020', skin:'#e8b890' },
+  { id:'LASA',   name:'LASA',       txapelas:5, color:'#2fae5a', skin:'#caa078' },
+  { id:'JENSEN', name:'JENSEN',     txapelas:2, color:'#d8d8e0', skin:'#e8c0a0' },
+  { id:'EGURBI', name:'EGURBIDE',   txapelas:4, color:'#9b3fd0', skin:'#d8a070' },
+];
+
+const TARGET = 7; // puntos para ganar la txapela
+
+// ─── ESTADO GLOBAL ──────────────────────────────────────────────────────
+const SCENE = { MENU:0, PLAYER:1, MATCH:2, OVER:3 };
+let scene = SCENE.MENU;
+let frame = 0;
+
+let frontonIdx = 0;
+let playerIdx = 0;     // jugador humano
+let rivalIdx = 1;      // CPU
+let round = 1;
+
+// ─── PISTA (frontón en perspectiva) ─────────────────────────────────────
+// Coordenadas lógicas del campo de juego (vista cenital con perspectiva).
+// El frontis está arriba; los jugadores se mueven abajo. La pelota tiene
+// posición (x) y profundidad (y) sobre el suelo + altura visual.
+const COURT = {
+  top: 96,        // línea del frontis (parte superior jugable)
+  bottom: 556,    // fondo de la cancha (tras la cual hay falta)
+  left: 26,       // pared izquierda (lateral)
+  right: 334,     // límite derecho (contracancha)
+};
+
+// ─── ENTIDADES ──────────────────────────────────────────────────────────
+const player = { x:W*0.4, y:500, w:46, lunge:0, side:'L' };
+const cpu    = { x:W*0.6, y:300, w:46, lunge:0 };
+
+const ball = {
+  x:W/2, y:300, vx:0, vy:0, z:0, vz:0,   // z = altura sobre el suelo
+  alive:false, bounces:0, owner:'P', speed:0, trail:[]
+};
+
+let pScore=0, cScore=0;
+let serving='P';        // quién saca
+let rallyMsg='';        // texto efímero central
+let rallyTimer=0;
+let energy=1;           // barra de energía/saque
+let shake=0;
+let serveReady=false;   // esperando saque del jugador
+
+// ─── INPUT ──────────────────────────────────────────────────────────────
+const keys = {};
+let pointer = { active:false, x:W/2 };
+
+addEventListener('keydown', e=>{
+  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
+  keys[e.key]=true;
+  initAudio();
+  handleAction(e.key);
+});
+addEventListener('keyup', e=>{ keys[e.key]=false; });
+
+function canvasPos(ev){
+  const r = canvas.getBoundingClientRect();
+  const cx = (ev.touches? ev.touches[0].clientX : ev.clientX) - r.left;
+  return (cx / r.width) * W;
+}
+canvas.addEventListener('pointerdown', e=>{
+  e.preventDefault(); initAudio();
+  pointer.active=true; pointer.x=canvasPos(e);
+  handleTap();
+});
+canvas.addEventListener('pointermove', e=>{
+  if(!pointer.active) return;
+  pointer.x=canvasPos(e);
+});
+addEventListener('pointerup', ()=>{ pointer.active=false; });
+
+function handleAction(key){
+  if(scene===SCENE.MENU){
+    if(key==='ArrowLeft'){ frontonIdx=(frontonIdx+FRONTONES.length-1)%FRONTONES.length; sfx.ui(); }
+    if(key==='ArrowRight'){ frontonIdx=(frontonIdx+1)%FRONTONES.length; sfx.ui(); }
+    if(key===' '||key==='Enter'){ scene=SCENE.PLAYER; sfx.ui(); }
+  } else if(scene===SCENE.PLAYER){
+    if(key==='ArrowLeft'){ playerIdx=(playerIdx+JUGADORES.length-1)%JUGADORES.length; sfx.ui(); }
+    if(key==='ArrowRight'){ playerIdx=(playerIdx+1)%JUGADORES.length; sfx.ui(); }
+    if(key===' '||key==='Enter'){ startMatch(); sfx.ui(); }
+  } else if(scene===SCENE.MATCH){
+    if(key===' '){ doServeOrHit(); }
+  } else if(scene===SCENE.OVER){
+    if(key===' '||key==='Enter'){ scene=SCENE.MENU; sfx.ui(); }
+  }
+}
+function handleTap(){
+  if(scene===SCENE.MENU){ scene=SCENE.PLAYER; sfx.ui(); }
+  else if(scene===SCENE.PLAYER){ startMatch(); sfx.ui(); }
+  else if(scene===SCENE.MATCH){ doServeOrHit(); }
+  else if(scene===SCENE.OVER){ scene=SCENE.MENU; sfx.ui(); }
+}
+
+// ─── LÓGICA DE PARTIDO ──────────────────────────────────────────────────
+function startMatch(){
+  // El rival es un jugador distinto al elegido.
+  rivalIdx = (playerIdx+1)%JUGADORES.length;
+  pScore=0; cScore=0; round=1; serving='P';
+  player.x=W*0.4; player.y=500;
+  cpu.x=W*0.6; cpu.y=320;
+  scene=SCENE.MATCH;
+  newServe();
+}
+
+function newServe(){
+  ball.alive=false; ball.trail.length=0; ball.bounces=0; ball.z=0; ball.vz=0;
+  serveReady=true;
+  energy=1;
+  if(serving==='P'){
+    ball.x=player.x; ball.y=player.y-8; ball.owner='P';
+    rallyMsg='SAQUE · '+JUGADORES[playerIdx].name; rallyTimer=70;
+  } else {
+    ball.x=cpu.x; ball.y=cpu.y; ball.owner='C';
+    rallyMsg='SAQUE · '+JUGADORES[rivalIdx].name; rallyTimer=70;
+    // La CPU saca automáticamente tras un instante.
+    setTimeout(()=>{ if(scene===SCENE.MATCH && serveReady){ cpuServe(); } }, 900);
+  }
+}
+
+function doServeOrHit(){
+  if(!serveReady) return;     // los golpes en rally son automáticos al interceptar
+  if(serving!=='P') return;
+  // Saque del jugador: lanza la pelota hacia el frontis.
+  serveReady=false;
+  ball.alive=true;
+  ball.vx=(Math.random()*2-1)*1.4;
+  ball.vy=-6.6;               // hacia arriba (frontis)
+  ball.vz=2.2; ball.z=2;
+  ball.owner='P';
+  ball.speed=6.6;
+  player.lunge=10;
+  sfx.hit();
+}
+
+function cpuServe(){
+  serveReady=false;
+  ball.alive=true;
+  ball.x=cpu.x; ball.y=cpu.y;
+  ball.vx=(Math.random()*2-1)*1.4;
+  ball.vy=-6.4; ball.vz=2.2; ball.z=2;
+  ball.owner='C';
+  ball.speed=6.4;
+  cpu.lunge=10;
+  sfx.hit();
+}
+
+function pointFor(who){
+  if(who==='P'){ pScore++; sfx.point(); rallyMsg='¡TANTO!'; serving='P'; }
+  else { cScore++; sfx.fault(); rallyMsg='FALTA'; serving='C'; }
+  rallyTimer=80; shake=8;
+  if(pScore>=TARGET || cScore>=TARGET){
+    setTimeout(()=>{ scene=SCENE.OVER; sfx.win(); }, 900);
+    return;
+  }
+  round++;
+  setTimeout(()=>{ if(scene===SCENE.MATCH) newServe(); }, 1000);
+}
+
+// Lanza la pelota de vuelta al frontis tras una atxiki (catch+throw).
+function returnBall(fromX, aimSpread){
+  const target = COURT.left + 18 + Math.random()*(COURT.right-COURT.left-36);
+  const dx = target - fromX;
+  ball.vy = -(6.2 + Math.random()*1.4 + (pScore+cScore)*0.12); // sube velocidad con el marcador
+  ball.vx = Math.max(-3.2, Math.min(3.2, dx*0.04 + (Math.random()*2-1)*aimSpread));
+  ball.vz = 2.0; ball.z = Math.max(ball.z, 4);
+  ball.bounces = 0;
+}
+
+// ─── UPDATE ─────────────────────────────────────────────────────────────
+function update(){
+  frame++;
+  if(shake>0) shake*=0.85;
+  if(rallyTimer>0) rallyTimer--;
+
+  if(scene!==SCENE.MATCH) return;
+
+  // Movimiento del jugador
+  let move=0;
+  if(keys['ArrowLeft']||keys['a']) move-=1;
+  if(keys['ArrowRight']||keys['d']) move+=1;
+  if(pointer.active){
+    const dx = pointer.x - player.x;
+    if(Math.abs(dx)>4) move = Math.sign(dx)*Math.min(1, Math.abs(dx)/40);
+  }
+  player.x += move*4.6;
+  player.x = Math.max(COURT.left+20, Math.min(COURT.right-20, player.x));
+  if(player.lunge>0) player.lunge*=0.8;
+  if(cpu.lunge>0) cpu.lunge*=0.8;
+
+  // Si esperamos saque del jugador, la pelota le sigue
+  if(serveReady && serving==='P'){ ball.x=player.x; ball.y=player.y-8; }
+
+  // IA del rival: se posiciona para interceptar la pelota cuando viene
+  updateCPU();
+
+  if(ball.alive) updateBall();
+}
+
+function updateCPU(){
+  // La CPU intenta colocarse bajo la trayectoria de la pelota.
+  let targetX = cpu.x;
+  if(ball.alive && ball.owner==='C'){
+    // Predicción simple del punto de caída en x
+    targetX = ball.x + ball.vx*8;
+  } else if(ball.alive){
+    targetX = W/2 + (ball.x-W/2)*0.3; // espera relajado
+  }
+  const diff = targetX - cpu.x;
+  const skill = 3.4 + rivalIdx*0.15;
+  cpu.x += Math.max(-skill, Math.min(skill, diff));
+  cpu.x = Math.max(COURT.left+20, Math.min(COURT.right-20, cpu.x));
+  // La CPU oscila ligeramente en profundidad para dar vida
+  cpu.y = 300 + Math.sin(frame*0.04)*14;
+}
+
+function updateBall(){
+  // Trail
+  ball.trail.push({x:ball.x, y:ball.y, z:ball.z});
+  if(ball.trail.length>8) ball.trail.shift();
+
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  // Altura (parábola): gravedad sobre z
+  ball.z += ball.vz;
+  ball.vz -= 0.16;
+  if(ball.z<0){
+    ball.z=0; ball.vz=Math.abs(ball.vz)*0.55;
+    ball.bounces++;
+    sfx.wall();
+    if(ball.bounces>=2){
+      // Doble bote (txoko) → punto para quien NO tenía que devolver
+      pointFor(ball.owner==='P'?'C':'P');
+      ball.alive=false; return;
+    }
+  }
+
+  // Frontis (pared superior): rebote y cambia de dueño
+  if(ball.y<=COURT.top){
+    ball.y=COURT.top; ball.vy=Math.abs(ball.vy);
+    ball.bounces=0;
+    sfx.wall(); shake=4;
+    ball.owner = (ball.owner==='P')?'C':'P'; // ahora le toca al otro
+  }
+  // Pared lateral izquierda
+  if(ball.x<=COURT.left){ ball.x=COURT.left; ball.vx=Math.abs(ball.vx); sfx.wall(); }
+  // Límite derecho (contracancha) — rebote suave
+  if(ball.x>=COURT.right){ ball.x=COURT.right; ball.vx=-Math.abs(ball.vx); sfx.wall(); }
+
+  // ── Intercepciones ──
+  // Jugador (parte baja)
+  if(ball.owner==='P' && ball.vy>0 && ball.z<26){
+    if(Math.abs(ball.x-player.x) < player.w/2 + 8 &&
+       Math.abs(ball.y-player.y) < 26){
+      returnBall(player.x, 0.6);
+      player.lunge=12; sfx.hit();
+      ball.owner='P'; // sigue siendo suya hasta tocar frontis
+    }
+  }
+  // CPU (parte media)
+  if(ball.owner==='C' && ball.vy>0 && ball.z<26){
+    if(Math.abs(ball.x-cpu.x) < cpu.w/2 + 8 &&
+       Math.abs(ball.y-cpu.y) < 26){
+      returnBall(cpu.x, 0.4);
+      cpu.lunge=12; sfx.hit();
+      ball.owner='C';
+    }
+  }
+
+  // Si la pelota pasa el fondo sin que el jugador la coja → falta del jugador
+  if(ball.y > COURT.bottom){
+    pointFor(ball.owner==='P'?'C':'P');
+    ball.alive=false; return;
+  }
+  // Si la pelota sube y pasa el frontis sin rebotar correctamente (no debería)
+  if(ball.y < COURT.top-20){ ball.alive=false; pointFor('C'); }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════════════════════════════════════
+function clear(c){ ctx.fillStyle=c; ctx.fillRect(0,0,W,H); }
+
+// Mapea (x,y) lógico del suelo a pantalla con perspectiva (estrecha arriba)
+function persp(x,y){
+  const t = (y-COURT.top)/(COURT.bottom-COURT.top); // 0 frontis, 1 fondo
+  const wTop=0.62, wBot=1.0;
+  const f = wTop + (wBot-wTop)*t;
+  const cx = W/2;
+  const sx = cx + (x-cx)*f;
+  return { x:sx, y, scale:f };
+}
+
+function drawFronton(){
+  const F = FRONTONES[frontonIdx];
+  // Fondo
+  clear('#04121f');
+  // Gradiente de pared al fondo
+  const g = ctx.createLinearGradient(0,40,0,COURT.bottom+40);
+  g.addColorStop(0, shade(F.wall,-30));
+  g.addColorStop(1, F.wall);
+  ctx.fillStyle=g; ctx.fillRect(0,40,W,COURT.bottom);
+
+  // ── Frontis (pared frontal) en perspectiva ──
+  const tl=persp(COURT.left, COURT.top), tr=persp(COURT.right, COURT.top);
+  const bl=persp(COURT.left, COURT.bottom), br=persp(COURT.right, COURT.bottom);
+
+  // Pared frontal alta sobre el frontis
+  ctx.fillStyle=shade(F.wall,-12);
+  ctx.beginPath();
+  ctx.moveTo(tl.x, 44); ctx.lineTo(tr.x, 44);
+  ctx.lineTo(tr.x, COURT.top); ctx.lineTo(tl.x, COURT.top); ctx.closePath(); ctx.fill();
+
+  // Chapa/línea roja del frontis (la "txapa" inferior de falta)
+  ctx.fillStyle='#c0392b';
+  ctx.fillRect(tl.x, COURT.top-6, tr.x-tl.x, 6);
+
+  // Logo FIPV estilizado en el frontis
+  ctx.fillStyle='rgba(255,255,255,.16)';
+  ctx.font='bold 12px "Press Start 2P"';
+  ctx.textAlign='center';
+  ctx.fillText('FIPV', W/2, 78);
+  ctx.font='6px "Press Start 2P"';
+  ctx.fillText(F.name, W/2, 90);
+
+  // ── Suelo en perspectiva ──
+  ctx.fillStyle=F.floor;
+  ctx.beginPath();
+  ctx.moveTo(tl.x,COURT.top); ctx.lineTo(tr.x,COURT.top);
+  ctx.lineTo(br.x,COURT.bottom); ctx.lineTo(bl.x,COURT.bottom);
+  ctx.closePath(); ctx.fill();
+
+  // Líneas de los cuadros (1..14) — divisiones transversales del frontón
+  ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=1;
+  for(let i=0;i<=10;i++){
+    const y = COURT.top + (COURT.bottom-COURT.top)*(i/10);
+    const a=persp(COURT.left,y), b=persp(COURT.right,y);
+    ctx.globalAlpha = 0.25+0.5*(i/10);
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+  // Líneas longitudinales (bordes y carriles)
+  ctx.strokeStyle='rgba(255,255,255,.7)';
+  [COURT.left, COURT.right].forEach(x=>{
+    const a=persp(x,COURT.top), b=persp(x,COURT.bottom);
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+  });
+  // Línea de saque (cuadro 4-7 aprox)
+  ctx.strokeStyle=F.accent;
+  const sy=COURT.top+(COURT.bottom-COURT.top)*0.62;
+  const sa=persp(COURT.left,sy), sb=persp(COURT.right,sy);
+  ctx.beginPath(); ctx.moveTo(sa.x,sa.y); ctx.lineTo(sb.x,sb.y); ctx.stroke();
+
+  // Pared lateral izquierda (lateral) en 3D
+  ctx.fillStyle=shade(F.wall,-22);
+  ctx.beginPath();
+  ctx.moveTo(0,44); ctx.lineTo(tl.x,COURT.top);
+  ctx.lineTo(bl.x,COURT.bottom); ctx.lineTo(0,COURT.bottom+20);
+  ctx.closePath(); ctx.fill();
+  // Carteles sponsor en la lateral
+  ctx.fillStyle='rgba(255,255,255,.12)';
+  ctx.font='6px "Press Start 2P"'; ctx.textAlign='left';
+  for(let i=1;i<=3;i++){
+    const yy=COURT.top+(COURT.bottom-COURT.top)*(i/4);
+    ctx.save(); ctx.translate(8,yy); ctx.rotate(-0.14);
+    ctx.fillText('· EUSKAL JAI ·', 0, 0); ctx.restore();
+  }
+}
+
+// Dibuja un pelotari con cesta
+function drawPelotari(p, pdata, active){
+  const sp = persp(p.x, p.y);
+  const sc = sp.scale;
+  const x = sp.x, y = sp.y;
+  const h = 42*sc;          // altura
+  const lunge = p.lunge||0;
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Sombra
+  ctx.fillStyle='rgba(0,0,0,.35)';
+  ctx.beginPath(); ctx.ellipse(0, 4, 16*sc, 5*sc, 0,0,7); ctx.fill();
+
+  // Piernas (pantalón)
+  ctx.fillStyle='#e9e9ec';
+  ctx.fillRect(-7*sc, -h*0.45, 5*sc, h*0.45);
+  ctx.fillRect( 2*sc, -h*0.45, 5*sc, h*0.45);
+  // Faja roja
+  ctx.fillStyle='#c0392b';
+  ctx.fillRect(-9*sc, -h*0.5, 18*sc, 4*sc);
+  // Camiseta (color del jugador)
+  ctx.fillStyle=pdata.color;
+  ctx.fillRect(-9*sc, -h*0.86, 18*sc, h*0.4);
+  // Brazo + cesta (se extiende al golpear)
+  const reach = (8+lunge)*sc;
+  ctx.strokeStyle=pdata.skin; ctx.lineWidth=3*sc;
+  ctx.beginPath(); ctx.moveTo(6*sc,-h*0.7); ctx.lineTo(6*sc+reach,-h*0.95); ctx.stroke();
+  // Cesta (xistera) de mimbre
+  ctx.fillStyle='#caa15a';
+  ctx.save();
+  ctx.translate(6*sc+reach, -h*0.95);
+  ctx.rotate(-0.5);
+  ctx.beginPath(); ctx.ellipse(0,0, 11*sc, 5*sc, 0, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#8a6a30'; ctx.lineWidth=1; ctx.stroke();
+  ctx.restore();
+  // Cabeza
+  ctx.fillStyle=pdata.skin;
+  ctx.beginPath(); ctx.arc(0,-h*0.94, 5.5*sc, 0, 7); ctx.fill();
+  // Casco azul
+  ctx.fillStyle='#1c3f6e';
+  ctx.beginPath(); ctx.arc(0,-h*0.97, 5.8*sc, Math.PI, 0); ctx.fill();
+
+  // Indicador de jugador activo (a quien le toca)
+  if(active){
+    ctx.fillStyle='#ffe14d';
+    ctx.font=(7*sc|0)+'px "Press Start 2P"'; ctx.textAlign='center';
+    ctx.fillText('▼', 0, -h-6);
+  }
+  ctx.restore();
+
+  // Nombre bajo el jugador
+  ctx.fillStyle='#fff';
+  ctx.font='6px "Press Start 2P"'; ctx.textAlign='center';
+  ctx.fillText(pdata.name.slice(0,9), x, y+16*sc);
+}
+
+function drawBall(){
+  if(!ball.alive && !(serveReady)) return;
+  const sp=persp(ball.x, ball.y);
+  const sc=sp.scale;
+  const px=sp.x, py=sp.y - ball.z; // z eleva en pantalla
+  // Sombra en el suelo
+  ctx.fillStyle='rgba(0,0,0,.4)';
+  ctx.beginPath(); ctx.ellipse(sp.x, sp.y, 4*sc, 2*sc,0,0,7); ctx.fill();
+  // Trail
+  ball.trail.forEach((t,i)=>{
+    const tp=persp(t.x,t.y); const a=i/ball.trail.length;
+    ctx.fillStyle='rgba(255,255,255,'+(a*0.4)+')';
+    ctx.beginPath(); ctx.arc(tp.x, tp.y - t.z, (3.4*sc)*a, 0, 7); ctx.fill();
+  });
+  // Pelota (cuero blanco)
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(px, py, 4*sc, 0, 7); ctx.fill();
+  ctx.strokeStyle='#c9c9c9'; ctx.lineWidth=1; ctx.stroke();
+}
+
+function drawHUD(){
+  const P=JUGADORES[playerIdx], C=JUGADORES[rivalIdx];
+  // Barra superior tipo marcador arcade
+  ctx.fillStyle='#0a1b2b'; ctx.fillRect(0,0,W,40);
+  ctx.fillStyle='#16384d'; ctx.fillRect(0,40,W,2);
+  ctx.textAlign='left';
+  ctx.fillStyle='#ffe14d'; ctx.font='8px "Press Start 2P"';
+  ctx.fillText('ROUND '+round, 8, 14);
+
+  // Jugador
+  ctx.fillStyle=P.color; ctx.fillRect(8,22,10,10);
+  ctx.fillStyle='#fff'; ctx.font='7px "Press Start 2P"';
+  ctx.fillText(P.name.slice(0,8), 22, 30);
+  ctx.fillStyle='#39ff7a'; ctx.font='10px "Press Start 2P"';
+  ctx.textAlign='right'; ctx.fillText(String(pScore), W-66, 30);
+
+  // Rival
+  ctx.textAlign='left';
+  ctx.fillStyle=C.color; ctx.fillRect(W-58,22,10,10);
+  ctx.fillStyle='#fff'; ctx.font='7px "Press Start 2P"';
+  ctx.fillText(C.name.slice(0,7), W-44, 30);
+  // (marcador rival a la derecha del nombre del jugador, ya puesto pScore)
+  ctx.fillStyle='#ff6b6b'; ctx.font='10px "Press Start 2P"'; ctx.textAlign='right';
+  ctx.fillText(String(cScore), W-6, 14);
+
+  // Barra de ENERGÍA / saque abajo
+  const by=H-40;
+  ctx.fillStyle='#0a1b2b'; ctx.fillRect(0,by,W,40);
+  ctx.fillStyle='#16384d'; ctx.fillRect(0,by,W,2);
+  ctx.fillStyle='#0d2a18'; ctx.fillRect(20,by+12,W-40,14);
+  const eg=ctx.createLinearGradient(20,0,W-20,0);
+  eg.addColorStop(0,'#1f8f3a'); eg.addColorStop(1,'#39ff7a');
+  ctx.fillStyle=eg; ctx.fillRect(22,by+14,(W-44)*energy,10);
+  ctx.fillStyle='#bfe6ff'; ctx.font='7px "Press Start 2P"'; ctx.textAlign='center';
+  ctx.fillText('ENERGÍA', W/2, by+9);
+
+  // Mensaje central del rally
+  if(rallyTimer>0 && rallyMsg){
+    ctx.globalAlpha=Math.min(1, rallyTimer/30);
+    ctx.fillStyle='#000'; ctx.fillRect(40,H/2-22,W-80,40);
+    ctx.strokeStyle='#ffe14d'; ctx.lineWidth=2; ctx.strokeRect(40,H/2-22,W-80,40);
+    ctx.fillStyle='#ffe14d'; ctx.font='10px "Press Start 2P"'; ctx.textAlign='center';
+    ctx.fillText(rallyMsg, W/2, H/2+2);
+    ctx.globalAlpha=1;
+  }
+
+  // Aviso de saque
+  if(serveReady && serving==='P'){
+    if(Math.floor(frame/20)%2===0){
+      ctx.fillStyle='#39ff7a'; ctx.font='8px "Press Start 2P"'; ctx.textAlign='center';
+      ctx.fillText('¡SACA! (ESPACIO / TAP)', W/2, H-52);
+    }
+  }
+}
+
+// ─── PANTALLAS ──────────────────────────────────────────────────────────
+function drawMenu(){
+  drawFronton();
+  // Velo oscuro
+  ctx.fillStyle='rgba(2,10,20,.55)'; ctx.fillRect(0,0,W,H);
+  ctx.textAlign='center';
+  ctx.fillStyle='#ffe14d'; ctx.font='18px "Press Start 2P"';
+  ctx.fillText('CESTA', W/2, 150);
+  ctx.fillText('PUNTA', W/2, 178);
+  ctx.fillStyle='#39b0ff'; ctx.font='8px "Press Start 2P"';
+  ctx.fillText('JAI ALAI · ARCADE', W/2, 204);
+
+  // Selector de frontón
+  const F=FRONTONES[frontonIdx];
+  ctx.fillStyle='#fff'; ctx.font='7px "Press Start 2P"';
+  ctx.fillText('ELIGE FRONTÓN', W/2, 270);
+  ctx.fillStyle='#0a1b2b'; ctx.fillRect(40,284,W-80,54);
+  ctx.strokeStyle=F.accent; ctx.lineWidth=2; ctx.strokeRect(40,284,W-80,54);
+  ctx.fillStyle=F.wall; ctx.fillRect(46,290,18,18);
+  ctx.fillStyle='#fff'; ctx.font='9px "Press Start 2P"';
+  ctx.fillText(F.name, W/2, 308);
+  ctx.fillStyle='#9fd0ff'; ctx.font='7px "Press Start 2P"';
+  ctx.fillText(F.city, W/2, 326);
+  ctx.fillStyle=F.accent; ctx.font='12px "Press Start 2P"'; ctx.textAlign='left';
+  ctx.fillText('‹', 50, 318); ctx.textAlign='right'; ctx.fillText('›', W-50, 318);
+
+  ctx.textAlign='center';
+  if(Math.floor(frame/30)%2===0){
+    ctx.fillStyle='#39ff7a'; ctx.font='8px "Press Start 2P"';
+    ctx.fillText('PULSA ESPACIO / TAP', W/2, 400);
+  }
+  ctx.fillStyle='#7fb8e0'; ctx.font='6px "Press Start 2P"';
+  ctx.fillText('← → CAMBIAR FRONTÓN', W/2, 440);
+}
+
+function drawPlayerSelect(){
+  drawFronton();
+  ctx.fillStyle='rgba(2,10,20,.6)'; ctx.fillRect(0,0,W,H);
+  ctx.textAlign='center';
+  ctx.fillStyle='#ffe14d'; ctx.font='12px "Press Start 2P"';
+  ctx.fillText('ELIGE PELOTARI', W/2, 120);
+
+  const P=JUGADORES[playerIdx];
+  // Tarjeta del jugador
+  ctx.fillStyle='#0a1b2b'; ctx.fillRect(60,150,W-120,210);
+  ctx.strokeStyle=P.color; ctx.lineWidth=3; ctx.strokeRect(60,150,W-120,210);
+
+  // Avatar grande del pelotari
+  player.x=W/2; player.y=300; player.lunge=0;
+  drawPelotari({x:W/2,y:300,lunge:Math.sin(frame*0.1)*6,w:46}, P, false);
+
+  ctx.fillStyle='#fff'; ctx.font='11px "Press Start 2P"'; ctx.textAlign='center';
+  ctx.fillText(P.name, W/2, 190);
+  ctx.fillStyle='#ffe14d'; ctx.font='7px "Press Start 2P"';
+  ctx.fillText('TXAPELAS: '+'🏆'.repeat(Math.min(P.txapelas,6)), W/2, 340);
+  ctx.fillText('('+P.txapelas+')', W/2, 354);
+
+  ctx.fillStyle=P.color; ctx.font='16px "Press Start 2P"'; ctx.textAlign='left';
+  ctx.fillText('‹', 30, 260); ctx.textAlign='right'; ctx.fillText('›', W-30, 260);
+
+  ctx.textAlign='center';
+  if(Math.floor(frame/30)%2===0){
+    ctx.fillStyle='#39ff7a'; ctx.font='8px "Press Start 2P"';
+    ctx.fillText('JUGAR · ESPACIO / TAP', W/2, 420);
+  }
+  ctx.fillStyle='#7fb8e0'; ctx.font='6px "Press Start 2P"';
+  ctx.fillText('PRIMERO A '+TARGET+' TANTOS GANA LA TXAPELA', W/2, 460);
+}
+
+function drawOver(){
+  drawFronton();
+  ctx.fillStyle='rgba(2,10,20,.7)'; ctx.fillRect(0,0,W,H);
+  const win = pScore>cScore;
+  const champ = win? JUGADORES[playerIdx] : JUGADORES[rivalIdx];
+  ctx.textAlign='center';
+  ctx.fillStyle=win?'#39ff7a':'#ff6b6b'; ctx.font='14px "Press Start 2P"';
+  ctx.fillText(win?'¡TXAPELDUN!':'DERROTA', W/2, 180);
+
+  // Pelotari campeón con txapela
+  drawPelotari({x:W/2,y:330,lunge:Math.sin(frame*0.12)*5,w:46}, champ, false);
+  // Txapela (boina) sobre la cabeza
+  const sp=persp(W/2,330);
+  ctx.fillStyle='#111'; ctx.beginPath();
+  ctx.ellipse(sp.x, 330-42*sp.scale*0.97-4, 12,5,0,0,7); ctx.fill();
+
+  ctx.fillStyle='#fff'; ctx.font='10px "Press Start 2P"';
+  ctx.fillText(champ.name, W/2, 250);
+  ctx.fillStyle='#ffe14d'; ctx.font='10px "Press Start 2P"';
+  ctx.fillText(pScore+' - '+cScore, W/2, 430);
+  ctx.fillStyle='#9fd0ff'; ctx.font='7px "Press Start 2P"';
+  ctx.fillText(FRONTONES[frontonIdx].name, W/2, 460);
+
+  if(Math.floor(frame/30)%2===0){
+    ctx.fillStyle='#39ff7a'; ctx.font='8px "Press Start 2P"';
+    ctx.fillText('MENÚ · ESPACIO / TAP', W/2, 510);
+  }
+}
+
+function drawMatch(){
+  ctx.save();
+  if(shake>0.5){ ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake); }
+  drawFronton();
+  // Orden de dibujo por profundidad (la CPU está más arriba/atrás)
+  drawPelotari(cpu, JUGADORES[rivalIdx], ball.alive&&ball.owner==='C');
+  drawBall();
+  drawPelotari(player, JUGADORES[playerIdx], (ball.alive&&ball.owner==='P')||(serveReady&&serving==='P'));
+  ctx.restore();
+  drawHUD();
+}
+
+// ─── UTILIDAD COLOR ─────────────────────────────────────────────────────
+function shade(hex, amt){
+  let c=hex.replace('#',''); if(c.length===3) c=c.split('').map(x=>x+x).join('');
+  let r=parseInt(c.slice(0,2),16), g=parseInt(c.slice(2,4),16), b=parseInt(c.slice(4,6),16);
+  r=Math.max(0,Math.min(255,r+amt)); g=Math.max(0,Math.min(255,g+amt)); b=Math.max(0,Math.min(255,b+amt));
+  return 'rgb('+r+','+g+','+b+')';
+}
+
+// ─── BUCLE PRINCIPAL ────────────────────────────────────────────────────
+function loop(){
+  update();
+  if(scene===SCENE.MENU) drawMenu();
+  else if(scene===SCENE.PLAYER) drawPlayerSelect();
+  else if(scene===SCENE.MATCH) drawMatch();
+  else if(scene===SCENE.OVER) drawOver();
+  requestAnimationFrame(loop);
+}
+loop();
+
+})();
+</script>
+</body>
+</html>
