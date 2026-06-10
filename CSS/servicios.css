@@ -87,10 +87,10 @@
 }
 .sv-title {
     font-family: 'Inter', sans-serif;
-    font-size: clamp(3.2rem, 13vw, 9.5rem);
+    font-size: clamp(2.2rem, 6.5vw, 4.6rem);
     font-weight: 900;
-    letter-spacing: -.045em;
-    line-height: .92;
+    letter-spacing: -.035em;
+    line-height: .98;
     margin-top: .35rem;
     background: linear-gradient(100deg, #fff 30%, #b9b3ff 65%, var(--sv-violet));
     -webkit-background-clip: text;
@@ -107,6 +107,15 @@
     text-wrap: pretty;
 }
 .sv-sub strong { color: var(--sv-text); font-weight: 700; }
+.sv-slogan {
+    max-width: 56ch;
+    margin-top: 1.4rem;
+    font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+    line-height: 1.6;
+    color: var(--sv-text);
+    font-weight: 500;
+    text-wrap: pretty;
+}
 
 /* ---------- Marquee infinito (guiño O'Neill) ---------- */
 .sv-marquee {
@@ -242,6 +251,8 @@
     text-wrap: balance;
 }
 .sv-demos-head h3 em { font-style: normal; color: var(--sv-violet); }
+.sv-demos-head h3 .sv-demos-l1 { display: block; color: #fff; }
+.sv-demos-head h3 .sv-demos-l2 { display: block; color: var(--sv-violet); }
 .sv-demos-head p { margin-top: .8rem; font-size: 1rem; line-height: 1.7; color: var(--sv-muted); }
 .sv-demos-head .sv-touch {
     display: inline-flex; align-items: center; gap: 8px; margin-top: 1rem;
