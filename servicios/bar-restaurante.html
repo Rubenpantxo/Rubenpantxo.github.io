@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taberna El Rincón — Demo carta digital y reservas</title>
+<style>
+    :root {
+        --brand: #b34a1f;
+        --brand-dark: #8a3514;
+        --cream: #fdf6ec;
+        --ink: #2b1d12;
+        --muted: #8a7a6b;
+        --ok: #2e9e5b;
+        --card: #ffffff;
+        --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body {
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        background: var(--cream);
+        color: var(--ink);
+        overscroll-behavior: contain;
+        max-width: 480px;
+        margin: 0 auto;
+    }
+    .demo-badge {
+        position: fixed; top: 42px; left: -34px; z-index: 90;
+        background: rgba(43,29,18,.85); color: #fff; font-size: 10px; font-weight: 700;
+        letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
+    }
+    .view { display: none; min-height: 100dvh; padding-bottom: 130px; }
+    .view.active { display: block; }
+
+    /* ---------- HERO ---------- */
+    .hero {
+        position: relative; padding: 46px 18px 18px;
+        background:
+            radial-gradient(120% 90% at 80% 0%, rgba(255,205,120,.35), transparent 60%),
+            linear-gradient(160deg, #5a2c10 0%, #8a3514 45%, #b34a1f 100%);
+        color: #fff; border-radius: 0 0 28px 28px;
+    }
+    .hero-art { font-size: 54px; line-height: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,.35)); }
+    .hero h1 { font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin-top: 8px; }
+    .hero .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; font-size: 12px; }
+    .pill {
+        background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.25);
+        padding: 4px 10px; border-radius: 999px; backdrop-filter: blur(4px);
+    }
+    .pill.open { background: rgba(46,158,91,.9); border-color: transparent; font-weight: 700; }
+
+    /* ---------- CATEGORÍAS ---------- */
+    .cats {
+        position: sticky; top: 0; z-index: 20; display: flex; gap: 8px;
+        padding: 12px 16px; overflow-x: auto; scrollbar-width: none;
+        background: linear-gradient(var(--cream) 75%, transparent);
+    }
+    .cats::-webkit-scrollbar { display: none; }
+    .cat-chip {
+        flex: 0 0 auto; border: 1.5px solid #e3d5c3; background: #fff; color: var(--ink);
+        font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px;
+        cursor: pointer; transition: all .25s ease;
+    }
+    .cat-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); transform: scale(1.04); }
+
+    /* ---------- PLATOS ---------- */
+    .menu { padding: 4px 16px 0; display: grid; gap: 12px; }
+    .dish {
+        display: flex; gap: 12px; align-items: center; background: var(--card);
+        border-radius: var(--radius); padding: 12px;
+        box-shadow: 0 2px 10px rgba(60,35,10,.08); animation: dish-in .35s ease both;
+    }
+    @keyframes dish-in { from { opacity: 0; transform: translateY(14px); } }
+    .dish-img {
+        flex: 0 0 64px; height: 64px; border-radius: 14px; display: grid; place-items: center;
+        font-size: 32px; background: linear-gradient(145deg, #fbe8cf, #f3d4ac);
+    }
+    .dish-body { flex: 1; min-width: 0; }
+    .dish-body h3 { font-size: 15px; font-weight: 700; }
+    .dish-body p { font-size: 12px; color: var(--muted); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .dish-price { font-size: 14px; font-weight: 800; margin-top: 4px; color: var(--brand-dark); }
+    .dish-add {
+        flex: 0 0 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
+        background: var(--brand); color: #fff; font-size: 20px; font-weight: 700; line-height: 1;
+        box-shadow: 0 4px 10px rgba(179,74,31,.4); transition: transform .15s ease;
+    }
+    .dish-add:active { transform: scale(.85); }
+
+    /* ---------- BARRA CARRITO ---------- */
+    #cartbar {
+        position: fixed; left: 50%; bottom: 76px; transform: translate(-50%, 140%);
+        width: calc(100% - 32px); max-width: 448px; border: none; cursor: pointer;
+        background: var(--ink); color: #fff; border-radius: 16px; padding: 14px 18px;
+        display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700;
+        box-shadow: 0 10px 30px rgba(43,29,18,.4); transition: transform .35s cubic-bezier(.2,.9,.3,1.2); z-index: 40;
+    }
+    #cartbar.show { transform: translate(-50%, 0); }
+    #cartbar .count {
+        background: var(--brand); border-radius: 8px; padding: 2px 8px; margin-right: 8px; font-size: 12px;
+    }
+
+    /* ---------- TAB BAR ---------- */
+    .tabbar {
+        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+        width: 100%; max-width: 480px; display: flex; z-index: 50;
+        background: rgba(255,255,255,.92); backdrop-filter: blur(12px);
+        border-top: 1px solid #eadfce; padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+    }
+    .tab {
+        flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+        border: none; background: none; cursor: pointer; font-size: 11px; font-weight: 600;
+        color: var(--muted); padding: 6px 0; border-radius: 12px; transition: color .2s;
+    }
+    .tab .ico { font-size: 20px; }
+    .tab.active { color: var(--brand-dark); }
+    .tab.active .ico { transform: translateY(-2px); }
+
+    /* ---------- SHEET CARRITO ---------- */
+    .sheet-backdrop {
+        position: fixed; inset: 0; background: rgba(30,18,8,.45); opacity: 0;
+        pointer-events: none; transition: opacity .3s; z-index: 60;
+    }
+    .sheet-backdrop.show { opacity: 1; pointer-events: auto; }
+    .sheet {
+        position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 105%);
+        width: 100%; max-width: 480px; background: #fff; border-radius: 24px 24px 0 0;
+        padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); z-index: 61;
+        transition: transform .38s cubic-bezier(.2,.9,.3,1.05); max-height: 80dvh; overflow-y: auto;
+    }
+    .sheet.show { transform: translate(-50%, 0); }
+    .sheet h2 { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
+    .sheet-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed #eee2d0; }
+    .sheet-row .nm { flex: 1; font-size: 14px; font-weight: 600; }
+    .stepper { display: flex; align-items: center; gap: 10px; }
+    .stepper button {
+        width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid #e3d5c3;
+        background: #fff; font-size: 16px; font-weight: 700; cursor: pointer; color: var(--ink);
+    }
+    .stepper span { font-size: 14px; font-weight: 700; min-width: 16px; text-align: center; }
+    .sheet-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; padding: 14px 0 6px; }
+    .btn-primary {
+        width: 100%; border: none; cursor: pointer; margin-top: 10px;
+        background: var(--brand); color: #fff; font-size: 15px; font-weight: 800;
+        padding: 14px; border-radius: 14px; box-shadow: 0 8px 20px rgba(179,74,31,.35);
+        transition: transform .15s ease;
+    }
+    .btn-primary:active { transform: scale(.97); }
+    .btn-primary:disabled { opacity: .4; box-shadow: none; }
+
+    /* ---------- CONFIRMACIÓN ---------- */
+    .confirm {
+        position: fixed; inset: 0; z-index: 70; display: none; place-items: center;
+        background: linear-gradient(160deg, #5a2c10, #b34a1f); color: #fff; text-align: center; padding: 24px;
+    }
+    .confirm.show { display: grid; }
+    .confirm .check {
+        width: 84px; height: 84px; border-radius: 50%; background: var(--ok);
+        display: grid; place-items: center; font-size: 42px; margin: 0 auto 18px;
+        animation: pop .5s cubic-bezier(.2,1.4,.4,1) both;
+    }
+    @keyframes pop { from { transform: scale(0); } }
+    .confirm h2 { font-size: 24px; font-weight: 800; }
+    .confirm p { margin-top: 8px; font-size: 14px; opacity: .9; }
+    .confirm .ticket {
+        margin: 18px auto 0; background: rgba(255,255,255,.12); border: 1px dashed rgba(255,255,255,.4);
+        border-radius: 14px; padding: 12px 20px; font-size: 13px; max-width: 260px;
+    }
+    .confirm button {
+        margin-top: 22px; background: #fff; color: var(--brand-dark); border: none;
+        font-weight: 800; font-size: 14px; padding: 12px 26px; border-radius: 999px; cursor: pointer;
+    }
+
+    /* ---------- RESERVA ---------- */
+    .panel { padding: 50px 18px 0; }
+    .panel h1 { font-size: 24px; font-weight: 800; }
+    .panel .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .field { margin-top: 18px; }
+    .field label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .chip {
+        border: 1.5px solid #e3d5c3; background: #fff; padding: 9px 14px; border-radius: 12px;
+        font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .people { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+    .people button {
+        width: 40px; height: 40px; border-radius: 12px; border: 1.5px solid #e3d5c3;
+        background: #fff; font-size: 20px; font-weight: 700; cursor: pointer;
+    }
+    .people strong { font-size: 20px; min-width: 60px; text-align: center; }
+    .field input[type="text"] {
+        width: 100%; margin-top: 8px; padding: 13px 14px; font-size: 14px;
+        border: 1.5px solid #e3d5c3; border-radius: 12px; background: #fff; outline: none;
+    }
+    .field input[type="text"]:focus { border-color: var(--brand); }
+
+    /* ---------- INFO ---------- */
+    .info-card {
+        background: #fff; border-radius: var(--radius); padding: 16px; margin-top: 14px;
+        box-shadow: 0 2px 10px rgba(60,35,10,.08); display: flex; gap: 12px; align-items: flex-start;
+    }
+    .info-card .ico { font-size: 22px; }
+    .info-card h3 { font-size: 14px; font-weight: 700; }
+    .info-card p { font-size: 13px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+    .map {
+        margin-top: 14px; height: 130px; border-radius: var(--radius); display: grid; place-items: center;
+        background:
+            linear-gradient(rgba(179,74,31,.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(179,74,31,.12) 1px, transparent 1px),
+            #f6ead8;
+        background-size: 22px 22px; font-size: 34px;
+    }
+    .toast {
+        position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%) translateY(16px);
+        background: var(--ink); color: #fff; font-size: 13px; font-weight: 600;
+        padding: 9px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80; pointer-events: none;
+        white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="demo-badge">DEMO</div>
+
+<!-- VISTA: CARTA -->
+<main id="view-carta" class="view active">
+    <header class="hero">
+        <div class="hero-art">🍻🥘</div>
+        <h1>Taberna El Rincón</h1>
+        <div class="meta">
+            <span class="pill open">● Abierto</span>
+            <span class="pill">★ 4,7 (214)</span>
+            <span class="pill">Cocina 12:30 – 23:00</span>
+        </div>
+    </header>
+    <nav class="cats" id="cats" aria-label="Categorías de la carta"></nav>
+    <section class="menu" id="menu" aria-live="polite"></section>
+</main>
+
+<!-- VISTA: RESERVAR -->
+<main id="view-reserva" class="view">
+    <div class="panel">
+        <h1>Reservar mesa</h1>
+        <p class="sub">Sin llamadas: elige día, hora y listo.</p>
+        <div class="field">
+            <label>Personas</label>
+            <div class="people">
+                <button type="button" id="pers-minus" aria-label="Menos personas">−</button>
+                <strong id="pers-num">2</strong>
+                <button type="button" id="pers-plus" aria-label="Más personas">+</button>
+            </div>
+        </div>
+        <div class="field">
+            <label>Día</label>
+            <div class="chips" id="res-days"></div>
+        </div>
+        <div class="field">
+            <label>Hora</label>
+            <div class="chips" id="res-hours"></div>
+        </div>
+        <div class="field">
+            <label>A nombre de</label>
+            <input type="text" id="res-name" placeholder="Tu nombre" autocomplete="off">
+        </div>
+        <button class="btn-primary" id="res-btn" style="margin-top:22px">Confirmar reserva</button>
+    </div>
+</main>
+
+<!-- VISTA: INFO -->
+<main id="view-info" class="view">
+    <div class="panel">
+        <h1>Taberna El Rincón</h1>
+        <p class="sub">Cocina tradicional y tapas desde 1987.</p>
+        <div class="map" role="img" aria-label="Mapa de situación">📍</div>
+        <div class="info-card"><span class="ico">🕐</span><div><h3>Horario</h3><p>Mar – Dom · 12:30 – 23:00<br>Lunes cerrado</p></div></div>
+        <div class="info-card"><span class="ico">📞</span><div><h3>Teléfono</h3><p>948 000 000</p></div></div>
+        <div class="info-card"><span class="ico">🏠</span><div><h3>Dirección</h3><p>Plaza Mayor 4, bajo<br>Junto a la iglesia del pueblo</p></div></div>
+    </div>
+</main>
+
+<button id="cartbar" aria-label="Ver pedido">
+    <span><span class="count" id="cart-count">0</span> Ver mi pedido</span>
+    <span id="cart-total">0,00 €</span>
+</button>
+
+<nav class="tabbar" aria-label="Navegación">
+    <button class="tab active" data-view="carta"><span class="ico">🍽️</span>Carta</button>
+    <button class="tab" data-view="reserva"><span class="ico">📅</span>Reservar</button>
+    <button class="tab" data-view="info"><span class="ico">ℹ️</span>Info</button>
+</nav>
+
+<div class="sheet-backdrop" id="sheet-backdrop"></div>
+<aside class="sheet" id="sheet" aria-label="Tu pedido">
+    <h2>Tu pedido 🧾</h2>
+    <div id="sheet-items"></div>
+    <div class="sheet-total"><span>Total</span><span id="sheet-total">0,00 €</span></div>
+    <button class="btn-primary" id="order-btn">Pedir a cocina</button>
+</aside>
+
+<div class="confirm" id="confirm" role="dialog" aria-modal="true">
+    <div>
+        <div class="check">✓</div>
+        <h2 id="confirm-title">¡Pedido en marcha!</h2>
+        <p id="confirm-sub">La cocina ya está con ello.</p>
+        <div class="ticket" id="confirm-ticket"></div>
+        <button id="confirm-close">Volver a la carta</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+    'use strict';
+    const CATS = ['Tapas', 'Raciones', 'Bocadillos', 'Bebidas', 'Postres'];
+    const DISHES = [
+        { id: 1,  cat: 'Tapas',      emoji: '🥟', name: 'Croquetas caseras',    desc: 'De jamón, cremosas por dentro.',               price: 2.5 },
+        { id: 2,  cat: 'Tapas',      emoji: '🥚', name: 'Huevo roto con jamón', desc: 'Sobre pan de hogaza tostado.',                 price: 3.2 },
+        { id: 3,  cat: 'Tapas',      emoji: '🍄', name: 'Champi a la plancha',  desc: 'Con ajito y perejil, en brocheta.',            price: 2.8 },
+        { id: 4,  cat: 'Raciones',   emoji: '🦑', name: 'Calamares bravos',     desc: 'Fritura ligera con alioli suave.',             price: 11.5 },
+        { id: 5,  cat: 'Raciones',   emoji: '🥔', name: 'Patatas bravas',       desc: 'Con nuestra salsa brava secreta.',            price: 6.9 },
+        { id: 6,  cat: 'Raciones',   emoji: '🥩', name: 'Chuletón a la brasa',  desc: '400 g de chuletón madurado, para compartir.',   price: 24.0 },
+        { id: 7,  cat: 'Bocadillos', emoji: '🥖', name: 'Bocata de lomo',       desc: 'Con queso fundido y pimientos.',               price: 5.5 },
+        { id: 8,  cat: 'Bocadillos', emoji: '🦑', name: 'Bocata de calamares', desc: 'El clásico de toda la vida, recién frito.',    price: 5.0 },
+        { id: 9,  cat: 'Bebidas',    emoji: '🍺', name: 'Caña bien tirada',     desc: 'Cerveza de barril, espuma perfecta.',          price: 2.2 },
+        { id: 10, cat: 'Bebidas',    emoji: '🍷', name: 'Crianza D.O. Rioja',   desc: 'Copa de tinto crianza.',                       price: 2.8 },
+        { id: 11, cat: 'Bebidas',    emoji: '🥤', name: 'Refresco / agua',      desc: 'Pregunta por nuestras variedades.',            price: 2.0 },
+        { id: 12, cat: 'Postres',    emoji: '🍮', name: 'Flan de la abuela',    desc: 'De huevo, con nata y caramelo.',              price: 4.5 },
+        { id: 13, cat: 'Postres',    emoji: '🧀', name: 'Tarta de queso',       desc: 'Horneada, cremosa por dentro.',                price: 4.8 }
+    ];
+
+    const cart = new Map();
+    let activeCat = CATS[0];
+
+    const $ = id => document.getElementById(id);
+    const fmt = n => n.toFixed(2).replace('.', ',') + ' €';
+    const transition = fn => (document.startViewTransition ? document.startViewTransition(fn) : fn());
+
+    function toast(msg) {
+        const t = $('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._h);
+        t._h = setTimeout(() => t.classList.remove('show'), 1800);
+    }
+
+    /* ----- Categorías y carta ----- */
+    function renderCats() {
+        $('cats').innerHTML = CATS.map(c =>
+            `<button class="cat-chip ${c === activeCat ? 'active' : ''}" data-cat="${c}">${c}</button>`
+        ).join('');
+    }
+    function renderMenu() {
+        $('menu').innerHTML = DISHES.filter(d => d.cat === activeCat).map((d, i) => `
+            <article class="dish" style="animation-delay:${i * 45}ms">
+                <div class="dish-img">${d.emoji}</div>
+                <div class="dish-body">
+                    <h3>${d.name}</h3>
+                    <p>${d.desc}</p>
+                    <div class="dish-price">${fmt(d.price)}</div>
+                </div>
+                <button class="dish-add" data-add="${d.id}" aria-label="Añadir ${d.name}">+</button>
+            </article>`
+        ).join('');
+    }
+
+    document.addEventListener('click', e => {
+        const chip = e.target.closest('[data-cat]');
+        if (chip) {
+            activeCat = chip.dataset.cat;
+            transition(() => { renderCats(); renderMenu(); });
+            return;
+        }
+        const add = e.target.closest('[data-add]');
+        if (add) {
+            const id = +add.dataset.add;
+            cart.set(id, (cart.get(id) || 0) + 1);
+            updateCartUI();
+            toast('Añadido al pedido 🍽️');
+        }
+    });
+
+    /* ----- Carrito ----- */
+    function cartTotals() {
+        let count = 0, total = 0;
+        cart.forEach((qty, id) => {
+            const d = DISHES.find(x => x.id === id);
+            count += qty;
+            total += d.price * qty;
+        });
+        return { count, total };
+    }
+    function updateCartUI() {
+        const { count, total } = cartTotals();
+        $('cart-count').textContent = count;
+        $('cart-total').textContent = fmt(total);
+        $('cartbar').classList.toggle('show', count > 0);
+        renderSheet();
+    }
+    function renderSheet() {
+        const box = $('sheet-items');
+        if (!cart.size) {
+            box.innerHTML = '<p style="font-size:13px;color:var(--muted);padding:8px 0">Tu pedido está vacío.</p>';
+        } else {
+            box.innerHTML = [...cart.entries()].map(([id, qty]) => {
+                const d = DISHES.find(x => x.id === id);
+                return `<div class="sheet-row">
+                    <span>${d.emoji}</span><span class="nm">${d.name}</span>
+                    <div class="stepper">
+                        <button data-dec="${id}" aria-label="Quitar uno">−</button>
+                        <span>${qty}</span>
+                        <button data-inc="${id}" aria-label="Añadir uno">+</button>
+                    </div>
+                    <strong style="font-size:13px;min-width:58px;text-align:right">${fmt(d.price * qty)}</strong>
+                </div>`;
+            }).join('');
+        }
+        $('sheet-total').textContent = fmt(cartTotals().total);
+        $('order-btn').disabled = !cart.size;
+    }
+    document.addEventListener('click', e => {
+        const inc = e.target.closest('[data-inc]');
+        const dec = e.target.closest('[data-dec]');
+        if (inc) { const id = +inc.dataset.inc; cart.set(id, cart.get(id) + 1); updateCartUI(); }
+        if (dec) {
+            const id = +dec.dataset.dec;
+            const q = cart.get(id) - 1;
+            q <= 0 ? cart.delete(id) : cart.set(id, q);
+            updateCartUI();
+            if (!cart.size) closeSheet();
+        }
+    });
+
+    const openSheet  = () => { $('sheet').classList.add('show'); $('sheet-backdrop').classList.add('show'); };
+    const closeSheet = () => { $('sheet').classList.remove('show'); $('sheet-backdrop').classList.remove('show'); };
+    $('cartbar').addEventListener('click', openSheet);
+    $('sheet-backdrop').addEventListener('click', closeSheet);
+
+    $('order-btn').addEventListener('click', () => {
+        if (!cart.size) return;
+        const { count, total } = cartTotals();
+        $('confirm-title').textContent = '¡Pedido en marcha!';
+        $('confirm-sub').textContent = 'La cocina ya está con ello. Te avisamos en mesa.';
+        $('confirm-ticket').innerHTML =
+            `Pedido <strong>#${100 + Math.floor(Math.random() * 900)}</strong><br>` +
+            `${count} artículo${count > 1 ? 's' : ''} · ${fmt(total)}<br>⏱️ Listo en 10–15 min`;
+        cart.clear();
+        updateCartUI();
+        closeSheet();
+        $('confirm').classList.add('show');
+    });
+    $('confirm-close').addEventListener('click', () => {
+        transition(() => {
+            $('confirm').classList.remove('show');
+            switchView('carta');
+        });
+    });
+
+    /* ----- Reserva ----- */
+    let persons = 2;
+    const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const days = [0, 1, 2].map(off => {
+        const d = new Date();
+        d.setDate(d.getDate() + off);
+        return off === 0 ? 'Hoy' : off === 1 ? 'Mañana' : `${dayNames[d.getDay()]} ${d.getDate()}`;
+    });
+    const hours = ['13:00', '13:30', '14:00', '20:30', '21:00', '21:30'];
+    let resDay = days[0], resHour = hours[3];
+
+    function renderChips(elId, items, sel, attr) {
+        $(elId).innerHTML = items.map(v =>
+            `<button class="chip ${v === sel ? 'active' : ''}" data-${attr}="${v}">${v}</button>`
+        ).join('');
+    }
+    const renderRes = () => {
+        renderChips('res-days', days, resDay, 'day');
+        renderChips('res-hours', hours, resHour, 'hour');
+    };
+    document.addEventListener('click', e => {
+        const d = e.target.closest('[data-day]');
+        const h = e.target.closest('[data-hour]');
+        if (d) { resDay = d.dataset.day; renderRes(); }
+        if (h) { resHour = h.dataset.hour; renderRes(); }
+    });
+    $('pers-minus').addEventListener('click', () => { persons = Math.max(1, persons - 1); $('pers-num').textContent = persons; });
+    $('pers-plus').addEventListener('click', () => { persons = Math.min(12, persons + 1); $('pers-num').textContent = persons; });
+    $('res-btn').addEventListener('click', () => {
+        const name = $('res-name').value.trim();
+        if (!name) { toast('Dinos tu nombre para la reserva ✍️'); $('res-name').focus(); return; }
+        $('confirm-title').textContent = '¡Mesa reservada!';
+        $('confirm-sub').textContent = `Te esperamos, ${name}.`;
+        $('confirm-ticket').innerHTML =
+            `<strong>${persons} persona${persons > 1 ? 's' : ''}</strong> · ${resDay} · ${resHour}<br>` +
+            `Reserva a nombre de <strong>${name}</strong>`;
+        $('confirm').classList.add('show');
+        $('res-name').value = '';
+    });
+
+    /* ----- Tabs ----- */
+    function switchView(view) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        $('view-' + view).classList.add('active');
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+        window.scrollTo({ top: 0 });
+    }
+    document.querySelectorAll('.tab').forEach(t =>
+        t.addEventListener('click', () => transition(() => switchView(t.dataset.view)))
+    );
+
+    /* ----- Init ----- */
+    renderCats();
+    renderMenu();
+    renderRes();
+    renderSheet();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALBA — Demo tienda de moda online</title>
+<style>
+    :root {
+        --ink: #111114;
+        --paper: #fafafa;
+        --muted: #88888f;
+        --accent: #e7335a;
+        --line: #e8e8ec;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        background: var(--paper); color: var(--ink);
+        max-width: 480px; margin: 0 auto; overscroll-behavior: contain;
+        padding-bottom: 40px;
+    }
+    .demo-badge {
+        position: fixed; top: 42px; left: -34px; z-index: 90;
+        background: rgba(17,17,20,.85); color: #fff; font-size: 10px; font-weight: 700;
+        letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
+    }
+
+    /* ---------- HEADER ---------- */
+    .top {
+        position: sticky; top: 0; z-index: 30;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 40px 16px 12px; background: rgba(250,250,250,.92); backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+    }
+    .logo { font-size: 22px; font-weight: 900; letter-spacing: .35em; }
+    .top-actions { display: flex; gap: 14px; align-items: center; }
+    .icon-btn { position: relative; border: none; background: none; font-size: 20px; cursor: pointer; }
+    .badge {
+        position: absolute; top: -6px; right: -8px; min-width: 16px; height: 16px;
+        background: var(--accent); color: #fff; font-size: 10px; font-weight: 800;
+        border-radius: 999px; display: grid; place-items: center; padding: 0 4px;
+        transform: scale(0); transition: transform .25s cubic-bezier(.2,1.4,.4,1);
+    }
+    .badge.on { transform: scale(1); }
+
+    /* ---------- BANNER ---------- */
+    .banner {
+        margin: 14px 16px 0; border-radius: 18px; overflow: hidden; position: relative;
+        background: linear-gradient(120deg, #16161a 0%, #2b2030 55%, #5e2237 100%);
+        color: #fff; padding: 26px 20px;
+    }
+    .banner::after {
+        content: '👗🧥👜'; position: absolute; right: 10px; bottom: 6px; font-size: 44px; opacity: .85;
+    }
+    .banner small { font-size: 11px; letter-spacing: .25em; opacity: .75; }
+    .banner h2 { font-size: 28px; font-weight: 900; letter-spacing: -.02em; margin-top: 4px; }
+    .banner h2 span { color: #ff5e82; }
+
+    /* ---------- CATEGORÍAS ---------- */
+    .cats { display: flex; gap: 18px; padding: 18px 16px 8px; overflow-x: auto; scrollbar-width: none; }
+    .cats::-webkit-scrollbar { display: none; }
+    .cat {
+        border: none; background: none; cursor: pointer; flex: 0 0 auto;
+        font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+        color: var(--muted); padding-bottom: 6px; border-bottom: 2px solid transparent; transition: all .2s;
+    }
+    .cat.active { color: var(--ink); border-color: var(--ink); }
+
+    /* ---------- GRID PRODUCTOS ---------- */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 10px 16px; }
+    .prod { cursor: pointer; animation: fade-up .35s ease both; }
+    @keyframes fade-up { from { opacity: 0; transform: translateY(16px); } }
+    .prod-img {
+        position: relative; aspect-ratio: 3/4; border-radius: 14px; overflow: hidden;
+        display: grid; place-items: center; font-size: 56px;
+    }
+    .prod-img .sale {
+        position: absolute; top: 8px; left: 8px; background: var(--accent); color: #fff;
+        font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
+    }
+    .fav {
+        position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border-radius: 50%;
+        border: none; cursor: pointer; background: rgba(255,255,255,.85); font-size: 15px;
+        display: grid; place-items: center; transition: transform .2s;
+    }
+    .fav:active { transform: scale(1.25); }
+    .prod h3 { font-size: 13px; font-weight: 600; margin-top: 8px; }
+    .price { font-size: 13px; font-weight: 800; margin-top: 2px; }
+    .price del { color: var(--muted); font-weight: 500; margin-left: 6px; }
+
+    /* ---------- FICHA PRODUCTO ---------- */
+    .pdp {
+        position: fixed; inset: 0; z-index: 50; background: var(--paper);
+        max-width: 480px; margin: 0 auto; overflow-y: auto;
+        transform: translateY(100%); transition: transform .4s cubic-bezier(.2,.9,.25,1); padding-bottom: 110px;
+    }
+    .pdp.show { transform: translateY(0); }
+    .pdp-img { position: relative; aspect-ratio: 1/1.05; display: grid; place-items: center; font-size: 120px; }
+    .pdp-close {
+        position: absolute; top: 44px; left: 14px; width: 38px; height: 38px; border-radius: 50%;
+        border: none; background: rgba(255,255,255,.9); font-size: 17px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+    .pdp-body { padding: 18px 18px 0; }
+    .pdp-body h2 { font-size: 20px; font-weight: 800; }
+    .pdp-price { font-size: 18px; font-weight: 900; margin-top: 4px; }
+    .pdp-price del { color: var(--muted); font-weight: 500; font-size: 14px; margin-left: 8px; }
+    .pdp-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 10px; }
+    .opt-label { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+    .sizes { display: flex; gap: 8px; flex-wrap: wrap; }
+    .size {
+        min-width: 44px; padding: 10px 0; text-align: center; border-radius: 10px;
+        border: 1.5px solid var(--line); background: #fff; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .15s;
+    }
+    .size.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .colors { display: flex; gap: 10px; }
+    .color { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; outline: 1.5px solid var(--line); transition: outline-color .15s; }
+    .color.active { outline: 2.5px solid var(--ink); }
+    .pdp-cta {
+        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+        width: 100%; max-width: 480px; padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
+        background: rgba(250,250,250,.95); backdrop-filter: blur(10px); border-top: 1px solid var(--line);
+        display: none; z-index: 55;
+    }
+    .pdp.show ~ .pdp-cta { display: block; }
+    .btn-dark {
+        width: 100%; border: none; cursor: pointer; background: var(--ink); color: #fff;
+        font-size: 14px; font-weight: 800; letter-spacing: .05em; padding: 15px; border-radius: 14px;
+        transition: transform .15s;
+    }
+    .btn-dark:active { transform: scale(.97); }
+
+    /* ---------- CESTA ---------- */
+    .cart-backdrop {
+        position: fixed; inset: 0; background: rgba(17,17,20,.4); z-index: 60;
+        opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .cart-backdrop.show { opacity: 1; pointer-events: auto; }
+    .cart {
+        position: fixed; top: 0; right: 0; height: 100dvh; width: min(86%, 380px); z-index: 61;
+        background: #fff; box-shadow: -10px 0 40px rgba(0,0,0,.15);
+        transform: translateX(105%); transition: transform .38s cubic-bezier(.2,.9,.25,1);
+        display: flex; flex-direction: column;
+    }
+    .cart.show { transform: translateX(0); }
+    .cart header { padding: 46px 18px 14px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+    .cart header h2 { font-size: 16px; font-weight: 900; letter-spacing: .08em; }
+    .cart header button { border: none; background: none; font-size: 18px; cursor: pointer; }
+    .cart-items { flex: 1; overflow-y: auto; padding: 8px 18px; }
+    .cart-row { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--line); }
+    .cart-thumb { width: 54px; height: 64px; border-radius: 10px; display: grid; place-items: center; font-size: 28px; flex: 0 0 auto; }
+    .cart-row .inf { flex: 1; min-width: 0; }
+    .cart-row .inf h4 { font-size: 13px; font-weight: 700; }
+    .cart-row .inf p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .cart-row .inf strong { font-size: 13px; }
+    .cart-row .rm { border: none; background: none; color: var(--muted); font-size: 15px; cursor: pointer; }
+    .cart-foot { padding: 14px 18px calc(18px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+    .cart-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 900; margin-bottom: 12px; }
+    .cart-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 40px 10px; }
+
+    /* ---------- CONFIRMACIÓN ---------- */
+    .done {
+        position: fixed; inset: 0; z-index: 70; display: none; place-items: center; text-align: center;
+        background: var(--ink); color: #fff; padding: 24px;
+    }
+    .done.show { display: grid; }
+    .done .ring {
+        width: 86px; height: 86px; border-radius: 50%; margin: 0 auto 18px;
+        border: 3px solid var(--accent); display: grid; place-items: center; font-size: 38px;
+        animation: pop .5s cubic-bezier(.2,1.4,.4,1) both;
+    }
+    @keyframes pop { from { transform: scale(0); } }
+    .done h2 { font-size: 24px; font-weight: 900; }
+    .done p { font-size: 13px; opacity: .8; margin-top: 8px; line-height: 1.6; }
+    .done button {
+        margin-top: 24px; background: #fff; color: var(--ink); border: none; cursor: pointer;
+        font-weight: 800; font-size: 13px; letter-spacing: .05em; padding: 13px 28px; border-radius: 999px;
+    }
+    .toast {
+        position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(16px);
+        background: var(--ink); color: #fff; font-size: 13px; font-weight: 600;
+        padding: 9px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80;
+        pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="demo-badge">DEMO</div>
+
+<header class="top">
+    <button class="icon-btn" aria-label="Buscar">🔍</button>
+    <div class="logo">ALBA</div>
+    <div class="top-actions">
+        <button class="icon-btn" id="fav-btn" aria-label="Favoritos">🤍<span class="badge" id="fav-badge">0</span></button>
+        <button class="icon-btn" id="bag-btn" aria-label="Cesta">🛍️<span class="badge" id="bag-badge">0</span></button>
+    </div>
+</header>
+
+<section class="banner">
+    <small>MID SEASON</small>
+    <h2>REBAJAS<br><span>hasta −40%</span></h2>
+</section>
+
+<nav class="cats" id="cats" aria-label="Categorías"></nav>
+<main class="grid" id="grid"></main>
+
+<!-- FICHA DE PRODUCTO -->
+<section class="pdp" id="pdp" aria-label="Ficha de producto">
+    <div class="pdp-img" id="pdp-img">
+        <button class="pdp-close" id="pdp-close" aria-label="Cerrar">←</button>
+    </div>
+    <div class="pdp-body">
+        <h2 id="pdp-name"></h2>
+        <div class="pdp-price" id="pdp-price"></div>
+        <p class="pdp-desc" id="pdp-desc"></p>
+        <div class="opt-label">Talla</div>
+        <div class="sizes" id="pdp-sizes"></div>
+        <div class="opt-label">Color</div>
+        <div class="colors" id="pdp-colors"></div>
+    </div>
+</section>
+<div class="pdp-cta"><button class="btn-dark" id="pdp-add">Añadir a la cesta</button></div>
+
+<!-- CESTA -->
+<div class="cart-backdrop" id="cart-backdrop"></div>
+<aside class="cart" id="cart" aria-label="Cesta de la compra">
+    <header><h2>TU CESTA</h2><button id="cart-close" aria-label="Cerrar cesta">✕</button></header>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-foot">
+        <div class="cart-total"><span>Total</span><span id="cart-total">0,00 €</span></div>
+        <button class="btn-dark" id="checkout">Tramitar pedido</button>
+    </div>
+</aside>
+
+<div class="done" id="done" role="dialog" aria-modal="true">
+    <div>
+        <div class="ring">✓</div>
+        <h2>¡Pedido realizado!</h2>
+        <p id="done-sub">Recibirás un email con el seguimiento.<br>Entrega estimada: 24–48 h 📦</p>
+        <button id="done-close">Seguir comprando</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+    'use strict';
+    const CATS = ['Todo', 'Mujer', 'Hombre', 'Accesorios', 'Rebajas'];
+    const PRODUCTS = [
+        { id: 1,  cat: 'Mujer',      emoji: '👗', name: 'Vestido midi satinado',  price: 39.95, old: 59.95, bg: 'linear-gradient(145deg,#f6e3e8,#eccad6)', desc: 'Vestido midi de tejido satinado con caída fluida. Escote pico y tirante fino regulable.' },
+        { id: 2,  cat: 'Mujer',      emoji: '🧥', name: 'Blazer oversize lino',   price: 49.95, old: null,  bg: 'linear-gradient(145deg,#e8e6df,#d6d2c4)', desc: 'Blazer de corte oversize en mezcla de lino. Hombreras suaves y botón único.' },
+        { id: 3,  cat: 'Hombre',     emoji: '👕', name: 'Camiseta heavy cotton',  price: 15.95, old: null,  bg: 'linear-gradient(145deg,#dfe7ef,#c3d2e0)', desc: 'Camiseta de algodón compacto 220 g. Cuello reforzado y caja relajada.' },
+        { id: 4,  cat: 'Hombre',     emoji: '👖', name: 'Vaquero straight fit',   price: 35.95, old: 45.95, bg: 'linear-gradient(145deg,#d4dde8,#aebfd2)', desc: 'Denim rígido de corte recto años 90. Tiro medio, lavado stone.' },
+        { id: 5,  cat: 'Accesorios', emoji: '👜', name: 'Bolso shopper piel',     price: 59.95, old: 79.95, bg: 'linear-gradient(145deg,#efe2d2,#dcc6a8)', desc: 'Shopper de piel grabada con bolsillo interior y cierre magnético.' },
+        { id: 6,  cat: 'Accesorios', emoji: '🕶️', name: 'Gafas de sol redondas', price: 19.95, old: null,  bg: 'linear-gradient(145deg,#e7e7ea,#cfcfd6)', desc: 'Montura metálica redonda con lente degradada. Protección UV400.' },
+        { id: 7,  cat: 'Mujer',      emoji: '👟', name: 'Sneakers chunky',        price: 45.95, old: null,  bg: 'linear-gradient(145deg,#eee9f5,#d8cfe8)', desc: 'Zapatilla de suela chunky con paneles combinados y cordón grueso.' },
+        { id: 8,  cat: 'Hombre',     emoji: '🧶', name: 'Jersey cuello perkins',  price: 29.95, old: 39.95, bg: 'linear-gradient(145deg,#e3ece4,#c6d8c9)', desc: 'Punto suave con cuello perkins y acabados canalé. Lana reciclada.' }
+    ];
+    const SIZES = ['XS', 'S', 'M', 'L', 'XL'];
+    const COLORS = ['#1c1c22', '#8b9bb0', '#b85c6e', '#d8cdb8'];
+
+    let activeCat = 'Todo';
+    let current = null, selSize = 'M', selColor = COLORS[0];
+    const favs = new Set();
+    const bag = [];
+
+    const $ = id => document.getElementById(id);
+    const fmt = n => n.toFixed(2).replace('.', ',') + ' €';
+    const transition = fn => (document.startViewTransition ? document.startViewTransition(fn) : fn());
+
+    function toast(msg) {
+        const t = $('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._h);
+        t._h = setTimeout(() => t.classList.remove('show'), 1700);
+    }
+
+    /* ----- Render catálogo ----- */
+    function renderCats() {
+        $('cats').innerHTML = CATS.map(c =>
+            `<button class="cat ${c === activeCat ? 'active' : ''}" data-cat="${c}">${c}</button>`
+        ).join('');
+    }
+    function visibleProducts() {
+        if (activeCat === 'Todo') return PRODUCTS;
+        if (activeCat === 'Rebajas') return PRODUCTS.filter(p => p.old);
+        return PRODUCTS.filter(p => p.cat === activeCat);
+    }
+    function renderGrid() {
+        $('grid').innerHTML = visibleProducts().map((p, i) => `
+            <article class="prod" data-open="${p.id}" style="animation-delay:${i * 40}ms">
+                <div class="prod-img" style="background:${p.bg}">
+                    ${p.old ? '<span class="sale">−' + Math.round((1 - p.price / p.old) * 100) + '%</span>' : ''}
+                    ${p.emoji}
+                    <button class="fav" data-fav="${p.id}" aria-label="Favorito">${favs.has(p.id) ? '❤️' : '🤍'}</button>
+                </div>
+                <h3>${p.name}</h3>
+                <div class="price">${fmt(p.price)}${p.old ? '<del>' + fmt(p.old) + '</del>' : ''}</div>
+            </article>`
+        ).join('');
+    }
+
+    /* ----- Ficha producto ----- */
+    function openPdp(p) {
+        current = p;
+        selSize = 'M';
+        selColor = COLORS[0];
+        $('pdp-img').style.background = p.bg;
+        $('pdp-img').innerHTML = `<button class="pdp-close" id="pdp-close2" aria-label="Cerrar">←</button>${p.emoji}`;
+        $('pdp-name').textContent = p.name;
+        $('pdp-price').innerHTML = fmt(p.price) + (p.old ? '<del>' + fmt(p.old) + '</del>' : '');
+        $('pdp-desc').textContent = p.desc;
+        renderOptions();
+        $('pdp').classList.add('show');
+        $('pdp').scrollTop = 0;
+    }
+    function renderOptions() {
+        $('pdp-sizes').innerHTML = SIZES.map(s =>
+            `<button class="size ${s === selSize ? 'active' : ''}" data-size="${s}">${s}</button>`
+        ).join('');
+        $('pdp-colors').innerHTML = COLORS.map(c =>
+            `<button class="color ${c === selColor ? 'active' : ''}" data-color="${c}" style="background:${c}" aria-label="Color"></button>`
+        ).join('');
+    }
+    $('pdp-add').addEventListener('click', () => {
+        if (!current) return;
+        bag.push({ ...current, size: selSize, color: selColor });
+        updateBadges();
+        renderCart();
+        toast(`Añadido · ${current.name} (${selSize})`);
+        $('pdp').classList.remove('show');
+    });
+
+    /* ----- Cesta ----- */
+    function updateBadges() {
+        const bb = $('bag-badge'), fb = $('fav-badge');
+        bb.textContent = bag.length;
+        bb.classList.toggle('on', bag.length > 0);
+        fb.textContent = favs.size;
+        fb.classList.toggle('on', favs.size > 0);
+    }
+    function renderCart() {
+        const box = $('cart-items');
+        if (!bag.length) {
+            box.innerHTML = '<div class="cart-empty">Tu cesta está vacía 🛍️<br>¡Las rebajas te esperan!</div>';
+        } else {
+            box.innerHTML = bag.map((it, i) => `
+                <div class="cart-row">
+                    <div class="cart-thumb" style="background:${it.bg}">${it.emoji}</div>
+                    <div class="inf">
+                        <h4>${it.name}</h4>
+                        <p>Talla ${it.size}</p>
+                        <strong>${fmt(it.price)}</strong>
+                    </div>
+                    <button class="rm" data-rm="${i}" aria-label="Quitar">🗑️</button>
+                </div>`
+            ).join('');
+        }
+        $('cart-total').textContent = fmt(bag.reduce((s, it) => s + it.price, 0));
+    }
+    const openCart  = () => { $('cart').classList.add('show'); $('cart-backdrop').classList.add('show'); };
+    const closeCart = () => { $('cart').classList.remove('show'); $('cart-backdrop').classList.remove('show'); };
+
+    $('bag-btn').addEventListener('click', openCart);
+    $('cart-close').addEventListener('click', closeCart);
+    $('cart-backdrop').addEventListener('click', closeCart);
+    $('fav-btn').addEventListener('click', () => {
+        if (!favs.size) { toast('Marca productos con el corazón 🤍'); return; }
+        activeCat = 'Todo';
+        transition(() => { renderCats(); renderGrid(); });
+        toast(`Tienes ${favs.size} favorito${favs.size > 1 ? 's' : ''} ❤️`);
+    });
+
+    $('checkout').addEventListener('click', () => {
+        if (!bag.length) { toast('La cesta está vacía'); return; }
+        $('done-sub').innerHTML =
+            `${bag.length} artículo${bag.length > 1 ? 's' : ''} · ${$('cart-total').textContent}<br>` +
+            'Recibirás un email con el seguimiento.<br>Entrega estimada: 24–48 h 📦';
+        bag.length = 0;
+        updateBadges();
+        renderCart();
+        closeCart();
+        $('done').classList.add('show');
+    });
+    $('done-close').addEventListener('click', () => transition(() => $('done').classList.remove('show')));
+
+    /* ----- Delegación global ----- */
+    document.addEventListener('click', e => {
+        const cat = e.target.closest('[data-cat]');
+        if (cat) { activeCat = cat.dataset.cat; transition(() => { renderCats(); renderGrid(); }); return; }
+
+        const fav = e.target.closest('[data-fav]');
+        if (fav) {
+            const id = +fav.dataset.fav;
+            favs.has(id) ? favs.delete(id) : favs.add(id);
+            fav.textContent = favs.has(id) ? '❤️' : '🤍';
+            updateBadges();
+            return;
+        }
+        const open = e.target.closest('[data-open]');
+        if (open) { openPdp(PRODUCTS.find(p => p.id === +open.dataset.open)); return; }
+
+        if (e.target.closest('.pdp-close')) { $('pdp').classList.remove('show'); return; }
+
+        const size = e.target.closest('[data-size]');
+        if (size) { selSize = size.dataset.size; renderOptions(); return; }
+        const color = e.target.closest('[data-color]');
+        if (color) { selColor = color.dataset.color; renderOptions(); return; }
+
+        const rm = e.target.closest('[data-rm]');
+        if (rm) { bag.splice(+rm.dataset.rm, 1); updateBadges(); renderCart(); }
+    });
+
+    /* ----- Init ----- */
+    renderCats();
+    renderGrid();
+    renderCart();
+    updateBadges();
+})();
+</script>
+</body>
+</html>
