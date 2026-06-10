@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Super Herriko — Demo tienda online + gestión de almacén</title>
+<title>Super La Plaza — Demo tienda online + gestión de almacén</title>
 <style>
     :root {
         --green: #1f9d55;
@@ -270,7 +270,7 @@
 <!-- ================= TIENDA ================= -->
 <section id="zone-shop" class="zone active">
     <header class="shop-hero">
-        <h1>Super Herriko</h1>
+        <h1>Super La Plaza</h1>
         <p>Pide online y recógelo sin esperar. Productos del pueblo de toda la vida.</p>
     </header>
     <nav class="cats" id="shop-cats" aria-label="Categorías"></nav>
@@ -290,7 +290,7 @@
     <div class="s-label">Recogida en tienda</div>
     <div class="slots" id="pickup-slots"></div>
     <div class="s-label">Tu nombre</div>
-    <input type="text" id="buyer-name" placeholder="Ej.: Koldo" autocomplete="off">
+    <input type="text" id="buyer-name" placeholder="Ej.: Carlos" autocomplete="off">
     <button class="btn-green" id="place-order">Confirmar pedido</button>
 </aside>
 
@@ -323,7 +323,7 @@
         <div class="dash-head">
             <div>
                 <h1>Panel del almacén</h1>
-                <p>Hola, Fermín · Super Herriko</p>
+                <p>Hola, Andrés · Super La Plaza</p>
             </div>
             <button class="logout" id="logout">Salir</button>
         </div>
@@ -354,7 +354,7 @@
         { id: 4,  cat: 'Frescos',   emoji: '🧀', name: 'Queso de oveja local',  unit: 'ud',   price: 9.80, stock: 3,  min: 3 },
         { id: 5,  cat: 'Despensa',  emoji: '🫒', name: 'Aceite de oliva 1 L',   unit: 'ud',   price: 8.90, stock: 12, min: 6 },
         { id: 6,  cat: 'Despensa',  emoji: '🍚', name: 'Arroz redondo 1 kg',    unit: 'ud',   price: 1.65, stock: 20, min: 8 },
-        { id: 7,  cat: 'Despensa',  emoji: '🫘', name: 'Pochas en conserva',    unit: 'ud',   price: 3.20, stock: 2,  min: 5 },
+        { id: 7,  cat: 'Despensa',  emoji: '🫘', name: 'Lentejas en conserva',    unit: 'ud',   price: 3.20, stock: 2,  min: 5 },
         { id: 8,  cat: 'Panadería', emoji: '🍞', name: 'Pan de hogaza',         unit: 'ud',   price: 2.40, stock: 9,  min: 5 },
         { id: 9,  cat: 'Panadería', emoji: '🥐', name: 'Cruasán de mantequilla',unit: 'ud',   price: 1.10, stock: 0,  min: 6 },
         { id: 10, cat: 'Bebidas',   emoji: '🥛', name: 'Leche fresca 1 L',      unit: 'ud',   price: 1.35, stock: 18, min: 10 },
@@ -495,7 +495,7 @@
             authed = true;
             pin = '';
             transition(() => { $('pin-screen').hidden = true; $('dash').hidden = false; renderDash(); });
-            toast('¡Bienvenido, Fermín! 🔓');
+            toast('¡Bienvenido, Andrés! 🔓');
         } else {
             const dots = $('pin-dots');
             dots.classList.add('error');

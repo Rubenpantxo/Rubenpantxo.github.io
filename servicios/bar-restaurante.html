@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taberna Patxi — Demo carta digital y reservas</title>
+<title>Taberna El Rincón — Demo carta digital y reservas</title>
 <style>
     :root {
         --brand: #b34a1f;
@@ -227,7 +227,7 @@
 <main id="view-carta" class="view active">
     <header class="hero">
         <div class="hero-art">🍻🥘</div>
-        <h1>Taberna Patxi</h1>
+        <h1>Taberna El Rincón</h1>
         <div class="meta">
             <span class="pill open">● Abierto</span>
             <span class="pill">★ 4,7 (214)</span>
@@ -270,12 +270,12 @@
 <!-- VISTA: INFO -->
 <main id="view-info" class="view">
     <div class="panel">
-        <h1>Taberna Patxi</h1>
-        <p class="sub">Cocina tradicional y pintxos desde 1987.</p>
+        <h1>Taberna El Rincón</h1>
+        <p class="sub">Cocina tradicional y tapas desde 1987.</p>
         <div class="map" role="img" aria-label="Mapa de situación">📍</div>
         <div class="info-card"><span class="ico">🕐</span><div><h3>Horario</h3><p>Mar – Dom · 12:30 – 23:00<br>Lunes cerrado</p></div></div>
         <div class="info-card"><span class="ico">📞</span><div><h3>Teléfono</h3><p>948 000 000</p></div></div>
-        <div class="info-card"><span class="ico">🏠</span><div><h3>Dirección</h3><p>Plaza de los Fueros 4, bajo<br>31500 · Navarra</p></div></div>
+        <div class="info-card"><span class="ico">🏠</span><div><h3>Dirección</h3><p>Plaza Mayor 4, bajo<br>Junto a la iglesia del pueblo</p></div></div>
     </div>
 </main>
 
@@ -313,20 +313,20 @@
 <script>
 (() => {
     'use strict';
-    const CATS = ['Pintxos', 'Raciones', 'Bocadillos', 'Bebidas', 'Postres'];
+    const CATS = ['Tapas', 'Raciones', 'Bocadillos', 'Bebidas', 'Postres'];
     const DISHES = [
-        { id: 1,  cat: 'Pintxos',    emoji: '🍢', name: 'Gilda clásica',        desc: 'Anchoa, oliva y piparra. La de toda la vida.', price: 2.5 },
-        { id: 2,  cat: 'Pintxos',    emoji: '🥚', name: 'Huevo roto con jamón', desc: 'Sobre pan de hogaza tostado.',                 price: 3.2 },
-        { id: 3,  cat: 'Pintxos',    emoji: '🍄', name: 'Champi a la plancha',  desc: 'Con ajito y perejil, en brocheta.',            price: 2.8 },
+        { id: 1,  cat: 'Tapas',      emoji: '🥟', name: 'Croquetas caseras',    desc: 'De jamón, cremosas por dentro.',               price: 2.5 },
+        { id: 2,  cat: 'Tapas',      emoji: '🥚', name: 'Huevo roto con jamón', desc: 'Sobre pan de hogaza tostado.',                 price: 3.2 },
+        { id: 3,  cat: 'Tapas',      emoji: '🍄', name: 'Champi a la plancha',  desc: 'Con ajito y perejil, en brocheta.',            price: 2.8 },
         { id: 4,  cat: 'Raciones',   emoji: '🦑', name: 'Calamares bravos',     desc: 'Fritura ligera con alioli suave.',             price: 11.5 },
-        { id: 5,  cat: 'Raciones',   emoji: '🥔', name: 'Patatas Patxi',        desc: 'Bravas con nuestra salsa secreta.',            price: 6.9 },
-        { id: 6,  cat: 'Raciones',   emoji: '🥩', name: 'Txuleta a la brasa',   desc: '400 g de chuleta madurada, para compartir.',   price: 24.0 },
+        { id: 5,  cat: 'Raciones',   emoji: '🥔', name: 'Patatas bravas',       desc: 'Con nuestra salsa brava secreta.',            price: 6.9 },
+        { id: 6,  cat: 'Raciones',   emoji: '🥩', name: 'Chuletón a la brasa',  desc: '400 g de chuletón madurado, para compartir.',   price: 24.0 },
         { id: 7,  cat: 'Bocadillos', emoji: '🥖', name: 'Bocata de lomo',       desc: 'Con queso fundido y pimientos.',               price: 5.5 },
-        { id: 8,  cat: 'Bocadillos', emoji: '🌶️', name: 'Bocata de txistorra', desc: 'Txistorra de caserío recién hecha.',           price: 5.0 },
+        { id: 8,  cat: 'Bocadillos', emoji: '🦑', name: 'Bocata de calamares', desc: 'El clásico de toda la vida, recién frito.',    price: 5.0 },
         { id: 9,  cat: 'Bebidas',    emoji: '🍺', name: 'Caña bien tirada',     desc: 'Cerveza de barril, espuma perfecta.',          price: 2.2 },
         { id: 10, cat: 'Bebidas',    emoji: '🍷', name: 'Crianza D.O. Rioja',   desc: 'Copa de tinto crianza.',                       price: 2.8 },
         { id: 11, cat: 'Bebidas',    emoji: '🥤', name: 'Refresco / agua',      desc: 'Pregunta por nuestras variedades.',            price: 2.0 },
-        { id: 12, cat: 'Postres',    emoji: '🍮', name: 'Goxua casero',         desc: 'Nata, bizcocho y crema quemada.',              price: 4.5 },
+        { id: 12, cat: 'Postres',    emoji: '🍮', name: 'Flan de la abuela',    desc: 'De huevo, con nata y caramelo.',              price: 4.5 },
         { id: 13, cat: 'Postres',    emoji: '🧀', name: 'Tarta de queso',       desc: 'Horneada, cremosa por dentro.',                price: 4.8 }
     ];
 

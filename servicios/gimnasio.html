@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INDARTU — Demo app de gimnasio y entrenador personal</title>
+<title>IMPULSO — Demo app de gimnasio y entrenador personal</title>
 <style>
     :root {
         --bg: #0d0f14;
@@ -213,7 +213,7 @@
 
 <!-- VISTA: INICIO -->
 <main id="view-inicio" class="view active">
-    <p class="hello">Aupa, Ane 👋</p>
+    <p class="hello">Hola, Ana 👋</p>
     <h1>Hoy toca <em>darlo todo</em></h1>
 
     <div class="rings-card">
@@ -245,7 +245,7 @@
         <span class="ico">🚴</span>
         <div>
             <h3>Próxima clase: Spinning</h3>
-            <p>Hoy · 19:00 · con Mikel</p>
+            <p>Hoy · 19:00 · con Carlos</p>
         </div>
         <button id="go-clases">Ver clases</button>
     </div>
@@ -266,7 +266,7 @@
 
     <div class="coach-card">
         <div class="coach-ava">🏋️</div>
-        <h2>Mikel Etxeberria</h2>
+        <h2>Carlos Ruiz</h2>
         <div class="tag">CAFD · NSCA-CPT</div>
         <p class="bio">10 años entrenando a gente normal con objetivos reales: perder grasa, ganar fuerza y no abandonar en febrero. Sin humo, con plan.</p>
     </div>
@@ -294,7 +294,7 @@
     <div>
         <div class="flash">📨</div>
         <h2>¡Solicitud enviada!</h2>
-        <p id="done-sub">Mikel te escribirá hoy mismo con<br>una propuesta a tu medida.</p>
+        <p id="done-sub">Carlos te escribirá hoy mismo con<br>una propuesta a tu medida.</p>
         <button id="done-close">Genial</button>
     </div>
 </div>
@@ -339,10 +339,10 @@
     let activeDay = 0;
     /* plazas: ocupadas / total — booked: la usuaria tiene plaza */
     const SCHEDULE = DAYS.map((_, di) => ([
-        { id: di * 10 + 1, h: '09:30', n: 'Yoga Flow',     c: 'Leire',  ico: '🧘', tot: 12, occ: 5 + (di % 4) },
-        { id: di * 10 + 2, h: '18:00', n: 'Cross Training',c: 'Mikel',  ico: '🏋️', tot: 10, occ: 9 - (di % 3) },
-        { id: di * 10 + 3, h: '19:00', n: 'Spinning',      c: 'Mikel',  ico: '🚴', tot: 15, occ: 11 + (di % 4) },
-        { id: di * 10 + 4, h: '20:00', n: 'Pilates',       c: 'Leire',  ico: '🤸', tot: 12, occ: 4 + (di % 5) }
+        { id: di * 10 + 1, h: '09:30', n: 'Yoga Flow',     c: 'Laura',  ico: '🧘', tot: 12, occ: 5 + (di % 4) },
+        { id: di * 10 + 2, h: '18:00', n: 'Cross Training',c: 'Carlos',  ico: '🏋️', tot: 10, occ: 9 - (di % 3) },
+        { id: di * 10 + 3, h: '19:00', n: 'Spinning',      c: 'Carlos',  ico: '🚴', tot: 15, occ: 11 + (di % 4) },
+        { id: di * 10 + 4, h: '20:00', n: 'Pilates',       c: 'Laura',  ico: '🤸', tot: 12, occ: 4 + (di % 5) }
     ]));
     const booked = new Set();
 
@@ -406,7 +406,7 @@
         if (g) { goal = g.dataset.goal; renderGoals(); }
     });
     $('ask-plan').addEventListener('click', () => {
-        $('done-sub').innerHTML = `Objetivo: <strong style="color:var(--lime)">${goal}</strong><br>Mikel te escribirá hoy mismo con una propuesta a tu medida.`;
+        $('done-sub').innerHTML = `Objetivo: <strong style="color:var(--lime)">${goal}</strong><br>Carlos te escribirá hoy mismo con una propuesta a tu medida.`;
         $('done').classList.add('show');
     });
     $('done-close').addEventListener('click', () => $('done').classList.remove('show'));
