@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INDARTU — Demo app de gimnasio y entrenador personal</title>
+<style>
+    :root {
+        --bg: #0d0f14;
+        --surface: #161a22;
+        --surface-2: #1e2430;
+        --text: #f2f4f8;
+        --muted: #8b93a3;
+        --lime: #c8f04c;
+        --cyan: #38e1d4;
+        --pink: #ff5e82;
+        --radius: 18px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg); color: var(--text);
+        max-width: 480px; margin: 0 auto; overscroll-behavior: contain;
+        padding-bottom: 90px;
+    }
+    .demo-badge {
+        position: fixed; top: 42px; left: -34px; z-index: 90;
+        background: rgba(200,240,76,.9); color: #0d0f14; font-size: 10px; font-weight: 800;
+        letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
+    }
+    .view { display: none; padding: 46px 18px 20px; }
+    .view.active { display: block; animation: view-in .3s ease both; }
+    @keyframes view-in { from { opacity: 0; transform: translateY(12px); } }
+
+    .hello { font-size: 13px; color: var(--muted); }
+    h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin-top: 2px; }
+    h1 em { font-style: normal; color: var(--lime); }
+
+    /* ---------- ANILLOS ---------- */
+    .rings-card {
+        margin-top: 18px; background: var(--surface); border-radius: var(--radius);
+        padding: 18px; display: flex; align-items: center; gap: 18px;
+    }
+    .rings { position: relative; width: 132px; height: 132px; flex-shrink: 0; }
+    .ring { position: absolute; border-radius: 50%; }
+    .ring::before {
+        content: ''; position: absolute; inset: 9px; border-radius: 50%; background: var(--surface);
+    }
+    .ring1 { inset: 0;    background: conic-gradient(var(--lime) calc(var(--p) * 1%), #2a3040 0); }
+    .ring2 { inset: 22px; background: conic-gradient(var(--cyan) calc(var(--p) * 1%), #2a3040 0); }
+    .ring3 { inset: 44px; background: conic-gradient(var(--pink) calc(var(--p) * 1%), #2a3040 0); }
+    .ring  { transition: background 1s ease; }
+    .rings .center {
+        position: absolute; inset: 53px; border-radius: 50%; display: grid; place-items: center; font-size: 20px;
+    }
+    .legend { display: grid; gap: 10px; font-size: 12px; }
+    .legend .row { display: flex; align-items: center; gap: 8px; }
+    .legend .dot { width: 9px; height: 9px; border-radius: 50%; }
+    .legend strong { font-size: 14px; display: block; }
+    .legend span.lbl { color: var(--muted); }
+
+    /* ---------- STATS ---------- */
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .stat { background: var(--surface); border-radius: 14px; padding: 14px 10px; text-align: center; }
+    .stat .n { font-size: 20px; font-weight: 800; }
+    .stat .l { font-size: 10.5px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: .08em; }
+
+    /* ---------- GRÁFICA SEMANAL ---------- */
+    .chart-card { margin-top: 12px; background: var(--surface); border-radius: var(--radius); padding: 16px; }
+    .chart-card h3 { font-size: 13px; font-weight: 700; color: var(--muted); }
+    .chart { display: flex; align-items: flex-end; gap: 8px; height: 110px; margin-top: 14px; }
+    .bar-w { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+    .bar {
+        width: 100%; border-radius: 8px 8px 4px 4px;
+        background: linear-gradient(to top, #2a3040, var(--lime));
+        transform-origin: bottom; animation: grow .8s cubic-bezier(.2,.9,.3,1) both;
+    }
+    .bar.today { background: linear-gradient(to top, var(--cyan), var(--lime)); box-shadow: 0 0 18px rgba(200,240,76,.35); }
+    @keyframes grow { from { transform: scaleY(0); } }
+    .bar-w small { font-size: 10px; color: var(--muted); }
+
+    .next-card {
+        margin-top: 12px; border-radius: var(--radius); padding: 16px;
+        background: linear-gradient(120deg, #1d2b18, #28361a 60%, #1e2430);
+        border: 1px solid rgba(200,240,76,.25);
+        display: flex; align-items: center; gap: 12px;
+    }
+    .next-card .ico { font-size: 30px; }
+    .next-card h3 { font-size: 14px; font-weight: 800; }
+    .next-card p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .next-card button {
+        margin-left: auto; border: none; background: var(--lime); color: #0d0f14;
+        font-size: 12px; font-weight: 800; padding: 9px 14px; border-radius: 999px; cursor: pointer;
+    }
+
+    /* ---------- CLASES ---------- */
+    .days { display: flex; gap: 8px; margin-top: 16px; overflow-x: auto; scrollbar-width: none; }
+    .days::-webkit-scrollbar { display: none; }
+    .day {
+        flex: 0 0 52px; text-align: center; padding: 10px 0; border-radius: 14px; cursor: pointer;
+        background: var(--surface); border: 1.5px solid transparent; transition: all .2s;
+    }
+    .day small { display: block; font-size: 10px; color: var(--muted); text-transform: uppercase; }
+    .day strong { font-size: 16px; }
+    .day.active { background: var(--lime); color: #0d0f14; }
+    .day.active small { color: rgba(13,15,20,.6); }
+    .classes { display: grid; gap: 10px; margin-top: 16px; }
+    .clase {
+        background: var(--surface); border-radius: var(--radius); padding: 14px 16px;
+        display: grid; grid-template-columns: 54px 1fr auto; gap: 12px; align-items: center;
+        animation: view-in .3s ease both;
+    }
+    .clase .hora { font-size: 14px; font-weight: 800; color: var(--cyan); }
+    .clase .hora small { display: block; font-size: 10px; color: var(--muted); font-weight: 500; }
+    .clase h3 { font-size: 15px; font-weight: 700; }
+    .clase .coach { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+    .cap { margin-top: 8px; height: 5px; border-radius: 99px; background: #2a3040; overflow: hidden; }
+    .cap i { display: block; height: 100%; border-radius: 99px; background: var(--lime); transition: width .4s ease; }
+    .cap.full i { background: var(--pink); }
+    .cap-txt { font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+    .btn-res {
+        border: 1.5px solid var(--lime); color: var(--lime); background: none; cursor: pointer;
+        font-size: 12px; font-weight: 800; padding: 9px 13px; border-radius: 999px; transition: all .2s; white-space: nowrap;
+    }
+    .btn-res.booked { background: var(--lime); color: #0d0f14; }
+    .btn-res:disabled { border-color: #3a4150; color: #5a6275; }
+
+    /* ---------- ENTRENADOR ---------- */
+    .coach-card {
+        margin-top: 16px; background: var(--surface); border-radius: var(--radius); padding: 20px; text-align: center;
+    }
+    .coach-ava {
+        width: 84px; height: 84px; border-radius: 50%; margin: 0 auto;
+        display: grid; place-items: center; font-size: 40px;
+        background: radial-gradient(circle at 30% 25%, #3a4458, #1e2430);
+        border: 2px solid var(--lime);
+    }
+    .coach-card h2 { font-size: 19px; font-weight: 800; margin-top: 12px; }
+    .coach-card .tag { font-size: 12px; color: var(--lime); font-weight: 700; }
+    .coach-card p.bio { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 10px; }
+    .servs { display: grid; gap: 10px; margin-top: 16px; }
+    .serv {
+        background: var(--surface); border-radius: 14px; padding: 14px 16px;
+        display: flex; align-items: center; gap: 12px; text-align: left;
+    }
+    .serv .ico { font-size: 22px; }
+    .serv h4 { font-size: 14px; font-weight: 700; }
+    .serv p { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+    .serv strong { margin-left: auto; font-size: 15px; color: var(--lime); white-space: nowrap; }
+    .goal-box { margin-top: 16px; background: var(--surface); border-radius: var(--radius); padding: 16px; }
+    .goal-box h3 { font-size: 14px; font-weight: 800; }
+    .goals { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .goal {
+        border: 1.5px solid #2e3645; background: none; color: var(--text); cursor: pointer;
+        font-size: 12.5px; font-weight: 600; padding: 9px 14px; border-radius: 999px; transition: all .2s;
+    }
+    .goal.active { background: var(--cyan); border-color: var(--cyan); color: #0d0f14; font-weight: 800; }
+    .btn-lime {
+        width: 100%; margin-top: 14px; border: none; cursor: pointer;
+        background: var(--lime); color: #0d0f14; font-size: 14px; font-weight: 800;
+        padding: 14px; border-radius: 14px; transition: transform .15s;
+        box-shadow: 0 8px 24px rgba(200,240,76,.25);
+    }
+    .btn-lime:active { transform: scale(.97); }
+
+    /* ---------- TABBAR ---------- */
+    .tabbar {
+        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+        width: 100%; max-width: 480px; display: flex; z-index: 50;
+        background: rgba(13,15,20,.9); backdrop-filter: blur(14px);
+        border-top: 1px solid #232a38; padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
+    }
+    .tab {
+        flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+        border: none; background: none; cursor: pointer; font-size: 10.5px; font-weight: 700;
+        color: var(--muted); padding: 5px 0;
+    }
+    .tab .ico { font-size: 20px; filter: grayscale(1) opacity(.7); transition: filter .2s; }
+    .tab.active { color: var(--lime); }
+    .tab.active .ico { filter: none; }
+
+    .toast {
+        position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%) translateY(16px);
+        background: var(--lime); color: #0d0f14; font-size: 13px; font-weight: 700;
+        padding: 10px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80;
+        pointer-events: none; white-space: nowrap; box-shadow: 0 8px 24px rgba(200,240,76,.3);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ---------- CONFIRMACIÓN PLAN ---------- */
+    .done {
+        position: fixed; inset: 0; z-index: 70; display: none; place-items: center; text-align: center;
+        background: rgba(13,15,20,.96); padding: 24px;
+    }
+    .done.show { display: grid; }
+    .done .flash {
+        width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 18px;
+        background: conic-gradient(var(--lime), var(--cyan), var(--pink), var(--lime));
+        display: grid; place-items: center; font-size: 40px;
+        animation: spin-pop .6s cubic-bezier(.2,1.3,.4,1) both;
+    }
+    @keyframes spin-pop { from { transform: scale(0) rotate(-120deg); } }
+    .done h2 { font-size: 22px; font-weight: 800; }
+    .done p { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+    .done button {
+        margin-top: 22px; background: var(--lime); color: #0d0f14; border: none; cursor: pointer;
+        font-weight: 800; font-size: 13px; padding: 13px 28px; border-radius: 999px;
+    }
+</style>
+</head>
+<body>
+<div class="demo-badge">DEMO</div>
+
+<!-- VISTA: INICIO -->
+<main id="view-inicio" class="view active">
+    <p class="hello">Aupa, Ane 👋</p>
+    <h1>Hoy toca <em>darlo todo</em></h1>
+
+    <div class="rings-card">
+        <div class="rings" role="img" aria-label="Anillos de actividad">
+            <div class="ring ring1" id="ring1" style="--p:0"></div>
+            <div class="ring ring2" id="ring2" style="--p:0"></div>
+            <div class="ring ring3" id="ring3" style="--p:0"></div>
+            <div class="center">🔥</div>
+        </div>
+        <div class="legend">
+            <div class="row"><span class="dot" style="background:var(--lime)"></span><div><strong>486 / 600</strong><span class="lbl">kcal activas</span></div></div>
+            <div class="row"><span class="dot" style="background:var(--cyan)"></span><div><strong>42 / 60</strong><span class="lbl">min ejercicio</span></div></div>
+            <div class="row"><span class="dot" style="background:var(--pink)"></span><div><strong>8 / 12</strong><span class="lbl">horas de pie</span></div></div>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat"><div class="n">12</div><div class="l">Sesiones/mes</div></div>
+        <div class="stat"><div class="n">5,2<span style="font-size:12px">km</span></div><div class="l">Hoy</div></div>
+        <div class="stat"><div class="n">62<span style="font-size:12px">kg</span></div><div class="l">PR sentadilla</div></div>
+    </div>
+
+    <div class="chart-card">
+        <h3>ACTIVIDAD ESTA SEMANA</h3>
+        <div class="chart" id="chart"></div>
+    </div>
+
+    <div class="next-card">
+        <span class="ico">🚴</span>
+        <div>
+            <h3>Próxima clase: Spinning</h3>
+            <p>Hoy · 19:00 · con Mikel</p>
+        </div>
+        <button id="go-clases">Ver clases</button>
+    </div>
+</main>
+
+<!-- VISTA: CLASES -->
+<main id="view-clases" class="view">
+    <p class="hello">Reserva tu plaza</p>
+    <h1>Clases <em>dirigidas</em></h1>
+    <div class="days" id="days"></div>
+    <div class="classes" id="classes"></div>
+</main>
+
+<!-- VISTA: ENTRENADOR -->
+<main id="view-coach" class="view">
+    <p class="hello">Entrenamiento 1:1</p>
+    <h1>Tu <em>coach</em> personal</h1>
+
+    <div class="coach-card">
+        <div class="coach-ava">🏋️</div>
+        <h2>Mikel Etxeberria</h2>
+        <div class="tag">CAFD · NSCA-CPT</div>
+        <p class="bio">10 años entrenando a gente normal con objetivos reales: perder grasa, ganar fuerza y no abandonar en febrero. Sin humo, con plan.</p>
+    </div>
+
+    <div class="servs">
+        <div class="serv"><span class="ico">📋</span><div><h4>Plan mensual online</h4><p>Rutina + revisión semanal por vídeo</p></div><strong>49 €/mes</strong></div>
+        <div class="serv"><span class="ico">🤝</span><div><h4>Sesión presencial 1:1</h4><p>60 min en sala, técnica y progresión</p></div><strong>35 €</strong></div>
+        <div class="serv"><span class="ico">🥗</span><div><h4>Plan + nutrición</h4><p>Entrenamiento y pauta de comidas</p></div><strong>79 €/mes</strong></div>
+    </div>
+
+    <div class="goal-box">
+        <h3>¿Cuál es tu objetivo?</h3>
+        <div class="goals" id="goals"></div>
+        <button class="btn-lime" id="ask-plan">Solicitar mi plan personalizado</button>
+    </div>
+</main>
+
+<nav class="tabbar" aria-label="Navegación">
+    <button class="tab active" data-view="inicio"><span class="ico">📊</span>Resumen</button>
+    <button class="tab" data-view="clases"><span class="ico">🗓️</span>Clases</button>
+    <button class="tab" data-view="coach"><span class="ico">💪</span>Entrenador</button>
+</nav>
+
+<div class="done" id="done" role="dialog" aria-modal="true">
+    <div>
+        <div class="flash">📨</div>
+        <h2>¡Solicitud enviada!</h2>
+        <p id="done-sub">Mikel te escribirá hoy mismo con<br>una propuesta a tu medida.</p>
+        <button id="done-close">Genial</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const transition = fn => (document.startViewTransition ? document.startViewTransition(fn) : fn());
+
+    function toast(msg) {
+        const t = $('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._h);
+        t._h = setTimeout(() => t.classList.remove('show'), 1800);
+    }
+
+    /* ----- Anillos animados al cargar ----- */
+    requestAnimationFrame(() => setTimeout(() => {
+        $('ring1').style.setProperty('--p', 81);
+        $('ring2').style.setProperty('--p', 70);
+        $('ring3').style.setProperty('--p', 66);
+    }, 250));
+
+    /* ----- Gráfica semanal ----- */
+    const week = [
+        { d: 'L', v: 55 }, { d: 'M', v: 80 }, { d: 'X', v: 35 }, { d: 'J', v: 92 },
+        { d: 'V', v: 60 }, { d: 'S', v: 25 }, { d: 'D', v: 72, today: true }
+    ];
+    $('chart').innerHTML = week.map((w, i) =>
+        `<div class="bar-w">
+            <div class="bar ${w.today ? 'today' : ''}" style="height:${w.v}%; animation-delay:${i * 70}ms"></div>
+            <small>${w.d}</small>
+        </div>`
+    ).join('');
+
+    /* ----- Clases ----- */
+    const DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    let activeDay = 0;
+    /* plazas: ocupadas / total — booked: la usuaria tiene plaza */
+    const SCHEDULE = DAYS.map((_, di) => ([
+        { id: di * 10 + 1, h: '09:30', n: 'Yoga Flow',     c: 'Leire',  ico: '🧘', tot: 12, occ: 5 + (di % 4) },
+        { id: di * 10 + 2, h: '18:00', n: 'Cross Training',c: 'Mikel',  ico: '🏋️', tot: 10, occ: 9 - (di % 3) },
+        { id: di * 10 + 3, h: '19:00', n: 'Spinning',      c: 'Mikel',  ico: '🚴', tot: 15, occ: 11 + (di % 4) },
+        { id: di * 10 + 4, h: '20:00', n: 'Pilates',       c: 'Leire',  ico: '🤸', tot: 12, occ: 4 + (di % 5) }
+    ]));
+    const booked = new Set();
+
+    function renderDays() {
+        const base = new Date();
+        $('days').innerHTML = DAYS.map((d, i) => {
+            const dt = new Date(base);
+            dt.setDate(base.getDate() + i);
+            return `<div class="day ${i === activeDay ? 'active' : ''}" data-day="${i}" role="button">
+                <small>${d}</small><strong>${dt.getDate()}</strong>
+            </div>`;
+        }).join('');
+    }
+    function renderClasses() {
+        $('classes').innerHTML = SCHEDULE[activeDay].map((c, i) => {
+            const isBooked = booked.has(c.id);
+            const occ = c.occ + (isBooked ? 1 : 0);
+            const full = occ >= c.tot && !isBooked;
+            const pct = Math.min(100, Math.round(occ / c.tot * 100));
+            return `<article class="clase" style="animation-delay:${i * 50}ms">
+                <div class="hora">${c.h}<small>60 min</small></div>
+                <div>
+                    <h3>${c.ico} ${c.n}</h3>
+                    <div class="coach">con ${c.c}</div>
+                    <div class="cap ${pct >= 100 ? 'full' : ''}"><i style="width:${pct}%"></i></div>
+                    <div class="cap-txt">${occ}/${c.tot} plazas ocupadas${full ? ' · completa' : ''}</div>
+                </div>
+                <button class="btn-res ${isBooked ? 'booked' : ''}" data-book="${c.id}" ${full ? 'disabled' : ''}>
+                    ${isBooked ? '✓ Reservada' : full ? 'Completa' : 'Reservar'}
+                </button>
+            </article>`;
+        }).join('');
+    }
+    document.addEventListener('click', e => {
+        const day = e.target.closest('[data-day]');
+        if (day) { activeDay = +day.dataset.day; transition(() => { renderDays(); renderClasses(); }); return; }
+        const book = e.target.closest('[data-book]');
+        if (book && !book.disabled) {
+            const id = +book.dataset.book;
+            if (booked.has(id)) {
+                booked.delete(id);
+                toast('Reserva cancelada');
+            } else {
+                booked.add(id);
+                toast('¡Plaza reservada! 💪 Te esperamos');
+            }
+            renderClasses();
+        }
+    });
+
+    /* ----- Entrenador ----- */
+    const GOALS = ['Perder grasa', 'Ganar músculo', 'Resistencia', 'Volver a empezar', 'Oposiciones'];
+    let goal = GOALS[0];
+    function renderGoals() {
+        $('goals').innerHTML = GOALS.map(g =>
+            `<button class="goal ${g === goal ? 'active' : ''}" data-goal="${g}">${g}</button>`
+        ).join('');
+    }
+    document.addEventListener('click', e => {
+        const g = e.target.closest('[data-goal]');
+        if (g) { goal = g.dataset.goal; renderGoals(); }
+    });
+    $('ask-plan').addEventListener('click', () => {
+        $('done-sub').innerHTML = `Objetivo: <strong style="color:var(--lime)">${goal}</strong><br>Mikel te escribirá hoy mismo con una propuesta a tu medida.`;
+        $('done').classList.add('show');
+    });
+    $('done-close').addEventListener('click', () => $('done').classList.remove('show'));
+
+    /* ----- Tabs ----- */
+    function switchView(view) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        $('view-' + view).classList.add('active');
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+        window.scrollTo({ top: 0 });
+    }
+    document.querySelectorAll('.tab').forEach(t =>
+        t.addEventListener('click', () => transition(() => switchView(t.dataset.view)))
+    );
+    $('go-clases').addEventListener('click', () => transition(() => switchView('clases')));
+
+    /* ----- Init ----- */
+    renderDays();
+    renderClasses();
+    renderGoals();
+})();
+</script>
+</body>
+</html>

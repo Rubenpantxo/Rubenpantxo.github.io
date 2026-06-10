@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carnicería Joxean — Demo encargos sin colas</title>
+<style>
+    :root {
+        --meat: #a4262c;
+        --meat-dark: #7c181d;
+        --cream: #fbf7f1;
+        --ink: #2c2018;
+        --muted: #94857a;
+        --wa: #25d366;
+        --wa-dark: #075e54;
+        --wa-bg: #e5ddd5;
+        --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        background: var(--cream); color: var(--ink);
+        max-width: 480px; margin: 0 auto; overscroll-behavior: contain;
+    }
+    .demo-badge {
+        position: fixed; top: 42px; left: -34px; z-index: 90;
+        background: rgba(44,32,24,.85); color: #fff; font-size: 10px; font-weight: 700;
+        letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
+    }
+    .screen { display: none; min-height: 100dvh; }
+    .screen.active { display: block; }
+
+    /* ---------- PANTALLA 1: PRODUCTOS ---------- */
+    .hero {
+        padding: 46px 18px 20px; color: #fff; border-radius: 0 0 26px 26px;
+        background:
+            radial-gradient(100% 80% at 90% 0%, rgba(255,180,160,.3), transparent 55%),
+            linear-gradient(155deg, #5e1014 0%, #a4262c 70%, #c13b35 100%);
+    }
+    .hero .art { font-size: 46px; }
+    .hero h1 { font-size: 26px; font-weight: 800; margin-top: 6px; }
+    .hero p { font-size: 13px; opacity: .85; margin-top: 4px; }
+    .hero .badges { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .hero .badge {
+        font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+        background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+    }
+    .prods { padding: 16px 16px 120px; display: grid; gap: 12px; }
+    .prod {
+        background: #fff; border-radius: var(--radius); padding: 14px;
+        box-shadow: 0 2px 10px rgba(90,40,20,.08); animation: rise .35s ease both;
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+    .prod-top { display: flex; gap: 12px; align-items: center; }
+    .prod-img {
+        flex: 0 0 56px; height: 56px; border-radius: 14px; display: grid; place-items: center;
+        font-size: 28px; background: linear-gradient(145deg, #fde8e0, #f6cfc2);
+    }
+    .prod-top h3 { font-size: 15px; font-weight: 700; }
+    .prod-top .unit { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .prod-top .ppk { margin-left: auto; font-size: 14px; font-weight: 800; color: var(--meat-dark); white-space: nowrap; }
+    .prod-ctrl { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+    .wbtn {
+        width: 38px; height: 38px; border-radius: 12px; border: 1.5px solid #ecd9cd;
+        background: #fff; font-size: 18px; font-weight: 800; cursor: pointer; color: var(--ink);
+        transition: all .15s;
+    }
+    .wbtn:active { transform: scale(.9); background: #fdf0e8; }
+    .wval { flex: 1; text-align: center; }
+    .wval strong { font-size: 16px; }
+    .wval small { display: block; font-size: 11px; color: var(--muted); }
+    .wsub { font-size: 13px; font-weight: 800; min-width: 64px; text-align: right; color: var(--meat-dark); }
+
+    #orderbar {
+        position: fixed; left: 50%; bottom: 16px; transform: translate(-50%, 150%);
+        width: calc(100% - 32px); max-width: 448px; border: none; cursor: pointer; z-index: 40;
+        background: var(--meat-dark); color: #fff; border-radius: 16px; padding: 15px 18px;
+        display: flex; justify-content: space-between; font-size: 14px; font-weight: 800;
+        box-shadow: 0 10px 30px rgba(124,24,29,.45); transition: transform .35s cubic-bezier(.2,.9,.3,1.2);
+    }
+    #orderbar.show { transform: translate(-50%, 0); }
+
+    /* ---------- PANTALLA 2: RESUMEN ---------- */
+    .head2 {
+        padding: 50px 18px 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .back {
+        width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #ecd9cd;
+        background: #fff; font-size: 16px; cursor: pointer;
+    }
+    .head2 h1 { font-size: 20px; font-weight: 800; }
+    .review { padding: 0 18px 40px; }
+    .rev-card { background: #fff; border-radius: var(--radius); padding: 6px 16px; box-shadow: 0 2px 10px rgba(90,40,20,.08); }
+    .rev-row { display: flex; justify-content: space-between; gap: 10px; padding: 11px 0; border-bottom: 1px dashed #f0e2d6; font-size: 14px; }
+    .rev-row:last-child { border-bottom: none; }
+    .rev-row .q { color: var(--muted); font-size: 12px; }
+    .rev-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 15px; padding: 14px 2px 4px; }
+    .rev-total small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); }
+    .sect-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 22px 0 10px; }
+    .slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .slot {
+        border: 1.5px solid #ecd9cd; background: #fff; border-radius: 12px; padding: 12px 8px;
+        font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; transition: all .2s;
+    }
+    .slot small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .slot.active { background: var(--meat-dark); color: #fff; border-color: var(--meat-dark); }
+    .slot.active small { color: rgba(255,255,255,.7); }
+    .review input[type="text"] {
+        width: 100%; padding: 13px 14px; font-size: 14px; border: 1.5px solid #ecd9cd;
+        border-radius: 12px; background: #fff; outline: none;
+    }
+    .review input[type="text"]:focus { border-color: var(--meat); }
+    .btn-wa {
+        width: 100%; border: none; cursor: pointer; margin-top: 22px;
+        background: var(--wa); color: #fff; font-size: 15px; font-weight: 800;
+        padding: 15px; border-radius: 14px; box-shadow: 0 8px 22px rgba(37,211,102,.4);
+        display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform .15s;
+    }
+    .btn-wa:active { transform: scale(.97); }
+
+    /* ---------- PANTALLA 3: CHAT ---------- */
+    #screen-chat { display: none; flex-direction: column; height: 100dvh; background: var(--wa-bg); }
+    #screen-chat.active { display: flex; }
+    .chat-head {
+        background: var(--wa-dark); color: #fff; padding: 44px 14px 12px;
+        display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .chat-avatar {
+        width: 40px; height: 40px; border-radius: 50%; background: #fff;
+        display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
+    }
+    .chat-head h2 { font-size: 16px; font-weight: 700; }
+    .chat-head p { font-size: 12px; opacity: .8; }
+    .chat-body {
+        flex: 1; overflow-y: auto; padding: 16px 12px;
+        background-image: radial-gradient(rgba(124,24,29,.04) 1.5px, transparent 1.5px);
+        background-size: 26px 26px;
+    }
+    .bubble {
+        max-width: 84%; border-radius: 12px; padding: 9px 12px; font-size: 13.5px; line-height: 1.5;
+        margin-bottom: 10px; box-shadow: 0 1px 1px rgba(0,0,0,.08); white-space: pre-line;
+        animation: bubble-in .3s ease both; position: relative;
+    }
+    @keyframes bubble-in { from { opacity: 0; transform: translateY(10px) scale(.96); } }
+    .bubble.out { background: #dcf8c6; margin-left: auto; border-top-right-radius: 4px; }
+    .bubble.in  { background: #fff; margin-right: auto; border-top-left-radius: 4px; }
+    .bubble .time { display: block; text-align: right; font-size: 10px; color: rgba(0,0,0,.4); margin-top: 4px; }
+    .bubble .ticks { color: #4fc3f7; font-size: 11px; }
+    .typing { display: inline-flex; gap: 4px; padding: 4px 2px; }
+    .typing i { width: 7px; height: 7px; border-radius: 50%; background: #b5aca2; animation: blink 1.2s infinite; }
+    .typing i:nth-child(2) { animation-delay: .2s; }
+    .typing i:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 0%, 60%, 100% { opacity: .3; } 30% { opacity: 1; } }
+    .chat-foot { padding: 12px 14px calc(16px + env(safe-area-inset-bottom)); flex-shrink: 0; }
+    .btn-again {
+        width: 100%; border: none; cursor: pointer; background: var(--wa-dark); color: #fff;
+        font-size: 14px; font-weight: 800; padding: 14px; border-radius: 14px;
+    }
+    .toast {
+        position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(16px);
+        background: var(--ink); color: #fff; font-size: 13px; font-weight: 600;
+        padding: 9px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80;
+        pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="demo-badge">DEMO</div>
+
+<!-- PANTALLA 1: PRODUCTOS -->
+<main id="screen-prods" class="screen active">
+    <header class="hero">
+        <div class="art">🥩</div>
+        <h1>Carnicería Joxean</h1>
+        <p>Encarga hoy, recoge mañana sin hacer cola.</p>
+        <div class="badges">
+            <span class="badge">🐄 Ternera del valle</span>
+            <span class="badge">🏠 Elaboración propia</span>
+        </div>
+    </header>
+    <section class="prods" id="prods" aria-label="Productos"></section>
+</main>
+
+<button id="orderbar">
+    <span id="orderbar-items">Tu encargo (0)</span>
+    <span id="orderbar-total">≈ 0,00 €</span>
+</button>
+
+<!-- PANTALLA 2: RESUMEN -->
+<main id="screen-review" class="screen">
+    <div class="head2">
+        <button class="back" id="back-to-prods" aria-label="Volver">←</button>
+        <h1>Tu encargo</h1>
+    </div>
+    <div class="review">
+        <div class="rev-card" id="rev-items"></div>
+        <div class="rev-total">
+            <span>Total estimado<small>El importe final se ajusta al peso real</small></span>
+            <span id="rev-total">0,00 €</span>
+        </div>
+        <div class="sect-label">¿Cuándo lo recoges? (mañana)</div>
+        <div class="slots" id="slots"></div>
+        <div class="sect-label">Tu nombre</div>
+        <input type="text" id="cust-name" placeholder="Ej.: Maite" autocomplete="off">
+        <button class="btn-wa" id="send-wa">📲 Enviar encargo por WhatsApp</button>
+    </div>
+</main>
+
+<!-- PANTALLA 3: CHAT WHATSAPP -->
+<main id="screen-chat" class="screen">
+    <header class="chat-head">
+        <div class="chat-avatar">🔪</div>
+        <div>
+            <h2>Carnicería Joxean</h2>
+            <p id="chat-status">en línea</p>
+        </div>
+    </header>
+    <div class="chat-body" id="chat-body"></div>
+    <div class="chat-foot">
+        <button class="btn-again" id="again">Hacer otro encargo</button>
+    </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+    'use strict';
+    /* unit: 'kg' → stepper de 250 g · 'ud' → unidades */
+    const PRODUCTS = [
+        { id: 1, emoji: '🥩', name: 'Chuletillas de cordero', unit: 'kg', price: 18.90, step: 250 },
+        { id: 2, emoji: '🥓', name: 'Panceta adobada',        unit: 'kg', price: 9.50,  step: 250 },
+        { id: 3, emoji: '🌭', name: 'Txistorra de caserío',   unit: 'kg', price: 12.80, step: 250 },
+        { id: 4, emoji: '🍗', name: 'Pollo de corral entero', unit: 'ud', price: 11.00 },
+        { id: 5, emoji: '🥩', name: 'Filetes de ternera 1ª',  unit: 'kg', price: 16.40, step: 250 },
+        { id: 6, emoji: '🍖', name: 'Costilla para asar',     unit: 'kg', price: 10.90, step: 500 },
+        { id: 7, emoji: '🟤', name: 'Morcilla de Burgos',     unit: 'ud', price: 2.80 },
+        { id: 8, emoji: '🥟', name: 'Hamburguesas caseras',   unit: 'ud', price: 1.95 }
+    ];
+    const SLOTS = [
+        { t: '09:00 – 11:00', s: 'A primera hora' },
+        { t: '11:00 – 13:30', s: 'Media mañana' },
+        { t: '17:00 – 19:00', s: 'Por la tarde' },
+        { t: '19:00 – 20:00', s: 'Última hora' }
+    ];
+
+    /* qty: gramos si unit=kg, unidades si unit=ud */
+    const order = new Map();
+    let slot = SLOTS[0].t;
+
+    const $ = id => document.getElementById(id);
+    const fmt = n => n.toFixed(2).replace('.', ',') + ' €';
+    const transition = fn => (document.startViewTransition ? document.startViewTransition(fn) : fn());
+
+    function toast(msg) {
+        const t = $('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._h);
+        t._h = setTimeout(() => t.classList.remove('show'), 1800);
+    }
+
+    const qtyLabel = (p, q) => p.unit === 'kg'
+        ? (q >= 1000 ? (q / 1000).toFixed(q % 1000 ? 2 : 0).replace('.', ',') + ' kg' : q + ' g')
+        : q + ' ud';
+    const lineTotal = (p, q) => p.unit === 'kg' ? p.price * q / 1000 : p.price * q;
+
+    /* ----- Productos ----- */
+    function renderProds() {
+        $('prods').innerHTML = PRODUCTS.map((p, i) => {
+            const q = order.get(p.id) || 0;
+            return `<article class="prod" style="animation-delay:${i * 40}ms">
+                <div class="prod-top">
+                    <div class="prod-img">${p.emoji}</div>
+                    <div>
+                        <h3>${p.name}</h3>
+                        <div class="unit">${p.unit === 'kg' ? 'Se vende al peso' : 'Por unidades'}</div>
+                    </div>
+                    <div class="ppk">${fmt(p.price)}<span style="font-size:10px;font-weight:600">/${p.unit}</span></div>
+                </div>
+                <div class="prod-ctrl">
+                    <button class="wbtn" data-minus="${p.id}" aria-label="Quitar">−</button>
+                    <div class="wval">
+                        <strong>${q ? qtyLabel(p, q) : '—'}</strong>
+                        <small>${p.unit === 'kg' ? 'pasos de ' + p.step + ' g' : 'unidades'}</small>
+                    </div>
+                    <button class="wbtn" data-plus="${p.id}" aria-label="Añadir">+</button>
+                    <div class="wsub">${q ? '≈ ' + fmt(lineTotal(p, q)) : ''}</div>
+                </div>
+            </article>`;
+        }).join('');
+        updateBar();
+    }
+    function updateBar() {
+        const n = order.size;
+        let total = 0;
+        order.forEach((q, id) => total += lineTotal(PRODUCTS.find(p => p.id === id), q));
+        $('orderbar-items').textContent = `Tu encargo (${n})`;
+        $('orderbar-total').textContent = '≈ ' + fmt(total);
+        $('orderbar').classList.toggle('show', n > 0);
+        return total;
+    }
+    document.addEventListener('click', e => {
+        const plus = e.target.closest('[data-plus]');
+        const minus = e.target.closest('[data-minus]');
+        if (plus) {
+            const p = PRODUCTS.find(x => x.id === +plus.dataset.plus);
+            const inc = p.unit === 'kg' ? p.step : 1;
+            order.set(p.id, (order.get(p.id) || 0) + inc);
+            renderProds();
+        }
+        if (minus) {
+            const p = PRODUCTS.find(x => x.id === +minus.dataset.minus);
+            if (!order.has(p.id)) return;
+            const dec = p.unit === 'kg' ? p.step : 1;
+            const q = order.get(p.id) - dec;
+            q <= 0 ? order.delete(p.id) : order.set(p.id, q);
+            renderProds();
+        }
+    });
+
+    /* ----- Navegación pantallas ----- */
+    function show(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        $(id).classList.add('active');
+        /* la barra de encargo solo tiene sentido en la lista de productos */
+        $('orderbar').classList.toggle('show', id === 'screen-prods' && order.size > 0);
+        window.scrollTo({ top: 0 });
+    }
+    $('orderbar').addEventListener('click', () => {
+        renderReview();
+        transition(() => show('screen-review'));
+    });
+    $('back-to-prods').addEventListener('click', () => transition(() => show('screen-prods')));
+
+    /* ----- Resumen ----- */
+    function renderReview() {
+        $('rev-items').innerHTML = [...order.entries()].map(([id, q]) => {
+            const p = PRODUCTS.find(x => x.id === id);
+            return `<div class="rev-row">
+                <span>${p.emoji} ${p.name} <span class="q">· ${qtyLabel(p, q)}</span></span>
+                <strong>≈ ${fmt(lineTotal(p, q))}</strong>
+            </div>`;
+        }).join('');
+        let total = 0;
+        order.forEach((q, id) => total += lineTotal(PRODUCTS.find(p => p.id === id), q));
+        $('rev-total').textContent = '≈ ' + fmt(total);
+        renderSlots();
+    }
+    function renderSlots() {
+        $('slots').innerHTML = SLOTS.map(s =>
+            `<button class="slot ${s.t === slot ? 'active' : ''}" data-slot="${s.t}">${s.t}<small>${s.s}</small></button>`
+        ).join('');
+    }
+    document.addEventListener('click', e => {
+        const s = e.target.closest('[data-slot]');
+        if (s) { slot = s.dataset.slot; renderSlots(); }
+    });
+
+    /* ----- Envío a WhatsApp (simulado) ----- */
+    const now = () => new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+    $('send-wa').addEventListener('click', () => {
+        const name = $('cust-name').value.trim();
+        if (!order.size) { toast('Añade algún producto primero 🥩'); return; }
+        if (!name) { toast('Escribe tu nombre para el encargo ✍️'); $('cust-name').focus(); return; }
+
+        const lines = [...order.entries()].map(([id, q]) => {
+            const p = PRODUCTS.find(x => x.id === id);
+            return `• ${p.name}: ${qtyLabel(p, q)}`;
+        });
+        let total = 0;
+        order.forEach((q, id) => total += lineTotal(PRODUCTS.find(p => p.id === id), q));
+
+        const msg = `¡Hola Joxean! 👋 Soy ${name}.\nQuería encargar:\n${lines.join('\n')}\n\nTotal aprox.: ${fmt(total)}\nLo recojo mañana de ${slot}. ¡Gracias!`;
+
+        $('chat-body').innerHTML =
+            `<div class="bubble out">${msg}<span class="time">${now()} <span class="ticks">✓✓</span></span></div>`;
+        transition(() => show('screen-chat'));
+
+        /* respuesta simulada del carnicero */
+        setTimeout(() => {
+            $('chat-status').textContent = 'escribiendo…';
+            $('chat-body').insertAdjacentHTML('beforeend',
+                `<div class="bubble in" id="typing"><span class="typing"><i></i><i></i><i></i></span></div>`);
+            $('chat-body').scrollTop = $('chat-body').scrollHeight;
+        }, 900);
+        setTimeout(() => {
+            const typing = $('typing');
+            if (typing) typing.remove();
+            $('chat-status').textContent = 'en línea';
+            $('chat-body').insertAdjacentHTML('beforeend',
+                `<div class="bubble in">¡Recibido, ${name}! 💪\nTe lo dejo todo preparado para mañana de ${slot}.\n¡Hasta mañana! 🥩<span class="time">${now()}</span></div>`);
+            $('chat-body').scrollTop = $('chat-body').scrollHeight;
+        }, 2600);
+    });
+
+    $('again').addEventListener('click', () => {
+        order.clear();
+        $('cust-name').value = '';
+        renderProds();
+        transition(() => show('screen-prods'));
+    });
+
+    /* ----- Init ----- */
+    renderProds();
+})();
+</script>
+</body>
+</html>
