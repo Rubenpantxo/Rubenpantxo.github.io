@@ -6,8 +6,9 @@
     <title>Prototipo - Rubenpantxo.com</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="CSS/servicios.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* ============================================
@@ -294,6 +295,10 @@
         </header>
 
         <nav id="main-nav" class="flex flex-col sm:flex-row justify-center items-center gap-8 sm:gap-12 mt-8">
+            <div class="nav-item text-xl p-4 rounded-lg" data-section="servicios">
+                <span class="typewriter-text">Servicios</span>
+                <span class="sv-nav-badge">nuevo</span>
+            </div>
 <div class="nav-item text-xl p-4 rounded-lg" data-section="apps">
                 <span class="typewriter-text">Aplicaciones</span>
             </div>
@@ -306,6 +311,236 @@
         </nav>
 
         <main id="content-container" class="mt-16">
+
+            <!-- ============================================================
+                 SECCIÓN SERVICIOS — webs y apps a medida con simulaciones
+                 ============================================================ -->
+            <section id="servicios" class="content-section content-hidden" aria-labelledby="servicios-title">
+                <div class="sv-wrap">
+                    <div class="sv-progress" aria-hidden="true"></div>
+
+                    <!-- HERO -->
+                    <header class="sv-hero">
+                        <p class="sv-eyebrow">Diseño &amp; desarrollo a medida</p>
+                        <h2 id="servicios-title" class="sv-title">Servicios</h2>
+                        <p class="sv-sub">Creo <strong>aplicaciones web</strong> y <strong>sitios web completos</strong> para negocios reales. Nada de plantillas genéricas: interfaces que tus clientes entienden a la primera, porque se parecen a las apps que ya usan cada día.</p>
+                        <div class="sv-marquee" aria-hidden="true">
+                            <div class="sv-marquee-track">
+                                <span>Webs · Apps · <em>UX</em> · Diseño · Rendimiento · Webs · Apps · <em>UX</em> · Diseño · Rendimiento · </span><span>Webs · Apps · <em>UX</em> · Diseño · Rendimiento · Webs · Apps · <em>UX</em> · Diseño · Rendimiento · </span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- LEY DE JAKOB -->
+                    <blockquote class="sv-jakob sv-reveal">
+                        <span class="sv-jakob-mark" aria-hidden="true">&ldquo;</span>
+                        <p class="sv-jakob-text">Los usuarios prefieren que tu sitio web o aplicación funcione <em>de la misma manera</em> que los sitios que ya conocen.</p>
+                        <footer class="sv-jakob-author">— Ley de Jakob <span>· Jakob Nielsen, Nielsen Norman Group</span></footer>
+                        <p class="sv-jakob-note">Tus clientes pasan la mayor parte de su tiempo en <strong>otras</strong> apps: WhatsApp, Glovo, Zara, su app del banco… Por eso diseño tu web con los patrones que ya dominan: <strong>cero curva de aprendizaje, menos fricción y más ventas</strong> desde el primer día.</p>
+                    </blockquote>
+
+                    <!-- QUÉ OFREZCO -->
+                    <div class="sv-offer sv-reveal">
+                        <article class="sv-offer-card">
+                            <span class="ico">⚡</span>
+                            <h3>Aplicaciones web</h3>
+                            <p>Herramientas que funcionan como una app nativa, directamente en el navegador. Sin instalaciones, sin tiendas de apps, siempre actualizadas.</p>
+                            <ul>
+                                <li>Pedidos, reservas y encargos online</li>
+                                <li>Paneles de gestión privados (stock, clientes, ventas)</li>
+                                <li>Funcionan en móvil, tablet y ordenador</li>
+                                <li>Instalables en la pantalla de inicio (PWA)</li>
+                            </ul>
+                        </article>
+                        <article class="sv-offer-card">
+                            <span class="ico">🌐</span>
+                            <h3>Sitios web completos</h3>
+                            <p>Tu negocio abierto 24/7: presencia profesional que genera confianza y convierte visitas en clientes.</p>
+                            <ul>
+                                <li>Diseño a medida, rápido y accesible</li>
+                                <li>Optimizado para Google (SEO) y para móvil</li>
+                                <li>Catálogos, cartas digitales y citas online</li>
+                                <li>Dominio, hosting y mantenimiento incluidos</li>
+                            </ul>
+                        </article>
+                    </div>
+
+                    <!-- SIMULACIONES INTERACTIVAS -->
+                    <div class="sv-demos">
+                        <div class="sv-demos-head sv-reveal">
+                            <h3>5 negocios, 5 simulaciones <em>que funcionan</em></h3>
+                            <p>Esto no son capturas de pantalla: cada móvil es una demo real. Añade productos, reserva una clase, haz un pedido… y comprueba lo que sentirían tus clientes.</p>
+                            <span class="sv-touch">👆 Tócalas — son interactivas</span>
+                        </div>
+
+                        <!-- 01 · BAR / RESTAURANTE -->
+                        <article class="sv-case" style="--accent:#ff8a4c">
+                            <div class="sv-case-info sv-reveal">
+                                <div class="sv-case-num">01</div>
+                                <span class="sv-case-chip">Inspirado en Glovo · Just Eat · cartas QR</span>
+                                <h4>Bar &amp; Restaurante</h4>
+                                <p>Carta digital con pedidos desde la mesa y reserva online. El cliente ya sabe usarla antes de abrirla, porque pide igual que en su app de comida a domicilio.</p>
+                                <ul class="sv-case-ux">
+                                    <li>Carta por categorías con chips deslizables</li>
+                                    <li>Carrito flotante con el total siempre visible</li>
+                                    <li>Reserva de mesa en tres toques, sin llamadas</li>
+                                    <li>Confirmación de pedido con tiempo estimado</li>
+                                </ul>
+                                <a class="sv-case-open" href="servicios/bar-restaurante.html" target="_blank" rel="noopener">Abrir demo completa ↗</a>
+                            </div>
+                            <div class="sv-case-stage">
+                                <div>
+                                    <div class="sv-phone">
+                                        <div class="sv-phone-island" aria-hidden="true"></div>
+                                        <iframe src="servicios/bar-restaurante.html" loading="lazy" title="Demo interactiva: Taberna El Rincón, bar restaurante"></iframe>
+                                    </div>
+                                    <p class="sv-phone-hint">Taberna El Rincón · pide y reserva</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- 02 · TIENDA DE ROPA -->
+                        <article class="sv-case" style="--accent:#ff5e82">
+                            <div class="sv-case-info sv-reveal">
+                                <div class="sv-case-num">02</div>
+                                <span class="sv-case-chip">Inspirado en Zara · ASOS · Instagram Shopping</span>
+                                <h4>Tienda de ropa</h4>
+                                <p>Moda online con la experiencia de las grandes marcas: rejilla de producto, favoritos y compra exprés. Tu tienda de barrio, jugando en primera división.</p>
+                                <ul class="sv-case-ux">
+                                    <li>Rejilla de producto con corazones de favoritos</li>
+                                    <li>Ficha con tallas, colores y rebajas</li>
+                                    <li>Cesta lateral y pedido en un toque</li>
+                                    <li>Banners de campaña (rebajas, novedades)</li>
+                                </ul>
+                                <a class="sv-case-open" href="servicios/tienda-ropa.html" target="_blank" rel="noopener">Abrir demo completa ↗</a>
+                            </div>
+                            <div class="sv-case-stage">
+                                <div>
+                                    <div class="sv-phone">
+                                        <div class="sv-phone-island" aria-hidden="true"></div>
+                                        <iframe src="servicios/tienda-ropa.html" loading="lazy" title="Demo interactiva: ALBA, tienda de moda"></iframe>
+                                    </div>
+                                    <p class="sv-phone-hint">ALBA · moda online</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- 03 · CARNICERÍA -->
+                        <article class="sv-case" style="--accent:#ff6b6b">
+                            <div class="sv-case-info sv-reveal">
+                                <div class="sv-case-num">03</div>
+                                <span class="sv-case-chip">Inspirado en WhatsApp · encargos de toda la vida</span>
+                                <h4>Carnicería</h4>
+                                <p>El encargo de siempre, sin colas ni llamadas. Se pide al peso y la confirmación llega como un chat de WhatsApp: la interfaz que toda tu clientela domina, tenga la edad que tenga.</p>
+                                <ul class="sv-case-ux">
+                                    <li>Pedido al peso (gramos) o por unidades</li>
+                                    <li>Franja horaria de recogida, sin esperas</li>
+                                    <li>Confirmación tipo chat de WhatsApp</li>
+                                    <li>Total estimado que se ajusta al peso real</li>
+                                </ul>
+                                <a class="sv-case-open" href="servicios/carniceria.html" target="_blank" rel="noopener">Abrir demo completa ↗</a>
+                            </div>
+                            <div class="sv-case-stage">
+                                <div>
+                                    <div class="sv-phone">
+                                        <div class="sv-phone-island" aria-hidden="true"></div>
+                                        <iframe src="servicios/carniceria.html" loading="lazy" title="Demo interactiva: Carnicería Manolo, encargos"></iframe>
+                                    </div>
+                                    <p class="sv-phone-hint">Carnicería Manolo · encarga y recoge</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- 04 · GIMNASIO / ENTRENADOR PERSONAL -->
+                        <article class="sv-case" style="--accent:#c8f04c">
+                            <div class="sv-case-info sv-reveal">
+                                <div class="sv-case-num">04</div>
+                                <span class="sv-case-chip">Inspirado en Apple Fitness · Strava · ClassPass</span>
+                                <h4>Gimnasio &amp; Entrenador personal</h4>
+                                <p>Anillos de actividad, reserva de clases con plazas en tiempo real y venta de planes personalizados. La motivación de las grandes apps de fitness, con tu marca.</p>
+                                <ul class="sv-case-ux">
+                                    <li>Anillos de actividad y progreso semanal</li>
+                                    <li>Reserva de clases con aforo en vivo</li>
+                                    <li>Perfil del entrenador con sus servicios</li>
+                                    <li>Solicitud de plan según objetivo</li>
+                                </ul>
+                                <a class="sv-case-open" href="servicios/gimnasio.html" target="_blank" rel="noopener">Abrir demo completa ↗</a>
+                            </div>
+                            <div class="sv-case-stage">
+                                <div>
+                                    <div class="sv-phone">
+                                        <div class="sv-phone-island" aria-hidden="true"></div>
+                                        <iframe src="servicios/gimnasio.html" loading="lazy" title="Demo interactiva: IMPULSO, gimnasio y entrenador personal"></iframe>
+                                    </div>
+                                    <p class="sv-phone-hint">IMPULSO · entrena y reserva</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- 05 · SUPERMERCADO DE PUEBLO -->
+                        <article class="sv-case" style="--accent:#4ce0b3">
+                            <div class="sv-case-info sv-reveal">
+                                <div class="sv-case-num">05</div>
+                                <span class="sv-case-chip">Inspirado en Mercadona online · apps de inventario</span>
+                                <h4>Supermercado de pueblo: tienda + almacén</h4>
+                                <p>Dos apps en una. La cara pública: tienda online con recogida. La cara privada (solo el propietario, con PIN): panel de almacén con pedidos entrantes, stock en tiempo real y alertas de reposición. Haz un pedido en la tienda y míralo aparecer en el almacén.</p>
+                                <ul class="sv-case-ux">
+                                    <li>Tienda pública: catálogo + recogida sin colas</li>
+                                    <li>Zona del propietario protegida con PIN (1234)</li>
+                                    <li>Cada venta descuenta stock al instante</li>
+                                    <li>Alertas de stock bajo mínimo y reposición</li>
+                                </ul>
+                                <a class="sv-case-open" href="servicios/supermercado.html" target="_blank" rel="noopener">Abrir demo completa ↗</a>
+                            </div>
+                            <div class="sv-case-stage">
+                                <div>
+                                    <div class="sv-phone">
+                                        <div class="sv-phone-island" aria-hidden="true"></div>
+                                        <iframe src="servicios/supermercado.html" loading="lazy" title="Demo interactiva: Super La Plaza, tienda online y gestión de almacén"></iframe>
+                                    </div>
+                                    <p class="sv-phone-hint">Super La Plaza · tienda y almacén</p>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- CONTACTO -->
+                    <div class="sv-contact sv-reveal" id="sv-contact">
+                        <div class="sv-contact-intro">
+                            <h3>¿Tienes un negocio?<br><em>Hagámosle una app.</em></h3>
+                            <p>Cuéntame tu idea en dos líneas. Te respondo con una propuesta concreta: qué haría, cómo se vería y cuánto tardaría. Sin compromiso y en tu idioma, no en jerga técnica.</p>
+                            <div class="sv-contact-links">
+                                <a href="mailto:rubenpantxo@gmail.com"><i class="fas fa-envelope"></i> rubenpantxo@gmail.com</a>
+                                <a href="https://www.instagram.com/rubenpantxo/" target="_blank" rel="noopener"><i class="fab fa-instagram"></i> Instagram</a>
+                                <a href="https://github.com/Rubenpantxo" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+                            </div>
+                        </div>
+                        <form id="sv-contact-form">
+                            <div>
+                                <label for="sv-nombre">Tu nombre</label>
+                                <input type="text" id="sv-nombre" name="nombre" placeholder="Ej.: María" autocomplete="name" required>
+                            </div>
+                            <div>
+                                <label for="sv-negocio">Tipo de negocio</label>
+                                <select id="sv-negocio" name="negocio">
+                                    <option>Bar / Restaurante</option>
+                                    <option>Tienda de ropa</option>
+                                    <option>Carnicería / Alimentación</option>
+                                    <option>Gimnasio / Entrenador personal</option>
+                                    <option>Supermercado / Comercio local</option>
+                                    <option>Otro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="sv-mensaje">Tu idea</label>
+                                <textarea id="sv-mensaje" name="mensaje" placeholder="Ej.: Quiero que mis clientes encarguen por la web y recojan sin hacer cola…" required></textarea>
+                            </div>
+                            <button type="submit" class="sv-submit">Enviar mi idea 🚀</button>
+                            <p class="sv-form-note" id="sv-form-note">Se abrirá tu app de correo con el mensaje ya preparado.</p>
+                        </form>
+                    </div>
+                </div>
+            </section>
 
 <section id="apps" class="content-section content-hidden section section--apps" aria-labelledby="apps-title">
                 <header class="section__header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -1479,36 +1714,46 @@
                 });
             }, 500);
 
+            // View Transition API: transición suave entre secciones si el navegador la soporta
+            const withViewTransition = fn => {
+                if (document.startViewTransition) document.startViewTransition(fn);
+                else fn();
+            };
+
             navItems.forEach(item => {
                 item.addEventListener('click', () => {
                     if (body.classList.contains('section-open')) return;
                     const sectionId = item.dataset.section;
                     const targetSection = document.getElementById(sectionId + '-content') || document.getElementById(sectionId);
-                    body.classList.add('section-open');
-                    navItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                    contactToggle.classList.add('icon-hidden');
-                    backArrow.classList.remove('icon-hidden');
-                    contentSections.forEach(section => section.classList.add('content-hidden'));
-                    if(targetSection) {
-                        targetSection.classList.remove('content-hidden');
-                        targetSection.style.display = 'block';
-                    }
+                    withViewTransition(() => {
+                        body.classList.add('section-open');
+                        navItems.forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+                        contactToggle.classList.add('icon-hidden');
+                        backArrow.classList.remove('icon-hidden');
+                        contentSections.forEach(section => section.classList.add('content-hidden'));
+                        if(targetSection) {
+                            targetSection.classList.remove('content-hidden');
+                            targetSection.style.display = 'block';
+                        }
+                    });
                 });
             });
 
             backArrow.addEventListener('click', () => {
-                body.classList.remove('section-open');
-                navItems.forEach(item => item.classList.remove('active'));
-                backArrow.classList.add('icon-hidden');
-                contactToggle.classList.remove('icon-hidden');
-                contentSections.forEach(section => {
-                    section.classList.add('content-hidden');
-                    setTimeout(() => {
-                        if (!body.classList.contains('section-open')) section.style.display = 'none';
-                    }, 500);
+                withViewTransition(() => {
+                    body.classList.remove('section-open');
+                    navItems.forEach(item => item.classList.remove('active'));
+                    backArrow.classList.add('icon-hidden');
+                    contactToggle.classList.remove('icon-hidden');
+                    contentSections.forEach(section => {
+                        section.classList.add('content-hidden');
+                        setTimeout(() => {
+                            if (!body.classList.contains('section-open')) section.style.display = 'none';
+                        }, 500);
+                    });
+                    socialLinks.classList.add('social-hidden');
                 });
-                socialLinks.classList.add('social-hidden');
             });
 
             contactToggle.addEventListener('click', () => {
@@ -1803,5 +2048,6 @@
             }
         });
     </script>
+    <script src="js/servicios.js" defer></script>
 </body>
 </html>
