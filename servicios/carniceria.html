@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carnicería Joxean — Demo encargos sin colas</title>
+<title>Carnicería Manolo — Demo encargos sin colas</title>
 <style>
     :root {
         --meat: #a4262c;
@@ -172,7 +172,7 @@
 <main id="screen-prods" class="screen active">
     <header class="hero">
         <div class="art">🥩</div>
-        <h1>Carnicería Joxean</h1>
+        <h1>Carnicería Manolo</h1>
         <p>Encarga hoy, recoge mañana sin hacer cola.</p>
         <div class="badges">
             <span class="badge">🐄 Ternera del valle</span>
@@ -202,7 +202,7 @@
         <div class="sect-label">¿Cuándo lo recoges? (mañana)</div>
         <div class="slots" id="slots"></div>
         <div class="sect-label">Tu nombre</div>
-        <input type="text" id="cust-name" placeholder="Ej.: Maite" autocomplete="off">
+        <input type="text" id="cust-name" placeholder="Ej.: María" autocomplete="off">
         <button class="btn-wa" id="send-wa">📲 Enviar encargo por WhatsApp</button>
     </div>
 </main>
@@ -212,7 +212,7 @@
     <header class="chat-head">
         <div class="chat-avatar">🔪</div>
         <div>
-            <h2>Carnicería Joxean</h2>
+            <h2>Carnicería Manolo</h2>
             <p id="chat-status">en línea</p>
         </div>
     </header>
@@ -231,7 +231,7 @@
     const PRODUCTS = [
         { id: 1, emoji: '🥩', name: 'Chuletillas de cordero', unit: 'kg', price: 18.90, step: 250 },
         { id: 2, emoji: '🥓', name: 'Panceta adobada',        unit: 'kg', price: 9.50,  step: 250 },
-        { id: 3, emoji: '🌭', name: 'Txistorra de caserío',   unit: 'kg', price: 12.80, step: 250 },
+        { id: 3, emoji: '🌭', name: 'Chorizo fresco casero',  unit: 'kg', price: 12.80, step: 250 },
         { id: 4, emoji: '🍗', name: 'Pollo de corral entero', unit: 'ud', price: 11.00 },
         { id: 5, emoji: '🥩', name: 'Filetes de ternera 1ª',  unit: 'kg', price: 16.40, step: 250 },
         { id: 6, emoji: '🍖', name: 'Costilla para asar',     unit: 'kg', price: 10.90, step: 500 },
@@ -373,7 +373,7 @@
         let total = 0;
         order.forEach((q, id) => total += lineTotal(PRODUCTS.find(p => p.id === id), q));
 
-        const msg = `¡Hola Joxean! 👋 Soy ${name}.\nQuería encargar:\n${lines.join('\n')}\n\nTotal aprox.: ${fmt(total)}\nLo recojo mañana de ${slot}. ¡Gracias!`;
+        const msg = `¡Hola Manolo! 👋 Soy ${name}.\nQuería encargar:\n${lines.join('\n')}\n\nTotal aprox.: ${fmt(total)}\nLo recojo mañana de ${slot}. ¡Gracias!`;
 
         $('chat-body').innerHTML =
             `<div class="bubble out">${msg}<span class="time">${now()} <span class="ticks">✓✓</span></span></div>`;
