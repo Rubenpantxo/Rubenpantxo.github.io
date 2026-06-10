@@ -31,6 +31,7 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Incluye una zon
 │   ├── resource-hub/       # (privada)
 │   └── rubenpantxo-garden/ # Solo logo; la app vive en un repo privado independiente
 └── juegos/                 # Juegos
+    ├── bardenas-patrol/    # Mundo 3D de las Bardenas Reales (Three.js, conduce un Patrol)
     ├── Chess3D/
     ├── circle.html
     ├── flappy-bardenas.html
