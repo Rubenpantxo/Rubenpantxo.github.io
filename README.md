@@ -19,7 +19,7 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
 ├── docs/                   # Notas internas (guías, recursos)
 ├── mapas/                  # Mapas embebidos
 │   ├── cabanillas.html     # Plano urbano interactivo de Cabanillas (vector + ortofoto IDENA)
-│   └── cabanillas-data.js  # Datos cartográficos embebidos (OpenStreetMap)
+│   └── cabanillas-data.js  # Datos embebidos: Catastro de Navarra (alturas/parcelas) + OpenStreetMap
 ├── apps/                   # Aplicaciones
 │   ├── alumbrado-pro/      # (privada)
 │   ├── biblioteca/         # (privada)

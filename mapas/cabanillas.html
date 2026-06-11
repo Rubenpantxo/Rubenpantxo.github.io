@@ -80,10 +80,12 @@
             position: fixed; z-index: 30; display: none;
             background: rgba(255,255,255,0.97); border-radius: 12px;
             box-shadow: 0 8px 28px rgba(20,15,5,0.3); padding: 10px 14px;
-            font-size: 12px; color: #2d2418; max-width: 240px; pointer-events: none;
+            font-size: 12px; color: #2d2418; max-width: 250px; pointer-events: auto;
         }
         .info-pop b { display: block; font-size: 13px; margin-bottom: 2px; }
-        .info-pop span { color: #7a6f5c; }
+        .info-pop span { color: #7a6f5c; line-height: 1.45; }
+        .info-pop a { display: block; margin-top: 5px; color: #2563eb; font-weight: 600; text-decoration: none; }
+        .info-pop a:hover { text-decoration: underline; }
 
         /* Pantalla de carga breve */
         #loading {
@@ -114,7 +116,7 @@
     <div class="topbar">
         <div class="title-card">
             <h1>🗺️ Cabanillas · Plano urbano</h1>
-            <p>Casco urbano a detalle catastral · 849 edificios reales · ortofoto IDENA de máxima actualidad</p>
+            <p>1.942 cuerpos de edificio con su altura real (Catastro de Navarra) · fachadas y portales · parcelas oficiales · ortofoto IDENA</p>
             <a class="volver" href="../index.html">← Volver a Rubenpantxo.com</a>
         </div>
         <div class="controls">
@@ -206,13 +208,25 @@
         const hsl = (h, s, l, a = 1) => `hsla(${h},${s}%,${l}%,${a})`;
 
         // ---------- Preparación de datos ----------
-        // Edificios: color de tejado, altura y estilo derivados del tipo real y
-        // calibrados con la ortofoto IDENA (tejas terracota variadas, naves grises,
-        // algunas cubiertas planas claras).
-        const TYPE_H = { house: 6.4, church: 10.5, school: 7.5, industrial: 7.8, farm_auxiliary: 4.2, roof: 3.5, ruins: 2.5, yes: 6.2 };
+        // Edificios: geometría y ALTURA REAL en metros del Catastro de Navarra
+        // (capa DIRECC_Pol_Edifaltura); tipo/nombre/portal heredados de OSM.
+        // Colores calibrados con la ortofoto IDENA y, en cuanto carga, cada
+        // tejado se pinta con su color real muestreado de la propia ortofoto.
+        function polyArea(pts) {
+            let a = 0;
+            for (let i = 0, j = pts.length - 1; i < pts.length; j = i++)
+                a += (pts[j][0] + pts[i][0]) * (pts[j][1] - pts[i][1]);
+            return Math.abs(a / 2);
+        }
+        const FACADES = [
+            { h: 42, s: 32, l: 88 }, { h: 40, s: 38, l: 82 }, { h: 36, s: 30, l: 76 },
+            { h: 34, s: 42, l: 70 }, { h: 22, s: 36, l: 62 }, { h: 48, s: 12, l: 84 }
+        ];
         const buildings = D.buildings.map(b => {
             const rnd = mulberry(b.id * 7919 + 13);
-            const t = b.t;
+            const area = polyArea(b.p);
+            let t = b.t;
+            if (!t) t = area > 350 ? 'industrial' : 'house';
             let roof, style = 'gable';
             if (t === 'industrial') {
                 roof = { h: 210 + rnd() * 14 - 7, s: 7 + rnd() * 6, l: 64 + rnd() * 16 };
@@ -231,12 +245,19 @@
                 else roof = { h: 9 + rnd() * 14, s: 46 + rnd() * 16, l: 42 + rnd() * 14 };
             }
             const c = centroidOf(b.p);
+            const fac = t === 'industrial'
+                ? { h: 210, s: 6, l: 78 + rnd() * 8 }
+                : FACADES[Math.floor(rnd() * FACADES.length)];
             return {
-                ...b, roof, style,
-                h: (TYPE_H[t] || 6.2) * (0.88 + rnd() * 0.28),
+                ...b, t, roof, style, fac, real: null,
+                h: b.h,                                    // altura real (m) del catastro
+                floors: Math.max(1, Math.round((b.h - 1) / 3)),
                 bb: bboxOf(b.p), c, axis: mainAxis(b.p), r: radiusOf(b.p, c)
             };
         }).sort((a, b) => a.c[1] - b.c[1]); // pintor: norte primero, el sur tapa sus muros
+
+        // Parcelas catastrales (Catastro de Navarra, con nº de polígono/parcela)
+        const parcels = (D.parcels || []).map(p => ({ ...p, bb: bboxOf(p.p) }));
 
         const ROAD_STYLE = {
             primary:       { w: 7.5, fill: '#f7d98e', case: '#cba24f', z: 9 },
@@ -496,19 +517,69 @@
             }
         }
 
-        function wallShade(roof, nx, ny) {
+        function wallShade(fac, nx, ny) {
             // luz desde el NO: caras este/sur más oscuras
             const d = (-0.55 * nx + -0.83 * ny);
-            const l = Math.max(18, roof.l * (0.62 + 0.16 * d));
-            return hsl(roof.h, roof.s * 0.8, l);
+            const l = Math.max(22, fac.l * (0.72 + 0.2 * d));
+            return hsl(fac.h, fac.s, l);
+        }
+
+        // Fachada detallada sobre un muro orientado al sur: ventanas por cada
+        // planta real del catastro, puerta en planta baja y líneas de forjado.
+        const LIFT = 0.62;   // compresión vertical de la extrusión (m de mundo por m reales)
+        function drawFacade(b, ax, ay, bx, by, len, withDoor) {
+            const ux = (bx - ax) / len, uy = (by - ay) / len;
+            const quadAt = (s0, s1, y0, y1) => {
+                ctx.beginPath();
+                ctx.moveTo(ax + ux * s0, ay + uy * s0 - y0 * LIFT);
+                ctx.lineTo(ax + ux * s1, ay + uy * s1 - y0 * LIFT);
+                ctx.lineTo(ax + ux * s1, ay + uy * s1 - y1 * LIFT);
+                ctx.lineTo(ax + ux * s0, ay + uy * s0 - y1 * LIFT);
+                ctx.closePath();
+            };
+            // líneas de forjado entre plantas
+            ctx.strokeStyle = 'rgba(80,60,35,0.25)';
+            ctx.lineWidth = 0.1;
+            for (let k = 1; k < b.floors; k++) {
+                const y = k * 3 * LIFT;
+                ctx.beginPath();
+                ctx.moveTo(ax, ay - y); ctx.lineTo(bx, by - y);
+                ctx.stroke();
+            }
+            // ventanas
+            const n = Math.max(1, Math.floor(len / 3.2));
+            for (let k = 0; k < b.floors; k++) {
+                const y0 = 1.05 + k * 3, y1 = y0 + 1.25;
+                if (y1 > b.h - 0.4) break;
+                for (let i = 0; i < n; i++) {
+                    const sc = (i + 0.5) / n * len;
+                    if (withDoor && k === 0 && Math.abs(sc - len / 2) < 1.1) continue; // hueco de la puerta
+                    quadAt(sc - 0.55, sc + 0.55, y0, y1);
+                    ctx.fillStyle = 'rgba(38,44,58,0.88)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(250,248,240,0.75)';
+                    ctx.lineWidth = 0.09;
+                    ctx.stroke();
+                }
+            }
+            // puerta de entrada
+            if (withDoor && b.h > 3.4) {
+                quadAt(len / 2 - 0.65, len / 2 + 0.65, 0.05, 2.15);
+                ctx.fillStyle = 'rgba(82,52,28,0.95)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(40,24,10,0.8)';
+                ctx.lineWidth = 0.08;
+                ctx.stroke();
+            }
         }
 
         function drawBuildings(view, outlineOnly) {
             const s = cam.s;
             const lift = s > 0.85 && !outlineOnly;
+            const facadeDetail = s >= 6;
             for (const b of buildings) {
-                if (!visible(b.bb, view, 6)) continue;
-                const hPx = b.h * 0.55;  // metros de elevación visual
+                if (!visible(b.bb, view, 8)) continue;
+                const hPx = b.h * LIFT;  // elevación visual desde la altura real
                 const roofPts = lift ? b.p.map(([x, y]) => [x, y - hPx]) : b.p;
 
                 if (outlineOnly) {
@@ -519,24 +590,38 @@
                     continue;
                 }
 
-                // muros
+                // muros con color de fachada (encalados, cremas, ladrillo de la Ribera)
                 if (lift) {
+                    let doorIdx = -1, doorScore = 0;
+                    if (facadeDetail) {
+                        for (let i = 1; i < b.p.length; i++) {
+                            const ex = b.p[i][0] - b.p[i-1][0], ey = b.p[i][1] - b.p[i-1][1];
+                            const len = Math.hypot(ex, ey) || 1;
+                            const ny = -ex / len;
+                            const score = ny > 0.25 ? len * ny : 0;
+                            if (score > doorScore) { doorScore = score; doorIdx = i; }
+                        }
+                    }
                     for (let i = 1; i < b.p.length; i++) {
                         const ax = b.p[i-1][0], ay = b.p[i-1][1], bx = b.p[i][0], by = b.p[i][1];
                         const ex = bx - ax, ey = by - ay;
                         const len = Math.hypot(ex, ey) || 1;
                         const nx = ey / len, ny = -ex / len;
-                        ctx.fillStyle = wallShade(b.roof, nx, ny);
+                        ctx.fillStyle = wallShade(b.fac, nx, ny);
                         ctx.beginPath();
                         ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
                         ctx.lineTo(bx, by - hPx); ctx.lineTo(ax, ay - hPx);
                         ctx.closePath(); ctx.fill();
+                        // fachada con ventanas/puerta en muros visibles (cara sur)
+                        if (facadeDetail && ny > 0.25 && len > 2.6 && b.t !== 'industrial' && b.style !== 'ribbed') {
+                            drawFacade(b, ax, ay, bx, by, len, i === doorIdx && (b.hn || b.t === 'house'));
+                        }
                     }
                 }
 
-                // tejado
+                // tejado: color real muestreado de la ortofoto si ya está disponible
                 pathPoly(roofPts);
-                ctx.fillStyle = hsl(b.roof.h, b.roof.s, b.roof.l);
+                ctx.fillStyle = b.real || hsl(b.roof.h, b.roof.s, b.roof.l);
                 ctx.fill();
                 ctx.strokeStyle = 'rgba(60,35,15,0.35)';
                 ctx.lineWidth = Math.max(0.18, 0.8 / s);
@@ -587,6 +672,17 @@
                         ctx.moveTo(cx - 1.4, cyy - 1.8); ctx.lineTo(cx + 1.4, cyy - 1.8); ctx.stroke();
                     }
                 }
+            }
+        }
+
+        function drawParcels(view, overlay) {
+            if (cam.s < 3 && !overlay) return;
+            ctx.strokeStyle = overlay ? 'rgba(255,235,140,0.55)' : 'rgba(125,108,80,0.4)';
+            ctx.lineWidth = Math.max(0.1, (overlay ? 1.1 : 0.8) / cam.s);
+            for (const p of parcels) {
+                if (!visible(p.bb, view)) continue;
+                pathPoly(p.p);
+                ctx.stroke();
             }
         }
 
@@ -725,10 +821,12 @@
                 }
                 drawWater(view);
                 drawRoads(view, false);
+                drawParcels(view, false);
                 drawBuildings(view, false);
                 drawTreesAndStreet(view);
             } else if (mode === 'mixto') {
                 drawRoads(view, true);
+                drawParcels(view, true);
                 drawBuildings(view, true);
             }
             ctx.restore();
@@ -798,7 +896,7 @@
         canvas.addEventListener('pointermove', e => {
             if (!dragging || !lastP) return;
             const dx = e.clientX - lastP.x, dy = e.clientY - lastP.y;
-            if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+            if (Math.abs(dx) + Math.abs(dy) > 3) { moved = true; infoPop.style.display = 'none'; }
             cam.x += dx; cam.y += dy;
             lastP = { x: e.clientX, y: e.clientY };
             clampCam();
@@ -836,25 +934,96 @@
         canvas.addEventListener('touchend', e => { if (e.touches.length < 2) pinchD = null; }, { passive: true });
 
         function handleTap(sx, sy) {
-            // identificar edificio bajo el cursor
+            // identificar edificio y parcela catastral bajo el cursor
             const wx = (sx - cam.x) / cam.s, wy = (sy - cam.y) / cam.s;
-            let found = null;
+            let found = null, parcel = null;
             for (const b of buildings) {
                 if (wx < b.bb[0] - 1 || wx > b.bb[2] + 1 || wy < b.bb[1] - 1 || wy > b.bb[3] + 1) continue;
                 if (pointInPoly(wx, wy, b.p)) found = b;
             }
-            if (found && cam.s > 1.2) {
-                const tipo = { house: 'Vivienda', industrial: 'Nave / industria', church: 'Iglesia', school: 'Colegio', farm_auxiliary: 'Edificación agrícola', ruins: 'Ruinas', roof: 'Cubierta', yes: 'Edificio' }[found.t] || 'Edificio';
-                infoPop.innerHTML = `<b>${found.n || tipo}</b><span>${found.n ? tipo + ' · ' : ''}${found.hn ? 'Portal nº ' + found.hn : 'Cabanillas (Navarra)'}</span>`;
+            for (const p of parcels) {
+                if (wx < p.bb[0] || wx > p.bb[2] || wy < p.bb[1] || wy > p.bb[3]) continue;
+                if (pointInPoly(wx, wy, p.p)) { parcel = p; break; }
+            }
+            if ((found || parcel) && cam.s > 1.2) {
+                const tipo = found ? ({ house: 'Vivienda', industrial: 'Nave / industria', church: 'Iglesia', school: 'Colegio', farm_auxiliary: 'Edificación agrícola', ruins: 'Ruinas', roof: 'Cubierta', yes: 'Edificio' }[found.t] || 'Edificio') : 'Parcela';
+                let html = `<b>${(found && found.n) || tipo}</b>`;
+                const lines = [];
+                if (found) {
+                    if (found.n) lines.push(tipo);
+                    lines.push(`${found.floors} ${found.floors === 1 ? 'planta' : 'plantas'}${found.e ? ' (' + found.e + ')' : ''} · ${found.h} m de altura`);
+                    if (found.hn) lines.push('Portal nº ' + found.hn);
+                }
+                if (parcel) {
+                    lines.push(`Parcela ${parcel.pa} · Polígono ${parcel.po}`);
+                    html += `<span>${lines.join('<br>')}</span>` +
+                        `<a href="https://catastro.navarra.es/ref_catastral/unidades.aspx?C=62&PO=${parcel.po}&PA=${parcel.pa}" target="_blank" rel="noopener">Ficha del Catastro de Navarra ↗</a>`;
+                } else {
+                    html += `<span>${lines.join('<br>')}</span>`;
+                }
+                infoPop.innerHTML = html;
                 infoPop.style.display = 'block';
-                infoPop.style.left = Math.min(sx + 12, window.innerWidth - 250) + 'px';
+                infoPop.style.left = Math.min(sx + 12, window.innerWidth - 260) + 'px';
                 infoPop.style.top = (sy - 10) + 'px';
                 clearTimeout(infoPop._t);
-                infoPop._t = setTimeout(() => infoPop.style.display = 'none', 3200);
+                infoPop._t = setTimeout(() => infoPop.style.display = 'none', 6500);
             } else {
                 infoPop.style.display = 'none';
             }
         }
+
+        // ---------- Tejados con su color real ----------
+        // Muestrea la ortofoto IDENA (CORS abierto) sobre un lienzo a 1 m/px y
+        // asigna a cada edificio el color medio real de su cubierta.
+        async function sampleRealRoofs() {
+            try {
+                const M = 512, I0 = -2, J0 = -2, N = 4;     // 4×4 teselas de 512 m cubren el casco
+                const off = document.createElement('canvas');
+                off.width = M * N; off.height = M * N;
+                const octx = off.getContext('2d', { willReadFrequently: true });
+                await Promise.all(Array.from({ length: N * N }, (_, k) => new Promise(res => {
+                    const i = I0 + (k % N), j = J0 + Math.floor(k / N);
+                    const x0 = i * M, y0 = j * M;
+                    const bbox = [worldToLon(x0), worldToLat(y0 + M), worldToLon(x0 + M), worldToLat(y0)].join(',');
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => { octx.drawImage(img, (i - I0) * M, (j - J0) * M, M, M); res(); };
+                    img.onerror = res;
+                    img.src = WMS + bbox;
+                })));
+                const data = octx.getImageData(0, 0, M * N, M * N).data;
+                const offX = -I0 * M, offY = -J0 * M;
+                for (const b of buildings) {
+                    let r = 0, g = 0, bl = 0, n = 0;
+                    const x0 = Math.max(0, Math.floor(b.bb[0] + offX)), x1 = Math.min(M * N - 1, Math.ceil(b.bb[2] + offX));
+                    const y0 = Math.max(0, Math.floor(b.bb[1] + offY)), y1 = Math.min(M * N - 1, Math.ceil(b.bb[3] + offY));
+                    const step = Math.max(1, Math.floor((x1 - x0) / 14));
+                    for (let y = y0; y <= y1; y += step) for (let x = x0; x <= x1; x += step) {
+                        // erosión: el píxel y su entorno deben caer dentro de la cubierta,
+                        // para no mezclar calle ni sombras del borde
+                        const px = x - offX + 0.5, py = y - offY + 0.5;
+                        if (!pointInPoly(px, py, b.p) ||
+                            !pointInPoly(px - 0.9, py, b.p) || !pointInPoly(px + 0.9, py, b.p) ||
+                            !pointInPoly(px, py - 0.9, b.p) || !pointInPoly(px, py + 0.9, b.p)) continue;
+                        const k = (y * M * N + x) * 4;
+                        if (data[k + 3] < 200) continue;     // tesela no cargada
+                        r += data[k]; g += data[k + 1]; bl += data[k + 2]; n++;
+                    }
+                    if (n >= 3) {
+                        // saturación y luz extra para compensar la neblina de la ortofoto
+                        const mr = r / n, mg = g / n, mb = bl / n;
+                        const avg = (mr + mg + mb) / 3;
+                        const boost = c => Math.max(0, Math.min(255, (avg + (c - avg) * 1.55) * 1.12));
+                        b.real = `rgb(${boost(mr) | 0},${boost(mg) | 0},${boost(mb) | 0})`;
+                    }
+                }
+                needsDraw = true;
+            } catch (e) {
+                // sin red o lienzo contaminado: se mantienen los colores procedurales
+                console.warn('Muestreo de ortofoto no disponible:', e);
+            }
+        }
+        setTimeout(sampleRealRoofs, 1500);
 
         document.getElementById('zoom-in').onclick = () => zoomAt(canvas.width / dpr / 2, canvas.height / dpr / 2, 1.45);
         document.getElementById('zoom-out').onclick = () => zoomAt(canvas.width / dpr / 2, canvas.height / dpr / 2, 1 / 1.45);
