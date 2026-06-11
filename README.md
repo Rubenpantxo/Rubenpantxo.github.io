@@ -2,7 +2,7 @@
 
 Sitio web personal de Rubenpantxo, alojado en GitHub Pages bajo el dominio [rubenpantxo.com](https://rubenpantxo.com).
 
-Hub estático que reúne aplicaciones, juegos y enlaces propios. Incluye una zona privada con autenticación por contraseña para apps de uso personal.
+Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps son privadas: se muestran con un candado y piden contraseña al abrirlas.
 
 ## Estructura
 
@@ -18,12 +18,12 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Incluye una zon
 ├── img/                    # Logos e iconos del sitio
 ├── docs/                   # Notas internas (guías, recursos)
 ├── mapas/                  # Mapas embebidos
+│   ├── cabanillas.html     # Plano urbano interactivo de Cabanillas (vector + ortofoto IDENA)
+│   └── cabanillas-data.js  # Datos embebidos: Catastro de Navarra (alturas/parcelas) + OpenStreetMap
 ├── apps/                   # Aplicaciones
 │   ├── alumbrado-pro/      # (privada)
-│   ├── arbol-genealogico/  # Árbol genealógico
 │   ├── biblioteca/         # (privada)
 │   ├── format-explorer.html
-│   ├── gueb_y_jitjub.html
 │   ├── instagram-downloader/   # (privada)
 │   ├── pantxiko-notes.html
 │   ├── plants/
@@ -31,10 +31,9 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Incluye una zon
 │   ├── resource-hub/       # (privada)
 │   └── rubenpantxo-garden/ # Solo logo; la app vive en un repo privado independiente
 └── juegos/                 # Juegos
-    ├── bardenas-patrol/    # Mundo 3D de las Bardenas Reales (Three.js, conduce un Patrol)
     ├── Chess3D/
     ├── circle.html
-    ├── flappy-bardenas.html
+    ├── cesta-punta/
     ├── granja/             # (privada)
     ├── tekken-barrio-ps1/
     └── tetris/
@@ -42,7 +41,7 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Incluye una zon
 
 ## Zona privada
 
-Algunas apps y juegos están marcados con la clase `private-app` y permanecen ocultos hasta que el usuario se autentica desde el icono de la esquina superior derecha del index. La autenticación es cliente-side (hash SHA-256 contra `PASSWORD_HASH` en `index.html`) y la sesión se guarda en `sessionStorage`.
+Las apps y juegos marcados con la clase `private-app` se muestran siempre en sus secciones con un candado (🔒). Al hacer clic piden la contraseña en un modal; si es correcta se abre la app y la sesión queda validada (candados en 🔓). La autenticación es cliente-side (hash SHA-256 contra `PASSWORD_HASH` en `index.html`) y la sesión se guarda en `sessionStorage`.
 
 > Nota: como el hash viaja en el HTML, la zona privada solo sirve para ocultar contenido del visitante casual, no protege secretos.
 

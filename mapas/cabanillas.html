@@ -3,397 +3,1061 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cabanillas - Plano Catastral de Precisión</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Cabanillas · Plano Urbano Interactivo</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #f1f5f9; font-family: system-ui, sans-serif; }
-        canvas { display: block; cursor: crosshair; touch-action: none; }
-        canvas:active { cursor: grabbing; }
-        ::-webkit-scrollbar { display: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #ddd3b8; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        canvas { display: block; cursor: grab; touch-action: none; }
+        canvas.dragging { cursor: grabbing; }
 
-        /* Animación de carga */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+        /* Panel superior */
+        .topbar {
+            position: fixed; top: 12px; left: 12px; right: 12px; z-index: 20;
+            display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 10px; pointer-events: none;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .title-card {
+            pointer-events: auto;
+            background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+            border-radius: 14px; padding: 10px 16px;
+            box-shadow: 0 4px 18px rgba(40,30,10,0.18);
+            max-width: 70vw;
+        }
+        .title-card h1 { font-size: 17px; color: #2d2418; font-weight: 800; letter-spacing: -0.2px; }
+        .title-card p { font-size: 11px; color: #7a6f5c; margin-top: 1px; }
+        .title-card a.volver {
+            display: inline-block; margin-top: 4px; font-size: 11px; font-weight: 600;
+            color: #2563eb; text-decoration: none;
+        }
+        .title-card a.volver:hover { text-decoration: underline; }
+
+        .controls { pointer-events: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+        .layer-switch {
+            display: flex; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+            border-radius: 12px; overflow: hidden; box-shadow: 0 4px 18px rgba(40,30,10,0.18);
+        }
+        .layer-switch button {
+            border: none; background: transparent; padding: 9px 14px;
+            font-size: 12px; font-weight: 700; color: #6b6253; cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .layer-switch button.active { background: #2d2418; color: #ffe9b8; }
+        .zoom-btns { display: flex; flex-direction: column; gap: 6px; }
+        .zoom-btns button {
+            width: 40px; height: 40px; border: none; border-radius: 10px;
+            background: rgba(255,255,255,0.92); box-shadow: 0 3px 12px rgba(40,30,10,0.18);
+            font-size: 20px; font-weight: 700; color: #2d2418; cursor: pointer;
+        }
+        .zoom-btns button:hover { background: #fff; }
+
+        /* Pie: escala y atribución */
+        .scalebar {
+            position: fixed; left: 14px; bottom: 14px; z-index: 20;
+            background: rgba(255,255,255,0.88); border-radius: 8px; padding: 5px 10px;
+            font-size: 11px; color: #4b4234; font-weight: 600;
+            box-shadow: 0 2px 10px rgba(40,30,10,0.15);
+        }
+        .scalebar .bar { height: 4px; background: #2d2418; border-radius: 2px; margin-top: 3px; }
+        .attribution {
+            position: fixed; right: 10px; bottom: 10px; z-index: 20;
+            font-size: 9.5px; color: #5d5444; background: rgba(255,250,238,0.82);
+            padding: 4px 8px; border-radius: 6px; max-width: 65vw; text-align: right;
+        }
+        .attribution a { color: #2563eb; text-decoration: none; }
+
+        /* Brújula */
+        .compass {
+            position: fixed; right: 14px; top: 218px; z-index: 19;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(255,255,255,0.92); box-shadow: 0 3px 12px rgba(40,30,10,0.18);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; color: #b91c1c; font-size: 13px;
+        }
+        .compass::before { content: "▲"; font-size: 9px; position: absolute; top: 2px; color: #b91c1c; }
+
+        /* Popup de información de edificio */
+        .info-pop {
+            position: fixed; z-index: 30; display: none;
+            background: rgba(255,255,255,0.97); border-radius: 12px;
+            box-shadow: 0 8px 28px rgba(20,15,5,0.3); padding: 10px 14px;
+            font-size: 12px; color: #2d2418; max-width: 250px; pointer-events: auto;
+        }
+        .info-pop b { display: block; font-size: 13px; margin-bottom: 2px; }
+        .info-pop span { color: #7a6f5c; line-height: 1.45; }
+        .info-pop a { display: block; margin-top: 5px; color: #2563eb; font-weight: 600; text-decoration: none; }
+        .info-pop a:hover { text-decoration: underline; }
+
+        /* Pantalla de carga breve */
+        #loading {
+            position: fixed; inset: 0; z-index: 50; background: #ddd3b8;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.4s; color: #5d5444;
+        }
+        #loading .spin {
+            width: 36px; height: 36px; border: 4px solid #c9bd9e; border-top-color: #8a5a2c;
+            border-radius: 50%; animation: spin 0.9s linear infinite; margin-bottom: 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 640px) {
+            .title-card h1 { font-size: 14px; }
+            .title-card p { display: none; }
+            .layer-switch button { padding: 8px 10px; font-size: 11px; }
+            .compass { top: 210px; }
+        }
     </style>
 </head>
-<body class="relative h-screen w-screen selection:bg-blue-200">
+<body>
 
-    <!-- Pantalla de Carga -->
-    <div id="loading-screen" class="absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex flex-col items-center justify-center text-white transition-opacity duration-500">
-        <div class="loader mb-4"></div>
-        <h2 class="text-2xl font-bold mb-2 text-center px-4">Conectando con Catastro / OSM</h2>
-        <p class="text-slate-300 text-center px-4">Descargando geometría real de Cabanillas...</p>
-        <p id="loading-status" class="text-xs text-blue-300 mt-4 font-mono text-center px-4">Iniciando petición...</p>
+    <div id="loading"><div class="spin"></div><div>Dibujando Cabanillas…</div></div>
+
+    <canvas id="mapa"></canvas>
+
+    <div class="topbar">
+        <div class="title-card">
+            <h1>🗺️ Cabanillas · Plano urbano</h1>
+            <p>1.942 cuerpos de edificio con su altura real (Catastro de Navarra) · fachadas y portales · parcelas oficiales · ortofoto IDENA</p>
+            <a class="volver" href="../index.html">← Volver a Rubenpantxo.com</a>
+        </div>
+        <div class="controls">
+            <div class="layer-switch" id="layer-switch">
+                <button data-mode="plano" class="active">Plano</button>
+                <button data-mode="orto">Satélite</button>
+                <button data-mode="mixto">Mixto</button>
+            </div>
+            <div class="zoom-btns">
+                <button id="zoom-in" title="Acercar">+</button>
+                <button id="zoom-out" title="Alejar">−</button>
+                <button id="zoom-home" title="Vista inicial" style="font-size:15px">⌂</button>
+            </div>
+        </div>
     </div>
 
-    <canvas id="mapaCanvas"></canvas>
+    <div class="compass">N</div>
+    <div class="scalebar"><span id="scale-label">100 m</span><div class="bar" id="scale-bar" style="width:80px"></div></div>
+    <div class="attribution">Plano: © colaboradores de <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL) · Ortofoto: <a href="https://idena.navarra.es" target="_blank" rel="noopener">IDENA</a> — Gobierno de Navarra</div>
+    <div class="info-pop" id="info-pop"></div>
 
+    <script src="cabanillas-data.js"></script>
     <script>
-        const canvas = document.getElementById('mapaCanvas');
+    (() => {
+        'use strict';
+        const D = window.CABANILLAS_DATA;
+        const canvas = document.getElementById('mapa');
         const ctx = canvas.getContext('2d');
-        const loadingScreen = document.getElementById('loading-screen');
-        const loadingStatus = document.getElementById('loading-status');
+        const infoPop = document.getElementById('info-pop');
 
-        // --- SISTEMA GEOGRÁFICO (Cabanillas Centro) ---
-        const CENTER_LAT = 42.0305;
-        const CENTER_LON = -1.5260;
-        const EARTH_RADIUS = 6371000; // Metros
-        let centerPoint = null;
+        // ---------- Sistema geográfico ----------
+        // Mundo en metros: x = este, y = sur. Centro: plaza del pueblo.
+        const CLAT = D.center[0], CLON = D.center[1];
+        const R = 6371000, RAD = Math.PI / 180;
+        const COSL = Math.cos(CLAT * RAD);
+        const worldToLon = x => CLON + x / (R * COSL) / RAD;
+        const worldToLat = y => CLAT - y / R / RAD;
 
-        // Conversor de Lat/Lon a Metros (Equirectangular local)
-        function latLonToMeters(lat, lon) {
-            const x = EARTH_RADIUS * lon * Math.PI / 180 * Math.cos(CENTER_LAT * Math.PI / 180);
-            const y = EARTH_RADIUS * lat * Math.PI / 180;
-            return { x, y };
-        }
+        // ---------- Cámara ----------
+        let cam = { x: 0, y: 0, s: 1 };   // s = píxeles por metro
+        const MIN_S = 0.25, MAX_S = 55;
+        let mode = 'plano';
+        let needsDraw = true;
+        let dpr = 1;
 
-        // Conversor inverso: Metros a Lat/Lon
-        function metersToLatLon(x, y) {
-            const lat = y / (EARTH_RADIUS * Math.PI / 180);
-            const lon = x / (EARTH_RADIUS * Math.PI / 180 * Math.cos(CENTER_LAT * Math.PI / 180));
-            return { lat, lon };
-        }
-
-        // Iniciar el punto central en metros
-        centerPoint = latLonToMeters(CENTER_LAT, CENTER_LON);
-
-        function latLonToCanvas(lat, lon) {
-            const m = latLonToMeters(lat, lon);
-            return {
-                x: m.x - centerPoint.x,
-                y: -(m.y - centerPoint.y) // Invertir Y (Canvas Y va hacia abajo, Norte hacia arriba)
+        // ---------- Utilidades ----------
+        function mulberry(seed) {
+            let a = seed >>> 0;
+            return () => {
+                a |= 0; a = a + 0x6D2B79F5 | 0;
+                let t = Math.imul(a ^ a >>> 15, 1 | a);
+                t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
             };
         }
-
-        function canvasToLatLon(cx, cy) {
-            const mY = centerPoint.y - cy;
-            const mX = cx + centerPoint.x;
-            return metersToLatLon(mX, mY);
+        function bboxOf(pts) {
+            let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+            for (const [x, y] of pts) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+            return [x0, y0, x1, y1];
         }
-
-        // --- ESTADO DEL MOTOR ---
-        let camera = { x: 0, y: 0, scale: 2 }; // Escala 2 significa 1 metro = 2 píxeles en pantalla
-        let isDragging = false;
-        let lastMouse = { x: 0, y: 0 };
-        let initialPinchDist = null;
-
-        // --- DATOS DEL MAPA ---
-        let vias = [];
-        let edificios = [];
-
-        // --- DESCARGA DE DATOS CATASTRALES (OpenStreetMap) ---
-        async function cargarMapaReal() {
-            try {
-                // Bounding Box para Cabanillas
-                const bbox = "42.022,-1.535,42.037,-1.515";
-                const query = `
-                    [out:json][timeout:25];
-                    (
-                      way["building"](${bbox});
-                      way["highway"](${bbox});
-                      way["waterway"](${bbox});
-                    );
-                    out body;
-                    >;
-                    out skel qt;
-                `;
-
-                loadingStatus.innerText = "Descargando polígonos desde servidor externo...";
-                const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
-                const response = await fetch(url);
-
-                if (!response.ok) throw new Error("Fallo de red al conectar con OSM.");
-
-                loadingStatus.innerText = "Procesando geometría...";
-                const data = await response.json();
-
-                // Procesar nodos (puntos)
-                const nodos = {};
-                data.elements.forEach(el => {
-                    if (el.type === 'node') {
-                        nodos[el.id] = latLonToCanvas(el.lat, el.lon);
-                    }
-                });
-
-                // Procesar vías (caminos y edificios)
-                data.elements.forEach(el => {
-                    if (el.type === 'way') {
-                        const pts = el.nodes.map(nid => nodos[nid]).filter(n => n);
-                        if (pts.length < 2) return;
-
-                        if (el.tags && el.tags.building) {
-                            edificios.push(pts);
-                        } else if (el.tags && el.tags.highway) {
-                            // Grosor visual dependiendo del tipo de vía
-                            let width = 4;
-                            if (el.tags.highway === 'primary' || el.tags.highway === 'secondary') width = 8;
-                            else if (el.tags.highway === 'residential') width = 5;
-                            else if (el.tags.highway === 'track' || el.tags.highway === 'path') width = 2;
-
-                            vias.push({ pts, width, color: '#FFFFFF', isWater: false, name: el.tags.name });
-                        } else if (el.tags && el.tags.waterway) {
-                            vias.push({ pts, width: 15, color: '#3498DB', isWater: true });
-                        }
-                    }
-                });
-
-                // Ocultar pantalla de carga
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => loadingScreen.style.display = 'none', 500);
-
-                // Centrar cámara
-                resize();
-            } catch (error) {
-                loadingStatus.innerText = "Error: " + error.message;
-                loadingStatus.className = "text-xs text-red-400 mt-4 font-mono font-bold";
-                console.error(error);
-                alert("Hubo un problema al cargar los datos reales. Por favor, recarga la página.");
-            }
+        function centroidOf(pts) {
+            let sx = 0, sy = 0;
+            for (const [x, y] of pts) { sx += x; sy += y; }
+            return [sx / pts.length, sy / pts.length];
         }
-
-        // --- SISTEMA DE RENDERIZADO ---
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            if (camera.x === 0 && camera.y === 0) {
-                camera.x = canvas.width / 2;
-                camera.y = canvas.height / 2;
-            }
-            draw();
-        }
-
-        function drawPath(pts) {
-            ctx.beginPath();
-            ctx.moveTo(pts[0].x, pts[0].y);
+        function mainAxis(pts) {
+            // ángulo de la arista más larga: orienta cumbreras y rayados
+            let best = 0, bl = -1;
             for (let i = 1; i < pts.length; i++) {
-                ctx.lineTo(pts[i].x, pts[i].y);
+                const dx = pts[i][0] - pts[i-1][0], dy = pts[i][1] - pts[i-1][1];
+                const l = dx*dx + dy*dy;
+                if (l > bl) { bl = l; best = Math.atan2(dy, dx); }
             }
+            return best;
+        }
+        function radiusOf(pts, c) {
+            let r = 0;
+            for (const [x, y] of pts) r = Math.max(r, Math.hypot(x - c[0], y - c[1]));
+            return r;
+        }
+        function pointInPoly(px, py, pts) {
+            let inside = false;
+            for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+                const xi = pts[i][0], yi = pts[i][1], xj = pts[j][0], yj = pts[j][1];
+                if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) inside = !inside;
+            }
+            return inside;
+        }
+        const hsl = (h, s, l, a = 1) => `hsla(${h},${s}%,${l}%,${a})`;
+
+        // ---------- Preparación de datos ----------
+        // Edificios: geometría y ALTURA REAL en metros del Catastro de Navarra
+        // (capa DIRECC_Pol_Edifaltura); tipo/nombre/portal heredados de OSM.
+        // Colores calibrados con la ortofoto IDENA y, en cuanto carga, cada
+        // tejado se pinta con su color real muestreado de la propia ortofoto.
+        function polyArea(pts) {
+            let a = 0;
+            for (let i = 0, j = pts.length - 1; i < pts.length; j = i++)
+                a += (pts[j][0] + pts[i][0]) * (pts[j][1] - pts[i][1]);
+            return Math.abs(a / 2);
+        }
+        const FACADES = [
+            { h: 42, s: 32, l: 88 }, { h: 40, s: 38, l: 82 }, { h: 36, s: 30, l: 76 },
+            { h: 34, s: 42, l: 70 }, { h: 22, s: 36, l: 62 }, { h: 48, s: 12, l: 84 }
+        ];
+        const buildings = D.buildings.map(b => {
+            const rnd = mulberry(b.id * 7919 + 13);
+            const area = polyArea(b.p);
+            let t = b.t;
+            if (!t) t = area > 350 ? 'industrial' : 'house';
+            let roof, style = 'gable';
+            if (t === 'industrial') {
+                roof = { h: 210 + rnd() * 14 - 7, s: 7 + rnd() * 6, l: 64 + rnd() * 16 };
+                style = 'ribbed';
+            } else if (t === 'church') {
+                roof = { h: 22, s: 26, l: 42 + rnd() * 6 };
+                style = 'church';
+            } else if (t === 'ruins') {
+                roof = { h: 35, s: 14, l: 58 }; style = 'flat';
+            } else if (t === 'farm_auxiliary') {
+                roof = rnd() < 0.5 ? { h: 16 + rnd() * 10, s: 42, l: 50 } : { h: 210, s: 8, l: 68 };
+                style = rnd() < 0.7 ? 'gable' : 'ribbed';
+            } else {
+                // viviendas y resto: terracota con variación natural; ~13% azotea plana clara
+                if (rnd() < 0.13) { roof = { h: 36 + rnd() * 8, s: 16 + rnd() * 8, l: 70 + rnd() * 8 }; style = 'flat'; }
+                else roof = { h: 9 + rnd() * 14, s: 46 + rnd() * 16, l: 42 + rnd() * 14 };
+            }
+            const c = centroidOf(b.p);
+            const fac = t === 'industrial'
+                ? { h: 210, s: 6, l: 78 + rnd() * 8 }
+                : FACADES[Math.floor(rnd() * FACADES.length)];
+            return {
+                ...b, t, roof, style, fac, real: null,
+                h: b.h,                                    // altura real (m) del catastro
+                floors: Math.max(1, Math.round((b.h - 1) / 3)),
+                bb: bboxOf(b.p), c, axis: mainAxis(b.p), r: radiusOf(b.p, c)
+            };
+        }).sort((a, b) => a.c[1] - b.c[1]); // pintor: norte primero, el sur tapa sus muros
+
+        // Parcelas catastrales (Catastro de Navarra, con nº de polígono/parcela)
+        const parcels = (D.parcels || []).map(p => ({ ...p, bb: bboxOf(p.p) }));
+
+        const ROAD_STYLE = {
+            primary:       { w: 7.5, fill: '#f7d98e', case: '#cba24f', z: 9 },
+            primary_link:  { w: 6.0, fill: '#f7d98e', case: '#cba24f', z: 9 },
+            unclassified:  { w: 5.4, fill: '#ffffff', case: '#bcb4a4', z: 8 },
+            residential:   { w: 5.2, fill: '#ffffff', case: '#bcb4a4', z: 8 },
+            living_street: { w: 4.6, fill: '#f3efe6', case: '#c4bba8', z: 7 },
+            pedestrian:    { w: 3.6, fill: '#f0e9da', case: '#c9bfa9', z: 7 },
+            service:       { w: 3.0, fill: '#f7f5ef', case: '#c6beae', z: 6 },
+            construction:  { w: 4.5, fill: '#e0d8c4', case: '#b8ab8c', z: 5, dash: [4, 3] },
+            track:         { w: 2.6, fill: '#dcc28e', case: '#b59a66', z: 4, dash: [7, 3] },
+            cycleway:      { w: 2.2, fill: '#d8c8e8', case: '#a890c8', z: 4 },
+            footway:       { w: 1.7, fill: '#cfc6b4', case: null, z: 3, dash: [2.2, 1.6] },
+            path:          { w: 1.5, fill: '#c9bfa9', case: null, z: 3, dash: [2, 2] },
+            steps:         { w: 2.0, fill: '#b9ae97', case: null, z: 3, dash: [0.7, 0.7] }
+        };
+        const roads = D.roads
+            .filter(r => ROAD_STYLE[r.t])
+            .map(r => ({ ...r, st: ROAD_STYLE[r.t], bb: bboxOf(r.p) }))
+            .sort((a, b) => a.st.z - b.st.z);
+
+        const AREA_STYLE = {
+            residential:  { fill: '#ebe4d5', z: 0 },
+            industrial:   { fill: '#d6d8da', z: 0 },
+            farmland:     { fill: '#e4d4a8', z: 0, tex: 'furrows' },
+            greenfield:   { fill: '#d8d1b0', z: 0 },
+            farmyard:     { fill: '#dcc9a2', z: 1 },
+            construction: { fill: '#d9d3c3', z: 1, tex: 'hatch' },
+            forest:       { fill: '#94b671', z: 1, tex: 'forest' },
+            orchard:      { fill: '#b3cc8d', z: 1, tex: 'orchard' },
+            allotments:   { fill: '#cedcab', z: 1, tex: 'plots' },
+            cemetery:     { fill: '#ccd8c3', z: 1, tex: 'cемetery' },
+            grass:        { fill: '#c2d8a4', z: 2 },
+            park:         { fill: '#b9d69c', z: 2 },
+            garden:       { fill: '#bcd8a2', z: 2 },
+            sports_centre:{ fill: '#cfe3c0', z: 2 },
+            pitch:        { fill: '#8ec878', z: 3, tex: 'pitch' },
+            playground:   { fill: '#ead9a6', z: 3, tex: 'play' },
+            bleachers:    { fill: '#b9a98c', z: 3 },
+            sports_hall:  { fill: '#c6ccd2', z: 3 },
+            swimming_pool:{ fill: '#62c2e6', z: 4, tex: 'pool' },
+            amenity_school: { fill: '#f0e3c5', z: 2 },
+            amenity_townhall: { fill: '#ecdfc8', z: 2 },
+            amenity_place_of_worship: { fill: '#e0d6c6', z: 2 },
+            amenity_community_centre: { fill: '#ecdcc0', z: 2 },
+            amenity_library: { fill: '#ecdcc0', z: 2 },
+            amenity_clinic: { fill: '#f2dcd6', z: 2 },
+            amenity_childcare: { fill: '#f2e2c8', z: 2 },
+            amenity_bus_station: { fill: '#e4e2dc', z: 2 },
+            amenity_crematorium: { fill: '#dcdcd4', z: 2 }
+        };
+        const areas = D.areas
+            .filter(a => AREA_STYLE[a.t])
+            .map(a => ({ ...a, st: AREA_STYLE[a.t], bb: bboxOf(a.p), c: centroidOf(a.p), axis: mainAxis(a.p), seed: (a.p.length * 131 + Math.round(a.p[0][0])) >>> 0 }))
+            .sort((a, b) => a.st.z - b.st.z);
+
+        // ---------- Puntos de interés (corroborados con OSM/realidad) ----------
+        const POI_ICONS = {
+            church: '⛪', townhall: '🏛️', school: '🏫', health: '🏥', library: '📚',
+            culture: '🎭', sport: '🏟️', football: '⚽', pool: '🏊', plaza: '🌳',
+            cemetery: '✝️', industry: '🏭', fountain: '⛲', water: '🚰', fuel: '⛽',
+            bank: '🏧', shop: '🧸', tanatorio: '🕯️', club: '🎯', frontball: '🥎'
+        };
+        const pois = [];
+        function addPoi(name, icon, x, y, minS, pr) { pois.push({ n: name, i: icon, x, y, minS, pr }); }
+        const NAME_POIS = [
+            [/Parroquia de la Asunción/, 'church', 0.6, 1],
+            [/San Juan de Jerusalén$/, 'church', 1.4, 2],
+            [/Ayuntamiento/, 'townhall', 0.6, 1],
+            [/Colegio/, 'school', 0.9, 2],
+            [/Centro de Salud/, 'health', 0.9, 2],
+            [/Biblioteca/, 'library', 1.6, 3],
+            [/Casa Cultural/, 'culture', 1.6, 3],
+            [/Polideportivo/, 'sport', 1.1, 2],
+            [/Club Juvenil/, 'club', 2.5, 4],
+            [/Tanatorio/, 'tanatorio', 2.5, 4],
+            [/Educación Infantil/, 'school', 2.2, 4],
+            [/Cooperativa del Campo/, 'industry', 1.6, 3]
+        ];
+        for (const b of buildings) {
+            if (!b.n) continue;
+            for (const [re, icon, minS, pr] of NAME_POIS)
+                if (re.test(b.n)) { addPoi(b.n, POI_ICONS[icon], b.c[0], b.c[1], minS, pr); break; }
+        }
+        for (const a of areas) {
+            if (!a.n) continue;
+            if (/Plaza de la Constitución/.test(a.n)) addPoi(a.n, POI_ICONS.plaza, a.c[0], a.c[1], 0.8, 1);
+            else if (/Campo de Fútbol/.test(a.n)) addPoi(a.n, POI_ICONS.football, a.c[0], a.c[1], 0.9, 2);
+            else if (/Instalaciones Deportivas/.test(a.n)) addPoi('Piscinas Municipales', POI_ICONS.pool, a.c[0], a.c[1], 0.9, 2);
+            else if (/Cementerio/.test(a.n)) addPoi(a.n, POI_ICONS.cemetery, a.c[0], a.c[1], 1.4, 3);
+            else if (/Polígono Industrial/.test(a.n)) addPoi(a.n, POI_ICONS.industry, a.c[0], a.c[1], 0.7, 2);
+            else if (/Colegio/.test(a.n)) addPoi(a.n, POI_ICONS.school, a.c[0], a.c[1], 0.9, 2);
+        }
+        for (const p of D.pois) {
+            const icon = POI_ICONS[p.t] || POI_ICONS[p.t === 'shop' ? 'shop' : 'shop'];
+            addPoi(p.n, POI_ICONS[p.t] || '📍', p.x, p.y, 2.2, 4);
         }
 
-        function draw() {
-            // Fondo base (terreno)
-            ctx.fillStyle = '#E2E8F0';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.save();
-            ctx.translate(camera.x, camera.y);
-            ctx.scale(camera.scale, camera.scale);
-
-            // 1. Dibujar Calles y Ríos
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            vias.forEach(via => {
-                drawPath(via.pts);
-                ctx.strokeStyle = via.color;
-                ctx.lineWidth = via.width;
-                ctx.stroke();
-
-                // Borde suave para las calles
-                if (!via.isWater) {
-                    ctx.strokeStyle = '#CBD5E1';
-                    ctx.lineWidth = via.width + 1.5;
-                    ctx.globalCompositeOperation = 'destination-over';
-                    ctx.stroke();
-                    ctx.globalCompositeOperation = 'source-over';
-                }
-            });
-
-            // 2. Dibujar Edificios (Datos reales)
-            edificios.forEach(pts => {
-                drawPath(pts);
-                ctx.fillStyle = '#F87171'; // Color terracota suave
-                ctx.fill();
-                ctx.strokeStyle = '#DC2626'; // Borde oscuro
-                ctx.lineWidth = 0.5;
-                ctx.stroke();
-
-                // Sombreado sutil
-                ctx.save();
-                ctx.shadowColor = 'rgba(0,0,0,0.15)';
-                ctx.shadowBlur = 4;
-                ctx.shadowOffsetY = 3;
-                ctx.shadowOffsetX = 2;
-                ctx.fill();
-                ctx.restore();
-            });
-
-            // 3. Cuadrícula de precisión (Visible al acercar mucho)
-            if (camera.scale > 4) {
-                ctx.strokeStyle = 'rgba(59, 130, 246, 0.15)';
-                ctx.lineWidth = 1 / camera.scale;
-
-                const viewLeft = -camera.x / camera.scale;
-                const viewRight = (canvas.width - camera.x) / camera.scale;
-                const viewTop = -camera.y / camera.scale;
-                const viewBottom = (canvas.height - camera.y) / camera.scale;
-
-                const step = 5; // Cuadrícula cada 5 metros reales
-                ctx.beginPath();
-                for (let x = Math.floor(viewLeft/step)*step; x < viewRight; x += step) {
-                    ctx.moveTo(x, viewTop); ctx.lineTo(x, viewBottom);
-                }
-                for (let y = Math.floor(viewTop/step)*step; y < viewBottom; y += step) {
-                    ctx.moveTo(viewLeft, y); ctx.lineTo(viewRight, y);
-                }
-                ctx.stroke();
+        // ---------- Ortofoto IDENA (WMS, máxima actualidad) ----------
+        const WMS = 'https://idena.navarra.es/ogc/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=ortofoto_maxima_actualidad&STYLES=&SRS=EPSG:4326&FORMAT=image/jpeg&WIDTH=512&HEIGHT=512&BBOX=';
+        const tileCache = new Map();   // clave: `${m}_${i}_${j}` → {img, ok}
+        const MAX_TILES = 220;
+        let tilesPending = 0;
+        function getTile(m, i, j) {
+            const key = m + '_' + i + '_' + j;
+            let t = tileCache.get(key);
+            if (t) return t;
+            if (tileCache.size > MAX_TILES) { // poda simple de los más antiguos
+                const k = tileCache.keys();
+                for (let n = 0; n < 40; n++) tileCache.delete(k.next().value);
             }
+            const x0 = i * m, y0 = j * m;
+            const bbox = [worldToLon(x0), worldToLat(y0 + m), worldToLon(x0 + m), worldToLat(y0)].join(',');
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            t = { img, ok: false };
+            tilesPending++;
+            img.onload = () => { t.ok = true; tilesPending--; needsDraw = true; };
+            img.onerror = () => { tilesPending--; needsDraw = true; };
+            img.src = WMS + bbox;
+            tileCache.set(key, t);
+            return t;
+        }
+        function drawOrtoLevel(m, view, onlyCached) {
+            const i0 = Math.floor(view[0] / m), i1 = Math.floor(view[2] / m);
+            const j0 = Math.floor(view[1] / m), j1 = Math.floor(view[3] / m);
+            if ((i1 - i0 + 1) * (j1 - j0 + 1) > 48) return; // protección
+            for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
+                const key = m + '_' + i + '_' + j;
+                const t = onlyCached ? tileCache.get(key) : getTile(m, i, j);
+                if (t && t.ok) ctx.drawImage(t.img, i * m, j * m, m, m);
+            }
+        }
+        function drawOrto(view) {
+            let m = Math.pow(2, Math.ceil(Math.log2(384 / cam.s)));
+            m = Math.max(16, Math.min(2048, m));
+            ctx.imageSmoothingEnabled = true;
+            drawOrtoLevel(m * 4, view, true);   // niveles bajos cacheados como fondo
+            drawOrtoLevel(m * 2, view, true);
+            drawOrtoLevel(m, view, false);
+        }
 
+        // ---------- Dibujo de geometría ----------
+        function pathPoly(pts) {
+            ctx.beginPath();
+            ctx.moveTo(pts[0][0], pts[0][1]);
+            for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+            ctx.closePath();
+        }
+        function pathLine(pts) {
+            ctx.beginPath();
+            ctx.moveTo(pts[0][0], pts[0][1]);
+            for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+        }
+        function visible(bb, view, pad = 0) {
+            return bb[2] >= view[0] - pad && bb[0] <= view[2] + pad && bb[3] >= view[1] - pad && bb[1] <= view[3] + pad;
+        }
+
+        function drawAreaTexture(a) {
+            const s = cam.s;
+            ctx.save();
+            pathPoly(a.p); ctx.clip();
+            const [cx, cy] = a.c, rad = Math.max(a.bb[2] - a.bb[0], a.bb[3] - a.bb[1]);
+            if (a.st.tex === 'furrows' && s > 0.8) {
+                ctx.translate(cx, cy); ctx.rotate(a.axis);
+                ctx.strokeStyle = 'rgba(120,95,50,0.10)'; ctx.lineWidth = 0.6;
+                for (let y = -rad; y < rad; y += 7) { ctx.beginPath(); ctx.moveTo(-rad, y); ctx.lineTo(rad, y); ctx.stroke(); }
+            } else if (a.st.tex === 'plots' && s > 1.6) {
+                ctx.translate(cx, cy); ctx.rotate(a.axis);
+                ctx.strokeStyle = 'rgba(90,110,50,0.22)'; ctx.lineWidth = 0.4;
+                for (let y = -rad; y < rad; y += 9) { ctx.beginPath(); ctx.moveTo(-rad, y); ctx.lineTo(rad, y); ctx.stroke(); }
+                for (let x = -rad; x < rad; x += 14) { ctx.beginPath(); ctx.moveTo(x, -rad); ctx.lineTo(x, rad); ctx.stroke(); }
+            } else if (a.st.tex === 'hatch' && s > 1.2) {
+                ctx.strokeStyle = 'rgba(140,120,80,0.18)'; ctx.lineWidth = 0.7;
+                for (let x = a.bb[0] - rad; x < a.bb[2] + rad; x += 8) {
+                    ctx.beginPath(); ctx.moveTo(x, a.bb[1]); ctx.lineTo(x + rad, a.bb[3]); ctx.stroke();
+                }
+            } else if ((a.st.tex === 'forest' || a.st.tex === 'orchard') && s > 1.2) {
+                const rnd = mulberry(a.seed);
+                const n = Math.min(220, Math.round((a.bb[2]-a.bb[0]) * (a.bb[3]-a.bb[1]) / 60));
+                for (let k = 0; k < n; k++) {
+                    const x = a.bb[0] + rnd() * (a.bb[2] - a.bb[0]);
+                    const y = a.bb[1] + rnd() * (a.bb[3] - a.bb[1]);
+                    const r = a.st.tex === 'forest' ? 1.8 + rnd() * 2 : 1.4 + rnd();
+                    ctx.fillStyle = hsl(95 + rnd() * 20, 35, 32 + rnd() * 12, 0.55);
+                    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+                }
+            } else if (a.st.tex === 'cемetery' && s > 2.5) {
+                ctx.strokeStyle = 'rgba(80,90,75,0.5)'; ctx.lineWidth = 0.3;
+                for (let x = a.bb[0] + 4; x < a.bb[2]; x += 6) for (let y = a.bb[1] + 4; y < a.bb[3]; y += 6) {
+                    ctx.beginPath(); ctx.moveTo(x, y - 1); ctx.lineTo(x, y + 1); ctx.moveTo(x - 0.7, y - 0.3); ctx.lineTo(x + 0.7, y - 0.3); ctx.stroke();
+                }
+            } else if (a.st.tex === 'pitch' && s > 0.9) {
+                ctx.translate(cx, cy); ctx.rotate(a.axis);
+                const L = rad * 0.5, W = rad * 0.32;
+                ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 0.5;
+                ctx.strokeRect(-L, -W, L * 2, W * 2);
+                ctx.beginPath(); ctx.moveTo(0, -W); ctx.lineTo(0, W); ctx.stroke();
+                ctx.beginPath(); ctx.arc(0, 0, W * 0.35, 0, 7); ctx.stroke();
+            } else if (a.st.tex === 'pool') {
+                // brillo de agua
+                const g = ctx.createLinearGradient(a.bb[0], a.bb[1], a.bb[2], a.bb[3]);
+                g.addColorStop(0, 'rgba(255,255,255,0.35)'); g.addColorStop(0.5, 'rgba(255,255,255,0)');
+                ctx.fillStyle = g; pathPoly(a.p); ctx.fill();
+                if (s > 5) {
+                    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 0.15;
+                    for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(cx, cy, 0.8 + k * 0.9, 0.3, 2.2); ctx.stroke(); }
+                }
+            } else if (a.st.tex === 'play' && s > 2.5) {
+                const rnd = mulberry(a.seed);
+                ctx.fillStyle = 'rgba(180,90,40,0.5)';
+                for (let k = 0; k < 6; k++) {
+                    ctx.beginPath(); ctx.arc(a.bb[0] + rnd() * (a.bb[2]-a.bb[0]), a.bb[1] + rnd() * (a.bb[3]-a.bb[1]), 0.7, 0, 7); ctx.fill();
+                }
+            }
             ctx.restore();
         }
 
-        // --- CONVERSIÓN DE EVENTOS ---
-        function screenToCanvas(sx, sy) {
-            return {
-                x: (sx - camera.x) / camera.scale,
-                y: (sy - camera.y) / camera.scale
-            };
-        }
-
-        // --- EVENTOS DEL RATÓN ---
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-
-            if (isDragging) {
-                camera.x += (mouseX - lastMouse.x);
-                camera.y += (mouseY - lastMouse.y);
-                draw();
+        function drawRoads(view, overlay) {
+            const s = cam.s;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            // calzada exterior (casing)
+            if (s > 0.6 && !overlay) for (const r of roads) {
+                if (!r.st.case || !visible(r.bb, view, r.st.w)) continue;
+                pathLine(r.p);
+                ctx.strokeStyle = r.st.case;
+                ctx.lineWidth = r.st.w + 1.6;
+                ctx.setLineDash(r.st.dash ? r.st.dash : []);
+                ctx.stroke();
             }
-
-            lastMouse = { x: mouseX, y: mouseY };
-        });
-
-        canvas.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            const rect = canvas.getBoundingClientRect();
-            lastMouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-        });
-
-        canvas.addEventListener('mouseup', () => { isDragging = false; });
-        canvas.addEventListener('mouseleave', () => { isDragging = false; });
-
-        canvas.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-
-            const canvasX = (mouseX - camera.x) / camera.scale;
-            const canvasY = (mouseY - camera.y) / camera.scale;
-
-            const zoomFactor = 1.15;
-            if (e.deltaY < 0) camera.scale *= zoomFactor;
-            else camera.scale /= zoomFactor;
-
-            // Escala (1x = 1 metro por pixel) hasta nivel microscópico si es necesario
-            camera.scale = Math.max(0.2, Math.min(camera.scale, 50));
-
-            camera.x = mouseX - canvasX * camera.scale;
-            camera.y = mouseY - canvasY * camera.scale;
-
-            draw();
-        }, { passive: false });
-
-        // --- GESTIÓN TÁCTIL (MÓVILES Y TABLETS) ---
-        function getPinchDistance(touches) {
-            return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
-        }
-
-        function getPinchCenter(touches) {
-            return {
-                x: (touches[0].clientX + touches[1].clientX) / 2,
-                y: (touches[0].clientY + touches[1].clientY) / 2
-            };
-        }
-
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Evita el scroll nativo
-            const rect = canvas.getBoundingClientRect();
-
-            if (e.touches.length === 1) {
-                isDragging = true;
-                lastMouse = {
-                    x: e.touches[0].clientX - rect.left,
-                    y: e.touches[0].clientY - rect.top
-                };
-            } else if (e.touches.length === 2) {
-                isDragging = false;
-                initialPinchDist = getPinchDistance(e.touches);
+            for (const r of roads) {
+                if (!visible(r.bb, view, r.st.w)) continue;
+                pathLine(r.p);
+                ctx.strokeStyle = overlay ? 'rgba(255,255,160,0.30)' : r.st.fill;
+                ctx.lineWidth = r.st.w;
+                ctx.setLineDash(r.st.dash && !overlay ? r.st.dash : []);
+                ctx.stroke();
             }
-        }, { passive: false });
+            ctx.setLineDash([]);
+        }
 
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-
-            if (e.touches.length === 1 && isDragging) {
-                // Mover con 1 dedo
-                const touchX = e.touches[0].clientX - rect.left;
-                const touchY = e.touches[0].clientY - rect.top;
-
-                camera.x += (touchX - lastMouse.x);
-                camera.y += (touchY - lastMouse.y);
-                lastMouse = { x: touchX, y: touchY };
-
-                draw();
-            } else if (e.touches.length === 2) {
-                // Zoom con 2 dedos
-                const newDist = getPinchDistance(e.touches);
-                const center = getPinchCenter(e.touches);
-                const mouseX = center.x - rect.left;
-                const mouseY = center.y - rect.top;
-
-                if (initialPinchDist) {
-                    const canvasX = (mouseX - camera.x) / camera.scale;
-                    const canvasY = (mouseY - camera.y) / camera.scale;
-
-                    const zoomFactor = newDist / initialPinchDist;
-                    camera.scale *= zoomFactor;
-                    camera.scale = Math.max(0.2, Math.min(camera.scale, 50));
-
-                    camera.x = mouseX - canvasX * camera.scale;
-                    camera.y = mouseY - canvasY * camera.scale;
-
-                    draw();
+        function drawWater(view) {
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            for (const w of D.water) {
+                const isCanal = w.t === 'canal';
+                pathLine(w.p);
+                if (isCanal) {
+                    // riberas vegetadas del Canal de Tauste
+                    ctx.strokeStyle = 'rgba(108,143,79,0.55)'; ctx.lineWidth = 26; ctx.stroke();
+                    pathLine(w.p);
+                    ctx.strokeStyle = '#5d8f86'; ctx.lineWidth = 9; ctx.stroke();
+                    pathLine(w.p);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 2.5; ctx.stroke();
+                } else {
+                    ctx.strokeStyle = '#7fb3c8'; ctx.lineWidth = 2.2; ctx.stroke();
                 }
-                initialPinchDist = newDist;
             }
-        }, { passive: false });
+        }
 
-        canvas.addEventListener('touchend', (e) => {
+        function wallShade(fac, nx, ny) {
+            // luz desde el NO: caras este/sur más oscuras
+            const d = (-0.55 * nx + -0.83 * ny);
+            const l = Math.max(22, fac.l * (0.72 + 0.2 * d));
+            return hsl(fac.h, fac.s, l);
+        }
+
+        // Fachada detallada sobre un muro orientado al sur: ventanas por cada
+        // planta real del catastro, puerta en planta baja y líneas de forjado.
+        const LIFT = 0.62;   // compresión vertical de la extrusión (m de mundo por m reales)
+        function drawFacade(b, ax, ay, bx, by, len, withDoor) {
+            const ux = (bx - ax) / len, uy = (by - ay) / len;
+            const quadAt = (s0, s1, y0, y1) => {
+                ctx.beginPath();
+                ctx.moveTo(ax + ux * s0, ay + uy * s0 - y0 * LIFT);
+                ctx.lineTo(ax + ux * s1, ay + uy * s1 - y0 * LIFT);
+                ctx.lineTo(ax + ux * s1, ay + uy * s1 - y1 * LIFT);
+                ctx.lineTo(ax + ux * s0, ay + uy * s0 - y1 * LIFT);
+                ctx.closePath();
+            };
+            // líneas de forjado entre plantas
+            ctx.strokeStyle = 'rgba(80,60,35,0.25)';
+            ctx.lineWidth = 0.1;
+            for (let k = 1; k < b.floors; k++) {
+                const y = k * 3 * LIFT;
+                ctx.beginPath();
+                ctx.moveTo(ax, ay - y); ctx.lineTo(bx, by - y);
+                ctx.stroke();
+            }
+            // ventanas
+            const n = Math.max(1, Math.floor(len / 3.2));
+            for (let k = 0; k < b.floors; k++) {
+                const y0 = 1.05 + k * 3, y1 = y0 + 1.25;
+                if (y1 > b.h - 0.4) break;
+                for (let i = 0; i < n; i++) {
+                    const sc = (i + 0.5) / n * len;
+                    if (withDoor && k === 0 && Math.abs(sc - len / 2) < 1.1) continue; // hueco de la puerta
+                    quadAt(sc - 0.55, sc + 0.55, y0, y1);
+                    ctx.fillStyle = 'rgba(38,44,58,0.88)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(250,248,240,0.75)';
+                    ctx.lineWidth = 0.09;
+                    ctx.stroke();
+                }
+            }
+            // puerta de entrada
+            if (withDoor && b.h > 3.4) {
+                quadAt(len / 2 - 0.65, len / 2 + 0.65, 0.05, 2.15);
+                ctx.fillStyle = 'rgba(82,52,28,0.95)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(40,24,10,0.8)';
+                ctx.lineWidth = 0.08;
+                ctx.stroke();
+            }
+        }
+
+        function drawBuildings(view, outlineOnly) {
+            const s = cam.s;
+            const lift = s > 0.85 && !outlineOnly;
+            const facadeDetail = s >= 6;
+            for (const b of buildings) {
+                if (!visible(b.bb, view, 8)) continue;
+                const hPx = b.h * LIFT;  // elevación visual desde la altura real
+                const roofPts = lift ? b.p.map(([x, y]) => [x, y - hPx]) : b.p;
+
+                if (outlineOnly) {
+                    pathPoly(b.p);
+                    ctx.strokeStyle = 'rgba(255,220,90,0.85)';
+                    ctx.lineWidth = Math.max(0.25, 1.4 / s);
+                    ctx.stroke();
+                    continue;
+                }
+
+                // muros con color de fachada (encalados, cremas, ladrillo de la Ribera)
+                if (lift) {
+                    let doorIdx = -1, doorScore = 0;
+                    if (facadeDetail) {
+                        for (let i = 1; i < b.p.length; i++) {
+                            const ex = b.p[i][0] - b.p[i-1][0], ey = b.p[i][1] - b.p[i-1][1];
+                            const len = Math.hypot(ex, ey) || 1;
+                            const ny = -ex / len;
+                            const score = ny > 0.25 ? len * ny : 0;
+                            if (score > doorScore) { doorScore = score; doorIdx = i; }
+                        }
+                    }
+                    for (let i = 1; i < b.p.length; i++) {
+                        const ax = b.p[i-1][0], ay = b.p[i-1][1], bx = b.p[i][0], by = b.p[i][1];
+                        const ex = bx - ax, ey = by - ay;
+                        const len = Math.hypot(ex, ey) || 1;
+                        const nx = ey / len, ny = -ex / len;
+                        ctx.fillStyle = wallShade(b.fac, nx, ny);
+                        ctx.beginPath();
+                        ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+                        ctx.lineTo(bx, by - hPx); ctx.lineTo(ax, ay - hPx);
+                        ctx.closePath(); ctx.fill();
+                        // fachada con ventanas/puerta en muros visibles (cara sur)
+                        if (facadeDetail && ny > 0.25 && len > 2.6 && b.t !== 'industrial' && b.style !== 'ribbed') {
+                            drawFacade(b, ax, ay, bx, by, len, i === doorIdx && (b.hn || b.t === 'house'));
+                        }
+                    }
+                }
+
+                // tejado: color real muestreado de la ortofoto si ya está disponible
+                pathPoly(roofPts);
+                ctx.fillStyle = b.real || hsl(b.roof.h, b.roof.s, b.roof.l);
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(60,35,15,0.35)';
+                ctx.lineWidth = Math.max(0.18, 0.8 / s);
+                ctx.stroke();
+
+                // detalle de cubierta a dos aguas / naves / texturas
+                if (s > 1.8 && b.style !== 'flat' && b.r > 2.5) {
+                    const cy2 = b.c[1] - (lift ? hPx : 0);
+                    ctx.save();
+                    pathPoly(roofPts); ctx.clip();
+                    ctx.translate(b.c[0], cy2); ctx.rotate(b.axis);
+                    const rr = b.r + 2;
+                    if (b.style === 'gable' || b.style === 'church') {
+                        // dos aguas: mitad iluminada / mitad en sombra + cumbrera
+                        ctx.fillStyle = 'rgba(255,255,255,0.16)';
+                        ctx.fillRect(-rr, -rr, rr * 2, rr);
+                        ctx.fillStyle = 'rgba(60,25,5,0.13)';
+                        ctx.fillRect(-rr, 0, rr * 2, rr);
+                        ctx.strokeStyle = 'rgba(255,235,200,0.55)';
+                        ctx.lineWidth = 0.28;
+                        ctx.beginPath(); ctx.moveTo(-rr, 0); ctx.lineTo(rr, 0); ctx.stroke();
+                        if (s > 5) { // hiladas de teja
+                            ctx.strokeStyle = 'rgba(60,25,5,0.10)'; ctx.lineWidth = 0.12;
+                            for (let y = 0.9; y < rr; y += 0.9) {
+                                ctx.beginPath(); ctx.moveTo(-rr, y); ctx.lineTo(rr, y); ctx.stroke();
+                                ctx.beginPath(); ctx.moveTo(-rr, -y); ctx.lineTo(rr, -y); ctx.stroke();
+                            }
+                        }
+                        if (s > 9) { // canales de teja
+                            ctx.strokeStyle = 'rgba(60,25,5,0.07)'; ctx.lineWidth = 0.1;
+                            for (let x = -rr; x < rr; x += 0.55) {
+                                ctx.beginPath(); ctx.moveTo(x, -rr); ctx.lineTo(x, rr); ctx.stroke();
+                            }
+                        }
+                    } else if (b.style === 'ribbed' && s > 2.5) {
+                        // chapa de nave industrial
+                        ctx.strokeStyle = 'rgba(50,60,70,0.16)'; ctx.lineWidth = 0.18;
+                        for (let y = -rr; y < rr; y += 1.4) {
+                            ctx.beginPath(); ctx.moveTo(-rr, y); ctx.lineTo(rr, y); ctx.stroke();
+                        }
+                    }
+                    ctx.restore();
+                    if (b.style === 'church' && s > 2) {
+                        // cruz sobre la iglesia
+                        ctx.strokeStyle = '#fff8e8'; ctx.lineWidth = 0.5;
+                        const cx = b.c[0], cyy = cy2;
+                        ctx.beginPath(); ctx.moveTo(cx, cyy - 3.2); ctx.lineTo(cx, cyy + 1.4);
+                        ctx.moveTo(cx - 1.4, cyy - 1.8); ctx.lineTo(cx + 1.4, cyy - 1.8); ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function drawParcels(view, overlay) {
+            if (cam.s < 3 && !overlay) return;
+            ctx.strokeStyle = overlay ? 'rgba(255,235,140,0.55)' : 'rgba(125,108,80,0.4)';
+            ctx.lineWidth = Math.max(0.1, (overlay ? 1.1 : 0.8) / cam.s);
+            for (const p of parcels) {
+                if (!visible(p.bb, view)) continue;
+                pathPoly(p.p);
+                ctx.stroke();
+            }
+        }
+
+        function drawTreesAndStreet(view) {
+            const s = cam.s;
+            // árboles reales del callejero
+            for (const [x, y] of D.trees) {
+                if (x < view[0] - 6 || x > view[2] + 6 || y < view[1] - 6 || y > view[3] + 6) continue;
+                const rnd = mulberry((x * 10 + y) >>> 0);
+                const r = 2.1 + rnd() * 1.3;
+                ctx.fillStyle = 'rgba(40,30,10,0.16)';
+                ctx.beginPath(); ctx.ellipse(x + 1.1, y + 1.3, r, r * 0.6, 0, 0, 7); ctx.fill();
+                const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 0.4, x, y, r);
+                g.addColorStop(0, hsl(95 + rnd() * 14, 42, 48));
+                g.addColorStop(1, hsl(100 + rnd() * 14, 40, 30));
+                ctx.fillStyle = g;
+                ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+            }
+            if (s > 5) {
+                // bancos del pueblo
+                ctx.fillStyle = '#7a4f28';
+                for (const [x, y] of D.benches) {
+                    if (x < view[0] || x > view[2] || y < view[1] || y > view[3]) continue;
+                    ctx.fillRect(x - 0.8, y - 0.25, 1.6, 0.5);
+                }
+            }
+        }
+
+        // ---------- Etiquetas (espacio de pantalla) ----------
+        const placed = [];
+        function collide(x, y, w, h) {
+            for (const r of placed) {
+                if (x < r[0] + r[2] && x + w > r[0] && y < r[1] + r[3] && y + h > r[1]) return true;
+            }
+            placed.push([x, y, w, h]);
+            return false;
+        }
+        const toSX = x => x * cam.s + cam.x;
+        const toSY = y => y * cam.s + cam.y;
+
+        function drawRoadNames(view) {
+            if (cam.s < 1.6) return;
+            ctx.font = `600 ${Math.min(15, 8 + cam.s)}px system-ui, sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            for (const r of roads) {
+                if (!r.n || !visible(r.bb, view, 10)) continue;
+                // tramo más largo de la vía para colocar el rótulo
+                let bi = 0, bl = 0, acc = 0;
+                const segs = [];
+                for (let i = 1; i < r.p.length; i++) {
+                    const l = Math.hypot(r.p[i][0] - r.p[i-1][0], r.p[i][1] - r.p[i-1][1]);
+                    segs.push(l); acc += l;
+                    if (l > bl) { bl = l; bi = i; }
+                }
+                if (acc * cam.s < r.n.length * 9) continue;
+                const ax = (r.p[bi-1][0] + r.p[bi][0]) / 2, ay = (r.p[bi-1][1] + r.p[bi][1]) / 2;
+                let ang = Math.atan2(r.p[bi][1] - r.p[bi-1][1], r.p[bi][0] - r.p[bi-1][0]);
+                if (ang > Math.PI / 2) ang -= Math.PI;
+                if (ang < -Math.PI / 2) ang += Math.PI;
+                const sx = toSX(ax), sy = toSY(ay);
+                const w = r.n.length * 7;
+                if (collide(sx - w / 2, sy - 8, w, 16)) continue;
+                ctx.save();
+                ctx.translate(sx, sy); ctx.rotate(ang);
+                ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 3;
+                ctx.strokeText(r.n, 0, 0);
+                ctx.fillStyle = '#4b4234';
+                ctx.fillText(r.n, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        function drawPois() {
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            const sorted = [...pois].sort((a, b) => a.pr - b.pr);
+            for (const p of sorted) {
+                if (cam.s < p.minS) continue;
+                const sx = toSX(p.x), sy = toSY(p.y);
+                if (sx < -60 || sx > canvas.width / dpr + 60 || sy < -30 || sy > canvas.height / dpr + 30) continue;
+                const short = p.n.length > 34 ? p.n.slice(0, 32) + '…' : p.n;
+                const w = short.length * 6.4 + 22;
+                if (collide(sx - w / 2, sy - 30, w, 34)) continue;
+                ctx.font = '15px system-ui';
+                ctx.fillText(p.i, sx, sy - 2);
+                ctx.font = '600 11px system-ui, sans-serif';
+                ctx.strokeStyle = 'rgba(255,253,245,0.9)'; ctx.lineWidth = 3.5;
+                ctx.strokeText(short, sx, sy - 18);
+                ctx.fillStyle = '#3a2f1c';
+                ctx.fillText(short, sx, sy - 18);
+            }
+        }
+
+        function drawHouseNumbers(view) {
+            if (cam.s < 7) return;
+            ctx.font = `700 ${Math.min(11, cam.s * 1.1)}px system-ui, sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            for (const b of buildings) {
+                if (!b.hn || !visible(b.bb, view)) continue;
+                const sx = toSX(b.c[0]), sy = toSY(b.c[1] - b.h * 0.55);
+                ctx.strokeStyle = 'rgba(255,250,235,0.85)'; ctx.lineWidth = 2.5;
+                ctx.strokeText(b.hn, sx, sy);
+                ctx.fillStyle = 'rgba(75,55,30,0.95)';
+                ctx.fillText(b.hn, sx, sy);
+            }
+        }
+
+        // ---------- Render principal ----------
+        function draw() {
+            const w = canvas.width / dpr, h = canvas.height / dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.fillStyle = mode === 'orto' ? '#3a3a32' : '#ddd3b8';
+            ctx.fillRect(0, 0, w, h);
+
+            const view = [(0 - cam.x) / cam.s, (0 - cam.y) / cam.s, (w - cam.x) / cam.s, (h - cam.y) / cam.s];
+
+            if (mode === 'orto') {
+                // fondo neutro con aviso mientras llegan las teselas IDENA
+                ctx.fillStyle = '#6b6a5e';
+                ctx.fillRect(0, 0, w, h);
+            }
+
+            ctx.save();
+            ctx.translate(cam.x, cam.y);
+            ctx.scale(cam.s, cam.s);
+
+            if (mode === 'orto' || mode === 'mixto') {
+                drawOrto(view);
+            }
+            if (mode === 'plano') {
+                for (const a of areas) {
+                    if (!visible(a.bb, view)) continue;
+                    pathPoly(a.p);
+                    ctx.fillStyle = a.st.fill;
+                    ctx.fill();
+                    if (a.st.tex) drawAreaTexture(a);
+                }
+                drawWater(view);
+                drawRoads(view, false);
+                drawParcels(view, false);
+                drawBuildings(view, false);
+                drawTreesAndStreet(view);
+            } else if (mode === 'mixto') {
+                drawRoads(view, true);
+                drawParcels(view, true);
+                drawBuildings(view, true);
+            }
+            ctx.restore();
+
+            // etiquetas en espacio de pantalla
+            placed.length = 0;
+            if (mode !== 'orto') drawHouseNumbers(view);
+            drawRoadNames(view);
+            drawPois();
+
+            if (mode !== 'plano' && tilesPending > 0) {
+                ctx.font = '600 12px system-ui, sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                const msg = '⏳ Cargando ortofoto IDENA…';
+                ctx.fillStyle = 'rgba(20,18,10,0.65)';
+                const tw = ctx.measureText(msg).width + 24;
+                ctx.beginPath(); ctx.roundRect(w / 2 - tw / 2, h - 64, tw, 28, 14); ctx.fill();
+                ctx.fillStyle = '#ffeec0';
+                ctx.fillText(msg, w / 2, h - 50);
+                needsDraw = true; // seguir refrescando hasta completar
+            }
+
+            updateScalebar();
+        }
+
+        function updateScalebar() {
+            const targets = [10, 20, 50, 100, 200, 500, 1000];
+            let best = targets[0];
+            for (const t of targets) if (t * cam.s <= 140) best = t;
+            document.getElementById('scale-label').textContent = best >= 1000 ? (best / 1000) + ' km' : best + ' m';
+            document.getElementById('scale-bar').style.width = (best * cam.s) + 'px';
+        }
+
+        // ---------- Interacción ----------
+        function clampCam() {
+            const w = canvas.width / dpr, h = canvas.height / dpr;
+            const cx = (w / 2 - cam.x) / cam.s, cy = (h / 2 - cam.y) / cam.s;
+            const nx = Math.max(-760, Math.min(760, cx)), ny = Math.max(-660, Math.min(620, cy));
+            cam.x = w / 2 - nx * cam.s;
+            cam.y = h / 2 - ny * cam.s;
+        }
+        function zoomAt(sx, sy, f) {
+            const wx = (sx - cam.x) / cam.s, wy = (sy - cam.y) / cam.s;
+            cam.s = Math.max(MIN_S, Math.min(MAX_S, cam.s * f));
+            cam.x = sx - wx * cam.s;
+            cam.y = sy - wy * cam.s;
+            clampCam();
+            needsDraw = true;
+        }
+        function homeView() {
+            const w = canvas.width / dpr, h = canvas.height / dpr;
+            // encuadre del casco urbano completo
+            const bx0 = -640, by0 = -420, bx1 = 640, by1 = 300;
+            cam.s = Math.max(MIN_S, Math.min(2.2, Math.min(w / (bx1 - bx0), h / (by1 - by0)) * 0.94));
+            cam.x = w / 2 - (bx0 + bx1) / 2 * cam.s;
+            cam.y = h / 2 - (by0 + by1) / 2 * cam.s;
+            needsDraw = true;
+        }
+
+        let dragging = false, lastP = null, pinchD = null, moved = false;
+        canvas.addEventListener('pointerdown', e => {
+            dragging = true; moved = false;
+            lastP = { x: e.clientX, y: e.clientY };
+            canvas.classList.add('dragging');
+            canvas.setPointerCapture(e.pointerId);
+        });
+        canvas.addEventListener('pointermove', e => {
+            if (!dragging || !lastP) return;
+            const dx = e.clientX - lastP.x, dy = e.clientY - lastP.y;
+            if (Math.abs(dx) + Math.abs(dy) > 3) { moved = true; infoPop.style.display = 'none'; }
+            cam.x += dx; cam.y += dy;
+            lastP = { x: e.clientX, y: e.clientY };
+            clampCam();
+            needsDraw = true;
+        });
+        canvas.addEventListener('pointerup', e => {
+            dragging = false;
+            canvas.classList.remove('dragging');
+            if (!moved) handleTap(e.clientX, e.clientY);
+        });
+        canvas.addEventListener('pointercancel', () => { dragging = false; canvas.classList.remove('dragging'); });
+
+        canvas.addEventListener('wheel', e => {
             e.preventDefault();
-            if (e.touches.length < 2) {
-                initialPinchDist = null;
-            }
-            if (e.touches.length === 1) {
-                const rect = canvas.getBoundingClientRect();
-                lastMouse = {
-                    x: e.touches[0].clientX - rect.left,
-                    y: e.touches[0].clientY - rect.top
-                };
-                isDragging = true;
-            } else if (e.touches.length === 0) {
-                isDragging = false;
-            }
+            zoomAt(e.clientX, e.clientY, e.deltaY < 0 ? 1.18 : 1 / 1.18);
         }, { passive: false });
 
-        canvas.addEventListener('touchcancel', () => {
-            isDragging = false;
-            initialPinchDist = null;
+        // pellizco táctil
+        canvas.addEventListener('touchstart', e => {
+            if (e.touches.length === 2) {
+                dragging = false;
+                pinchD = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+            }
+        }, { passive: true });
+        canvas.addEventListener('touchmove', e => {
+            if (e.touches.length === 2 && pinchD) {
+                e.preventDefault();
+                const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                zoomAt(cx, cy, d / pinchD);
+                pinchD = d;
+            }
+        }, { passive: false });
+        canvas.addEventListener('touchend', e => { if (e.touches.length < 2) pinchD = null; }, { passive: true });
+
+        function handleTap(sx, sy) {
+            // identificar edificio y parcela catastral bajo el cursor
+            const wx = (sx - cam.x) / cam.s, wy = (sy - cam.y) / cam.s;
+            let found = null, parcel = null;
+            for (const b of buildings) {
+                if (wx < b.bb[0] - 1 || wx > b.bb[2] + 1 || wy < b.bb[1] - 1 || wy > b.bb[3] + 1) continue;
+                if (pointInPoly(wx, wy, b.p)) found = b;
+            }
+            for (const p of parcels) {
+                if (wx < p.bb[0] || wx > p.bb[2] || wy < p.bb[1] || wy > p.bb[3]) continue;
+                if (pointInPoly(wx, wy, p.p)) { parcel = p; break; }
+            }
+            if ((found || parcel) && cam.s > 1.2) {
+                const tipo = found ? ({ house: 'Vivienda', industrial: 'Nave / industria', church: 'Iglesia', school: 'Colegio', farm_auxiliary: 'Edificación agrícola', ruins: 'Ruinas', roof: 'Cubierta', yes: 'Edificio' }[found.t] || 'Edificio') : 'Parcela';
+                let html = `<b>${(found && found.n) || tipo}</b>`;
+                const lines = [];
+                if (found) {
+                    if (found.n) lines.push(tipo);
+                    lines.push(`${found.floors} ${found.floors === 1 ? 'planta' : 'plantas'}${found.e ? ' (' + found.e + ')' : ''} · ${found.h} m de altura`);
+                    if (found.hn) lines.push('Portal nº ' + found.hn);
+                }
+                if (parcel) {
+                    lines.push(`Parcela ${parcel.pa} · Polígono ${parcel.po}`);
+                    html += `<span>${lines.join('<br>')}</span>` +
+                        `<a href="https://catastro.navarra.es/ref_catastral/unidades.aspx?C=62&PO=${parcel.po}&PA=${parcel.pa}" target="_blank" rel="noopener">Ficha del Catastro de Navarra ↗</a>`;
+                } else {
+                    html += `<span>${lines.join('<br>')}</span>`;
+                }
+                infoPop.innerHTML = html;
+                infoPop.style.display = 'block';
+                infoPop.style.left = Math.min(sx + 12, window.innerWidth - 260) + 'px';
+                infoPop.style.top = (sy - 10) + 'px';
+                clearTimeout(infoPop._t);
+                infoPop._t = setTimeout(() => infoPop.style.display = 'none', 6500);
+            } else {
+                infoPop.style.display = 'none';
+            }
+        }
+
+        // ---------- Tejados con su color real ----------
+        // Muestrea la ortofoto IDENA (CORS abierto) sobre un lienzo a 1 m/px y
+        // asigna a cada edificio el color medio real de su cubierta.
+        async function sampleRealRoofs() {
+            try {
+                const M = 512, I0 = -2, J0 = -2, N = 4;     // 4×4 teselas de 512 m cubren el casco
+                const off = document.createElement('canvas');
+                off.width = M * N; off.height = M * N;
+                const octx = off.getContext('2d', { willReadFrequently: true });
+                await Promise.all(Array.from({ length: N * N }, (_, k) => new Promise(res => {
+                    const i = I0 + (k % N), j = J0 + Math.floor(k / N);
+                    const x0 = i * M, y0 = j * M;
+                    const bbox = [worldToLon(x0), worldToLat(y0 + M), worldToLon(x0 + M), worldToLat(y0)].join(',');
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => { octx.drawImage(img, (i - I0) * M, (j - J0) * M, M, M); res(); };
+                    img.onerror = res;
+                    img.src = WMS + bbox;
+                })));
+                const data = octx.getImageData(0, 0, M * N, M * N).data;
+                const offX = -I0 * M, offY = -J0 * M;
+                for (const b of buildings) {
+                    let r = 0, g = 0, bl = 0, n = 0;
+                    const x0 = Math.max(0, Math.floor(b.bb[0] + offX)), x1 = Math.min(M * N - 1, Math.ceil(b.bb[2] + offX));
+                    const y0 = Math.max(0, Math.floor(b.bb[1] + offY)), y1 = Math.min(M * N - 1, Math.ceil(b.bb[3] + offY));
+                    const step = Math.max(1, Math.floor((x1 - x0) / 14));
+                    for (let y = y0; y <= y1; y += step) for (let x = x0; x <= x1; x += step) {
+                        // erosión: el píxel y su entorno deben caer dentro de la cubierta,
+                        // para no mezclar calle ni sombras del borde
+                        const px = x - offX + 0.5, py = y - offY + 0.5;
+                        if (!pointInPoly(px, py, b.p) ||
+                            !pointInPoly(px - 0.9, py, b.p) || !pointInPoly(px + 0.9, py, b.p) ||
+                            !pointInPoly(px, py - 0.9, b.p) || !pointInPoly(px, py + 0.9, b.p)) continue;
+                        const k = (y * M * N + x) * 4;
+                        if (data[k + 3] < 200) continue;     // tesela no cargada
+                        r += data[k]; g += data[k + 1]; bl += data[k + 2]; n++;
+                    }
+                    if (n >= 3) {
+                        // saturación y luz extra para compensar la neblina de la ortofoto
+                        const mr = r / n, mg = g / n, mb = bl / n;
+                        const avg = (mr + mg + mb) / 3;
+                        const boost = c => Math.max(0, Math.min(255, (avg + (c - avg) * 1.55) * 1.12));
+                        b.real = `rgb(${boost(mr) | 0},${boost(mg) | 0},${boost(mb) | 0})`;
+                    }
+                }
+                needsDraw = true;
+            } catch (e) {
+                // sin red o lienzo contaminado: se mantienen los colores procedurales
+                console.warn('Muestreo de ortofoto no disponible:', e);
+            }
+        }
+        setTimeout(sampleRealRoofs, 1500);
+
+        document.getElementById('zoom-in').onclick = () => zoomAt(canvas.width / dpr / 2, canvas.height / dpr / 2, 1.45);
+        document.getElementById('zoom-out').onclick = () => zoomAt(canvas.width / dpr / 2, canvas.height / dpr / 2, 1 / 1.45);
+        document.getElementById('zoom-home').onclick = homeView;
+
+        document.getElementById('layer-switch').addEventListener('click', e => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            mode = btn.dataset.mode;
+            document.querySelectorAll('#layer-switch button').forEach(b => b.classList.toggle('active', b === btn));
+            needsDraw = true;
         });
 
-        // Iniciar
+        // ---------- Arranque ----------
+        function resize() {
+            dpr = Math.min(2, window.devicePixelRatio || 1);
+            canvas.width = window.innerWidth * dpr;
+            canvas.height = window.innerHeight * dpr;
+            canvas.style.width = window.innerWidth + 'px';
+            canvas.style.height = window.innerHeight + 'px';
+            needsDraw = true;
+        }
         window.addEventListener('resize', resize);
-        cargarMapaReal();
+        resize();
+        homeView();
 
+        (function loop() {
+            if (needsDraw) { needsDraw = false; draw(); }
+            requestAnimationFrame(loop);
+        })();
+
+        const loading = document.getElementById('loading');
+        setTimeout(() => { loading.style.opacity = '0'; setTimeout(() => loading.remove(), 450); }, 350);
+    })();
     </script>
 </body>
 </html>
