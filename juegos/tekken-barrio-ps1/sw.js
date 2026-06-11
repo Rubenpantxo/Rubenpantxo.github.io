@@ -3,7 +3,7 @@
    PWA con cache offline
    ============================================ */
 
-const CACHE_NAME = 'tekken-barrio-v1.1';
+const CACHE_NAME = 'tekken-barrio-v1.2';
 const ASSETS = [
   './',
   './index.html',
@@ -24,6 +24,7 @@ const ASSETS = [
   './js/touch.js',
   './js/particles.js',
   './js/characters.js',
+  './js/fighter-renderer.js',
   './js/scene-manager.js',
   './js/main.js',
   './scenes/loading.js',
