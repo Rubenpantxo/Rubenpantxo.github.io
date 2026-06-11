@@ -222,18 +222,58 @@
         .pn-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* ============================================
+           JENGA DE LA PORTADA
+           ============================================ */
+        #jenga-home {
+            max-width: 720px; margin: 3.5rem auto 1rem;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 10px; position: relative;
+        }
+        body.section-open #jenga-home { display: none; }
+        #jenga-home .jenga-hint {
+            font-family: 'Kalam', cursive, sans-serif; font-size: 1.05rem;
+            color: #5b5244; text-align: center;
+        }
+        #jenga-canvas { touch-action: none; display: block; max-width: 100%; }
+        #jenga-status { font-size: 0.95rem; color: #4b4234; }
+        #jenga-reset {
+            background: #8a5a2c; color: #ffeec9; border: none; border-radius: 10px;
+            padding: 8px 22px; font-size: 0.95rem; cursor: pointer; font-weight: 600;
+            box-shadow: 0 3px 10px rgba(90,55,15,0.3); transition: transform 0.15s, background 0.2s;
+        }
+        #jenga-reset:hover { background: #a06a34; transform: translateY(-1px); }
+        #jenga-over {
+            position: absolute; inset: 0; display: none;
+            align-items: center; justify-content: center; flex-direction: column; gap: 8px;
+            background: rgba(255,250,238,0.82); backdrop-filter: blur(3px);
+            border-radius: 18px; text-align: center; z-index: 4;
+        }
+        #jenga-over.show { display: flex; }
+        #jenga-over h3 { font-family: 'Kalam', cursive; font-size: 2rem; color: #b04020; }
+        #jenga-over p { color: #5b5244; font-size: 1.05rem; }
+        #jenga-over button {
+            background: #2d2418; color: #ffe9b8; border: none; border-radius: 10px;
+            padding: 10px 26px; font-size: 1rem; cursor: pointer; font-weight: 700;
+        }
+
+        /* ============================================
            ZONA PRIVADA - AUTENTICACIÓN
            ============================================ */
-        #auth-btn {
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            right: 80px;
-            padding: 0;
-            width: 100px;
-            height: 100px;
+        .private-app { position: relative; }
+        .app-lock {
+            position: absolute; top: -8px; right: -8px;
+            width: 30px; height: 30px; border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.45);
+            z-index: 5; pointer-events: none;
+            transition: background 0.3s, transform 0.3s;
         }
-        #auth-btn img { width: 100px; height: 100px; object-fit: contain; display: block; }
+        body.privada-abierta .app-lock {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            box-shadow: 0 2px 8px rgba(34,197,94,0.45);
+        }
 
         .auth-modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 2000;
@@ -285,7 +325,6 @@
             
             <div id="contact-toggle" class="corner-icon flex items-center justify-center">?</div>
             <div id="back-arrow" class="corner-icon flex items-center justify-center icon-hidden">↩</div>
-            <div id="auth-btn" class="corner-icon flex items-center justify-center" title="Zona Privada"><img src="img/User_not_Log.png" alt="No conectado"></div>
 
             <div id="social-links" class="absolute top-20 right-8 mt-2 flex flex-col items-center gap-4 social-hidden">
                 <a href="https://www.instagram.com/rubenpantxo/" target="_blank" rel="noopener" class="text-3xl text-pink-600 hover:scale-110 transition-transform"><i class="fab fa-instagram"></i></a>
@@ -306,9 +345,21 @@
             </div>
             <div class="nav-item text-xl p-4 rounded-lg" data-section="servicios">
                 <span class="typewriter-text">Servicios</span>
-                <span class="sv-nav-badge">nuevo</span>
             </div>
         </nav>
+
+        <!-- JENGA: torre de madera interactiva para amenizar la portada -->
+        <section id="jenga-home" aria-label="Juego de Jenga">
+            <p class="jenga-hint">🪵 ¿Buen pulso? Arrastra un bloque para sacarlo… sin tirar la torre</p>
+            <canvas id="jenga-canvas"></canvas>
+            <div id="jenga-status"></div>
+            <button id="jenga-reset">Reconstruir torre</button>
+            <div id="jenga-over">
+                <h3>💥 ¡Torre caída!</h3>
+                <p id="jenga-over-score"></p>
+                <button id="jenga-over-btn">Jugar otra vez</button>
+            </div>
+        </section>
 
         <main id="content-container" class="mt-16">
 
@@ -558,26 +609,6 @@
                     </article>
                     </a>
 
-                    <a href="apps/gueb_y_jitjub.html" class="block">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
-                        <div class="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center text-3xl">🌐</div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Güeb y Jitjub</h3>
-                            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">Web</span>
-                        </div>
-                    </article>
-                    </a>
-
-                    <a href="apps/arbol-genealogico/index.html" class="block">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
-                        <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center text-3xl">🌳</div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Árbol Genealógico</h3>
-                            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Familia</span>
-                        </div>
-                    </article>
-                    </a>
-
                     <a href="apps/format-explorer.html" class="block">
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center text-3xl">📁</div>
@@ -598,7 +629,7 @@
                     </article>
                     </a>
 
-                    <a href="apps/alumbrado-pro/alumbrado.html" class="block private-app hidden">
+                    <a href="apps/alumbrado-pro/alumbrado.html" class="block private-app"><span class="app-lock">🔒</span>
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-yellow-50 rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 shadow-sm p-1">
                             <img src="apps/alumbrado-pro/assets/icons/On_farola_logo.png" alt="Alumbrado" class="w-full h-full object-contain">
@@ -610,7 +641,7 @@
                     </article>
                     </a>
 
-                    <a href="apps/biblioteca/index_biblio.html" class="block private-app hidden">
+                    <a href="apps/biblioteca/index_biblio.html" class="block private-app"><span class="app-lock">🔒</span>
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center text-3xl">📚</div>
                         <div>
@@ -620,7 +651,7 @@
                     </article>
                     </a>
 
-                    <a href="apps/instagram-downloader/index_insta_down.html" class="block private-app hidden">
+                    <a href="apps/instagram-downloader/index_insta_down.html" class="block private-app"><span class="app-lock">🔒</span>
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-pink-50 rounded-lg flex items-center justify-center text-3xl">📥</div>
                         <div>
@@ -630,7 +661,7 @@
                     </article>
                     </a>
 
-                    <a href="apps/resource-hub/app_recursos.html" class="block private-app hidden">
+                    <a href="apps/resource-hub/app_recursos.html" class="block private-app"><span class="app-lock">🔒</span>
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center text-3xl">🗂️</div>
                         <div>
@@ -640,7 +671,7 @@
                     </article>
                     </a>
 
-                    <a href="https://github.com/Rubenpantxo/rubenpantxo-garden" target="_blank" rel="noopener noreferrer" class="block private-app hidden">
+                    <a href="https://github.com/Rubenpantxo/rubenpantxo-garden" target="_blank" rel="noopener noreferrer" class="block private-app"><span class="app-lock">🔒</span>
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 shadow-sm p-1">
                             <img src="apps/rubenpantxo-garden/assets/icons/logo.png" alt="Garden Manager" class="w-full h-full object-contain">
@@ -686,24 +717,6 @@
                         </div>
                     </article>
                     </a>
-                    <a href="juegos/bardenas-patrol/index.html" class="block">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
-                        <div class="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center text-3xl">🚙</div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Bardenas Reales 4x4</h3>
-                            <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Mundo 3D</span>
-                        </div>
-                    </article>
-                    </a>
-                    <a href="juegos/flappy-bardenas.html" class="block">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
-                        <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center text-3xl">🌵</div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Flappy Bardenas</h3>
-                            <span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">Arcade</span>
-                        </div>
-                    </article>
-                    </a>
                     <a href="juegos/tekken-barrio-ps1/index.html" class="block">
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center text-3xl">🥊</div>
@@ -713,7 +726,7 @@
                         </div>
                     </article>
                     </a>
-                    <a href="juegos/granja/granja.html" class="block private-app hidden">
+                    <a href="juegos/granja/granja.html" class="block private-app"><span class="app-lock">🔒</span>
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center text-3xl">🌾</div>
                         <div>
@@ -1681,8 +1694,8 @@
     <div id="auth-modal" class="auth-modal-overlay hidden">
         <div class="auth-modal-box">
             <button class="auth-modal-close" id="auth-modal-close" title="Cerrar">✕</button>
-            <h2>🔐 Zona Privada</h2>
-            <p class="auth-modal-subtitle">Introduce la contraseña para acceder</p>
+            <h2>🔐 Aplicación privada</h2>
+            <p class="auth-modal-subtitle">Introduce la contraseña para abrir esta aplicación</p>
             <input type="password" id="auth-password-input" class="auth-input" placeholder="Contraseña..." autocomplete="current-password">
             <button id="auth-submit-btn" class="auth-btn-submit">Entrar</button>
             <p id="auth-error-msg" class="auth-error">Contraseña incorrecta ❌</p>
@@ -1922,7 +1935,6 @@
             const PASSWORD_HASH = '07aec214ed14010f3b309e4f70f01cbc13693d5b94f29417be473bdbeb620e5f';
             const AUTH_SESSION_KEY = 'pantxo-zona-privada-auth';
 
-            const authBtn = document.getElementById('auth-btn');
             const authModal = document.getElementById('auth-modal');
             const authModalClose = document.getElementById('auth-modal-close');
             const authPasswordInput = document.getElementById('auth-password-input');
@@ -1940,17 +1952,16 @@
                 return sessionStorage.getItem(AUTH_SESSION_KEY) === 'true';
             }
 
+            // Enlace privado pendiente de abrir tras introducir la contraseña
+            let pendingPrivateLink = null;
+
             function updateAuthUI() {
-                if (isAuthenticated()) {
-                    authBtn.innerHTML = '<img src="img/User_Loged.png" alt="Conectado">';
-                    authBtn.classList.add('logged-in');
-                    document.querySelectorAll('.private-app').forEach(el => el.classList.remove('hidden'));
-                } else {
-                    authBtn.innerHTML = '<img src="img/User_not_Log.png" alt="No conectado">';
-                    authBtn.classList.remove('logged-in');
-                    socialLinks.classList.add('social-hidden');
-                    document.querySelectorAll('.private-app').forEach(el => el.classList.add('hidden'));
-                }
+                const logged = isAuthenticated();
+                document.body.classList.toggle('privada-abierta', logged);
+                document.querySelectorAll('.private-app .app-lock').forEach(el => {
+                    el.textContent = logged ? '🔓' : '🔒';
+                });
+                if (!logged) socialLinks.classList.add('social-hidden');
             }
 
             function openAuthModal() {
@@ -1964,15 +1975,17 @@
                 authModal.classList.add('hidden');
                 authErrorMsg.classList.remove('visible');
                 authPasswordInput.value = '';
+                pendingPrivateLink = null;
             }
 
-            authBtn.addEventListener('click', () => {
-                if (isAuthenticated()) {
-                    sessionStorage.removeItem(AUTH_SESSION_KEY);
-                    updateAuthUI();
-                } else {
+            // Las apps privadas se ven siempre, pero piden contraseña al entrar
+            document.querySelectorAll('.private-app').forEach(link => {
+                link.addEventListener('click', e => {
+                    if (isAuthenticated()) return; // acceso libre si ya se validó
+                    e.preventDefault();
+                    pendingPrivateLink = { href: link.href, newTab: link.target === '_blank' };
                     openAuthModal();
-                }
+                });
             });
 
             authModalClose.addEventListener('click', closeAuthModal);
@@ -1984,8 +1997,13 @@
                 const hash = await sha256(password);
                 if (hash === PASSWORD_HASH) {
                     sessionStorage.setItem(AUTH_SESSION_KEY, 'true');
+                    const dest = pendingPrivateLink;
                     closeAuthModal();
                     updateAuthUI();
+                    if (dest) {
+                        if (dest.newTab) window.open(dest.href, '_blank', 'noopener');
+                        else window.location.href = dest.href;
+                    }
                 } else {
                     authErrorMsg.classList.add('visible');
                     authPasswordInput.value = '';
@@ -2048,5 +2066,6 @@
         });
     </script>
     <script src="js/servicios.js" defer></script>
+    <script src="js/jenga.js" defer></script>
 </body>
 </html>
