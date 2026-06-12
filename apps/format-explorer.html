@@ -3,367 +3,284 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Format Explorer · Atelier Sienna</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Format Explorer 95</title>
 <style>
-/* === ATELIER SIENNA — see DESIGN.md === */
+/* ============================================================
+   FORMAT EXPLORER 95 — Windows 95 aesthetic + modern CSS
+   ============================================================ */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  /* Surfaces */
-  --bg-0:#FBF7EF;          /* limestone page */
-  --bg-1:#F5EFE3;          /* surface-raised: sidebar / app strip / center */
-  --bg-2:#FFFFFF;          /* paper card */
-  --bg-3:#EFE8D9;          /* surface-sunken: inputs, table heads, chips */
-  --bg-4:#E8DFC8;
-  --bg-card:#FFFFFF;
-  --bg-card-h:#FCF9F3;
-  --bg-glass:rgba(251,247,239,.92); /* matte, not glass */
-  /* Ink */
-  --tx-0:#1A1816;          /* primary ink */
-  --tx-1:#2E2A25;          /* body */
-  --tx-2:#5C5750;          /* secondary */
-  --tx-3:#7C7468;          /* muted */
-  --tx-4:#A89E8C;          /* faint */
-  /* Borders */
-  --bd:#E5DCC8;
-  --bd-h:#CFC2A4;
-  --bd-acc:#CFC2A4;
-  /* Accents — sienna is the only interaction color.
-     The "c-*" variable names are kept for back-compat with existing JSX
-     references; their values are now warm-palette equivalents. */
-  --c-cyan:#B0432A;        /* PRIMARY → Boston Clay (sienna) */
-  --c-purple:#6B4076;      /* plum */
-  --c-pink:#D26244;        /* coral */
-  --c-green:#5D7339;       /* sage */
-  --c-amber:#C8901C;       /* saffron */
-  --c-red:#8C2A30;         /* wine */
-  --c-blue:#3F6F9A;        /* sky */
-  --c-orange:#D26244;      /* coral (alias) */
-  --c-brown:#7E5634;       /* earth */
-  --c-lime:#476939;        /* moss */
-  /* Tints — used for soft-ink backgrounds (focus rings, chips) */
-  --gl-cyan:rgba(176,67,42,.10);
-  --gl-purple:rgba(107,64,118,.09);
-  --gl-green:rgba(93,115,57,.10);
-  --gl-amber:rgba(200,144,28,.12);
-  /* Shadows — warm, paper-physical */
-  --shadow-1:0 1px 0 rgba(26,24,22,.04),0 1px 2px rgba(26,24,22,.06);
-  --shadow-2:0 4px 14px rgba(26,24,22,.09),0 1px 2px rgba(26,24,22,.05);
-  --shadow-3:0 24px 50px rgba(26,24,22,.18),0 6px 14px rgba(26,24,22,.08);
-  /* Accent fill — solid sienna (kept var name for back-compat) */
-  --grad-acc:#B0432A;
-  --grad-soft:linear-gradient(135deg,rgba(176,67,42,.06),rgba(176,67,42,.02));
-  --ease:cubic-bezier(.4,0,.2,1);--ease-bounce:cubic-bezier(.34,1.56,.64,1);
+  --w95-face:#c0c0c0;
+  --w95-face-h:#cdcdcd;
+  --w95-shadow:#808080;
+  --w95-dkshadow:#0a0a0a;
+  --w95-light:#dfdfdf;
+  --w95-hilight:#ffffff;
+  --w95-title-a:#000080;
+  --w95-title-b:#1084d0;
+  --w95-title-inact-a:#808080;
+  --w95-title-inact-b:#b5b5b5;
+  --w95-desktop:#008080;
+  --w95-sel:#000080;
+  --w95-sel-tx:#ffffff;
+  --w95-tx:#000000;
+  --w95-disabled:#808080;
+  --w95-paper:#ffffff;
+  --f-ui:'Tahoma','MS Sans Serif','Segoe UI',sans-serif;
+  --f-mono:'Courier New',monospace;
+  --ease:cubic-bezier(.2,.8,.3,1);
 }
 html,body{height:100%;overflow:hidden}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-0);color:var(--tx-1);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+body{
+  font:11px/1.45 var(--f-ui);color:var(--w95-tx);
   background:
-    radial-gradient(ellipse 60% 40% at 8% 4%,rgba(176,67,42,.025),transparent 65%),
-    radial-gradient(ellipse 50% 60% at 92% 96%,rgba(126,86,52,.03),transparent 70%);
+    radial-gradient(ellipse 90% 70% at 50% 30%,rgba(255,255,255,.07),transparent 70%),
+    repeating-conic-gradient(rgba(0,0,0,.025) 0% 25%,transparent 0% 50%) 0 0/4px 4px,
+    var(--w95-desktop);
+  user-select:none;
 }
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:radial-gradient(rgba(26,24,22,.05) 1px,transparent 1px);
-  background-size:3px 3px;opacity:.35;
-  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 35%,transparent 80%);
-}
-#app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column}
-
-/* === HEADER === */
-.hdr{display:flex;align-items:center;gap:18px;padding:14px 24px;border-bottom:1px solid var(--bd);background:var(--bg-glass);flex-shrink:0;position:relative;z-index:20}
-.hdr::after{content:'';position:absolute;left:24px;right:24px;bottom:-1px;height:2px;background:var(--c-cyan);opacity:.5;border-radius:2px;width:42px}
-.brand{display:flex;align-items:center;gap:13px}
-.brand-mark{width:42px;height:42px;border-radius:8px;background:var(--bg-0);display:grid;place-items:center;font:600 18px/1 'Fraunces',serif;color:var(--c-cyan);letter-spacing:-.04em;border:1.5px solid var(--c-cyan);box-shadow:inset 0 -2px 0 var(--c-cyan)}
-.brand-tx h1{font:600 20px/1.05 'Fraunces',serif;letter-spacing:-.025em;color:var(--tx-0)}
-.brand-tx p{font:600 9px/1 'Inter',sans-serif;color:var(--tx-3);letter-spacing:.18em;text-transform:uppercase;margin-top:5px}
-
-.search{position:relative;flex:1;max-width:540px;margin:0 auto}
-.search input{width:100%;padding:11px 50px 11px 42px;background:var(--bg-3);border:1px solid transparent;border-radius:6px;color:var(--tx-0);font:400 14px/1 'Inter';outline:none;transition:all .25s var(--ease)}
-.search input:focus{border-color:var(--c-cyan);background:var(--bg-2);box-shadow:0 0 0 3px var(--gl-cyan)}
-.search input::placeholder{color:var(--tx-3)}
-.search-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--tx-3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;transition:stroke .25s}
-.search input:focus~.search-ic{stroke:var(--c-cyan)}
-.search-kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font:600 10px/1 'JetBrains Mono',monospace;color:var(--tx-3);background:var(--bg-2);padding:4px 7px;border-radius:4px;border:1px solid var(--bd);pointer-events:none}
-
-.hdr-actions{display:flex;align-items:center;gap:8px}
-.hdr-btn{height:38px;padding:0 14px;border-radius:6px;background:transparent;border:1px solid var(--bd);color:var(--tx-1);font:500 12px/1 'Inter';cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s var(--ease);outline:none}
-.hdr-btn:hover{background:var(--bg-3);border-color:var(--bd-h);color:var(--tx-0)}
-.hdr-btn:focus-visible{box-shadow:0 0 0 3px var(--gl-cyan);border-color:var(--c-cyan)}
-.hdr-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.hdr-btn.icon-only{width:38px;padding:0;justify-content:center}
-.hdr-btn.primary{background:var(--c-cyan);color:#FFFFFF;border-color:var(--c-cyan);font-weight:600;box-shadow:var(--shadow-1)}
-.hdr-btn.primary:hover{background:#92341E;border-color:#92341E;color:#FFFFFF;transform:translateY(-1px);box-shadow:var(--shadow-2)}
-
-/* === BODY LAYOUT === */
-.body{flex:1;display:flex;overflow:hidden;min-height:0}
-
-/* === SIDEBAR === */
-.side{width:236px;min-width:236px;background:var(--bg-1);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden}
-.side-h{padding:20px 18px 10px;display:flex;align-items:center;justify-content:space-between}
-.side-h-tx{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);letter-spacing:.16em;text-transform:uppercase}
-.side-h-ct{font:600 11px/1 'JetBrains Mono',monospace;color:var(--tx-2);background:var(--bg-2);padding:3px 8px;border-radius:4px;border:1px solid var(--bd)}
-.side-list{flex:1;overflow-y:auto;padding:0 10px 8px}
-.cat{display:flex;align-items:center;gap:11px;padding:9px 11px;cursor:pointer;border-radius:6px;position:relative;transition:all .18s var(--ease);margin-bottom:1px;border:1px solid transparent}
-.cat:hover{background:var(--bg-2)}
-.cat.active{background:var(--bg-2);border-color:var(--bd);box-shadow:inset 3px 0 0 var(--cat-cl,var(--c-cyan)),var(--shadow-1)}
-.cat.active .cat-name{color:var(--tx-0);font-weight:600}
-.cat-ico{width:28px;height:28px;border-radius:5px;display:grid;place-items:center;font-size:14px;flex-shrink:0;background:color-mix(in srgb,var(--cat-cl,var(--c-cyan)) 14%,var(--bg-2));border:1px solid color-mix(in srgb,var(--cat-cl,var(--c-cyan)) 28%,var(--bd));transition:all .2s var(--ease)}
-.cat:hover .cat-ico{transform:scale(1.04)}
-.cat-name{flex:1;font:500 13px/1.2 'Inter';color:var(--tx-1);transition:color .2s}
-.cat-count{font:600 10px/1 'JetBrains Mono',monospace;color:var(--tx-3);min-width:24px;text-align:right}
-.cat-info{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;background:var(--bg-3);border:1px solid var(--bd);color:var(--tx-3);cursor:pointer;font:700 9px/1 'Inter',sans-serif;display:none;align-items:center;justify-content:center;transition:all .2s}
-.cat:hover .cat-info{display:flex}
-.cat-info:hover{background:var(--cat-cl,var(--c-cyan));color:#FFFFFF;border-color:var(--cat-cl,var(--c-cyan));transform:translateY(-50%) scale(1.1)}
-
-.side-foot{padding:12px 14px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:6px;background:var(--bg-1)}
-.side-stat{display:flex;justify-content:space-between;align-items:center;font:500 11px/1 'Inter',sans-serif;color:var(--tx-3)}
-.side-stat strong{color:var(--tx-0);font-weight:600;font-family:'JetBrains Mono',monospace}
-
-/* === CENTER === */
-.center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg-0)}
-.cnt-h{padding:18px 26px;display:flex;align-items:flex-end;gap:16px;border-bottom:1px solid var(--bd);background:var(--bg-0);flex-shrink:0}
-.cnt-title{font:600 26px/1.05 'Fraunces',serif;color:var(--tx-0);letter-spacing:-.02em}
-.cnt-title small{display:block;font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);letter-spacing:.16em;text-transform:uppercase;margin-top:8px;font-weight:600}
-.cnt-h-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
-.chip{padding:6px 12px;border-radius:999px;background:var(--bg-3);border:1px solid var(--bd);color:var(--tx-2);font:500 11px/1 'Inter';display:flex;align-items:center;gap:6px;transition:all .2s}
-.chip strong{color:var(--tx-0);font-weight:700;font-family:'JetBrains Mono',monospace}
-
-/* === EXTENSION GRID === */
-.cnt-body{flex:1;overflow-y:auto;padding:20px 26px 12px;scrollbar-gutter:stable}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:10px}
-.ext{position:relative;padding:13px 6px;text-align:center;font:600 12.5px/1 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.04em;color:var(--tx-1);background:var(--bg-card);border:1px solid var(--bd);border-radius:6px;cursor:pointer;overflow:hidden;transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .18s,color .18s,background .2s;animation:fade-up .22s var(--ease) both;outline:none;box-shadow:var(--shadow-1)}
-.ext::before{content:'';position:absolute;inset:0;background:var(--grad-soft);opacity:0;transition:opacity .25s;pointer-events:none}
-.ext span{position:relative;z-index:1}
-.ext-pop{position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--tx-4);opacity:.5}
-.ext-pop.high{background:var(--c-amber);opacity:1}
-.ext:hover{transform:translateY(-2px);box-shadow:var(--shadow-2);border-color:var(--bd-h);color:var(--tx-0)}
-.ext:hover::before{opacity:.6}
-.ext:focus-visible{box-shadow:0 0 0 3px var(--gl-cyan);border-color:var(--c-cyan)}
-.ext.sel{border-color:var(--c-cyan);color:var(--c-cyan);background:#FFFFFF;box-shadow:0 0 0 1.5px var(--c-cyan),var(--shadow-2)}
-.ext.hl{border-color:var(--app-cl,var(--c-cyan));color:var(--app-cl,var(--c-cyan));background:color-mix(in srgb,var(--app-cl,var(--c-cyan)) 7%,var(--bg-card));box-shadow:0 0 0 1px color-mix(in srgb,var(--app-cl,var(--c-cyan)) 60%,transparent),var(--shadow-1)}
-.ext.dim{opacity:.36;filter:saturate(.5)}
-@keyframes fade-up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
-.cnt-body-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:var(--tx-3);text-align:center}
-.cnt-body-empty svg{width:48px;height:48px;margin-bottom:14px;stroke:var(--tx-4);fill:none;stroke-width:1.5}
-.cnt-body-empty h3{font:600 19px/1.3 'Fraunces',serif;color:var(--tx-1);margin-bottom:6px;letter-spacing:-.015em}
-.cnt-body-empty p{font:400 13px/1.55 'Inter';max-width:360px;color:var(--tx-2)}
-
-/* === APP STRIP === */
-.app-strip{border-top:1px solid var(--bd);background:var(--bg-1);flex-shrink:0;display:flex;flex-direction:column}
-.app-strip-h{padding:12px 26px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--bd)}
-.app-strip-h-l{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);letter-spacing:.16em;text-transform:uppercase}
-.app-search{position:relative;width:220px}
-.app-search input{width:100%;padding:7px 12px 7px 30px;background:var(--bg-2);border:1px solid var(--bd);border-radius:5px;color:var(--tx-1);font:400 12px/1 'Inter';outline:none;transition:all .2s}
-.app-search input:focus{border-color:var(--c-cyan);box-shadow:0 0 0 2px var(--gl-cyan)}
-.app-search svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--tx-3);fill:none;stroke-width:2;pointer-events:none}
-.app-strip-h-r{margin-left:auto;display:flex;align-items:center;gap:6px}
-.app-mini-btn{width:28px;height:28px;border-radius:5px;background:var(--bg-2);border:1px dashed var(--bd-h);color:var(--tx-2);cursor:pointer;display:grid;place-items:center;font-size:14px;transition:all .2s var(--ease);outline:none}
-.app-mini-btn:hover{border-color:var(--c-cyan);border-style:solid;color:var(--c-cyan);background:var(--gl-cyan)}
-.app-mini-btn:focus-visible{box-shadow:0 0 0 2px var(--gl-cyan)}
-.app-mini-btn.ghost:hover{transform:none}
-.app-list{display:flex;gap:8px;padding:12px 26px;overflow-x:auto;scrollbar-width:none}
-.app-list::-webkit-scrollbar{display:none}
-.app-card{position:relative;flex-shrink:0;display:flex;align-items:center;gap:9px;padding:8px 14px 8px 12px;border-radius:6px;background:var(--bg-2);border:1px solid var(--bd);cursor:pointer;overflow:hidden;transition:all .2s var(--ease);outline:none;min-width:114px;box-shadow:var(--shadow-1)}
-.app-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--app-cl);opacity:0;transition:opacity .25s}
-.app-card:hover{transform:translateY(-1px);border-color:var(--bd-h);box-shadow:var(--shadow-2)}
-.app-card:hover::before{opacity:.45}
-.app-card:focus-visible{box-shadow:0 0 0 2px var(--gl-cyan);border-color:var(--c-cyan)}
-.app-card.act{border-color:var(--app-cl);background:color-mix(in srgb,var(--app-cl) 4%,var(--bg-2));box-shadow:0 0 0 1px var(--app-cl),var(--shadow-1)}
-.app-card.act::before{opacity:1}
-.app-card.act .app-name{color:var(--app-cl);font-weight:600}
-.app-dot{width:8px;height:8px;border-radius:50%;background:var(--app-cl);flex-shrink:0;position:relative;z-index:1}
-.app-name{font:500 13px/1 'Inter';color:var(--tx-1);position:relative;z-index:1;white-space:nowrap;transition:color .2s}
-.app-cov{font:600 9px/1 'JetBrains Mono',monospace;color:var(--tx-3);position:relative;z-index:1;background:var(--bg-3);padding:2px 5px;border-radius:3px;letter-spacing:.04em}
-.app-card.act .app-cov{color:var(--app-cl);background:color-mix(in srgb,var(--app-cl) 15%,var(--bg-3))}
-.app-card-rm{position:absolute;top:3px;right:3px;width:14px;height:14px;border-radius:50%;background:var(--bg-3);border:none;color:var(--tx-3);font:700 9px/1 'Inter',sans-serif;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:2}
-.app-card:hover .app-card-rm{display:flex}
-.app-card-rm:hover{background:var(--c-red);color:#FFFFFF}
-
-/* === RIGHT INFO PANEL === */
-.info{width:0;min-width:0;overflow:hidden;background:var(--bg-0);border-left:1px solid var(--bd);transition:width .35s var(--ease),min-width .35s var(--ease);display:flex;flex-direction:column}
-.info.open{width:400px;min-width:400px}
-.info-inner{flex:1;overflow-y:auto;padding:0 0 18px}
-.info-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:var(--bg-2);border:1px solid var(--bd);color:var(--tx-3);cursor:pointer;display:grid;place-items:center;font-size:14px;z-index:5;transition:all .2s;outline:none}
-.info-close:hover{border-color:var(--c-red);color:var(--c-red);background:#FFFFFF}
-.info-hero{position:relative;padding:26px 24px 20px;margin:16px 16px 0;border-radius:10px;background:var(--bg-2);border:1px solid var(--bd);overflow:hidden;box-shadow:var(--shadow-1)}
-.info-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cat-cl,var(--c-cyan))}
-.info-hero::after{display:none}
-.info-ext{font:600 44px/1 'Fraunces',serif;color:var(--cat-cl,var(--c-cyan));margin-bottom:8px;letter-spacing:-.04em;font-variation-settings:"opsz" 144}
-.info-cat{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.18em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.info-cat-dot{width:7px;height:7px;border-radius:50%;background:var(--cat-cl,var(--c-cyan))}
-.info-name{font:600 19px/1.25 'Fraunces',serif;color:var(--tx-0);margin-bottom:10px;letter-spacing:-.018em}
-.info-desc{font:400 13.5px/1.6 'Inter';color:var(--tx-1);margin-bottom:8px}
-.info-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}
-.info-tag{font:600 9.5px/1 'Inter',sans-serif;color:var(--tx-2);background:var(--bg-3);border:1px solid var(--bd);padding:4px 8px;border-radius:3px;letter-spacing:.1em;text-transform:uppercase}
-.info-tag.acc{color:#FFFFFF;border-color:var(--c-cyan);background:var(--c-cyan)}
-.info-tag.warn{color:#7A5A0F;border-color:#E8C97D;background:#FBEFD4}
-.info-tag.dead{color:#7A2226;border-color:#E1B5B7;background:#F4D9D9}
-
-.info-pop{margin-top:18px;display:flex;align-items:center;gap:10px}
-.info-pop-l{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.14em}
-.info-pop-bar{flex:1;height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden;position:relative}
-.info-pop-bar-fill{height:100%;background:var(--cat-cl,var(--c-cyan));border-radius:2px;transition:width .6s var(--ease)}
-.info-pop-v{font:600 11px/1 'JetBrains Mono',monospace;color:var(--tx-0);min-width:30px;text-align:right}
-
-.info-meta{margin:16px;padding:0;background:var(--bg-2);border:1px solid var(--bd);border-radius:8px;overflow:hidden;box-shadow:var(--shadow-1)}
-.meta-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--bd);transition:background .15s}
-.meta-row:last-child{border-bottom:none}
-.meta-row:hover{background:var(--bg-card-h)}
-.meta-k{font:600 10px/1.2 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.14em}
-.meta-v{font:500 12px/1.3 'JetBrains Mono',monospace;color:var(--tx-0);text-align:right;max-width:60%}
-.meta-v.mono-sm{font-size:11px}
-
-.info-rec{margin:16px;padding:16px 18px;border-radius:8px;background:var(--bg-2);border:1px solid var(--bd);border-left:3px solid var(--c-green);position:relative;overflow:hidden;cursor:pointer;transition:all .2s var(--ease);box-shadow:var(--shadow-1)}
-.info-rec:hover{border-color:var(--c-green);border-left-color:var(--c-green);transform:translateY(-1px);box-shadow:var(--shadow-2)}
-.info-rec-l{font:700 9.5px/1 'Inter',sans-serif;color:var(--c-green);text-transform:uppercase;letter-spacing:.18em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.info-rec-name{font:600 17px/1.2 'Fraunces',serif;color:var(--tx-0);margin-bottom:6px;display:flex;align-items:center;gap:9px;letter-spacing:-.015em}
-.info-rec-name .ad{width:9px;height:9px;border-radius:50%;background:var(--app-cl)}
-.info-rec-reason{font:400 12px/1.5 'Inter';color:var(--tx-2)}
-
-.info-section{margin:0 16px 16px}
-.info-section-h{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.info-section-h::before{content:'';width:3px;height:11px;background:var(--cat-cl,var(--c-cyan));border-radius:1.5px}
-.app-comp-list{display:flex;flex-direction:column;gap:4px}
-.app-comp-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;background:var(--bg-2);border:1px solid var(--bd);cursor:pointer;transition:all .18s;outline:none;box-shadow:var(--shadow-1)}
-.app-comp-item:hover{border-color:var(--bd-h);transform:translateX(2px);background:#FFFFFF;box-shadow:var(--shadow-2)}
-.app-comp-item:focus-visible{box-shadow:0 0 0 2px var(--gl-cyan);border-color:var(--c-cyan)}
-.app-comp-item .ad{width:8px;height:8px;border-radius:50%;background:var(--app-cl);flex-shrink:0}
-.app-comp-name{font:500 13px/1 'Inter';color:var(--tx-0);flex:1}
-.app-comp-tag{font:600 9px/1 'Inter',sans-serif;background:var(--bg-3);padding:3px 7px;border-radius:3px;color:var(--tx-2);text-transform:uppercase;letter-spacing:.1em}
-
-.alt-list{display:flex;flex-direction:column;gap:4px}
-.alt-item{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:5px;background:#FBEFD4;border:1px solid #E8C97D;font:400 12px/1.2 'Inter';color:#5C4505}
-.alt-item::before{content:'★';color:var(--c-amber);font-size:11px}
-
-.related-list{display:flex;flex-wrap:wrap;gap:5px}
-.related-pill{padding:5px 10px;font:600 10.5px/1 'JetBrains Mono',monospace;background:var(--bg-3);border:1px solid var(--bd);border-radius:4px;cursor:pointer;color:var(--tx-1);transition:all .18s;outline:none;letter-spacing:.04em}
-.related-pill:hover{border-color:var(--c-cyan);color:var(--c-cyan);background:#FFFFFF;transform:translateY(-1px)}
-
-/* === MODAL === */
-.overlay{position:fixed;inset:0;background:rgba(26,24,22,.45);z-index:300;display:flex;align-items:center;justify-content:center;animation:fade-in .2s var(--ease);padding:24px}
-@keyframes fade-in{from{opacity:0}to{opacity:1}}
-.modal{background:var(--bg-0);border:1px solid var(--bd);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-3);animation:modal-in .3s var(--ease-bounce);max-height:88vh}
-@keyframes modal-in{from{transform:translateY(20px) scale(.97);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-.modal-h{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--bg-2)}
-.modal-t{font:600 19px/1.2 'Fraunces',serif;display:flex;align-items:center;gap:10px;letter-spacing:-.018em;color:var(--tx-0)}
-.modal-t small{font:600 11px/1 'Inter',sans-serif;color:var(--tx-3);font-weight:600;letter-spacing:.14em;text-transform:uppercase}
-.modal-c{width:30px;height:30px;border-radius:50%;border:1px solid var(--bd);background:transparent;color:var(--tx-2);cursor:pointer;font-size:14px;display:grid;place-items:center;transition:all .18s;outline:none}
-.modal-c:hover{border-color:var(--c-red);color:var(--c-red);background:#FFFFFF}
-.modal-b{flex:1;overflow:auto;min-height:0;background:var(--bg-0)}
-
-/* Comparison Table */
-.cmp-modal{width:96%;max-width:1140px}
-.cmp-toolbar{padding:14px 24px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--bd);background:var(--bg-1);flex-wrap:wrap}
-.cmp-search{flex:1;min-width:160px;max-width:280px;position:relative}
-.cmp-search input{width:100%;padding:8px 12px 8px 30px;background:var(--bg-2);border:1px solid var(--bd);border-radius:5px;color:var(--tx-0);font:400 12px/1 'Inter';outline:none}
-.cmp-search input:focus{border-color:var(--c-cyan);box-shadow:0 0 0 2px var(--gl-cyan)}
-.cmp-search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;stroke:var(--tx-3);fill:none;stroke-width:2}
-.cmp-stat{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.14em;display:flex;align-items:center;gap:8px}
-.cmp-stat strong{color:var(--tx-0);font-family:'JetBrains Mono',monospace}
-.tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;background:var(--bg-2)}
-.tbl th{padding:12px 16px;text-align:left;background:var(--bg-3);color:var(--tx-2);font:600 10px/1.1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.14em;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:1;white-space:nowrap}
-.tbl td{padding:10px 16px;border-bottom:1px solid var(--bd);color:var(--tx-1);font:400 12.5px/1.4 'Inter';vertical-align:middle}
-.tbl td:first-child{font:700 12px/1 'JetBrains Mono',monospace;color:var(--tx-0);white-space:nowrap;letter-spacing:.04em}
-.tbl tr:hover td{background:var(--bg-card-h)}
-.tbl tr.subhead td{background:var(--bg-3);color:var(--cat-cl,var(--c-cyan))!important;font:700 10px/1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.18em;padding:10px 16px;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)}
-.tbl tr.subhead td::before{content:'◆  '}
-.tbl-cell-y{color:var(--c-green)!important;font-weight:600}
-.tbl-cell-n{color:var(--c-red)!important;opacity:.65}
-.tbl-cell-mut{color:var(--tx-3)!important}
-
-/* Add app modal */
-.add-modal{width:520px;max-width:96%;max-height:88vh}
-.add-body{padding:24px;overflow-y:auto;flex:1;background:var(--bg-2)}
-.field{margin-bottom:18px}
-.field-l{display:block;font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.14em;margin-bottom:9px}
-.field-input{width:100%;padding:10px 14px;background:var(--bg-3);border:1px solid var(--bd);border-radius:5px;color:var(--tx-0);font:400 14px 'Inter';outline:none;transition:all .2s}
-.field-input:focus{border-color:var(--c-cyan);background:#FFFFFF;box-shadow:0 0 0 3px var(--gl-cyan)}
-.swatches{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}
-.swatch{aspect-ratio:1;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .18s var(--ease);outline:none;box-shadow:var(--shadow-1)}
-.swatch:hover{transform:scale(1.15)}
-.swatch:focus-visible{box-shadow:0 0 0 2px var(--c-cyan)}
-.swatch.sel{border-color:var(--bg-2);box-shadow:0 0 0 2px currentColor,var(--shadow-1)}
-.fmt-grid{display:flex;flex-wrap:wrap;gap:5px;max-height:220px;overflow-y:auto;padding:8px;border:1px solid var(--bd);background:var(--bg-3);border-radius:6px}
-.fmt-pill{padding:5px 10px;font:600 10px/1 'JetBrains Mono',monospace;text-transform:uppercase;background:var(--bg-2);border:1px solid var(--bd);border-radius:4px;cursor:pointer;color:var(--tx-2);transition:all .14s;outline:none;letter-spacing:.04em}
-.fmt-pill:hover{border-color:var(--bd-h);color:var(--tx-0);background:#FFFFFF}
-.fmt-pill:focus-visible{box-shadow:0 0 0 2px var(--gl-cyan);border-color:var(--c-cyan)}
-.fmt-pill.sel{border-color:var(--c-cyan);color:#FFFFFF;background:var(--c-cyan);box-shadow:var(--shadow-1)}
-.fmt-bulk{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
-.fmt-bulk-btn{padding:5px 11px;font:600 10px/1 'Inter',sans-serif;text-transform:uppercase;background:var(--bg-2);border:1px solid var(--bd);border-radius:4px;cursor:pointer;color:var(--tx-2);transition:all .15s;outline:none;letter-spacing:.1em}
-.fmt-bulk-btn:hover{border-color:var(--c-cyan);color:var(--c-cyan);background:#FFFFFF}
-.modal-foot{padding:16px 24px;display:flex;gap:10px;border-top:1px solid var(--bd);background:var(--bg-1);justify-content:flex-end}
-.btn{padding:10px 20px;border-radius:6px;font:600 13px/1 'Inter';cursor:pointer;border:1px solid transparent;transition:all .2s var(--ease);outline:none}
-.btn:focus-visible{box-shadow:0 0 0 3px var(--gl-cyan)}
-.btn-primary{background:var(--c-cyan);color:#FFFFFF;border-color:var(--c-cyan);box-shadow:var(--shadow-1)}
-.btn-primary:hover{background:#92341E;border-color:#92341E;transform:translateY(-1px);box-shadow:var(--shadow-2)}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-.btn-ghost{background:transparent;border-color:var(--bd);color:var(--tx-1)}
-.btn-ghost:hover{background:var(--bg-3);border-color:var(--bd-h);color:var(--tx-0)}
-
-/* Stats Dashboard */
-.stats-modal{width:880px;max-width:96%;max-height:88vh}
-.stats-body{padding:24px;overflow-y:auto;flex:1;display:grid;grid-template-columns:1fr 1fr;gap:18px;background:var(--bg-0)}
-.stats-card{background:var(--bg-2);border:1px solid var(--bd);border-radius:10px;padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow-1)}
-.stats-card.full{grid-column:1/-1}
-.stats-card-h{font:600 10px/1 'Inter',sans-serif;color:var(--tx-3);text-transform:uppercase;letter-spacing:.18em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.stats-card-h::before{content:'';width:3px;height:11px;background:var(--c-cyan);border-radius:1.5px}
-.stats-big{display:flex;align-items:baseline;gap:9px;margin-bottom:8px}
-.stats-big-n{font:600 42px/1 'Fraunces',serif;color:var(--c-cyan);letter-spacing:-.04em;font-variation-settings:"opsz" 144}
-.stats-big-l{font:500 12px/1 'Inter';color:var(--tx-3)}
-.stats-bar{height:6px;background:var(--bg-3);border-radius:3px;overflow:hidden;position:relative;margin:6px 0}
-.stats-bar-fill{height:100%;border-radius:3px;transition:width .8s var(--ease)}
-.stats-row{display:grid;grid-template-columns:96px 1fr 52px;gap:12px;align-items:center;padding:7px 0;font:500 11.5px/1.2 'Inter';color:var(--tx-1)}
-.stats-row .stats-bar{margin:0;flex:1}
-.stats-row strong{color:var(--tx-0);font-weight:600;text-align:right;font:600 11px/1 'JetBrains Mono',monospace}
-.stats-row-name{display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stats-row-name .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
-/* Tooltip */
-.tooltip{position:fixed;background:var(--tx-0);border:1px solid var(--tx-0);border-radius:5px;padding:7px 11px;font:500 11.5px/1.4 'Inter';color:var(--bg-0);box-shadow:var(--shadow-2);z-index:500;pointer-events:none;max-width:260px;animation:tt-in .15s var(--ease) both}
-@keyframes tt-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-
-/* Toast */
-.toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:400;display:flex;flex-direction:column;gap:8px}
-.toast{background:var(--bg-2);border:1px solid var(--bd);border-left:3px solid var(--c-green);border-radius:6px;padding:11px 18px;color:var(--tx-1);font:500 12.5px/1.4 'Inter';box-shadow:var(--shadow-3);animation:toast-in .3s var(--ease-bounce);min-width:240px;max-width:380px}
-.toast.err{border-left-color:var(--c-red)}
-.toast.warn{border-left-color:var(--c-amber)}
-@keyframes toast-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* Drag overlay */
-.drop-overlay{position:fixed;inset:0;background:rgba(176,67,42,.06);z-index:600;display:flex;align-items:center;justify-content:center;border:3px dashed var(--c-cyan);pointer-events:none;animation:fade-in .2s}
-.drop-card{background:var(--bg-2);border:1.5px solid var(--c-cyan);border-radius:14px;padding:40px 52px;text-align:center;box-shadow:var(--shadow-3)}
-.drop-card svg{width:48px;height:48px;stroke:var(--c-cyan);fill:none;stroke-width:1.5;margin-bottom:16px}
-.drop-card h2{font:600 26px/1 'Fraunces',serif;color:var(--tx-0);margin-bottom:6px;letter-spacing:-.02em}
-.drop-card p{font:400 13.5px/1.5 'Inter';color:var(--tx-2)}
-
-/* Scrollbars */
-::-webkit-scrollbar{width:8px;height:8px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--bd-h);border-radius:4px;border:2px solid transparent;background-clip:padding-box}
-::-webkit-scrollbar-thumb:hover{background:var(--tx-3);background-clip:padding-box;border:2px solid transparent}
-
-/* Selection */
-::selection{background:color-mix(in srgb,var(--c-cyan) 28%,transparent);color:var(--tx-0)}
-
-/* Responsive */
-@media (max-width:1100px){.info.open{width:340px;min-width:340px}.side{width:200px;min-width:200px}}
-@media (max-width:880px){.side{display:none}.search{max-width:none}.brand-tx{display:none}.info.open{width:300px;min-width:300px}}
+/* ---------- 3D bevels ---------- */
+.raised{background:var(--w95-face);
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-light),
+             inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-hilight)}
+.sunken{background:var(--w95-paper);
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
+             inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow)}
+.groove{box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
+        inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-hilight)}
+/* ---------- Buttons ---------- */
+.btn95{display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  min-width:74px;padding:4px 12px;font:11px var(--f-ui);color:var(--w95-tx);
+  background:var(--w95-face);border:none;cursor:pointer;outline:none;position:relative;
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-hilight),
+             inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-light);
+  transition:background .15s var(--ease)}
+.btn95:hover{background:var(--w95-face-h)}
+.btn95:active,.btn95.pressed{
+  box-shadow:inset 1px 1px 0 var(--w95-dkshadow),inset -1px -1px 0 var(--w95-hilight),
+             inset 2px 2px 0 var(--w95-shadow),inset -2px -2px 0 var(--w95-light);
+  padding:5px 11px 3px 13px}
+.btn95:focus-visible{outline:1px dotted #000;outline-offset:-5px}
+.btn95.small{min-width:0;padding:2px 8px}
+/* ---------- Desktop icons ---------- */
+#desktop{position:fixed;inset:0 0 30px 0;overflow:hidden}
+.dicon{position:absolute;width:84px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;padding:6px 2px;border:1px dotted transparent;transition:transform .18s var(--ease)}
+.dicon:hover{transform:translateY(-2px)}
+.dicon:hover .dicon-img{filter:drop-shadow(0 4px 6px rgba(0,0,0,.45)) brightness(1.06)}
+.dicon.sel{border-color:rgba(255,255,255,.7)}
+.dicon.sel .dicon-lbl{background:var(--w95-sel);color:#fff}
+.dicon-img{width:48px;height:48px;image-rendering:pixelated;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));transition:filter .18s var(--ease)}
+.dicon-lbl{font:11px var(--f-ui);color:#fff;text-align:center;padding:1px 4px;text-shadow:1px 1px 1px #000;line-height:1.25}
+/* ---------- Windows ---------- */
+.win{position:absolute;display:flex;flex-direction:column;min-width:280px;min-height:120px;
+  background:var(--w95-face);
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-light),
+             inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-hilight),
+             6px 8px 22px rgba(0,0,0,.38);
+  padding:3px;animation:win-open .22s var(--ease) both}
+@keyframes win-open{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.win.closing{animation:win-close .16s var(--ease) both}
+@keyframes win-close{to{opacity:0;transform:scale(.94) translateY(6px)}}
+.win.minimized{display:none}
+.tbar{display:flex;align-items:center;gap:5px;height:22px;padding:0 3px 0 5px;flex-shrink:0;cursor:default;
+  background:linear-gradient(90deg,var(--w95-title-a),var(--w95-title-b));color:#fff}
+.win.inactive>.tbar{background:linear-gradient(90deg,var(--w95-title-inact-a),var(--w95-title-inact-b))}
+.tbar-ico{width:14px;height:14px;image-rendering:pixelated}
+.tbar-tx{flex:1;font:bold 11px var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px}
+.tbar-btns{display:flex;gap:2px}
+.tbtn{width:16px;height:14px;display:grid;place-items:center;background:var(--w95-face);border:none;cursor:pointer;
+  font:bold 9px 'Marlett',var(--f-ui);color:#000;
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-hilight),
+             inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-light)}
+.tbtn:active{box-shadow:inset 1px 1px 0 var(--w95-dkshadow),inset -1px -1px 0 var(--w95-hilight)}
+.tbtn svg{width:8px;height:8px;display:block}
+.win-body{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.menubar{display:flex;gap:2px;padding:1px 2px;flex-shrink:0}
+.menubar span{padding:2px 7px;cursor:default}
+.menubar span:hover{background:var(--w95-sel);color:#fff}
+.statusbar{display:flex;gap:3px;padding:2px 2px 1px;flex-shrink:0}
+.status-cell{flex:1;padding:2px 8px;font:11px var(--f-ui);color:#222;
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status-cell.fix{flex:0 0 auto}
+/* ---------- Explorer layout ---------- */
+.toolbar{display:flex;align-items:center;gap:6px;padding:4px 6px;flex-shrink:0;flex-wrap:wrap;
+  border-bottom:1px solid var(--w95-shadow);box-shadow:0 1px 0 var(--w95-hilight)}
+.toolbar .sep{width:2px;align-self:stretch;margin:1px 2px;
+  box-shadow:inset 1px 0 0 var(--w95-shadow),inset -1px 0 0 var(--w95-hilight)}
+.input95{padding:3px 6px;font:11px var(--f-ui);background:var(--w95-paper);border:none;outline:none;color:#000;user-select:text;
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
+             inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow)}
+.explorer{flex:1;display:flex;min-height:0}
+.side95{width:185px;flex-shrink:0;margin:4px 0 4px 4px;overflow-y:auto;background:var(--w95-paper);
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
+             inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow);padding:4px 3px}
+.cat95{display:flex;align-items:center;gap:6px;padding:3px 5px;cursor:pointer;white-space:nowrap;transition:background .1s}
+.cat95:hover{background:#e4e4ff}
+.cat95.active{background:var(--w95-sel);color:#fff}
+.cat95 .ci{width:15px;text-align:center;flex-shrink:0;font-size:12px}
+.cat95 .cn{flex:1;overflow:hidden;text-overflow:ellipsis}
+.cat95 .cc{font:10px var(--f-mono);opacity:.75}
+.main95{flex:1;margin:4px;overflow-y:auto;background:var(--w95-paper);
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
+             inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow);
+  padding:10px;align-content:start;display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:2px 2px}
+.fico{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px 5px;cursor:pointer;
+  border:1px dotted transparent;text-align:center;transition:transform .15s var(--ease)}
+.fico:hover{transform:translateY(-2px)}
+.fico:hover .fico-img{filter:drop-shadow(0 3px 4px rgba(0,0,128,.3)) brightness(1.05)}
+.fico.sel{border-color:#7f7fbf}
+.fico.sel .fico-lbl{background:var(--w95-sel);color:#fff}
+.fico-img{width:34px;height:40px;position:relative;transition:filter .15s var(--ease)}
+.fico-lbl{font:10.5px var(--f-mono);font-weight:bold;padding:0 3px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+/* page icon drawn in CSS */
+.page{width:30px;height:38px;margin:0 auto;background:#fff;position:relative;border:1px solid #555;
+  box-shadow:2px 2px 0 rgba(0,0,0,.18);clip-path:polygon(0 0,72% 0,100% 26%,100% 100%,0 100%)}
+.page::before{content:'';position:absolute;top:0;right:0;width:28%;height:26%;background:var(--pg,#9cb4d8);border-left:1px solid #555;border-bottom:1px solid #555}
+.page::after{content:'';position:absolute;left:4px;right:4px;top:14px;height:2px;background:var(--pg,#9cb4d8);
+  box-shadow:0 5px 0 var(--pg,#9cb4d8),0 10px 0 var(--pg,#9cb4d8),0 15px 0 var(--pg,#9cb4d8)}
+/* ---------- Properties / info ---------- */
+.props{flex:1;overflow-y:auto;padding:8px;user-select:text}
+.props-hero{display:flex;gap:12px;align-items:center;margin-bottom:8px;padding:10px;background:var(--w95-paper);
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
+             inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow)}
+.props-ext{font:bold 26px var(--f-mono);color:var(--hcl,#000080)}
+.props-full{font:bold 12px var(--f-ui)}
+.props-cat{font:10px var(--f-ui);color:#555;margin-top:2px}
+.props-desc{margin:8px 2px;line-height:1.5;font-size:11.5px}
+.meta95{width:100%;border-collapse:collapse;margin:6px 0}
+.meta95 td{padding:3px 8px;border-bottom:1px solid #e3e3e3;font-size:11px;vertical-align:top}
+.meta95 td:first-child{font-weight:bold;color:#333;width:42%;white-space:nowrap}
+.fieldset{border:none;margin:10px 2px;padding:10px 8px 8px;position:relative;
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
+        inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-hilight)}
+.fieldset>legend{position:absolute;top:-8px;left:8px;background:var(--w95-face);padding:0 5px;font:bold 11px var(--f-ui)}
+.fieldset>.fs-body{display:flex;flex-wrap:wrap;gap:4px;padding-top:4px}
+/* ---------- Tags (sistema de etiquetas) ---------- */
+.tag95{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;font:bold 10px var(--f-ui);cursor:pointer;
+  background:var(--w95-face);transition:all .15s var(--ease);
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-hilight),
+             inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-light)}
+.tag95:hover{background:#d8d8ee;transform:translateY(-1px)}
+.tag95:active{box-shadow:inset 1px 1px 0 var(--w95-dkshadow),inset -1px -1px 0 var(--w95-hilight)}
+.tag95 .dot{width:7px;height:7px;border:1px solid #00000055;background:var(--tcl,#000080)}
+.tag95.lang{background:#ffffd5}
+.tag95.lang:hover{background:#ffffb0}
+.tag95.ext-pill{font-family:var(--f-mono)}
+.tag95.muted{opacity:.8;font-weight:normal}
+/* ---------- Listado ventanas popup ---------- */
+.poplist{flex:1;overflow-y:auto;margin:6px;background:var(--w95-paper);padding:6px;user-select:text;
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
+             inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow)}
+.poplist .intro{font-size:11px;color:#333;margin:2px 2px 8px;line-height:1.5}
+.pill-wrap{display:flex;flex-wrap:wrap;gap:4px}
+/* ---------- Ecosistema IA ---------- */
+.eco-wrap{flex:1;display:flex;min-height:0}
+.eco-canvas{flex:1.55;position:relative;overflow:auto;margin:4px;background:var(--w95-paper);
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
+             inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow)}
+.eco-grid{position:relative;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;padding:16px;min-width:660px}
+.eco-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.eco-svg line{stroke:#000080;stroke-width:2;stroke-dasharray:6 4;opacity:.35;transition:opacity .2s,stroke .2s}
+.eco-svg line.on{opacity:1;stroke:#cc0000;stroke-width:2.5;animation:dashmove 1s linear infinite}
+@keyframes dashmove{to{stroke-dashoffset:-10}}
+.eco-box{position:relative;z-index:1;background:var(--w95-face);padding:3px;
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-light),
+             inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-hilight)}
+.eco-box-t{display:flex;align-items:center;gap:5px;padding:3px 6px;font:bold 10.5px var(--f-ui);color:#fff;
+  background:linear-gradient(90deg,var(--gcl,#000080),color-mix(in srgb,var(--gcl,#000080) 55%,#9cc));text-transform:uppercase;letter-spacing:.4px}
+.eco-box-b{display:flex;flex-direction:column;gap:3px;padding:6px;background:var(--w95-paper);margin:2px;
+  box-shadow:inset 1px 1px 0 var(--w95-shadow),inset -1px -1px 0 var(--w95-hilight)}
+.eco-item{padding:3px 7px;font:11px var(--f-ui);cursor:pointer;background:#f4f4f4;border:1px solid #999;text-align:center;
+  transition:all .15s var(--ease)}
+.eco-item:hover{background:#e2e2ff;border-color:var(--gcl,#000080);transform:translateX(2px)}
+.eco-item.on{background:var(--gcl,#000080);color:#fff;border-color:#000;font-weight:bold}
+.eco-item.linked{background:#fff3c8;border-color:#cc8800;font-weight:bold}
+.eco-center{grid-column:2;display:flex;align-items:center;justify-content:center}
+.eco-core{padding:16px 20px;text-align:center;cursor:pointer;background:#000835;color:#fff;border:2px solid #fff;outline:2px solid #000;
+  font:bold 14px var(--f-ui);letter-spacing:.5px;transition:all .2s var(--ease);position:relative;z-index:1}
+.eco-core:hover,.eco-core.on{background:#0a1a6e;box-shadow:0 0 0 3px #ffcc00,4px 6px 14px rgba(0,0,0,.4)}
+.eco-core small{display:block;font:10px var(--f-ui);opacity:.75;margin-top:3px;letter-spacing:1px}
+.eco-info{flex:1;display:flex;flex-direction:column;min-width:230px;max-width:330px;margin:4px 4px 4px 0;overflow:hidden}
+.eco-info-body{flex:1;overflow-y:auto;background:var(--w95-paper);padding:10px;user-select:text;
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
+             inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow)}
+.eco-info h3{font:bold 13px var(--f-ui);margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.eco-info h3 .sw{width:10px;height:10px;border:1px solid #000;background:var(--gcl,#000080)}
+.eco-info .role{font:10px var(--f-ui);color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.eco-info p{font-size:11.5px;line-height:1.55;margin-bottom:10px}
+.eco-conn{display:flex;flex-direction:column;gap:4px}
+.eco-conn-i{display:flex;gap:6px;align-items:flex-start;padding:5px 7px;background:#f6f6f6;border:1px solid #ccc;cursor:pointer;
+  font-size:10.5px;line-height:1.45;transition:all .15s}
+.eco-conn-i:hover{background:#e8e8ff;border-color:#000080}
+.eco-conn-i b{color:#000080}
+.eco-conn-i .arr{color:#cc0000;font-weight:bold;flex-shrink:0}
+.eco-ex{margin-top:10px;padding:7px 9px;background:#ffffd5;border:1px solid #cfc270;font-size:10.5px;line-height:1.5}
+.eco-ex b{display:block;margin-bottom:3px}
+/* ---------- Stats ---------- */
+.stats-body95{flex:1;overflow-y:auto;padding:10px;user-select:text}
+.bar95{height:14px;background:var(--w95-paper);position:relative;flex:1;
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow)}
+.bar95 i{position:absolute;inset:2px auto 2px 2px;background:repeating-linear-gradient(90deg,var(--bcl,#000080) 0 7px,transparent 7px 9px);transition:width .7s var(--ease)}
+.stat-row{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px}
+.stat-row .sn{width:130px;display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden}
+.stat-row .sv{width:34px;text-align:right;font:bold 10px var(--f-mono)}
+/* ---------- Taskbar ---------- */
+#taskbar{position:fixed;left:0;right:0;bottom:0;height:30px;display:flex;align-items:center;gap:4px;padding:2px 4px;z-index:9000;
+  background:var(--w95-face);
+  box-shadow:inset 0 1px 0 var(--w95-hilight),inset 0 2px 0 var(--w95-light),0 -1px 4px rgba(0,0,0,.2)}
+#startbtn{font-weight:bold;display:flex;align-items:center;gap:5px;min-width:0;padding:3px 9px}
+#startbtn img{width:16px;height:16px;image-rendering:pixelated}
+.taskitem{flex:0 1 170px;min-width:60px;display:flex;align-items:center;gap:6px;padding:3px 8px;font:11px var(--f-ui);
+  background:var(--w95-face);border:none;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-hilight),
+             inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-light)}
+.taskitem.active{font-weight:bold;background:repeating-conic-gradient(#fff 0% 25%,#dcdcdc 0% 50%) 0 0/4px 4px;
+  box-shadow:inset 1px 1px 0 var(--w95-dkshadow),inset -1px -1px 0 var(--w95-hilight),
+             inset 2px 2px 0 var(--w95-shadow),inset -2px -2px 0 var(--w95-light)}
+#clock{margin-left:auto;padding:3px 10px;font:11px var(--f-ui);
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow)}
+/* ---------- Start menu ---------- */
+#startmenu{position:fixed;left:4px;bottom:32px;width:210px;z-index:9500;display:none;flex-direction:row;
+  background:var(--w95-face);padding:3px;
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-light),
+             inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-hilight),
+             5px 6px 16px rgba(0,0,0,.4);
+  animation:menu-in .18s var(--ease) both}
+@keyframes menu-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+#startmenu.open{display:flex}
+.sm-band{width:24px;background:linear-gradient(180deg,#1084d0,#000080);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
+.sm-band span{writing-mode:vertical-rl;transform:rotate(180deg);color:#fff;font:bold 13px var(--f-ui);letter-spacing:1px}
+.sm-items{flex:1;display:flex;flex-direction:column;padding:2px}
+.sm-i{display:flex;align-items:center;gap:9px;padding:7px 8px;cursor:pointer;font:11px var(--f-ui)}
+.sm-i:hover{background:var(--w95-sel);color:#fff}
+.sm-i .ic{font-size:16px;width:20px;text-align:center}
+.sm-sep{height:2px;margin:2px 4px;box-shadow:inset 0 1px 0 var(--w95-shadow),inset 0 -1px 0 var(--w95-hilight)}
+/* ---------- Scrollbars Win95 ---------- */
+::-webkit-scrollbar{width:16px;height:16px}
+::-webkit-scrollbar-track{background:repeating-conic-gradient(#fff 0% 25%,#c0c0c0 0% 50%) 0 0/2px 2px}
+::-webkit-scrollbar-thumb{background:var(--w95-face);
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-hilight),
+             inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-light)}
+::-webkit-scrollbar-button:single-button{display:block;background:var(--w95-face);height:16px;width:16px;
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-hilight),
+             inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-light)}
+::selection{background:var(--w95-sel);color:#fff}
+/* ---------- Tooltip ---------- */
+#tip95{position:fixed;z-index:9999;display:none;padding:3px 7px;background:#ffffe1;border:1px solid #000;font:11px var(--f-ui);pointer-events:none;max-width:260px}
+@media(max-width:760px){.side95{width:128px}.eco-info{display:none}}
 </style>
 </head>
 <body>
-<div id="app"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-<script type="text/babel">
-const {useState,useMemo,useRef,useEffect,useCallback}=React;
-
-// ============================================================
-// CATEGORIES & EXTENSIONS
-// ============================================================
+<div id="desktop"></div>
+<div id="startmenu"><div class="sm-band"><span>Format95</span></div><div class="sm-items" id="sm-items"></div></div>
+<div id="taskbar">
+  <button class="btn95" id="startbtn"><img alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAA7fFvVAAAADUlEQVR4nGNgYGBgAAAABQABXvMqOgAAAABJRU5ErkJggg==" style="display:none">🪟 Inicio</button>
+  <div id="taskitems" style="display:flex;gap:4px;flex:1;min-width:0;overflow:hidden"></div>
+  <div id="clock">00:00</div>
+</div>
+<div id="tip95"></div>
+<script>
 const CATS={
   imagen:{n:'Imagen',i:'\u{1F5BC}\uFE0F',cl:'#6B4076',
     e:['PNG','JPG','JPEG','GIF','WEBP','AVIF','SVG','PSD','TIFF','BMP','HEIC','HEIF','ICO','EXR','HDR','CR2','NEF','ARW','DNG','RAW','RAF','ORF','TGA','XCF','PCX','PBM','PGM','PPM','PAM','JP2','JFIF','JNG','MNG','PCD','PICT','SGI','SUN','WBMP','XBM','XPM','XCF','DDS','FAX','FITS']},
@@ -401,26 +318,7 @@ const CATS={
     e:['ISO','IMG','DMG','VHD','VHDX','VMDK','VDI','QCOW2','RAW','HDD','BIN','CUE','NRG','MDF','MDS','TOAST','UDF','HFS','HFSPLUS','EXT4','NTFS']},
   email:{n:'Email',i:'\u2709\uFE0F',cl:'#476939',
     e:['EML','MSG','MBOX','PST','OST','EMLX','VCF','ICS','MHT','MHTML','OFT','PST','OXPS','DBX']},
-};
-
-// Color groups from the tldraw design (Morado, Verde Claro, Amarillo, Naranja, Marrón, Verde, Azul)
-const GROUPS={
-  morado:{n:'Morado',cl:'#6B4076',cats:['imagen','cad']},
-  verdeClaro:{n:'Verde Claro',cl:'#476939',cats:['fuente','email']},
-  amarillo:{n:'Amarillo',cl:'#C8901C',cats:['comprimido','seguridad']},
-  naranja:{n:'Naranja',cl:'#D26244',cats:['ebook','juego']},
-  marron:{n:'Marrón',cl:'#7E5634',cats:['disco']},
-  verde:{n:'Verde',cl:'#5D7339',cats:['hoja','codigo']},
-  azul:{n:'Azul',cl:'#3F6F9A',cats:['presentacion','bd']},
-  rosa:{n:'Rosa',cl:'#A0506A',cats:['audio','movil']},
-  cyan:{n:'Cyan',cl:'#2D5F6B',cats:['documento','vector']},
-  rojo:{n:'Rojo',cl:'#8C2A30',cats:['video']},
-};
-
-// ============================================================
-// FORMAT DETAILS — RICH METADATA
-// ============================================================
-const D={
+};const D={
   // Imagen
   PNG:{f:'Portable Network Graphics',d:'Formato sin pérdida con transparencia alfa. Estándar web para gráficos, iconos y capturas de pantalla.',t:'Raster',l:'No',tr:'Sí (alfa 8-bit)',a:'No (APNG sí)',c:'16.7M (32-bit)',co:'Deflate',y:1996,s:'Sin pérdida',mime:'image/png',magic:'89 50 4E 47',pop:10,rel:['JPG','WEBP','AVIF','APNG'],alts:['WEBP (web moderno)','AVIF (mejor compresión)']},
   JPG:{f:'Joint Photographic Experts Group',d:'Compresión con pérdida ideal para fotografías. Alta compresión manteniendo calidad visual aceptable.',t:'Raster',l:'Sí',tr:'No',a:'No',c:'16.7M (24-bit)',co:'DCT',y:1992,s:'Con pérdida',mime:'image/jpeg',magic:'FF D8 FF',pop:10,rel:['JPEG','WEBP','HEIC','AVIF'],alts:['WEBP','HEIC','AVIF']},
@@ -554,12 +452,7 @@ const D={
   EML:{f:'Email Message',d:'Mensaje de email individual en formato MIME. Universal entre clientes de correo.',t:'Email',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1982,s:'Universal',mime:'message/rfc822',pop:8,rel:['MSG','MBOX'],alts:[]},
   MBOX:{f:'Mailbox',d:'Buzón completo de emails en un único archivo. Usado por Thunderbird/Apple Mail.',t:'Email/buzón',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Ninguna',y:1971,s:'Unix',pop:7,rel:['EML','PST'],alts:[]},
   PST:{f:'Personal Storage Table (Outlook)',d:'Buzón completo de Outlook. Contiene emails, contactos, calendarios.',t:'Email/buzón',l:'N/A',tr:'N/A',a:'N/A',c:'N/A',co:'Variable',y:1996,s:'Microsoft',pop:8,rel:['MSG','OST'],alts:[]},
-};
-
-// ============================================================
-// APPS — PRELOADED CATALOG
-// ============================================================
-const APPS=[
+};const APPS=[
   {id:'photoshop',nm:'Photoshop',cl:'#31A8FF',vd:'Adobe',cat:'Imagen',
     fm:['PSD','PNG','JPG','JPEG','GIF','BMP','TIFF','WEBP','AVIF','SVG','EPS','PDF','ICO','EXR','HDR','HEIC','HEIF','DNG','CR2','NEF','ARW','TGA','PCX','PBM','PGM','PPM','RAW','XCF']},
   {id:'illustrator',nm:'Illustrator',cl:'#FF9A00',vd:'Adobe',cat:'Vector',
@@ -610,15 +503,7 @@ const APPS=[
     fm:['7Z','ZIP','RAR','TAR','GZ','BZ2','XZ','LZ','LZMA','TGZ','TBZ2','ZSTD','Z','CAB','ARJ','LHA','ISO','WIM','CPIO','DEB','RPM','APK','IPA']},
   {id:'calibre',nm:'Calibre',cl:'#B22222',vd:'Calibre Team',cat:'Ebook',
     fm:['EPUB','MOBI','AZW','AZW3','KFX','FB2','LIT','LRF','PDB','RB','SNB','TCR','PDF','HTML','TXT','RTF','DOCX']},
-];
-
-// Warm Atelier swatch palette — curated to live on a cream page (each color
-// has ≥4.5:1 contrast on #FBF7EF). Brand-color slots are kept (Photoshop blue,
-// Illustrator orange, Figma purple) so users can match real app identities.
-const APP_COLORS=['#B0432A','#92341E','#D26244','#A0506A','#8C2A30','#6B4076','#4F3A66','#3F6F9A','#2D5F6B','#3E5C57','#5D7339','#476939','#7E6F2A','#C8901C','#7E5634','#5C4530','#1A1816','#5C5750','#A8907C','#31A8FF','#FF9A00','#A259FF','#E34B2C','#217346','#2B579A','#D24726','#0067B3','#E51937','#FF6F00','#5C5543'];
-
-// Extra apps that work with specific extensions (community / external suggestions)
-const ALT_APPS={
+];const ALT_APPS={
   PNG:['Affinity Photo','Krita','Paint.NET','Pixelmator','Procreate'],
   JPG:['Affinity Photo','Lightroom','RawTherapee','darktable'],
   JPEG:['Affinity Photo','Lightroom','RawTherapee'],
@@ -710,764 +595,809 @@ const ALT_APPS={
   VHD:['Hyper-V','VirtualBox','VMware'],
   VMDK:['VMware','VirtualBox'],
   PARQUET:['DuckDB','Apache Drill','Parquet Tools','Tad','Pandas'],
+};// ============ FICHAS COMPLETADAS (A-G) ============
+const D2A={
+  '3DM':{f:'Rhino 3D Model',d:'Nativo de Rhinoceros 3D. Geometría NURBS de precisión para diseño industrial y arquitectura.',t:'3D NURBS',y:1992,s:'CAD 3D',pop:6,rel:['STEP','IGES']},
+  '3DS':{f:'3D Studio Mesh',d:'Formato legacy de Autodesk 3D Studio. Mallas con materiales y animación básica. Muy compatible.',t:'3D Malla',y:1990,s:'Legacy',pop:6,rel:['MAX','FBX','OBJ']},
+  '3G2':{f:'3GPP2 Multimedia',d:'Vídeo para móviles CDMA antiguos. Versión reducida de MP4 para redes lentas.',t:'Contenedor',y:2004,s:'Legacy',pop:2,rel:['3GP','MP4']},
+  '3GP':{f:'3GPP Multimedia',d:'Vídeo para móviles GSM/UMTS de los 2000. Basado en MP4 con codecs de baja tasa.',t:'Contenedor',y:2001,s:'Legacy',pop:3,rel:['MP4','3G2']},
+  '3MF':{f:'3D Manufacturing Format',d:'Sucesor moderno de STL para impresión 3D. Incluye color, materiales y metadatos en XML/ZIP.',t:'3D Impresión',y:2015,s:'Impresión 3D',pop:7,rel:['STL','AMF']},
+  ABW:{f:'AbiWord Document',d:'Documento del procesador libre AbiWord. XML legible, proyecto hoy casi inactivo.',t:'Documento texto',y:1998,s:'Legacy',pop:2,rel:['ODT','DOCX']},
+  AC3:{f:'Audio Codec 3 (Dolby Digital)',d:'Audio envolvente 5.1 de Dolby. Estándar en DVD, TDT y cine doméstico.',t:'Audio comprimido',y:1991,s:'Cine/TV',pop:6,rel:['DTS','AAC']},
+  ACCDB:{f:'Access Database',d:'Base de datos de Microsoft Access (2007+). Tablas, formularios, consultas e informes.',t:'BD relacional',y:2007,s:'Office',pop:6,rel:['MDB','SQLITE']},
+  ACE:{f:'ACE Archive',d:'Compresor de los 90 con buen ratio en su época. Propietario y hoy abandonado.',t:'Comprimido',y:1998,s:'Obsoleto',pop:2,rel:['RAR','ZIP']},
+  AFM:{f:'Adobe Font Metrics',d:'Métricas (anchos, kerning) de fuentes PostScript Type 1. Acompaña a PFA/PFB.',t:'Métrica fuente',y:1985,s:'Legacy',pop:2,rel:['PFB','PFM']},
+  ALZ:{f:'ALZip Archive',d:'Compresor coreano ALZip. Popular en Corea del Sur, raro fuera.',t:'Comprimido',y:1999,s:'Regional',pop:2,rel:['ZIP','EGG']},
+  AMF:{f:'Additive Manufacturing Format',d:'Estándar ISO para impresión 3D con curvas, color y multimaterial. Superado por 3MF.',t:'3D Impresión',y:2011,s:'Impresión 3D',pop:3,rel:['3MF','STL']},
+  AMR:{f:'Adaptive Multi-Rate Audio',d:'Codec de voz para telefonía móvil GSM. Notas de voz de móviles antiguos.',t:'Audio voz',y:1999,s:'Telefonía',pop:3,rel:['GSM','OPUS']},
+  APE:{f:'Monkey’s Audio',d:'Audio sin pérdida con ratio superior a FLAC pero decodificación lenta y poco soporte.',t:'Audio sin pérdida',y:2000,s:'Nicho',pop:3,rel:['FLAC','TAK']},
+  APKM:{f:'APKMirror Bundle',d:'Empaquetado de APKMirror con splits de un App Bundle. Se instala con APKMirror Installer.',t:'Paquete app',y:2019,s:'Android',pop:3,rel:['APK','XAPK']},
+  ARJ:{f:'Archived by Robert Jung',d:'Compresor de la era DOS (años 90). Hoy solo aparece en archivos históricos.',t:'Comprimido',y:1991,s:'Obsoleto',pop:1,rel:['ZIP','LHA']},
+  ARROW:{f:'Apache Arrow IPC',d:'Datos columnares en memoria para análisis a alta velocidad. Intercambio sin copia entre Pandas, Spark, DuckDB.',t:'Datos columnar',y:2016,s:'Big Data',pop:7,rel:['PARQUET','ORC']},
+  ASC:{f:'ASCII Armored (PGP)',d:'Claves, firmas o mensajes PGP codificados en texto Base64 con cabeceras BEGIN/END.',t:'Cifrado/texto',y:1991,s:'Seguridad',pop:5,rel:['GPG','PGP','SIG']},
+  ASF:{f:'Advanced Systems Format',d:'Contenedor de streaming de Microsoft. Envuelve WMV/WMA. En desuso.',t:'Contenedor',y:1996,s:'Legacy',pop:3,rel:['WMV','WMA']},
+  AU:{f:'Sun/NeXT Audio',d:'Audio histórico de estaciones Sun/Unix. Simple PCM con cabecera mínima.',t:'Audio sin comprimir',y:1992,s:'Legacy',pop:2,rel:['WAV','AIFF']},
+  AVRO:{f:'Apache Avro',d:'Serialización por filas con esquema embebido en JSON. Estándar en Kafka y pipelines de datos.',t:'Datos filas',y:2009,s:'Big Data',pop:7,rel:['PARQUET','ORC','JSON']},
+  AZW:{f:'Amazon Kindle (KF7)',d:'Primer formato Kindle, basado en MOBI con DRM de Amazon. Sustituido por AZW3/KFX.',t:'Libro electrónico',y:2007,s:'Amazon Legacy',pop:4,rel:['AZW3','MOBI']},
+  BAK:{f:'Backup File',d:'Copia de seguridad genérica creada por multitud de programas. El contenido depende del original.',t:'Copia seguridad',y:1980,s:'Genérico',pop:6,rel:['BAK','OLD']},
+  BAT:{f:'Batch File (MS-DOS/Windows)',d:'Script de comandos para CMD de Windows. Automatización clásica de tareas.',t:'Script',y:1981,s:'Windows',pop:7,rel:['PS1','SH','CMD']},
+  BDF:{f:'Bitmap Distribution Format',d:'Fuente bitmap en texto plano de Adobe/X11. Usada en sistemas Unix antiguos y matrices LED.',t:'Fuente bitmap',y:1987,s:'Legacy',pop:2,rel:['PSF','FON']},
+  BIN:{f:'Binary Data / Disc Image',d:'Binario genérico: imagen de CD (con CUE), firmware o datos sin formato definido.',t:'Binario',y:1980,s:'Genérico',pop:6,rel:['CUE','ISO','IMG']},
+  BKS:{f:'BouncyCastle Keystore',d:'Almacén de claves para Android/Java con la librería BouncyCastle.',t:'Almacén claves',y:2005,s:'Seguridad',pop:2,rel:['JKS','KEYSTORE']},
+  BLEND:{f:'Blender Scene',d:'Nativo de Blender. Escena completa: mallas, materiales, animación, físicas, vídeo y compositor.',t:'3D Escena',y:1995,s:'Open Source',pop:8,rel:['FBX','GLB','OBJ']},
+  BREP:{f:'Boundary Representation (OpenCascade)',d:'Geometría exacta B-Rep del kernel OpenCascade, usado por FreeCAD.',t:'CAD/BREP',y:1993,s:'CAD 3D',pop:3,rel:['STEP','IGES']},
+  BSON:{f:'Binary JSON',d:'JSON binario de MongoDB. Más rápido de recorrer y con tipos extra (fechas, binarios).',t:'Datos',y:2009,s:'BD',pop:6,rel:['JSON','MONGO']},
+  BSP:{f:'Binary Space Partition (mapas)',d:'Mapa compilado de motores Quake/Source. Geometría del nivel con iluminación precalculada.',t:'Mapa juego',y:1996,s:'Gaming',pop:4,rel:['VPK','PAK']},
+  BZ2:{f:'Bzip2',d:'Compresor Unix con mejor ratio que gzip pero más lento. Habitual como .tar.bz2.',t:'Comprimido',y:1996,s:'Unix',pop:6,rel:['GZ','XZ','TBZ2']},
+  C:{f:'C Source Code',d:'Lenguaje C, base de sistemas operativos, drivers y software de alto rendimiento desde 1972.',t:'Código',y:1972,s:'Sistemas',pop:9,rel:['H','CPP']},
+  C4D:{f:'Cinema 4D Scene',d:'Nativo de Maxon Cinema 4D. Estándar en motion graphics y publicidad.',t:'3D Escena',y:1996,s:'Profesional',pop:6,rel:['FBX','OBJ','AE']},
+  CAB:{f:'Windows Cabinet',d:'Archivo comprimido de instaladores de Microsoft. Usado por Windows Update y drivers.',t:'Comprimido',y:1995,s:'Windows',pop:5,rel:['MSI','ZIP']},
+  CER:{f:'Certificate (DER/PEM)',d:'Certificado X.509 exportado, en binario DER o texto PEM. Común en Windows.',t:'Certificado',y:1988,s:'Seguridad',pop:6,rel:['CRT','DER','P7B']},
+  CGM:{f:'Computer Graphics Metafile',d:'Vector ISO para documentación técnica aeronáutica y militar.',t:'Vector',y:1987,s:'Técnico',pop:2,rel:['SVG','WMF']},
+  CHD:{f:'Compressed Hunks of Data (MAME)',d:'Imagen comprimida de discos/CD para emulación MAME y RetroArch.',t:'Imagen disco',y:2002,s:'Emulación',pop:4,rel:['CUE','ISO']},
+  CHM:{f:'Compiled HTML Help',d:'Ayuda compilada de Windows: páginas HTML con índice y búsqueda en un único archivo.',t:'Documentación',y:1997,s:'Windows',pop:4,rel:['HTML','PDF']},
+  CLJ:{f:'Clojure Source',d:'Lenguaje funcional tipo Lisp sobre la JVM. Inmutabilidad y concurrencia elegante.',t:'Código',y:2007,s:'JVM',pop:4,rel:['JAVA','EX']},
+  CMX:{f:'Corel Presentation Exchange',d:'Vector de intercambio de CorelDRAW con menos funciones que CDR.',t:'Vector',y:1996,s:'Legacy',pop:2,rel:['CDR','WMF']},
+  CONF:{f:'Configuration File',d:'Configuración de servicios Unix/Linux (nginx, ssh...). Texto plano clave-valor o bloques.',t:'Configuración',y:1980,s:'Unix',pop:7,rel:['INI','TOML','YAML']},
+  CPIO:{f:'Copy In/Out Archive',d:'Empaquetador Unix anterior a tar. Usado internamente por initramfs y paquetes RPM.',t:'Empaquetador',y:1977,s:'Unix',pop:3,rel:['TAR','RPM']},
+  CPP:{f:'C++ Source Code',d:'C++ domina motores de juego, traders de alta frecuencia y software de rendimiento crítico.',t:'Código',y:1983,s:'Sistemas',pop:9,rel:['C','HPP','H']},
+  CS:{f:'C# Source Code',d:'Lenguaje principal de .NET y Unity. Tipado, moderno y multiplataforma.',t:'Código',y:2000,s:'.NET',pop:9,rel:['JAVA','VB']},
+  CSR:{f:'Certificate Signing Request',d:'Solicitud de firma que se envía a la CA para emitir un certificado TLS.',t:'Certificado',y:1993,s:'Seguridad',pop:5,rel:['PEM','KEY','CRT']},
+  CSS:{f:'Cascading Style Sheets',d:'Hojas de estilo de la web: colores, tipografía, layout (flex/grid) y animaciones.',t:'Estilos web',y:1996,s:'Web',pop:10,rel:['SCSS','LESS','HTML']},
+  CUE:{f:'Cue Sheet',d:'Índice de pistas de una imagen BIN de CD. Texto plano que define tiempos y pistas.',t:'Metadatos disco',y:1995,s:'Óptico',pop:4,rel:['BIN','ISO','CHD']},
+  DART:{f:'Dart Source',d:'Lenguaje de Google para Flutter. Apps móviles, web y escritorio desde una base.',t:'Código',y:2011,s:'Móvil',pop:7,rel:['JS','KT','SWIFT']},
+  DB:{f:'Database File (genérico)',d:'BD genérica; muy a menudo SQLite (Thumbs.db de Windows incluido).',t:'BD',y:1990,s:'Genérico',pop:6,rel:['SQLITE','DB3','SDF']},
+  DB3:{f:'SQLite 3 Database',d:'Extensión alternativa para bases SQLite 3. Idéntico a .sqlite3.',t:'BD relacional',y:2004,s:'BD embebida',pop:4,rel:['SQLITE','SQLITE3']},
+  DBF:{f:'dBase Table',d:'Tabla de dBase/FoxPro. Histórico en gestión y aún vivo en shapefiles GIS.',t:'BD tabla',y:1983,s:'Legacy/GIS',pop:4,rel:['SHP','CSV','MDB']},
+  DBX:{f:'Outlook Express Mailbox',d:'Buzón de Outlook Express (Windows XP). Recuperable con herramientas de migración.',t:'Email/buzón',y:1997,s:'Obsoleto',pop:2,rel:['PST','EML','MBOX']},
+  DDS:{f:'DirectDraw Surface',d:'Texturas comprimidas para GPU (BC1-BC7) de DirectX. Estándar en videojuegos con mipmaps.',t:'Textura GPU',y:1999,s:'Gaming',pop:6,rel:['KTX2','TGA','PNG']},
+  DEB:{f:'Debian Package',d:'Paquete de software Debian/Ubuntu. Archivo ar con datos, control y scripts.',t:'Paquete software',y:1994,s:'Linux',pop:8,rel:['RPM','SNAP','FLATPAK']},
+  DER:{f:'Distinguished Encoding Rules',d:'Certificado/clave X.509 en binario ASN.1 puro. Equivalente binario de PEM.',t:'Certificado',y:1988,s:'Seguridad',pop:5,rel:['PEM','CER','CRT']},
+  DIVX:{f:'DivX Video',d:'Codec MPEG-4 de los 2000 que popularizó las pelis comprimidas en CD. Hoy obsoleto.',t:'Codec',y:1999,s:'Obsoleto',pop:2,rel:['XVID','AVI','MP4']},
+  DJVU:{f:'DjVu Document',d:'Documentos escaneados con compresión muy superior a PDF para texto e imágenes. Popular en bibliotecas digitales.',t:'Documento escaneado',y:1998,s:'Archivo',pop:4,rel:['PDF','TIFF']},
+  DSD:{f:'Direct Stream Digital',d:'Audio 1-bit a 2.8+ MHz de Super Audio CD. Audiofilia extrema.',t:'Audio HD',y:1999,s:'Audiófilo',pop:3,rel:['DSF','FLAC']},
+  DSF:{f:'DSD Stream File',d:'Contenedor de audio DSD con metadatos. Descargas de música en alta resolución.',t:'Audio HD',y:2005,s:'Audiófilo',pop:3,rel:['DSD','FLAC']},
+  DTS:{f:'DTS Audio',d:'Audio multicanal competidor de Dolby. Habitual en Blu-ray (DTS-HD MA sin pérdida).',t:'Audio multicanal',y:1993,s:'Cine',pop:5,rel:['AC3','TRUEHD']},
+  DV:{f:'Digital Video',d:'Vídeo de cintas MiniDV de los 2000. Intraframe, fácil de editar, archivos enormes.',t:'Vídeo cinta',y:1995,s:'Legacy',pop:2,rel:['AVI','MOV']},
+  ELM:{f:'Elm Source',d:'Lenguaje funcional para frontends web sin excepciones en runtime. Compila a JS.',t:'Código',y:2012,s:'Web',pop:3,rel:['JS','HS']},
+  EMF:{f:'Enhanced Metafile',d:'Vector nativo de Windows (sucesor de WMF de 32 bits). Usado por Office para gráficos.',t:'Vector',y:1993,s:'Windows',pop:4,rel:['WMF','SVG']},
+  EMLX:{f:'Apple Mail Message',d:'Mensaje individual de Apple Mail con metadatos plist. Variante de EML.',t:'Email',y:2005,s:'Apple',pop:3,rel:['EML','MBOX']},
+  ENT:{f:'Entitlements (iOS)',d:'Permisos especiales de apps iOS/macOS en XML plist: iCloud, push, sandbox.',t:'Configuración',y:2008,s:'iOS',pop:3,rel:['PLIST','MOBILEPROVISION']},
+  EOT:{f:'Embedded OpenType',d:'Fuente web propietaria de Microsoft para IE. Muerta tras la llegada de WOFF.',t:'Fuente Web',y:1997,s:'Obsoleto',pop:2,rel:['WOFF','WOFF2','TTF']},
+  EX:{f:'Elixir Source',d:'Lenguaje funcional sobre la VM de Erlang. Concurrencia masiva para web (Phoenix) y telecom.',t:'Código',y:2011,s:'Backend',pop:5,rel:['ERL','CLJ','RB']},
+  EXT4:{f:'Ext4 Filesystem Image',d:'Imagen del sistema de archivos estándar de Linux y Android.',t:'Sistema archivos',y:2008,s:'Linux',pop:4,rel:['IMG','NTFS']},
+  F4V:{f:'Flash MP4 Video',d:'Variante MP4 de Adobe Flash con H.264. Sustituyó a FLV antes de morir Flash.',t:'Contenedor',y:2007,s:'Obsoleto',pop:2,rel:['FLV','MP4']},
+  FAX:{f:'Fax Image (G3/G4)',d:'Imagen de fax con compresión CCITT Grupo 3/4. Normalmente envuelta en TIFF.',t:'Raster fax',y:1980,s:'Legacy',pop:1,rel:['TIFF']},
+  FB2:{f:'FictionBook 2',d:'Ebook XML de origen ruso. Semántica limpia, popular en Europa del Este.',t:'Libro electrónico',y:2004,s:'Regional',pop:4,rel:['EPUB','MOBI']},
+  FH:{f:'FreeHand Drawing',d:'Vector de Macromedia FreeHand, rival histórico de Illustrator. Abandonado por Adobe.',t:'Vector',y:1988,s:'Obsoleto',pop:1,rel:['AI','EPS']},
+  FITS:{f:'Flexible Image Transport System',d:'Estándar de la astronomía para imágenes y datos científicos con metadatos extensos. Usado por NASA/ESA.',t:'Científico',y:1981,s:'Ciencia',pop:4,rel:['HDF5','TIFF']},
+  FLATPAK:{f:'Flatpak Bundle',d:'Paquete Linux universal en sandbox. Apps de Flathub con dependencias incluidas.',t:'Paquete software',y:2015,s:'Linux',pop:6,rel:['SNAP','APPIMAGE','DEB']},
+  FNT:{f:'Windows Font Resource',d:'Fuente bitmap de Windows 3.x. Resoluciones fijas, sin escalado.',t:'Fuente bitmap',y:1990,s:'Obsoleto',pop:1,rel:['FON','TTF']},
+  FON:{f:'Windows Bitmap Font',d:'Contenedor de fuentes bitmap clásicas de Windows (Fixedsys, Terminal).',t:'Fuente bitmap',y:1990,s:'Legacy',pop:2,rel:['FNT','TTF']},
+  FRM:{f:'MySQL Table Definition',d:'Definición de tabla de MySQL/MariaDB antiguos (pre-8.0). Acompaña a MYD/MYI.',t:'BD definición',y:1995,s:'BD Legacy',pop:3,rel:['MYD','SQL']},
+  GB:{f:'Game Boy ROM',d:'Volcado de cartucho de Game Boy original (1989). Emulable en cualquier dispositivo.',t:'ROM',y:1989,s:'Emulación',pop:5,rel:['GBC','GBA','ROM']},
+  GBA:{f:'Game Boy Advance ROM',d:'Volcado de cartucho de GBA. Una de las escenas de emulación más activas.',t:'ROM',y:2001,s:'Emulación',pop:6,rel:['GB','GBC','NDS']},
+  GBC:{f:'Game Boy Color ROM',d:'Volcado de cartucho de Game Boy Color. Compatible con emuladores de GB.',t:'ROM',y:1998,s:'Emulación',pop:5,rel:['GB','GBA']},
+  GG:{f:'Game Gear ROM',d:'Volcado de cartucho de Sega Game Gear, la portátil de Sega de los 90.',t:'ROM',y:1990,s:'Emulación',pop:3,rel:['SMS','SMD']},
+  GNUMERIC:{f:'Gnumeric Spreadsheet',d:'Hoja de cálculo del proyecto GNOME. XML comprimido, gran precisión numérica.',t:'Hoja de cálculo',y:1998,s:'Open Source',pop:2,rel:['ODS','XLSX']},
+  GRAPHQL:{f:'GraphQL Schema/Query',d:'Esquemas y consultas del lenguaje de APIs de Facebook. Tipado y declarativo.',t:'Código/API',y:2015,s:'Web',pop:7,rel:['JSON','PROTO']},
+  GSM:{f:'GSM 06.10 Audio',d:'Codec de voz de la telefonía GSM original. Calidad de llamada de los 90.',t:'Audio voz',y:1991,s:'Telefonía',pop:2,rel:['AMR','WAV']},
+};
+// ============ FICHAS COMPLETADAS (H-P) ============
+const D2B={
+  H:{f:'C/C++ Header',d:'Cabecera con declaraciones de funciones, tipos y macros compartidas entre archivos C/C++.',t:'Código',y:1972,s:'Sistemas',pop:8,rel:['C','CPP','HPP']},
+  H5:{f:'HDF5 Data (abrev.)',d:'Extensión corta de HDF5. Datos científicos jerárquicos; estándar en ML para pesos de modelos Keras.',t:'Científico',y:1998,s:'Ciencia/ML',pop:6,rel:['HDF5','PARQUET']},
+  HASH:{f:'Hash Checksum',d:'Suma de verificación genérica para comprobar integridad de descargas.',t:'Checksum',y:1990,s:'Seguridad',pop:4,rel:['MD5','SHA','SIG']},
+  HDD:{f:'Parallels Hard Disk',d:'Disco duro virtual de Parallels Desktop (Mac).',t:'Disco virtual',y:2006,s:'Virtualización',pop:3,rel:['VMDK','VDI','VHD']},
+  HDF5:{f:'Hierarchical Data Format 5',d:'Contenedor científico para datasets enormes y jerárquicos. Usado en ML, clima, genómica y física.',t:'Científico',y:1998,s:'Ciencia/ML',pop:7,rel:['H5','PARQUET','FITS']},
+  HFS:{f:'HFS Filesystem Image',d:'Sistema de archivos clásico de Mac OS (pre-X). Solo lectura en sistemas modernos.',t:'Sistema archivos',y:1985,s:'Obsoleto',pop:1,rel:['HFSPLUS','DMG']},
+  HFSPLUS:{f:'HFS+ Filesystem Image',d:'Sistema de archivos de Mac OS 8 hasta APFS (2017).',t:'Sistema archivos',y:1998,s:'Apple Legacy',pop:2,rel:['HFS','DMG']},
+  HPGL:{f:'HP Graphics Language',d:'Lenguaje de plotters HP. Órdenes de pluma para corte y dibujo técnico.',t:'Vector plotter',y:1977,s:'Técnico',pop:2,rel:['PLT','DXF']},
+  HPP:{f:'C++ Header',d:'Cabecera específica de C++: clases, plantillas e inline. Distingue de .h de C.',t:'Código',y:1985,s:'Sistemas',pop:7,rel:['CPP','H']},
+  HS:{f:'Haskell Source',d:'Lenguaje funcional puro con evaluación perezosa. Academia, fintech y compiladores.',t:'Código',y:1990,s:'Funcional',pop:4,rel:['ML','ELM']},
+  HTPASSWD:{f:'Apache Password File',d:'Usuarios y contraseñas hasheadas para autenticación básica de Apache/nginx.',t:'Credenciales',y:1995,s:'Web',pop:4,rel:['CONF','HASH']},
+  IBA:{f:'iBooks Author Book',d:'Libro interactivo de Apple iBooks Author. App discontinuada en 2020.',t:'Libro electrónico',y:2012,s:'Obsoleto',pop:1,rel:['EPUB','PAGES']},
+  ICS:{f:'iCalendar',d:'Eventos y calendarios en texto plano. Estándar universal de invitaciones de reunión.',t:'Calendario',y:1998,s:'Universal',pop:8,rel:['VCF','EML']},
+  IDF:{f:'Intermediate Data Format',d:'Intercambio de diseño de placas PCB entre ECAD y MCAD.',t:'CAD electrónico',y:1992,s:'Técnico',pop:2,rel:['STEP','DXF']},
+  IGES:{f:'Initial Graphics Exchange Specification',d:'Veterano del intercambio CAD (1980). Superficies y curvas; superado por STEP pero aún muy usado.',t:'CAD',y:1980,s:'CAD 3D',pop:6,rel:['IGS','STEP']},
+  IGS:{f:'IGES Drawing (abrev.)',d:'Extensión corta de IGES. Mismo contenido de intercambio CAD.',t:'CAD',y:1980,s:'CAD 3D',pop:5,rel:['IGES','STEP']},
+  INI:{f:'Initialization File',d:'Configuración clave=valor por secciones. Clásico de Windows y aún omnipresente.',t:'Configuración',y:1985,s:'Universal',pop:7,rel:['CONF','TOML','YAML']},
+  IT:{f:'Impulse Tracker Module',d:'Música tracker con samples incluidos. Escena demoscene y juegos de los 90.',t:'Música módulo',y:1995,s:'Tracker',pop:2,rel:['XM','S3M','MOD']},
+  ITS:{f:'iTunes Settings/Asset',d:'Archivo auxiliar del ecosistema iTunes/Apple. Raro de manipular directamente.',t:'Configuración',y:2003,s:'Apple',pop:1,rel:['PLIST']},
+  JAVA:{f:'Java Source Code',d:'Lenguaje empresarial por excelencia. "Write once, run anywhere" sobre la JVM. Base de Android.',t:'Código',y:1995,s:'JVM',pop:9,rel:['KT','CLASS','JAR']},
+  JFIF:{f:'JPEG File Interchange Format',d:'Variante de cabecera de JPEG. A efectos prácticos, un .jpg con otro nombre.',t:'Raster',y:1992,s:'Legacy',pop:3,rel:['JPG','JPEG']},
+  JKS:{f:'Java KeyStore',d:'Almacén de claves y certificados de Java. Firma de APKs y TLS en servidores Java.',t:'Almacén claves',y:1998,s:'Seguridad',pop:5,rel:['KEYSTORE','P12','BKS']},
+  JNG:{f:'JPEG Network Graphics',d:'Hermano con pérdida de PNG (proyecto MNG). Nunca despegó.',t:'Raster',y:1999,s:'Obsoleto',pop:1,rel:['PNG','MNG']},
+  JP2:{f:'JPEG 2000',d:'Sucesor técnico de JPEG con wavelets. Triunfó en cine digital (DCP) y archivos médicos, no en la web.',t:'Raster',y:2000,s:'Profesional',pop:4,rel:['JPG','JXL']},
+  JSX:{f:'JavaScript XML (React)',d:'JavaScript con sintaxis XML para componentes React. Se transpila con Babel.',t:'Código',y:2013,s:'Web',pop:9,rel:['JS','TSX','VUE']},
+  JT:{f:'Jupiter Tessellation',d:'Visualización ligera de CAD industrial (Siemens). Estándar ISO en automoción.',t:'CAD ligero',y:2000,s:'Industria',pop:4,rel:['STEP','3DM']},
+  KEYSTORE:{f:'Java/Android Keystore',d:'Almacén de claves para firmar apps Android. Perderlo impide actualizar la app en Play Store.',t:'Almacén claves',y:2008,s:'Seguridad',pop:6,rel:['JKS','P12']},
+  KFX:{f:'Kindle Format X',d:'Formato Kindle actual con tipografía mejorada y DRM fuerte.',t:'Libro electrónico',y:2015,s:'Amazon',pop:6,rel:['AZW3','EPUB']},
+  KT:{f:'Kotlin Source',d:'Lenguaje oficial de Android. Conciso, null-safe, 100% interoperable con Java.',t:'Código',y:2011,s:'Móvil/JVM',pop:8,rel:['JAVA','SWIFT']},
+  LDB:{f:'LevelDB / Access Lock',d:'Datos de LevelDB (Chrome, criptomonedas) o archivo de bloqueo de MS Access.',t:'BD clave-valor',y:2011,s:'BD',pop:3,rel:['RDB','DB']},
+  LESS:{f:'Leaner Style Sheets',d:'Preprocesador CSS con variables y mixins. Pionero, hoy eclipsado por Sass.',t:'Estilos web',y:2009,s:'Web',pop:4,rel:['SCSS','SASS','CSS']},
+  LHA:{f:'LHA/LZH Archive',d:'Compresor japonés de la era DOS/Amiga. Aún vivo en Japón.',t:'Comprimido',y:1988,s:'Legacy',pop:2,rel:['ARJ','ZIP']},
+  LIT:{f:'Microsoft Reader eBook',d:'Ebook de Microsoft Reader con DRM. Servicio cerrado en 2012.',t:'Libro electrónico',y:2000,s:'Obsoleto',pop:1,rel:['EPUB','MOBI']},
+  LRF:{f:'Sony Portable Reader File',d:'Ebook de los primeros Sony Reader. Sustituido por EPUB en 2010.',t:'Libro electrónico',y:2006,s:'Obsoleto',pop:1,rel:['EPUB','LIT']},
+  LUA:{f:'Lua Script',d:'Scripting ligero embebido en juegos (Roblox, WoW) y software (Neovim, OBS).',t:'Código',y:1993,s:'Scripting',pop:7,rel:['PY','JS']},
+  LWO:{f:'LightWave Object',d:'Objeto 3D de LightWave. Histórico en VFX televisivo (Babylon 5, Star Trek).',t:'3D Objeto',y:1990,s:'Legacy',pop:2,rel:['OBJ','FBX']},
+  LZ:{f:'Lzip Archive',d:'Compresor LZMA con formato robusto orientado a archivado a largo plazo.',t:'Comprimido',y:2008,s:'Unix',pop:2,rel:['XZ','LZMA']},
+  LZ4:{f:'LZ4 Compressed',d:'Compresión ultrarrápida con ratio moderado. Kernels, ZFS y pipelines en tiempo real.',t:'Comprimido',y:2011,s:'Moderno',pop:5,rel:['ZSTD','GZ']},
+  LZMA:{f:'LZMA Compressed',d:'Algoritmo del 7-Zip en crudo. Ratio excelente, hoy se prefiere XZ como contenedor.',t:'Comprimido',y:1998,s:'Unix',pop:3,rel:['7Z','XZ']},
+  M2TS:{f:'Blu-ray Transport Stream',d:'Vídeo de discos Blu-ray y cámaras AVCHD. H.264 en transport stream.',t:'Contenedor',y:2006,s:'Blu-ray',pop:5,rel:['MTS','TS','MKV']},
+  M3U:{f:'MP3 URL Playlist',d:'Lista de reproducción en texto plano. M3U8 (UTF-8) es la base del streaming HLS.',t:'Lista reproducción',y:1996,s:'Universal',pop:7,rel:['PLS','RAM']},
+  M4V:{f:'iTunes Video',d:'MP4 con DRM FairPlay de Apple. Películas y series de iTunes.',t:'Contenedor',y:2003,s:'Apple',pop:4,rel:['MP4','MOV']},
+  MA:{f:'Maya ASCII Scene',d:'Escena de Autodesk Maya en texto editable. Estándar en cine y VFX.',t:'3D Escena',y:1998,s:'Profesional',pop:6,rel:['MB','FBX']},
+  MAX:{f:'3ds Max Scene',d:'Escena de Autodesk 3ds Max. Dominante en arquitectura y juegos.',t:'3D Escena',y:1996,s:'Profesional',pop:6,rel:['3DS','FBX']},
+  MB:{f:'Maya Binary Scene',d:'Escena de Maya en binario: más compacta y rápida que MA.',t:'3D Escena',y:1998,s:'Profesional',pop:6,rel:['MA','FBX']},
+  MD5:{f:'MD5 Checksum',d:'Suma MD5 para verificar descargas. Roto criptográficamente; usar SHA-256 para seguridad.',t:'Checksum',y:1992,s:'Legacy',pop:5,rel:['SHA','HASH']},
+  MDB:{f:'Access Database (legacy)',d:'Base de datos de Access 97-2003. Sustituida por ACCDB.',t:'BD relacional',y:1992,s:'Office Legacy',pop:4,rel:['ACCDB','SQLITE']},
+  MDF:{f:'Media Descriptor File',d:'Imagen de disco de Alcohol 120%. Acompañada de MDS con metadatos.',t:'Imagen disco',y:2002,s:'Legacy',pop:2,rel:['MDS','ISO','NRG']},
+  MDS:{f:'Media Descriptor Sidecar',d:'Metadatos de la imagen MDF: pistas, sesiones y protecciones.',t:'Metadatos disco',y:2002,s:'Legacy',pop:2,rel:['MDF','CUE']},
+  MHT:{f:'MHTML Web Archive',d:'Página web completa (HTML+imágenes+CSS) en un único archivo MIME.',t:'Web archivada',y:1999,s:'Web',pop:4,rel:['MHTML','HTML']},
+  MHTML:{f:'MIME HTML',d:'Igual que MHT: página web autocontenida. Guardado de páginas en Chrome/Edge.',t:'Web archivada',y:1999,s:'Web',pop:4,rel:['MHT','HTML']},
+  MID:{f:'MIDI Music (abrev.)',d:'Notas e instrumentos, no audio. Idéntico a .midi.',t:'Datos musicales',y:1983,s:'Universal',pop:6,rel:['MIDI','MOD']},
+  ML:{f:'OCaml/Standard ML Source',d:'Familia ML de lenguajes funcionales tipados. Compiladores, finanzas y análisis estático.',t:'Código',y:1973,s:'Funcional',pop:3,rel:['HS','RS']},
+  MNG:{f:'Multiple-image Network Graphics',d:'PNG animado "oficial" que nunca cuajó. APNG ganó la batalla.',t:'Raster animado',y:2001,s:'Obsoleto',pop:1,rel:['APNG','PNG','GIF']},
+  MOBILECONFIG:{f:'Apple Configuration Profile',d:'Perfil de configuración iOS/macOS: WiFi, VPN, restricciones MDM. XML plist firmado.',t:'Configuración',y:2008,s:'Apple/MDM',pop:4,rel:['PLIST','MOBILEPROVISION']},
+  MOBILEPROVISION:{f:'iOS Provisioning Profile',d:'Perfil de aprovisionamiento de Apple: autoriza qué dispositivos y certificados pueden ejecutar una app iOS en desarrollo.',t:'Configuración',y:2008,s:'iOS dev',pop:4,rel:['IPA','ENT','PLIST']},
+  MOD:{f:'Amiga Module',d:'El formato tracker original (Amiga, 1987): patrones + samples. Cuna de la demoscene.',t:'Música módulo',y:1987,s:'Tracker',pop:3,rel:['XM','IT','S3M']},
+  MONGO:{f:'MongoDB Data',d:'Datos de la BD documental MongoDB. Internamente colecciones BSON.',t:'BD documental',y:2009,s:'BD',pop:4,rel:['BSON','JSON']},
+  MPEG:{f:'MPEG Video',d:'Vídeo MPEG-1/2 clásico: VCD, DVD y TV digital de primera generación.',t:'Contenedor',y:1993,s:'Legacy',pop:4,rel:['MPG','VOB','TS']},
+  MPG:{f:'MPEG Video (abrev.)',d:'Idéntico a MPEG. Vídeo doméstico y televisivo de los 90-2000.',t:'Contenedor',y:1993,s:'Legacy',pop:4,rel:['MPEG','VOB']},
+  MSG:{f:'Outlook Message',d:'Mensaje individual de Outlook con adjuntos, en contenedor OLE2 propietario.',t:'Email',y:1997,s:'Microsoft',pop:6,rel:['EML','PST','OFT']},
+  MTS:{f:'AVCHD Video',d:'Vídeo de videocámaras AVCHD (Sony, Panasonic). H.264 en transport stream.',t:'Contenedor',y:2006,s:'Cámaras',pop:4,rel:['M2TS','MP4']},
+  MXF:{f:'Material Exchange Format',d:'Contenedor broadcast profesional (SMPTE). Estándar en televisión y cine para másters.',t:'Contenedor pro',y:2004,s:'Broadcast',pop:5,rel:['MOV','PRORES']},
+  MYD:{f:'MySQL MyISAM Data',d:'Datos de tablas MyISAM de MySQL antiguo. InnoDB lo reemplazó.',t:'BD datos',y:1995,s:'BD Legacy',pop:2,rel:['FRM','SQL']},
+  N64:{f:'Nintendo 64 ROM',d:'Volcado de cartucho de Nintendo 64 (byte-swapped). Ver también .z64/.v64.',t:'ROM',y:1996,s:'Emulación',pop:5,rel:['ROM','NDS']},
+  NDS:{f:'Nintendo DS ROM',d:'Volcado de cartucho de Nintendo DS. Emulable incluso en móviles modestos.',t:'ROM',y:2004,s:'Emulación',pop:6,rel:['3DS','GBA']},
+  NES:{f:'Nintendo Entertainment System ROM',d:'Volcado de cartucho NES con cabecera iNES. El clásico de los clásicos.',t:'ROM',y:1983,s:'Emulación',pop:6,rel:['SNES','SMC','ROM']},
+  NRG:{f:'Nero Disc Image',d:'Imagen de CD/DVD de Nero Burning ROM. Convertible a ISO.',t:'Imagen disco',y:1997,s:'Legacy',pop:2,rel:['ISO','MDF']},
+  NSP:{f:'Nintendo Submission Package',d:'Paquete digital de Nintendo Switch (eShop). Instalable en consolas con CFW.',t:'Paquete juego',y:2017,s:'Switch',pop:4,rel:['XCI','PKG']},
+  NTFS:{f:'NTFS Filesystem Image',d:'Imagen del sistema de archivos de Windows NT/10/11.',t:'Sistema archivos',y:1993,s:'Windows',pop:3,rel:['EXT4','IMG']},
+  NUMBERS:{f:'Apple Numbers Spreadsheet',d:'Hoja de cálculo de Apple iWork. Lienzo libre con tablas múltiples.',t:'Hoja de cálculo',y:2007,s:'Apple',pop:5,rel:['XLSX','CSV']},
+  OBB:{f:'Opaque Binary Blob (Android)',d:'Datos de expansión de apps Android grandes (juegos). Acompaña al APK.',t:'Datos app',y:2011,s:'Android',pop:4,rel:['APK','XAPK']},
+  OFT:{f:'Outlook Template',d:'Plantilla de mensaje de Outlook para correos repetitivos.',t:'Plantilla email',y:1997,s:'Microsoft',pop:3,rel:['MSG','EML']},
+  OGV:{f:'Ogg Video',d:'Vídeo libre con codec Theora. Superado por WebM en la web abierta.',t:'Contenedor',y:2002,s:'Legacy',pop:2,rel:['WEBM','OGG']},
+  OPF:{f:'Open Packaging Format',d:'Manifiesto interno de EPUB: metadatos, orden de lectura e índice. También usado por Calibre.',t:'Metadatos ebook',y:1999,s:'Ebook',pop:3,rel:['EPUB','XML']},
+  ORC:{f:'Optimized Row Columnar',d:'Columnar comprimido del ecosistema Hadoop/Hive. Rival directo de Parquet.',t:'Datos columnar',y:2013,s:'Big Data',pop:5,rel:['PARQUET','AVRO']},
+  ORF:{f:'Olympus Raw Format',d:'RAW de cámaras Olympus/OM System con datos del sensor sin procesar.',t:'RAW',y:2003,s:'RAW',pop:4,rel:['DNG','RAF','CR2']},
+  OST:{f:'Offline Storage Table (Outlook)',d:'Caché local de buzón Exchange/Microsoft 365. Se regenera desde el servidor.',t:'Email/buzón',y:1997,s:'Microsoft',pop:5,rel:['PST','MSG']},
+  OTC:{f:'OpenType Collection',d:'Varias fuentes OpenType en un archivo compartiendo glifos. Típico en fuentes CJK.',t:'Fuente',y:2014,s:'Desktop',pop:2,rel:['TTC','OTF']},
+  OVPN:{f:'OpenVPN Config',d:'Configuración de cliente OpenVPN: servidor, puerto y certificados embebidos.',t:'Configuración VPN',y:2002,s:'Seguridad',pop:6,rel:['CONF','PEM']},
+  OXPS:{f:'OpenXPS Document',d:'El "PDF de Microsoft" en su variante estándar ECMA. Documento fijo XML; nunca amenazó a PDF.',t:'Documento fijo',y:2009,s:'Microsoft',pop:2,rel:['XPS','PDF']},
+  P12:{f:'PKCS#12 Container',d:'Certificado + clave privada protegidos por contraseña. Idéntico a PFX.',t:'Certificado',y:1996,s:'Seguridad',pop:6,rel:['PFX','PEM','JKS']},
+  P7B:{f:'PKCS#7 Certificate Bundle',d:'Cadena de certificados sin clave privada. Instalación de CAs intermedias.',t:'Certificado',y:1995,s:'Seguridad',pop:4,rel:['P7C','CER','CRT']},
+  P7C:{f:'PKCS#7 Certificate',d:'Variante de P7B para mensajes firmados S/MIME.',t:'Certificado',y:1995,s:'Seguridad',pop:3,rel:['P7B','PEM']},
+  PAGES:{f:'Apple Pages Document',d:'Procesador de textos de Apple iWork. Diseño cuidado, exporta a DOCX/PDF.',t:'Documento texto',y:2005,s:'Apple',pop:5,rel:['DOCX','PDF']},
+  PAK:{f:'Game Package Archive',d:'Recursos empaquetados de videojuegos (Quake, Unreal). A menudo un ZIP renombrado.',t:'Paquete juego',y:1996,s:'Gaming',pop:5,rel:['VPK','BSP']},
+  PAM:{f:'Portable Arbitrary Map',d:'El más flexible de la familia Netpbm: canales y profundidad arbitrarios.',t:'Raster simple',y:2000,s:'Unix',pop:1,rel:['PPM','PGM','PBM']},
+  PAQ:{f:'PAQ Archive',d:'Compresor experimental con ratios récord pero lentitud extrema. Investigación pura.',t:'Comprimido',y:2002,s:'Experimental',pop:1,rel:['ZPAQ','7Z']},
+  PBM:{f:'Portable Bitmap',d:'Imagen 1-bit (blanco/negro) en texto plano. Familia Netpbm.',t:'Raster simple',y:1988,s:'Unix',pop:2,rel:['PGM','PPM','PAM']},
+  PCD:{f:'Kodak Photo CD',d:'Fotos escaneadas multiresolución de Kodak (años 90). Servicio extinto.',t:'Raster',y:1992,s:'Obsoleto',pop:1,rel:['JPG','TIFF']},
+  PCE:{f:'PC Engine ROM',d:'Volcado de juego de PC Engine/TurboGrafx-16.',t:'ROM',y:1987,s:'Emulación',pop:2,rel:['ROM','GG']},
+  PCX:{f:'PC Paintbrush',d:'Raster de la era DOS (Paintbrush). Compresión RLE simple.',t:'Raster',y:1985,s:'Obsoleto',pop:2,rel:['BMP','PNG']},
+  PDB:{f:'Palm Database / Program Database',d:'Ebooks y datos de Palm OS, o símbolos de depuración de Visual Studio.',t:'BD/Debug',y:1996,s:'Legacy',pop:3,rel:['PRC','MOBI']},
+  PEA:{f:'PeaZip Archive',d:'Formato nativo de PeaZip con cifrado y verificación de integridad por volumen.',t:'Comprimido',y:2006,s:'Nicho',pop:2,rel:['7Z','ZIP']},
+  PEZ:{f:'Prezi Presentation',d:'Presentación exportada de Prezi clásico con su zoom infinito.',t:'Presentación',y:2009,s:'Obsoleto',pop:1,rel:['PPTX']},
+  PFA:{f:'PostScript Font ASCII',d:'Fuente PostScript Type 1 en texto. Tipografía profesional pre-OpenType.',t:'Fuente',y:1985,s:'Obsoleto',pop:1,rel:['PFB','OTF']},
+  PFB:{f:'PostScript Font Binary',d:'Fuente Type 1 en binario. Adobe retiró su soporte en 2023.',t:'Fuente',y:1985,s:'Obsoleto',pop:2,rel:['PFA','AFM','OTF']},
+  PFM:{f:'Printer Font Metrics',d:'Métricas de fuentes Type 1 para Windows. Pareja de PFB.',t:'Métrica fuente',y:1990,s:'Obsoleto',pop:1,rel:['AFM','PFB']},
+  PGM:{f:'Portable Graymap',d:'Imagen en escala de grises de Netpbm, en texto o binario. Común en visión artificial.',t:'Raster simple',y:1988,s:'Unix',pop:2,rel:['PBM','PPM']},
+  PGP:{f:'Pretty Good Privacy',d:'Datos cifrados o firmados con PGP. El estándar del cifrado de correo desde 1991.',t:'Cifrado',y:1991,s:'Seguridad',pop:5,rel:['GPG','ASC','SIG']},
+  PHP:{f:'PHP Source',d:'Lenguaje de servidor que mueve WordPress, Wikipedia y buena parte de la web.',t:'Código',y:1995,s:'Web backend',pop:8,rel:['JS','RB','HTML']},
+  PICT:{f:'Apple Picture',d:'Gráficos del Mac clásico (QuickDraw). Muerto con Mac OS X.',t:'Raster/Vector',y:1984,s:'Obsoleto',pop:1,rel:['PNG','PDF']},
+  PKG:{f:'macOS/PlayStation Package',d:'Instalador de macOS o paquete de juego de PlayStation, según contexto.',t:'Paquete software',y:2000,s:'Instalador',pop:5,rel:['DMG','NSP']},
+  PL:{f:'Perl Script',d:'El lenguaje del procesamiento de texto y el sysadmin de los 90-2000. Regex legendarias.',t:'Código',y:1987,s:'Scripting',pop:4,rel:['PY','SH','RB']},
+  PLIST:{f:'Property List (Apple)',d:'Configuración de apps Apple en XML o binario. El Info.plist define cada app iOS/macOS.',t:'Configuración',y:2001,s:'Apple',pop:6,rel:['XML','JSON','MOBILECONFIG']},
+  PLS:{f:'Playlist (SHOUTcast)',d:'Lista de reproducción tipo INI para radios por internet.',t:'Lista reproducción',y:1998,s:'Legacy',pop:2,rel:['M3U','RAM']},
+  PLT:{f:'Plotter File (HPGL)',d:'Órdenes HPGL para plotters de corte y dibujo técnico.',t:'Vector plotter',y:1980,s:'Técnico',pop:2,rel:['HPGL','DXF']},
+  PLY:{f:'Polygon File Format',d:'Mallas y nubes de puntos de escáneres 3D. Estándar académico (Stanford).',t:'3D Malla',y:1994,s:'Ciencia/3D',pop:5,rel:['OBJ','STL']},
+  POT:{f:'PowerPoint Template (legacy)',d:'Plantilla de PowerPoint 97-2003 con diseño base.',t:'Plantilla',y:1997,s:'Office Legacy',pop:2,rel:['POTX','PPT']},
+  POTM:{f:'PowerPoint Macro Template',d:'Plantilla moderna de PowerPoint con macros VBA habilitadas.',t:'Plantilla',y:2007,s:'Office',pop:2,rel:['POTX','PPTM']},
+  POTX:{f:'PowerPoint Template',d:'Plantilla de PowerPoint moderna (sin macros) para presentaciones corporativas.',t:'Plantilla',y:2007,s:'Office',pop:3,rel:['POT','PPTX']},
+  PPM:{f:'Portable Pixmap',d:'Imagen RGB sin comprimir de Netpbm. Formato intermedio en pipelines de imagen.',t:'Raster simple',y:1988,s:'Unix',pop:2,rel:['PGM','PNG']},
+  PPS:{f:'PowerPoint Slideshow (legacy)',d:'Presentación 97-2003 que se abre directamente en modo pase.',t:'Presentación',y:1997,s:'Office Legacy',pop:2,rel:['PPSX','PPT']},
+  PPSM:{f:'PowerPoint Macro Slideshow',d:'Pase de diapositivas moderno con macros habilitadas.',t:'Presentación',y:2007,s:'Office',pop:1,rel:['PPSX','PPTM']},
+  PPSX:{f:'PowerPoint Slideshow',d:'Presentación moderna que arranca en modo pase. Típico de los PPS de correo en cadena.',t:'Presentación',y:2007,s:'Office',pop:3,rel:['PPTX','PPS']},
+  PPTM:{f:'PowerPoint Macro Presentation',d:'Presentación moderna con macros VBA. Precaución: puede ejecutar código.',t:'Presentación',y:2007,s:'Office',pop:3,rel:['PPTX','POTM']},
+  PRC:{f:'Palm Resource Code',d:'Apps y ebooks de Palm OS. Mobipocket lo usó como base.',t:'Paquete/ebook',y:1996,s:'Obsoleto',pop:1,rel:['PDB','MOBI']},
+  PRORES:{f:'Apple ProRes',d:'Codec intermedio profesional de Apple. Edición 4K/8K fluida con calidad casi sin pérdida.',t:'Codec pro',y:2007,s:'Profesional',pop:7,rel:['MOV','MXF','DNxHD']},
+  PROTO:{f:'Protocol Buffers Schema',d:'Esquemas de serialización de Google. Contratos de gRPC y APIs de alto rendimiento.',t:'Código/esquema',y:2008,s:'Backend',pop:6,rel:['GRAPHQL','JSON']},
+  PS:{f:'PostScript',d:'Lenguaje de descripción de página de Adobe. Padre del PDF; aún habla con impresoras.',t:'Documento/vector',y:1984,s:'Impresión',pop:4,rel:['EPS','PDF']},
+  PS1:{f:'PowerShell Script',d:'Automatización moderna de Windows con objetos .NET en la tubería.',t:'Script',y:2006,s:'Windows',pop:7,rel:['BAT','SH']},
+  PSF:{f:'PC Screen Font',d:'Fuente de consola Linux para modo texto (TTY).',t:'Fuente bitmap',y:1994,s:'Linux',pop:2,rel:['BDF','FON']},
+  PSP:{f:'PlayStation Portable / Paint Shop Pro',d:'ISO de juego de PSP o imagen del editor Paint Shop Pro, según contexto.',t:'ROM/Raster',y:2004,s:'Mixto',pop:3,rel:['ISO','ROM']},
+};
+// ============ FICHAS COMPLETADAS (Q-Z) ============
+const D2C={
+  QCOW2:{f:'QEMU Copy-On-Write 2',d:'Disco virtual de QEMU/KVM con snapshots y crecimiento dinámico. Estándar en virtualización Linux.',t:'Disco virtual',y:2004,s:'Virtualización',pop:6,rel:['VMDK','VDI','RAW']},
+  R:{f:'R Script',d:'Lenguaje de estadística y análisis de datos. Dominante en investigación y bioestadística.',t:'Código',y:1993,s:'Ciencia datos',pop:7,rel:['PY','CSV','RDATA']},
+  RA:{f:'RealAudio',d:'Audio en streaming de los 90 (RealPlayer). Pieza de museo de la web temprana.',t:'Audio streaming',y:1995,s:'Obsoleto',pop:1,rel:['RM','RAM']},
+  RAF:{f:'Fuji Raw Format',d:'RAW de cámaras Fujifilm, con los sensores X-Trans característicos.',t:'RAW',y:2000,s:'RAW',pop:4,rel:['DNG','ORF','ARW']},
+  RAM:{f:'RealAudio Metadata',d:'Puntero de texto a un stream RealAudio. Acompañante de RA/RM.',t:'Lista reproducción',y:1995,s:'Obsoleto',pop:1,rel:['RA','M3U']},
+  RB:{f:'Ruby Source',d:'Lenguaje elegante optimizado para la felicidad del programador. Motor de Ruby on Rails y GitHub.',t:'Código',y:1995,s:'Web backend',pop:6,rel:['PY','PHP','EX']},
+  RDB:{f:'Redis Database Dump',d:'Snapshot binario de Redis para persistencia y backups.',t:'BD clave-valor',y:2009,s:'BD',pop:4,rel:['REDIS','LDB']},
+  REDIS:{f:'Redis Data',d:'Datos del almacén clave-valor en memoria Redis: cachés, colas y rankings.',t:'BD clave-valor',y:2009,s:'BD',pop:3,rel:['RDB','MONGO']},
+  RM:{f:'RealMedia',d:'Vídeo en streaming de RealPlayer. Histórico de la web de los 90.',t:'Contenedor',y:1997,s:'Obsoleto',pop:1,rel:['RMVB','RA']},
+  RMVB:{f:'RealMedia Variable Bitrate',d:'Variante VBR de RealMedia, muy usada en Asia en los 2000.',t:'Contenedor',y:2003,s:'Obsoleto',pop:2,rel:['RM','MKV']},
+  RPM:{f:'RPM Package Manager',d:'Paquete de software de Red Hat/Fedora/SUSE con dependencias y scripts.',t:'Paquete software',y:1997,s:'Linux',pop:7,rel:['DEB','SNAP']},
+  S3M:{f:'Scream Tracker 3 Module',d:'Música tracker de los 90. Banda sonora de la demoscene DOS.',t:'Música módulo',y:1994,s:'Tracker',pop:2,rel:['MOD','XM','IT']},
+  SASS:{f:'Sass (sintaxis indentada)',d:'Preprocesador CSS con sintaxis por indentación, sin llaves. SCSS es su variante moderna.',t:'Estilos web',y:2006,s:'Web',pop:4,rel:['SCSS','LESS','CSS']},
+  SAT:{f:'ACIS SAT (Standard ACIS Text)',d:'Geometría del kernel ACIS usado por muchos CAD comerciales.',t:'CAD/BREP',y:1990,s:'CAD 3D',pop:3,rel:['STEP','IGES']},
+  SAV:{f:'Game Save / SPSS Data',d:'Partida guardada de emuladores y juegos, o dataset de SPSS en estadística.',t:'Datos guardado',y:1990,s:'Mixto',pop:5,rel:['SAVE','SRM']},
+  SAVE:{f:'Generic Save File',d:'Partida o estado guardado genérico. El formato interno depende de cada juego.',t:'Datos guardado',y:1990,s:'Gaming',pop:3,rel:['SAV']},
+  SCALA:{f:'Scala Source',d:'Funcional + orientado a objetos sobre la JVM. Motor de Apache Spark.',t:'Código',y:2004,s:'JVM',pop:5,rel:['JAVA','KT','CLJ']},
+  SCSS:{f:'Sassy CSS',d:'La sintaxis moderna de Sass: CSS válido + variables, mixins y anidamiento.',t:'Estilos web',y:2010,s:'Web',pop:8,rel:['SASS','CSS','LESS']},
+  SDF:{f:'SQL Server Compact Database',d:'BD embebida de Microsoft SQL Server Compact. Descontinuada en favor de SQLite.',t:'BD relacional',y:2005,s:'Obsoleto',pop:2,rel:['SQLITE','MDF']},
+  SFD:{f:'FontForge Source',d:'Fuente editable de FontForge en texto plano, con todo el diseño de glifos.',t:'Fuente fuente',y:2000,s:'Open Source',pop:2,rel:['UFO','TTF','OTF']},
+  SGI:{f:'Silicon Graphics Image',d:'Raster de estaciones SGI, históricas del 3D y el cine de los 90.',t:'Raster',y:1987,s:'Legacy',pop:1,rel:['TGA','TIFF']},
+  SH:{f:'Shell Script',d:'Script de Bash/sh. La automatización fundamental de Unix/Linux y macOS.',t:'Script',y:1977,s:'Unix',pop:9,rel:['BAT','PS1','ZSH']},
+  SHA:{f:'SHA Checksum',d:'Suma SHA-1/256/512 para verificar integridad. SHA-256 es el estándar actual.',t:'Checksum',y:1995,s:'Seguridad',pop:5,rel:['MD5','HASH']},
+  SHF:{f:'WonderShare Flash Slideshow',d:'Proyecto de presentación flash de WonderShare. Extinto con Flash.',t:'Presentación',y:2006,s:'Obsoleto',pop:1,rel:['SWF','PPTX']},
+  SHOW:{f:'Hancom Show Presentation',d:'Presentación de la suite coreana Hancom Office.',t:'Presentación',y:2010,s:'Regional',pop:1,rel:['PPTX','ODP']},
+  SIG:{f:'Signature File',d:'Firma criptográfica separada que verifica la autenticidad de otro archivo.',t:'Firma',y:1991,s:'Seguridad',pop:4,rel:['ASC','GPG','SHA']},
+  SIT:{f:'StuffIt Archive',d:'EL compresor del Mac clásico. Hoy reliquia: usar The Unarchiver para abrirlo.',t:'Comprimido',y:1987,s:'Obsoleto',pop:1,rel:['SITX','ZIP']},
+  SITX:{f:'StuffIt X Archive',d:'Versión moderna de StuffIt (2002). Tampoco sobrevivió a ZIP.',t:'Comprimido',y:2002,s:'Obsoleto',pop:1,rel:['SIT','ZIP']},
+  SK:{f:'Sketch/Skencil Drawing',d:'Vector del editor libre Skencil (antes Sketch), escrito en Python.',t:'Vector',y:1998,s:'Obsoleto',pop:1,rel:['SK1','SVG']},
+  SK1:{f:'sK1 Vector Drawing',d:'Vector del editor libre sK1, fork de Skencil orientado a preimpresión.',t:'Vector',y:2007,s:'Nicho',pop:1,rel:['SK','SVG','CDR']},
+  SMC:{f:'Super Magicom ROM (SNES)',d:'Volcado de cartucho de Super Nintendo con cabecera de copión.',t:'ROM',y:1990,s:'Emulación',pop:4,rel:['SNES','SFC']},
+  SMD:{f:'Sega Mega Drive ROM',d:'Volcado de cartucho de Mega Drive/Genesis en formato Super Magic Drive.',t:'ROM',y:1988,s:'Emulación',pop:3,rel:['GG','ROM']},
+  SNAP:{f:'Snap Package',d:'Paquete Linux universal de Canonical con sandbox y actualización automática.',t:'Paquete software',y:2014,s:'Linux',pop:5,rel:['FLATPAK','DEB']},
+  SNB:{f:'Samsung S Note',d:'Notas de los Samsung Galaxy Note antiguos, o ebook Shanda Bambook.',t:'Nota/ebook',y:2011,s:'Obsoleto',pop:1,rel:['EPUB']},
+  SNES:{f:'Super Nintendo ROM',d:'Volcado de cartucho de Super Nintendo. Ver también .sfc/.smc.',t:'ROM',y:1990,s:'Emulación',pop:5,rel:['SMC','NES']},
+  SPX:{f:'Speex Audio',d:'Codec de voz libre anterior a Opus, que lo reemplazó por completo.',t:'Audio voz',y:2002,s:'Obsoleto',pop:1,rel:['OPUS','OGG']},
+  SQLITE3:{f:'SQLite 3 Database',d:'BD SQLite con extensión explícita de versión 3. Idéntico a .sqlite.',t:'BD relacional',y:2004,s:'BD embebida',pop:5,rel:['SQLITE','DB']},
+  STP:{f:'STEP 3D Model (abrev.)',d:'Extensión corta de STEP. Intercambio CAD con geometría exacta.',t:'CAD/BREP',y:1994,s:'CAD 3D',pop:7,rel:['STEP','IGES']},
+  SUN:{f:'Sun Raster Image',d:'Raster de estaciones Sun Microsystems. Pieza de museo Unix.',t:'Raster',y:1985,s:'Obsoleto',pop:1,rel:['SGI','TIFF']},
+  SVELTE:{f:'Svelte Component',d:'Componente del framework Svelte: compila a JS puro sin runtime virtual-DOM.',t:'Código',y:2016,s:'Web',pop:6,rel:['VUE','JSX','JS']},
+  SWF:{f:'Shockwave Flash',d:'Animaciones y juegos Flash que definieron la web 2000-2010. Muerto oficialmente en 2020; Ruffle lo emula.',t:'Multimedia web',y:1996,s:'Obsoleto',pop:3,rel:['FLV','HTML']},
+  SWIFT:{f:'Swift Source',d:'Lenguaje moderno de Apple para iOS/macOS. Sustituyó a Objective-C.',t:'Código',y:2014,s:'Apple',pop:8,rel:['KT','OBJC']},
+  SXC:{f:'StarOffice Calc Spreadsheet',d:'Hoja de cálculo de OpenOffice 1.x, anterior a ODS.',t:'Hoja de cálculo',y:2000,s:'Obsoleto',pop:1,rel:['ODS','XLS']},
+  SXW:{f:'StarOffice Writer Document',d:'Documento de OpenOffice 1.x, anterior a ODT.',t:'Documento texto',y:2000,s:'Obsoleto',pop:1,rel:['ODT','DOC']},
+  TAK:{f:'Tom’s Audio Kompressor',d:'Audio sin pérdida rápido, popular en círculos de intercambio de música.',t:'Audio sin pérdida',y:2007,s:'Nicho',pop:2,rel:['FLAC','APE']},
+  TBZ2:{f:'Tarball Bzip2',d:'TAR comprimido con bzip2 (.tar.bz2). Distribución de código fuente.',t:'Comprimido',y:1996,s:'Unix',pop:4,rel:['TGZ','BZ2','TAR']},
+  TCR:{f:'Psion Text Compressed',d:'Ebook comprimido de los PDA Psion de los 90.',t:'Libro electrónico',y:1997,s:'Obsoleto',pop:1,rel:['PDB','EPUB']},
+  TGZ:{f:'Tarball Gzip',d:'TAR comprimido con gzip (.tar.gz). El estándar para distribuir código en Unix.',t:'Comprimido',y:1992,s:'Unix',pop:8,rel:['TAR','GZ','TBZ2']},
+  TIPA:{f:'TrollStore iOS App',d:'App iOS firmada permanentemente para instalar vía TrollStore sin jailbreak.',t:'Paquete app',y:2022,s:'iOS alt',pop:2,rel:['IPA']},
+  TOAST:{f:'Roxio Toast Image',d:'Imagen de disco del grabador Toast de macOS.',t:'Imagen disco',y:1997,s:'Apple',pop:1,rel:['DMG','ISO']},
+  TOD:{f:'JVC Everio Video',d:'Vídeo MPEG-2 de videocámaras JVC Everio de los 2000.',t:'Contenedor',y:2006,s:'Obsoleto',pop:1,rel:['MOD','MPG']},
+  TOML:{f:'Tom’s Obvious Minimal Language',d:'Configuración minimalista y sin ambigüedades. Usado por Cargo (Rust) y pyproject.toml.',t:'Configuración',y:2013,s:'Moderno',pop:7,rel:['YAML','INI','JSON']},
+  TSX:{f:'TypeScript XML (React)',d:'Componentes React con TypeScript: JSX + tipos estáticos. Estándar profesional actual.',t:'Código',y:2015,s:'Web',pop:9,rel:['TS','JSX']},
+  TTA:{f:'True Audio',d:'Audio sin pérdida simple y libre. Minoritario frente a FLAC.',t:'Audio sin pérdida',y:1999,s:'Nicho',pop:1,rel:['FLAC','APE']},
+  TTC:{f:'TrueType Collection',d:'Varias fuentes TrueType compartiendo glifos en un archivo. Habitual en fuentes asiáticas del sistema.',t:'Fuente',y:1994,s:'Desktop',pop:4,rel:['TTF','OTC']},
+  UDF:{f:'Universal Disk Format',d:'Sistema de archivos de DVD y Blu-ray, sucesor de ISO 9660.',t:'Sistema archivos',y:1995,s:'Óptico',pop:3,rel:['ISO','IMG']},
+  UFO:{f:'Unified Font Object',d:'Fuente editable en carpeta de XMLs legibles. Estándar de diseño tipográfico moderno con Git.',t:'Fuente fuente',y:2004,s:'Diseño',pop:3,rel:['SFD','OTF']},
+  UHA:{f:'UHarc Archive',d:'Compresor experimental de los 2000 con gran ratio y gran lentitud.',t:'Comprimido',y:1999,s:'Obsoleto',pop:1,rel:['PAQ','7Z']},
+  UNITY3D:{f:'Unity Web Bundle',d:'Juego Unity empaquetado para el viejo Web Player. Hoy se usa WebGL.',t:'Paquete juego',y:2009,s:'Obsoleto',pop:2,rel:['UNITYPACKAGE']},
+  UNITYPACKAGE:{f:'Unity Asset Package',d:'Paquete de assets de Unity: modelos, scripts y escenas listos para importar. La moneda de la Asset Store.',t:'Paquete assets',y:2010,s:'Gaming',pop:6,rel:['FBX','PREFAB']},
+  VCF:{f:'vCard Contact',d:'Tarjeta de contacto universal: el formato con el que se exportan contactos del móvil.',t:'Contacto',y:1996,s:'Universal',pop:7,rel:['ICS','CSV']},
+  VDI:{f:'VirtualBox Disk Image',d:'Disco duro virtual nativo de Oracle VirtualBox.',t:'Disco virtual',y:2007,s:'Virtualización',pop:5,rel:['VMDK','VHD','QCOW2']},
+  VFC:{f:'VentaFax Cover',d:'Portada de fax del software VentaFax. Extremadamente raro hoy.',t:'Fax',y:1997,s:'Obsoleto',pop:1,rel:['FAX']},
+  VHDX:{f:'Hyper-V Virtual Disk v2',d:'Disco virtual moderno de Hyper-V: hasta 64 TB y resistente a cortes de luz.',t:'Disco virtual',y:2012,s:'Virtualización',pop:5,rel:['VHD','VMDK']},
+  VOB:{f:'DVD Video Object',d:'Vídeo MPEG-2 de los DVD comerciales, con audio, subtítulos y menús multiplexados.',t:'Contenedor DVD',y:1996,s:'DVD',pop:4,rel:['MPG','M2TS','IFO']},
+  VOC:{f:'Creative Voice',d:'Audio de las Sound Blaster de la era DOS.',t:'Audio legacy',y:1989,s:'Obsoleto',pop:1,rel:['WAV','AU']},
+  VOX:{f:'Dialogic Voice / MagicaVoxel',d:'Audio telefónico ADPCM o modelos voxel de MagicaVoxel, según contexto.',t:'Audio/3D voxel',y:1990,s:'Mixto',pop:2,rel:['WAV','OBJ']},
+  VP8:{f:'VP8 Video Codec',d:'Codec libre de Google (2010), corazón del primer WebM. Sustituido por VP9/AV1.',t:'Codec',y:2010,s:'Legacy',pop:3,rel:['VP9','WEBM']},
+  VP9:{f:'VP9 Video Codec',d:'Codec libre de Google que sirve la mayoría de YouTube en HD/4K.',t:'Codec',y:2013,s:'Web',pop:7,rel:['AV1','VP8','WEBM']},
+  VPK:{f:'Valve Package',d:'Recursos empaquetados de juegos Source (Half-Life 2, CS, Dota 2) o apps de PS Vita.',t:'Paquete juego',y:2009,s:'Gaming',pop:4,rel:['PAK','BSP']},
+  VRML:{f:'Virtual Reality Modeling Language',d:'El "metaverso" de 1995: mundos 3D para navegador. Antecesor de X3D.',t:'3D Web',y:1995,s:'Obsoleto',pop:2,rel:['WRL','X3D','GLTF']},
+  VUE:{f:'Vue Single-File Component',d:'Componente de Vue.js: template, script y estilos en un archivo.',t:'Código',y:2014,s:'Web',pop:8,rel:['JSX','SVELTE','JS']},
+  WBMP:{f:'Wireless Bitmap',d:'Imagen 1-bit para móviles WAP del año 2000. Museo de la web móvil.',t:'Raster',y:1999,s:'Obsoleto',pop:1,rel:['PNG','GIF']},
+  WIM:{f:'Windows Imaging Format',d:'Imagen de despliegue de Windows. El install.wim del instalador del sistema.',t:'Imagen sistema',y:2007,s:'Windows',pop:4,rel:['ISO','ESD']},
+  WMF:{f:'Windows Metafile',d:'Vector de 16 bits del Windows clásico. Los cliparts del viejo Office.',t:'Vector',y:1990,s:'Legacy',pop:3,rel:['EMF','SVG']},
+  WPG:{f:'WordPerfect Graphics',d:'Gráficos de la suite WordPerfect, reina del texto en los 80-90.',t:'Vector/Raster',y:1987,s:'Obsoleto',pop:1,rel:['WMF','EPS']},
+  WPS:{f:'Microsoft Works / Kingsoft Writer',d:'Documento de MS Works (descontinuado) o de la suite china WPS Office.',t:'Documento texto',y:1988,s:'Mixto',pop:3,rel:['DOC','DOCX']},
+  WRL:{f:'VRML World',d:'Mundo 3D VRML ("world"). Realidad virtual de los 90 para navegador.',t:'3D Web',y:1995,s:'Obsoleto',pop:1,rel:['VRML','X3D']},
+  X3D:{f:'Extensible 3D',d:'Sucesor XML de VRML para 3D web declarativo. Nicho académico; glTF ganó.',t:'3D Web',y:2001,s:'Nicho',pop:2,rel:['VRML','GLTF']},
+  XAPK:{f:'Extended APK',d:'APK + datos OBB en un paquete. Usado por tiendas alternativas como APKPure.',t:'Paquete app',y:2017,s:'Android',pop:4,rel:['APK','APKM','OBB']},
+  XAR:{f:'Xara Drawing / eXtensible ARchive',d:'Vector del veloz Xara Designer, o formato de archivo de instaladores Mac antiguos.',t:'Vector/Archivo',y:1995,s:'Nicho',pop:1,rel:['CDR','SVG']},
+  XBM:{f:'X BitMap',d:'Imagen 1-bit como código C para X11. Los cursores del Unix gráfico antiguo.',t:'Raster/código',y:1989,s:'Obsoleto',pop:1,rel:['XPM','PBM']},
+  XCAPPDATA:{f:'Xcode App Data',d:'Contenedor de datos de app para pruebas en Xcode: simula el estado del usuario.',t:'Datos pruebas',y:2012,s:'iOS dev',pop:2,rel:['IPA','PLIST']},
+  XCI:{f:'NX Card Image',d:'Volcado completo de cartucho físico de Nintendo Switch.',t:'ROM',y:2017,s:'Switch',pop:4,rel:['NSP','ROM']},
+  XLSM:{f:'Excel Macro Workbook',d:'Libro de Excel moderno con macros VBA. Automatización potente; cuidado con orígenes desconocidos.',t:'Hoja de cálculo',y:2007,s:'Office',pop:6,rel:['XLSX','XLTM']},
+  XLT:{f:'Excel Template (legacy)',d:'Plantilla de Excel 97-2003.',t:'Plantilla',y:1997,s:'Office Legacy',pop:2,rel:['XLTX','XLS']},
+  XLTM:{f:'Excel Macro Template',d:'Plantilla de Excel moderna con macros habilitadas.',t:'Plantilla',y:2007,s:'Office',pop:2,rel:['XLTX','XLSM']},
+  XLTX:{f:'Excel Template',d:'Plantilla de Excel moderna sin macros: facturas, presupuestos, calendarios.',t:'Plantilla',y:2007,s:'Office',pop:3,rel:['XLT','XLSX']},
+  XM:{f:'FastTracker 2 Extended Module',d:'Música tracker con envolventes e instrumentos multicapa. Cumbre de la demoscene.',t:'Música módulo',y:1994,s:'Tracker',pop:2,rel:['MOD','IT','S3M']},
+  XPM:{f:'X PixMap',d:'Imagen en color como código C para X11. Iconos del escritorio Unix clásico.',t:'Raster/código',y:1989,s:'Legacy',pop:1,rel:['XBM','PNG']},
+  XPS:{f:'XML Paper Specification',d:'El rival de PDF que Microsoft integró en Windows. Documento fijo XML; casi nadie lo usa.',t:'Documento fijo',y:2006,s:'Microsoft',pop:3,rel:['OXPS','PDF']},
+  XVID:{f:'Xvid Video Codec',d:'Codec libre MPEG-4 que dominó los AVI compartidos de los 2000.',t:'Codec',y:2001,s:'Obsoleto',pop:2,rel:['DIVX','AVI','MP4']},
+  XZ:{f:'XZ Compressed',d:'Compresor LZMA2 estándar en Linux para tarballs (.tar.xz) y paquetes.',t:'Comprimido',y:2009,s:'Unix',pop:7,rel:['LZMA','GZ','ZSTD']},
+  YML:{f:'YAML (abrev.)',d:'Extensión corta de YAML. Configuración de CI/CD, Docker Compose y Kubernetes.',t:'Datos/config',y:2001,s:'DevOps',pop:9,rel:['YAML','JSON','TOML']},
+  Z:{f:'Unix Compress',d:'El compresor Unix original (1985, LZW). Antecesor directo de gzip.',t:'Comprimido',y:1985,s:'Obsoleto',pop:1,rel:['GZ','TAR']},
+};
+Object.assign(D, D2A, D2B, D2C);
+// ============================================================
+// LENGUAJE / BASE DE CADA FORMATO  (sistema de etiquetas)
+// Agrupa los formatos según el lenguaje o la base técnica
+// en la que están escritos o estructurados.
+// ============================================================
+const LANG_GROUPS={
+  'Texto plano':{cl:'#5C5750',e:['TXT','MD','CSV','TSV','CUE','M3U','PLS','INI','CONF','TOML','LOG','HTPASSWD','AFM','PFA','BDF','SFD','TEX','VCF','ICS','SRT','HASH','MD5','SHA']},
+  'XML':{cl:'#C8901C',e:['XML','SVG','HTML','XHTML','DAE','X3D','GPX','KML','OPF','FB2','PLIST','MOBILECONFIG','ENT','RSS','ABW','GNUMERIC','CGM','XAML','MXML','EMLX','UFO','AMF','3MF','XPS','OXPS','COLLADA']},
+  'JSON':{cl:'#5D7339',e:['JSON','GLTF','GEOJSON','IPYNB','WEBMANIFEST','ARROW']},
+  'JavaScript':{cl:'#D26244',e:['JS','JSX','MJS','VUE','SVELTE']},
+  'TypeScript':{cl:'#3F6F9A',e:['TS','TSX']},
+  'Python':{cl:'#2D5F6B',e:['PY','PYC','IPYNB','R','SK','SK1']},
+  'C / C++':{cl:'#6B4076',e:['C','CPP','H','HPP','XBM','XPM']},
+  'Otros lenguajes':{cl:'#7E5634',e:['JAVA','KT','SWIFT','CS','GO','RS','RB','PHP','PL','LUA','DART','SCALA','CLJ','EX','ELM','HS','ML','GRAPHQL','PROTO','SQL','SH','BAT','PS1','PSF']},
+  'Hojas de estilo':{cl:'#A0506A',e:['CSS','SCSS','SASS','LESS']},
+  'YAML':{cl:'#476939',e:['YAML','YML']},
+  'PostScript':{cl:'#8C2A30',e:['PS','EPS','AI','PFB','PFM']},
+  'Base64 / PEM':{cl:'#7E6F2A',e:['PEM','CRT','CER','CSR','ASC','GPG','PGP','SIG','OVPN','KEY']},
+  'Contenedor ZIP':{cl:'#92341E',e:['ZIP','DOCX','XLSX','PPTX','XLSM','PPTM','POTX','POTM','PPSX','PPSM','XLTX','XLTM','ODT','ODS','ODP','EPUB','APK','AAB','XAPK','APKM','IPA','TIPA','JAR','USDZ','SKP','KEY','PAGES','NUMBERS','SXW','SXC','UNITYPACKAGE','PEA','SNB','IBA','KFX','VPK','PK3','WIM','CHM']},
+  'MIME / Email':{cl:'#3E5C57',e:['EML','MHT','MHTML','MBOX','MSG','OFT','DBX','PST','OST']},
+  'Binario':{cl:'#1A1816',e:[]} // resto — se asigna por defecto
+};
+function langOf(ext){
+  for(const [k,v] of Object.entries(LANG_GROUPS)){ if(v.e.includes(ext)) return k; }
+  return 'Binario';
+}
+function extsOfLang(lang){
+  const all=[...new Set(Object.values(CATS).flatMap(c=>c.e))];
+  if(lang==='Binario') return all.filter(e=>langOf(e)==='Binario').sort();
+  return all.filter(e=>(LANG_GROUPS[lang]?.e||[]).includes(e)).sort();
+}
+const LANG_DESC={
+  'Texto plano':'Archivos legibles con cualquier editor de texto. Sin estructura binaria: lo que ves es lo que hay.',
+  'XML':'Lenguaje de marcado con etiquetas anidadas <asi>. Muchos formatos "propios" son en realidad XML con otro nombre.',
+  'JSON':'Notación de objetos de JavaScript. Pares clave-valor legibles, el idioma de las APIs modernas.',
+  'JavaScript':'Código JavaScript o componentes basados en él. Se ejecuta en navegadores y Node.js.',
+  'TypeScript':'JavaScript con tipos estáticos. Compila a JS.',
+  'Python':'Código fuente Python o formatos generados desde Python.',
+  'C / C++':'Código fuente de la familia C, base del software de sistemas.',
+  'Otros lenguajes':'Código fuente de otros lenguajes de programación y scripting.',
+  'Hojas de estilo':'CSS y sus preprocesadores: definen la apariencia visual de la web.',
+  'YAML':'Configuración legible por indentación. El idioma de DevOps (Docker, Kubernetes, CI/CD).',
+  'PostScript':'Lenguaje de descripción de página de Adobe. Vectores e impresión profesional.',
+  'Base64 / PEM':'Datos binarios codificados como texto (certificados, claves, firmas) con cabeceras BEGIN/END.',
+  'Contenedor ZIP':'Por dentro son archivos ZIP: renómbralos a .zip y podrás ver su contenido. DOCX, EPUB, APK... todos son ZIP disfrazados.',
+  'MIME / Email':'Estructura de mensajes de correo (RFC 822/MIME): cabeceras de texto + cuerpo y adjuntos codificados.',
+  'Binario':'Estructura binaria propia, no legible como texto. Necesitan su aplicación o librería específica para abrirse.'
 };
 
 // ============================================================
-// MAIN APP
+// ECOSISTEMA DE RECURSOS PARA UN MODELO DE IA
 // ============================================================
-const STORAGE_KEY='format-explorer-v2-state';
-function loadState(){
-  try{
-    const s=localStorage.getItem(STORAGE_KEY);
-    if(s) return JSON.parse(s);
-  }catch(e){}
-  return null;
-}
-function saveState(s){
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s))}catch(e){}
-}
-
-function App(){
-  const saved=loadState();
-  const [cat,setCat]=useState(saved?.cat||'imagen');
-  const [ext,setExt]=useState(null);
-  const [app,setApp]=useState(null);
-  const [search,setSearch]=useState('');
-  const [appSearch,setAppSearch]=useState('');
-  const [apps,setApps]=useState(saved?.apps||APPS);
-  const [showAdd,setShowAdd]=useState(false);
-  const [editApp,setEditApp]=useState(null);
-  const [showCmp,setShowCmp]=useState(null);
-  const [showStats,setShowStats]=useState(false);
-  const [showHelp,setShowHelp]=useState(false);
-  const [toasts,setToasts]=useState([]);
-  const [dragActive,setDragActive]=useState(false);
-  const searchRef=useRef(null);
-
-  // Persist state
-  useEffect(()=>{saveState({cat,apps})},[cat,apps]);
-
-  const toast=useCallback((msg,kind='info')=>{
-    const id=Math.random().toString(36).slice(2);
-    setToasts(t=>[...t,{id,msg,kind}]);
-    setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3200);
-  },[]);
-
-  // All extensions across all categories
-  const allExt=useMemo(()=>{
-    const s=new Set();
-    Object.values(CATS).forEach(c=>c.e.forEach(x=>s.add(x)));
-    return [...s].sort();
-  },[]);
-
-  // Search across extensions, full names and apps
-  const searchResult=useMemo(()=>{
-    if(!search.trim())return null;
-    const q=search.toUpperCase().trim();
-    const exts=new Set();
-    const cats=new Set();
-    Object.entries(CATS).forEach(([k,c])=>c.e.forEach(x=>{
-      if(x.includes(q)){exts.add(x);cats.add(k)}
-      const info=D[x];
-      if(info && info.f.toUpperCase().includes(q)){exts.add(x);cats.add(k)}
-    }));
-    return {exts:[...exts].sort(),cats:[...cats]};
-  },[search]);
-
-  // Current extensions
-  const currentExt=useMemo(()=>{
-    if(searchResult&&searchResult.exts.length>0)return searchResult.exts;
-    return CATS[cat]?.e||[];
-  },[cat,searchResult]);
-
-  const activeApp=useMemo(()=>apps.find(a=>a.id===app),[app,apps]);
-  const activeAppFmt=useMemo(()=>new Set(activeApp?activeApp.fm:[]),[activeApp]);
-
-  const filteredApps=useMemo(()=>{
-    if(!appSearch.trim())return apps;
-    const q=appSearch.toLowerCase();
-    return apps.filter(a=>a.nm.toLowerCase().includes(q)||(a.vd||'').toLowerCase().includes(q));
-  },[apps,appSearch]);
-
-  // Apps by coverage of current extension
-  const compatibleApps=useMemo(()=>ext?apps.filter(a=>a.fm.includes(ext)):[],[ext,apps]);
-  const altApps=useMemo(()=>ext?(ALT_APPS[ext]||[]):[],[ext]);
-
-  // Recommended app for current extension: highest popularity weighted by coverage of current category
-  const recommended=useMemo(()=>{
-    if(!ext||compatibleApps.length===0)return null;
-    const catExts=CATS[cat]?.e||[];
-    const scored=compatibleApps.map(a=>{
-      const inCat=a.fm.filter(f=>catExts.includes(f)).length;
-      const cov=catExts.length>0?(inCat/catExts.length):0;
-      const total=a.fm.length;
-      const score=cov*0.6+Math.min(total/40,1)*0.4;
-      return {...a,score,coverage:cov,inCat};
-    }).sort((a,b)=>b.score-a.score);
-    return scored[0];
-  },[ext,compatibleApps,cat]);
-
-  // Compute coverage per app within current category (for the strip badge)
-  const appCoverage=useMemo(()=>{
-    const catExts=CATS[cat]?.e||[];
-    const m={};
-    apps.forEach(a=>{
-      const cov=catExts.filter(x=>a.fm.includes(x)).length;
-      m[a.id]={count:cov,pct:catExts.length?Math.round(100*cov/catExts.length):0};
-    });
-    return m;
-  },[cat,apps]);
-
-  // Reset extension when category changes
-  useEffect(()=>{setExt(null)},[cat]);
-
-  // Keyboard shortcuts
-  useEffect(()=>{
-    const onKey=(e)=>{
-      if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
-      if(e.key==='/'){e.preventDefault();searchRef.current?.focus()}
-      if(e.key==='Escape'){
-        if(showAdd)setShowAdd(false);
-        else if(editApp)setEditApp(null);
-        else if(showCmp)setShowCmp(null);
-        else if(showStats)setShowStats(false);
-        else if(showHelp)setShowHelp(false);
-        else if(ext)setExt(null);
-        else if(app)setApp(null);
-      }
-      if(e.key==='?'){e.preventDefault();setShowHelp(true)}
-    };
-    window.addEventListener('keydown',onKey);
-    return()=>window.removeEventListener('keydown',onKey);
-  },[ext,app,showAdd,editApp,showCmp,showStats,showHelp]);
-
-  // Drag and drop file detection
-  useEffect(()=>{
-    let dragCounter=0;
-    const onDragEnter=(e)=>{
-      e.preventDefault();
-      if(e.dataTransfer&&e.dataTransfer.types.includes('Files')){
-        dragCounter++;
-        setDragActive(true);
-      }
-    };
-    const onDragLeave=(e)=>{
-      e.preventDefault();
-      dragCounter--;
-      if(dragCounter<=0){dragCounter=0;setDragActive(false)}
-    };
-    const onDragOver=(e)=>e.preventDefault();
-    const onDrop=(e)=>{
-      e.preventDefault();
-      dragCounter=0;
-      setDragActive(false);
-      const file=e.dataTransfer.files[0];
-      if(!file)return;
-      const parts=file.name.split('.');
-      if(parts.length<2){toast('Sin extensión detectable','warn');return}
-      const ex=parts.pop().toUpperCase();
-      // Find category
-      let foundCat=null;
-      for(const [k,c] of Object.entries(CATS)){
-        if(c.e.includes(ex)){foundCat=k;break}
-      }
-      if(foundCat){
-        setCat(foundCat);
-        setExt(ex);
-        setSearch('');
-        toast(`.${ex} detectado en ${CATS[foundCat].n}`,'info');
-      }else{
-        toast(`.${ex} no está en ningún catálogo`,'warn');
-      }
-    };
-    window.addEventListener('dragenter',onDragEnter);
-    window.addEventListener('dragleave',onDragLeave);
-    window.addEventListener('dragover',onDragOver);
-    window.addEventListener('drop',onDrop);
-    return()=>{
-      window.removeEventListener('dragenter',onDragEnter);
-      window.removeEventListener('dragleave',onDragLeave);
-      window.removeEventListener('dragover',onDragOver);
-      window.removeEventListener('drop',onDrop);
-    };
-  },[toast]);
-
-  const onAddApp=(a)=>{
-    setApps(p=>[...p,a]);
-    setShowAdd(false);
-    toast(`Aplicación añadida: ${a.nm}`,'info');
-  };
-
-  const onEditApp=(a)=>{
-    setApps(p=>p.map(x=>x.id===a.id?a:x));
-    setEditApp(null);
-    toast(`Actualizado: ${a.nm}`,'info');
-  };
-
-  const onRemoveApp=(id)=>{
-    const a=apps.find(x=>x.id===id);
-    setApps(p=>p.filter(x=>x.id!==id));
-    if(app===id)setApp(null);
-    toast(`Eliminado: ${a?.nm||'app'}`,'warn');
-  };
-
-  const totalFmt=allExt.length;
-  const coveredFmt=useMemo(()=>{
-    const s=new Set();
-    apps.forEach(a=>a.fm.forEach(f=>s.add(f)));
-    return s.size;
-  },[apps]);
-
-  return (<>
-    <header className="hdr">
-      <div className="brand">
-        <div className="brand-mark">FX</div>
-        <div className="brand-tx">
-          <h1>Format Explorer</h1>
-          <p>v2 · file compatibility tool</p>
-        </div>
-      </div>
-      <div className="search">
-        <input ref={searchRef} value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar formato o nombre… (.png, joint photographic, raw…)" aria-label="Buscar"/>
-        <svg className="search-ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        {!search && <span className="search-kbd">/</span>}
-      </div>
-      <div className="hdr-actions">
-        <button className="hdr-btn" onClick={()=>setShowStats(true)} title="Panel de estadísticas">
-          <svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8"/><rect x="10" y="8" width="4" height="13"/><rect x="17" y="3" width="4" height="18"/></svg>
-          <span>Stats</span>
-        </button>
-        <button className="hdr-btn" onClick={()=>setShowHelp(true)} title="Ayuda (?)">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        </button>
-        <button className="hdr-btn primary" onClick={()=>setShowAdd(true)}>
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span>Añadir app</span>
-        </button>
-      </div>
-    </header>
-
-    <div className="body">
-      <aside className="side">
-        <div className="side-h">
-          <div className="side-h-tx">Categorías</div>
-          <div className="side-h-ct">{Object.keys(CATS).length}</div>
-        </div>
-        <div className="side-list">
-          {Object.entries(CATS).map(([k,c])=>(
-            <div key={k} className={`cat${cat===k?' active':''}`} style={{'--cat-cl':c.cl}} onClick={()=>{setCat(k);setSearch('')}} role="button" tabIndex={0} onKeyDown={e=>e.key==='Enter'&&(setCat(k),setSearch(''))}>
-              <div className="cat-ico">{c.i}</div>
-              <span className="cat-name">{c.n}</span>
-              <span className="cat-count">{c.e.length}</span>
-              <button className="cat-info" onClick={e=>{e.stopPropagation();setShowCmp(k)}} title="Tabla comparativa">i</button>
-            </div>
-          ))}
-        </div>
-        <div className="side-foot">
-          <div className="side-stat"><span>Total formatos</span><strong>{totalFmt}</strong></div>
-          <div className="side-stat"><span>Tus apps cubren</span><strong>{coveredFmt}</strong></div>
-        </div>
-      </aside>
-
-      <main className="center">
-        <div className="cnt-h">
-          <div>
-            <div className="cnt-title">
-              {searchResult?<>Resultados de búsqueda<small>{searchResult.exts.length} formato{searchResult.exts.length!==1?'s':''} para "{search}"</small></>:
-              <>{CATS[cat].i} {CATS[cat].n}<small>{CATS[cat].e.length} formatos · click para ver detalles</small></>}
-            </div>
-          </div>
-          <div className="cnt-h-actions">
-            {activeApp&&<div className="chip" style={{borderColor:activeApp.cl,color:activeApp.cl}}>
-              <span style={{width:7,height:7,borderRadius:99,background:activeApp.cl}}/>
-              <span>{activeApp.nm}</span>
-              <strong>{appCoverage[activeApp.id]?.count||0}/{CATS[cat].e.length}</strong>
-            </div>}
-            <button className="hdr-btn" onClick={()=>setShowCmp(cat)} title="Tabla comparativa de la categoría">
-              <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-              <span>Comparar</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="cnt-body" style={{'--cat-cl':CATS[cat].cl,'--cat-grad':CATS[cat].cl}}>
-          {currentExt.length===0?
-            <div className="cnt-body-empty">
-              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <h3>Sin resultados</h3>
-              <p>No hay formatos que coincidan con "{search}". Prueba con otra búsqueda o despeja la barra.</p>
-            </div>
-          :
-            <div className="grid">
-              {currentExt.map((x,i)=>{
-                const hl=app&&activeAppFmt.has(x);
-                const sl=ext===x;
-                const dim=app&&!activeAppFmt.has(x)&&!sl;
-                const info=D[x];
-                const pop=info?.pop||0;
-                return (<div key={x} className={`ext${sl?' sel':''}${hl?' hl':''}${dim?' dim':''}`} style={{animationDelay:`${i*.012}s`,'--app-cl':hl?activeApp.cl:undefined}} onClick={()=>setExt(ext===x?null:x)} role="button" tabIndex={0} onKeyDown={e=>e.key==='Enter'&&setExt(ext===x?null:x)} title={info?info.f:x}>
-                  <span>{x}</span>
-                  {pop>=8&&<span className="ext-pop high"/>}
-                </div>);
-              })}
-            </div>
-          }
-        </div>
-
-        <div className="app-strip">
-          <div className="app-strip-h">
-            <div className="app-strip-h-l">Aplicaciones · {apps.length}</div>
-            <div className="app-search">
-              <input value={appSearch} onChange={e=>setAppSearch(e.target.value)} placeholder="Buscar app…" aria-label="Buscar app"/>
-              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </div>
-            <div className="app-strip-h-r">
-              {app&&<button className="app-mini-btn ghost" onClick={()=>setApp(null)} title="Deseleccionar app">✕</button>}
-              <button className="app-mini-btn" onClick={()=>setShowAdd(true)} title="Añadir app">+</button>
-            </div>
-          </div>
-          <div className="app-list">
-            {filteredApps.map(a=>{
-              const cov=appCoverage[a.id];
-              return (<div key={a.id} className={`app-card${app===a.id?' act':''}`} style={{'--app-cl':a.cl}} onClick={()=>setApp(app===a.id?null:a.id)} onContextMenu={e=>{e.preventDefault();setEditApp(a)}} role="button" tabIndex={0} title={`${a.nm} · ${a.vd||''} · ${a.fm.length} formatos · click derecho para editar`}>
-                <span className="app-dot"/>
-                <span className="app-name">{a.nm}</span>
-                <span className="app-cov">{cov?.pct||0}%</span>
-                <button className="app-card-rm" onClick={e=>{e.stopPropagation();onRemoveApp(a.id)}} title="Eliminar">×</button>
-              </div>);
-            })}
-            {filteredApps.length===0&&<div style={{padding:'20px 16px',color:'var(--tx-3)',fontSize:12}}>Sin coincidencias</div>}
-          </div>
-        </div>
-      </main>
-
-      <aside className={`info${ext?' open':''}`}>
-        {ext&&<InfoPanel ext={ext} cat={cat} compatibleApps={compatibleApps} altApps={altApps} recommended={recommended} onClose={()=>setExt(null)} onSelectApp={id=>setApp(id)} onSelectExt={x=>setExt(x)}/>}
-      </aside>
-    </div>
-
-    {showAdd&&<AddAppModal allExt={allExt} onClose={()=>setShowAdd(false)} onAdd={onAddApp}/>}
-    {editApp&&<AddAppModal allExt={allExt} initial={editApp} onClose={()=>setEditApp(null)} onAdd={onEditApp} title="Editar Aplicación"/>}
-    {showCmp&&<CompareModal catKey={showCmp} onClose={()=>setShowCmp(null)} apps={apps}/>}
-    {showStats&&<StatsModal apps={apps} onClose={()=>setShowStats(false)}/>}
-    {showHelp&&<HelpModal onClose={()=>setShowHelp(false)}/>}
-
-    {dragActive&&<div className="drop-overlay">
-      <div className="drop-card">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <h2>Suelta el archivo</h2>
-        <p>Detectaré la extensión y abriré sus detalles automáticamente</p>
-      </div>
-    </div>}
-
-    <div className="toast-wrap">
-      {toasts.map(t=><div key={t.id} className={`toast ${t.kind==='warn'?'warn':t.kind==='err'?'err':''}`}>{t.msg}</div>)}
-    </div>
-  </>);
-}
-
+const ECO_GROUPS={
+  leng:{n:'Lenguajes de programación',cl:'#2563b0',icon:'📘',items:['Python','JavaScript','TypeScript','HTML','CSS','C++','Java','Rust']},
+  lib:{n:'Librerías / Frameworks',cl:'#7c3aad',icon:'📦',items:['Three.js','P5.js','React','TensorFlow','PyTorch','NumPy','Pandas','D3.js']},
+  pkg:{n:'Gestores de paquetes',cl:'#e08214',icon:'🧰',items:['NPM','PyPI','Yarn','pip','Conda','Cargo','Maven']},
+  repo:{n:'Repositorios / Control de versiones',cl:'#3d8b40',icon:'🗂️',items:['Git','GitHub','GitLab','Bitbucket','Hugging Face']},
+  cdn:{n:'Distribución / CDN',cl:'#1ba8a0',icon:'🌐',items:['CDN','jsDelivr','unpkg','cdnjs','Cloudflare']},
+  fmt:{n:'Formatos de archivo',cl:'#d23b3b',icon:'📄',items:['.html','.js','.py','.json','.csv','.md','.gltf','.obj','.fbx','.dae']},
+};
+const ECO_CORE={n:'MODELO DE IA',d:'Un modelo de IA (como Claude o GPT) actúa como orquestador del ecosistema: escribe código en los lenguajes, usa librerías importándolas desde gestores de paquetes o CDNs, lee y escribe archivos en distintos formatos, y publica el resultado en repositorios o CDNs. No "contiene" estas herramientas: sabe combinarlas.',
+  conns:[
+    ['usa','Lenguajes','Escribe y entiende código en Python, JavaScript, HTML, CSS y más.'],
+    ['usa','Librerías','Genera código que importa Three.js, React, NumPy... y sabe cómo se usan sus APIs.'],
+    ['importa desde','Gestores de paquetes','Indica instalar dependencias con npm install o pip install.'],
+    ['lee/escribe','Repositorios','Clona, hace commits y sube código a GitHub/GitLab mediante Git.'],
+    ['publica en','CDN','Enlaza librerías desde jsDelivr/cdnjs para que una web funcione sin instalación.'],
+    ['lee/escribe','Formatos','Produce .html, .json, .gltf... el "producto final" de su trabajo siempre es un archivo.']
+  ]};
+const ECO={
+  // --- Lenguajes ---
+  'Python':{g:'leng',d:'Lenguaje principal de la IA y la ciencia de datos. Sintaxis clara, ecosistema gigante.',c:[['PyPI / pip','instala sus librerías desde','pkg'],['TensorFlow','framework de ML escrito para','lib'],['PyTorch','framework de ML escrito para','lib'],['NumPy','su librería numérica base','lib'],['Pandas','su librería de datos tabulares','lib'],['.py','sus archivos fuente','fmt'],['Hugging Face','publica modelos entrenados en','repo']],ex:'El MODELO DE IA escribe un script .py que importa PyTorch (instalado con pip desde PyPI) y sube el modelo resultante a Hugging Face.'},
+  'JavaScript':{g:'leng',d:'El lenguaje de la web. Se ejecuta en todos los navegadores y en servidores con Node.js.',c:[['NPM','instala sus paquetes con','pkg'],['Three.js','librería 3D escrita en','lib'],['P5.js','librería creativa escrita en','lib'],['React','framework de UI escrito en','lib'],['D3.js','librería de datos escrita en','lib'],['.js','sus archivos fuente','fmt'],['cdnjs / jsDelivr','se carga en webs desde','cdn']],ex:'Un juego .html carga Three.js desde jsDelivr con una etiqueta <script>: JavaScript funcionando sin instalar nada.'},
+  'TypeScript':{g:'leng',d:'JavaScript con tipos estáticos: detecta errores antes de ejecutar. Compila a JS.',c:[['JavaScript','compila a','leng'],['NPM','se instala con','pkg'],['React','se usa habitualmente con','lib'],['.js','genera archivos','fmt']],ex:'npm install typescript → escribes .ts → el compilador emite .js que cualquier navegador entiende.'},
+  'HTML':{g:'leng',d:'Lenguaje de marcado que estructura toda página web. El esqueleto de la web.',c:[['CSS','se estiliza con','leng'],['JavaScript','se hace interactivo con','leng'],['.html','sus archivos','fmt'],['GitHub','se publica gratis con GitHub Pages en','repo'],['CDN','carga librerías externas desde','cdn']],ex:'Tu web rubenpantxo.com es HTML alojado en GitHub Pages que carga librerías desde CDNs.'},
+  'CSS':{g:'leng',d:'Hojas de estilo: colores, tipografías, layouts y animaciones de la web.',c:[['HTML','da estilo a','leng'],['.html','se incrusta en archivos','fmt'],['cdnjs','frameworks CSS se cargan desde','cdn']],ex:'Esta misma app usa CSS para imitar los biseles 3D de Windows 95.'},
+  'C++':{g:'leng',d:'Lenguaje de alto rendimiento. Los motores internos de TensorFlow y PyTorch están escritos en C++.',c:[['TensorFlow','su núcleo está escrito en','lib'],['PyTorch','su núcleo está escrito en','lib'],['Python','se expone a través de bindings a','leng']],ex:'Cuando Python "entrena una red", quien calcula de verdad es C++ (y la GPU) por debajo.'},
+  'Java':{g:'leng',d:'Lenguaje empresarial de la JVM. Base de las apps Android y de mucho backend corporativo.',c:[['Maven','gestiona sus dependencias con','pkg'],['GitHub','aloja sus proyectos en','repo']],ex:'Un proyecto Java declara dependencias en pom.xml y Maven las descarga automáticamente.'},
+  'Rust':{g:'leng',d:'Lenguaje de sistemas moderno con seguridad de memoria. Cada vez más usado en tooling de IA.',c:[['Cargo','su gestor de paquetes oficial','pkg'],['GitHub','aloja sus crates en','repo']],ex:'cargo build descarga las dependencias (crates) y compila un binario ultrarrápido.'},
+  // --- Librerías ---
+  'Three.js':{g:'lib',d:'Librería JavaScript para gráficos 3D en el navegador usando WebGL. Carga modelos .gltf, .obj, .fbx o .dae.',c:[['JavaScript','escrita en','leng'],['NPM','se instala con','pkg'],['jsDelivr','o se carga sin instalar desde','cdn'],['.gltf','carga modelos','fmt'],['.obj','carga modelos','fmt'],['.fbx','carga modelos','fmt'],['.dae','carga modelos','fmt'],['GitHub','su código vive en','repo']],ex:'Tu juego Chess3D usa Three.js: el HTML la carga desde un CDN y ella dibuja el tablero 3D leyendo modelos GLTF.'},
+  'P5.js':{g:'lib',d:'Librería JavaScript de programación creativa: dibujo, animación y arte generativo fáciles.',c:[['JavaScript','escrita en','leng'],['cdnjs','se suele cargar desde','cdn'],['.js','tu sketch es un archivo','fmt'],['GitHub','su código vive en','repo']],ex:'Un sketch de arte generativo: index.html + sketch.js que carga P5.js desde cdnjs.'},
+  'React':{g:'lib',d:'Librería de interfaces de usuario por componentes, creada por Meta. Domina el frontend actual.',c:[['JavaScript','escrita en','leng'],['NPM','se instala con','pkg'],['unpkg','o se carga desde','cdn'],['.js','componentes en archivos JSX/','fmt']],ex:'La versión anterior de esta app Format Explorer estaba hecha con React cargado desde un CDN.'},
+  'TensorFlow':{g:'lib',d:'Framework de machine learning de Google. Entrena y ejecuta redes neuronales.',c:[['Python','API principal en','leng'],['C++','núcleo escrito en','leng'],['pip / Conda','se instala con','pkg'],['Hugging Face','modelos compatibles en','repo']],ex:'pip install tensorflow → entrenas una red → guardas los pesos en un archivo .h5.'},
+  'PyTorch':{g:'lib',d:'Framework de ML de Meta, favorito en investigación. La mayoría de los LLM se entrenan con él.',c:[['Python','API principal en','leng'],['C++','núcleo escrito en','leng'],['pip / Conda','se instala con','pkg'],['Hugging Face','sus modelos se comparten en','repo']],ex:'Los modelos de Hugging Face son en su mayoría pesos de PyTorch listos para descargar.'},
+  'NumPy':{g:'lib',d:'La librería numérica fundamental de Python: arrays y álgebra a velocidad de C.',c:[['Python','escrita para','leng'],['pip','se instala con','pkg'],['Pandas','es la base de','lib'],['.csv','procesa datos de archivos','fmt']],ex:'Toda la pila científica de Python (Pandas, SciPy, scikit-learn) se apoya en NumPy.'},
+  'Pandas':{g:'lib',d:'Librería de análisis de datos tabulares de Python: el Excel programable.',c:[['Python','escrita para','leng'],['NumPy','construida sobre','lib'],['pip','se instala con','pkg'],['.csv','lee y escribe','fmt'],['.json','lee y escribe','fmt']],ex:'pd.read_csv("datos.csv") carga una tabla; df.to_json() la exporta a JSON.'},
+  'D3.js':{g:'lib',d:'Librería JavaScript de visualización de datos: gráficos interactivos a medida en SVG.',c:[['JavaScript','escrita en','leng'],['NPM','se instala con','pkg'],['cdnjs','o se carga desde','cdn'],['.csv','visualiza datos de','fmt'],['.json','visualiza datos de','fmt']],ex:'D3 lee un .csv y lo convierte en un gráfico SVG animado dentro de tu .html.'},
+  // --- Gestores ---
+  'NPM':{g:'pkg',d:'Node Package Manager: el almacén de paquetes de JavaScript, el más grande del mundo (3M+ paquetes).',c:[['JavaScript','instala paquetes de','leng'],['Three.js','aloja','lib'],['React','aloja','lib'],['jsDelivr / unpkg','los CDN sirven sus paquetes','cdn'],['GitHub','los paquetes suelen desarrollarse en','repo']],ex:'npm install three descarga Three.js a tu proyecto; jsDelivr sirve ese mismo paquete por URL sin instalarlo.'},
+  'PyPI':{g:'pkg',d:'Python Package Index: el repositorio oficial de paquetes de Python (600k+ proyectos).',c:[['pip','se accede mediante','pkg'],['Python','aloja paquetes de','leng'],['TensorFlow','aloja','lib'],['NumPy','aloja','lib']],ex:'pip install numpy busca el paquete en PyPI, lo descarga y lo deja listo para "import numpy".'},
+  'Yarn':{g:'pkg',d:'Gestor de paquetes JavaScript alternativo a npm, creado por Meta. Más rápido en su época.',c:[['NPM','usa el mismo registro que','pkg'],['JavaScript','instala paquetes de','leng']],ex:'yarn add react hace lo mismo que npm install react, con otro comando.'},
+  'pip':{g:'pkg',d:'El instalador de paquetes de Python. Conecta tu máquina con PyPI.',c:[['PyPI','descarga desde','pkg'],['Python','instala librerías para','leng'],['PyTorch','instala','lib'],['Pandas','instala','lib']],ex:'pip install pandas → ya puedes hacer "import pandas" en tu .py.'},
+  'Conda':{g:'pkg',d:'Gestor de paquetes y entornos para ciencia de datos. Instala Python, librerías y hasta CUDA.',c:[['Python','gestiona versiones de','leng'],['TensorFlow','instala con GPU','lib'],['PyTorch','instala con GPU','lib']],ex:'conda create -n ml python=3.11 pytorch crea un entorno aislado con todo lo necesario.'},
+  'Cargo':{g:'pkg',d:'Gestor de paquetes y build system oficial de Rust. Descarga "crates" de crates.io.',c:[['Rust','gestor oficial de','leng'],['GitHub','los crates se desarrollan en','repo']],ex:'cargo add serde añade la librería de serialización más usada de Rust.'},
+  'Maven':{g:'pkg',d:'Gestor de dependencias y construcción de Java. Lee la receta del proyecto de un pom.xml.',c:[['Java','gestiona proyectos de','leng'],['GitHub','los artefactos se desarrollan en','repo']],ex:'Declaras una dependencia en pom.xml y Maven la descarga de Maven Central.'},
+  // --- Repos ---
+  'Git':{g:'repo',d:'Sistema de control de versiones distribuido. Registra cada cambio de tu código y permite volver atrás.',c:[['GitHub','aloja repositorios','repo'],['GitLab','aloja repositorios','repo'],['Bitbucket','aloja repositorios','repo'],['.md','documenta con README','fmt']],ex:'git add → git commit → git push: así suben los cambios de tu web al repositorio.'},
+  'GitHub':{g:'repo',d:'La mayor plataforma de código del mundo (Microsoft). Aloja repos Git, issues, CI/CD y GitHub Pages.',c:[['Git','funciona sobre','repo'],['Three.js','aloja el desarrollo de','lib'],['jsDelivr','sirve archivos de repos vía','cdn'],['.html','publica webs estáticas con Pages','fmt'],['NPM','los paquetes se desarrollan aquí y se publican en','pkg']],ex:'Tu web es Rubenpantxo.github.io: un repo de GitHub publicado con Pages. jsDelivr puede servir cualquier archivo de tus repos: cdn.jsdelivr.net/gh/usuario/repo.'},
+  'GitLab':{g:'repo',d:'Alternativa a GitHub con CI/CD integrado muy potente. Puede autoalojarse en tu servidor.',c:[['Git','funciona sobre','repo'],['GitHub','compite con','repo']],ex:'Empresas con código privado suelen autoalojar GitLab en sus propios servidores.'},
+  'Bitbucket':{g:'repo',d:'Plataforma Git de Atlassian, integrada con Jira y Confluence. Común en entornos corporativos.',c:[['Git','funciona sobre','repo'],['GitHub','compite con','repo']],ex:'Equipos que usan Jira suelen tener el código en Bitbucket por la integración nativa.'},
+  'Hugging Face':{g:'repo',d:'El "GitHub de la IA": aloja modelos, datasets y demos. Repos Git con archivos gigantes de pesos.',c:[['Git','funciona sobre (con LFS)','repo'],['PyTorch','aloja modelos de','lib'],['TensorFlow','aloja modelos de','lib'],['Python','se usa desde','leng']],ex:'from transformers import pipeline descarga un modelo directamente de Hugging Face.'},
+  // --- CDN ---
+  'CDN':{g:'cdn',d:'Content Delivery Network: red de servidores repartidos por el mundo que sirven archivos desde el punto más cercano al usuario.',c:[['jsDelivr','es un','cdn'],['unpkg','es un','cdn'],['cdnjs','es un','cdn'],['Cloudflare','opera infraestructura de','cdn'],['.js','sirve librerías como archivos','fmt']],ex:'Sin CDN, una web cargaría Three.js desde un único servidor lejano; con CDN, desde el nodo más próximo a cada visitante.'},
+  'jsDelivr':{g:'cdn',d:'CDN gratuito que sirve cualquier paquete de NPM y cualquier archivo de GitHub por URL.',c:[['NPM','sirve paquetes de','pkg'],['GitHub','sirve archivos de repos de','repo'],['Three.js','la vía típica de cargar','lib'],['.js','entrega archivos','fmt']],ex:'<script src="cdn.jsdelivr.net/npm/three@0.160.0/..."> — Three.js sin instalar nada.'},
+  'unpkg':{g:'cdn',d:'CDN minimalista que refleja todo NPM: cambia npm.com por unpkg.com y tienes el archivo.',c:[['NPM','espejo directo de','pkg'],['React','vía habitual de probar','lib']],ex:'unpkg.com/react@18/umd/react.production.min.js carga React en cualquier HTML.'},
+  'cdnjs':{g:'cdn',d:'CDN de librerías populares operado por Cloudflare. Catálogo curado de los proyectos más usados.',c:[['Cloudflare','operado por','cdn'],['P5.js','la vía típica de cargar','lib'],['JavaScript','sirve librerías','leng']],ex:'Esta app y tus juegos cargan librerías desde cdnjs.cloudflare.com.'},
+  'Cloudflare':{g:'cdn',d:'Gigante de infraestructura web: CDN global, DNS, seguridad anti-DDoS y hosting (Pages/Workers).',c:[['cdnjs','opera','cdn'],['CDN','su red es un','cdn'],['GitHub','alternativa de hosting a Pages de','repo']],ex:'Cloudflare Pages puede publicar tu web igual que GitHub Pages, con CDN incluido.'},
+  // --- Formatos ---
+  '.html':{g:'fmt',ext:'HTML',d:'La página web: estructura + enlaces a CSS, JS y recursos. El producto final visible.',c:[['HTML','escrito en','leng'],['GitHub','se publica con Pages en','repo'],['CDN','carga librerías desde','cdn']],ex:'Cada app de tu web (Tetris.html, Chess3D.html...) es un archivo de este tipo.'},
+  '.js':{g:'fmt',ext:'JS',d:'Código JavaScript: la lógica e interactividad de la web.',c:[['JavaScript','contiene código','leng'],['NPM','se distribuye por','pkg'],['jsDelivr','se sirve por','cdn']],ex:'three.min.js es la librería Three.js empaquetada en un solo archivo .js.'},
+  '.py':{g:'fmt',ext:'PY',d:'Código Python: scripts de datos, ML y automatización.',c:[['Python','contiene código','leng'],['PyPI','los paquetes se publican en','pkg']],ex:'train.py: el script que entrena un modelo con PyTorch.'},
+  '.json':{g:'fmt',ext:'JSON',d:'Datos estructurados clave-valor. Configuración y APIs.',c:[['JavaScript','sintaxis nativa de','leng'],['NPM','package.json define cada paquete de','pkg'],['.gltf','es JSON con otra extensión','fmt']],ex:'package.json le dice a NPM qué dependencias tiene tu proyecto.'},
+  '.csv':{g:'fmt',ext:'CSV',d:'Tabla de datos en texto plano separado por comas.',c:[['Pandas','se analiza con','lib'],['D3.js','se visualiza con','lib'],['Python','se procesa con','leng']],ex:'Un dataset de entrenamiento suele empezar siendo un humilde .csv.'},
+  '.md':{g:'fmt',ext:'MD',d:'Markdown: texto con formato ligero. El idioma de la documentación.',c:[['GitHub','README.md se renderiza en','repo'],['Git','documenta repositorios de','repo']],ex:'El README.md de tu repositorio es lo primero que ve cualquier visitante.'},
+  '.gltf':{g:'fmt',ext:'GLTF',d:'El "JPEG del 3D": modelos con materiales y animación para web.',c:[['Three.js','se carga con','lib'],['JSON','estructurado como','fmt']],ex:'Un modelo de pieza de ajedrez en .gltf pesa poco y carga rápido en Chess3D.'},
+  '.obj':{g:'fmt',ext:'OBJ',d:'Modelo 3D simple y universal: solo geometría y materiales básicos.',c:[['Three.js','se carga con','lib'],['Texto plano','legible como','fmt']],ex:'Blender exporta a .obj y Three.js lo carga con OBJLoader.'},
+  '.fbx':{g:'fmt',ext:'FBX',d:'Modelo 3D profesional con esqueletos y animación (Autodesk).',c:[['Three.js','se carga con FBXLoader en','lib'],['Binario','formato','fmt']],ex:'Personajes animados de Mixamo llegan como .fbx a tu juego.'},
+  '.dae':{g:'fmt',ext:'DAE',d:'Collada: modelo 3D en XML para intercambio entre programas.',c:[['Three.js','se carga con ColladaLoader en','lib'],['XML','escrito en','fmt']],ex:'SketchUp exporta .dae que luego un visor web puede mostrar.'},
+};
 // ============================================================
-// INFO PANEL
+// FORMAT EXPLORER 95 — lógica de la aplicación (vanilla JS)
 // ============================================================
-function InfoPanel({ext,cat,compatibleApps,altApps,recommended,onClose,onSelectApp,onSelectExt}){
-  const info=D[ext];
-  const ct=Object.entries(CATS).find(([_,c])=>c.e.includes(ext));
-  const catCl=ct?ct[1].cl:'#B0432A';
-  const grad=catCl;
-  const tags=[];
-  if(info){
-    if(info.s)tags.push({t:info.s,k:info.s.includes('Legacy')?'dead':info.s.includes('Moderno')?'acc':'norm'});
-    if(info.l==='Sí')tags.push({t:'Lossy',k:'warn'});
-    if(info.l==='No')tags.push({t:'Lossless',k:'acc'});
-    if(info.tr==='Sí')tags.push({t:'Transparente',k:'norm'});
-    if(info.a==='Sí')tags.push({t:'Animado',k:'norm'});
-  }
-  return (<div style={{position:'relative',height:'100%','--cat-cl':catCl,'--cat-grad':grad}}>
-    <button className="info-close" onClick={onClose} title="Cerrar">✕</button>
-    <div className="info-inner">
-      <div className="info-hero">
-        <div className="info-ext">.{ext}</div>
-        <div className="info-cat"><span className="info-cat-dot"/>{ct?`${ct[1].i} ${ct[1].n}`:'General'}{info?.y&&<>· {info.y}</>}</div>
-        {info?<>
-          <div className="info-name">{info.f}</div>
-          <div className="info-desc">{info.d}</div>
-          {tags.length>0&&<div className="info-tags">
-            {tags.map((t,i)=><span key={i} className={`info-tag ${t.k==='acc'?'acc':t.k==='warn'?'warn':t.k==='dead'?'dead':''}`}>{t.t}</span>)}
-          </div>}
-          {info.pop&&<div className="info-pop">
-            <span className="info-pop-l">Popularidad</span>
-            <div className="info-pop-bar"><div className="info-pop-bar-fill" style={{width:`${info.pop*10}%`}}/></div>
-            <span className="info-pop-v">{info.pop}/10</span>
-          </div>}
-        </>:<div style={{color:'var(--tx-3)',fontStyle:'italic',fontSize:13}}>Información detallada no disponible para .{ext}</div>}
-      </div>
+const ALL_EXTS=[...new Set(Object.values(CATS).flatMap(c=>c.e))].sort();
+const catOf=ext=>{for(const[k,v]of Object.entries(CATS)){if(v.e.includes(ext))return k}return null};
+const appsFor=ext=>APPS.filter(a=>a.fm.includes(ext));
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-      {info&&<div className="info-meta">
-        {info.t&&info.t!=='N/A'&&<div className="meta-row"><span className="meta-k">Tipo</span><span className="meta-v">{info.t}</span></div>}
-        {info.l&&info.l!=='N/A'&&<div className="meta-row"><span className="meta-k">Pérdida</span><span className="meta-v">{info.l}</span></div>}
-        {info.tr&&info.tr!=='N/A'&&<div className="meta-row"><span className="meta-k">Transparencia</span><span className="meta-v">{info.tr}</span></div>}
-        {info.a&&info.a!=='N/A'&&<div className="meta-row"><span className="meta-k">Animación</span><span className="meta-v">{info.a}</span></div>}
-        {info.c&&info.c!=='N/A'&&<div className="meta-row"><span className="meta-k">Color</span><span className="meta-v">{info.c}</span></div>}
-        {info.co&&info.co!=='N/A'&&<div className="meta-row"><span className="meta-k">Compresión</span><span className="meta-v">{info.co}</span></div>}
-        {info.mime&&<div className="meta-row"><span className="meta-k">MIME</span><span className="meta-v mono-sm">{info.mime}</span></div>}
-        {info.magic&&<div className="meta-row"><span className="meta-k">Magic bytes</span><span className="meta-v mono-sm">{info.magic}</span></div>}
-      </div>}
-
-      {recommended&&<div className="info-rec" style={{'--app-cl':recommended.cl}} onClick={()=>onSelectApp(recommended.id)}>
-        <div className="info-rec-l">★ App recomendada</div>
-        <div className="info-rec-name"><span className="ad"/>{recommended.nm}</div>
-        <div className="info-rec-reason">Cubre {recommended.inCat}/{(CATS[cat]?.e||[]).length} formatos de esta categoría · {recommended.fm.length} formatos en total</div>
-      </div>}
-
-      {compatibleApps.length>0&&<div className="info-section">
-        <div className="info-section-h">✓ En tu lista · {compatibleApps.length}</div>
-        <div className="app-comp-list">
-          {compatibleApps.map(a=><div key={a.id} className="app-comp-item" style={{'--app-cl':a.cl}} onClick={()=>onSelectApp(a.id)} role="button" tabIndex={0}>
-            <span className="ad"/>
-            <span className="app-comp-name">{a.nm}</span>
-            <span className="app-comp-tag">I/O</span>
-          </div>)}
-        </div>
-      </div>}
-
-      {compatibleApps.length===0&&<div className="info-section">
-        <div style={{padding:'10px 12px',background:'rgba(248,113,113,.06)',border:'1px solid rgba(248,113,113,.2)',borderRadius:9,fontSize:12,lineHeight:1.5,color:'var(--tx-2)'}}>
-          Ninguna de tus apps soporta <strong style={{color:'var(--c-red)'}}>.{ext}</strong>. Mira las recomendaciones de abajo o añade una nueva app.
-        </div>
-      </div>}
-
-      {altApps.length>0&&<div className="info-section">
-        <div className="info-section-h">★ También funciona con</div>
-        <div className="alt-list">
-          {altApps.map(n=><div key={n} className="alt-item">{n}</div>)}
-        </div>
-      </div>}
-
-      {info?.rel&&info.rel.length>0&&<div className="info-section">
-        <div className="info-section-h">⇄ Formatos relacionados</div>
-        <div className="related-list">
-          {info.rel.map(x=><span key={x} className="related-pill" onClick={()=>onSelectExt(x)} role="button" tabIndex={0}>.{x}</span>)}
-        </div>
-      </div>}
-
-      {info?.alts&&info.alts.length>0&&<div className="info-section">
-        <div className="info-section-h">→ Alternativas modernas</div>
-        <div className="alt-list">
-          {info.alts.map(a=><div key={a} className="alt-item">{a}</div>)}
-        </div>
-      </div>}
-    </div>
-  </div>);
-}
-
-// ============================================================
-// COMPARE MODAL
-// ============================================================
-function CompareModal({catKey,onClose,apps}){
-  const c=CATS[catKey];
-  const [filter,setFilter]=useState('');
-  if(!c)return null;
-
-  const isImg=catKey==='imagen';
-  const isAud=catKey==='audio';
-  const isVid=catKey==='video';
-  const is3D=catKey==='cad';
-  const isDoc=['documento','hoja','presentacion','ebook'].includes(catKey);
-
-  const filtered=useMemo(()=>{
-    if(!filter.trim())return c.e;
-    const q=filter.toUpperCase();
-    return c.e.filter(x=>{
-      if(x.includes(q))return true;
-      const inf=D[x];
-      return inf&&inf.f.toUpperCase().includes(q);
-    });
-  },[filter,c.e]);
-
-  // Group by sub-status
-  const groups={};
-  filtered.forEach(x=>{
-    const inf=D[x];
-    const sg=inf?.s||'Otros';
-    if(!groups[sg])groups[sg]=[];
-    groups[sg].push({x,info:inf});
+// ---------------- Window manager ----------------
+let zTop=100, winCount=0;
+const wins={};
+function mkWin(id,title,icon,w,h,contentHTML,opts={}){
+  if(wins[id]){focusWin(id);return wins[id]}
+  const el=document.createElement('div');
+  el.className='win';el.id='win-'+id;
+  const desk=document.getElementById('desktop');
+  const dw=desk.clientWidth,dh=desk.clientHeight;
+  const W=Math.min(w,dw-16),H=Math.min(h,dh-16);
+  el.style.width=W+'px';el.style.height=H+'px';
+  el.style.left=Math.max(4,(dw-W)/2+(winCount%5)*24-48)+'px';
+  el.style.top=Math.max(4,(dh-H)/2+(winCount%5)*18-36)+'px';
+  winCount++;
+  el.innerHTML=`<div class="tbar"><span style="font-size:12px">${icon}</span><span class="tbar-tx">${esc(title)}</span>
+    <span class="tbar-btns">
+      <button class="tbtn" data-act="min" title="Minimizar"><svg viewBox="0 0 8 8"><rect x="0" y="6" width="6" height="2" fill="#000"/></svg></button>
+      <button class="tbtn" data-act="max" title="Maximizar"><svg viewBox="0 0 8 8"><rect x="0" y="0" width="8" height="8" fill="none" stroke="#000" stroke-width="1.6"/></svg></button>
+      <button class="tbtn" data-act="close" title="Cerrar"><svg viewBox="0 0 8 8"><path d="M0 0 L8 8 M8 0 L0 8" stroke="#000" stroke-width="1.6"/></svg></button>
+    </span></div>
+    <div class="win-body">${contentHTML}</div>`;
+  desk.appendChild(el);
+  wins[id]={el,title,icon,max:false,prev:null};
+  // taskbar
+  const ti=document.createElement('button');
+  ti.className='taskitem';ti.id='task-'+id;
+  ti.innerHTML=`<span>${icon}</span><span style="overflow:hidden;text-overflow:ellipsis">${esc(title)}</span>`;
+  ti.onclick=()=>{const w=wins[id];if(!w)return;
+    if(w.el.classList.contains('minimized')){w.el.classList.remove('minimized');focusWin(id)}
+    else if(w.el.classList.contains('focused')){w.el.classList.add('minimized');ti.classList.remove('active')}
+    else focusWin(id)};
+  document.getElementById('taskitems').appendChild(ti);
+  // controls
+  el.querySelector('[data-act=close]').onclick=e=>{e.stopPropagation();closeWin(id)};
+  el.querySelector('[data-act=min]').onclick=e=>{e.stopPropagation();el.classList.add('minimized');ti.classList.remove('active')};
+  el.querySelector('[data-act=max]').onclick=e=>{e.stopPropagation();toggleMax(id)};
+  el.addEventListener('pointerdown',()=>focusWin(id));
+  // drag
+  const tb=el.querySelector('.tbar');
+  tb.addEventListener('pointerdown',ev=>{
+    if(ev.target.closest('.tbtn')||wins[id].max)return;
+    const sx=ev.clientX-el.offsetLeft,sy=ev.clientY-el.offsetTop;
+    const mv=e2=>{el.style.left=Math.max(-W+80,Math.min(dw-40,e2.clientX-sx))+'px';
+                  el.style.top=Math.max(0,Math.min(dh-26,e2.clientY-sy))+'px'};
+    const up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up)};
+    addEventListener('pointermove',mv);addEventListener('pointerup',up);
   });
-
-  const cellClass=(v)=>{
-    if(!v||v==='—')return 'tbl-cell-mut';
-    if(v==='Sí')return 'tbl-cell-y';
-    if(v==='No')return 'tbl-cell-n';
-    return '';
-  };
-
-  const colSpan=isImg?9:isAud?7:isVid?7:is3D?8:isDoc?7:7;
-
-  return (<div className="overlay" onClick={onClose}>
-    <div className="modal cmp-modal" onClick={e=>e.stopPropagation()} style={{'--cat-cl':c.cl}}>
-      <div className="modal-h">
-        <div className="modal-t">
-          <span style={{fontSize:18}}>{c.i}</span>
-          <span>Comparativa — {c.n}</span>
-          <small>{c.e.length} formatos · {Object.keys(groups).length} subgrupos</small>
-        </div>
-        <button className="modal-c" onClick={onClose}>✕</button>
-      </div>
-      <div className="cmp-toolbar">
-        <div className="cmp-search">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Filtrar formato o nombre…"/>
-        </div>
-        <div className="cmp-stat">Mostrando <strong>{filtered.length}</strong> / {c.e.length}</div>
-      </div>
-      <div className="modal-b">
-        <table className="tbl">
-          <thead><tr>
-            <th>Ext.</th><th>Nombre completo</th><th>Tipo</th>
-            {isImg&&<><th>Pérdida</th><th>Transp.</th><th>Anim.</th><th>Color</th></>}
-            {isAud&&<><th>Pérdida</th><th>Codec</th></>}
-            {isVid&&<><th>Pérdida</th><th>Codec</th></>}
-            {is3D&&<><th>Anim.</th><th>Color</th><th>BREP</th></>}
-            {isDoc&&<><th>Compresión</th></>}
-            <th>Año</th><th>Pop.</th>
-          </tr></thead>
-          <tbody>
-            {Object.entries(groups).map(([sg,items])=><React.Fragment key={sg}>
-              <tr className="subhead"><td colSpan={colSpan}>{sg} · {items.length}</td></tr>
-              {items.map(({x,info})=><tr key={x}>
-                <td>.{x}</td>
-                <td>{info?.f||'—'}</td>
-                <td>{info?.t||'—'}</td>
-                {isImg&&<>
-                  <td className={cellClass(info?.l)}>{info?.l||'—'}</td>
-                  <td className={cellClass(info?.tr)}>{info?.tr||'—'}</td>
-                  <td className={cellClass(info?.a)}>{info?.a||'—'}</td>
-                  <td>{info?.c||'—'}</td>
-                </>}
-                {isAud&&<>
-                  <td className={cellClass(info?.l)}>{info?.l||'—'}</td>
-                  <td>{info?.co||'—'}</td>
-                </>}
-                {isVid&&<>
-                  <td className={cellClass(info?.l)}>{info?.l||'—'}</td>
-                  <td>{info?.co||'—'}</td>
-                </>}
-                {is3D&&<>
-                  <td className={cellClass(info?.a)}>{info?.a||'—'}</td>
-                  <td>{info?.c||'—'}</td>
-                  <td>{info?.t?.includes('BREP')?'Sí':info?.t?.includes('Malla')?'No':'—'}</td>
-                </>}
-                {isDoc&&<td>{info?.co||'—'}</td>}
-                <td>{info?.y||'—'}</td>
-                <td><small style={{color:info?.pop>=8?'var(--c-amber)':info?.pop>=5?'var(--c-cyan)':'var(--tx-3)'}}>{info?.pop?'★'.repeat(Math.ceil(info.pop/2)):'—'}</small></td>
-              </tr>)}
-            </React.Fragment>)}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>);
+  tb.addEventListener('dblclick',e=>{if(!e.target.closest('.tbtn'))toggleMax(id)});
+  focusWin(id);
+  if(opts.onOpen)opts.onOpen(el);
+  return wins[id];
+}
+function focusWin(id){
+  Object.entries(wins).forEach(([k,w])=>{w.el.classList.add('inactive');w.el.classList.remove('focused');
+    const t=document.getElementById('task-'+k);if(t)t.classList.remove('active')});
+  const w=wins[id];if(!w)return;
+  w.el.classList.remove('inactive','minimized');w.el.classList.add('focused');
+  w.el.style.zIndex=++zTop;
+  const t=document.getElementById('task-'+id);if(t)t.classList.add('active');
+}
+function closeWin(id){
+  const w=wins[id];if(!w)return;
+  w.el.classList.add('closing');
+  setTimeout(()=>{w.el.remove();const t=document.getElementById('task-'+id);if(t)t.remove();delete wins[id]},160);
+}
+function toggleMax(id){
+  const w=wins[id],el=w.el,desk=document.getElementById('desktop');
+  if(!w.max){w.prev={l:el.style.left,t:el.style.top,w:el.style.width,h:el.style.height};
+    el.style.left='0';el.style.top='0';el.style.width=desk.clientWidth+'px';el.style.height=desk.clientHeight+'px';w.max=true}
+  else{Object.assign(el.style,{left:w.prev.l,top:w.prev.t,width:w.prev.w,height:w.prev.h});w.max=false}
 }
 
-// ============================================================
-// ADD/EDIT APP MODAL
-// ============================================================
-function AddAppModal({allExt,onClose,onAdd,initial,title='Añadir Aplicación'}){
-  const [nm,setNm]=useState(initial?.nm||'');
-  const [vd,setVd]=useState(initial?.vd||'');
-  const [cl,setCl]=useState(initial?.cl||APP_COLORS[0]);
-  const [sf,setSf]=useState(new Set(initial?.fm||[]));
-  const [fs,setFs]=useState('');
-
-  const filtered=useMemo(()=>{
-    if(!fs.trim())return allExt;
-    const q=fs.toUpperCase();
-    return allExt.filter(e=>e.includes(q));
-  },[fs,allExt]);
-
-  const toggle=(x)=>{
-    const n=new Set(sf);
-    n.has(x)?n.delete(x):n.add(x);
-    setSf(n);
-  };
-
-  const bulkAdd=(catKey)=>{
-    const n=new Set(sf);
-    CATS[catKey].e.forEach(x=>n.add(x));
-    setSf(n);
-  };
-
-  const submit=()=>{
-    if(!nm.trim())return;
-    const data={
-      id:initial?.id||(nm.toLowerCase().replace(/\s+/g,'-')+'-'+Date.now()),
-      nm:nm.trim(),
-      vd:vd.trim()||undefined,
-      cl,
-      fm:[...sf]
-    };
-    onAdd(data);
-  };
-
-  return (<div className="overlay" onClick={onClose}>
-    <div className="modal add-modal" onClick={e=>e.stopPropagation()}>
-      <div className="modal-h">
-        <div className="modal-t">{title}<small>· {sf.size} formato{sf.size!==1?'s':''}</small></div>
-        <button className="modal-c" onClick={onClose}>✕</button>
-      </div>
-      <div className="add-body">
-        <div className="field">
-          <label className="field-l">Nombre</label>
-          <input className="field-input" type="text" value={nm} onChange={e=>setNm(e.target.value)} placeholder="Ej: Krita, Ableton Live…" autoFocus/>
-        </div>
-        <div className="field">
-          <label className="field-l">Vendor / Empresa (opcional)</label>
-          <input className="field-input" type="text" value={vd} onChange={e=>setVd(e.target.value)} placeholder="Ej: Adobe, Apple…"/>
-        </div>
-        <div className="field">
-          <label className="field-l">Color identificativo</label>
-          <div className="swatches">
-            {APP_COLORS.map(c=><div key={c} className={`swatch${cl===c?' sl':''}`} style={{background:c,color:c}} onClick={()=>setCl(c)} role="button" tabIndex={0}/>)}
-          </div>
-        </div>
-        <div className="field">
-          <label className="field-l">Formatos soportados ({sf.size})</label>
-          <div className="fmt-bulk">
-            {Object.entries(CATS).slice(0,10).map(([k,c])=>
-              <button key={k} className="fmt-bulk-btn" onClick={()=>bulkAdd(k)} type="button">+ {c.n}</button>
-            )}
-            {sf.size>0&&<button className="fmt-bulk-btn" onClick={()=>setSf(new Set())} type="button" style={{color:'var(--c-red)',borderColor:'rgba(248,113,113,.3)'}}>Limpiar</button>}
-          </div>
-          <input className="field-input" type="text" value={fs} onChange={e=>setFs(e.target.value)} placeholder="Filtrar formatos…" style={{marginBottom:8}}/>
-          <div className="fmt-grid">
-            {filtered.map(e=><div key={e} className={`fmt-pill${sf.has(e)?' sel':''}`} onClick={()=>toggle(e)} role="button" tabIndex={0}>{e}</div>)}
-          </div>
-        </div>
-      </div>
-      <div className="modal-foot">
-        <button className="btn btn-ghost" onClick={onClose}>Cancelar</button>
-        <button className="btn btn-primary" onClick={submit} disabled={!nm.trim()}>{initial?'Guardar':'Añadir'}</button>
-      </div>
-    </div>
-  </div>);
+// ---------------- Desktop icons ----------------
+const DICONS=[
+  {id:'explorer',n:'Format Explorer',img:iconExplorer(),run:openExplorer},
+  {id:'eco',n:'Ecosistema IA',img:iconEco(),run:openEco},
+  {id:'stats',n:'Estadísticas',img:iconStats(),run:openStats},
+  {id:'about',n:'Acerca de',img:iconHelp(),run:openAbout},
+];
+function iconExplorer(){return `<svg viewBox="0 0 48 48"><rect x="4" y="10" width="40" height="32" fill="#c0c0c0" stroke="#000"/><rect x="4" y="10" width="40" height="7" fill="#000080"/><rect x="8" y="21" width="14" height="16" fill="#fff" stroke="#808080"/><rect x="26" y="21" width="14" height="16" fill="#fff" stroke="#808080"/><rect x="10" y="24" width="10" height="2" fill="#3f6f9a"/><rect x="10" y="28" width="10" height="2" fill="#3f6f9a"/><rect x="28" y="24" width="10" height="2" fill="#b0432a"/><rect x="28" y="28" width="10" height="2" fill="#b0432a"/></svg>`}
+function iconEco(){return `<svg viewBox="0 0 48 48"><rect x="17" y="19" width="14" height="10" fill="#000835" stroke="#fff"/><circle cx="9" cy="9" r="6" fill="#2563b0" stroke="#000"/><circle cx="39" cy="9" r="6" fill="#7c3aad" stroke="#000"/><circle cx="9" cy="39" r="6" fill="#3d8b40" stroke="#000"/><circle cx="39" cy="39" r="6" fill="#d23b3b" stroke="#000"/><path d="M13 13 L19 19 M35 13 L29 19 M13 35 L19 29 M35 35 L29 29" stroke="#000080" stroke-width="2"/></svg>`}
+function iconStats(){return `<svg viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" fill="#fff" stroke="#000"/><rect x="11" y="26" width="6" height="12" fill="#000080"/><rect x="21" y="18" width="6" height="20" fill="#b0432a"/><rect x="31" y="12" width="6" height="26" fill="#3d8b40"/></svg>`}
+function iconHelp(){return `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="#ffffd5" stroke="#000"/><text x="24" y="32" text-anchor="middle" font-size="22" font-family="Times New Roman" font-weight="bold" fill="#000080">?</text></svg>`}
+function renderDesktop(){
+  const d=document.getElementById('desktop');
+  DICONS.forEach((ic,i)=>{
+    const el=document.createElement('div');
+    el.className='dicon';el.style.left='14px';el.style.top=(14+i*92)+'px';
+    el.innerHTML=`<div class="dicon-img">${ic.img}</div><div class="dicon-lbl">${esc(ic.n)}</div>`;
+    el.onclick=()=>{document.querySelectorAll('.dicon').forEach(x=>x.classList.remove('sel'));el.classList.add('sel')};
+    el.ondblclick=()=>ic.run();
+    d.appendChild(el);
+  });
 }
 
-// ============================================================
-// STATS MODAL
-// ============================================================
-function StatsModal({apps,onClose}){
-  const totalFmt=useMemo(()=>{
-    const s=new Set();
-    Object.values(CATS).forEach(c=>c.e.forEach(x=>s.add(x)));
-    return s.size;
-  },[]);
-  const allYour=useMemo(()=>{
-    const s=new Set();
-    apps.forEach(a=>a.fm.forEach(f=>s.add(f)));
-    return s;
-  },[apps]);
-  const coveragePct=Math.round(100*allYour.size/totalFmt);
-
-  // Coverage per category
-  const catCov=useMemo(()=>Object.entries(CATS).map(([k,c])=>{
-    const cov=c.e.filter(x=>allYour.has(x)).length;
-    return {k,n:c.n,cl:c.cl,total:c.e.length,cov,pct:Math.round(100*cov/c.e.length)};
-  }),[allYour]);
-
-  // Apps ranked by total fmt
-  const appsRanked=useMemo(()=>[...apps].sort((a,b)=>b.fm.length-a.fm.length),[apps]);
-
-  // Format gaps - formats no app supports
-  const gaps=useMemo(()=>{
-    const out=[];
-    Object.entries(CATS).forEach(([k,c])=>{
-      c.e.forEach(x=>{if(!allYour.has(x))out.push({x,c:c.n,cl:c.cl})});
+// ---------------- Format Explorer window ----------------
+let curCat='imagen', curSearch='';
+function openExplorer(){
+  const catRows=Object.entries(CATS).map(([k,c])=>
+    `<div class="cat95${k===curCat?' active':''}" data-cat="${k}"><span class="ci">${c.i}</span><span class="cn">${esc(c.n)}</span><span class="cc">${c.e.length}</span></div>`).join('');
+  const html=`
+  <div class="menubar"><span id="fx-menu-eco">🧠 Ecosistema IA</span><span id="fx-menu-stats">📊 Estadísticas</span><span id="fx-menu-about">❓ Ayuda</span></div>
+  <div class="toolbar">
+    <span style="font-weight:bold">Buscar:</span>
+    <input class="input95" id="fx-search" style="flex:1;min-width:120px" placeholder="Extensión o nombre (ej: PNG, vector...)">
+    <div class="sep"></div>
+    <span id="fx-count" style="color:#444"></span>
+  </div>
+  <div class="explorer">
+    <div class="side95" id="fx-cats">
+      <div class="cat95${curCat==='*'?' active':''}" data-cat="*"><span class="ci">🗃️</span><span class="cn"><b>Todas</b></span><span class="cc">${ALL_EXTS.length}</span></div>
+      ${catRows}
+    </div>
+    <div class="main95" id="fx-grid"></div>
+  </div>
+  <div class="statusbar"><div class="status-cell" id="fx-status">Listo.</div><div class="status-cell fix">${ALL_EXTS.length} formatos</div><div class="status-cell fix">${APPS.length} aplicaciones</div></div>`;
+  mkWin('explorer','Format Explorer 95','🗄️',880,600,html,{onOpen:el=>{
+    el.querySelector('#fx-search').addEventListener('input',e=>{curSearch=e.target.value.trim().toUpperCase();renderGrid()});
+    el.querySelector('#fx-cats').addEventListener('click',e=>{
+      const c=e.target.closest('.cat95');if(!c)return;
+      curCat=c.dataset.cat;
+      el.querySelectorAll('.cat95').forEach(x=>x.classList.toggle('active',x===c));
+      renderGrid();
     });
-    return out.slice(0,40);
-  },[allYour]);
+    el.querySelector('#fx-menu-eco').onclick=openEco;
+    el.querySelector('#fx-menu-stats').onclick=openStats;
+    el.querySelector('#fx-menu-about').onclick=openAbout;
+    renderGrid();
+  }});
+}
+function renderGrid(){
+  const grid=document.querySelector('#win-explorer #fx-grid');if(!grid)return;
+  let list=curCat==='*'?ALL_EXTS:CATS[curCat].e.filter((v,i,a)=>a.indexOf(v)===i);
+  if(curSearch)list=ALL_EXTS.filter(x=>x.includes(curSearch)||(D[x]&&(D[x].f.toUpperCase().includes(curSearch)||D[x].d.toUpperCase().includes(curSearch))));
+  const cl=curCat==='*'?null:CATS[curCat].cl;
+  grid.innerHTML=list.map(x=>{
+    const c=cl||CATS[catOf(x)]?.cl||'#888';
+    return `<div class="fico" data-ext="${x}"><div class="fico-img"><div class="page" style="--pg:${c}"></div></div><div class="fico-lbl">.${x.toLowerCase()}</div></div>`;
+  }).join('')||'<div style="grid-column:1/-1;padding:30px;text-align:center;color:#666">No se encontraron formatos.</div>';
+  document.querySelector('#win-explorer #fx-count').textContent=list.length+' elementos';
+  grid.querySelectorAll('.fico').forEach(f=>{
+    f.onclick=()=>{grid.querySelectorAll('.fico').forEach(x=>x.classList.remove('sel'));f.classList.add('sel');
+      document.querySelector('#win-explorer #fx-status').textContent='.'+f.dataset.ext.toLowerCase()+' — '+(D[f.dataset.ext]?.f||'');};
+    f.ondblclick=()=>openProps(f.dataset.ext);
+  });
+}
 
-  return (<div className="overlay" onClick={onClose}>
-    <div className="modal stats-modal" onClick={e=>e.stopPropagation()}>
-      <div className="modal-h">
-        <div className="modal-t">📊 Panel de estadísticas<small>· tu cobertura de formatos</small></div>
-        <button className="modal-c" onClick={onClose}>✕</button>
-      </div>
-      <div className="modal-b stats-body">
-        <div className="stats-card">
-          <div className="stats-card-h">Cobertura global</div>
-          <div className="stats-big"><span className="stats-big-n">{allYour.size}</span><span className="stats-big-l">/ {totalFmt} formatos</span></div>
-          <div className="stats-bar"><div className="stats-bar-fill" style={{width:`${coveragePct}%`,background:'var(--grad-acc)'}}/></div>
-          <div style={{fontSize:11,color:'var(--tx-3)',marginTop:4}}>{coveragePct}% del catálogo</div>
-        </div>
-        <div className="stats-card">
-          <div className="stats-card-h">Apps registradas</div>
-          <div className="stats-big"><span className="stats-big-n" style={{color:'var(--c-purple)'}}>{apps.length}</span><span className="stats-big-l">aplicaciones</span></div>
-          <div style={{fontSize:11,color:'var(--tx-3)',marginTop:4}}>Promedio: {Math.round(apps.reduce((s,a)=>s+a.fm.length,0)/Math.max(apps.length,1))} formatos por app</div>
-        </div>
-
-        <div className="stats-card full">
-          <div className="stats-card-h">Cobertura por categoría</div>
-          {catCov.map(c=><div key={c.k} className="stats-row">
-            <div className="stats-row-name"><span className="dot" style={{background:c.cl}}/>{c.n}</div>
-            <div className="stats-bar"><div className="stats-bar-fill" style={{width:`${c.pct}%`,background:c.cl}}/></div>
-            <strong>{c.cov}/{c.total}</strong>
-          </div>)}
-        </div>
-
-        <div className="stats-card full">
-          <div className="stats-card-h">Top apps por nº formatos</div>
-          {appsRanked.slice(0,12).map(a=><div key={a.id} className="stats-row">
-            <div className="stats-row-name"><span className="dot" style={{background:a.cl}}/>{a.nm}</div>
-            <div className="stats-bar"><div className="stats-bar-fill" style={{width:`${Math.min(100,(a.fm.length/Math.max(...appsRanked.map(x=>x.fm.length)))*100)}%`,background:a.cl}}/></div>
-            <strong>{a.fm.length}</strong>
-          </div>)}
-        </div>
-
-        {gaps.length>0&&<div className="stats-card full">
-          <div className="stats-card-h">⚠ Formatos sin cobertura ({gaps.length}{gaps.length>=40?'+':''})</div>
-          <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
-            {gaps.map(g=><span key={g.x} style={{padding:'4px 9px',background:'var(--bg-3)',border:`1px solid ${g.cl}55`,borderRadius:5,font:'600 10px/1 JetBrains Mono,monospace',color:g.cl}}>.{g.x}</span>)}
-          </div>
-        </div>}
-      </div>
+// ---------------- Properties (ficha de formato) ----------------
+function openProps(ext){
+  const d=D[ext]||{};
+  const cat=catOf(ext),c=CATS[cat]||{n:'—',cl:'#888',i:'📄'};
+  const lang=langOf(ext);
+  const apps=appsFor(ext);
+  const alts=ALT_APPS[ext]||[];
+  const rows=[['Nombre completo',d.f],['Tipo',d.t],['Año de creación',d.y],['Estado',d.s],['Compresión',d.co],['MIME',d.mime],['Firma (magic bytes)',d.magic],['Popularidad',d.pop?'★'.repeat(Math.round(d.pop/2))+'☆'.repeat(5-Math.round(d.pop/2))+`  (${d.pop}/10)`:null]]
+    .filter(r=>r[1]!=null&&r[1]!=='')
+    .map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('');
+  const appTags=apps.map(a=>`<span class="tag95" data-app="${a.id}"><span class="dot" style="--tcl:${a.cl}"></span>${esc(a.nm)}</span>`).join('')||'<span style="color:#777;font-size:10.5px">Sin aplicaciones del catálogo. Mira "Otras apps".</span>';
+  const altTags=alts.map(a=>`<span class="tag95 muted">${esc(a)}</span>`).join('');
+  const relTags=(d.rel||[]).filter(r=>ALL_EXTS.includes(r)).map(r=>`<span class="tag95 ext-pill" data-ext="${r}">.${r.toLowerCase()}</span>`).join('');
+  const altFmts=(d.alts||[]).map(a=>`<span class="tag95 muted">★ ${esc(a)}</span>`).join('');
+  const html=`<div class="props" style="--hcl:${c.cl}">
+    <div class="props-hero" style="--hcl:${c.cl}">
+      <div class="fico-img" style="width:44px;height:52px"><div class="page" style="--pg:${c.cl};width:40px;height:50px"></div></div>
+      <div><div class="props-ext" style="--hcl:${c.cl};color:${c.cl}">.${ext.toLowerCase()}</div>
+      <div class="props-full">${esc(d.f||ext)}</div>
+      <div class="props-cat">${c.i} Categoría: ${esc(c.n)}</div></div>
     </div>
-  </div>);
+    <div class="props-desc">${esc(d.d||'Formato de archivo .'+ext.toLowerCase()+'.')}</div>
+    <table class="meta95">${rows}</table>
+    <div class="fieldset"><legend>Lenguaje / base</legend><div class="fs-body">
+      <span class="tag95 lang" data-lang="${esc(lang)}">⌨️ ${esc(lang)}</span>
+      <span style="font-size:10px;color:#666;align-self:center">← clic para ver formatos del mismo lenguaje</span>
+    </div></div>
+    <div class="fieldset"><legend>Aplicaciones que lo soportan</legend><div class="fs-body">${appTags}</div>
+    ${altTags?`<div style="font:bold 10px var(--f-ui);margin:8px 0 4px;color:#555">OTRAS APPS:</div><div class="fs-body">${altTags}</div>`:''}</div>
+    ${relTags?`<div class="fieldset"><legend>Formatos relacionados</legend><div class="fs-body">${relTags}</div></div>`:''}
+    ${altFmts?`<div class="fieldset"><legend>Alternativas recomendadas</legend><div class="fs-body">${altFmts}</div></div>`:''}
+  </div>`;
+  mkWin('props-'+ext,'Propiedades de .'+ext.toLowerCase(),'📋',430,540,html,{onOpen:wire});
 }
 
-// ============================================================
-// HELP MODAL
-// ============================================================
-function HelpModal({onClose}){
-  return (<div className="overlay" onClick={onClose}>
-    <div className="modal" onClick={e=>e.stopPropagation()} style={{width:520,maxWidth:'96%'}}>
-      <div className="modal-h">
-        <div className="modal-t">💡 Cómo usar Format Explorer</div>
-        <button className="modal-c" onClick={onClose}>✕</button>
-      </div>
-      <div className="modal-b" style={{padding:'18px 22px'}}>
-        <div style={{display:'flex',flexDirection:'column',gap:14}}>
-          <Hint k="/" t="Enfocar la barra de búsqueda"/>
-          <Hint k="Esc" t="Cerrar paneles, modales o limpiar selección"/>
-          <Hint k="?" t="Mostrar esta ayuda"/>
-          <Hint k="Click ext." t="Ver detalles del formato (panel derecho)"/>
-          <Hint k="Click app" t="Resaltar formatos compatibles en color"/>
-          <Hint k="Click ⓘ" t="Tabla comparativa de la categoría"/>
-          <Hint k="Click 📊" t="Panel de estadísticas y cobertura"/>
-          <Hint k="Click derecho app" t="Editar app"/>
-          <Hint k="Drag & drop" t="Suelta un archivo y se detectará la extensión"/>
-          <Hint k="Persistencia" t="Tus apps se guardan automáticamente en este navegador"/>
-        </div>
-      </div>
-    </div>
-  </div>);
+// ---------------- Tag popups ----------------
+function openLangPopup(lang){
+  const exts=extsOfLang(lang);
+  const g=LANG_GROUPS[lang]||{cl:'#1A1816'};
+  const html=`<div class="poplist">
+    <div class="intro"><b style="color:${g.cl}">${esc(lang)}</b> — ${esc(LANG_DESC[lang]||'')}<br><br><b>${exts.length}</b> formatos comparten esta base:</div>
+    <div class="pill-wrap">${exts.map(x=>`<span class="tag95 ext-pill" data-ext="${x}">.${x.toLowerCase()}</span>`).join('')}</div>
+  </div>`;
+  mkWin('lang-'+lang.replace(/\W/g,''),'Lenguaje: '+lang,'⌨️',430,420,html,{onOpen:wire});
 }
-function Hint({k,t}){
-  return (<div style={{display:'flex',gap:14,alignItems:'center'}}>
-    <span style={{font:'600 11px/1 JetBrains Mono,monospace',color:'var(--c-cyan)',background:'var(--gl-cyan)',padding:'5px 10px',borderRadius:6,minWidth:120,textAlign:'center'}}>{k}</span>
-    <span style={{fontSize:13,color:'var(--tx-1)'}}>{t}</span>
-  </div>);
+function openAppPopup(appId){
+  const a=APPS.find(x=>x.id===appId);if(!a)return;
+  const html=`<div class="poplist">
+    <div class="intro"><span class="dot" style="display:inline-block;width:9px;height:9px;border:1px solid #0007;background:${a.cl}"></span>
+    <b>${esc(a.nm)}</b> (${esc(a.vd)}) — categoría <b>${esc(a.cat)}</b>.<br>
+    Admite <b>${a.fm.length}</b> tipos de archivo:</div>
+    <div class="pill-wrap">${[...a.fm].sort().map(x=>`<span class="tag95 ext-pill" data-ext="${x}">.${x.toLowerCase()}</span>`).join('')}</div>
+  </div>`;
+  mkWin('app-'+appId,a.nm+' — formatos admitidos','🖥️',430,420,html,{onOpen:wire});
+}
+// delegación de clics en etiquetas dentro de una ventana
+function wire(el){
+  el.addEventListener('click',e=>{
+    const t=e.target.closest('[data-ext],[data-app],[data-lang]');if(!t)return;
+    if(t.dataset.ext)openProps(t.dataset.ext);
+    else if(t.dataset.app)openAppPopup(t.dataset.app);
+    else if(t.dataset.lang)openLangPopup(t.dataset.lang);
+  });
 }
 
-ReactDOM.render(<App/>,document.getElementById('app'));
+// ---------------- Estadísticas ----------------
+function openStats(){
+  const langCounts=Object.keys(LANG_GROUPS).map(l=>[l,extsOfLang(l).length]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+  const max=Math.max(...Object.values(CATS).map(c=>c.e.length));
+  const maxL=Math.max(...langCounts.map(x=>x[1]));
+  const html=`<div class="stats-body95">
+    <div class="fieldset"><legend>Formatos por categoría</legend><div style="padding-top:4px">
+    ${Object.entries(CATS).map(([k,c])=>`<div class="stat-row"><span class="sn">${c.i} ${esc(c.n)}</span><div class="bar95"><i style="--bcl:${c.cl};width:${(c.e.length/max*100).toFixed(0)}%"></i></div><span class="sv">${c.e.length}</span></div>`).join('')}
+    </div></div>
+    <div class="fieldset"><legend>Formatos por lenguaje / base</legend><div style="padding-top:4px">
+    ${langCounts.map(([l,n])=>`<div class="stat-row"><span class="sn" style="cursor:pointer;text-decoration:underline" data-lang="${esc(l)}">${esc(l)}</span><div class="bar95"><i style="--bcl:${LANG_GROUPS[l].cl};width:${(n/maxL*100).toFixed(0)}%"></i></div><span class="sv">${n}</span></div>`).join('')}
+    </div></div>
+    <div class="fieldset"><legend>Totales</legend><div style="padding:6px 4px;font-size:11.5px;line-height:1.7">
+      📁 <b>${ALL_EXTS.length}</b> formatos documentados &nbsp;·&nbsp; 🗂️ <b>${Object.keys(CATS).length}</b> categorías &nbsp;·&nbsp; 🖥️ <b>${APPS.length}</b> aplicaciones &nbsp;·&nbsp; ⌨️ <b>${langCounts.length}</b> lenguajes/bases
+    </div></div>
+  </div>`;
+  mkWin('stats','Estadísticas del catálogo','📊',560,520,html,{onOpen:wire});
+}
+
+// ---------------- Acerca de ----------------
+function openAbout(){
+  const html=`<div class="props" style="text-align:center;padding:20px">
+    <div style="font:bold 20px var(--f-ui);margin:10px 0 4px">🗄️ Format Explorer <span style="color:#000080">95</span></div>
+    <div style="font-size:11px;color:#555;margin-bottom:14px">Edición Windows 95 · rubenpantxo.com</div>
+    <div class="fieldset" style="text-align:left"><legend>Cómo se usa</legend><div style="padding:6px 2px;font-size:11px;line-height:1.7">
+      • <b>Doble clic</b> en un formato para abrir sus Propiedades.<br>
+      • Clic en una <b>etiqueta de aplicación</b> → formatos que admite esa app.<br>
+      • Clic en la <b>etiqueta de lenguaje</b> → formatos con la misma base.<br>
+      • Abre el <b>🧠 Ecosistema IA</b> para explorar cómo se conectan lenguajes, librerías, gestores, repositorios, CDNs y formatos.<br>
+      • Las ventanas se pueden <b>arrastrar, minimizar y maximizar</b> como en Windows 95.
+    </div></div></div>`;
+  mkWin('about','Acerca de Format Explorer 95','❓',400,330,html);
+}
+
+// ---------------- Ecosistema IA ----------------
+function openEco(){
+  const order=['leng','lib','pkg','repo','cdn','fmt'];
+  const cells={leng:'1/1',lib:'1/2',pkg:'1/3',repo:'3/1',cdn:'3/2',fmt:'3/3'};
+  const boxes=order.map(g=>{
+    const G=ECO_GROUPS[g];
+    return `<div class="eco-box" id="eco-box-${g}" style="--gcl:${G.cl};grid-row:${cells[g].split('/')[0]};grid-column:${cells[g].split('/')[1]}">
+      <div class="eco-box-t">${G.icon} ${esc(G.n)}</div>
+      <div class="eco-box-b">${G.items.map(it=>`<div class="eco-item" data-eco="${esc(it)}" style="--gcl:${G.cl}">${esc(it)}</div>`).join('')}</div>
+    </div>`}).join('');
+  const html=`<div class="eco-wrap">
+    <div class="eco-canvas"><div class="eco-grid" id="eco-grid">
+      <svg class="eco-svg" id="eco-svg"></svg>
+      ${boxes}
+      <div class="eco-center" style="grid-row:2;grid-column:2"><div class="eco-core" id="eco-core">🧠 MODELO DE IA<small>haz clic en cualquier elemento</small></div></div>
+    </div></div>
+    <div class="eco-info"><div class="eco-info-body" id="eco-info">
+      <h3>🧠 Ecosistema de recursos</h3>
+      <div class="role">Mapa interactivo</div>
+      <p>Este mapa muestra los recursos que un <b>modelo de IA</b> combina para crear software: lenguajes, librerías, gestores de paquetes, repositorios, CDNs y formatos de archivo.</p>
+      <p><b>Haz clic</b> en cualquier elemento (NPM, Three.js, GitHub...) para ver qué es y con qué se conecta. Las líneas rojas animadas marcan sus conexiones.</p>
+      <div class="eco-ex"><b>💡 Ejemplo de flujo completo:</b>NPM instala Three.js → tu .html la importa → Three.js carga un modelo .gltf → publicas en GitHub Pages → jsDelivr la sirve por CDN.</div>
+    </div></div>
+  </div>`;
+  mkWin('eco','Ecosistema de recursos para un Modelo de IA','🧠',980,640,html,{onOpen:el=>{
+    drawEcoLines(el);
+    el.querySelector('#eco-grid').addEventListener('click',e=>{
+      const core=e.target.closest('#eco-core');
+      const it=e.target.closest('.eco-item');
+      if(core){selectEcoCore(el)}
+      else if(it){selectEco(el,it.dataset.eco)}
+    });
+    el.querySelector('#eco-info').addEventListener('click',e=>{
+      const c=e.target.closest('[data-eco-link]');if(c)selectEco(el,c.dataset.ecoLink);
+      const x=e.target.closest('[data-ext]');if(x)openProps(x.dataset.ext);
+    });
+    new ResizeObserver(()=>drawEcoLines(el)).observe(el.querySelector('#eco-grid'));
+  }});
+}
+function drawEcoLines(el,activeGroups){
+  const grid=el.querySelector('#eco-grid'),svg=el.querySelector('#eco-svg');
+  if(!grid||!svg)return;
+  const gr=grid.getBoundingClientRect();
+  const core=el.querySelector('#eco-core').getBoundingClientRect();
+  const cx=core.left-gr.left+core.width/2, cy=core.top-gr.top+core.height/2;
+  svg.setAttribute('viewBox',`0 0 ${gr.width} ${gr.height}`);
+  svg.innerHTML=Object.keys(ECO_GROUPS).map(g=>{
+    const b=el.querySelector('#eco-box-'+g).getBoundingClientRect();
+    const bx=b.left-gr.left+b.width/2, by=b.top-gr.top+b.height/2;
+    const on=activeGroups&&activeGroups.has(g)?' class="on"':'';
+    return `<line x1="${cx}" y1="${cy}" x2="${bx}" y2="${by}"${on}/>`;
+  }).join('');
+}
+function selectEcoCore(el){
+  el.querySelectorAll('.eco-item').forEach(x=>x.classList.remove('on','linked'));
+  el.querySelector('#eco-core').classList.add('on');
+  drawEcoLines(el,new Set(Object.keys(ECO_GROUPS)));
+  el.querySelector('#eco-info').innerHTML=`
+    <h3>🧠 ${esc(ECO_CORE.n)}</h3><div class="role">Orquestador del ecosistema</div>
+    <p>${esc(ECO_CORE.d)}</p>
+    <div style="font:bold 10px var(--f-ui);color:#555;margin-bottom:5px">CONEXIONES:</div>
+    <div class="eco-conn">${ECO_CORE.conns.map(c=>`<div class="eco-conn-i"><span class="arr">→</span><span><b>${esc(c[0])}</b> ${esc(c[1])}: ${esc(c[2])}</span></div>`).join('')}</div>`;
+}
+function selectEco(el,name){
+  const item=ECO[name];if(!item)return;
+  const G=ECO_GROUPS[item.g];
+  el.querySelector('#eco-core').classList.remove('on');
+  el.querySelectorAll('.eco-item').forEach(x=>{
+    x.classList.toggle('on',x.dataset.eco===name);
+    x.classList.remove('linked');
+  });
+  const groups=new Set([item.g]);
+  (item.c||[]).forEach(c=>{
+    groups.add(c[2]);
+    el.querySelectorAll('.eco-item').forEach(x=>{
+      if(x.dataset.eco===c[0]||c[0].split(' / ').includes(x.dataset.eco))x.classList.add('linked');
+    });
+  });
+  drawEcoLines(el,groups);
+  const extLink=item.ext?` <span class="tag95 ext-pill" data-ext="${item.ext}" style="margin-left:6px">ficha .${item.ext.toLowerCase()}</span>`:'';
+  el.querySelector('#eco-info').innerHTML=`
+    <h3 style="--gcl:${G.cl}"><span class="sw"></span>${esc(name)}${extLink}</h3>
+    <div class="role">${esc(G.n)}</div>
+    <p>${esc(item.d)}</p>
+    <div style="font:bold 10px var(--f-ui);color:#555;margin-bottom:5px">CONECTA CON:</div>
+    <div class="eco-conn">${(item.c||[]).map(c=>{
+      const target=ECO[c[0]]?c[0]:null;
+      return `<div class="eco-conn-i"${target?` data-eco-link="${esc(target)}"`:''}><span class="arr">→</span><span><b>${esc(c[0])}</b> — ${esc(c[1])}</span></div>`;
+    }).join('')}</div>
+    ${item.ex?`<div class="eco-ex"><b>💡 Ejemplo:</b>${esc(item.ex)}</div>`:''}`;
+}
+
+// ---------------- Start menu + clock ----------------
+function initShell(){
+  const sm=document.getElementById('sm-items');
+  sm.innerHTML=DICONS.map(d=>`<div class="sm-i" data-run="${d.id}"><span class="ic">${{explorer:'🗄️',eco:'🧠',stats:'📊',about:'❓'}[d.id]}</span>${esc(d.n)}</div>`).join('')
+    +`<div class="sm-sep"></div><div class="sm-i" data-run="__web"><span class="ic">🌍</span>rubenpantxo.com</div>`;
+  sm.addEventListener('click',e=>{
+    const i=e.target.closest('.sm-i');if(!i)return;
+    document.getElementById('startmenu').classList.remove('open');
+    if(i.dataset.run==='__web'){location.href='https://rubenpantxo.com';return}
+    DICONS.find(d=>d.id===i.dataset.run)?.run();
+  });
+  const sb=document.getElementById('startbtn');
+  sb.onclick=e=>{e.stopPropagation();document.getElementById('startmenu').classList.toggle('open');sb.classList.toggle('pressed')};
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('#startmenu')&&!e.target.closest('#startbtn')){
+      document.getElementById('startmenu').classList.remove('open');sb.classList.remove('pressed')}
+  });
+  const tick=()=>{const d=new Date();document.getElementById('clock').textContent=
+    String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+  tick();setInterval(tick,10000);
+}
+renderDesktop();
+initShell();
+openExplorer();
 </script>
 </body>
 </html>
