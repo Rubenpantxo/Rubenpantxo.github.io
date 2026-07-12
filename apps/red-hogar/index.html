@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red Hogar · Panel de control doméstico</title>
+<meta name="description" content="Tablero de control de los dispositivos e interconexiones de la red del hogar.">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 11.5 12 4l9 7.5M6 10.5V20h12v-9.5' fill='none' stroke='%237c2d3e' stroke-width='2'/%3E%3Ccircle cx='12' cy='15' r='1.6' fill='%237c2d3e'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<!-- Degradados compartidos por los iconos SVG -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="scr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8fa6b8"/><stop offset=".45" stop-color="#5f7382"/><stop offset=".5" stop-color="#4d5f6d"/><stop offset="1" stop-color="#3c4b57"/>
+    </linearGradient>
+    <linearGradient id="bodyc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#faf5ea"/><stop offset="1" stop-color="#e8dfc9"/>
+    </linearGradient>
+    <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a4a3e"/><stop offset="1" stop-color="#3e332b"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="appbar">
+  <a class="logo" href="../../index.html" title="Volver a rubenpantxo.com">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M3 11.5 12 4l9 7.5" stroke-linecap="round"/><path d="M6 10.5V20h12v-9.5"/>
+      <circle cx="12" cy="15" r="1.4" fill="currentColor"/>
+      <path d="M9.2 13a4 4 0 0 1 5.6 0M7.4 11a6.5 6.5 0 0 1 9.2 0" stroke-linecap="round"/>
+    </svg>
+    Red Hogar
+  </a>
+  <nav class="tabs" role="tablist" aria-label="Apartados">
+    <button class="tab" role="tab" data-view="general" aria-selected="true">General</button>
+    <button class="tab" role="tab" data-view="electrico" disabled title="Hueco reservado: esquema eléctrico del hogar">Esquema eléctrico <span class="tag-soon">FUTURO</span></button>
+    <button class="tab" role="tab" data-view="ips" aria-selected="false">Lista IPs</button>
+    <button class="tab" role="tab" data-view="passwords" disabled title="Hueco reservado: contraseñas de aplicaciones">Contraseñas <span class="tag-soon">FUTURO</span></button>
+    <button class="tab pink" role="tab" data-view="sheets" aria-selected="false">Datasheets</button>
+  </nav>
+  <div class="actions">
+    <label class="search">🔍<input id="search" type="search" placeholder="Buscar aparato, IP, modelo…" autocomplete="off"></label>
+    <button class="btn primary" id="btn-add">＋ Añadir</button>
+    <button class="btn ghost" id="btn-data">⛁ Datos ▾</button>
+  </div>
+</header>
+
+<main>
+  <!-- ================= GENERAL ================= -->
+  <section class="view on" id="view-general">
+    <div class="mobile-nets" id="mobile-nets"></div>
+    <div class="general-grid">
+      <div class="map-wrap">
+        <div class="map" id="map">
+          <svg class="wires" id="wires"></svg>
+          <div class="legend">
+            <div class="row">
+              <svg width="38" height="13" viewBox="0 0 38 13"><path d="M2 10 C 12 2, 24 2, 32 8" fill="none" stroke="var(--wine)" stroke-width="2.2" opacity=".7" stroke-linecap="round"/><rect x="30" y="4" width="6" height="8" rx="1.5" fill="var(--card)" stroke="var(--wine)" stroke-width="1.5"/></svg>
+              Cable · arrastra el conector para tender
+            </div>
+            <div class="row">
+              <svg width="15" height="13" viewBox="0 0 16 13" fill="none" stroke-width="1.7" stroke-linecap="round"><g stroke="var(--net-a)"><path d="M2 5.5a8.5 8.5 0 0 1 12 0"/><path d="M4.6 8.3a5 5 0 0 1 6.8 0"/></g><circle cx="8" cy="11" r="1.1" fill="var(--net-a)"/></svg>
+              <svg width="15" height="13" viewBox="0 0 16 13" fill="none" stroke-width="1.7" stroke-linecap="round"><g stroke="var(--net-b)"><path d="M2 5.5a8.5 8.5 0 0 1 12 0"/><path d="M4.6 8.3a5 5 0 0 1 6.8 0"/></g><circle cx="8" cy="11" r="1.1" fill="var(--net-b)"/></svg>
+              <svg width="15" height="13" viewBox="0 0 16 13" fill="none" stroke-width="1.7" stroke-linecap="round"><g stroke="var(--net-c)"><path d="M2 5.5a8.5 8.5 0 0 1 12 0"/><path d="M4.6 8.3a5 5 0 0 1 6.8 0"/></g><circle cx="8" cy="11" r="1.1" fill="var(--net-c)"/></svg>
+              WiFi · ondas del color de su red
+            </div>
+            <div class="row">
+              <svg width="15" height="13" viewBox="0 0 16 13" fill="none" stroke-width="1.7" stroke-linecap="round"><g stroke="var(--net-iot)"><path d="M2 5.5a8.5 8.5 0 0 1 12 0"/><path d="M4.6 8.3a5 5 0 0 1 6.8 0"/></g><circle cx="8" cy="11" r="1.1" fill="var(--net-iot)"/></svg>
+              WiFi IoT
+            </div>
+            <div class="row"><span class="otro-sample"></span> Otros (RJ11, alimentación…)</div>
+          </div>
+          <div id="nodes"></div>
+        </div>
+      </div>
+      <aside class="netpanel" id="netpanel"></aside>
+    </div>
+    <div class="mapbar">
+      <div class="tip"><b>Tender cable</b> arrastra el conector ⬓ de un aparato hasta otro.</div>
+      <div class="tip"><b>Desenchufar</b> pulsa sobre un cable y elige «Desenchufar».</div>
+      <div class="tip"><b>Redes WiFi</b> pulsa un chip del router o las ondas de un aparato para iluminar su red.</div>
+    </div>
+  </section>
+
+  <!-- ================= LISTA IPs ================= -->
+  <section class="view" id="view-ips">
+    <div class="ips-toolbar">
+      <button class="btn ghost" id="btn-scan">⇧ Importar escaneo <span class="tag-soon">FUTURO</span></button>
+      <button class="btn primary" id="btn-add-ip">＋ Añadir aparato</button>
+      <span class="warn" id="dup-warn" hidden></span>
+    </div>
+    <div class="ips-grid" id="ips-grid"></div>
+  </section>
+
+  <!-- ================= DATASHEETS ================= -->
+  <section class="view" id="view-sheets">
+    <div class="sheets-toolbar">
+      <span style="font-size:12.5px;color:var(--muted)">Fichas técnicas de tus aparatos. Los PDF viven en <span style="font-family:var(--mono)">apps/red-hogar/datasheets/</span> y se abren sin salir de la app.</span>
+    </div>
+    <div class="sheet-grid" id="sheet-grid"></div>
+  </section>
+</main>
+
+<footer class="app">
+  <span>Red Hogar · tus datos viven solo en este navegador (localStorage)</span>
+  <span class="dotsep">·</span>
+  <span>Exporta una copia de seguridad desde «⛁ Datos»</span>
+</footer>
+
+<button class="fab" id="fab" title="Añadir aparato">＋</button>
+
+<!-- ficha de dispositivo -->
+<div class="overlay" id="ov-device" role="dialog" aria-modal="true">
+  <div class="modal" id="device-modal"></div>
+</div>
+
+<!-- formulario añadir / editar -->
+<div class="overlay" id="ov-form" role="dialog" aria-modal="true">
+  <div class="modal" id="form-modal"></div>
+</div>
+
+<!-- visor de PDF -->
+<div class="overlay" id="ov-pdf" role="dialog" aria-modal="true">
+  <div class="modal pdfmodal">
+    <div class="m-head">
+      <h3 id="pdf-title" style="font-size:16px">Datasheet</h3>
+      <button class="m-x" data-close="ov-pdf">✕</button>
+    </div>
+    <iframe id="pdf-frame" title="Visor de datasheet"></iframe>
+  </div>
+</div>
+
+<!-- información del escaneo futuro -->
+<div class="overlay" id="ov-scan" role="dialog" aria-modal="true">
+  <div class="modal" style="width:560px">
+    <div class="m-head">
+      <h3 style="font-size:17px">Importar escaneo — preparado para el futuro</h3>
+      <button class="m-x" data-close="ov-scan">✕</button>
+    </div>
+    <div class="m-body single" style="font-size:13.5px;color:var(--muted)">
+      <p style="margin:0 0 10px">Una web estática no puede escanear tu red, pero la app ya define el formato.
+      Cuando quieras, un script en un PC de casa podrá generar este JSON y lo importarás desde «⛁ Datos → Importar JSON»:</p>
+      <pre style="background:#fff;border:1px solid var(--wine-soft);border-radius:10px;padding:12px;font-size:11px;overflow:auto;margin:0">{
+  "escaneo": [
+    { "ip": "192.168.1.34",
+      "mac": "A8:5E:45:1B:22:C3",
+      "nombre": "PC principal",
+      "red": "MOVISTAR-6688" }
+  ]
+}</pre>
+      <p style="margin:10px 0 0">Los aparatos existentes se casarán por MAC o IP y se actualizarán; los nuevos se añadirán a su red.</p>
+    </div>
+    <div class="m-foot"><span class="sp"></span><button class="btn" data-close="ov-scan">Entendido</button></div>
+  </div>
+</div>
+
+<!-- menú contextual de cable -->
+<div class="cablemenu" id="cablemenu"></div>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
