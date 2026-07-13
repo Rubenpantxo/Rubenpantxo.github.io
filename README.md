@@ -28,6 +28,7 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
 │   ├── pantxiko-notes.html
 │   ├── plants/
 │   ├── qibla.html          # Brújula Qibla
+│   ├── red-hogar/          # Panel de la red doméstica: mapa, IPs y datasheets (privada)
 │   ├── resource-hub/       # (privada)
 │   └── rubenpantxo-garden/ # Solo logo; la app vive en un repo privado independiente
 └── juegos/                 # Juegos
