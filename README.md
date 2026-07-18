@@ -11,7 +11,7 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
 ├── index.html              # Landing principal con secciones y router
 ├── 404.html                # Página de error
 ├── CNAME                   # Dominio personalizado
-├── .htaccess               # Cabeceras de seguridad y reglas del servidor
+├── .htaccess               # Inerte en GitHub Pages (ver docs/SEGURIDAD.md)
 ├── robots.txt
 ├── CSS/                    # Estilos globales
 ├── js/                     # Scripts
