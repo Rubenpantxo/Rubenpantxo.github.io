@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Refuerzo de seguridad a nivel de documento. GitHub Pages no permite
+         cabeceras HTTP propias (HSTS, X-Frame-Options, etc.): esas se aplican
+         poniendo el sitio tras Cloudflare (ver docs/SEGURIDAD.md). Esta CSP por
+         <meta> es conservadora para no romper Tailwind/Font Awesome/Google Fonts:
+         bloquea plugins, restringe <base> y fuerza HTTPS en subrecursos. -->
+    <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Prototipo - Rubenpantxo.com</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
