@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ajedrez 3D — edición definitiva</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="container">
+
+  <!-- pantalla de carga -->
+  <div id="loading">
+    <h1>AJEDREZ&nbsp;3D</h1>
+    <div class="subtitle">edición definitiva</div>
+    <div id="loading-bar"><div id="loading-fill"></div></div>
+    <div id="loading-percent">0%</div>
+    <div id="loading-tip"></div>
+  </div>
+
+  <!-- menú principal -->
+  <div id="menu" class="hidden">
+    <h1>AJEDREZ&nbsp;3D</h1>
+    <div class="subtitle">edición definitiva</div>
+
+    <div id="menu-cards">
+      <button class="mode-card" id="card-ai">
+        <span class="icon">🤖</span>
+        <span class="name">Contra la IA</span>
+        <span class="desc">10 niveles, desde Peón hasta Gran Maestro. Con pistas y barra de ventaja.</span>
+      </button>
+      <button class="mode-card" id="card-2p">
+        <span class="icon">🤝</span>
+        <span class="name">Dos jugadores</span>
+        <span class="desc">Cara a cara en el mismo tablero, con relojes de torneo.</span>
+      </button>
+      <button class="mode-card" id="card-puzzle">
+        <span class="icon">⚡</span>
+        <span class="name">Ráfaga de mates</span>
+        <span class="desc">3 minutos, 3 vidas: encadena todos los jaques mate que puedas.</span>
+      </button>
+      <button class="mode-card" id="card-load">
+        <span class="icon">📂</span>
+        <span class="name">Cargar partida</span>
+        <span class="desc">Continúa una partida guardada en formato PGN.</span>
+      </button>
+    </div>
+
+    <!-- configuración de partida -->
+    <div id="menu-config" class="hidden" data-mode="ai">
+      <h2 id="config-title">Partida contra la IA</h2>
+
+      <div class="row">
+        <label class="row-label">Tus piezas</label>
+        <div class="radio-group">
+          <label><input type="radio" name="color" value="white" checked><span>♔ Blancas</span></label>
+          <label><input type="radio" name="color" value="black"><span>♚ Negras</span></label>
+          <label><input type="radio" name="color" value="random"><span>🎲 Azar</span></label>
+        </div>
+      </div>
+
+      <div class="row ai-only">
+        <label class="row-label" for="sel-level">Nivel de la IA</label>
+        <select id="sel-level"></select>
+      </div>
+
+      <div class="row">
+        <label class="row-label" for="sel-time">Ritmo de juego</label>
+        <select id="sel-time">
+          <option value="0,0" selected>Sin reloj</option>
+          <option value="1,0">Bala · 1 min</option>
+          <option value="3,2">Relámpago · 3 min + 2 s</option>
+          <option value="5,0">Relámpago · 5 min</option>
+          <option value="10,0">Rápida · 10 min</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="btn-config-back">← Volver</button>
+        <button class="btn primary" id="btn-config-start">¡Jugar!</button>
+      </div>
+    </div>
+
+    <div id="menu-stats">
+      <div><b id="stat-games">0</b>partidas</div>
+      <div><b id="stat-wins">0</b>victorias</div>
+      <div><b id="stat-level">—</b>mejor nivel vencido</div>
+      <div><b id="stat-rush">0</b>récord ráfaga</div>
+    </div>
+  </div>
+
+  <!-- HUD de partida -->
+  <div id="hud" class="hidden">
+    <div id="hud-top">
+      <span id="hud-mode"></span>
+      <span id="turn-indicator"><span id="turn-dot" class="dot white"></span><span id="turn-label">Mueven blancas</span></span>
+      <span id="hud-thinking">La IA está pensando…</span>
+    </div>
+
+    <div id="clocks" class="hidden">
+      <div class="clock" id="clock-b"><span class="who">Negras</span><span class="time" id="clock-b-time">5:00</span></div>
+      <div class="clock" id="clock-w"><span class="who">Blancas</span><span class="time" id="clock-w-time">5:00</span></div>
+    </div>
+
+    <div id="panel">
+      <h3>Jugadas</h3>
+      <div id="moves-wrap"><ol id="moves"></ol></div>
+      <div id="captured">
+        <div class="cap-row"><span class="cap-label">Blancas ganan:</span><span id="captured-by-white"></span></div>
+        <div class="cap-row"><span class="cap-label">Negras ganan:</span><span id="captured-by-black"></span></div>
+      </div>
+    </div>
+
+    <div id="hud-buttons">
+      <button class="btn" id="btn-undo" title="Deshacer jugada">↶ Deshacer</button>
+      <button class="btn" id="btn-hint" title="Pedir una pista al motor">💡 Pista</button>
+      <button class="btn" id="btn-flip" title="Girar la cámara">🔄 Girar</button>
+      <button class="btn" id="btn-save" title="Guardar la partida en PGN">💾 Guardar</button>
+      <button class="btn" id="btn-sound" title="Activar o silenciar el sonido">🔊</button>
+      <button class="btn danger" id="btn-resign" title="Rendirse">🏳 Rendirse</button>
+      <button class="btn" id="btn-menu" title="Volver al menú">☰ Menú</button>
+    </div>
+  </div>
+
+  <!-- HUD ráfaga de mates -->
+  <div id="puzzle-hud" class="hidden">
+    <div class="pz-box"><div class="pz-label">Puntos</div><div class="pz-value" id="pz-score">0</div></div>
+    <div class="pz-box"><div class="pz-label">Tiempo</div><div class="pz-value" id="pz-timer">3:00</div></div>
+    <div class="pz-box"><div class="pz-label">Vidas</div><div id="pz-strikes"></div></div>
+    <div class="pz-box"><div id="pz-side">Juegan blancas: ¡mate en 1!</div></div>
+    <button class="btn" id="btn-pz-quit">Abandonar</button>
+  </div>
+
+  <!-- barra de evaluación -->
+  <div id="eval-wrap" class="hidden"><div id="eval-fill"></div></div>
+  <div id="eval-label"></div>
+
+  <!-- banner de estado -->
+  <div id="estado"></div>
+
+  <!-- modales -->
+  <div id="modal-back" class="hidden"></div>
+
+  <div id="modal-gameover" class="modal hidden">
+    <h2 id="go-title">Victoria</h2>
+    <p id="go-reason"></p>
+    <div class="actions">
+      <button class="btn primary" id="btn-go-rematch">⚔ Revancha</button>
+      <button class="btn" id="btn-go-save">💾 Guardar PGN</button>
+      <button class="btn" id="btn-go-share">📸 Compartir</button>
+      <button class="btn" id="btn-go-menu">☰ Menú</button>
+      <button class="btn" id="btn-go-close">👁 Ver tablero</button>
+    </div>
+  </div>
+
+  <div id="modal-promotion" class="modal hidden">
+    <h2 class="draw">Corona tu peón</h2>
+    <p>Elige la pieza de promoción</p>
+    <div class="promo-row">
+      <button data-promo="q" title="Dama">♛</button>
+      <button data-promo="r" title="Torre">♜</button>
+      <button data-promo="b" title="Alfil">♝</button>
+      <button data-promo="n" title="Caballo">♞</button>
+    </div>
+  </div>
+
+  <div id="modal-pgn" class="modal hidden">
+    <h2 class="draw">Cargar partida</h2>
+    <p>Pega un PGN o elige un archivo</p>
+    <textarea id="pgn-text" spellcheck="false" placeholder="1. e4 e5 2. Nf3 ..."></textarea>
+    <br>
+    <input type="file" id="pgn-file" accept=".pgn,.txt">
+    <div class="actions">
+      <button class="btn primary" id="btn-pgn-load">Cargar</button>
+      <button class="btn" id="btn-pgn-close">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="modal-puzzle-end" class="modal hidden">
+    <h2 class="draw">Fin de la ráfaga</h2>
+    <div id="pz-end-record">¡Nuevo récord!</div>
+    <div class="big-score" id="pz-end-score">0</div>
+    <p>mates encadenados · tu récord: <b id="pz-end-best">0</b></p>
+    <div class="actions">
+      <button class="btn primary" id="btn-pz-retry">⚡ Otra ráfaga</button>
+      <button class="btn" id="btn-pz-menu">☰ Menú</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- librerías -->
+  <script src="js/lib/three.min.js"></script>
+  <script src="js/lib/OrbitAndPanControls.js"></script>
+
+  <!-- motor de ajedrez -->
+  <script src="js/AI/garbochess.js"></script>
+
+  <!-- constantes globales -->
+  <script>
+    var WIREFRAME = false;
+    var SHADOW = false;
+    var BLACK = 0;
+    var WHITE = 1;
+    var FEEDBACK = 2;
+    var DEBUG = false;
+    var BOARD_SIZE = 100;
+    var PIECE_SIZE = 0.4;
+    var FLOOR_SIZE = 2000;
+    var COLS = 8;
+    var ROWS = 8;
+  </script>
+
+  <!-- juego -->
+  <script src="js/three-extend.js"></script>
+  <script src="js/Cell.js"></script>
+  <script src="js/factory.js"></script>
+  <script src="js/pgnParser.js"></script>
+  <script src="js/puzzles.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/loader.js"></script>
+</body>
+</html>
