@@ -1301,6 +1301,52 @@ var Game = (function () {
 		return true;
 	}
 
+	// Carga una posicion arbitraria (por ejemplo, la detectada en una imagen)
+	// a partir de un FEN y arranca una partida contra la IA desde ahi.
+	function loadFEN(fen) {
+		resetCommonState();
+		state.mode = "ai";
+		state.gameOver = false;
+
+		var err = InitializeFromFen(fen);
+		if (err && err.length) {
+			throw new Error(err);
+		}
+
+		g_allMoves = [];
+		sanHistory = [];
+		moveMeta = [];
+		lastMoveIdxs = [];
+		checkIdx = null;
+
+		state.playerWhite = whiteToMove();
+		validMoves = GenerateValidMoves();
+		updateCheckHighlight();
+		syncBoard();
+		cinematic = false;
+		cameraToSide(state.playerWhite);
+
+		ensureAnalysisStopped();
+		if (initBackgroundEngine()) {
+			backgroundEngine.postMessage("position " + GetFen());
+		}
+
+		if (ui()) {
+			ui().onNewGameStarted({
+				mode: "ai",
+				playerWhite: state.playerWhite,
+				level: state.level,
+				levelInfo: levels[state.level],
+				clock: false,
+				loaded: true
+			});
+			ui().onHistoryRebuilt(sanHistory.slice());
+			ui().onTurn(whiteToMove());
+			ui().onCapturedUpdate(capturedSummary());
+		}
+		return true;
+	}
+
 	/* ================= rafaga de mates ================= */
 
 	function shuffled(list) {
@@ -1487,6 +1533,7 @@ var Game = (function () {
 		flipCamera: flipCamera,
 		getPGN: getPGN,
 		loadPGNText: loadPGNText,
+		loadFEN: loadFEN,
 		getFen: function () { return GetFen(); },
 		isAnimating: function () { return animating; },
 		// para depuracion y pruebas automatizadas
