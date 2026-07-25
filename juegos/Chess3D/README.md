@@ -24,7 +24,9 @@ Modos de juego
 - **Dos jugadores** — partida local en el mismo tablero.
 - **Ráfaga de mates** — 3 minutos y 3 vidas para encadenar tantos mates en 1
   como puedas. 64 puzzles validados por el motor y récord guardado en tu navegador.
-- **Cargar partida** — importa cualquier PGN y sigue jugando contra la IA.
+- **Cargar partida** — importa cualquier PGN, o **sube una imagen del tablero**
+  (PNG, JPG, JPEG…): se analiza en tu navegador para reconstruir la posición.
+  Un editor te deja corregir cualquier casilla antes de seguir jugando contra la IA.
 
 Características
 ---------------
