@@ -41,7 +41,7 @@
       <button class="mode-card" id="card-load">
         <span class="icon">📂</span>
         <span class="name">Cargar partida</span>
-        <span class="desc">Continúa una partida guardada en formato PGN.</span>
+        <span class="desc">Desde un PGN o desde una imagen del tablero (PNG, JPG, JPEG…): la analizamos y copiamos la posición.</span>
       </button>
     </div>
 
@@ -165,10 +165,39 @@
 
   <div id="modal-pgn" class="modal hidden">
     <h2 class="draw">Cargar partida</h2>
-    <p>Pega un PGN o elige un archivo</p>
+    <p>Pega un PGN, o sube una imagen del tablero (PNG, JPG, JPEG…) y detectamos la posición.</p>
     <textarea id="pgn-text" spellcheck="false" placeholder="1. e4 e5 2. Nf3 ..."></textarea>
-    <br>
-    <input type="file" id="pgn-file" accept=".pgn,.txt">
+    <div class="load-sources">
+      <label class="file-btn">📄 Archivo PGN
+        <input type="file" id="pgn-file" accept=".pgn,.txt">
+      </label>
+      <label class="file-btn">🖼️ Imagen del tablero
+        <input type="file" id="board-image-file" accept="image/*">
+      </label>
+    </div>
+
+    <!-- editor de posicion detectada en la imagen -->
+    <div id="board-vision" class="hidden">
+      <div id="bv-status"></div>
+      <div id="bv-editor">
+        <div id="bv-board"></div>
+        <div id="bv-tools">
+          <div id="bv-palette"></div>
+          <div class="bv-controls">
+            <label class="bv-turn-label">Mueven
+              <select id="bv-turn">
+                <option value="w">Blancas</option>
+                <option value="b">Negras</option>
+              </select>
+            </label>
+            <button class="btn" id="bv-flip" title="Girar el tablero 180°">🔄 Girar</button>
+            <button class="btn" id="bv-clear" title="Vaciar el tablero">🗑 Vaciar</button>
+          </div>
+        </div>
+      </div>
+      <p class="bv-hint">Toca una pieza de la paleta y luego las casillas para corregir lo que haga falta.</p>
+    </div>
+
     <div class="actions">
       <button class="btn primary" id="btn-pgn-load">Cargar</button>
       <button class="btn" id="btn-pgn-close">Cancelar</button>
@@ -215,6 +244,7 @@
   <script src="js/Cell.js"></script>
   <script src="js/factory.js"></script>
   <script src="js/pgnParser.js"></script>
+  <script src="js/boardVision.js"></script>
   <script src="js/puzzles.js"></script>
   <script src="js/sound.js"></script>
   <script src="js/game.js"></script>

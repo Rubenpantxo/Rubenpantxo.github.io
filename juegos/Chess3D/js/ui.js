@@ -1,6 +1,6 @@
 // Interfaz de usuario: menu principal, HUD, modales, estadisticas y toasts.
 // Se comunica con el nucleo del juego a traves de window.Game / window.UI.
-/* global document, window, localStorage, Game, Sound, console */
+/* global document, window, localStorage, Game, Sound, console, BoardVision, FileReader */
 /* global piecePawn, pieceKnight, pieceBishop, pieceRook, pieceQueen */
 "use strict";
 
@@ -13,6 +13,15 @@ var UI = (function () {
 	var promoCallback = null;
 	var toastTimer = null;
 	var estadoTimer = null;
+
+	// glifos Unicode para el editor de posicion (a partir de imagen)
+	var PIECE_GLYPHS = {
+		p: "♟", n: "♞", b: "♝", r: "♜", q: "♛", k: "♚"
+	};
+	// estado del editor de posicion detectada
+	var bvBoard = null; // matriz 8x8, fila 0 = arriba (rango 8, blancas abajo)
+	var bvBrush = "P";  // pieza seleccionada en la paleta (null = borrar)
+	var bvTurn = "w";
 
 	/* ================= estadisticas ================= */
 
@@ -449,7 +458,11 @@ var UI = (function () {
 		$("card-ai").addEventListener("click", function () { Sound.click(); openConfig("ai"); });
 		$("card-2p").addEventListener("click", function () { Sound.click(); openConfig("2p"); });
 		$("card-puzzle").addEventListener("click", function () { Sound.click(); startPuzzle(); });
-		$("card-load").addEventListener("click", function () { Sound.click(); openModal("modal-pgn"); });
+		$("card-load").addEventListener("click", function () {
+			Sound.click();
+			resetBoardVision();
+			openModal("modal-pgn");
+		});
 		$("btn-config-back").addEventListener("click", function () {
 			Sound.click();
 			hide("menu-config");
@@ -518,23 +531,37 @@ var UI = (function () {
 			});
 		});
 
-		// PGN
+		// PGN / posicion desde imagen
 		$("btn-pgn-close").addEventListener("click", function () { Sound.click(); closeModals(); });
 		$("btn-pgn-load").addEventListener("click", function () {
 			Sound.click();
+			// si hay una posicion detectada en pantalla, se carga esa
+			if (!$("board-vision").classList.contains("hidden") && bvBoard) {
+				tryLoadPosition();
+				return;
+			}
 			var text = $("pgn-text").value.trim();
-			if (!text) { toast("Pega un PGN o elige un archivo"); return; }
+			if (!text) { toast("Pega un PGN, o sube una imagen del tablero"); return; }
 			tryLoadPGN(text);
 		});
 		$("pgn-file").addEventListener("change", function (evt) {
 			var file = evt.target.files[0];
 			if (!file) { return; }
+			resetBoardVision();
 			var reader = new FileReader();
 			reader.onload = function (e) {
 				$("pgn-text").value = e.target.result;
 				tryLoadPGN(e.target.result);
 			};
 			reader.readAsText(file);
+		});
+		$("board-image-file").addEventListener("change", function (evt) {
+			analyzeBoardImage(evt.target.files[0]);
+		});
+		$("bv-flip").addEventListener("click", bvFlip);
+		$("bv-clear").addEventListener("click", bvClear);
+		$("bv-turn").addEventListener("change", function (evt) {
+			bvTurn = evt.target.value === "b" ? "b" : "w";
 		});
 
 		// niveles de IA
@@ -558,6 +585,198 @@ var UI = (function () {
 				}
 			}
 		});
+	}
+
+	/* ============ editor de posicion desde imagen ============ */
+
+	function emptyBoard() {
+		var b = [];
+		for (var r = 0; r < 8; r++) {
+			b.push([null, null, null, null, null, null, null, null]);
+		}
+		return b;
+	}
+
+	function glyphFor(ch) {
+		return ch ? PIECE_GLYPHS[ch.toLowerCase()] : "";
+	}
+
+	function isWhitePiece(ch) {
+		return ch && ch === ch.toUpperCase();
+	}
+
+	function bvRenderBoard() {
+		var host = $("bv-board");
+		host.innerHTML = "";
+		for (var r = 0; r < 8; r++) {
+			for (var c = 0; c < 8; c++) {
+				var cell = document.createElement("button");
+				cell.type = "button";
+				cell.className = "bv-cell " + (((r + c) % 2 === 0) ? "light" : "dark");
+				cell.dataset.r = r;
+				cell.dataset.c = c;
+				var ch = bvBoard[r][c];
+				if (ch) {
+					var span = document.createElement("span");
+					span.className = isWhitePiece(ch) ? "bv-piece white-piece" : "bv-piece black-piece";
+					span.textContent = glyphFor(ch);
+					cell.appendChild(span);
+				}
+				cell.addEventListener("click", bvCellClick);
+				host.appendChild(cell);
+			}
+		}
+	}
+
+	function bvCellClick(evt) {
+		var el = evt.currentTarget;
+		var r = parseInt(el.dataset.r, 10);
+		var c = parseInt(el.dataset.c, 10);
+		bvBoard[r][c] = bvBrush; // null borra la casilla
+		Sound.click();
+		bvRenderBoard();
+	}
+
+	function bvRenderPalette() {
+		var host = $("bv-palette");
+		host.innerHTML = "";
+		var items = ["K", "Q", "R", "B", "N", "P", "k", "q", "r", "b", "n", "p", null];
+		items.forEach(function (ch) {
+			var btn = document.createElement("button");
+			btn.type = "button";
+			btn.className = "bv-brush";
+			if (ch === null) {
+				btn.classList.add("erase");
+				btn.textContent = "⌫";
+				btn.title = "Borrar casilla";
+			} else {
+				var span = document.createElement("span");
+				span.className = isWhitePiece(ch) ? "white-piece" : "black-piece";
+				span.textContent = glyphFor(ch);
+				btn.appendChild(span);
+			}
+			if (ch === bvBrush) { btn.classList.add("active"); }
+			btn.addEventListener("click", function () {
+				bvBrush = ch;
+				Sound.click();
+				bvRenderPalette();
+			});
+			host.appendChild(btn);
+		});
+	}
+
+	function bvFlip() {
+		var flipped = emptyBoard();
+		for (var r = 0; r < 8; r++) {
+			for (var c = 0; c < 8; c++) {
+				flipped[r][c] = bvBoard[7 - r][7 - c];
+			}
+		}
+		bvBoard = flipped;
+		Sound.click();
+		bvRenderBoard();
+	}
+
+	function bvClear() {
+		bvBoard = emptyBoard();
+		Sound.click();
+		bvRenderBoard();
+	}
+
+	function bvBuildFen() {
+		var rows = bvBoard.map(function (row) {
+			var s = "";
+			var empty = 0;
+			row.forEach(function (ch) {
+				if (!ch) {
+					empty++;
+				} else {
+					if (empty) { s += empty; empty = 0; }
+					s += ch;
+				}
+			});
+			if (empty) { s += empty; }
+			return s;
+		});
+		return rows.join("/") + " " + bvTurn + " - - 0 1";
+	}
+
+	function countPiece(ch) {
+		var n = 0;
+		for (var r = 0; r < 8; r++) {
+			for (var c = 0; c < 8; c++) {
+				if (bvBoard[r][c] === ch) { n++; }
+			}
+		}
+		return n;
+	}
+
+	function resetBoardVision() {
+		bvBoard = null;
+		bvBrush = "P";
+		bvTurn = "w";
+		hide("board-vision");
+		$("bv-status").textContent = "";
+		if ($("bv-turn")) { $("bv-turn").value = "w"; }
+		if ($("board-image-file")) { $("board-image-file").value = ""; }
+		$("btn-pgn-load").textContent = "Cargar";
+	}
+
+	function showBoardVision(result) {
+		bvBoard = result.board;
+		bvTurn = "w";
+		$("bv-turn").value = "w";
+		show("board-vision");
+		var pieces = 0;
+		for (var r = 0; r < 8; r++) {
+			for (var c = 0; c < 8; c++) {
+				if (bvBoard[r][c]) { pieces++; }
+			}
+		}
+		$("bv-status").textContent = "Detectadas " + pieces +
+			" piezas. Revisa y corrige si hace falta.";
+		$("btn-pgn-load").textContent = "Cargar posición";
+		bvRenderPalette();
+		bvRenderBoard();
+	}
+
+	function analyzeBoardImage(file) {
+		if (!file) { return; }
+		if (typeof BoardVision === "undefined") {
+			toast("El analizador de imágenes no está disponible");
+			return;
+		}
+		$("bv-status").textContent = "Analizando la imagen…";
+		show("board-vision");
+		var reader = new FileReader();
+		reader.onload = function (e) {
+			BoardVision.analyze(e.target.result).then(function (result) {
+				showBoardVision(result);
+			}).catch(function (err) {
+				console.error(err);
+				$("bv-status").textContent = "";
+				hide("board-vision");
+				toast("No se pudo analizar esa imagen");
+			});
+		};
+		reader.onerror = function () { toast("No se pudo leer el archivo"); };
+		reader.readAsDataURL(file);
+	}
+
+	function tryLoadPosition() {
+		if (countPiece("K") !== 1 || countPiece("k") !== 1) {
+			toast("Debe haber un rey blanco y un rey negro");
+			return;
+		}
+		try {
+			Game.loadFEN(bvBuildFen());
+			closeModals();
+			hide("menu");
+			toast("Posición cargada, sigue jugando contra la IA");
+		} catch (err) {
+			console.error(err);
+			toast("Esa posición no es válida");
+		}
 	}
 
 	function tryLoadPGN(text) {
