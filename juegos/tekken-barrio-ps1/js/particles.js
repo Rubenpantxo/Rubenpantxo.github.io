@@ -90,12 +90,20 @@ const Particles = (() => {
     });
   }
 
+  let dirty = false;
+
   function loop(t) {
     rafId = requestAnimationFrame(loop);
     if (!ctx || !canvas) return;
     const dt = Math.min(48, t - lastFrame);
     lastFrame = t;
 
+    // Sin partículas no hace falta tocar el canvas (ahorra en móvil)
+    if (!particles.length) {
+      if (dirty) { ctx.clearRect(0, 0, canvas.width, canvas.height); dirty = false; }
+      return;
+    }
+    dirty = true;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (!enabled) return;
 
