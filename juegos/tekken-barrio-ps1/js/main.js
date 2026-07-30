@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Touch / partículas
   Touch.init();
+  Touch.setLayout('menu');
   Particles.init();
 
   // Registrar escenas

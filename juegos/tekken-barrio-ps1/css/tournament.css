@@ -166,10 +166,23 @@
 }
 
 @media (max-width: 768px) {
+  .tournament-body { padding: 12px 10px 210px; }
+  .bracket { width: 100%; }
+  .tournament-actions { flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .tournament-btn { min-height: 46px; }
   .tournament-title { font-size: 18px; letter-spacing: 3px; }
   .tournament-subtitle { font-size: 8px; }
   .tournament-status { font-size: 9px; }
   .champion-overlay h2 { font-size: 28px; letter-spacing: 3px; }
   .champion-overlay .champ-name { font-size: 12px; }
   .champion-overlay img { width: 140px; height: 140px; }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .tournament-body { padding: 8px 10px 88px; }
+  .tournament-title { font-size: 13px; letter-spacing: 2px; margin-bottom: 2px; }
+  .tournament-subtitle { display: none; }
+  .bracket-match { min-width: 112px; padding: 3px; }
+  .bracket-fighter { font-size: 6px; }
+  .tournament-btn { min-height: 34px; font-size: 8px; }
 }

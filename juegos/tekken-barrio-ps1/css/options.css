@@ -86,7 +86,21 @@
 }
 
 @media (max-width: 768px) {
-  .options-title { font-size: 20px; }
-  .option-row { font-size: 9px; padding: 8px 12px; }
-  .option-row .value { font-size: 9px; }
+  .options-title { font-size: 20px; margin-bottom: 16px; }
+  .options-body { padding: 14px 12px 210px; }
+  .option-row { font-size: 9px; padding: 8px 10px; min-height: 48px; }
+  .option-row .value { font-size: 9px; gap: 6px; }
+  /* flechas con área de toque generosa */
+  .option-row .value .arrow {
+    font-size: 16px; padding: 8px 10px; margin: -8px 0;
+    line-height: 1;
+  }
+  .option-row .slider { width: 70px; }
+  .options-controls-info { font-size: 7px; margin-top: 14px; }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .options-body { padding: 8px 10px 96px; }
+  .options-title { font-size: 14px; margin-bottom: 8px; }
+  .option-row { min-height: 38px; padding: 4px 8px; }
 }

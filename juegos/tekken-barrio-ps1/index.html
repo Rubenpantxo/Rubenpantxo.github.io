@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#001133" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -32,22 +32,40 @@
     <div class="vignette"></div>
     <canvas id="particles-canvas"></canvas>
 
-    <!-- Touch Controls (móvil) -->
-    <div id="touch-controls" class="touch-controls hidden">
-      <div class="touch-dpad">
-        <button class="touch-btn dpad-up" data-key="ArrowUp">▲</button>
-        <button class="touch-btn dpad-left" data-key="ArrowLeft">◀</button>
-        <button class="touch-btn dpad-right" data-key="ArrowRight">▶</button>
-        <button class="touch-btn dpad-down" data-key="ArrowDown">▼</button>
+    <!-- Touch Controls (móvil): dos juegos de botones según la escena -->
+    <div id="touch-controls" class="touch-controls hidden" data-layout="menu">
+
+      <!-- MENÚS: navegar + confirmar -->
+      <div class="touch-set set-menu">
+        <div class="touch-dpad" data-pad="menu-pad">
+          <button class="touch-btn dpad-up" data-key="ArrowUp" aria-label="Arriba">▲</button>
+          <button class="touch-btn dpad-left" data-key="ArrowLeft" aria-label="Izquierda">◀</button>
+          <button class="touch-btn dpad-right" data-key="ArrowRight" aria-label="Derecha">▶</button>
+          <button class="touch-btn dpad-down" data-key="ArrowDown" aria-label="Abajo">▼</button>
+        </div>
+        <button class="touch-btn act-confirm" data-key=" " aria-label="Confirmar">OK</button>
+        <button class="touch-btn touch-back" data-key="Escape" aria-label="Volver">ESC</button>
       </div>
-      <div class="touch-actions">
-        <button class="touch-btn act-block" data-key="Shift">BLK</button>
-        <button class="touch-btn act-punch" data-key="z">PUN</button>
-        <button class="touch-btn act-kick" data-key="x">KCK</button>
-        <button class="touch-btn act-confirm" data-key=" ">OK</button>
+
+      <!-- COMBATE: mover / saltar / agacharse + golpes -->
+      <div class="touch-set set-battle">
+        <div class="fight-pad" data-pad="fight-pad">
+          <button class="touch-btn fp-jump" data-key="ArrowUp" aria-label="Saltar">
+            <b>▲</b><i>SALTO</i>
+          </button>
+          <button class="touch-btn fp-left" data-key="ArrowLeft" aria-label="Atrás">◀</button>
+          <button class="touch-btn fp-right" data-key="ArrowRight" aria-label="Adelante">▶</button>
+          <button class="touch-btn fp-crouch" data-key="ArrowDown" aria-label="Agacharse">
+            <b>▼</b><i>AGACHAR</i>
+          </button>
+        </div>
+        <div class="fight-actions">
+          <button class="touch-btn act-punch" data-key="z" aria-label="Puño">PUÑO</button>
+          <button class="touch-btn act-kick" data-key="x" aria-label="Patada">PATADA</button>
+          <button class="touch-btn act-block" data-key="Shift" aria-label="Bloquear">BLOQ</button>
+        </div>
+        <button class="touch-btn touch-pause" data-key="p" aria-label="Pausa">II</button>
       </div>
-      <button class="touch-btn touch-pause" data-key="p">II</button>
-      <button class="touch-btn touch-back" data-key="Escape">ESC</button>
     </div>
   </div>
 
@@ -57,6 +75,8 @@
   <script src="js/touch.js"></script>
   <script src="js/particles.js"></script>
   <script src="js/characters.js"></script>
+  <script src="js/fighter-art.js"></script>
+  <script src="js/stages.js"></script>
   <script src="js/fighter-renderer.js"></script>
   <script src="js/scene-manager.js"></script>
 

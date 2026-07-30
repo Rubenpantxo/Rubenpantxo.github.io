@@ -140,7 +140,7 @@ const TournamentScene = (() => {
     }
     return `
       <div class="bracket-fighter ${cls}">
-        <div class="mini-portrait"><img src="${c.thumb}" onerror="this.outerHTML='?'" /></div>
+        <div class="mini-portrait"><img src="${Portraits.url(c, { w: 96, h: 96, framing: 'bust' })}" alt="" /></div>
         <span>${c.name}</span>
       </div>
     `;
@@ -291,7 +291,7 @@ const TournamentScene = (() => {
     const img = document.getElementById('champ-img');
     const name = document.getElementById('champ-name');
 
-    if (img) img.src = champ.sprite;
+    if (img) img.src = Portraits.url(champ, { w: 320, h: 320, framing: 'full', pose: 'victory' });
     if (name) name.textContent = champ.name + (t.winnerIdx === t.playerCharIdx ? ' (TÚ)' : '');
     if (overlay) overlay.classList.add('show');
 

@@ -2,7 +2,9 @@
 
 Juego de pelea arcade estilo PS1 instalable como **Progressive Web App** en cualquier dispositivo (PC, móvil, tablet).
 
-15 luchadores, modo arcade, versus 2 jugadores, **modo torneo de 8 con eliminatorias**, partículas, pantalla de carga, opciones, guardado persistente y soporte táctil.
+15 luchadores, modo arcade, versus 2 jugadores, **modo torneo de 8 con eliminatorias**, partículas, pantalla de carga, opciones, guardado persistente y **controles táctiles pensados para jugar con los pulgares**.
+
+Los luchadores y los escenarios se dibujan **por código** en canvas: cuerpos con volumen, ropa, caras y accesorios, y 5 escenarios de barrio con capas animadas (público, neones, ropa tendida, coches, lluvia, vapor...).
 
 ---
 
@@ -37,20 +39,35 @@ Tras instalar, el juego se abre **a pantalla completa**, **funciona offline** y 
 ## 🕹️ Controles
 
 ### Player 1 (teclado)
-- `← → ↑ ↓` mover / navegar
-- `Espacio` / `Enter` confirmar
+- `← →` mover · `↑` **saltar** · `↓` **agacharse**
+- `Espacio` / `Enter` confirmar (menús)
 - `Z` puño · `X` patada · `Shift` bloqueo
 - `P` pausa · `Esc` volver
 
 ### Player 2 (vs 2 jugadores)
-- `W A S D` mover · `Tab` confirmar
+- `A D` mover · `W` saltar · `S` agacharse · `Tab` confirmar
 - `F` puño · `G` patada · `H` bloqueo
 
 ### Móvil / táctil
-Los botones aparecen automáticamente en pantalla:
-- **DPAD** izquierda
-- **PUN / KCK / BLK / OK** derecha
-- **II** pausa arriba
+Los botones aparecen solos y **cambian según la pantalla**:
+
+| Pantalla | Botones |
+|---|---|
+| Menús | `▲▼◀▶` para navegar + `OK` + `ESC` |
+| Combate | `◀ ▶` mover · `▲ SALTO` · `▼ AGACHAR` · `PUÑO` / `PATADA` / `BLOQ` + pausa |
+
+En combate **no aparece el OK** (no hace nada peleando) y las flechas arriba/abajo
+sirven para saltar y agacharse.
+
+Detalles pensados para móvil:
+- **Multitáctil**: se puede mover y golpear a la vez.
+- **Arrastre en el pad**: sin levantar el dedo se pasa de `◀` a `▶`, a saltar o a agacharse.
+- Botones grandes y semitransparentes; la arena ocupa **toda** la pantalla y la línea
+  de suelo se sube por encima de los controles (nada queda tapado).
+- **Vibración** corta al pulsar (se puede desactivar en Opciones).
+- Soporta **safe areas** (notch) y **horizontal**: en apaisado los controles se pegan a
+  los lados y ocupan mucho menos alto.
+- En la selección de luchador, **un toque elige y el segundo confirma**.
 
 ---
 
@@ -82,6 +99,8 @@ Los botones aparecen automáticamente en pantalla:
 - **Volumen SFX** (0-100%)
 - **Dificultad CPU**: Easy / Normal / Hard
 - **Partículas**: ON / OFF
+- **Controles táctiles**: AUTO / ON / OFF
+- **Vibración**: ON / OFF
 - **Resetear datos**: borra estadísticas y opciones
 
 Todas las opciones se guardan en `localStorage` y persisten.
@@ -124,7 +143,9 @@ tekken-barrio-ps1/
 │   ├── storage.js          # localStorage
 │   ├── audio.js            # Audio + volúmenes desde Storage
 │   ├── input.js            # Teclado P1/P2
-│   ├── touch.js            # Botones táctiles
+│   ├── touch.js            # Botones táctiles contextuales (menú / combate)
+│   ├── fighter-art.js      # Dibujo detallado de luchadores + retratos
+│   ├── stages.js           # Escenarios con capas animadas
 │   ├── particles.js        # Canvas de partículas
 │   ├── characters.js       # Roster de 15
 │   ├── scene-manager.js    # Cambio de escenas
@@ -170,25 +191,51 @@ Si un archivo no existe, no sonará pero **no rompe el juego**. Los volúmenes s
 
 ---
 
-## 🎨 Sustituir los sprites placeholder
+## 🎨 Arte procedural
 
-Reemplaza los PNG de `sprites/thumbs/` y `sprites/full/` manteniendo los nombres. Para regenerar los placeholders:
+Ya **no se usan los sprites placeholder**: tanto los luchadores del combate como los
+retratos de las pantallas de selección, victoria y torneo se dibujan en canvas desde
+`js/fighter-art.js` (los retratos se cachean como data URL en `Portraits`).
 
-```bash
-pip install Pillow
-python3 generate_sprites.py
-```
+La apariencia de cada luchador (tono de piel, peinado, ropa, complexión y accesorios)
+se deriva de su `id`, su `style` y sus `stats`, así que es estable entre partidas:
+guantes de boxeo, cinta de kickboxer, gorra y cadena de oro, bastón y boina, bote de
+spray, llave inglesa, mandil de mercado, gafas de sol...
+
+Los escenarios viven en `js/stages.js`:
+
+| Escenario | Ambiente |
+|---|---|
+| PLAZA DEL BARRIO | Atardecer, público, ropa tendida, coches que pasan, palomas |
+| AZOTEA DE MADRUGADA | Noche estrellada, luna, depósitos de agua, neones |
+| MERCADO DE LA ESQUINA | Mediodía, puestos con toldo, guirnalda de bombillas |
+| CALLEJÓN NEÓN | Noche, lluvia, vapor de alcantarilla, escalera de incendios |
+| TALLER DEL MECÁNICO | Interior, lámparas colgantes, herramientas, chispas de soldadura |
+
+Los PNG/SVG de `sprites/` se conservan por compatibilidad, pero el juego ya no los carga.
 
 ---
 
 ## ⚙️ Mecánicas del combate
 
-- **HP**: 100 puntos
-- **Rondas**: ganar 2 de 3
-- **Tiempo**: 60 segundos por ronda
-- **Daño base**: puño 8 + bonus poder · patada 12 + bonus poder
-- **Bloqueo**: reduce daño al 25%
-- **IA**: 3 niveles (easy / normal / hard) con frecuencia y velocidad distintas
+- **HP**: 100 puntos · **Rondas**: ganar 2 de 3 · **Tiempo**: 60 s por ronda
+- **Movimiento en dos ejes**: andar, **saltar** (con desplazamiento en el aire) y **agacharse**
+
+### Golpes según la altura
+
+| Golpe | Cómo | Daño base | A quién alcanza |
+|---|---|---|---|
+| Puño | `Z` / PUÑO | 8 | Alto: **falla contra un rival agachado** y contra el que salta |
+| Patada | `X` / PATADA | 12 | Media: pilla agachados y sirve de **antiaérea** si el rival está bajo |
+| Barrido | agachado + patada | 10 | Bajo: solo a rivales **pisando el suelo** |
+| Patada aérea | en el aire + puño/patada | 14 | Castiga desde arriba (un ataque por salto) |
+
+- **Bloqueo**: reduce el daño al 25%; **agachado y bloqueando**, al 18% frente a golpes medios
+- Agachado no se camina; en el aire no se cambia de dirección
+- **IA**: 3 niveles; en normal/hard **se agacha para esquivar puños, salta los barridos
+  y ataca desde el aire**
+- Golpes con **retroceso**, temblor de pantalla, chispas, polvo y suciedad progresiva
+  en los luchadores según van perdiendo vida
 
 ---
 
