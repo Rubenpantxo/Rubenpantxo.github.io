@@ -7,6 +7,9 @@
 .battle-hud {
   position: relative; display: flex; justify-content: space-between;
   padding: 12px 16px; gap: 14px; z-index: 5;
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  padding-left: calc(16px + env(safe-area-inset-left, 0px));
+  padding-right: calc(16px + env(safe-area-inset-right, 0px));
   background: linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(0,0,0,0.55), transparent);
 }
 
@@ -37,6 +40,8 @@
   left: auto; right: 0;
   background: linear-gradient(to bottom, #f0f, #a0f, #50a);
 }
+
+.hud-bar .fill.low { animation: blink 0.6s infinite; }
 
 .hud-rounds { display: flex; gap: 4px; margin-top: 2px; }
 
@@ -74,14 +79,24 @@
   image-rendering: pixelated;
 }
 
+.stage-name {
+  position: absolute; top: 6px; left: 0; right: 0;
+  text-align: center; font-size: 7px; letter-spacing: 2px;
+  color: rgba(255,255,255,0.5); text-shadow: 1px 1px 0 #000;
+  z-index: 6; pointer-events: none;
+}
+
 .hit-effect {
   position: absolute; width: 80px; height: 80px;
+  will-change: transform;
   pointer-events: none; z-index: 10;
   display: flex; align-items: center; justify-content: center;
   font-size: 22px; font-weight: bold; color: var(--yellow);
   text-shadow: 3px 3px 0 #000, 0 0 10px var(--red);
   animation: hitPop 0.5s ease-out forwards;
 }
+
+.hit-effect.blocked { color: var(--cyan); text-shadow: 3px 3px 0 #000, 0 0 10px var(--cyan); font-size: 16px; }
 
 @keyframes hitPop {
   0% { transform: scale(0.4); opacity: 1; }
@@ -129,20 +144,55 @@
   animation: blink 1s infinite;
 }
 
-.pause-overlay p { font-size: 11px; color: #fff; text-shadow: 2px 2px 0 #000; letter-spacing: 2px; }
+.pause-overlay p { font-size: 10px; color: #fff; text-shadow: 2px 2px 0 #000; letter-spacing: 2px; }
 
+.pause-btns { display: flex; flex-direction: column; gap: 12px; }
+
+.pause-btn {
+  pointer-events: auto;
+  background: #061018; color: var(--cyan);
+  border: 4px solid var(--cyan); padding: 14px 22px;
+  font-size: 12px; letter-spacing: 2px; cursor: pointer;
+  min-width: 240px; min-height: 52px;
+  box-shadow: 0 0 14px rgba(0,229,255,0.5);
+}
+.pause-btn:active { background: var(--cyan); color: #000; }
+.pause-btn.danger { color: var(--red); border-color: var(--red); box-shadow: 0 0 14px rgba(255,48,48,0.5); }
+.pause-btn.danger:active { background: var(--red); color: #000; }
+
+/* En móvil la arena ocupa TODA la pantalla: los controles se
+   superponen y el renderer sube la línea de suelo (setBottomInset),
+   así se ve el escenario completo en vez de una franja. */
 @media (max-width: 768px) {
-  /* Reservar zona inferior para los touch controls (~200px) */
-  .battle-scene { padding-bottom: 200px; }
-  .hud-name { font-size: 9px; }
+  .battle-scene { padding-bottom: 0; }
+  .battle-hud { padding: 8px 10px; gap: 8px; }
+  .hud-name { font-size: 8px; letter-spacing: 1px; }
   .hud-timer { font-size: 20px; padding: 3px 8px; }
   .hud-round-label { font-size: 7px; }
   .announcer { font-size: 32px; letter-spacing: 3px; }
   .pause-overlay h2 { font-size: 28px; }
+  .controls-info { font-size: 6px; bottom: 2px; opacity: 0.75; }
 }
 
 @media (max-width: 480px) {
-  .battle-scene { padding-bottom: 190px; }
-  .hud-bar { height: 16px; }
-  .hud-center { width: 80px; }
+  .hud-bar { height: 14px; border-width: 2px; }
+  .hud-center { width: 74px; }
+  .hud-timer { font-size: 17px; }
+  .round-mark { width: 10px; height: 10px; }
+  .hit-effect { font-size: 16px; }
+  .pause-btn { min-width: 200px; font-size: 10px; }
+}
+
+/* Horizontal en móvil: HUD encima de la arena para dejar sitio */
+@media (orientation: landscape) and (max-height: 560px) {
+  .battle-scene.touch-mode .battle-hud {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 4px 8px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.75), transparent);
+  }
+  .battle-scene.touch-mode .arena { flex: 1 1 100%; }
+  .hud-timer { font-size: 15px; padding: 2px 6px; }
+  .hud-name { font-size: 7px; }
+  .announcer { font-size: 26px; top: 30%; }
+  .controls-info { display: none; }
 }

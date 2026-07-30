@@ -89,9 +89,22 @@
 .victory-option.active::after { content: " ◀"; color: var(--green); }
 
 @media (max-width: 768px) {
-  .victory-title { font-size: 36px; letter-spacing: 4px; }
-  .victory-winner { font-size: 14px; }
-  .victory-portrait { width: 160px; height: 160px; }
-  .victory-quote { font-size: 9px; }
-  .victory-option { font-size: 10px; min-width: 220px; }
+  .victory-scene { padding-bottom: 206px; justify-content: flex-start; padding-top: 18px; }
+  .victory-title { font-size: 28px; letter-spacing: 3px; }
+  .victory-winner { font-size: 12px; }
+  .victory-portrait { width: 132px; height: 132px; }
+  .victory-quote { font-size: 8px; }
+  .victory-option {
+    font-size: 10px; min-width: 220px; min-height: 44px;
+    display: flex; align-items: center; justify-content: center;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .victory-scene { padding-bottom: 86px; padding-top: 6px; }
+  .victory-title { font-size: 18px; }
+  .victory-winner { font-size: 9px; }
+  .victory-portrait { width: 84px; height: 84px; }
+  .victory-quote { font-size: 7px; }
+  .victory-option { min-height: 32px; font-size: 8px; min-width: 180px; }
 }

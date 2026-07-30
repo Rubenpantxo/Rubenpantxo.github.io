@@ -28,8 +28,8 @@ const VictoryScene = (() => {
         <div class="victory-winner">${winnerLabel}</div>
 
         <div class="victory-portrait">
-          <img src="${winnerChar.sprite}" alt="${winnerChar.name}"
-               onerror="this.outerHTML='<div class=fallback>SIN SPRITE</div>'" />
+          <img src="${Portraits.url(winnerChar, { w: 360, h: 360, framing: 'full', pose: 'victory' })}"
+               alt="${winnerChar.name}" />
         </div>
 
         <div class="victory-quote">"${winnerChar.quote}"<br/>

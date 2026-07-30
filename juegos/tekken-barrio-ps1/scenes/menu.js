@@ -56,7 +56,9 @@ const MenuScene = (() => {
           `).join("")}
         </div>
 
-        <div class="menu-press">PULSA ↑/↓ PARA NAVEGAR • ESPACIO/ENTER PARA SELECCIONAR</div>
+        <div class="menu-press">${(window.Touch && Touch.isVisible())
+          ? 'TOCA UNA OPCIÓN &bull; O USA ▲▼ Y OK'
+          : 'PULSA ↑/↓ PARA NAVEGAR • ESPACIO/ENTER PARA SELECCIONAR'}</div>
         <div class="menu-copyright">© 1996 BARRIO ARCADE INC. ALL RIGHTS BARRIO.</div>
       </div>
     `;
