@@ -22,6 +22,12 @@ const SceneManager = (() => {
     current = next;
     currentName = name;
 
+    // Controles táctiles según la escena: en combate no pintamos
+    // OK ni flechas de menú, sino mover / saltar / agacharse / golpear
+    if (window.Touch && Touch.setLayout) {
+      Touch.setLayout(name === 'battle' ? 'battle' : 'menu');
+    }
+
     root().classList.remove("scene-fade-in");
     void root().offsetWidth;
     root().classList.add("scene-fade-in");
