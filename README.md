@@ -23,6 +23,7 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
 ├── apps/                   # Aplicaciones
 │   ├── alumbrado-pro/      # (privada)
 │   ├── biblioteca/         # (privada)
+│   ├── escenas/            # Control de cámara: blocking 3D + generador de prompts
 │   ├── format-explorer.html
 │   ├── instagram-downloader/   # (privada)
 │   ├── pantxiko-notes.html
