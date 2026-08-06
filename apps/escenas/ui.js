@@ -56,8 +56,8 @@
     function estadoInicial() {
         return {
             sujetos: [
-                { nombre: 'Sujeto 1', x: -0.9, z: -0.4, rot: 0, altura: 1.75, complexion: 1, descripcion: '' },
-                { nombre: 'Sujeto 2', x: 1.1, z: -0.6, rot: -20, altura: 1.68, complexion: 1, descripcion: '' }
+                { nombre: 'Sujeto 1', x: -0.9, z: -0.4, rot: 0, altura: 1.75, complexion: 1, postura: 'pie', descripcion: '' },
+                { nombre: 'Sujeto 2', x: 1.1, z: -0.6, rot: -20, altura: 1.68, complexion: 1, postura: 'pie', descripcion: '' }
             ],
             elementos: [],
             enfoque: 0,
@@ -283,7 +283,39 @@
             s.complexion = v; aplicar();
         }, 's' + i + '-cpx', 2));
 
+        card.appendChild(selectorPostura(s, i));
+
         return card;
+    }
+
+    function selectorPostura(s, i) {
+        var wrap = document.createElement('div');
+        wrap.className = 'field';
+
+        var head = document.createElement('div');
+        head.className = 'field__head';
+        var lab = document.createElement('label');
+        lab.textContent = 'Postura';
+        lab.setAttribute('for', 's' + i + '-pose');
+        head.appendChild(lab);
+        wrap.appendChild(head);
+
+        var sel = document.createElement('select');
+        sel.className = 'hk-select hk-select--mini';
+        sel.id = 's' + i + '-pose';
+        Posturas.LISTA.forEach(function (p) {
+            var o = document.createElement('option');
+            o.value = p.id;
+            o.textContent = p.nombre;
+            sel.appendChild(o);
+        });
+        sel.value = s.postura || 'pie';
+        sel.addEventListener('change', function () {
+            s.postura = sel.value;
+            aplicar();
+        });
+        wrap.appendChild(sel);
+        return wrap;
     }
 
     function slider(etiqueta, valor, min, max, paso, unidad, alCambiar, id, dec) {
@@ -350,6 +382,7 @@
             rot: 0,
             altura: 1.75,
             complexion: 1,
+            postura: 'pie',
             descripcion: ''
         });
         construirSujetos();
@@ -793,7 +826,7 @@
             /* Los sujetos guardados antes de existir el físico no
                traen altura ni complexión: se les pone la de serie. */
             var sujetos = g.sujetos.map(function (s) {
-                return Object.assign({ altura: 1.75, complexion: 1, rot: 0, descripcion: '' }, s);
+                return Object.assign({ altura: 1.75, complexion: 1, postura: 'pie', rot: 0, descripcion: '' }, s);
             });
 
             return {
