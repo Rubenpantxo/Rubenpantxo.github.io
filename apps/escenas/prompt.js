@@ -188,6 +188,9 @@
                 desc = en ? 'an unnamed figure' : 'una figura sin describir';
             }
             desc = complexionTexto(s, desc, en);
+            if (global.Posturas && s.postura && s.postura !== 'pie') {
+                desc += ', ' + global.Posturas.texto(s.postura, en);
+            }
 
             var donde = posicionEnCuadro(estado.camara, objetivo, s, estado.camara.fov, estado.aspecto, idioma);
             var orientacion = global.Encuadre.anguloPlano(estado.camara, s);

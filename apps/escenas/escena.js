@@ -171,19 +171,139 @@
         return malla;
     }
 
+    /* Un hueso es un Group en la articulación: al girarlo arrastra
+       todo lo que cuelga de él. La carne va como hijo, desplazada,
+       de modo que el giro ocurre en el punto correcto. */
+    function hueso(padre, x, y, z) {
+        var h = new THREE.Group();
+        h.position.set(x, y, z);
+        padre.add(h);
+        return h;
+    }
+
+    function carne(h, malla, x, y, z) {
+        malla.position.set(x, y, z);
+        h.add(malla);
+        return malla;
+    }
+
     function crearSujeto(indice) {
         var grupo = new THREE.Group();
         var tono = indice % 2 === 0 ? COLOR.piel : COLOR.pielAlt;
 
         var matPiel = new THREE.MeshStandardMaterial({ color: tono, roughness: .78, metalness: 0 });
-        var matJunta = new THREE.MeshStandardMaterial({ color: 0x2a2e28, roughness: .62 });
-        var matArnes = new THREE.MeshStandardMaterial({ color: 0x1e2119, roughness: .85 });
-        var matOjo = new THREE.MeshStandardMaterial({ color: 0x14170f, roughness: .35 });
+        var matJunta = new THREE.MeshStandardMaterial({ color: 0x2a2e28, roughness: .55, metalness: .2 });
+        var matOjo = new THREE.MeshStandardMaterial({ color: 0x14170f, roughness: .3 });
 
-        var volumen = [];
-        var apertura = [];
+        var anchos = [];   /* piezas que engordan con la complexión */
+        var huesos = {};
 
-        /* --- disco de apoyo con la cuña de orientación --- */
+        /* Rótula oscura en cada articulación: además de dar realismo,
+           tapa la costura cuando el miembro gira. */
+        function rotula(h, r) {
+            var m = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), matJunta);
+            h.add(m);
+            return m;
+        }
+
+        function engorda(malla, sx, sy, sz) {
+            malla.scale.set(sx || 1, sy || 1, sz || 1);
+            malla.userData.base = { x: sx || 1, y: sy || 1, z: sz || 1 };
+            anchos.push(malla);
+            return malla;
+        }
+
+        /* ---------------- raíz y pelvis ---------------- */
+        var raiz = hueso(grupo, 0, 0, 0);
+        huesos.raiz = raiz;
+
+        var pelvis = hueso(raiz, 0, 0.92, 0);
+        huesos.pelvis = pelvis;
+        engorda(carne(pelvis, new THREE.Mesh(new THREE.SphereGeometry(0.155, 20, 14), matPiel), 0, 0.04, 0), 1, .78, .84);
+
+        /* ---------------- columna ---------------- */
+        var abdomen = hueso(pelvis, 0, 0.11, 0);
+        huesos.abdomen = abdomen;
+        rotula(abdomen, 0.088);
+        engorda(carne(abdomen, new THREE.Mesh(new THREE.CylinderGeometry(0.135, 0.15, 0.16, 20), matPiel), 0, 0.10, 0), 1, 1, .84);
+
+        var pecho = hueso(abdomen, 0, 0.20, 0);
+        huesos.pecho = pecho;
+        engorda(carne(pecho, new THREE.Mesh(new THREE.CylinderGeometry(0.185, 0.15, 0.26, 20), matPiel), 0, 0.13, 0), 1, 1, .82);
+        /* esternón: una placa que rompe el cilindro liso */
+        engorda(carne(pecho, new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.24, 0.04), matJunta), 0, 0.14, 0.145), 1, 1, 1);
+        /* clavículas */
+        [-1, 1].forEach(function (s) {
+            var cl = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.17, 10), matJunta);
+            cl.rotation.z = Math.PI / 2;
+            cl.rotation.y = s * 0.32;
+            engorda(carne(pecho, cl, s * 0.09, 0.245, 0.055), 1, 1, 1);
+        });
+
+        /* ---------------- cuello y cabeza ---------------- */
+        var cuello = hueso(pecho, 0, 0.30, 0);
+        huesos.cuello = cuello;
+        carne(cuello, new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.058, 0.09, 14), matJunta), 0, 0.03, 0);
+
+        var cabeza = hueso(cuello, 0, 0.09, 0);
+        huesos.cabeza = cabeza;
+        var craneo = new THREE.Mesh(new THREE.SphereGeometry(0.113, 24, 18), matPiel);
+        craneo.scale.set(0.95, 1.14, 1);
+        carne(cabeza, craneo, 0, 0.08, 0);
+        [-0.045, 0.045].forEach(function (ox) {
+            var ojo = new THREE.Mesh(new THREE.SphereGeometry(0.021, 12, 10), matOjo);
+            ojo.scale.set(1, 1, 0.5);
+            carne(cabeza, ojo, ox, 0.10, 0.102);
+        });
+
+        /* ---------------- brazos ---------------- */
+        ['I', 'D'].forEach(function (lado, k) {
+            var s = k === 0 ? -1 : 1;
+
+            var hombro = hueso(pecho, s * 0.185, 0.235, 0);
+            huesos['hombro' + lado] = hombro;
+            rotula(hombro, 0.068);
+            engorda(carne(hombro, new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.043, 0.24, 14), matPiel), 0, -0.15, 0), 1, 1, 1);
+
+            var codo = hueso(hombro, 0, -0.28, 0);
+            huesos['codo' + lado] = codo;
+            rotula(codo, 0.048);
+            engorda(carne(codo, new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.034, 0.23, 14), matPiel), 0, -0.14, 0), 1, 1, 1);
+
+            var muneca = hueso(codo, 0, -0.27, 0);
+            huesos['muneca' + lado] = muneca;
+            rotula(muneca, 0.032);
+            /* mano con palma y pulgar, no una bola */
+            var palma = new THREE.Mesh(new THREE.BoxGeometry(0.062, 0.115, 0.032), matPiel);
+            carne(muneca, palma, 0, -0.075, 0);
+            var pulgar = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.013, 0.06, 8), matPiel);
+            pulgar.rotation.z = s * 0.5;
+            carne(muneca, pulgar, s * 0.035, -0.05, 0.012);
+        });
+
+        /* ---------------- piernas ---------------- */
+        ['I', 'D'].forEach(function (lado, k) {
+            var s = k === 0 ? -1 : 1;
+
+            var cadera = hueso(pelvis, s * 0.095, -0.02, 0);
+            huesos['cadera' + lado] = cadera;
+            rotula(cadera, 0.072);
+            engorda(carne(cadera, new THREE.Mesh(new THREE.CylinderGeometry(0.073, 0.06, 0.36, 16), matPiel), 0, -0.21, 0), 1, 1, 1);
+
+            var rodilla = hueso(cadera, 0, -0.42, 0);
+            huesos['rodilla' + lado] = rodilla;
+            rotula(rodilla, 0.056);
+            engorda(carne(rodilla, new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.045, 0.34, 16), matPiel), 0, -0.19, 0), 1, 1, 1);
+
+            var tobillo = hueso(rodilla, 0, -0.40, 0);
+            huesos['tobillo' + lado] = tobillo;
+            rotula(tobillo, 0.042);
+            /* pie con talón y empeine */
+            carne(tobillo, new THREE.Mesh(new THREE.BoxGeometry(0.095, 0.05, 0.19), matPiel), 0, -0.045, 0.045);
+            carne(tobillo, new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.07, 0.07), matPiel), 0, -0.035, -0.035);
+        });
+
+        /* ---------------- marcador de suelo ---------------- */
         var disco = new THREE.Mesh(
             new THREE.CylinderGeometry(0.42, 0.42, 0.03, 32),
             new THREE.MeshStandardMaterial({ color: COLOR.disco, roughness: .8 })
@@ -199,125 +319,6 @@
         proa.rotation.x = Math.PI / 2;
         grupo.add(proa);
 
-        /* --- piernas: pie, tobillo, tibia, rodilla, muslo --- */
-        [-0.11, 0.11].forEach(function (lado) {
-            var pie = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.075, 0.26), matPiel);
-            pie.position.set(lado, 0.038, 0.035);
-            apertura.push(conApertura(pie, 0.5));
-            grupo.add(pie);
-
-            var tobillo = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), matJunta);
-            tobillo.position.set(lado, 0.095, 0);
-            apertura.push(conApertura(tobillo, 0.5));
-            grupo.add(tobillo);
-
-            var tibia = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.048, 0.40, 14), matPiel);
-            tibia.position.set(lado, 0.30, 0);
-            volumen.push(conVolumen(tibia, 1, 1, 1));
-            apertura.push(conApertura(tibia, 0.5));
-            grupo.add(tibia);
-
-            var rodilla = new THREE.Mesh(new THREE.SphereGeometry(0.058, 14, 10), matJunta);
-            rodilla.position.set(lado, 0.51, 0);
-            apertura.push(conApertura(rodilla, 0.5));
-            grupo.add(rodilla);
-
-            var muslo = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.062, 0.38, 14), matPiel);
-            muslo.position.set(lado, 0.72, 0);
-            volumen.push(conVolumen(muslo, 1, 1, 1));
-            apertura.push(conApertura(muslo, 0.5));
-            grupo.add(muslo);
-
-            var cadera = new THREE.Mesh(new THREE.SphereGeometry(0.07, 14, 10), matJunta);
-            cadera.position.set(lado, 0.93, 0);
-            apertura.push(conApertura(cadera, 0.6));
-            grupo.add(cadera);
-        });
-
-        /* --- pelvis y cintura --- */
-        var pelvis = new THREE.Mesh(new THREE.SphereGeometry(0.17, 20, 14), matPiel);
-        pelvis.position.y = 0.98;
-        volumen.push(conVolumen(pelvis, 1, 0.72, 0.82));
-        grupo.add(pelvis);
-
-        var cintura = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, 0.08, 18), matJunta);
-        cintura.position.y = 1.10;
-        volumen.push(conVolumen(cintura, 1, 1, 1));
-        grupo.add(cintura);
-
-        /* --- tórax --- */
-        var torax = new THREE.Mesh(new THREE.CylinderGeometry(0.185, 0.155, 0.34, 20), matPiel);
-        torax.position.y = 1.30;
-        volumen.push(conVolumen(torax, 1, 1, 0.82));
-        grupo.add(torax);
-
-        var pecho = new THREE.Mesh(new THREE.SphereGeometry(0.19, 20, 14), matPiel);
-        pecho.position.y = 1.44;
-        volumen.push(conVolumen(pecho, 1, 0.62, 0.8));
-        grupo.add(pecho);
-
-        /* --- arnés en aspa sobre el pecho, la marca de la casa --- */
-        [-1, 1].forEach(function (signo) {
-            var tira = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.42, 0.025), matArnes);
-            tira.position.set(signo * 0.06, 1.30, 0.155);
-            tira.rotation.z = -signo * 0.3;
-            apertura.push(conApertura(tira, 1, 1));
-            grupo.add(tira);
-        });
-        var cinturon = new THREE.Mesh(new THREE.CylinderGeometry(0.163, 0.163, 0.055, 20), matArnes);
-        cinturon.position.y = 1.16;
-        volumen.push(conVolumen(cinturon, 1, 1, 0.84));
-        grupo.add(cinturon);
-
-        /* --- brazos: hombro, brazo, codo, antebrazo, mano --- */
-        [-1, 1].forEach(function (signo) {
-            var hx = signo * 0.215;
-
-            var hombro = new THREE.Mesh(new THREE.SphereGeometry(0.072, 14, 12), matJunta);
-            hombro.position.set(hx, 1.42, 0);
-            apertura.push(conApertura(hombro, 1));
-            grupo.add(hombro);
-
-            var brazo = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.045, 0.28, 12), matPiel);
-            brazo.position.set(hx, 1.27, 0);
-            apertura.push(conApertura(brazo, 1));
-            grupo.add(brazo);
-
-            var codo = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 10), matJunta);
-            codo.position.set(hx, 1.12, 0);
-            apertura.push(conApertura(codo, 1));
-            grupo.add(codo);
-
-            var antebrazo = new THREE.Mesh(new THREE.CylinderGeometry(0.043, 0.036, 0.26, 12), matPiel);
-            antebrazo.position.set(hx, 0.98, 0);
-            apertura.push(conApertura(antebrazo, 1));
-            grupo.add(antebrazo);
-
-            var mano = new THREE.Mesh(new THREE.SphereGeometry(0.052, 12, 10), matPiel);
-            mano.position.set(hx, 0.83, 0.01);
-            mano.scale.set(0.75, 1.15, 0.55);
-            apertura.push(conApertura(mano, 1));
-            grupo.add(mano);
-        });
-
-        /* --- cuello y cabeza --- */
-        var cuello = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.062, 0.075, 14), matJunta);
-        cuello.position.y = 1.535;
-        grupo.add(cuello);
-
-        var cabeza = new THREE.Mesh(new THREE.SphereGeometry(0.115, 24, 18), matPiel);
-        cabeza.position.y = 1.665;
-        cabeza.scale.set(0.95, 1.12, 1);
-        grupo.add(cabeza);
-
-        [-0.045, 0.045].forEach(function (ox) {
-            var ojo = new THREE.Mesh(new THREE.SphereGeometry(0.021, 12, 10), matOjo);
-            ojo.position.set(ox, 1.685, 0.104);
-            ojo.scale.set(1, 1, 0.5);
-            grupo.add(ojo);
-        });
-
-        /* --- tirador de rotación --- */
         var varilla = new THREE.Mesh(
             new THREE.CylinderGeometry(0.012, 0.012, RADIO_TIRADOR, 8),
             new THREE.MeshBasicMaterial({ color: COLOR.halogen, transparent: true, opacity: .35 })
@@ -334,10 +335,39 @@
         grupo.add(tirador);
 
         grupo.userData.gizmo = [varilla, tirador, disco, proa];
-        grupo.userData.volumen = volumen;
-        grupo.userData.apertura = apertura;
+        grupo.userData.huesos = huesos;
+        grupo.userData.anchos = anchos;
         escena.add(grupo);
         return grupo;
+    }
+
+    /* ------------------------------------------------------------
+       POSTURAS
+       Una postura es un mapa hueso → giro en grados, más la altura
+       y la inclinación de la raíz. Se aplica sobre el esqueleto.
+       ------------------------------------------------------------ */
+    function aplicarPostura(grupo, id) {
+        var huesos = grupo.userData.huesos;
+        var pose = (global.Posturas && global.Posturas.definicion(id)) || {};
+
+        /* Todo a cero antes de recolocar, o los giros se acumulan */
+        Object.keys(huesos).forEach(function (k) {
+            huesos[k].rotation.set(0, 0, 0);
+        });
+        huesos.raiz.position.set(0, 0, 0);
+
+        Object.keys(pose.huesos || {}).forEach(function (k) {
+            var h = huesos[k];
+            if (!h) return;
+            var g = pose.huesos[k];
+            h.rotation.set((g[0] || 0) * DEG, (g[1] || 0) * DEG, (g[2] || 0) * DEG);
+        });
+
+        /* Agacharse baja la raíz. Tumbarse además la vuelca: como el
+           giro es sobre el suelo, el cuerpo queda tendido detrás del
+           marcador, así que hay que levantarlo y recentrarlo. */
+        if (pose.inclinacion) huesos.raiz.rotation.x = pose.inclinacion * DEG;
+        huesos.raiz.position.set(0, pose.altura || 0, pose.desplazamiento || 0);
     }
 
     /* Altura y complexión: la primera escala todo el maniquí, la
@@ -346,14 +376,12 @@
         var h = (altura || ALTURA_BASE) / ALTURA_BASE;
         var c = complexion || 1;
         grupo.scale.setScalar(h);
-        grupo.userData.volumen.forEach(function (m) {
+        /* Con el esqueleto, la complexión sólo engorda la carne: los
+           huesos ya llevan los miembros a su sitio, así que no hace
+           falta apartar nada a mano. */
+        grupo.userData.anchos.forEach(function (m) {
             var b = m.userData.base || { x: 1, y: 1, z: 1 };
             m.scale.set(b.x * c, b.y, b.z * c);
-        });
-        grupo.userData.apertura.forEach(function (m) {
-            var p = m.userData.pos0, f = m.userData.apertura;
-            m.position.x = p.x * (1 + (c - 1) * f.x);
-            m.position.z = p.z * (1 + (c - 1) * f.z);
         });
     }
 
@@ -653,6 +681,10 @@
             g.position.set(s.x, 0, s.z);
             g.rotation.y = s.rot * DEG;
             ajustarFisico(g, s.altura, s.complexion);
+            if (g.userData.postura !== s.postura) {
+                aplicarPostura(g, s.postura);
+                g.userData.postura = s.postura;
+            }
             /* Un sujeto añadido estando en vista de plano no debe
                aparecer con su tirador colgando */
             g.userData.gizmo.forEach(function (m) { m.visible = enCenital; });
