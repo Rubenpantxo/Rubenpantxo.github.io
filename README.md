@@ -23,13 +23,12 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
 ├── apps/                   # Aplicaciones
 │   ├── alumbrado-pro/      # (privada)
 │   ├── biblioteca/         # (privada)
+│   ├── escenas/            # Control de cámara: blocking 3D + generador de prompts
 │   ├── format-explorer.html
 │   ├── instagram-downloader/   # (privada)
 │   ├── pantxiko-notes.html
-│   ├── plants/
 │   ├── qibla.html          # Brújula Qibla
-│   ├── resource-hub/       # (privada)
-│   └── rubenpantxo-garden/ # Solo logo; la app vive en un repo privado independiente
+│   └── resource-hub/       # (privada)
 └── juegos/                 # Juegos
     ├── Chess3D/
     ├── circle.html

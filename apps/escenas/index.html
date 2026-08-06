@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0d0a">
+<meta name="description" content="Escenas — coloca cámara y personajes en planta, elige tipo de plano y lente, y obtén la descripción del encuadre y el prompt listo para tu modelo de IA.">
+<title>Escenas · Control de cámara</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="halogen.css">
+<link rel="stylesheet" href="escenas.css">
+</head>
+<body>
+
+<div class="hk-backdrop" aria-hidden="true"></div>
+
+<header class="topbar">
+  <a class="wordmark" href="../../index.html" title="Volver a rubenpantxo.com">
+    <span class="hk-tile" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 7h13v10H3z"/><path d="M16 10l5-3v10l-5-3z"/>
+      </svg>
+    </span>
+    <span class="wordmark__text">ESCENAS<b>.</b></span>
+  </a>
+  <div class="topbar__right">
+    <p class="hk-meta topbar__hint">Arrastra los marcadores para mover la cámara y los personajes</p>
+    <span class="hk-chip">Listo</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ===================== LIENZO ===================== -->
+  <main class="stage" id="stage" data-vista="cenital">
+    <canvas id="escena-canvas"></canvas>
+
+    <div class="frame-marks" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="labels" id="labels" aria-hidden="true"></div>
+
+    <div class="stage-top">
+      <div class="spacer"></div>
+      <div class="hk-tabs" role="group" aria-label="Vista">
+        <button type="button" class="hk-tab" id="btn-vista-plano" aria-pressed="false">Vista de plano</button>
+        <button type="button" class="hk-tab" id="btn-vista-cenital" aria-pressed="true">Vista cenital</button>
+      </div>
+      <div class="spacer"></div>
+      <div class="icon-row">
+        <button type="button" class="hk-icon-btn hk-icon-btn--wide" id="btn-aspecto" title="Relación de aspecto">16:9</button>
+        <button type="button" class="hk-icon-btn" id="btn-etiquetas" aria-pressed="true" title="Mostrar u ocultar etiquetas">Aa</button>
+      </div>
+    </div>
+
+    <div class="shot-readout">
+      <output id="shot-readout" aria-live="polite">—</output>
+      <button type="button" class="copy-btn" id="btn-copiar-plano">Copiar</button>
+    </div>
+  </main>
+
+  <!-- ===================== PANELES ===================== -->
+  <aside class="sidebar">
+
+    <section class="hk-card">
+      <div class="hk-card__head">
+        <h2 class="hk-meta">Tipo de plano</h2>
+        <span class="hk-meta hk-meta--accent">7 presets</span>
+      </div>
+      <div class="shot-grid" id="shot-grid" role="group" aria-label="Tipo de plano"></div>
+    </section>
+
+    <section class="hk-card">
+      <div class="hk-card__head">
+        <h2 class="hk-meta">Cámara</h2>
+        <span class="hk-meta hk-meta--accent">Lente · FOV</span>
+      </div>
+      <div class="field">
+        <div class="field__head">
+          <label for="fov">Lente (FOV)</label>
+          <span class="field__value" id="fov-value">45° · 29 mm</span>
+        </div>
+        <input type="range" class="hk-range" id="fov" min="15" max="90" step="1" value="45">
+      </div>
+      <div class="field">
+        <div class="field__head">
+          <label for="altura">Altura de cámara</label>
+          <span class="field__value" id="altura-value">1,35 m</span>
+        </div>
+        <input type="range" class="hk-range" id="altura" min="0.2" max="3" step="0.05" value="1.35">
+      </div>
+      <button type="button" class="hk-btn hk-btn--block" id="btn-recentrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+        </svg>
+        Recentrar en el sujeto
+      </button>
+    </section>
+
+    <section class="hk-card">
+      <div class="hk-card__head">
+        <h2 class="hk-meta">Sujetos</h2>
+        <span class="hk-meta hk-meta--accent" id="subject-count">2 / 3</span>
+      </div>
+      <div class="subject-grid" id="subject-grid"></div>
+      <button type="button" class="hk-btn hk-btn--block" id="btn-add-subject">+ Añadir sujeto</button>
+    </section>
+
+    <section class="hk-card">
+      <div class="hk-card__head">
+        <h2 class="hk-meta">Elementos</h2>
+        <span class="hk-meta hk-meta--accent" id="element-count">0</span>
+      </div>
+
+      <p class="panel-note">Formas básicas, escalables a mano. Las plantillas van a tamaño real.</p>
+      <div class="add-grid" id="add-formas"></div>
+
+      <p class="panel-note">Plantillas a escala real, medidas respecto a un sujeto de 1,75 m.</p>
+      <div class="add-grid add-grid--tpl" id="add-plantillas"></div>
+
+      <div class="element-list" id="element-list"></div>
+    </section>
+
+    <section class="hk-card hk-card--locked">
+      <div class="hk-card__head">
+        <h2 class="hk-meta">En camino</h2>
+        <span class="hk-meta hk-meta--accent">Bloqueado</span>
+      </div>
+      <ul class="soon-list">
+        <li><b>Iluminación</b><span>Focos con intensidad y temperatura, de luz blanca a amarilla, dentro o fuera del plano</span></li>
+        <li><b>Sombras</b><span>Que los objetos proyecten sombra, y varias a la vez si hay más de un foco</span></li>
+        <li><b>Texturas de la escena</b><span>Cambiar el suelo y el fondo del set</span></li>
+        <li><b>Biblioteca 3D</b><span>Añadir y gestionar tus propias plantillas de objetos</span></li>
+        <li><b>Parámetros variables</b><span>Que un vehículo avance o una planta crezca durante la toma</span></li>
+        <li><b>Movimiento de cámara</b><span>Travelling, panorámica, órbita y zoom con reproducción</span></li>
+        <li><b>Escena cambiante</b><span>Cortes de cámara y cambio de foco entre sujetos en movimiento</span></li>
+      </ul>
+      <div class="soon-veil" aria-hidden="true">
+        <span class="soon-veil__lock">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 018 0v3"/>
+          </svg>
+        </span>
+        <b>Se desbloqueará más adelante</b>
+      </div>
+    </section>
+
+    <section class="hk-card">
+      <div class="hk-card__head">
+        <h2 class="hk-meta">Prompt</h2>
+        <span class="hk-meta hk-meta--accent" id="prompt-meta">Vídeo · Veo 3.1</span>
+      </div>
+
+      <div class="prompt-row">
+        <div class="hk-tabs hk-tabs--block" role="group" aria-label="Tipo de salida">
+          <button type="button" class="hk-tab" id="btn-salida-imagen" aria-pressed="false">Imagen</button>
+          <button type="button" class="hk-tab" id="btn-salida-video" aria-pressed="true">Vídeo</button>
+        </div>
+      </div>
+
+      <div class="prompt-row">
+        <label for="prompt-modelo">Modelo</label>
+        <select class="hk-select" id="prompt-modelo"></select>
+      </div>
+
+      <div id="prompt-sujetos"></div>
+
+      <div class="prompt-row">
+        <div class="hk-card__head" style="margin-bottom:8px">
+          <label class="hk-meta" style="margin:0">Prompt generado</label>
+          <div class="hk-tabs" role="group" aria-label="Idioma del prompt">
+            <button type="button" class="hk-tab" id="btn-idioma-es" aria-pressed="true">ES</button>
+            <button type="button" class="hk-tab" id="btn-idioma-en" aria-pressed="false">EN</button>
+          </div>
+        </div>
+        <div class="prompt-out" id="prompt-out" aria-live="polite"></div>
+        <div class="prompt-actions">
+          <button type="button" class="hk-btn hk-btn--primary" id="btn-copiar-prompt">
+            Copiar prompt
+            <span class="hk-btn__arrow" aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </aside>
+</div>
+
+<script src="three.r128.min.js"></script>
+<script src="posturas.js"></script>
+<script src="encuadre.js"></script>
+<script src="prompt.js"></script>
+<script src="escena.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
