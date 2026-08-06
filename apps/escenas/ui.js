@@ -7,8 +7,41 @@
 (function () {
     'use strict';
 
-    var CLAVE = 'escenas:v1';
-    var MAX_SUJETOS = 3;
+    var CLAVE = 'escenas:v2';
+    var MAX_SUJETOS = 6;
+    var MAX_ELEMENTOS = 12;
+
+    /* Límites físicos con sentido: nadie mide 3 m ni el doble de ancho */
+    var ALTURA_MIN = 1.40, ALTURA_MAX = 2.05;
+    var COMPLEXION_MIN = 0.80, COMPLEXION_MAX = 1.35;
+
+    var FORMAS = [
+        { tipo: 'rect', nombre: 'Rectángulo' },
+        { tipo: 'circulo', nombre: 'Círculo' },
+        { tipo: 'triangulo', nombre: 'Triángulo' }
+    ];
+
+    var PLANTILLAS = [
+        { tipo: 'caja', nombre: 'Caja de cartón' },
+        { tipo: 'coche', nombre: 'Coche' },
+        { tipo: 'silla', nombre: 'Silla de bar' },
+        { tipo: 'bici', nombre: 'Bicicleta' },
+        { tipo: 'moto', nombre: 'Moto' },
+        { tipo: 'planta', nombre: 'Planta en maceta' }
+    ];
+
+    function nombreTipo(tipo) {
+        var todos = FORMAS.concat(PLANTILLAS);
+        for (var i = 0; i < todos.length; i++) if (todos[i].tipo === tipo) return todos[i].nombre;
+        return tipo;
+    }
+
+    /* "1,80 × 1,45 × 4,40 m" a partir de las medidas de la escena */
+    function medidaTexto(tipo) {
+        var m = Escena.MEDIDAS[tipo];
+        if (!m) return '';
+        return m.map(function (v) { return v.toFixed(2).replace('.', ','); }).join(' × ') + ' m';
+    }
 
     var ASPECTOS = [
         { etiqueta: '16:9', valor: 16 / 9 },
@@ -23,9 +56,10 @@
     function estadoInicial() {
         return {
             sujetos: [
-                { nombre: 'Sujeto 1', x: -0.9, z: -0.4, rot: 0, descripcion: '' },
-                { nombre: 'Sujeto 2', x: 1.1, z: -0.6, rot: -20, descripcion: '' }
+                { nombre: 'Sujeto 1', x: -0.9, z: -0.4, rot: 0, altura: 1.75, complexion: 1, descripcion: '' },
+                { nombre: 'Sujeto 2', x: 1.1, z: -0.6, rot: -20, altura: 1.68, complexion: 1, descripcion: '' }
             ],
+            elementos: [],
             enfoque: 0,
             camara: {
                 x: 0, z: 3.0, altura: 1.35, fov: 45, mira: 1.35,
@@ -38,8 +72,6 @@
             prompt: {
                 salida: 'video',
                 modelo: 'veo31',
-                hojaPersonaje: false,
-                refEntorno: false,
                 idioma: 'es'
             }
         };
@@ -83,6 +115,8 @@
         construirTiposDePlano();
         construirModelos();
         construirSujetos();
+        construirBotonesAnadir();
+        construirElementos();
 
         Escena.init({
             canvas: $('escena-canvas'),
@@ -107,6 +141,15 @@
                 estado.camara.objetivoX = x;
                 estado.camara.objetivoZ = z;
                 estado.planoActivo = null;
+                aplicar();
+            },
+            onMoverElemento: function (i, x, z) {
+                estado.elementos[i].x = x;
+                estado.elementos[i].z = z;
+                aplicar();
+            },
+            onRotarElemento: function (i, grados) {
+                estado.elementos[i].rot = Math.round(Encuadre.normalizar(grados));
                 aplicar();
             }
         });
@@ -233,11 +276,17 @@
         card.appendChild(slider('Rotar', s.rot, -180, 180, 1, '°', function (v) {
             s.rot = v; aplicar();
         }, 's' + i + '-rot'));
+        card.appendChild(slider('Altura', s.altura, ALTURA_MIN, ALTURA_MAX, 0.01, ' m', function (v) {
+            s.altura = v; aplicar();
+        }, 's' + i + '-alt', 2));
+        card.appendChild(slider('Complexión', s.complexion, COMPLEXION_MIN, COMPLEXION_MAX, 0.01, '', function (v) {
+            s.complexion = v; aplicar();
+        }, 's' + i + '-cpx', 2));
 
         return card;
     }
 
-    function slider(etiqueta, valor, min, max, paso, unidad, alCambiar, id) {
+    function slider(etiqueta, valor, min, max, paso, unidad, alCambiar, id, dec) {
         var wrap = document.createElement('div');
         wrap.className = 'field';
 
@@ -250,7 +299,7 @@
 
         var val = document.createElement('span');
         val.className = 'field__value';
-        val.textContent = formatear(valor, paso) + unidad;
+        val.textContent = formatear(valor, paso, dec) + unidad;
 
         head.appendChild(lab);
         head.appendChild(val);
@@ -264,9 +313,11 @@
         input.step = paso;
         input.value = valor;
         input.dataset.sync = id;
+        input.dataset.dec = dec == null ? '' : dec;
+        input.dataset.unidad = unidad;
         input.addEventListener('input', function () {
             var v = parseFloat(input.value);
-            val.textContent = formatear(v, paso) + unidad;
+            val.textContent = formatear(v, paso, dec) + unidad;
             alCambiar(v);
         });
 
@@ -275,7 +326,8 @@
         return wrap;
     }
 
-    function formatear(v, paso) {
+    function formatear(v, paso, dec) {
+        if (dec != null) return v.toFixed(dec).replace('.', ',');
         return paso < 1 ? v.toFixed(1).replace('.', ',') : String(Math.round(v));
     }
 
@@ -296,6 +348,8 @@
             x: -2 + n * 1.4,
             z: -0.5,
             rot: 0,
+            altura: 1.75,
+            complexion: 1,
             descripcion: ''
         });
         construirSujetos();
@@ -303,10 +357,182 @@
     }
 
     /* ------------------------------------------------------------
+       PANEL · ELEMENTOS
+       ------------------------------------------------------------ */
+    var SVG_OJO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.6"/></svg>';
+    var SVG_OJO_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16"/><path d="M9.6 5.3A9.6 9.6 0 0112 5c6.5 0 10 6 10 6a17 17 0 01-3.2 3.8M6.5 7.2A17 17 0 002 11s3.5 6 10 6a9.7 9.7 0 004-.8"/></svg>';
+
+    function construirBotonesAnadir() {
+        FORMAS.forEach(function (f) {
+            $('add-formas').appendChild(botonAnadir(f, false));
+        });
+        PLANTILLAS.forEach(function (p) {
+            $('add-plantillas').appendChild(botonAnadir(p, true));
+        });
+    }
+
+    function botonAnadir(def, conMedida) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'add-btn';
+        var n = document.createElement('b');
+        n.textContent = def.nombre;
+        b.appendChild(n);
+        if (conMedida) {
+            var med = document.createElement('span');
+            med.textContent = medidaTexto(def.tipo);
+            b.appendChild(med);
+        }
+        b.addEventListener('click', function () { anadirElemento(def.tipo); });
+        return b;
+    }
+
+    /* Cae en un punto al azar dentro de lo que ve la cámara. No se
+       comprueban solapes a propósito: el elemento se arrastra al
+       sitio que toque, y dos objetos juntos son cosa de un segundo. */
+    function sitioAleatorio() {
+        var c = estado.camara;
+        var obj = c.objetivoX != null && c.objetivoZ != null
+            ? { x: c.objetivoX, z: c.objetivoZ }
+            : (estado.sujetos[estado.enfoque] || estado.sujetos[0]);
+
+        var ex = obj.x - c.x, ez = obj.z - c.z;
+        var largo = Math.hypot(ex, ez) || 1;
+        ex /= largo; ez /= largo;
+
+        var fondo = 1.5 + Math.random() * 3;                     /* distancia a cámara */
+        var fovH = 2 * Math.atan(Math.tan((c.fov * Math.PI / 180) / 2) * estado.aspecto);
+        var margen = fondo * Math.tan(fovH / 2) * 0.75;
+        var lado = (Math.random() * 2 - 1) * margen;
+
+        /* "derecha" de la cámara: perpendicular a su eje */
+        var x = c.x + ex * fondo - ez * lado;
+        var z = c.z + ez * fondo + ex * lado;
+
+        var lx = Escena.SALA.ancho / 2 - 1;
+        var lz = Escena.SALA.fondo / 2 - 1;
+        return {
+            x: Math.round(Math.max(-lx, Math.min(lx, x)) * 10) / 10,
+            z: Math.round(Math.max(-lz, Math.min(lz, z)) * 10) / 10
+        };
+    }
+
+    function anadirElemento(tipo) {
+        if (estado.elementos.length >= MAX_ELEMENTOS) return;
+        var sitio = sitioAleatorio();
+        estado.elementos.push({
+            tipo: tipo,
+            nombre: nombreTipo(tipo),
+            x: sitio.x,
+            z: sitio.z,
+            rot: Math.round(Math.random() * 360 - 180),
+            escala: 1,
+            enPlano: true
+        });
+        construirElementos();
+        aplicar();
+    }
+
+    function eliminarElemento(i) {
+        estado.elementos.splice(i, 1);
+        construirElementos();
+        aplicar();
+    }
+
+    function construirElementos() {
+        var lista = $('element-list');
+        lista.textContent = '';
+        estado.elementos.forEach(function (e, i) {
+            lista.appendChild(tarjetaElemento(e, i));
+        });
+        $('element-count').textContent = estado.elementos.length
+            ? estado.elementos.length + ' / ' + MAX_ELEMENTOS
+            : 'ninguno';
+        Array.prototype.forEach.call($('add-formas').children, function (b) {
+            b.disabled = estado.elementos.length >= MAX_ELEMENTOS;
+        });
+        Array.prototype.forEach.call($('add-plantillas').children, function (b) {
+            b.disabled = estado.elementos.length >= MAX_ELEMENTOS;
+        });
+    }
+
+    function tarjetaElemento(e, i) {
+        var card = document.createElement('div');
+        card.className = 'element-card' + (e.enPlano ? '' : ' is-out');
+
+        var head = document.createElement('div');
+        head.className = 'subject-card__head';
+
+        var nombre = document.createElement('input');
+        nombre.className = 'subject-name';
+        nombre.value = e.nombre;
+        nombre.setAttribute('aria-label', 'Nombre del elemento ' + (i + 1));
+        nombre.addEventListener('input', function () { e.nombre = nombre.value; aplicar(); });
+        head.appendChild(nombre);
+
+        var ojo = document.createElement('button');
+        ojo.type = 'button';
+        ojo.className = 'mini-btn';
+        ojo.innerHTML = e.enPlano ? SVG_OJO : SVG_OJO_OFF;
+        ojo.title = e.enPlano ? 'Sale en el plano' : 'En la escena, pero fuera del plano';
+        ojo.setAttribute('aria-pressed', String(!!e.enPlano));
+        ojo.addEventListener('click', function () {
+            e.enPlano = !e.enPlano;
+            construirElementos();
+            aplicar();
+        });
+        head.appendChild(ojo);
+
+        var quitar = document.createElement('button');
+        quitar.type = 'button';
+        quitar.className = 'mini-btn';
+        quitar.innerHTML = SVG_QUITAR;
+        quitar.title = 'Eliminar elemento';
+        quitar.addEventListener('click', function () { eliminarElemento(i); });
+        head.appendChild(quitar);
+
+        card.appendChild(head);
+
+        var tag = document.createElement('p');
+        tag.className = 'element-card__tag';
+        tag.textContent = Escena.ESCALABLES[e.tipo]
+            ? 'Forma básica · escalable'
+            : nombreTipo(e.tipo) + ' · ' + medidaTexto(e.tipo);
+        card.appendChild(tag);
+
+        card.appendChild(slider('Izq / der', e.x, -5, 5, 0.1, ' m', function (v) {
+            e.x = v; aplicar();
+        }, 'e' + i + '-x'));
+        card.appendChild(slider('Profundidad', e.z, -5, 5, 0.1, ' m', function (v) {
+            e.z = v; aplicar();
+        }, 'e' + i + '-z'));
+        card.appendChild(slider('Rotar', e.rot, -180, 180, 1, '°', function (v) {
+            e.rot = v; aplicar();
+        }, 'e' + i + '-rot'));
+
+        /* El slider de escala es sólo para las formas básicas: las
+           plantillas van a su medida real y no se tocan. */
+        if (Escena.ESCALABLES[e.tipo]) {
+            card.appendChild(slider('Escala', e.escala, 0.2, 4, 0.05, ' ×', function (v) {
+                e.escala = v; aplicar();
+            }, 'e' + i + '-esc', 2));
+        }
+
+        return card;
+    }
+
+    /* ------------------------------------------------------------
        PANEL · PROMPT
        ------------------------------------------------------------ */
+    /* La lista de modelos depende de si se pide imagen o vídeo: no
+       tiene sentido ofrecer Midjourney para una toma de vídeo. */
     function construirModelos() {
-        Prompt.MODELOS.forEach(function (m) {
+        var disponibles = Prompt.modelosPor(estado.prompt.salida);
+        var sigueValiendo = disponibles.some(function (m) { return m.id === estado.prompt.modelo; });
+        if (!sigueValiendo) estado.prompt.modelo = disponibles[0].id;
+
+        promptModelo.textContent = '';
+        disponibles.forEach(function (m) {
             var o = document.createElement('option');
             o.value = m.id;
             o.textContent = m.nombre;
@@ -397,18 +623,6 @@
             aplicar();
         });
 
-        $('chk-hoja').checked = estado.prompt.hojaPersonaje;
-        $('chk-hoja').addEventListener('change', function () {
-            estado.prompt.hojaPersonaje = this.checked;
-            aplicar();
-        });
-
-        $('chk-entorno').checked = estado.prompt.refEntorno;
-        $('chk-entorno').addEventListener('change', function () {
-            estado.prompt.refEntorno = this.checked;
-            aplicar();
-        });
-
         copiarCon($('btn-copiar-plano'), function () { return readout.textContent; }, 'Copiar');
         copiarCon($('btn-copiar-prompt'), function () { return promptOut.textContent; }, null);
     }
@@ -422,6 +636,7 @@
 
     function cambiarSalida(s) {
         estado.prompt.salida = s;
+        construirModelos();
         aplicar();
     }
 
@@ -482,11 +697,19 @@
         fovValue.textContent = Math.round(estado.camara.fov) + '° · ' + d.mm + ' mm';
         alturaValue.textContent = estado.camara.altura.toFixed(2).replace('.', ',') + ' m';
 
-        /* Sliders de los sujetos, por si el cambio vino del arrastre */
+        /* Sliders de sujetos y elementos, por si el cambio vino del arrastre */
         estado.sujetos.forEach(function (s, i) {
-            sincronizarSlider('s' + i + '-x', s.x, 0.1, ' m');
-            sincronizarSlider('s' + i + '-z', s.z, 0.1, ' m');
-            sincronizarSlider('s' + i + '-rot', s.rot, 1, '°');
+            sincronizarSlider('s' + i + '-x', s.x);
+            sincronizarSlider('s' + i + '-z', s.z);
+            sincronizarSlider('s' + i + '-rot', s.rot);
+            sincronizarSlider('s' + i + '-alt', s.altura);
+            sincronizarSlider('s' + i + '-cpx', s.complexion);
+        });
+        estado.elementos.forEach(function (e, i) {
+            sincronizarSlider('e' + i + '-x', e.x);
+            sincronizarSlider('e' + i + '-z', e.z);
+            sincronizarSlider('e' + i + '-rot', e.rot);
+            if (Escena.ESCALABLES[e.tipo]) sincronizarSlider('e' + i + '-esc', e.escala);
         });
 
         /* Botones de tipo de plano */
@@ -513,13 +736,14 @@
         guardar();
     }
 
-    function sincronizarSlider(id, valor, paso, unidad) {
+    function sincronizarSlider(id, valor) {
         var input = document.getElementById(id);
         if (!input || document.activeElement === input) return;
         input.value = valor;
-        var val = input.previousSibling && input.previousSibling.querySelector
-            ? input.previousSibling.querySelector('.field__value') : null;
-        if (val) val.textContent = formatear(valor, paso) + unidad;
+        var val = input.parentElement.querySelector('.field__value');
+        if (!val) return;
+        var dec = input.dataset.dec === '' ? null : parseInt(input.dataset.dec, 10);
+        val.textContent = formatear(valor, parseFloat(input.step), dec) + (input.dataset.unidad || '');
     }
 
     /* La cámara no puede salirse de la sala */
@@ -532,6 +756,10 @@
             s.x = Math.max(-lx, Math.min(lx, s.x));
             s.z = Math.max(-lz, Math.min(lz, s.z));
         });
+        estado.elementos.forEach(function (e) {
+            e.x = Math.max(-lx, Math.min(lx, e.x));
+            e.z = Math.max(-lz, Math.min(lz, e.z));
+        });
     }
 
     /* ------------------------------------------------------------
@@ -541,6 +769,7 @@
         try {
             localStorage.setItem(CLAVE, JSON.stringify({
                 sujetos: estado.sujetos,
+                elementos: estado.elementos,
                 enfoque: estado.enfoque,
                 camara: estado.camara,
                 vista: estado.vista,
@@ -561,9 +790,16 @@
             var base = estadoInicial();
             /* Mezcla defensiva: una versión antigua guardada no debe
                dejar la app sin campos nuevos. */
+            /* Los sujetos guardados antes de existir el físico no
+               traen altura ni complexión: se les pone la de serie. */
+            var sujetos = g.sujetos.map(function (s) {
+                return Object.assign({ altura: 1.75, complexion: 1, rot: 0, descripcion: '' }, s);
+            });
+
             return {
-                sujetos: g.sujetos,
-                enfoque: Math.min(g.enfoque || 0, g.sujetos.length - 1),
+                sujetos: sujetos,
+                elementos: Array.isArray(g.elementos) ? g.elementos : [],
+                enfoque: Math.min(g.enfoque || 0, sujetos.length - 1),
                 camara: Object.assign(base.camara, g.camara),
                 vista: g.vista === 'plano' ? 'plano' : 'cenital',
                 aspectoIndice: g.aspectoIndice || 0,

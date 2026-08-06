@@ -123,11 +123,18 @@
     };
 
     var MODELOS = [
+        /* --- vídeo --- */
         { id: 'veo31', nombre: 'Veo 3.1', tipo: 'video', estilo: 'cine' },
         { id: 'sora2', nombre: 'Sora 2', tipo: 'video', estilo: 'narrativo' },
         { id: 'runway4', nombre: 'Runway Gen-4', tipo: 'video', estilo: 'lista' },
         { id: 'kling25', nombre: 'Kling 2.5', tipo: 'video', estilo: 'lista' },
-        { id: 'mj7', nombre: 'Midjourney V7', tipo: 'imagen', estilo: 'lista' }
+        { id: 'luma2', nombre: 'Luma Ray 2', tipo: 'video', estilo: 'narrativo' },
+        /* --- imagen --- */
+        { id: 'mj7', nombre: 'Midjourney V7', tipo: 'imagen', estilo: 'lista' },
+        { id: 'flux11', nombre: 'Flux 1.1 Pro', tipo: 'imagen', estilo: 'cine' },
+        { id: 'nanobanana', nombre: 'Nano Banana', tipo: 'imagen', estilo: 'narrativo' },
+        { id: 'ideogram3', nombre: 'Ideogram 3.0', tipo: 'imagen', estilo: 'lista' },
+        { id: 'sd35', nombre: 'Stable Diffusion 3.5', tipo: 'imagen', estilo: 'lista' }
     ];
 
     function modelo(id) {
@@ -135,6 +142,13 @@
             if (MODELOS[i].id === id) return MODELOS[i];
         }
         return MODELOS[0];
+    }
+
+    /* Los modelos de vídeo y los de imagen no se mezclan: la lista
+       depende de lo que se haya elegido producir. */
+    function modelosPor(salida) {
+        var tipo = salida === 'imagen' ? 'imagen' : 'video';
+        return MODELOS.filter(function (m) { return m.tipo === tipo; });
     }
 
     /* ------------------------------------------------------------
@@ -170,14 +184,10 @@
         var partes = [];
         estado.sujetos.forEach(function (s, i) {
             var desc = (s.descripcion || '').trim();
-            if (!desc && estado.prompt.hojaPersonaje) {
-                desc = en
-                    ? 'the character from the attached reference sheet'
-                    : 'el personaje de la hoja de referencia adjunta';
-            }
             if (!desc) {
                 desc = en ? 'an unnamed figure' : 'una figura sin describir';
             }
+            desc = complexionTexto(s, desc, en);
 
             var donde = posicionEnCuadro(estado.camara, objetivo, s, estado.camara.fov, estado.aspecto, idioma);
             var orientacion = global.Encuadre.anguloPlano(estado.camara, s);
@@ -190,17 +200,11 @@
 
         var sujetos = partes.join(en ? '. ' : '. ');
 
-        /* --- Notas de referencia --- */
+        /* --- Elementos de atrezo que entran en el plano --- */
         var notas = [];
-        if (estado.prompt.hojaPersonaje) {
-            notas.push(en
-                ? 'Keep the character design consistent with the attached character sheet.'
-                : 'Mantén el diseño del personaje fiel a la hoja de personaje adjunta.');
-        }
-        if (estado.prompt.refEntorno) {
-            notas.push(en
-                ? 'Use the attached environment reference as the set.'
-                : 'Usa la referencia de entorno adjunta como escenario.');
+        var atrezo = describirElementos(estado, objetivo, en);
+        if (atrezo) {
+            notas.push(en ? 'In shot: ' + atrezo + '.' : 'En el plano: ' + atrezo + '.');
         }
 
         var ar = estado.aspectoEtiqueta;
@@ -252,9 +256,68 @@
         return { x: s.x, z: s.z };
     }
 
+    /* ------------------------------------------------------------
+       FÍSICO DEL SUJETO
+       La altura y la complexión son datos de la escena, así que
+       entran en el prompt aunque el usuario no los escriba.
+       ------------------------------------------------------------ */
+    function complexionTexto(s, desc, en) {
+        var h = s.altura || 1.75;
+        var c = s.complexion || 1;
+        var rasgos = [];
+
+        if (h >= 1.9) rasgos.push(en ? 'very tall' : 'muy alto');
+        else if (h >= 1.82) rasgos.push(en ? 'tall' : 'alto');
+        else if (h <= 1.55) rasgos.push(en ? 'short' : 'bajo');
+        else if (h <= 1.63) rasgos.push(en ? 'shortish' : 'de estatura baja');
+
+        if (c >= 1.25) rasgos.push(en ? 'heavy-set' : 'de complexión ancha');
+        else if (c >= 1.12) rasgos.push(en ? 'stocky' : 'corpulento');
+        else if (c <= 0.86) rasgos.push(en ? 'very slim' : 'muy delgado');
+        else if (c <= 0.93) rasgos.push(en ? 'slim' : 'delgado');
+
+        if (!rasgos.length) return desc;
+        var medida = en
+            ? rasgos.join(' and ') + ' (' + h.toFixed(2) + ' m)'
+            : rasgos.join(' y ') + ' (' + h.toFixed(2).replace('.', ',') + ' m)';
+        return desc + ', ' + medida;
+    }
+
+    /* ------------------------------------------------------------
+       ATREZO
+       Solo se nombra lo que de verdad entra en el encuadre y está
+       marcado como visible en el plano.
+       ------------------------------------------------------------ */
+    var NOMBRES_EN = {
+        rect: 'a rectangular block', circulo: 'a cylindrical block', triangulo: 'a wedge block',
+        caja: 'a standard cardboard box', coche: 'a car', silla: 'a plastic bistro chair',
+        bici: 'a bicycle', moto: 'a motorbike', planta: 'a potted plant in a brown pot'
+    };
+    var NOMBRES_ES = {
+        rect: 'un bloque rectangular', circulo: 'un bloque cilíndrico', triangulo: 'una cuña',
+        caja: 'una caja de cartón estándar', coche: 'un coche', silla: 'una silla de plástico de bar',
+        bici: 'una bicicleta', moto: 'una moto', planta: 'una planta en maceta marrón'
+    };
+
+    function describirElementos(estado, objetivo, en) {
+        var lista = estado.elementos || [];
+        var partes = [];
+        lista.forEach(function (e) {
+            if (!e.enPlano) return;
+            var donde = posicionEnCuadro(estado.camara, objetivo, e, estado.camara.fov,
+                estado.aspecto, en ? 'en' : 'es');
+            if (donde.indexOf('fuera') === 0 || donde.indexOf('out of') === 0 ||
+                donde.indexOf('just outside') === 0 || donde.indexOf('justo fuera') === 0) return;
+            var nombre = (en ? NOMBRES_EN : NOMBRES_ES)[e.tipo] || e.nombre;
+            partes.push(nombre + ' ' + donde);
+        });
+        return partes.join(en ? ', ' : ', ');
+    }
+
     global.Prompt = {
         MODELOS: MODELOS,
         modelo: modelo,
+        modelosPor: modelosPor,
         generar: generar,
         posicionEnCuadro: posicionEnCuadro
     };

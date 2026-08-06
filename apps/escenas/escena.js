@@ -35,7 +35,7 @@
 
     var renderer, escena, camCenital, camPlano, raycaster, planoSuelo;
     var lienzo, capaEtiquetas, opciones;
-    var grupoSujetos = [], grupoCamara, mallaFrustum;
+    var grupoSujetos = [], grupoElementos = [], grupoCamara, mallaFrustum;
     var vista = 'cenital', aspecto = 16 / 9, etiquetasVisibles = true;
     var estadoActual = null;
     var arrastre = null;
@@ -145,11 +145,45 @@
         escena.add(relleno);
     }
 
-    /* --- Marcador de sujeto: disco + cuerpo + cabeza + tirador --- */
+    /* ------------------------------------------------------------
+       MANIQUÍ ARTICULADO
+       Figura tipo maniquí de ensayo: piezas claras segmentadas,
+       articulaciones oscuras y arnés en el pecho. Se construye a
+       1,75 m, que es la talla sobre la que encuadre.js calcula el
+       tamaño de plano; la altura real se aplica escalando el grupo.
+       ------------------------------------------------------------ */
+    var ALTURA_BASE = 1.75;
+
+    /* Registra la escala de partida para poder aplicar complexión
+       después sin perder la forma original de la pieza */
+    function conVolumen(malla, sx, sy, sz) {
+        malla.scale.set(sx || 1, sy || 1, sz || 1);
+        malla.userData.base = { x: sx || 1, y: sy || 1, z: sz || 1 };
+        return malla;
+    }
+
+    /* Piezas que no engordan pero sí se apartan del eje cuando el
+       cuerpo ensancha: brazos, arnés y la separación de las piernas.
+       fx/fz gradúan cuánto les afecta la complexión. */
+    function conApertura(malla, fx, fz) {
+        malla.userData.pos0 = { x: malla.position.x, z: malla.position.z };
+        malla.userData.apertura = { x: fx, z: fz || 0 };
+        return malla;
+    }
+
     function crearSujeto(indice) {
         var grupo = new THREE.Group();
         var tono = indice % 2 === 0 ? COLOR.piel : COLOR.pielAlt;
 
+        var matPiel = new THREE.MeshStandardMaterial({ color: tono, roughness: .78, metalness: 0 });
+        var matJunta = new THREE.MeshStandardMaterial({ color: 0x2a2e28, roughness: .62 });
+        var matArnes = new THREE.MeshStandardMaterial({ color: 0x1e2119, roughness: .85 });
+        var matOjo = new THREE.MeshStandardMaterial({ color: 0x14170f, roughness: .35 });
+
+        var volumen = [];
+        var apertura = [];
+
+        /* --- disco de apoyo con la cuña de orientación --- */
         var disco = new THREE.Mesh(
             new THREE.CylinderGeometry(0.42, 0.42, 0.03, 32),
             new THREE.MeshStandardMaterial({ color: COLOR.disco, roughness: .8 })
@@ -157,41 +191,133 @@
         disco.position.y = 0.015;
         grupo.add(disco);
 
-        /* Escala humana real (~1,73 m): el encuadre se calcula sobre
-           una persona de 1,75 m, así que la figura tiene que medir lo
-           mismo o la vista de plano no cuadraría con la píldora. */
-        var matPiel = new THREE.MeshStandardMaterial({ color: tono, roughness: .7 });
-
-        var cuerpo = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.21, 0.26, 1.32, 20),
-            matPiel
+        var proa = new THREE.Mesh(
+            new THREE.ConeGeometry(0.1, 0.2, 3),
+            new THREE.MeshBasicMaterial({ color: COLOR.halogen })
         );
-        cuerpo.position.y = 0.66;
-        grupo.add(cuerpo);
+        proa.position.set(0, 0.035, 0.3);
+        proa.rotation.x = Math.PI / 2;
+        grupo.add(proa);
 
-        var hombros = new THREE.Mesh(new THREE.SphereGeometry(0.23, 20, 14), matPiel);
-        hombros.scale.set(1, 0.58, 0.82);
-        hombros.position.y = 1.31;
-        grupo.add(hombros);
+        /* --- piernas: pie, tobillo, tibia, rodilla, muslo --- */
+        [-0.11, 0.11].forEach(function (lado) {
+            var pie = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.075, 0.26), matPiel);
+            pie.position.set(lado, 0.038, 0.035);
+            apertura.push(conApertura(pie, 0.5));
+            grupo.add(pie);
 
-        var cuello = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.13, 12), matPiel);
-        cuello.position.y = 1.45;
+            var tobillo = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), matJunta);
+            tobillo.position.set(lado, 0.095, 0);
+            apertura.push(conApertura(tobillo, 0.5));
+            grupo.add(tobillo);
+
+            var tibia = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.048, 0.40, 14), matPiel);
+            tibia.position.set(lado, 0.30, 0);
+            volumen.push(conVolumen(tibia, 1, 1, 1));
+            apertura.push(conApertura(tibia, 0.5));
+            grupo.add(tibia);
+
+            var rodilla = new THREE.Mesh(new THREE.SphereGeometry(0.058, 14, 10), matJunta);
+            rodilla.position.set(lado, 0.51, 0);
+            apertura.push(conApertura(rodilla, 0.5));
+            grupo.add(rodilla);
+
+            var muslo = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.062, 0.38, 14), matPiel);
+            muslo.position.set(lado, 0.72, 0);
+            volumen.push(conVolumen(muslo, 1, 1, 1));
+            apertura.push(conApertura(muslo, 0.5));
+            grupo.add(muslo);
+
+            var cadera = new THREE.Mesh(new THREE.SphereGeometry(0.07, 14, 10), matJunta);
+            cadera.position.set(lado, 0.93, 0);
+            apertura.push(conApertura(cadera, 0.6));
+            grupo.add(cadera);
+        });
+
+        /* --- pelvis y cintura --- */
+        var pelvis = new THREE.Mesh(new THREE.SphereGeometry(0.17, 20, 14), matPiel);
+        pelvis.position.y = 0.98;
+        volumen.push(conVolumen(pelvis, 1, 0.72, 0.82));
+        grupo.add(pelvis);
+
+        var cintura = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, 0.08, 18), matJunta);
+        cintura.position.y = 1.10;
+        volumen.push(conVolumen(cintura, 1, 1, 1));
+        grupo.add(cintura);
+
+        /* --- tórax --- */
+        var torax = new THREE.Mesh(new THREE.CylinderGeometry(0.185, 0.155, 0.34, 20), matPiel);
+        torax.position.y = 1.30;
+        volumen.push(conVolumen(torax, 1, 1, 0.82));
+        grupo.add(torax);
+
+        var pecho = new THREE.Mesh(new THREE.SphereGeometry(0.19, 20, 14), matPiel);
+        pecho.position.y = 1.44;
+        volumen.push(conVolumen(pecho, 1, 0.62, 0.8));
+        grupo.add(pecho);
+
+        /* --- arnés en aspa sobre el pecho, la marca de la casa --- */
+        [-1, 1].forEach(function (signo) {
+            var tira = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.42, 0.025), matArnes);
+            tira.position.set(signo * 0.06, 1.30, 0.155);
+            tira.rotation.z = -signo * 0.3;
+            apertura.push(conApertura(tira, 1, 1));
+            grupo.add(tira);
+        });
+        var cinturon = new THREE.Mesh(new THREE.CylinderGeometry(0.163, 0.163, 0.055, 20), matArnes);
+        cinturon.position.y = 1.16;
+        volumen.push(conVolumen(cinturon, 1, 1, 0.84));
+        grupo.add(cinturon);
+
+        /* --- brazos: hombro, brazo, codo, antebrazo, mano --- */
+        [-1, 1].forEach(function (signo) {
+            var hx = signo * 0.215;
+
+            var hombro = new THREE.Mesh(new THREE.SphereGeometry(0.072, 14, 12), matJunta);
+            hombro.position.set(hx, 1.42, 0);
+            apertura.push(conApertura(hombro, 1));
+            grupo.add(hombro);
+
+            var brazo = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.045, 0.28, 12), matPiel);
+            brazo.position.set(hx, 1.27, 0);
+            apertura.push(conApertura(brazo, 1));
+            grupo.add(brazo);
+
+            var codo = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 10), matJunta);
+            codo.position.set(hx, 1.12, 0);
+            apertura.push(conApertura(codo, 1));
+            grupo.add(codo);
+
+            var antebrazo = new THREE.Mesh(new THREE.CylinderGeometry(0.043, 0.036, 0.26, 12), matPiel);
+            antebrazo.position.set(hx, 0.98, 0);
+            apertura.push(conApertura(antebrazo, 1));
+            grupo.add(antebrazo);
+
+            var mano = new THREE.Mesh(new THREE.SphereGeometry(0.052, 12, 10), matPiel);
+            mano.position.set(hx, 0.83, 0.01);
+            mano.scale.set(0.75, 1.15, 0.55);
+            apertura.push(conApertura(mano, 1));
+            grupo.add(mano);
+        });
+
+        /* --- cuello y cabeza --- */
+        var cuello = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.062, 0.075, 14), matJunta);
+        cuello.position.y = 1.535;
         grupo.add(cuello);
 
-        var cabeza = new THREE.Mesh(new THREE.SphereGeometry(0.125, 22, 16), matPiel);
-        cabeza.position.y = 1.60;
+        var cabeza = new THREE.Mesh(new THREE.SphereGeometry(0.115, 24, 18), matPiel);
+        cabeza.position.y = 1.665;
+        cabeza.scale.set(0.95, 1.12, 1);
         grupo.add(cabeza);
 
-        /* Nariz: indica hacia dónde mira, a la altura de los ojos */
-        var nariz = new THREE.Mesh(
-            new THREE.ConeGeometry(0.045, 0.13, 12),
-            new THREE.MeshStandardMaterial({ color: COLOR.halogen, roughness: .5 })
-        );
-        nariz.position.set(0, 1.60, 0.14);
-        nariz.rotation.x = Math.PI / 2;
-        grupo.add(nariz);
+        [-0.045, 0.045].forEach(function (ox) {
+            var ojo = new THREE.Mesh(new THREE.SphereGeometry(0.021, 12, 10), matOjo);
+            ojo.position.set(ox, 1.685, 0.104);
+            ojo.scale.set(1, 1, 0.5);
+            grupo.add(ojo);
+        });
 
-        /* Tirador de rotación */
+        /* --- tirador de rotación --- */
         var varilla = new THREE.Mesh(
             new THREE.CylinderGeometry(0.012, 0.012, RADIO_TIRADOR, 8),
             new THREE.MeshBasicMaterial({ color: COLOR.halogen, transparent: true, opacity: .35 })
@@ -207,9 +333,28 @@
         tirador.position.set(0, 0.05, RADIO_TIRADOR);
         grupo.add(tirador);
 
-        grupo.userData.gizmo = [varilla, tirador];
+        grupo.userData.gizmo = [varilla, tirador, disco, proa];
+        grupo.userData.volumen = volumen;
+        grupo.userData.apertura = apertura;
         escena.add(grupo);
         return grupo;
+    }
+
+    /* Altura y complexión: la primera escala todo el maniquí, la
+       segunda sólo ensancha torso, cadera y piernas. */
+    function ajustarFisico(grupo, altura, complexion) {
+        var h = (altura || ALTURA_BASE) / ALTURA_BASE;
+        var c = complexion || 1;
+        grupo.scale.setScalar(h);
+        grupo.userData.volumen.forEach(function (m) {
+            var b = m.userData.base || { x: 1, y: 1, z: 1 };
+            m.scale.set(b.x * c, b.y, b.z * c);
+        });
+        grupo.userData.apertura.forEach(function (m) {
+            var p = m.userData.pos0, f = m.userData.apertura;
+            m.position.x = p.x * (1 + (c - 1) * f.x);
+            m.position.z = p.z * (1 + (c - 1) * f.z);
+        });
     }
 
     /* --- Marcador de cámara: disco halógeno + cuña + frustum --- */
@@ -223,20 +368,61 @@
         disco.position.y = 0.06;
         grupoCamara.add(disco);
 
-        var cuerpo = new THREE.Mesh(
-            new THREE.BoxGeometry(0.28, 0.2, 0.34),
-            new THREE.MeshStandardMaterial({ color: 0x1a1f18, roughness: .6 })
-        );
-        cuerpo.position.set(0, 0.22, 0.06);
+        var matCuerpo = new THREE.MeshStandardMaterial({ color: 0x1a1f18, roughness: .6 });
+        var matMetal = new THREE.MeshStandardMaterial({ color: 0x0a0d0a, roughness: .35, metalness: .5 });
+        var matAro = new THREE.MeshStandardMaterial({ color: 0x39412f, roughness: .5 });
+
+        /* Trípode: tres patas abiertas y una columna central */
+        for (var i = 0; i < 3; i++) {
+            var a = (i / 3) * Math.PI * 2 + Math.PI;
+            var pata = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.012, 0.62, 8), matMetal);
+            pata.position.set(Math.sin(a) * 0.12, 0.3, Math.cos(a) * 0.12);
+            pata.rotation.set(Math.cos(a) * 0.32, 0, -Math.sin(a) * 0.32);
+            grupoCamara.add(pata);
+        }
+        var columna = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.2, 12), matMetal);
+        columna.position.y = 0.66;
+        grupoCamara.add(columna);
+
+        /* Cabezal y cuerpo de cámara */
+        var rotula = new THREE.Mesh(new THREE.SphereGeometry(0.055, 14, 10), matAro);
+        rotula.position.y = 0.76;
+        grupoCamara.add(rotula);
+
+        var cuerpo = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.2, 0.36), matCuerpo);
+        cuerpo.position.set(0, 0.86, 0.02);
         grupoCamara.add(cuerpo);
 
-        var objetivo = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.09, 0.11, 0.22, 16),
-            new THREE.MeshStandardMaterial({ color: 0x0a0d0a, roughness: .4 })
-        );
-        objetivo.position.set(0, 0.22, 0.3);
-        objetivo.rotation.x = Math.PI / 2;
-        grupoCamara.add(objetivo);
+        var chasis = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.11, 0.12), matAro);
+        chasis.position.set(0, 0.99, -0.04);
+        grupoCamara.add(chasis);
+
+        /* Óptica: barrilete, dos aros de foco y la lente */
+        var barrilete = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.085, 0.26, 20), matCuerpo);
+        barrilete.position.set(0, 0.86, 0.28);
+        barrilete.rotation.x = Math.PI / 2;
+        grupoCamara.add(barrilete);
+
+        [0.22, 0.32].forEach(function (z) {
+            var aro = new THREE.Mesh(new THREE.TorusGeometry(0.082, 0.012, 8, 20), matAro);
+            aro.position.set(0, 0.86, z);
+            grupoCamara.add(aro);
+        });
+
+        var lente = new THREE.Mesh(new THREE.CylinderGeometry(0.066, 0.066, 0.02, 20), matMetal);
+        lente.position.set(0, 0.86, 0.415);
+        lente.rotation.x = Math.PI / 2;
+        grupoCamara.add(lente);
+
+        /* Parasol y visor: dan de un vistazo hacia dónde mira */
+        var parasol = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.19, 0.1), matCuerpo);
+        parasol.position.set(0, 0.86, 0.44);
+        grupoCamara.add(parasol);
+
+        var visor = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.038, 0.1, 12), matAro);
+        visor.position.set(-0.15, 0.93, -0.02);
+        visor.rotation.z = Math.PI / 2;
+        grupoCamara.add(visor);
 
         var varilla = new THREE.Mesh(
             new THREE.CylinderGeometry(0.012, 0.012, RADIO_TIRADOR, 8),
@@ -268,6 +454,186 @@
     }
 
     /* ------------------------------------------------------------
+       ELEMENTOS DE ESCENA
+       Las formas básicas se construyen en un metro y se escalan con
+       su slider. Las plantillas llevan medidas reales, tomadas
+       respecto a un sujeto de 1,75 m, y no se escalan.
+       ------------------------------------------------------------ */
+    var MAT_EL = null;
+    function matsElemento() {
+        if (!MAT_EL) {
+            MAT_EL = {
+                claro: new THREE.MeshStandardMaterial({ color: 0xdcd8cc, roughness: .82 }),
+                medio: new THREE.MeshStandardMaterial({ color: 0xa8a396, roughness: .85 }),
+                oscuro: new THREE.MeshStandardMaterial({ color: 0x2a2e28, roughness: .7 }),
+                carton: new THREE.MeshStandardMaterial({ color: 0xb99a6b, roughness: .95 }),
+                maceta: new THREE.MeshStandardMaterial({ color: 0x8a5a3b, roughness: .9 }),
+                hoja: new THREE.MeshStandardMaterial({ color: 0x4d6b33, roughness: .85 }),
+                cristal: new THREE.MeshStandardMaterial({
+                    color: 0x8fa3b0, roughness: .25, metalness: .1,
+                    transparent: true, opacity: .55
+                })
+            };
+        }
+        return MAT_EL;
+    }
+
+    /* Medidas reales en metros: largo (X), alto (Y), fondo (Z) */
+    var MEDIDAS = {
+        rect: [1, 1, 1], circulo: [1, 1, 1], triangulo: [1, 1, 1],
+        caja: [0.60, 0.50, 0.40],
+        coche: [1.80, 1.45, 4.40],
+        silla: [0.45, 0.85, 0.48],
+        bici: [0.55, 1.05, 1.75],
+        moto: [0.75, 1.20, 2.10],
+        planta: [0.44, 1.10, 0.44]
+    };
+
+    var ESCALABLES = { rect: 1, circulo: 1, triangulo: 1 };
+
+    function crearElemento(tipo) {
+        var m = matsElemento();
+        var g = new THREE.Group();
+
+        if (tipo === 'rect') {
+            var caja1 = new THREE.Mesh(new THREE.BoxGeometry(1, 0.8, 0.7), m.claro);
+            caja1.position.y = 0.4;
+            g.add(caja1);
+        } else if (tipo === 'circulo') {
+            var cil = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.8, 28), m.claro);
+            cil.position.y = 0.4;
+            g.add(cil);
+        } else if (tipo === 'triangulo') {
+            var pri = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.58, 0.8, 3), m.claro);
+            pri.position.y = 0.4;
+            g.add(pri);
+        } else if (tipo === 'caja') {
+            var cuerpoCaja = new THREE.Mesh(new THREE.BoxGeometry(0.60, 0.50, 0.40), m.carton);
+            cuerpoCaja.position.y = 0.25;
+            g.add(cuerpoCaja);
+            /* Cinta de cierre en la tapa */
+            var cinta = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.006, 0.07), m.medio);
+            cinta.position.y = 0.503;
+            g.add(cinta);
+        } else if (tipo === 'coche') {
+            var chasisC = new THREE.Mesh(new THREE.BoxGeometry(1.78, 0.62, 4.30), m.claro);
+            chasisC.position.y = 0.62;
+            g.add(chasisC);
+            var cabina = new THREE.Mesh(new THREE.BoxGeometry(1.62, 0.56, 2.30), m.claro);
+            cabina.position.set(0, 1.16, -0.20);
+            g.add(cabina);
+            var luna = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.46, 0.06), m.cristal);
+            luna.position.set(0, 1.16, 0.94);
+            luna.rotation.x = -0.42;
+            g.add(luna);
+            [[-0.82, 1.42], [0.82, 1.42], [-0.82, -1.38], [0.82, -1.38]].forEach(function (r) {
+                var rueda = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.22, 18), m.oscuro);
+                rueda.position.set(r[0], 0.33, r[1]);
+                rueda.rotation.z = Math.PI / 2;
+                g.add(rueda);
+            });
+        } else if (tipo === 'silla') {
+            var asiento = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.045, 0.44), m.claro);
+            asiento.position.y = 0.45;
+            g.add(asiento);
+            var respaldo = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.38, 0.04), m.claro);
+            respaldo.position.set(0, 0.66, -0.20);
+            respaldo.rotation.x = 0.12;
+            g.add(respaldo);
+            [[-0.19, 0.18], [0.19, 0.18], [-0.19, -0.18], [0.19, -0.18]].forEach(function (p) {
+                var pata = new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.022, 0.45, 8), m.claro);
+                pata.position.set(p[0], 0.225, p[1]);
+                g.add(pata);
+            });
+        } else if (tipo === 'bici' || tipo === 'moto') {
+            var moto = tipo === 'moto';
+            var rr = moto ? 0.32 : 0.34;                 /* radio de rueda */
+            var sep = moto ? 0.72 : 0.62;                /* semidistancia entre ejes */
+            var grosor = moto ? 0.14 : 0.045;
+            [-sep, sep].forEach(function (z) {
+                var rueda = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr, grosor, 20), m.oscuro);
+                rueda.position.set(0, rr, z);
+                rueda.rotation.z = Math.PI / 2;
+                g.add(rueda);
+            });
+            if (moto) {
+                var deposito = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.30, 1.05), m.claro);
+                deposito.position.set(0, 0.72, 0.02);
+                g.add(deposito);
+                var asientoM = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.11, 0.62), m.oscuro);
+                asientoM.position.set(0, 0.86, -0.42);
+                g.add(asientoM);
+            } else {
+                /* Cuadro en diamante: dos tubos y la tija */
+                var sup = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.62, 8), m.medio);
+                sup.position.set(0, 0.82, 0.02);
+                sup.rotation.x = Math.PI / 2;
+                g.add(sup);
+                var inf = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.72, 8), m.medio);
+                inf.position.set(0, 0.55, 0.14);
+                inf.rotation.set(Math.PI / 2 - 0.42, 0, 0);
+                g.add(inf);
+                var tija = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.42, 8), m.medio);
+                tija.position.set(0, 0.75, -0.26);
+                tija.rotation.x = 0.2;
+                g.add(tija);
+                var sillin = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.05, 0.26), m.oscuro);
+                sillin.position.set(0, 0.96, -0.30);
+                g.add(sillin);
+            }
+            var horquilla = new THREE.Mesh(
+                new THREE.CylinderGeometry(moto ? 0.03 : 0.022, moto ? 0.03 : 0.022, moto ? 0.75 : 0.68, 8), m.medio);
+            horquilla.position.set(0, moto ? 0.66 : 0.62, sep - 0.04);
+            horquilla.rotation.x = 0.28;
+            g.add(horquilla);
+            var manillar = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.018, 0.018, moto ? 0.72 : 0.54, 8), m.oscuro);
+            manillar.position.set(0, moto ? 1.02 : 0.98, sep - 0.14);
+            manillar.rotation.z = Math.PI / 2;
+            g.add(manillar);
+        } else if (tipo === 'planta') {
+            var maceta = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.16, 0.32, 22), m.maceta);
+            maceta.position.y = 0.16;
+            g.add(maceta);
+            var borde = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.022, 8, 24), m.maceta);
+            borde.position.y = 0.32;
+            borde.rotation.x = Math.PI / 2;
+            g.add(borde);
+            var tallo = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.03, 0.34, 8), m.hoja);
+            tallo.position.y = 0.49;
+            g.add(tallo);
+            /* Tres masas de hoja desiguales, que no parezca un helado */
+            [[0, 0.80, 0, 0.26], [-0.14, 0.94, 0.06, 0.21], [0.13, 0.92, -0.07, 0.19]].forEach(function (h) {
+                var mata = new THREE.Mesh(new THREE.SphereGeometry(h[3], 16, 12), m.hoja);
+                mata.position.set(h[0], h[1], h[2]);
+                mata.scale.y = 0.86;
+                g.add(mata);
+            });
+        }
+
+        /* Tirador de rotación, igual que el de los sujetos */
+        var varilla = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.012, 0.012, RADIO_TIRADOR, 8),
+            new THREE.MeshBasicMaterial({ color: COLOR.halogen, transparent: true, opacity: .35 })
+        );
+        varilla.position.set(0, 0.04, RADIO_TIRADOR / 2);
+        varilla.rotation.x = Math.PI / 2;
+        g.add(varilla);
+
+        var tirador = new THREE.Mesh(
+            new THREE.SphereGeometry(0.075, 16, 12),
+            new THREE.MeshBasicMaterial({ color: COLOR.halogen })
+        );
+        tirador.position.set(0, 0.05, RADIO_TIRADOR);
+        g.add(tirador);
+
+        g.userData.gizmo = [varilla, tirador];
+        g.userData.tipo = tipo;
+        escena.add(g);
+        return g;
+    }
+
+    /* ------------------------------------------------------------
        SINCRONIZACIÓN CON EL ESTADO
        ------------------------------------------------------------ */
     function sincronizar(estado) {
@@ -286,8 +652,31 @@
             var g = grupoSujetos[i];
             g.position.set(s.x, 0, s.z);
             g.rotation.y = s.rot * DEG;
+            ajustarFisico(g, s.altura, s.complexion);
             /* Un sujeto añadido estando en vista de plano no debe
                aparecer con su tirador colgando */
+            g.userData.gizmo.forEach(function (m) { m.visible = enCenital; });
+        });
+
+        /* Elementos: el tipo puede cambiar, así que se rehace el
+           marcador cuando no coincide con el que ya había */
+        var els = estado.elementos || [];
+        while (grupoElementos.length > els.length) {
+            escena.remove(grupoElementos.pop());
+        }
+        els.forEach(function (e, i) {
+            if (!grupoElementos[i]) {
+                grupoElementos[i] = crearElemento(e.tipo);
+            } else if (grupoElementos[i].userData.tipo !== e.tipo) {
+                escena.remove(grupoElementos[i]);
+                grupoElementos[i] = crearElemento(e.tipo);
+            }
+            var g = grupoElementos[i];
+            g.position.set(e.x, 0, e.z);
+            g.rotation.y = (e.rot || 0) * DEG;
+            var s = ESCALABLES[e.tipo] ? (e.escala || 1) : 1;
+            g.scale.setScalar(s);
+            g.userData.enPlano = e.enPlano !== false;
             g.userData.gizmo.forEach(function (m) { m.visible = enCenital; });
         });
 
@@ -370,6 +759,11 @@
             var a = s.rot * DEG;
             probar('rot', i, s.x + Math.sin(a) * RADIO_TIRADOR, s.z + Math.cos(a) * RADIO_TIRADOR, UMBRAL_TIRADOR);
         });
+        (estadoActual.elementos || []).forEach(function (e, i) {
+            var a = (e.rot || 0) * DEG;
+            var r = RADIO_TIRADOR * (ESCALABLES[e.tipo] ? (e.escala || 1) : 1);
+            probar('rotel', i, e.x + Math.sin(a) * r, e.z + Math.cos(a) * r, UMBRAL_TIRADOR);
+        });
         var ac = anguloCamara(estadoActual) * DEG;
         probar('rotcam', -1,
             estadoActual.camara.x + Math.sin(ac) * RADIO_TIRADOR,
@@ -379,6 +773,9 @@
 
         estadoActual.sujetos.forEach(function (s, i) {
             probar('pos', i, s.x, s.z, UMBRAL_PUCK);
+        });
+        (estadoActual.elementos || []).forEach(function (e, i) {
+            probar('posel', i, e.x, e.z, UMBRAL_PUCK);
         });
         probar('poscam', -1, estadoActual.camara.x, estadoActual.camara.z, UMBRAL_PUCK);
 
@@ -422,8 +819,12 @@
         } else if (arrastre.tipo === 'rot') {
             var s = estadoActual.sujetos[arrastre.id];
             opciones.onRotarSujeto(arrastre.id, Math.atan2(p.x - s.x, p.z - s.z) / DEG);
+        } else if (arrastre.tipo === 'posel') {
+            opciones.onMoverElemento(arrastre.id, x, z);
+        } else if (arrastre.tipo === 'rotel') {
+            var e = estadoActual.elementos[arrastre.id];
+            opciones.onRotarElemento(arrastre.id, Math.atan2(p.x - e.x, p.z - e.z) / DEG);
         } else if (arrastre.tipo === 'rotcam') {
-            var c = estadoActual.camara;
             opciones.onApuntarCamara(p.x, p.z);
         }
     }
@@ -441,7 +842,7 @@
         var enCenital = v === 'cenital';
         grupoCamara.visible = enCenital;
         mallaFrustum.visible = enCenital;
-        grupoSujetos.forEach(function (g) {
+        grupoSujetos.concat(grupoElementos).forEach(function (g) {
             g.userData.gizmo.forEach(function (m) { m.visible = enCenital; });
         });
         if (!enCenital) { arrastre = null; lienzo.classList.remove('is-over', 'is-grabbing'); }
@@ -490,11 +891,19 @@
             renderer.setViewport(0, 0, w, h);
             renderer.clear();
 
+            /* Un elemento puede estar en la escena y quedarse fuera de
+               la toma: se oculta sólo mientras se renderiza el plano */
+            grupoElementos.forEach(function (g) {
+                if (g.userData.enPlano === false) g.visible = false;
+            });
+
             renderer.setViewport(vx, vy, vw, vh);
             renderer.setScissor(vx, vy, vw, vh);
             renderer.setScissorTest(true);
             renderer.render(escena, camPlano);
             renderer.setScissorTest(false);
+
+            grupoElementos.forEach(function (g) { g.visible = true; });
 
             capaEtiquetas.classList.add('is-hidden');
         }
@@ -555,6 +964,9 @@
         setAspecto: setAspecto,
         setEtiquetas: setEtiquetas,
         redimensionar: redimensionar,
-        SALA: SALA
+        SALA: SALA,
+        MEDIDAS: MEDIDAS,
+        ESCALABLES: ESCALABLES,
+        ALTURA_BASE: ALTURA_BASE
     };
 })(window);

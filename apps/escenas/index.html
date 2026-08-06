@@ -108,6 +108,35 @@
 
     <section class="hk-card">
       <div class="hk-card__head">
+        <h2 class="hk-meta">Elementos</h2>
+        <span class="hk-meta hk-meta--accent" id="element-count">0</span>
+      </div>
+
+      <p class="panel-note">Formas básicas, escalables a mano. Las plantillas van a tamaño real.</p>
+      <div class="add-grid" id="add-formas"></div>
+
+      <p class="panel-note">Plantillas a escala real, medidas respecto a un sujeto de 1,75 m.</p>
+      <div class="add-grid add-grid--tpl" id="add-plantillas"></div>
+
+      <div class="element-list" id="element-list"></div>
+    </section>
+
+    <section class="hk-card hk-card--locked">
+      <div class="hk-card__head">
+        <h2 class="hk-meta">En camino</h2>
+        <span class="hk-meta hk-meta--accent">Bloqueado</span>
+      </div>
+      <ul class="soon-list">
+        <li><b>Texturas de la escena</b><span>Cambiar el suelo y el fondo del set</span></li>
+        <li><b>Biblioteca 3D</b><span>Añadir y gestionar tus propias plantillas de objetos</span></li>
+        <li><b>Parámetros variables</b><span>Que un vehículo avance o una planta crezca durante la toma</span></li>
+        <li><b>Movimiento de cámara</b><span>Travelling, panorámica, órbita y zoom con reproducción</span></li>
+        <li><b>Escena cambiante</b><span>Cortes de cámara y cambio de foco entre sujetos en movimiento</span></li>
+      </ul>
+    </section>
+
+    <section class="hk-card">
+      <div class="hk-card__head">
         <h2 class="hk-meta">Prompt</h2>
         <span class="hk-meta hk-meta--accent" id="prompt-meta">Vídeo · Veo 3.1</span>
       </div>
@@ -123,20 +152,6 @@
         <label for="prompt-modelo">Modelo</label>
         <select class="hk-select" id="prompt-modelo"></select>
       </div>
-
-      <label class="hk-check">
-        <input type="checkbox" id="chk-hoja">
-        <span class="hk-check__dot" aria-hidden="true"></span>
-        <span class="hk-check__label">Tengo una hoja de personaje</span>
-        <span class="hk-check__state">opcional</span>
-      </label>
-
-      <label class="hk-check">
-        <input type="checkbox" id="chk-entorno">
-        <span class="hk-check__dot" aria-hidden="true"></span>
-        <span class="hk-check__label">Tengo una referencia de entorno</span>
-        <span class="hk-check__state">opcional</span>
-      </label>
 
       <div id="prompt-sujetos"></div>
 
