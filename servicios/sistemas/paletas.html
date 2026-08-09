@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muestrario de color — Sistemas de diseño</title>
+<meta name="description" content="Muestrario de color agrupado por paletas: cada color a tamaño real, con su nombre y su hexadecimal. Un clic lo copia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../apps/escenas/halogen.css">
+<link rel="stylesheet" href="sistema.css">
+<style>
+  :root {
+    --sd-bg: var(--canvas);
+    --sd-surface: var(--surface);
+    --sd-surface-2: var(--raised);
+    --sd-ink: var(--ink);
+    --sd-muted: var(--ink-dim);
+    --sd-accent: var(--halogen);
+    --sd-accent-2: var(--halogen);
+    --sd-line: var(--hairline);
+    --sd-radius: var(--r-morph);
+    --sd-font: var(--font-sans);
+    --sd-display: var(--font-sans);
+  }
+  body { line-height: 1.6; }
+  .sd-titulo { font-weight: 900; letter-spacing: -0.04em; line-height: 0.92; }
+</style>
+<script src="copiar-color.js" defer></script>
+</head>
+<body>
+<div class="sd-contenedor">
+
+  <header class="sd-cabecera">
+    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <span class="hk-eyebrow">142 colores</span>
+    <h1 class="sd-titulo">Muestrario de color</h1>
+    <p class="sd-bajada">Cada color a tamaño real, con su nombre y su hexadecimal para que no haya dudas de cuál es. Pulsa cualquiera y se copia el código al portapapeles.</p>
+    <nav class="pl-indice" aria-label="Ir a una sección">
+      <a href="#sistemas">Mis sistemas</a>
+      <a href="#tono-calido">Cálidos</a>
+      <a href="#tono-frio">Fríos</a>
+      <a href="#tono-vivo">Vivos</a>
+      <a href="#tono-neutro">Neutros</a>
+    </nav>
+  </header>
+
+  <section class="sd-seccion">
+    <h2 class="pl-seccion" id="sistemas">Mis sistemas</h2>
+    <p class="pl-intro">Las seis paletas que están en uso ahora mismo. Cada una lleva al detalle completo del sistema.</p>
+    <section class="pl-grupo" id="halogen">
+      <div class="pl-grupo__cab">
+        <h3>Halogen Kit</h3>
+        <a class="pl-grupo__ver" href="halogen.html">Ver el sistema completo &#8599;</a>
+      </div>
+      <p class="pl-grupo__nota">Oscuro, cinético y de un solo acento. Viste la app Escenas.</p>
+      <ul class="pl-rejilla">
+        <li>
+          <button class="pl-color" type="button" data-hex="#0A0D0A" style="--c:#0a0d0a;--t:#ffffff"
+                  aria-label="Copiar #0A0D0A, Canvas">
+            <span class="pl-color__nombre">Canvas</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#0A0D0A</b></span>
+            <span class="pl-color__rol">Fondo de página</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#12160F" style="--c:#12160f;--t:#ffffff"
+                  aria-label="Copiar #12160F, Surface">
+            <span class="pl-color__nombre">Surface</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#12160F</b></span>
+            <span class="pl-color__rol">Tarjeta</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#1A1F18" style="--c:#1a1f18;--t:#ffffff"
+                  aria-label="Copiar #1A1F18, Raised">
+            <span class="pl-color__nombre">Raised</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#1A1F18</b></span>
+            <span class="pl-color__rol">Campo, elemento elevado</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#2A312A" style="--c:#2a312a;--t:#ffffff"
+                  aria-label="Copiar #2A312A, Hairline">
+            <span class="pl-color__nombre">Hairline</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#2A312A</b></span>
+            <span class="pl-color__rol">Filo de un píxel</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#A3E635" style="--c:#a3e635;--t:#101010"
+                  aria-label="Copiar #A3E635, Halogen">
+            <span class="pl-color__nombre">Halogen</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#A3E635</b></span>
+            <span class="pl-color__rol">Acento único</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#F2F5F0" style="--c:#f2f5f0;--t:#101010"
+                  aria-label="Copiar #F2F5F0, Ink">
+            <span class="pl-color__nombre">Ink</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#F2F5F0</b></span>
+            <span class="pl-color__rol">Texto principal</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#8F9A8C" style="--c:#8f9a8c;--t:#101010"
+                  aria-label="Copiar #8F9A8C, Ink dim">
+            <span class="pl-color__nombre">Ink dim</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#8F9A8C</b></span>
+            <span class="pl-color__rol">Texto secundario</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#3A423A" style="--c:#3a423a;--t:#ffffff"
+                  aria-label="Copiar #3A423A, Unchecked">
+            <span class="pl-color__nombre">Unchecked</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#3A423A</b></span>
+            <span class="pl-color__rol">Casilla sin marcar</span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo" id="rincon">
+      <div class="pl-grupo__cab">
+        <h3>Rincón</h3>
+        <a class="pl-grupo__ver" href="rincon.html">Ver el sistema completo &#8599;</a>
+      </div>
+      <p class="pl-grupo__nota">Terracota sobre crema. Nacido de la carta digital de una taberna.</p>
+      <ul class="pl-rejilla">
+        <li>
+          <button class="pl-color" type="button" data-hex="#B34A1F" style="--c:#b34a1f;--t:#ffffff"
+                  aria-label="Copiar #B34A1F, Terracota">
+            <span class="pl-color__nombre">Terracota</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#B34A1F</b></span>
+            <span class="pl-color__rol">Marca y acción</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#8A3514" style="--c:#8a3514;--t:#ffffff"
+                  aria-label="Copiar #8A3514, Terracota oscuro">
+            <span class="pl-color__nombre">Terracota oscuro</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#8A3514</b></span>
+            <span class="pl-color__rol">Estado pulsado</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FDF6EC" style="--c:#fdf6ec;--t:#101010"
+                  aria-label="Copiar #FDF6EC, Crema">
+            <span class="pl-color__nombre">Crema</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FDF6EC</b></span>
+            <span class="pl-color__rol">Fondo</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FFFFFF" style="--c:#ffffff;--t:#101010"
+                  aria-label="Copiar #FFFFFF, Tarjeta">
+            <span class="pl-color__nombre">Tarjeta</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FFFFFF</b></span>
+            <span class="pl-color__rol">Superficie</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#2B1D12" style="--c:#2b1d12;--t:#ffffff"
+                  aria-label="Copiar #2B1D12, Tinta">
+            <span class="pl-color__nombre">Tinta</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#2B1D12</b></span>
+            <span class="pl-color__rol">Texto principal</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#7C6E60" style="--c:#7c6e60;--t:#ffffff"
+                  aria-label="Copiar #7C6E60, Apagado">
+            <span class="pl-color__nombre">Apagado</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#7C6E60</b></span>
+            <span class="pl-color__rol">Texto secundario</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#2E9E5B" style="--c:#2e9e5b;--t:#101010"
+                  aria-label="Copiar #2E9E5B, Confirmado">
+            <span class="pl-color__nombre">Confirmado</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#2E9E5B</b></span>
+            <span class="pl-color__rol">Éxito, pedido en marcha</span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo" id="alba">
+      <div class="pl-grupo__cab">
+        <h3>Alba</h3>
+        <a class="pl-grupo__ver" href="alba.html">Ver el sistema completo &#8599;</a>
+      </div>
+      <p class="pl-grupo__nota">Casi monocromo, esquinas rectas y un fucsia que corta.</p>
+      <ul class="pl-rejilla">
+        <li>
+          <button class="pl-color" type="button" data-hex="#111114" style="--c:#111114;--t:#ffffff"
+                  aria-label="Copiar #111114, Tinta">
+            <span class="pl-color__nombre">Tinta</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#111114</b></span>
+            <span class="pl-color__rol">Texto y botón principal</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FAFAFA" style="--c:#fafafa;--t:#101010"
+                  aria-label="Copiar #FAFAFA, Papel">
+            <span class="pl-color__nombre">Papel</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FAFAFA</b></span>
+            <span class="pl-color__rol">Fondo</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FFFFFF" style="--c:#ffffff;--t:#101010"
+                  aria-label="Copiar #FFFFFF, Blanco">
+            <span class="pl-color__nombre">Blanco</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FFFFFF</b></span>
+            <span class="pl-color__rol">Ficha de producto</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#727278" style="--c:#727278;--t:#ffffff"
+                  aria-label="Copiar #727278, Apagado">
+            <span class="pl-color__nombre">Apagado</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#727278</b></span>
+            <span class="pl-color__rol">Tallas, referencias</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#E8E8EC" style="--c:#e8e8ec;--t:#101010"
+                  aria-label="Copiar #E8E8EC, Línea">
+            <span class="pl-color__nombre">Línea</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#E8E8EC</b></span>
+            <span class="pl-color__rol">Separadores</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#E7335A" style="--c:#e7335a;--t:#101010"
+                  aria-label="Copiar #E7335A, Fucsia">
+            <span class="pl-color__nombre">Fucsia</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#E7335A</b></span>
+            <span class="pl-color__rol">Rebaja, favorito, alerta</span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo" id="manolo">
+      <div class="pl-grupo__cab">
+        <h3>Manolo</h3>
+        <a class="pl-grupo__ver" href="manolo.html">Ver el sistema completo &#8599;</a>
+      </div>
+      <p class="pl-grupo__nota">Rojo de mostrador y verde de mensajería. Comercio de barrio.</p>
+      <ul class="pl-rejilla">
+        <li>
+          <button class="pl-color" type="button" data-hex="#A4262C" style="--c:#a4262c;--t:#ffffff"
+                  aria-label="Copiar #A4262C, Mostrador">
+            <span class="pl-color__nombre">Mostrador</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#A4262C</b></span>
+            <span class="pl-color__rol">Marca y acción</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#7C181D" style="--c:#7c181d;--t:#ffffff"
+                  aria-label="Copiar #7C181D, Mostrador oscuro">
+            <span class="pl-color__nombre">Mostrador oscuro</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#7C181D</b></span>
+            <span class="pl-color__rol">Estado pulsado</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FBF7F1" style="--c:#fbf7f1;--t:#101010"
+                  aria-label="Copiar #FBF7F1, Crema">
+            <span class="pl-color__nombre">Crema</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FBF7F1</b></span>
+            <span class="pl-color__rol">Fondo</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#2C2018" style="--c:#2c2018;--t:#ffffff"
+                  aria-label="Copiar #2C2018, Tinta">
+            <span class="pl-color__nombre">Tinta</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#2C2018</b></span>
+            <span class="pl-color__rol">Texto principal</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#7B6E65" style="--c:#7b6e65;--t:#ffffff"
+                  aria-label="Copiar #7B6E65, Apagado">
+            <span class="pl-color__nombre">Apagado</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#7B6E65</b></span>
+            <span class="pl-color__rol">Peso, unidades</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#25D366" style="--c:#25d366;--t:#101010"
+                  aria-label="Copiar #25D366, Mensajería">
+            <span class="pl-color__nombre">Mensajería</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#25D366</b></span>
+            <span class="pl-color__rol">Confirmar por WhatsApp</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#075E54" style="--c:#075e54;--t:#ffffff"
+                  aria-label="Copiar #075E54, Mensajería oscuro">
+            <span class="pl-color__nombre">Mensajería oscuro</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#075E54</b></span>
+            <span class="pl-color__rol">Cabecera de conversación</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#E5DDD5" style="--c:#e5ddd5;--t:#101010"
+                  aria-label="Copiar #E5DDD5, Conversación">
+            <span class="pl-color__nombre">Conversación</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#E5DDD5</b></span>
+            <span class="pl-color__rol">Fondo de chat</span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo" id="impulso">
+      <div class="pl-grupo__cab">
+        <h3>Impulso</h3>
+        <a class="pl-grupo__ver" href="impulso.html">Ver el sistema completo &#8599;</a>
+      </div>
+      <p class="pl-grupo__nota">Oscuro con lima, cian y rosa. Tres acentos con un trabajo cada uno.</p>
+      <ul class="pl-rejilla">
+        <li>
+          <button class="pl-color" type="button" data-hex="#0D0F14" style="--c:#0d0f14;--t:#ffffff"
+                  aria-label="Copiar #0D0F14, Fondo">
+            <span class="pl-color__nombre">Fondo</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#0D0F14</b></span>
+            <span class="pl-color__rol">Base</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#161A22" style="--c:#161a22;--t:#ffffff"
+                  aria-label="Copiar #161A22, Superficie">
+            <span class="pl-color__nombre">Superficie</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#161A22</b></span>
+            <span class="pl-color__rol">Tarjeta</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#1E2430" style="--c:#1e2430;--t:#ffffff"
+                  aria-label="Copiar #1E2430, Superficie 2">
+            <span class="pl-color__nombre">Superficie 2</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#1E2430</b></span>
+            <span class="pl-color__rol">Elemento elevado</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#C8F04C" style="--c:#c8f04c;--t:#101010"
+                  aria-label="Copiar #C8F04C, Lima">
+            <span class="pl-color__nombre">Lima</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#C8F04C</b></span>
+            <span class="pl-color__rol">Completado, progreso</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#38E1D4" style="--c:#38e1d4;--t:#101010"
+                  aria-label="Copiar #38E1D4, Cian">
+            <span class="pl-color__nombre">Cian</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#38E1D4</b></span>
+            <span class="pl-color__rol">Sesión de hoy</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FF5E82" style="--c:#ff5e82;--t:#101010"
+                  aria-label="Copiar #FF5E82, Rosa">
+            <span class="pl-color__nombre">Rosa</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FF5E82</b></span>
+            <span class="pl-color__rol">Pendiente, intensidad alta</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#F2F4F8" style="--c:#f2f4f8;--t:#101010"
+                  aria-label="Copiar #F2F4F8, Texto">
+            <span class="pl-color__nombre">Texto</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#F2F4F8</b></span>
+            <span class="pl-color__rol">Texto principal</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#8B93A3" style="--c:#8b93a3;--t:#101010"
+                  aria-label="Copiar #8B93A3, Apagado">
+            <span class="pl-color__nombre">Apagado</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#8B93A3</b></span>
+            <span class="pl-color__rol">Series, repeticiones</span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo" id="la-plaza">
+      <div class="pl-grupo__cab">
+        <h3>La Plaza</h3>
+        <a class="pl-grupo__ver" href="la-plaza.html">Ver el sistema completo &#8599;</a>
+      </div>
+      <p class="pl-grupo__nota">Verde de fruta fresca y un modo oscuro para quien gestiona.</p>
+      <ul class="pl-rejilla">
+        <li>
+          <button class="pl-color" type="button" data-hex="#1F9D55" style="--c:#1f9d55;--t:#101010"
+                  aria-label="Copiar #1F9D55, Verde">
+            <span class="pl-color__nombre">Verde</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#1F9D55</b></span>
+            <span class="pl-color__rol">Marca y acción</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#157040" style="--c:#157040;--t:#ffffff"
+                  aria-label="Copiar #157040, Verde oscuro">
+            <span class="pl-color__nombre">Verde oscuro</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#157040</b></span>
+            <span class="pl-color__rol">Estado pulsado</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#F4F7F4" style="--c:#f4f7f4;--t:#101010"
+                  aria-label="Copiar #F4F7F4, Fondo">
+            <span class="pl-color__nombre">Fondo</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#F4F7F4</b></span>
+            <span class="pl-color__rol">Tienda</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#1C2B21" style="--c:#1c2b21;--t:#ffffff"
+                  aria-label="Copiar #1C2B21, Tinta">
+            <span class="pl-color__nombre">Tinta</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#1C2B21</b></span>
+            <span class="pl-color__rol">Texto principal</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#67736A" style="--c:#67736a;--t:#ffffff"
+                  aria-label="Copiar #67736A, Apagado">
+            <span class="pl-color__nombre">Apagado</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#67736A</b></span>
+            <span class="pl-color__rol">Texto secundario</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#E67E22" style="--c:#e67e22;--t:#101010"
+                  aria-label="Copiar #E67E22, Aviso">
+            <span class="pl-color__nombre">Aviso</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#E67E22</b></span>
+            <span class="pl-color__rol">Stock bajo</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#E74C3C" style="--c:#e74c3c;--t:#101010"
+                  aria-label="Copiar #E74C3C, Peligro">
+            <span class="pl-color__nombre">Peligro</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#E74C3C</b></span>
+            <span class="pl-color__rol">Sin existencias</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#10151C" style="--c:#10151c;--t:#ffffff"
+                  aria-label="Copiar #10151C, Gestor fondo">
+            <span class="pl-color__nombre">Gestor fondo</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#10151C</b></span>
+            <span class="pl-color__rol">Trastienda</span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#1A212C" style="--c:#1a212c;--t:#ffffff"
+                  aria-label="Copiar #1A212C, Gestor superficie">
+            <span class="pl-color__nombre">Gestor superficie</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#1A212C</b></span>
+            <span class="pl-color__rol">Tarjeta de almacén</span>
+          </button>
+        </li>
+      </ul>
+    </section>
+  </section>
+
+  <section class="sd-seccion">
+    <p class="pl-intro">Paletas de referencia, agrupadas por tonalidad. Colores que combinan entre sí y sirven de punto de partida para un encargo nuevo.</p>
+    <h2 class="pl-seccion" id="tono-calido">Cálidos</h2>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Brasa</h3>
+        <span class="pl-tono">Cálidos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#FFD700" style="--c:#ffd700;--t:#101010"
+                  aria-label="Copiar #FFD700, Gold">
+            <span class="pl-color__nombre">Gold</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FFD700</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#800020" style="--c:#800020;--t:#ffffff"
+                  aria-label="Copiar #800020, Burgundy">
+            <span class="pl-color__nombre">Burgundy</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#800020</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FF4500" style="--c:#ff4500;--t:#101010"
+                  aria-label="Copiar #FF4500, Crimson Carrot">
+            <span class="pl-color__nombre">Crimson Carrot</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FF4500</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Terracota y salvia</h3>
+        <span class="pl-tono">Cálidos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#E07A5F" style="--c:#e07a5f;--t:#101010"
+                  aria-label="Copiar #E07A5F, Burnt Peach">
+            <span class="pl-color__nombre">Burnt Peach</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#E07A5F</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#F2CCBF" style="--c:#f2ccbf;--t:#101010"
+                  aria-label="Copiar #F2CCBF, Apricot Cream">
+            <span class="pl-color__nombre">Apricot Cream</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#F2CCBF</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#81B29A" style="--c:#81b29a;--t:#101010"
+                  aria-label="Copiar #81B29A, Muted Teal">
+            <span class="pl-color__nombre">Muted Teal</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#81B29A</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#F4F1DE" style="--c:#f4f1de;--t:#101010"
+                  aria-label="Copiar #F4F1DE, Eggshell">
+            <span class="pl-color__nombre">Eggshell</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#F4F1DE</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#3D405B" style="--c:#3d405b;--t:#ffffff"
+                  aria-label="Copiar #3D405B, Twilight Indigo">
+            <span class="pl-color__nombre">Twilight Indigo</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#3D405B</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Tierra y coral</h3>
+        <span class="pl-tono">Cálidos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#31031F" style="--c:#31031f;--t:#ffffff"
+                  aria-label="Copiar #31031F, Midnight Violet">
+            <span class="pl-color__nombre">Midnight Violet</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#31031F</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#E88F93" style="--c:#e88f93;--t:#101010"
+                  aria-label="Copiar #E88F93, Light Coral">
+            <span class="pl-color__nombre">Light Coral</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#E88F93</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#393313" style="--c:#393313;--t:#ffffff"
+                  aria-label="Copiar #393313, Dark Khaki">
+            <span class="pl-color__nombre">Dark Khaki</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#393313</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FFF8ED" style="--c:#fff8ed;--t:#101010"
+                  aria-label="Copiar #FFF8ED, Floral White">
+            <span class="pl-color__nombre">Floral White</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FFF8ED</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#66693E" style="--c:#66693e;--t:#ffffff"
+                  aria-label="Copiar #66693E, Olive Leaf">
+            <span class="pl-color__nombre">Olive Leaf</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#66693E</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Rescoldo</h3>
+        <span class="pl-tono">Cálidos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#D70005" style="--c:#d70005;--t:#ffffff"
+                  aria-label="Copiar #D70005, Brick Ember">
+            <span class="pl-color__nombre">Brick Ember</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#D70005</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FEF8D6" style="--c:#fef8d6;--t:#101010"
+                  aria-label="Copiar #FEF8D6, Cornsilk">
+            <span class="pl-color__nombre">Cornsilk <i class="pl-revisar" title="Leido de una captura: conviene confirmar el valor">?</i></span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FEF8D6</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FEE87B" style="--c:#fee87b;--t:#101010"
+                  aria-label="Copiar #FEE87B, Jasmine">
+            <span class="pl-color__nombre">Jasmine</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FEE87B</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#F7FAF6" style="--c:#f7faf6;--t:#101010"
+                  aria-label="Copiar #F7FAF6, Porcelain">
+            <span class="pl-color__nombre">Porcelain <i class="pl-revisar" title="Leido de una captura: conviene confirmar el valor">?</i></span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#F7FAF6</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FCD9F7" style="--c:#fcd9f7;--t:#101010"
+                  aria-label="Copiar #FCD9F7, Petal Frost">
+            <span class="pl-color__nombre">Petal Frost</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FCD9F7</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Lava y acero</h3>
+        <span class="pl-tono">Cálidos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#780000" style="--c:#780000;--t:#ffffff"
+                  aria-label="Copiar #780000, Molten Lava">
+            <span class="pl-color__nombre">Molten Lava</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#780000</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#C1121F" style="--c:#c1121f;--t:#ffffff"
+                  aria-label="Copiar #C1121F, Brick Red">
+            <span class="pl-color__nombre">Brick Red</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#C1121F</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#669BBC" style="--c:#669bbc;--t:#101010"
+                  aria-label="Copiar #669BBC, Steel Blue">
+            <span class="pl-color__nombre">Steel Blue</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#669BBC</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FDF0D5" style="--c:#fdf0d5;--t:#101010"
+                  aria-label="Copiar #FDF0D5, Papaya Whip">
+            <span class="pl-color__nombre">Papaya Whip</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FDF0D5</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#003049" style="--c:#003049;--t:#ffffff"
+                  aria-label="Copiar #003049, Deep Space Blue">
+            <span class="pl-color__nombre">Deep Space Blue</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#003049</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Café</h3>
+        <span class="pl-tono">Cálidos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#36241C" style="--c:#36241c;--t:#ffffff"
+                  aria-label="Copiar #36241C, Dark Coffee">
+            <span class="pl-color__nombre">Dark Coffee</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#36241C</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#422C22" style="--c:#422c22;--t:#ffffff"
+                  aria-label="Copiar #422C22, Coffee Brown">
+            <span class="pl-color__nombre">Coffee Brown</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#422C22</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#4D3328" style="--c:#4d3328;--t:#ffffff"
+                  aria-label="Copiar #4D3328, Chocolate">
+            <span class="pl-color__nombre">Chocolate</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#4D3328</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#644234" style="--c:#644234;--t:#ffffff"
+                  aria-label="Copiar #644234, Mauve Bark">
+            <span class="pl-color__nombre">Mauve Bark</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#644234</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#815F51" style="--c:#815f51;--t:#ffffff"
+                  aria-label="Copiar #815F51, Coffee Bean">
+            <span class="pl-color__nombre">Coffee Bean</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#815F51</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Bronce y caqui</h3>
+        <span class="pl-tono">Cálidos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#DDA84C" style="--c:#dda84c;--t:#101010"
+                  aria-label="Copiar #DDA84C, Honey Bronze">
+            <span class="pl-color__nombre">Honey Bronze</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#DDA84C</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#52313A" style="--c:#52313a;--t:#ffffff"
+                  aria-label="Copiar #52313A, Mauve Shadow">
+            <span class="pl-color__nombre">Mauve Shadow</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#52313A</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#3D3E14" style="--c:#3d3e14;--t:#ffffff"
+                  aria-label="Copiar #3D3E14, Dark Khaki">
+            <span class="pl-color__nombre">Dark Khaki</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#3D3E14</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Oliva</h3>
+        <span class="pl-tono">Cálidos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#FFF8ED" style="--c:#fff8ed;--t:#101010"
+                  aria-label="Copiar #FFF8ED, Floral White">
+            <span class="pl-color__nombre">Floral White</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FFF8ED</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#66693E" style="--c:#66693e;--t:#ffffff"
+                  aria-label="Copiar #66693E, Olive Leaf">
+            <span class="pl-color__nombre">Olive Leaf</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#66693E</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#31031F" style="--c:#31031f;--t:#ffffff"
+                  aria-label="Copiar #31031F, Midnight Violet">
+            <span class="pl-color__nombre">Midnight Violet</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#31031F</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Lino y frambuesa</h3>
+        <span class="pl-tono">Cálidos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#FAF1E8" style="--c:#faf1e8;--t:#101010"
+                  aria-label="Copiar #FAF1E8, Linen">
+            <span class="pl-color__nombre">Linen</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FAF1E8</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#EA6B7E" style="--c:#ea6b7e;--t:#101010"
+                  aria-label="Copiar #EA6B7E, Bubblegum Pink">
+            <span class="pl-color__nombre">Bubblegum Pink</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#EA6B7E</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#4C1413" style="--c:#4c1413;--t:#ffffff"
+                  aria-label="Copiar #4C1413, Rich Mahogany">
+            <span class="pl-color__nombre">Rich Mahogany</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#4C1413</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Almendra y ciruela</h3>
+        <span class="pl-tono">Cálidos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#EBD3BB" style="--c:#ebd3bb;--t:#101010"
+                  aria-label="Copiar #EBD3BB, Almond Light">
+            <span class="pl-color__nombre">Almond Light</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#EBD3BB</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#49252F" style="--c:#49252f;--t:#ffffff"
+                  aria-label="Copiar #49252F, Plum Wine">
+            <span class="pl-color__nombre">Plum Wine</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#49252F</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#101211" style="--c:#101211;--t:#ffffff"
+                  aria-label="Copiar #101211, Carbon Power">
+            <span class="pl-color__nombre">Carbon Power</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#101211</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <h2 class="pl-seccion" id="tono-frio">Fríos</h2>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Violeta nocturno</h3>
+        <span class="pl-tono">Fríos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#FFDAB9" style="--c:#ffdab9;--t:#101010"
+                  aria-label="Copiar #FFDAB9, Apricot Glow">
+            <span class="pl-color__nombre">Apricot Glow</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FFDAB9</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#0B130E" style="--c:#0b130e;--t:#ffffff"
+                  aria-label="Copiar #0B130E, Obsidian Veil">
+            <span class="pl-color__nombre">Obsidian Veil</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#0B130E</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#9932CC" style="--c:#9932cc;--t:#ffffff"
+                  aria-label="Copiar #9932CC, Vivid Violet">
+            <span class="pl-color__nombre">Vivid Violet</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#9932CC</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Nieve y fuego</h3>
+        <span class="pl-tono">Fríos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#FAFBFD" style="--c:#fafbfd;--t:#101010"
+                  aria-label="Copiar #FAFBFD, Bright Snow">
+            <span class="pl-color__nombre">Bright Snow</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FAFBFD</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#AA0003" style="--c:#aa0003;--t:#ffffff"
+                  aria-label="Copiar #AA0003, Inferno">
+            <span class="pl-color__nombre">Inferno</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#AA0003</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#BFB4DC" style="--c:#bfb4dc;--t:#101010"
+                  aria-label="Copiar #BFB4DC, Periwinkle">
+            <span class="pl-color__nombre">Periwinkle</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#BFB4DC</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Arrecife</h3>
+        <span class="pl-tono">Fríos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#146BBC" style="--c:#146bbc;--t:#ffffff"
+                  aria-label="Copiar #146BBC, Abyss Teal">
+            <span class="pl-color__nombre">Abyss Teal</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#146BBC</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#6ECBD3" style="--c:#6ecbd3;--t:#101010"
+                  aria-label="Copiar #6ECBD3, Shalow Reef">
+            <span class="pl-color__nombre">Shalow Reef</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#6ECBD3</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#9FE7E7" style="--c:#9fe7e7;--t:#101010"
+                  aria-label="Copiar #9FE7E7, Sea Foam Bloom">
+            <span class="pl-color__nombre">Sea Foam Bloom</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#9FE7E7</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#E8FBFF" style="--c:#e8fbff;--t:#101010"
+                  aria-label="Copiar #E8FBFF, Foam White">
+            <span class="pl-color__nombre">Foam White</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#E8FBFF</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#0F1A1B" style="--c:#0f1a1b;--t:#ffffff"
+                  aria-label="Copiar #0F1A1B, Keel Black">
+            <span class="pl-color__nombre">Keel Black</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#0F1A1B</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Agua helada</h3>
+        <span class="pl-tono">Fríos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#D6F9F3" style="--c:#d6f9f3;--t:#101010"
+                  aria-label="Copiar #D6F9F3, Frozen Water">
+            <span class="pl-color__nombre">Frozen Water</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#D6F9F3</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#ACF2E7" style="--c:#acf2e7;--t:#101010"
+                  aria-label="Copiar #ACF2E7, Icy Aqua">
+            <span class="pl-color__nombre">Icy Aqua</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#ACF2E7</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#83ECDC" style="--c:#83ecdc;--t:#101010"
+                  aria-label="Copiar #83ECDC, Pearl Aqua">
+            <span class="pl-color__nombre">Pearl Aqua</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#83ECDC</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#30DFC4" style="--c:#30dfc4;--t:#101010"
+                  aria-label="Copiar #30DFC4, Turquoise">
+            <span class="pl-color__nombre">Turquoise</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#30DFC4</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#21C8AF" style="--c:#21c8af;--t:#101010"
+                  aria-label="Copiar #21C8AF, Deep Turquoise">
+            <span class="pl-color__nombre">Deep Turquoise</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#21C8AF</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Lavanda</h3>
+        <span class="pl-tono">Fríos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#EBE0FF" style="--c:#ebe0ff;--t:#101010"
+                  aria-label="Copiar #EBE0FF, Lavender Veil">
+            <span class="pl-color__nombre">Lavender Veil</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#EBE0FF</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#DAC7FF" style="--c:#dac7ff;--t:#101010"
+                  aria-label="Copiar #DAC7FF, Periwinkle">
+            <span class="pl-color__nombre">Periwinkle</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#DAC7FF</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#C7ADFF" style="--c:#c7adff;--t:#101010"
+                  aria-label="Copiar #C7ADFF, Mauve">
+            <span class="pl-color__nombre">Mauve</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#C7ADFF</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#AC88EF" style="--c:#ac88ef;--t:#101010"
+                  aria-label="Copiar #AC88EF, Soft Periwinkle">
+            <span class="pl-color__nombre">Soft Periwinkle</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#AC88EF</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#916DD5" style="--c:#916dd5;--t:#101010"
+                  aria-label="Copiar #916DD5, Lavender Purple">
+            <span class="pl-color__nombre">Lavender Purple</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#916DD5</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Jade y noche</h3>
+        <span class="pl-tono">Fríos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#10C46D" style="--c:#10c46d;--t:#101010"
+                  aria-label="Copiar #10C46D, Jade Green">
+            <span class="pl-color__nombre">Jade Green</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#10C46D</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#27488B" style="--c:#27488b;--t:#ffffff"
+                  aria-label="Copiar #27488B, Dusk Blue">
+            <span class="pl-color__nombre">Dusk Blue</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#27488B</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#351309" style="--c:#351309;--t:#ffffff"
+                  aria-label="Copiar #351309, Espresso">
+            <span class="pl-color__nombre">Espresso</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#351309</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Rosa antiguo</h3>
+        <span class="pl-tono">Fríos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#CF98AF" style="--c:#cf98af;--t:#101010"
+                  aria-label="Copiar #CF98AF, Old Rose">
+            <span class="pl-color__nombre">Old Rose</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#CF98AF</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#144EA0" style="--c:#144ea0;--t:#ffffff"
+                  aria-label="Copiar #144EA0, Steel Azure">
+            <span class="pl-color__nombre">Steel Azure</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#144EA0</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#1B1C20" style="--c:#1b1c20;--t:#ffffff"
+                  aria-label="Copiar #1B1C20, Carbon Black">
+            <span class="pl-color__nombre">Carbon Black</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#1B1C20</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <h2 class="pl-seccion" id="tono-vivo">Vivos</h2>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Neón ácido</h3>
+        <span class="pl-tono">Vivos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#CEFF32" style="--c:#ceff32;--t:#101010"
+                  aria-label="Copiar #CEFF32, Chartreuse">
+            <span class="pl-color__nombre">Chartreuse</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#CEFF32</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#EC2B7A" style="--c:#ec2b7a;--t:#101010"
+                  aria-label="Copiar #EC2B7A, Neon Pink">
+            <span class="pl-color__nombre">Neon Pink</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#EC2B7A</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FE7BBF" style="--c:#fe7bbf;--t:#101010"
+                  aria-label="Copiar #FE7BBF, Pink Carnation">
+            <span class="pl-color__nombre">Pink Carnation</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FE7BBF</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Contraste eléctrico</h3>
+        <span class="pl-tono">Vivos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#F8E6D2" style="--c:#f8e6d2;--t:#101010"
+                  aria-label="Copiar #F8E6D2, Antique White">
+            <span class="pl-color__nombre">Antique White</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#F8E6D2</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#0C10E3" style="--c:#0c10e3;--t:#ffffff"
+                  aria-label="Copiar #0C10E3, Ultrasonic Blue">
+            <span class="pl-color__nombre">Ultrasonic Blue</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#0C10E3</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FF4500" style="--c:#ff4500;--t:#101010"
+                  aria-label="Copiar #FF4500, Crimson Carrot">
+            <span class="pl-color__nombre">Crimson Carrot</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FF4500</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Chicle</h3>
+        <span class="pl-tono">Vivos</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#FF93F3" style="--c:#ff93f3;--t:#101010"
+                  aria-label="Copiar #FF93F3, Bright Peony">
+            <span class="pl-color__nombre">Bright Peony</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FF93F3</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FF7DD5" style="--c:#ff7dd5;--t:#101010"
+                  aria-label="Copiar #FF7DD5, Bubblegum Fizz">
+            <span class="pl-color__nombre">Bubblegum Fizz</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FF7DD5</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FE4E96" style="--c:#fe4e96;--t:#101010"
+                  aria-label="Copiar #FE4E96, Wild Strawberry">
+            <span class="pl-color__nombre">Wild Strawberry</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FE4E96</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FE2A65" style="--c:#fe2a65;--t:#101010"
+                  aria-label="Copiar #FE2A65, Hot Fuchsia">
+            <span class="pl-color__nombre">Hot Fuchsia</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FE2A65</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FD1042" style="--c:#fd1042;--t:#101010"
+                  aria-label="Copiar #FD1042, Lipstick Red">
+            <span class="pl-color__nombre">Lipstick Red</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FD1042</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <h2 class="pl-seccion" id="tono-neutro">Neutros</h2>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Piedra y pizarra</h3>
+        <span class="pl-tono">Neutros</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#E5E4E2" style="--c:#e5e4e2;--t:#101010"
+                  aria-label="Copiar #E5E4E2, Alabaster Grey">
+            <span class="pl-color__nombre">Alabaster Grey</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#E5E4E2</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#0A0A0A" style="--c:#0a0a0a;--t:#ffffff"
+                  aria-label="Copiar #0A0A0A, Onyx">
+            <span class="pl-color__nombre">Onyx</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#0A0A0A</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#536878" style="--c:#536878;--t:#ffffff"
+                  aria-label="Copiar #536878, Blue Slate">
+            <span class="pl-color__nombre">Blue Slate</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#536878</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Alto contraste</h3>
+        <span class="pl-tono">Neutros</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#000000" style="--c:#000000;--t:#ffffff"
+                  aria-label="Copiar #000000, Black">
+            <span class="pl-color__nombre">Black</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#000000</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#14213D" style="--c:#14213d;--t:#ffffff"
+                  aria-label="Copiar #14213D, Prussian Blue">
+            <span class="pl-color__nombre">Prussian Blue</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#14213D</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FCA311" style="--c:#fca311;--t:#101010"
+                  aria-label="Copiar #FCA311, Orange">
+            <span class="pl-color__nombre">Orange</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FCA311</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#FFFFFF" style="--c:#ffffff;--t:#101010"
+                  aria-label="Copiar #FFFFFF, White">
+            <span class="pl-color__nombre">White</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#FFFFFF</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#C2C4C3" style="--c:#c2c4c3;--t:#101010"
+                  aria-label="Copiar #C2C4C3, Silver">
+            <span class="pl-color__nombre">Silver</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#C2C4C3</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Arena y lino</h3>
+        <span class="pl-tono">Neutros</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#D5B0AF" style="--c:#d5b0af;--t:#101010"
+                  aria-label="Copiar #D5B0AF, Almond Silk">
+            <span class="pl-color__nombre">Almond Silk <i class="pl-revisar" title="Leido de una captura: conviene confirmar el valor">?</i></span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#D5B0AF</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#D8CCC2" style="--c:#d8ccc2;--t:#101010"
+                  aria-label="Copiar #D8CCC2, Dust Grey">
+            <span class="pl-color__nombre">Dust Grey</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#D8CCC2</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#E3D5CA" style="--c:#e3d5ca;--t:#101010"
+                  aria-label="Copiar #E3D5CA, Powder Petal">
+            <span class="pl-color__nombre">Powder Petal</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#E3D5CA</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#F5E8E0" style="--c:#f5e8e0;--t:#101010"
+                  aria-label="Copiar #F5E8E0, Linen">
+            <span class="pl-color__nombre">Linen</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#F5E8E0</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#EDEDE9" style="--c:#edede9;--t:#101010"
+                  aria-label="Copiar #EDEDE9, Parchment">
+            <span class="pl-color__nombre">Parchment</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#EDEDE9</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section class="pl-grupo">
+      <div class="pl-grupo__cab">
+        <h3>Grafito</h3>
+        <span class="pl-tono">Neutros</span>
+      </div>
+      <ul class="pl-rejilla pl-rejilla--suelta">
+        <li>
+          <button class="pl-color" type="button" data-hex="#212529" style="--c:#212529;--t:#ffffff"
+                  aria-label="Copiar #212529, Carbon Black">
+            <span class="pl-color__nombre">Carbon Black</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#212529</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#343A40" style="--c:#343a40;--t:#ffffff"
+                  aria-label="Copiar #343A40, Gunmetal">
+            <span class="pl-color__nombre">Gunmetal</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#343A40</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#495057" style="--c:#495057;--t:#ffffff"
+                  aria-label="Copiar #495057, Iron Grey">
+            <span class="pl-color__nombre">Iron Grey</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#495057</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#6C757D" style="--c:#6c757d;--t:#ffffff"
+                  aria-label="Copiar #6C757D, Slate Grey">
+            <span class="pl-color__nombre">Slate Grey</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#6C757D</b></span>
+          </button>
+        </li>
+        <li>
+          <button class="pl-color" type="button" data-hex="#ADB5BD" style="--c:#adb5bd;--t:#101010"
+                  aria-label="Copiar #ADB5BD, Pale Slate">
+            <span class="pl-color__nombre">Pale Slate</span>
+            <span class="pl-color__hex"><span>HEX</span> <b>#ADB5BD</b></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+  </section>
+
+  <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <a class="sd-enlace" href="../../index.html#servicios">Ver los servicios</a>
+  </nav>
+
+</div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
+</body>
+</html>

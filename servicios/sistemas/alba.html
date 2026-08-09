@@ -29,6 +29,7 @@
     letter-spacing: 0.02em;
   }
 </style>
+<script src="copiar-color.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -43,30 +44,54 @@
   <section class="sd-seccion">
     <h2>Paleta</h2>
     <p>Tres neutros y un acento. La restricción es el sistema: si el catálogo ya trae cien colores en las prendas, la interfaz no puede añadir ni uno más.</p>
-    <ul class="sd-paleta">
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#111114"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Tinta</span><span class="sd-color-hex">#111114</span><span class="sd-color-rol">Texto y botón principal</span></div>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#111114" style="--c:#111114;--t:#ffffff"
+                aria-label="Copiar #111114, Tinta">
+          <span class="pl-color__nombre">Tinta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#111114</b></span>
+          <span class="pl-color__rol">Texto y botón principal</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#fafafa"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Papel</span><span class="sd-color-hex">#fafafa</span><span class="sd-color-rol">Fondo</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FAFAFA" style="--c:#fafafa;--t:#101010"
+                aria-label="Copiar #FAFAFA, Papel">
+          <span class="pl-color__nombre">Papel</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FAFAFA</b></span>
+          <span class="pl-color__rol">Fondo</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#ffffff"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Blanco</span><span class="sd-color-hex">#ffffff</span><span class="sd-color-rol">Ficha de producto</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FFFFFF" style="--c:#ffffff;--t:#101010"
+                aria-label="Copiar #FFFFFF, Blanco">
+          <span class="pl-color__nombre">Blanco</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FFFFFF</b></span>
+          <span class="pl-color__rol">Ficha de producto</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#727278"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Apagado</span><span class="sd-color-hex">#727278</span><span class="sd-color-rol">Tallas y referencias · 4,58:1</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#727278" style="--c:#727278;--t:#ffffff"
+                aria-label="Copiar #727278, Apagado">
+          <span class="pl-color__nombre">Apagado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#727278</b></span>
+          <span class="pl-color__rol">Tallas, referencias</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#e8e8ec"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Línea</span><span class="sd-color-hex">#e8e8ec</span><span class="sd-color-rol">Separadores</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#E8E8EC" style="--c:#e8e8ec;--t:#101010"
+                aria-label="Copiar #E8E8EC, Línea">
+          <span class="pl-color__nombre">Línea</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#E8E8EC</b></span>
+          <span class="pl-color__rol">Separadores</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#e7335a"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Fucsia</span><span class="sd-color-hex">#e7335a</span><span class="sd-color-rol">Rebaja, favorito, alerta</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#E7335A" style="--c:#e7335a;--t:#101010"
+                aria-label="Copiar #E7335A, Fucsia">
+          <span class="pl-color__nombre">Fucsia</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#E7335A</b></span>
+          <span class="pl-color__rol">Rebaja, favorito, alerta</span>
+        </button>
       </li>
     </ul>
   </section>
@@ -135,9 +160,11 @@
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="../tienda-ropa.html">Ver la demo en vivo &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>
 
 </div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>

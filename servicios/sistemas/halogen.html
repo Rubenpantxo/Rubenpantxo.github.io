@@ -46,6 +46,7 @@
   body { line-height: 1.6; }
   .sd-lienzo { align-items: flex-start; }
 </style>
+<script src="copiar-color.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -60,38 +61,70 @@
   <section class="sd-seccion">
     <h2>Paleta</h2>
     <p>Cuatro negros verdosos que se apilan por profundidad y un único acento de alto voltaje. No hay color secundario: si algo necesita destacar, o es lima o no destaca.</p>
-    <ul class="sd-paleta">
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#0a0d0a"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Canvas</span><span class="sd-color-hex">#0a0d0a</span><span class="sd-color-rol">Fondo de página</span></div>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#0A0D0A" style="--c:#0a0d0a;--t:#ffffff"
+                aria-label="Copiar #0A0D0A, Canvas">
+          <span class="pl-color__nombre">Canvas</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#0A0D0A</b></span>
+          <span class="pl-color__rol">Fondo de página</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#12160f"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Surface</span><span class="sd-color-hex">#12160f</span><span class="sd-color-rol">Tarjeta</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#12160F" style="--c:#12160f;--t:#ffffff"
+                aria-label="Copiar #12160F, Surface">
+          <span class="pl-color__nombre">Surface</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#12160F</b></span>
+          <span class="pl-color__rol">Tarjeta</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#1a1f18"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Raised</span><span class="sd-color-hex">#1a1f18</span><span class="sd-color-rol">Campo, elemento elevado</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#1A1F18" style="--c:#1a1f18;--t:#ffffff"
+                aria-label="Copiar #1A1F18, Raised">
+          <span class="pl-color__nombre">Raised</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1A1F18</b></span>
+          <span class="pl-color__rol">Campo, elemento elevado</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#2a312a"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Hairline</span><span class="sd-color-hex">#2a312a</span><span class="sd-color-rol">Filo de un píxel</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#2A312A" style="--c:#2a312a;--t:#ffffff"
+                aria-label="Copiar #2A312A, Hairline">
+          <span class="pl-color__nombre">Hairline</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#2A312A</b></span>
+          <span class="pl-color__rol">Filo de un píxel</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#a3e635"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Halogen</span><span class="sd-color-hex">#a3e635</span><span class="sd-color-rol">Acento único</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#A3E635" style="--c:#a3e635;--t:#101010"
+                aria-label="Copiar #A3E635, Halogen">
+          <span class="pl-color__nombre">Halogen</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#A3E635</b></span>
+          <span class="pl-color__rol">Acento único</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#f2f5f0"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Ink</span><span class="sd-color-hex">#f2f5f0</span><span class="sd-color-rol">Texto principal</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#F2F5F0" style="--c:#f2f5f0;--t:#101010"
+                aria-label="Copiar #F2F5F0, Ink">
+          <span class="pl-color__nombre">Ink</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#F2F5F0</b></span>
+          <span class="pl-color__rol">Texto principal</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#8f9a8c"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Ink dim</span><span class="sd-color-hex">#8f9a8c</span><span class="sd-color-rol">Texto secundario</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#8F9A8C" style="--c:#8f9a8c;--t:#101010"
+                aria-label="Copiar #8F9A8C, Ink dim">
+          <span class="pl-color__nombre">Ink dim</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#8F9A8C</b></span>
+          <span class="pl-color__rol">Texto secundario</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#3a423a"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Unchecked</span><span class="sd-color-hex">#3a423a</span><span class="sd-color-rol">Casilla sin marcar</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#3A423A" style="--c:#3a423a;--t:#ffffff"
+                aria-label="Copiar #3A423A, Unchecked">
+          <span class="pl-color__nombre">Unchecked</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#3A423A</b></span>
+          <span class="pl-color__rol">Casilla sin marcar</span>
+        </button>
       </li>
     </ul>
     <p class="sd-mono">Además: halogen-soft rgba(163,230,53,.14) para fondos tenues y halogen-glow rgba(163,230,53,.35) para el resplandor.</p>
@@ -190,9 +223,11 @@
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="../../apps/escenas/index.html">Ver Escenas, la app que lo usa &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>
 
 </div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>

@@ -20,6 +20,7 @@
     --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
 </style>
+<script src="copiar-color.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -34,38 +35,70 @@
   <section class="sd-seccion">
     <h2>Paleta</h2>
     <p>Tres superficies de gris azulado marcan la profundidad, y cada acento tiene un trabajo asignado: lima para lo que has hecho, cian para lo que toca, rosa para lo que te falta.</p>
-    <ul class="sd-paleta">
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#0d0f14"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Fondo</span><span class="sd-color-hex">#0d0f14</span><span class="sd-color-rol">Base</span></div>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#0D0F14" style="--c:#0d0f14;--t:#ffffff"
+                aria-label="Copiar #0D0F14, Fondo">
+          <span class="pl-color__nombre">Fondo</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#0D0F14</b></span>
+          <span class="pl-color__rol">Base</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#161a22"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Superficie</span><span class="sd-color-hex">#161a22</span><span class="sd-color-rol">Tarjeta</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#161A22" style="--c:#161a22;--t:#ffffff"
+                aria-label="Copiar #161A22, Superficie">
+          <span class="pl-color__nombre">Superficie</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#161A22</b></span>
+          <span class="pl-color__rol">Tarjeta</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#1e2430"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Superficie 2</span><span class="sd-color-hex">#1e2430</span><span class="sd-color-rol">Elemento elevado</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#1E2430" style="--c:#1e2430;--t:#ffffff"
+                aria-label="Copiar #1E2430, Superficie 2">
+          <span class="pl-color__nombre">Superficie 2</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1E2430</b></span>
+          <span class="pl-color__rol">Elemento elevado</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#c8f04c"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Lima</span><span class="sd-color-hex">#c8f04c</span><span class="sd-color-rol">Completado, progreso</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#C8F04C" style="--c:#c8f04c;--t:#101010"
+                aria-label="Copiar #C8F04C, Lima">
+          <span class="pl-color__nombre">Lima</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#C8F04C</b></span>
+          <span class="pl-color__rol">Completado, progreso</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#38e1d4"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Cian</span><span class="sd-color-hex">#38e1d4</span><span class="sd-color-rol">Sesión de hoy</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#38E1D4" style="--c:#38e1d4;--t:#101010"
+                aria-label="Copiar #38E1D4, Cian">
+          <span class="pl-color__nombre">Cian</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#38E1D4</b></span>
+          <span class="pl-color__rol">Sesión de hoy</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#ff5e82"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Rosa</span><span class="sd-color-hex">#ff5e82</span><span class="sd-color-rol">Pendiente, intensidad alta</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FF5E82" style="--c:#ff5e82;--t:#101010"
+                aria-label="Copiar #FF5E82, Rosa">
+          <span class="pl-color__nombre">Rosa</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FF5E82</b></span>
+          <span class="pl-color__rol">Pendiente, intensidad alta</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#f2f4f8"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Texto</span><span class="sd-color-hex">#f2f4f8</span><span class="sd-color-rol">Texto principal</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#F2F4F8" style="--c:#f2f4f8;--t:#101010"
+                aria-label="Copiar #F2F4F8, Texto">
+          <span class="pl-color__nombre">Texto</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#F2F4F8</b></span>
+          <span class="pl-color__rol">Texto principal</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#8b93a3"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Apagado</span><span class="sd-color-hex">#8b93a3</span><span class="sd-color-rol">Series, repeticiones</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#8B93A3" style="--c:#8b93a3;--t:#101010"
+                aria-label="Copiar #8B93A3, Apagado">
+          <span class="pl-color__nombre">Apagado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#8B93A3</b></span>
+          <span class="pl-color__rol">Series, repeticiones</span>
+        </button>
       </li>
     </ul>
   </section>
@@ -134,9 +167,11 @@
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="../gimnasio.html">Ver la demo en vivo &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>
 
 </div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>
