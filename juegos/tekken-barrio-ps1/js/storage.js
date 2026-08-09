@@ -10,7 +10,9 @@ const Storage = (() => {
       musicVolume: 0.5,
       sfxVolume: 0.7,
       difficulty: 'normal',
-      particles: true
+      particles: true,
+      vibration: true,
+      touchControls: 'auto'
     },
     stats: {
       totalWins: 0,

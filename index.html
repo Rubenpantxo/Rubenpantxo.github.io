@@ -74,15 +74,10 @@
             z-index: -1;
         }
 
-        @keyframes typewriter { from { width: 0; } to { width: 100%; } }
-        @keyframes inkBleed { 0% { filter: blur(1px) opacity(0.7); } 50% { filter: blur(0.5px) opacity(0.85); } 100% { filter: blur(0px) opacity(1); } }
-
+        /* El menú se pinta ya legible: sin animación de entrada que retrase la navegación */
         .nav-item .typewriter-text {
-            display: inline-block; overflow: hidden; white-space: nowrap;
-            animation: typewriter 2s steps(30) 0.5s forwards, inkBleed 2s ease-in-out 0.5s forwards;
-            width: 0; letter-spacing: 0.05em;
+            display: inline-block; white-space: nowrap; letter-spacing: 0.05em;
         }
-        .nav-item.animated .typewriter-text { width: 100%; }
 
         body.section-open .nav-item {
             transform: translateY(-300px);
@@ -230,10 +225,6 @@
             gap: 10px; position: relative;
         }
         body.section-open #jenga-home { display: none; }
-        #jenga-home .jenga-hint {
-            font-family: 'Kalam', cursive, sans-serif; font-size: 1.05rem;
-            color: #5b5244; text-align: center;
-        }
         #jenga-canvas { touch-action: none; display: block; max-width: 100%; }
         #jenga-status { font-size: 0.95rem; color: #4b4234; }
         #jenga-reset {
@@ -350,7 +341,6 @@
 
         <!-- JENGA: torre de madera interactiva para amenizar la portada -->
         <section id="jenga-home" aria-label="Juego de Jenga">
-            <p class="jenga-hint">🪵 ¿Buen pulso? Arrastra un bloque para sacarlo… sin tirar la torre</p>
             <canvas id="jenga-canvas"></canvas>
             <div id="jenga-status"></div>
             <button id="jenga-reset">Reconstruir torre</button>
@@ -615,6 +605,16 @@
                     </article>
                     </a>
 
+                    <a href="apps/escenas/index.html" class="block">
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div class="w-12 h-12 bg-lime-50 rounded-lg flex items-center justify-center text-3xl">🎬</div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Escenas</h3>
+                            <span class="text-xs bg-lime-100 text-lime-700 px-2 py-0.5 rounded-full font-medium">Cine · 3D</span>
+                        </div>
+                    </article>
+                    </a>
+
                     <a href="apps/format-explorer.html" class="block">
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center text-3xl">📁</div>
@@ -677,13 +677,11 @@
                     </article>
                     </a>
 
-                    <a href="https://github.com/Rubenpantxo/rubenpantxo-garden" target="_blank" rel="noopener noreferrer" class="block private-app"><span class="app-lock">🔒</span>
+                    <a href="https://red-hogar.vercel.app/" target="_blank" rel="noopener noreferrer" class="block private-app"><span class="app-lock">🔒</span>
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
-                        <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 shadow-sm p-1">
-                            <img src="apps/rubenpantxo-garden/assets/icons/logo.png" alt="Garden Manager" class="w-full h-full object-contain">
-                        </div>
+                        <div class="w-12 h-12 bg-rose-50 rounded-lg flex items-center justify-center text-3xl">📡</div>
                         <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Garden Manager</h3>
+                            <h3 class="text-xl font-semibold text-gray-800">Red Hogar</h3>
                             <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">Privado</span>
                         </div>
                     </article>
@@ -696,6 +694,15 @@
                     <h2 class="text-3xl font-bold">Juegos</h2>
                 </header>
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-6">
+                    <a href="juegos/Chess3D/index.html" class="block">
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div class="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center text-3xl">♟️</div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">Ajedrez 3D</h3>
+                            <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">3D · WebGL</span>
+                        </div>
+                    </article>
+                    </a>
                     <a href="juegos/tetris/tetris.html" class="block">
                     <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
                         <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-3xl">🎮</div>
@@ -729,6 +736,15 @@
                         <div>
                             <h3 class="text-xl font-semibold text-gray-800">Tekken Barrio PS1</h3>
                             <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">Lucha</span>
+                        </div>
+                    </article>
+                    </a>
+                    <a href="juegos/pantxo-madness/index.html" class="block">
+                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
+                        <div class="w-12 h-12 bg-yellow-50 rounded-lg flex items-center justify-center text-3xl">🏎️</div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">The Pantxo Madness Trial</h3>
+                            <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium">Open World</span>
                         </div>
                     </article>
                     </a>
@@ -1719,18 +1735,6 @@
             const socialLinks = document.getElementById('social-links');
             const backArrow = document.getElementById('back-arrow');
             const body = document.body;
-
-            setTimeout(() => {
-                navItems.forEach((item, index) => {
-                    setTimeout(() => {
-                        item.classList.add('animated');
-                        const typewriterSpan = item.querySelector('.typewriter-text');
-                        if (typewriterSpan) {
-                            typewriterSpan.style.animation = `typewriter 1.5s steps(${typewriterSpan.textContent.length}) ${index * 0.3}s forwards, inkBleed 1.5s ease-in-out ${index * 0.3}s forwards`;
-                        }
-                    }, index * 400);
-                });
-            }, 500);
 
             // View Transition API: transición suave entre secciones si el navegador la soporta
             const withViewTransition = fn => {

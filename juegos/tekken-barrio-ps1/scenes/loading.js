@@ -4,13 +4,14 @@
 
 const LoadingScene = (() => {
   const tips = [
-    "Pulsa Z PARA PUÑO Y X PARA PATADA",
-    "Mantén SHIFT para BLOQUEAR",
-    "El CPU se vuelve más agresivo cerca",
-    "El bloqueo reduce el daño un 75%",
+    "Z / PUÑO golpea alto: el rival agachado lo esquiva",
+    "X / PATADA pilla a los agachados y sirve de antiaérea",
+    "Agachado + patada = BARRIDO a las piernas",
+    "Salta (↑ / ▲) y golpea en el aire para castigar desde arriba",
+    "Mantén SHIFT / BLOQ para bloquear: agachado protege más",
     "Gana 2 rondas para ganar el combate",
     "En modo torneo, 3 victorias y eres CAMPEÓN",
-    "PWA: instala el juego en tu inicio"
+    "PWA: instala el juego en tu pantalla de inicio"
   ];
 
   function render() {
@@ -33,8 +34,8 @@ const LoadingScene = (() => {
   const stages = [
     { pct: 10,  text: "CARGANDO MOTOR..." },
     { pct: 25,  text: "CARGANDO PERSONAJES..." },
-    { pct: 45,  text: "CARGANDO SPRITES..." },
-    { pct: 65,  text: "CARGANDO MÚSICA..." },
+    { pct: 45,  text: "DIBUJANDO LUCHADORES..." },
+    { pct: 65,  text: "MONTANDO ESCENARIOS..." },
     { pct: 85,  text: "CALIBRANDO IA..." },
     { pct: 100, text: "¡LISTO!" }
   ];
@@ -48,15 +49,14 @@ const LoadingScene = (() => {
     if (status && text) status.textContent = text;
   }
 
+  // Los retratos se generan por código: los precalculamos aquí
   function preloadSprites() {
-    return Promise.all(CHARACTERS.map((c) => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
-        img.src = c.thumb;
-      });
-    }));
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        try { Portraits.warm(); } catch (e) { console.warn(e); }
+        resolve(true);
+      }, 30);
+    });
   }
 
   let timer = null;

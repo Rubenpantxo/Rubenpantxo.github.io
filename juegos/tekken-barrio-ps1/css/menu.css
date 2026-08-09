@@ -79,9 +79,12 @@
   .menu-logo { margin-bottom: 18px; }
   .menu-logo .line1 { font-size: 32px; letter-spacing: 3px; }
   .menu-logo .line2 { font-size: 14px; letter-spacing: 4px; }
-  .menu-option { font-size: 11px; min-width: 240px; padding: 8px 14px; letter-spacing: 2px; }
-  .menu-press { font-size: 8px; bottom: 210px; }
-  .menu-copyright { bottom: 200px; }
+  .menu-option {
+    font-size: 11px; min-width: 240px; padding: 8px 14px; letter-spacing: 2px;
+    min-height: 46px; display: flex; align-items: center; justify-content: center;
+  }
+  .menu-press { font-size: 8px; bottom: 224px; }
+  .menu-copyright { bottom: 206px; font-size: 7px; }
   .menu-stats { flex-wrap: wrap; justify-content: center; margin: 10px 0; }
   .menu-stats .stat { font-size: 7px; padding: 4px 6px; }
 }
@@ -92,4 +95,17 @@
   .menu-logo .ps1-tag { font-size: 9px; padding: 4px 8px; }
   .menu-option { font-size: 9px; min-width: 200px; padding: 7px 10px; }
   .menu-stats { gap: 6px; }
+}
+
+/* Horizontal en móvil: los controles ocupan poco alto */
+@media (orientation: landscape) and (max-height: 560px) {
+  .menu-scene { padding-bottom: 92px; padding-top: 8px; }
+  .menu-logo { margin-bottom: 8px; }
+  .menu-logo .line1 { font-size: 22px; }
+  .menu-logo .line2 { font-size: 11px; }
+  .menu-logo .ps1-tag { display: none; }
+  .menu-option { min-height: 38px; font-size: 9px; padding: 4px 10px; }
+  .menu-options { gap: 6px; }
+  .menu-press { bottom: 100px; font-size: 7px; }
+  .menu-copyright { display: none; }
 }
