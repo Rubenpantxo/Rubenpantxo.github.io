@@ -2,8 +2,8 @@
   <title>Capa 10 — paneles de interfaz lejanos apoyados en la pared del estudio</title>
   <defs>
     <linearGradient id="l-panel" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1a1e26"/>
-      <stop offset="1" stop-color="#12151b"/>
+      <stop offset="0" stop-color="#1a1f18"/>
+      <stop offset="1" stop-color="#12160f"/>
     </linearGradient>
   </defs>
 
@@ -32,14 +32,14 @@
         <rect x="44" y="308" width="380" height="12" rx="6"/>
         <rect x="44" y="344" width="410" height="12" rx="6"/>
       </g>
-      <rect x="44" y="430" width="240" height="64" rx="32" fill="#ffb547" opacity="0.14"/>
+      <rect x="44" y="430" width="240" height="64" rx="32" fill="#a3e635" opacity="0.14"/>
     </g>
 
     <!-- panel lejano centro-derecha -->
     <g transform="translate(2560 540)">
       <rect width="580" height="800" rx="18" fill="url(#l-panel)" stroke="#ffffff" stroke-opacity="0.05" stroke-width="3"/>
       <g opacity="0.10">
-        <rect x="48" y="56" width="484" height="240" rx="12" fill="#6ea8ff"/>
+        <rect x="48" y="56" width="484" height="240" rx="12" fill="#f2f5f0"/>
       </g>
       <g fill="#ffffff" opacity="0.06">
         <rect x="48" y="330" width="300" height="16" rx="8"/>
@@ -47,7 +47,7 @@
         <rect x="48" y="402" width="360" height="12" rx="6"/>
       </g>
       <g opacity="0.12">
-        <rect x="48" y="470" width="140" height="52" rx="26" fill="#ffb547"/>
+        <rect x="48" y="470" width="140" height="52" rx="26" fill="#a3e635"/>
         <rect x="204" y="470" width="140" height="52" rx="26" fill="#ffffff" opacity="0.4"/>
       </g>
     </g>

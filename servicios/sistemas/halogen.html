@@ -3,26 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Halogen — Sistema de diseño base</title>
-<meta name="description" content="Halogen: grafito y luz cálida. El sistema de diseño base, oscuro y con un solo acento que manda.">
+<title>Halogen Kit — Sistema de diseño</title>
+<meta name="description" content="Halogen Kit: oscuro, cinético y de un solo acento. El sistema de diseño con radios que mutan que usa la app Escenas.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- El kit de verdad, tal cual lo usa apps/escenas. Esta ficha no imita los
+     componentes: carga el mismo CSS, asi que lo que se ve aqui es lo que hay. -->
+<link rel="stylesheet" href="../../apps/escenas/halogen.css">
 <link rel="stylesheet" href="sistema.css">
 <style>
+  /* Puente entre los tokens del kit y la estructura compartida de las fichas. */
   :root {
-    --sd-bg: #0b0c0f;
-    --sd-surface: #14161b;
-    --sd-surface-2: #1e222a;
-    --sd-ink: #f4f1ea;
-    --sd-muted: #8a8f9c;
-    --sd-accent: #ffb547;
-    --sd-accent-2: #6ea8ff;
-    --sd-line: #262b35;
-    --sd-radius: 12px;
-    --sd-font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --sd-display: "Fraunces", Georgia, serif;
+    --sd-bg: var(--canvas);
+    --sd-surface: var(--surface);
+    --sd-surface-2: var(--raised);
+    --sd-ink: var(--ink);
+    --sd-muted: var(--ink-dim);
+    --sd-accent: var(--halogen);
+    --sd-accent-2: var(--halogen);
+    --sd-line: var(--hairline);
+    --sd-radius: var(--r-morph);
+    --sd-font: var(--font-sans);
+    --sd-display: var(--font-sans);
   }
+
+  .sd-titulo {
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.92;
+  }
+
+  .sd-mono {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-dim);
+  }
+
+  /* El kit pone box-sizing y tipografia globales; aqui solo se recupera el
+     ancho de la ficha, que el kit no contempla porque nacio para una app. */
+  body { line-height: 1.6; }
+  .sd-lienzo { align-items: flex-start; }
 </style>
 </head>
 <body>
@@ -30,99 +52,129 @@
 
   <header class="sd-cabecera">
     <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-    <span class="sd-etiqueta">Sistema base</span>
-    <h1 class="sd-titulo">Halogen</h1>
-    <p class="sd-bajada">Grafito y luz cálida. Un fondo que calla para que un único acento ámbar diga todo lo importante. Es el sistema con el que está construida la portada de esta sección.</p>
+    <span class="hk-eyebrow">Paleta 06 · Halogen 47</span>
+    <h1 class="sd-titulo">Halogen Kit</h1>
+    <p class="sd-bajada">Oscuro, cinético y de un solo acento. Profundidad por anillos de luz en vez de sombras, y radios que mutan: lo que está en reposo es una pastilla y al activarse se cuadra. Es el sistema que viste la app Escenas.</p>
   </header>
 
   <section class="sd-seccion">
     <h2>Paleta</h2>
-    <p>Cuatro grises de profundidad y dos luces. La regla es simple: el ámbar solo aparece donde hay que actuar; el azul solo donde hay que informar.</p>
+    <p>Cuatro negros verdosos que se apilan por profundidad y un único acento de alto voltaje. No hay color secundario: si algo necesita destacar, o es lima o no destaca.</p>
     <ul class="sd-paleta">
       <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#0b0c0f"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Void</span><span class="sd-color-hex">#0b0c0f</span><span class="sd-color-rol">Fondo de página</span></div>
+        <div class="sd-color-muestra" style="background:#0a0d0a"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Canvas</span><span class="sd-color-hex">#0a0d0a</span><span class="sd-color-rol">Fondo de página</span></div>
       </li>
       <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#14161b"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Carbon</span><span class="sd-color-hex">#14161b</span><span class="sd-color-rol">Superficie</span></div>
+        <div class="sd-color-muestra" style="background:#12160f"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Surface</span><span class="sd-color-hex">#12160f</span><span class="sd-color-rol">Tarjeta</span></div>
       </li>
       <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#1e222a"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Slate</span><span class="sd-color-hex">#1e222a</span><span class="sd-color-rol">Superficie elevada</span></div>
+        <div class="sd-color-muestra" style="background:#1a1f18"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Raised</span><span class="sd-color-hex">#1a1f18</span><span class="sd-color-rol">Campo, elemento elevado</span></div>
       </li>
       <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#ffb547"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Glow</span><span class="sd-color-hex">#ffb547</span><span class="sd-color-rol">Acción principal</span></div>
+        <div class="sd-color-muestra" style="background:#2a312a"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Hairline</span><span class="sd-color-hex">#2a312a</span><span class="sd-color-rol">Filo de un píxel</span></div>
       </li>
       <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#ffe3b0"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Filament</span><span class="sd-color-hex">#ffe3b0</span><span class="sd-color-rol">Luz, estado activo</span></div>
+        <div class="sd-color-muestra" style="background:#a3e635"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Halogen</span><span class="sd-color-hex">#a3e635</span><span class="sd-color-rol">Acento único</span></div>
       </li>
       <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#6ea8ff"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Arc</span><span class="sd-color-hex">#6ea8ff</span><span class="sd-color-rol">Información</span></div>
+        <div class="sd-color-muestra" style="background:#f2f5f0"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Ink</span><span class="sd-color-hex">#f2f5f0</span><span class="sd-color-rol">Texto principal</span></div>
       </li>
       <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#f4f1ea"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Paper</span><span class="sd-color-hex">#f4f1ea</span><span class="sd-color-rol">Texto principal</span></div>
+        <div class="sd-color-muestra" style="background:#8f9a8c"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Ink dim</span><span class="sd-color-hex">#8f9a8c</span><span class="sd-color-rol">Texto secundario</span></div>
       </li>
       <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#8a8f9c"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Muted</span><span class="sd-color-hex">#8a8f9c</span><span class="sd-color-rol">Texto secundario</span></div>
+        <div class="sd-color-muestra" style="background:#3a423a"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Unchecked</span><span class="sd-color-hex">#3a423a</span><span class="sd-color-rol">Casilla sin marcar</span></div>
       </li>
     </ul>
+    <p class="sd-mono">Además: halogen-soft rgba(163,230,53,.14) para fondos tenues y halogen-glow rgba(163,230,53,.35) para el resplandor.</p>
   </section>
 
   <section class="sd-seccion">
     <h2>Tipografía</h2>
-    <p>Fraunces para los titulares, con su contraste de serif óptico. Inter para todo lo que hay que leer rápido. Nada más: dos familias son suficientes.</p>
+    <p>Inter Tight para todo lo que se lee y JetBrains Mono para lo que se mide. El monoespaciado no es decoración: marca lo que es un dato, un estado o una etiqueta técnica.</p>
     <ul class="sd-tipo">
-      <li><span class="sd-tipo-meta">Display · Fraunces 600</span><span class="sd-muestra-display">Luz cálida sobre grafito</span></li>
-      <li><span class="sd-tipo-meta">Título · Fraunces 400</span><span class="sd-muestra-titulo">Un acento que manda</span></li>
-      <li><span class="sd-tipo-meta">Cuerpo · Inter 400 / 16px</span><span class="sd-muestra-cuerpo">El cuerpo se lee a 16 píxeles con interlineado 1,6. Si el texto no se lee cómodo en un móvil a las once de la noche, el sistema ha fallado.</span></li>
-      <li><span class="sd-tipo-meta">Pie · Inter 400 / 13px</span><span class="sd-muestra-pie">Metadatos, notas al pie y etiquetas de campo.</span></li>
+      <li><span class="sd-tipo-meta">Display · Inter Tight 900</span><span class="sd-muestra-display hk-display">Control de cámara</span></li>
+      <li><span class="sd-tipo-meta">Título · Inter Tight 700</span><span class="sd-muestra-titulo" style="font-weight:700">Un solo acento de alto voltaje</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · Inter Tight 400</span><span class="sd-muestra-cuerpo">La interfaz desaparece y deja mandar al contenido. Sobre negro verdoso, un texto claro descansa la vista incluso después de un rato largo.</span></li>
+      <li><span class="sd-tipo-meta">Dato · JetBrains Mono</span><span class="sd-muestra-pie" style="font-family:var(--font-mono);letter-spacing:.18em;text-transform:uppercase">focal 35 mm · f/2.8</span></li>
     </ul>
   </section>
 
   <section class="sd-seccion">
     <h2>Componentes</h2>
-    <p>Radio de 12 píxeles, espaciado en base 4 y un solo nivel de sombra. Todo lo interactivo tiene foco visible.</p>
+    <p>Estos no son una imitación: esta página carga el mismo <span class="sd-mono">halogen.css</span> que la app Escenas, así que son las piezas de verdad. Pasa el ratón por encima y fíjate en cómo cambian de forma.</p>
 
     <h3>Botones</h3>
     <div class="sd-lienzo">
-      <button class="sd-btn" type="button">Acción principal</button>
-      <button class="sd-btn sd-btn--linea" type="button">Secundaria</button>
-      <button class="sd-btn sd-btn--suave" type="button">Terciaria</button>
-      <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
-      <button class="sd-btn" type="button" disabled>Deshabilitada</button>
+      <button class="hk-btn hk-btn--primary" type="button">Renderizar <span class="hk-btn__arrow">&#8594;</span></button>
+      <button class="hk-btn" type="button">Restablecer</button>
+      <button class="hk-btn" type="button" disabled>Sin escena</button>
     </div>
 
-    <h3>Selección y entrada</h3>
+    <h3>Chip y baldosa de icono</h3>
     <div class="sd-lienzo">
-      <label class="sd-check"><input type="checkbox" checked> Modo oscuro</label>
-      <label class="sd-check"><input type="checkbox"> Enviar resumen</label>
-      <label class="sd-check"><input type="radio" name="halo-r" checked> Ámbar</label>
-      <label class="sd-check"><input type="radio" name="halo-r"> Azul</label>
-      <label class="sd-campo"><span>Correo</span><input type="email" placeholder="tu@correo.com"></label>
+      <span class="hk-chip">Encuadre</span>
+      <span class="hk-chip hk-chip--mute">Sin postura</span>
+      <span class="hk-tile" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7Z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      </span>
+      <span class="hk-tile hk-tile--soft" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      </span>
     </div>
 
-    <h3>Iconos</h3>
-    <div class="sd-lienzo sd-iconos">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Bombilla"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2Z"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Capas"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Ajustes"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7" cy="18" r="2"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Rejilla"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Contraste"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18Z" fill="currentColor" stroke="none"/></svg>
+    <h3>Casillas</h3>
+    <div class="sd-lienzo" style="flex-direction:column;align-items:stretch;gap:0">
+      <label class="hk-check">
+        <input type="checkbox" checked>
+        <span class="hk-check__dot"></span>
+        <span class="hk-check__label">Rejilla de composición</span>
+        <span class="hk-check__state">ON</span>
+      </label>
+      <label class="hk-check">
+        <input type="checkbox">
+        <span class="hk-check__dot"></span>
+        <span class="hk-check__label">Sombras suaves</span>
+        <span class="hk-check__state">OFF</span>
+      </label>
+      <label class="hk-check">
+        <input type="checkbox" checked>
+        <span class="hk-check__dot"></span>
+        <span class="hk-check__label">Bloquear horizonte</span>
+        <span class="hk-check__state">ON</span>
+      </label>
+    </div>
+
+    <h3>Campo y dato</h3>
+    <div class="sd-lienzo">
+      <span class="hk-field">
+        <input type="text" value="Plaza mayor, tarde" aria-label="Nombre de la escena">
+      </span>
+      <span class="hk-stat">
+        <span class="hk-stat__value hk-num">35 mm</span>
+        <span class="sd-mono">focal</span>
+      </span>
+      <span class="hk-stat">
+        <span class="hk-stat__value hk-num">1.8 m</span>
+        <span class="sd-mono">altura</span>
+      </span>
     </div>
 
     <h3>Tarjeta</h3>
     <div class="sd-lienzo">
-      <article class="sd-ficha">
-        <span class="sd-insignia">Base</span>
-        <h4>Token de color</h4>
-        <p>Cada valor tiene nombre y trabajo. Si un color no sabe decir para qué sirve, sobra.</p>
-        <button class="sd-btn" type="button">Copiar valor</button>
+      <article class="hk-card" style="max-width:22rem">
+        <span class="hk-eyebrow">Escena</span>
+        <h4 style="margin:.5rem 0 .35rem;font-weight:700">Plaza mayor, tarde</h4>
+        <p style="margin:0 0 1rem;color:var(--ink-dim);font-size:.9rem">Maniquí articulado, cámara a 1,8 m y luz rasante desde el oeste.</p>
+        <button class="hk-btn hk-btn--primary hk-btn--block" type="button">Abrir <span class="hk-btn__arrow">&#8594;</span></button>
       </article>
     </div>
   </section>
@@ -130,15 +182,15 @@
   <section class="sd-seccion">
     <h2>Cuándo usarlo</h2>
     <ul class="sd-cuando">
-      <li>Producto técnico, panel de control o herramienta que se mira muchas horas seguidas.</li>
-      <li>Cuando el contenido es fotografía o color y la interfaz debe desaparecer detrás.</li>
-      <li>Cuando hay una sola acción importante por pantalla y hace falta que se vea sin dudar.</li>
+      <li>Herramientas y paneles de control: cuando se pasan horas delante y la interfaz no puede cansar.</li>
+      <li>Cuando el contenido es visual — imagen, 3D, vídeo — y la interfaz debe apartarse.</li>
+      <li>Cuando hay muchos ajustes y hace falta que se distinga de un vistazo qué está activo.</li>
     </ul>
   </section>
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="../../apps/escenas/index.html">Ver Escenas, la app que lo usa &#8599;</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-    <a class="sd-enlace" href="../../index.html#servicios">Ver los servicios</a>
   </nav>
 
 </div>
