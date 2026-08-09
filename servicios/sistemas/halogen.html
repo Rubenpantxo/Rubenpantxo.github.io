@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Halogen — Sistema de diseño base</title>
+<meta name="description" content="Halogen: grafito y luz cálida. El sistema de diseño base, oscuro y con un solo acento que manda.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="sistema.css">
+<style>
+  :root {
+    --sd-bg: #0b0c0f;
+    --sd-surface: #14161b;
+    --sd-surface-2: #1e222a;
+    --sd-ink: #f4f1ea;
+    --sd-muted: #8a8f9c;
+    --sd-accent: #ffb547;
+    --sd-accent-2: #6ea8ff;
+    --sd-line: #262b35;
+    --sd-radius: 12px;
+    --sd-font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --sd-display: "Fraunces", Georgia, serif;
+  }
+</style>
+</head>
+<body>
+<div class="sd-contenedor">
+
+  <header class="sd-cabecera">
+    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <span class="sd-etiqueta">Sistema base</span>
+    <h1 class="sd-titulo">Halogen</h1>
+    <p class="sd-bajada">Grafito y luz cálida. Un fondo que calla para que un único acento ámbar diga todo lo importante. Es el sistema con el que está construida la portada de esta sección.</p>
+  </header>
+
+  <section class="sd-seccion">
+    <h2>Paleta</h2>
+    <p>Cuatro grises de profundidad y dos luces. La regla es simple: el ámbar solo aparece donde hay que actuar; el azul solo donde hay que informar.</p>
+    <ul class="sd-paleta">
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#0b0c0f"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Void</span><span class="sd-color-hex">#0b0c0f</span><span class="sd-color-rol">Fondo de página</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#14161b"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Carbon</span><span class="sd-color-hex">#14161b</span><span class="sd-color-rol">Superficie</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#1e222a"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Slate</span><span class="sd-color-hex">#1e222a</span><span class="sd-color-rol">Superficie elevada</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#ffb547"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Glow</span><span class="sd-color-hex">#ffb547</span><span class="sd-color-rol">Acción principal</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#ffe3b0"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Filament</span><span class="sd-color-hex">#ffe3b0</span><span class="sd-color-rol">Luz, estado activo</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#6ea8ff"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Arc</span><span class="sd-color-hex">#6ea8ff</span><span class="sd-color-rol">Información</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#f4f1ea"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Paper</span><span class="sd-color-hex">#f4f1ea</span><span class="sd-color-rol">Texto principal</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#8a8f9c"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Muted</span><span class="sd-color-hex">#8a8f9c</span><span class="sd-color-rol">Texto secundario</span></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Tipografía</h2>
+    <p>Fraunces para los titulares, con su contraste de serif óptico. Inter para todo lo que hay que leer rápido. Nada más: dos familias son suficientes.</p>
+    <ul class="sd-tipo">
+      <li><span class="sd-tipo-meta">Display · Fraunces 600</span><span class="sd-muestra-display">Luz cálida sobre grafito</span></li>
+      <li><span class="sd-tipo-meta">Título · Fraunces 400</span><span class="sd-muestra-titulo">Un acento que manda</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · Inter 400 / 16px</span><span class="sd-muestra-cuerpo">El cuerpo se lee a 16 píxeles con interlineado 1,6. Si el texto no se lee cómodo en un móvil a las once de la noche, el sistema ha fallado.</span></li>
+      <li><span class="sd-tipo-meta">Pie · Inter 400 / 13px</span><span class="sd-muestra-pie">Metadatos, notas al pie y etiquetas de campo.</span></li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Componentes</h2>
+    <p>Radio de 12 píxeles, espaciado en base 4 y un solo nivel de sombra. Todo lo interactivo tiene foco visible.</p>
+
+    <h3>Botones</h3>
+    <div class="sd-lienzo">
+      <button class="sd-btn" type="button">Acción principal</button>
+      <button class="sd-btn sd-btn--linea" type="button">Secundaria</button>
+      <button class="sd-btn sd-btn--suave" type="button">Terciaria</button>
+      <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
+      <button class="sd-btn" type="button" disabled>Deshabilitada</button>
+    </div>
+
+    <h3>Selección y entrada</h3>
+    <div class="sd-lienzo">
+      <label class="sd-check"><input type="checkbox" checked> Modo oscuro</label>
+      <label class="sd-check"><input type="checkbox"> Enviar resumen</label>
+      <label class="sd-check"><input type="radio" name="halo-r" checked> Ámbar</label>
+      <label class="sd-check"><input type="radio" name="halo-r"> Azul</label>
+      <label class="sd-campo"><span>Correo</span><input type="email" placeholder="tu@correo.com"></label>
+    </div>
+
+    <h3>Iconos</h3>
+    <div class="sd-lienzo sd-iconos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Bombilla"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2Z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Capas"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Ajustes"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Rejilla"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Contraste"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18Z" fill="currentColor" stroke="none"/></svg>
+    </div>
+
+    <h3>Tarjeta</h3>
+    <div class="sd-lienzo">
+      <article class="sd-ficha">
+        <span class="sd-insignia">Base</span>
+        <h4>Token de color</h4>
+        <p>Cada valor tiene nombre y trabajo. Si un color no sabe decir para qué sirve, sobra.</p>
+        <button class="sd-btn" type="button">Copiar valor</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Cuándo usarlo</h2>
+    <ul class="sd-cuando">
+      <li>Producto técnico, panel de control o herramienta que se mira muchas horas seguidas.</li>
+      <li>Cuando el contenido es fotografía o color y la interfaz debe desaparecer detrás.</li>
+      <li>Cuando hay una sola acción importante por pantalla y hace falta que se vea sin dudar.</li>
+    </ul>
+  </section>
+
+  <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <a class="sd-enlace" href="../../index.html#servicios">Ver los servicios</a>
+  </nav>
+
+</div>
+</body>
+</html>

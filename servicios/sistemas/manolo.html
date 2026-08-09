@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manolo — Sistema de diseño para comercio de barrio</title>
+<meta name="description" content="Manolo: rojo de mostrador y verde de mensajería. El sistema de diseño para encargos sin colas en el comercio de barrio.">
+<link rel="stylesheet" href="sistema.css">
+<style>
+  :root {
+    --sd-bg: #fbf7f1;
+    --sd-surface: #ffffff;
+    --sd-surface-2: #fffdfa;
+    --sd-ink: #2c2018;
+    /* El token original (#94857a) se queda en 3,34:1 sobre la crema y no llega
+       a AA para texto pequeno. Para texto se usa esta variante mas oscura;
+       el original sigue documentado en la paleta con su limitacion. */
+    --sd-muted: #7b6e65;
+    --sd-muted-original: #94857a;
+    --sd-accent: #a4262c;
+    --sd-accent-2: #25d366;
+    --sd-line: #ece0d4;
+    --sd-radius: 16px;
+    --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+</style>
+</head>
+<body>
+<div class="sd-contenedor">
+
+  <header class="sd-cabecera">
+    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <span class="sd-etiqueta">Carnicería y ultramarinos</span>
+    <h1 class="sd-titulo">Manolo</h1>
+    <p class="sd-bajada">Rojo de mostrador y verde de mensajería. Un sistema pensado para el cliente que no se descarga aplicaciones: hace el pedido en la web y lo confirma por WhatsApp, como lleva haciendo años.</p>
+  </header>
+
+  <section class="sd-seccion">
+    <h2>Paleta</h2>
+    <p>Un rojo profundo que no es alarma sino producto, y el verde de la mensajería que todo el mundo reconoce. Ese verde no se toca: su valor está en que ya significa algo.</p>
+    <ul class="sd-paleta">
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#a4262c"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Mostrador</span><span class="sd-color-hex">#a4262c</span><span class="sd-color-rol">Marca y acción</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#7c181d"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Mostrador oscuro</span><span class="sd-color-hex">#7c181d</span><span class="sd-color-rol">Estado pulsado</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#fbf7f1"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Crema</span><span class="sd-color-hex">#fbf7f1</span><span class="sd-color-rol">Fondo</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#2c2018"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Tinta</span><span class="sd-color-hex">#2c2018</span><span class="sd-color-rol">Texto principal</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#94857a"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Apagado</span><span class="sd-color-hex">#94857a</span><span class="sd-color-rol">Solo iconos y bordes: 3,34:1, no llega a AA para texto</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#7b6e65"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Apagado texto</span><span class="sd-color-hex">#7b6e65</span><span class="sd-color-rol">Peso y unidades · 4,62:1</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#25d366"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Mensajería</span><span class="sd-color-hex">#25d366</span><span class="sd-color-rol">Confirmar por WhatsApp</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#075e54"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Mensajería oscuro</span><span class="sd-color-hex">#075e54</span><span class="sd-color-rol">Cabecera de conversación</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#e5ddd5"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Conversación</span><span class="sd-color-hex">#e5ddd5</span><span class="sd-color-rol">Fondo de chat</span></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Tipografía</h2>
+    <p>Pila del sistema, tamaños grandes y pesos altos. Aquí el usuario tiene sesenta años y la pantalla al sol: el cuerpo nunca baja de 16 píxeles y las cifras van en negrita.</p>
+    <ul class="sd-tipo">
+      <li><span class="sd-tipo-meta">Display · 700</span><span class="sd-muestra-display" style="font-weight:700">Encarga sin colas</span></li>
+      <li><span class="sd-tipo-meta">Producto · 600</span><span class="sd-muestra-titulo" style="font-weight:600">Solomillo de ternera</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · 400 / 17px</span><span class="sd-muestra-cuerpo" style="font-size:1.06rem">Corte al gusto, envasado al vacío si lo pides. El texto va un punto más grande que en el resto de sistemas, y es a propósito.</span></li>
+      <li><span class="sd-tipo-meta">Cantidad · 700</span><span class="sd-muestra-pie" style="font-weight:700;color:#2c2018">1,2 kg · 18,40 €</span></li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Componentes</h2>
+    <p>Pocos elementos y muy grandes. Cada pantalla resuelve una cosa: elegir, ajustar cantidad, confirmar. Nada de menús anidados.</p>
+
+    <h3>Botones</h3>
+    <div class="sd-lienzo">
+      <button class="sd-btn" type="button">Añadir al encargo</button>
+      <button class="sd-btn" type="button" style="background:#25d366;color:#062e1c">Confirmar por WhatsApp</button>
+      <button class="sd-btn sd-btn--linea" type="button">Seguir comprando</button>
+      <button class="sd-btn sd-btn--fantasma" type="button">Quitar</button>
+      <button class="sd-btn" type="button" disabled>Hoy no hay</button>
+    </div>
+
+    <h3>Selección y entrada</h3>
+    <div class="sd-lienzo">
+      <label class="sd-check"><input type="checkbox" checked> Envasado al vacío</label>
+      <label class="sd-check"><input type="checkbox"> Sin hueso</label>
+      <label class="sd-check"><input type="radio" name="manolo-r" checked> Recojo yo</label>
+      <label class="sd-check"><input type="radio" name="manolo-r"> A domicilio</label>
+      <label class="sd-campo"><span>Hora de recogida</span><input type="time" value="13:30"></label>
+    </div>
+
+    <h3>Iconos</h3>
+    <div class="sd-lienzo sd-iconos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Balanza"><path d="M12 4v16M6 20h12M12 4 5 11h14L12 4Z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Bolsa de encargo"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2M9 13h6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Mensaje"><path d="M21 12a8 8 0 0 1-11.8 7L4 20l1.1-4.9A8 8 0 1 1 21 12Z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Hora de recogida"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Cuchillo"><path d="M4 16 16 4l4 4L8 20l-4 1 0-5Z"/></svg>
+    </div>
+
+    <h3>Tarjeta</h3>
+    <div class="sd-lienzo">
+      <article class="sd-ficha">
+        <span class="sd-insignia">Listo a las 13:30</span>
+        <h4>Solomillo de ternera</h4>
+        <p>1,2 kg · corte grueso · envasado al vacío</p>
+        <button class="sd-btn" type="button">Añadir · 18,40 €</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Cuándo usarlo</h2>
+    <ul class="sd-cuando">
+      <li>Carnicerías, pescaderías, panaderías: comercio donde se encarga y se recoge.</li>
+      <li>Clientela que usa el móvil para llamar y para WhatsApp, y poco más.</li>
+      <li>Cuando el objetivo no es vender online, sino quitar la cola de la puerta.</li>
+    </ul>
+  </section>
+
+  <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="../carniceria.html">Ver la demo en vivo &#8599;</a>
+    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+
+</div>
+</body>
+</html>

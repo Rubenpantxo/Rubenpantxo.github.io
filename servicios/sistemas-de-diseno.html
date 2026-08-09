@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistemas de diseño — Rubenpantxo</title>
+<meta name="description" content="Seis sistemas de diseño: paletas, patrones, tipografías y componentes listos para dar identidad a tu web o tu app.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../CSS/cinematic.css">
+<style>
+  /* ============================================================
+     HALOGEN — el sistema base con el que esta hecha esta portada.
+     Se aplica sobrescribiendo los tokens de cinematic.css.
+     ============================================================ */
+  :root {
+    --halo-void: #0b0c0f;
+    --halo-carbon: #14161b;
+    --halo-slate: #1e222a;
+    --halo-glow: #ffb547;
+    --halo-filament: #ffe3b0;
+    --halo-arc: #6ea8ff;
+    --halo-paper: #f4f1ea;
+    --halo-muted: #8a8f9c;
+  }
+
+  body {
+    margin: 0;
+    background: var(--halo-void);
+    color: var(--halo-paper);
+    font-family: "Inter", system-ui, sans-serif;
+  }
+
+  .cine-scroll {
+    --cine-tinta: #0b0c0f;
+    --cine-papel: var(--halo-paper);
+    --cine-tinte: 222 22% 7%;
+    --cine-acento: var(--halo-glow);
+    --cine-serif: "Fraunces", Georgia, serif;
+    --cine-sans: "Inter", system-ui, sans-serif;
+  }
+
+  .cine-escenario { background: var(--halo-void); }
+
+  /* --- Tarjetas del catalogo: cada una lleva su paleta real --- */
+  .sd-tarjeta { border-color: color-mix(in srgb, var(--acento) 35%, transparent); }
+  .sd-tarjeta:hover,
+  .sd-tarjeta:focus-visible { border-color: var(--acento); }
+
+  .sd-muestras {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 0.35rem;
+  }
+
+  .sd-muestras > span {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  }
+
+  .sd-origen {
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--acento);
+  }
+
+  /* ============================================================
+     MUESTRARIOS DENTRO DE LOS PANELES NARRATIVOS
+     Dos carruseles mas, uno por panel: paletas y tipografias en el A,
+     componentes en el B. Reutilizan el mismo motor de rail que el
+     catalogo final, asi que ya traen arrastre, flechas y teclado.
+     ============================================================ */
+  .cine-panel--ancho {
+    max-width: min(58rem, 90vw);
+    text-align: left;
+  }
+
+  /* Los controles del catalogo final entran con --s-controles; los de estos
+     dos muestrarios tienen que estar visibles en cuanto se ve su panel. */
+  .cine-panel .cine-rail-controles { opacity: 1; }
+
+  .cine-panel .cine-rail-btn {
+    width: 2.1rem;
+    height: 2.1rem;
+    font-size: 0.85rem;
+  }
+
+  .sd-mini-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.25rem;
+  }
+
+  .sd-mini-titulo {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--halo-muted);
+  }
+
+  .sd-mini-rail {
+    gap: 0.6rem;
+    padding-bottom: 0.6rem;
+  }
+
+  .sd-mini-rail > li {
+    flex: 0 0 clamp(10.5rem, 16vw, 12.5rem);
+  }
+
+  /* Cada muestra se pinta con los colores reales de su sistema: es la forma
+     mas rapida de ver la diferencia entre uno y otro. */
+  .sd-mini {
+    flex: 1;
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.8rem;
+    border-radius: 10px;
+    background: var(--m-fondo);
+    color: var(--m-tinta);
+    border: 1px solid rgb(255 255 255 / 0.14);
+    text-decoration: none;
+  }
+
+  .sd-mini:hover,
+  .sd-mini:focus-visible {
+    border-color: var(--m-acento);
+  }
+
+  .sd-mini-nombre {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .sd-mini-colores {
+    display: flex;
+    gap: 4px;
+  }
+
+  .sd-mini-colores > span {
+    flex: 1;
+    height: 20px;
+    border-radius: 5px;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.18);
+  }
+
+  .sd-mini-display {
+    display: block;
+    font-size: 1.02rem;
+    line-height: 1.15;
+  }
+
+  .sd-mini-pie {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.68rem;
+    opacity: 0.72;
+  }
+
+  /* Muestras de componente: son imagenes de componentes, no controles.
+     Van aria-hidden y quien pulsa la tarjeta va a la ficha del sistema. */
+  .sd-m-fila {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .sd-m-btn {
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--m-radio, 8px);
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .sd-m-btn--linea {
+    background: transparent !important;
+    border: 1px solid var(--m-acento);
+    color: var(--m-acento) !important;
+  }
+
+  .sd-m-check {
+    display: grid;
+    place-items: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    font-weight: 900;
+  }
+
+  .sd-m-check--vacio {
+    background: transparent;
+    border: 1.5px solid currentColor;
+    opacity: 0.45;
+  }
+
+  .sd-m-toggle {
+    display: inline-flex;
+    align-items: center;
+    width: 2rem;
+    height: 1.1rem;
+    padding: 2px;
+    border-radius: 999px;
+  }
+
+  .sd-m-toggle i {
+    width: 0.85rem;
+    height: 0.85rem;
+    margin-left: auto;
+    border-radius: 50%;
+    background: var(--m-fondo);
+  }
+
+  .sd-m-iconos {
+    display: flex;
+    gap: 0.4rem;
+    color: var(--m-acento);
+  }
+
+  .sd-m-iconos svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  @media (max-width: 768px) {
+    .sd-mini-rail > li { flex-basis: 9.5rem; }
+    .sd-mini { padding: 0.65rem; }
+    .sd-mini-display { font-size: 0.92rem; }
+  }
+
+  /* --- Contenido en flujo normal tras el timeline --- */
+  .sd-cierre {
+    padding: clamp(3rem, 8vh, 6rem) clamp(1.25rem, 6vw, 6rem);
+    background: var(--halo-carbon);
+    border-top: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  .sd-cierre h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    margin: 0 0 0.6rem;
+  }
+
+  .sd-cierre p {
+    max-width: 62ch;
+    margin: 0 0 1.5rem;
+    line-height: 1.65;
+    color: var(--halo-muted);
+  }
+
+  .sd-volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 0.22);
+    color: var(--halo-paper);
+    text-decoration: none;
+  }
+
+  .sd-volver:hover,
+  .sd-volver:focus-visible {
+    border-color: var(--halo-glow);
+    color: var(--halo-filament);
+  }
+
+  .sd-cierre :focus-visible {
+    outline: 2px solid var(--halo-glow);
+    outline-offset: 3px;
+  }
+</style>
+<noscript>
+  <style>
+    /* Sin JS no hay timeline: se despliega todo en flujo normal para que no
+       se pierda ni una linea de contenido ni un enlace. */
+    .cine-scroll { height: auto; }
+    .cine-escenario { position: static; height: auto; min-height: 0; padding: 2rem 0 3rem; }
+    .cine-mundo { opacity: 1; position: relative; height: 52vh; filter: none; }
+    .cine-tinte { display: none; }
+    .cine-nav { position: static; }
+    .cine-intro,
+    .cine-panel,
+    .cine-catalogo {
+      position: static;
+      opacity: 1;
+      transform: none;
+      translate: none;
+      inset: auto;
+      max-width: min(60ch, 90vw);
+      margin: 2rem auto;
+    }
+    .cine-catalogo { max-width: none; padding-inline: clamp(1rem, 5vw, 4rem); }
+    .cine-rail-controles { display: none; }
+  </style>
+</noscript>
+<script src="../js/cinematic-scroll.js" defer></script>
+<script src="../js/cinematic-rail.js" defer></script>
+</head>
+<body>
+<main>
+
+<section class="cine-scroll" data-cine aria-label="Sistemas de diseño">
+  <div class="cine-escenario" data-cine-escenario>
+
+    <!-- ---------- MUNDO: banda z 0-9 ---------- -->
+    <div class="cine-mundo" data-cine-mundo>
+      <img class="cine-capa" data-capa="cielo" src="../img/cine-sistemas/00-fondo.svg" alt="" width="3840" height="2160" decoding="async" fetchpriority="high">
+      <img class="cine-capa" data-capa="lejania" src="../img/cine-sistemas/10-lejania.svg" alt="" width="3840" height="2160" decoding="async">
+      <img class="cine-capa" data-capa="medio" src="../img/cine-sistemas/20-medio.svg" alt="" width="3840" height="2160" decoding="async">
+      <img class="cine-capa" data-capa="heroe" src="../img/cine-sistemas/30-heroe.svg" alt="" width="3840" height="2160" decoding="async">
+      <img class="cine-capa" data-capa="plano-izq" src="../img/cine-sistemas/40-plano-izq.svg" alt="" width="3840" height="2160" decoding="async">
+      <img class="cine-capa" data-capa="plano-der" src="../img/cine-sistemas/41-plano-der.svg" alt="" width="3840" height="2160" decoding="async">
+      <img class="cine-capa" data-capa="marco" src="../img/cine-sistemas/50-marco.svg" alt="" width="3840" height="2160" decoding="async">
+    </div>
+
+    <!-- ---------- TINTE: banda z 10-19 ---------- -->
+    <div class="cine-tinte" aria-hidden="true"></div>
+
+    <!-- ---------- NAVEGACION: banda z 30-39 ---------- -->
+    <header class="cine-nav">
+      <a href="../index.html">Rubenpantxo</a>
+      <nav aria-label="Secciones de esta página">
+        <a href="#catalogo">Los seis sistemas</a>
+      </nav>
+    </header>
+
+    <!-- ---------- INTRO ---------- -->
+    <div class="cine-intro" data-cine-escena="!intro">
+      <h1 class="cine-titulo">Seis maneras de que tu web se sienta tuya</h1>
+      <p class="cine-entradilla">Un sistema de diseño es todo lo que se decide antes de dibujar la primera pantalla. Estos son los míos, y los puedes tocar.</p>
+    </div>
+
+    <!-- ---------- NARRATIVA A: p = 0.27 ----------
+         Lleva su propio muestrario de paletas y tipografías: cada tarjeta
+         está pintada con los colores reales de su sistema y enlaza a la ficha. -->
+    <article class="cine-panel cine-panel--ancho" data-panel="a" data-cine-escena="narrativaA" data-cine-rail>
+      <h2>Lo que se decide antes de dibujar nada</h2>
+      <p>Paleta, patrones, tipografías. Un sistema no empieza en una pantalla bonita: empieza cuando eliges los seis colores que van a repetirse mil veces y la fuente que alguien leerá en su móvil a las once de la noche.</p>
+
+      <div class="sd-mini-cabecera">
+        <span class="sd-mini-titulo">Paletas y tipografías</span>
+        <div class="cine-rail-controles">
+          <button class="cine-rail-btn" type="button" data-rail-prev aria-label="Paleta anterior">&#8592;</button>
+          <button class="cine-rail-btn" type="button" data-rail-next aria-label="Paleta siguiente">&#8594;</button>
+        </div>
+      </div>
+
+      <ul class="cine-rail sd-mini-rail" data-rail-pista aria-label="Paleta y tipografía de cada sistema">
+        <li>
+          <a class="sd-mini" href="sistemas/halogen.html" style="--m-fondo:#14161b;--m-tinta:#f4f1ea;--m-acento:#ffb547" aria-label="Halogen: paleta y tipografía">
+            <span class="sd-mini-nombre">Halogen</span>
+            <span class="sd-mini-colores" aria-hidden="true"><span style="background:#0b0c0f"></span><span style="background:#ffb547"></span><span style="background:#ffe3b0"></span><span style="background:#6ea8ff"></span></span>
+            <span><span class="sd-mini-display" style="font-family:Fraunces,Georgia,serif">Luz cálida</span><span class="sd-mini-pie">Fraunces + Inter</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="sd-mini" href="sistemas/rincon.html" style="--m-fondo:#fdf6ec;--m-tinta:#2b1d12;--m-acento:#b34a1f" aria-label="Rincón: paleta y tipografía">
+            <span class="sd-mini-nombre">Rincón</span>
+            <span class="sd-mini-colores" aria-hidden="true"><span style="background:#b34a1f"></span><span style="background:#fdf6ec"></span><span style="background:#2b1d12"></span><span style="background:#2e9e5b"></span></span>
+            <span><span class="sd-mini-display" style="font-family:Georgia,serif">Cocina de temporada</span><span class="sd-mini-pie">Serif en titulares</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="sd-mini" href="sistemas/alba.html" style="--m-fondo:#fafafa;--m-tinta:#111114;--m-acento:#e7335a" aria-label="Alba: paleta y tipografía">
+            <span class="sd-mini-nombre">Alba</span>
+            <span class="sd-mini-colores" aria-hidden="true"><span style="background:#111114"></span><span style="background:#fafafa"></span><span style="background:#e7335a"></span><span style="background:#e8e8ec"></span></span>
+            <span><span class="sd-mini-display" style="text-transform:uppercase;letter-spacing:0.09em;font-size:0.86rem;font-weight:500">Nueva temporada</span><span class="sd-mini-pie">Caja alta, letra abierta</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="sd-mini" href="sistemas/manolo.html" style="--m-fondo:#fbf7f1;--m-tinta:#2c2018;--m-acento:#a4262c" aria-label="Manolo: paleta y tipografía">
+            <span class="sd-mini-nombre">Manolo</span>
+            <span class="sd-mini-colores" aria-hidden="true"><span style="background:#a4262c"></span><span style="background:#fbf7f1"></span><span style="background:#25d366"></span><span style="background:#2c2018"></span></span>
+            <span><span class="sd-mini-display" style="font-weight:800">Encarga sin colas</span><span class="sd-mini-pie">Pesos altos, cuerpo grande</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="sd-mini" href="sistemas/impulso.html" style="--m-fondo:#161a22;--m-tinta:#f2f4f8;--m-acento:#c8f04c" aria-label="Impulso: paleta y tipografía">
+            <span class="sd-mini-nombre">Impulso</span>
+            <span class="sd-mini-colores" aria-hidden="true"><span style="background:#0d0f14"></span><span style="background:#c8f04c"></span><span style="background:#38e1d4"></span><span style="background:#ff5e82"></span></span>
+            <span><span class="sd-mini-display" style="font-weight:800;font-variant-numeric:tabular-nums;color:#c8f04c">48 min</span><span class="sd-mini-pie">Cifras tabulares</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="sd-mini" href="sistemas/la-plaza.html" style="--m-fondo:#f4f7f4;--m-tinta:#1c2b21;--m-acento:#1f9d55" aria-label="La Plaza: paleta y tipografía">
+            <span class="sd-mini-nombre">La Plaza</span>
+            <span class="sd-mini-colores" aria-hidden="true"><span style="background:#1f9d55"></span><span style="background:#f4f7f4"></span><span style="background:#e67e22"></span><span style="background:#10151c"></span></span>
+            <span><span class="sd-mini-display" style="font-weight:700">La compra de hoy</span><span class="sd-mini-pie">Dos temas, una escala</span></span>
+          </a>
+        </li>
+      </ul>
+
+      <p class="cine-sr" data-rail-estado aria-live="polite"></p>
+    </article>
+
+    <!-- ---------- NARRATIVA B: p = 0.58 ----------
+         Mismo patrón que el panel A, pero mostrando componentes. Las piezas de
+         dentro son muestras (aria-hidden); lo pulsable es la tarjeta entera. -->
+    <article class="cine-panel cine-panel--ancho" data-panel="b" data-cine-escena="narrativaB" data-cine-rail>
+      <h2>Y luego, lo que el dedo toca</h2>
+      <p>Iconos, botones, checkboxes. Las piezas que nadie mira dos veces cuando están bien hechas, y que arruinan la confianza en tu web cuando no lo están.</p>
+
+      <div class="sd-mini-cabecera">
+        <span class="sd-mini-titulo">Componentes de cada sistema</span>
+        <div class="cine-rail-controles">
+          <button class="cine-rail-btn" type="button" data-rail-prev aria-label="Componentes anteriores">&#8592;</button>
+          <button class="cine-rail-btn" type="button" data-rail-next aria-label="Componentes siguientes">&#8594;</button>
+        </div>
+      </div>
+
+      <ul class="cine-rail sd-mini-rail" data-rail-pista aria-label="Componentes de cada sistema">
+        <li>
+          <a class="sd-mini" href="sistemas/halogen.html" style="--m-fondo:#14161b;--m-tinta:#f4f1ea;--m-acento:#ffb547;--m-radio:8px" aria-label="Halogen: botones, casillas e iconos">
+            <span class="sd-mini-nombre">Halogen</span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-btn" style="background:#ffb547;color:#0b0c0f">Acción</span>
+              <span class="sd-m-btn sd-m-btn--linea">Ver</span>
+            </span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-check" style="background:#ffb547;color:#0b0c0f">&#10003;</span>
+              <span class="sd-m-check sd-m-check--vacio"></span>
+              <span class="sd-m-toggle" style="background:#ffb547"><i></i></span>
+              <span class="sd-m-iconos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="sd-mini" href="sistemas/rincon.html" style="--m-fondo:#fdf6ec;--m-tinta:#2b1d12;--m-acento:#b34a1f;--m-radio:16px" aria-label="Rincón: botones, casillas e iconos">
+            <span class="sd-mini-nombre">Rincón</span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-btn" style="background:#b34a1f;color:#fdf6ec">Añadir</span>
+              <span class="sd-m-btn sd-m-btn--linea">Carta</span>
+            </span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-check" style="background:#2e9e5b;color:#fdf6ec">&#10003;</span>
+              <span class="sd-m-check sd-m-check--vacio"></span>
+              <span class="sd-m-toggle" style="background:#2e9e5b"><i></i></span>
+              <span class="sd-m-iconos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 2v8a2 2 0 0 0 4 0V2M7 10v12"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8h12l-1.2 11a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="sd-mini" href="sistemas/alba.html" style="--m-fondo:#fafafa;--m-tinta:#111114;--m-acento:#e7335a;--m-radio:0px" aria-label="Alba: botones, casillas e iconos">
+            <span class="sd-mini-nombre">Alba</span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-btn" style="background:#111114;color:#fafafa">Cesta</span>
+              <span class="sd-m-btn sd-m-btn--linea">Guardar</span>
+            </span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-check" style="background:#111114;color:#fafafa;border-radius:0">&#10003;</span>
+              <span class="sd-m-check sd-m-check--vacio" style="border-radius:0"></span>
+              <span class="sd-m-toggle" style="background:#e7335a"><i></i></span>
+              <span class="sd-m-iconos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20s-7-4.4-7-9.2A4 4 0 0 1 12 8a4 4 0 0 1 7 2.8C19 15.6 12 20 12 20Z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14l-1 13H6L5 7Z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="sd-mini" href="sistemas/manolo.html" style="--m-fondo:#fbf7f1;--m-tinta:#2c2018;--m-acento:#a4262c;--m-radio:16px" aria-label="Manolo: botones, casillas e iconos">
+            <span class="sd-mini-nombre">Manolo</span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-btn" style="background:#a4262c;color:#fbf7f1">Encargar</span>
+              <span class="sd-m-btn" style="background:#25d366;color:#062e1c">WhatsApp</span>
+            </span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-check" style="background:#a4262c;color:#fbf7f1">&#10003;</span>
+              <span class="sd-m-check sd-m-check--vacio"></span>
+              <span class="sd-m-toggle" style="background:#25d366"><i></i></span>
+              <span class="sd-m-iconos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16M6 20h12M12 4 5 11h14L12 4Z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.8 7L4 20l1.1-4.9A8 8 0 1 1 21 12Z"/></svg>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="sd-mini" href="sistemas/impulso.html" style="--m-fondo:#161a22;--m-tinta:#f2f4f8;--m-acento:#c8f04c;--m-radio:18px" aria-label="Impulso: botones, casillas e iconos">
+            <span class="sd-mini-nombre">Impulso</span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-btn" style="background:#c8f04c;color:#0d0f14">Empezar</span>
+              <span class="sd-m-btn sd-m-btn--linea" style="border-color:#38e1d4;color:#38e1d4">Rutina</span>
+            </span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-check" style="background:#c8f04c;color:#0d0f14">&#10003;</span>
+              <span class="sd-m-check sd-m-check--vacio"></span>
+              <span class="sd-m-toggle" style="background:#38e1d4"><i></i></span>
+              <span class="sd-m-iconos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="sd-mini" href="sistemas/la-plaza.html" style="--m-fondo:#f4f7f4;--m-tinta:#1c2b21;--m-acento:#1f9d55;--m-radio:16px" aria-label="La Plaza: botones, casillas e iconos">
+            <span class="sd-mini-nombre">La Plaza</span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-btn" style="background:#1f9d55;color:#ffffff">Añadir</span>
+              <span class="sd-m-btn" style="background:#e67e22;color:#1c2b21">Poco stock</span>
+            </span>
+            <span class="sd-m-fila" aria-hidden="true">
+              <span class="sd-m-check" style="background:#1f9d55;color:#ffffff">&#10003;</span>
+              <span class="sd-m-check sd-m-check--vacio"></span>
+              <span class="sd-m-toggle" style="background:#1f9d55"><i></i></span>
+              <span class="sd-m-iconos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.4a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 10 12 4l9 6v10H3V10Z"/><path d="M9 20v-6h6v6"/></svg>
+              </span>
+            </span>
+          </a>
+        </li>
+      </ul>
+
+      <p class="cine-sr" data-rail-estado aria-live="polite"></p>
+    </article>
+
+    <!-- ---------- CATALOGO: estado final interactivo ---------- -->
+    <div class="cine-catalogo" id="catalogo" data-cine-escena="catalogo" data-cine-rail>
+      <div class="cine-catalogo-cabecera">
+        <h2>Elige tu sistema</h2>
+        <div class="cine-rail-controles">
+          <button class="cine-rail-btn" type="button" data-rail-prev aria-label="Sistema anterior">&#8592;</button>
+          <button class="cine-rail-btn" type="button" data-rail-next aria-label="Sistema siguiente">&#8594;</button>
+        </div>
+      </div>
+
+      <ul class="cine-rail" data-rail-pista aria-label="Sistemas de diseño disponibles">
+        <li>
+          <a class="cine-tarjeta sd-tarjeta" href="sistemas/halogen.html" style="--acento:#ffb547">
+            <span class="sd-muestras" aria-hidden="true">
+              <span style="background:#0b0c0f"></span><span style="background:#ffb547"></span><span style="background:#ffe3b0"></span><span style="background:#6ea8ff"></span>
+            </span>
+            <h3>Halogen</h3>
+            <p>Grafito y luz cálida. El sistema base: neutro, oscuro y con un solo acento que manda.</p>
+            <span class="sd-origen">Sistema base</span>
+          </a>
+        </li>
+        <li>
+          <a class="cine-tarjeta sd-tarjeta" href="sistemas/rincon.html" style="--acento:#b34a1f">
+            <span class="sd-muestras" aria-hidden="true">
+              <span style="background:#b34a1f"></span><span style="background:#fdf6ec"></span><span style="background:#2b1d12"></span><span style="background:#2e9e5b"></span>
+            </span>
+            <h3>Rincón</h3>
+            <p>Terracota sobre crema. Cálido, de mesa de madera. Nacido de la carta digital de una taberna.</p>
+            <span class="sd-origen">Bar y restaurante</span>
+          </a>
+        </li>
+        <li>
+          <a class="cine-tarjeta sd-tarjeta" href="sistemas/alba.html" style="--acento:#e7335a">
+            <span class="sd-muestras" aria-hidden="true">
+              <span style="background:#111114"></span><span style="background:#fafafa"></span><span style="background:#e7335a"></span><span style="background:#e8e8ec"></span>
+            </span>
+            <h3>Alba</h3>
+            <p>Casi monocromo, esquinas rectas y un fucsia que corta. Editorial de moda, mucho aire.</p>
+            <span class="sd-origen">Tienda de ropa</span>
+          </a>
+        </li>
+        <li>
+          <a class="cine-tarjeta sd-tarjeta" href="sistemas/manolo.html" style="--acento:#a4262c">
+            <span class="sd-muestras" aria-hidden="true">
+              <span style="background:#a4262c"></span><span style="background:#fbf7f1"></span><span style="background:#25d366"></span><span style="background:#2c2018"></span>
+            </span>
+            <h3>Manolo</h3>
+            <p>Rojo de mostrador y verde de mensajería. Diseñado para el barrio y para el móvil de siempre.</p>
+            <span class="sd-origen">Carnicería</span>
+          </a>
+        </li>
+        <li>
+          <a class="cine-tarjeta sd-tarjeta" href="sistemas/impulso.html" style="--acento:#c8f04c">
+            <span class="sd-muestras" aria-hidden="true">
+              <span style="background:#0d0f14"></span><span style="background:#c8f04c"></span><span style="background:#38e1d4"></span><span style="background:#ff5e82"></span>
+            </span>
+            <h3>Impulso</h3>
+            <p>Oscuro con lima, cian y rosa. Tres acentos que solo funcionan porque el fondo calla.</p>
+            <span class="sd-origen">Gimnasio</span>
+          </a>
+        </li>
+        <li>
+          <a class="cine-tarjeta sd-tarjeta" href="sistemas/la-plaza.html" style="--acento:#1f9d55">
+            <span class="sd-muestras" aria-hidden="true">
+              <span style="background:#1f9d55"></span><span style="background:#f4f7f4"></span><span style="background:#e67e22"></span><span style="background:#10151c"></span>
+            </span>
+            <h3>La Plaza</h3>
+            <p>Verde de fruta fresca y un modo oscuro para quien gestiona. Dos temas, un solo sistema.</p>
+            <span class="sd-origen">Supermercado</span>
+          </a>
+        </li>
+      </ul>
+
+      <p class="cine-sr" data-rail-estado aria-live="polite"></p>
+    </div>
+
+  </div>
+</section>
+
+<section class="sd-cierre">
+  <h2>¿Y si ninguno es exactamente el tuyo?</h2>
+  <p>Estos seis no son plantillas cerradas: son puntos de partida. Los cinco últimos salieron de proyectos reales y el primero, Halogen, es el que sostiene esta misma página. Lo normal es coger uno y torcerlo hasta que se parezca a tu negocio.</p>
+  <a class="sd-volver" href="../index.html#servicios">&#8592; Volver a Servicios</a>
+</section>
+
+</main>
+</body>
+</html>

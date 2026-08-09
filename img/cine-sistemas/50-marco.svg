@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160" preserveAspectRatio="xMidYMid slice">
+  <title>Capa 50 — encuadre: vineta suave y esquinas de referencia, centro limpio</title>
+  <defs>
+    <radialGradient id="mc-vineta" cx="0.5" cy="0.48" r="0.74">
+      <stop offset="0.5" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.62"/>
+    </radialGradient>
+  </defs>
+  <rect width="3840" height="2160" fill="url(#mc-vineta)"/>
+  <g fill="none" stroke="#ffb547" stroke-opacity="0.16" stroke-width="4">
+    <path d="M120 220 V120 H220"/>
+    <path d="M3620 120 H3720 V220"/>
+    <path d="M120 1940 V2040 H220"/>
+    <path d="M3620 2040 H3720 V1940"/>
+  </g>
+</svg>

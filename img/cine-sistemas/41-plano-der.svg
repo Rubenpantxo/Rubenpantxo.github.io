@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160" preserveAspectRatio="xMidYMid slice">
+  <title>Capa 41 — panel tipografico en primer plano derecho, sale del lienzo</title>
+  <defs>
+    <linearGradient id="pd-panel" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0" stop-color="#080a0d"/>
+      <stop offset="0.72" stop-color="#141821"/>
+      <stop offset="1" stop-color="#1c2029"/>
+    </linearGradient>
+  </defs>
+
+  <g>
+    <path d="M4340 -240 L2720 -240 C 2750 400, 2690 900, 2740 1400 C 2770 1760, 2720 2000, 2760 2400 L4340 2400 Z" fill="url(#pd-panel)"/>
+    <path d="M2720 -240 C 2750 400, 2690 900, 2740 1400 C 2770 1760, 2720 2000, 2760 2400" fill="none" stroke="#ffb547" stroke-opacity="0.30" stroke-width="8"/>
+
+    <!-- Especimen tipografico grande: bloques de linea, sin letras quemadas. -->
+    <g transform="translate(2980 300)">
+      <rect width="700" height="96" rx="12" fill="#f4f1ea" opacity="0.85"/>
+      <rect y="140" width="560" height="56" rx="10" fill="#f4f1ea" opacity="0.5"/>
+      <rect y="222" width="620" height="56" rx="10" fill="#f4f1ea" opacity="0.5"/>
+      <g fill="#f4f1ea" opacity="0.22">
+        <rect y="340" width="740" height="26" rx="13"/>
+        <rect y="392" width="690" height="26" rx="13"/>
+        <rect y="444" width="730" height="26" rx="13"/>
+        <rect y="496" width="520" height="26" rx="13"/>
+      </g>
+    </g>
+
+    <!-- Escala tipografica: barras de tamano decreciente. -->
+    <g transform="translate(2980 1000)">
+      <rect width="120" height="120" rx="12" fill="#ffb547" opacity="0.8"/>
+      <rect x="150" y="24" width="90" height="96" rx="10" fill="#ffb547" opacity="0.6"/>
+      <rect x="272" y="48" width="66" height="72" rx="8" fill="#ffb547" opacity="0.45"/>
+      <rect x="370" y="70" width="48" height="50" rx="6" fill="#ffb547" opacity="0.32"/>
+      <rect x="450" y="86" width="34" height="34" rx="5" fill="#ffb547" opacity="0.24"/>
+    </g>
+
+    <!-- Retal de patron cortado por el borde derecho. -->
+    <g transform="translate(3180 1300)">
+      <defs>
+        <pattern id="pd-trama" width="70" height="70" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
+          <circle cx="18" cy="18" r="10" fill="#6ea8ff" fill-opacity="0.7"/>
+        </pattern>
+      </defs>
+      <rect width="900" height="520" rx="20" fill="#10131a" opacity="0.9"/>
+      <rect x="30" y="30" width="840" height="460" rx="14" fill="url(#pd-trama)" opacity="0.45"/>
+    </g>
+  </g>
+</svg>
