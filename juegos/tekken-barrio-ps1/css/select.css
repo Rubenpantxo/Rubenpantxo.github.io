@@ -198,7 +198,7 @@
 }
 
 @media (max-width: 700px) {
-  /* Padding bottom to clear touch controls */
+  /* Hueco para el dpad táctil de los menús */
   .select-scene { padding-bottom: 200px; }
   .select-main { flex-direction: column; padding: 8px; gap: 8px; }
   .preview { width: 100%; flex-direction: row; align-items: center; padding: 6px; }
@@ -213,8 +213,22 @@
 }
 
 @media (max-width: 480px) {
-  .select-scene { padding-bottom: 190px; }
+  .select-scene { padding-bottom: 196px; }
   .portrait-frame { width: 58px; height: 58px; }
   .char-card { padding: 3px; }
   .char-name { font-size: 5px; min-height: 14px; }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .select-scene { padding-bottom: 84px; }
+  .select-main { flex-direction: row; padding: 6px; gap: 6px; }
+  .preview { width: 120px; flex-direction: column; padding: 4px; }
+  .preview .player-tag { margin: 0 0 4px 0; font-size: 7px; }
+  .portrait-frame { width: 74px; height: 74px; }
+  .stat-box { font-size: 6px; padding: 2px; }
+  .char-name { font-size: 5px; min-height: 12px; }
+  .app-header, .app-footer { padding: 3px 8px; }
+  .app-header .title { font-size: 7px; }
+  .app-header .vs { font-size: 12px; }
+  .app-footer { font-size: 6px; }
 }

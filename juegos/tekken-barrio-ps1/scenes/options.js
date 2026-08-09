@@ -10,6 +10,8 @@ const OptionsScene = (() => {
     { key: 'sfxVolume',   label: 'VOLUMEN SFX',     type: 'slider', step: 0.1, min: 0, max: 1 },
     { key: 'difficulty',  label: 'DIFICULTAD CPU',   type: 'choice', choices: ['easy', 'normal', 'hard'] },
     { key: 'particles',   label: 'PARTÍCULAS',       type: 'toggle' },
+    { key: 'touchControls', label: 'CONTROLES TÁCTILES', type: 'choice', choices: ['auto', 'on', 'off'] },
+    { key: 'vibration',   label: 'VIBRACIÓN',        type: 'toggle' },
     { key: '__reset',     label: 'RESETEAR DATOS',   type: 'action' },
     { key: '__back',      label: 'VOLVER AL MENÚ',   type: 'back' }
   ];
@@ -19,6 +21,7 @@ const OptionsScene = (() => {
     Storage.set('options.' + key, value);
     AudioMgr.refreshVolumes();
     if (key === 'particles') Particles.setEnabled(value);
+    if (key === 'touchControls' && window.Touch) Touch.applyPreference();
   }
 
   function render() {
@@ -34,8 +37,9 @@ const OptionsScene = (() => {
           <div class="options-title">OPCIONES</div>
           <div class="options-list" id="options-list"></div>
           <div class="options-controls-info">
-            ↑↓ NAVEGAR  •  ←→ CAMBIAR VALOR<br/>
-            ESPACIO/ENTER ACTIVAR  •  ESC VOLVER
+            ${(window.Touch && Touch.isVisible())
+              ? 'TOCA LAS FLECHAS ◀▶ PARA CAMBIAR EL VALOR<br/>TOCA LA FILA PARA ACTIVAR &bull; ESC VUELVE'
+              : '↑↓ NAVEGAR  •  ←→ CAMBIAR VALOR<br/>ESPACIO/ENTER ACTIVAR  •  ESC VOLVER'}
           </div>
         </div>
       </div>
@@ -56,15 +60,15 @@ const OptionsScene = (() => {
         const pct = Math.round(((v - it.min) / (it.max - it.min)) * 100);
         valueHtml = `
           <div class="value">
-            <span class="arrow">◀</span>
+            <span class="arrow" data-dir="-1">◀</span>
             <span class="slider"><span class="slider-fill" style="width:${pct}%"></span></span>
-            <span class="arrow">▶</span>
+            <span class="arrow" data-dir="1">▶</span>
             <span>${Math.round(v * 100)}%</span>
           </div>
         `;
       } else if (it.type === 'choice') {
         const v = getValue(it.key);
-        valueHtml = `<div class="value"><span class="arrow">◀</span> <span>${v.toUpperCase()}</span> <span class="arrow">▶</span></div>`;
+        valueHtml = `<div class="value"><span class="arrow" data-dir="-1">◀</span> <span>${v.toUpperCase()}</span> <span class="arrow" data-dir="1">▶</span></div>`;
       } else if (it.type === 'toggle') {
         const v = !!getValue(it.key);
         valueHtml = `<div class="value">${v ? '✔ ON' : '✗ OFF'}</div>`;
@@ -83,11 +87,18 @@ const OptionsScene = (() => {
     }).join('');
 
     document.querySelectorAll('.option-row').forEach(el => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', (ev) => {
         activeIndex = parseInt(el.dataset.idx, 10);
         const it = items[activeIndex];
+        // Toque directo en las flechas: cambia el valor (cómodo en móvil)
+        const arrow = ev.target.closest && ev.target.closest('.arrow');
+        if (arrow && arrow.dataset.dir) {
+          changeValue(parseInt(arrow.dataset.dir, 10));
+          return;
+        }
         if (it.type === 'toggle') changeValue(1);
         else if (it.type === 'action' || it.type === 'back') confirmAction();
+        else if (it.type === 'slider' || it.type === 'choice') changeValue(1);
         refreshList();
       });
     });

@@ -1,5 +1,11 @@
 /* ============================================
    COMBATE: rondas, IA, partículas, dificultad
+   Movimiento en 2 ejes: andar, SALTAR y AGACHARSE,
+   con golpes que cambian según la altura:
+     - PUÑO alto      -> falla contra rival agachado
+     - PATADA media   -> golpea agachados y antiaérea
+     - BARRIDO (agachado + patada) -> solo a rivales en el suelo
+     - PATADA AÉREA (en el aire)   -> castiga desde arriba
    Render de luchadores en canvas (FighterRenderer)
    ============================================ */
 
@@ -7,6 +13,12 @@ const BattleScene = (() => {
   const ROUND_TIME = 60;
   const MAX_HP = 100;
   const ROUNDS_TO_WIN = 2;
+
+  // Física del salto (unidades: fracción de la altura del luchador / frame a 60fps)
+  const JUMP_V = 0.041;
+  const GRAVITY = 0.00186;
+  const AIR_SPEED = 0.62;   // multiplicador de la velocidad horizontal en el aire
+  const MIN_GAP = 14;       // separación mínima entre cuerpos en el suelo
 
   let p1, p2;
   let p1Char, p2Char;
@@ -16,22 +28,37 @@ const BattleScene = (() => {
   let paused = false;
   let aiTimer = 0;
   let gameLoopId = null;
+  let lastFrameTs = 0;
   let difficulty = 'normal';
   let p1Speed = 0.7, p2Speed = 0.7, aiSpeedMul = 1;
+  let aiPlan = { jumpCd: 0, crouchUntil: 0 };
+  let onViewportChange = null;
 
   function difficultyMul() {
-    if (difficulty === 'easy') return { aiInterval: 80, aiBlockChance: 0.10, aiSpeed: 0.4 };
-    if (difficulty === 'hard') return { aiInterval: 30, aiBlockChance: 0.40, aiSpeed: 0.8 };
-    return { aiInterval: 50, aiBlockChance: 0.25, aiSpeed: 0.6 };
+    if (difficulty === 'easy') return { aiInterval: 80, aiBlockChance: 0.10, aiSpeed: 0.4, aiJump: 0.0015, aiCrouch: 0.004 };
+    if (difficulty === 'hard') return { aiInterval: 30, aiBlockChance: 0.40, aiSpeed: 0.8, aiJump: 0.010, aiCrouch: 0.020 };
+    return { aiInterval: 50, aiBlockChance: 0.25, aiSpeed: 0.6, aiJump: 0.005, aiCrouch: 0.010 };
   }
 
   // Velocidad de movimiento ligeramente influida por stats.speed (4..10 -> 0.67..0.85)
   function moveSpeed(ch) { return 0.55 + ch.stats.speed * 0.03; }
 
+  function newFighter(id, x) {
+    return {
+      id, hp: MAX_HP, x,
+      y: 0, vy: 0, vx: 0,
+      airborne: false, crouching: false, airAttacked: false,
+      state: 'idle', cooldown: 0, attackType: 'punch', celebrate: false
+    };
+  }
+
+  function isTouch() { return window.Touch && Touch.isVisible(); }
+
   function render() {
     const root = SceneManager.getRoot();
+    const touch = isTouch();
     root.innerHTML = `
-      <div class="battle-scene">
+      <div class="battle-scene${touch ? ' touch-mode' : ''}">
         <div class="battle-hud">
           <div class="hud-side left">
             <div class="hud-name" id="p1-hud-name">P1</div>
@@ -51,16 +78,24 @@ const BattleScene = (() => {
 
         <div class="arena" id="arena">
           <canvas id="battle-canvas"></canvas>
+          <div class="stage-name" id="stage-name"></div>
           <div class="announcer" id="announcer">FIGHT!</div>
         </div>
 
         <div class="pause-overlay" id="pause-overlay">
-          <h2>PAUSE</h2>
-          <p>P PARA REANUDAR • ESC PARA SALIR</p>
+          <h2>PAUSA</h2>
+          <div class="pause-btns">
+            <button class="pause-btn" id="pause-resume">REANUDAR</button>
+            <button class="pause-btn danger" id="pause-quit">SALIR AL MENÚ</button>
+          </div>
+          <p>${touch ? 'II REANUDAR • ESC SALIR' : 'P PARA REANUDAR • ESC PARA SALIR'}</p>
         </div>
 
         <div class="controls-info">
-          P1: ←→ MOVER • Z PUÑO • X PATADA • SHIFT BLOQUEO  ${isVsPlayer ? "•  P2: AD MOVER • F PUÑO • G PATADA • H BLOQUEO" : ""}
+          ${touch
+            ? '◀▶ MOVER • ▲ SALTAR • ▼ AGACHARSE • PUÑO / PATADA / BLOQUEO'
+            : 'P1: ←→ MOVER • ↑ SALTAR • ↓ AGACHARSE • Z PUÑO • X PATADA • SHIFT BLOQUEO' +
+              (isVsPlayer ? '  •  P2: AD MOVER • W SALTAR • S AGACHARSE • F/G/H' : '')}
         </div>
       </div>
     `;
@@ -68,8 +103,17 @@ const BattleScene = (() => {
     document.getElementById("p1-hud-name").textContent = p1Char.name;
     document.getElementById("p2-hud-name").textContent = p2Char.name;
 
-    // Renderizador procedural en canvas (sustituye a los antiguos div .fighter)
+    const resume = document.getElementById('pause-resume');
+    const quit = document.getElementById('pause-quit');
+    if (resume) resume.addEventListener('click', () => setPaused(false));
+    if (quit) quit.addEventListener('click', () => SceneManager.go('menu'));
+
+    // Renderizador procedural en canvas (luchadores + escenario)
     FighterRenderer.init(document.getElementById("battle-canvas"), p1Char, p2Char);
+    FighterRenderer.setBottomInset(touch ? Touch.getBattleInset() : 0);
+
+    const st = document.getElementById('stage-name');
+    if (st) st.textContent = FighterRenderer.getStageName();
 
     updateRounds();
   }
@@ -90,8 +134,12 @@ const BattleScene = (() => {
   }
 
   function updateBars() {
-    document.getElementById("p1-bar").style.width = Math.max(0, p1.hp) + "%";
-    document.getElementById("p2-bar").style.width = Math.max(0, p2.hp) + "%";
+    const b1 = document.getElementById("p1-bar");
+    const b2 = document.getElementById("p2-bar");
+    if (b1) b1.style.width = Math.max(0, p1.hp) + "%";
+    if (b2) b2.style.width = Math.max(0, p2.hp) + "%";
+    if (b1) b1.classList.toggle('low', p1.hp <= 30);
+    if (b2) b2.classList.toggle('low', p2.hp <= 30);
   }
 
   function showAnnouncer(text, duration = 1400) {
@@ -109,17 +157,23 @@ const BattleScene = (() => {
     p1.state = "idle"; p2.state = "idle";
     p1.cooldown = 0; p2.cooldown = 0;
     p1.celebrate = false; p2.celebrate = false;
+    p1.y = p2.y = 0; p1.vy = p2.vy = 0; p1.vx = p2.vx = 0;
+    p1.airborne = p2.airborne = false;
+    p1.crouching = p2.crouching = false;
+    p1.airAttacked = p2.airAttacked = false;
     // Posiciones iniciales de ronda (estilo arcade)
     p1.x = 22; p2.x = 78;
     timer = ROUND_TIME;
 
-    document.getElementById("round-label").textContent =
-      "ROUND " + (GAME_STATE.rounds.p1 + GAME_STATE.rounds.p2 + 1);
-    document.getElementById("hud-timer").textContent = timer;
+    const rl = document.getElementById("round-label");
+    if (rl) rl.textContent = "ROUND " + (GAME_STATE.rounds.p1 + GAME_STATE.rounds.p2 + 1);
+    const tEl = document.getElementById("hud-timer");
+    if (tEl) tEl.textContent = timer;
     updateBars();
 
     showAnnouncer("READY?", 900);
     setTimeout(() => {
+      if (!gameLoopId) return; // la escena pudo cambiar
       showAnnouncer("FIGHT!", 1200);
       AudioMgr.play("sfxFight");
       roundActive = true;
@@ -138,35 +192,80 @@ const BattleScene = (() => {
     }, 1000);
   }
 
-  function attack(attacker, defender, type) {
+  /* ============================================
+     ATAQUES CON ALTURA
+     ============================================ */
+  function attackKind(fighter, button) {
+    if (fighter.airborne) return 'airkick';
+    if (fighter.crouching) return button === 'kick' ? 'lowkick' : 'punch';
+    return button === 'kick' ? 'kick' : 'punch';
+  }
+
+  const ATTACK = {
+    punch:   { dmg: 8,  reach: 22, cd: 22, dur: 320, push: 2.2 },
+    kick:    { dmg: 12, reach: 26, cd: 28, dur: 340, push: 3.2 },
+    lowkick: { dmg: 10, reach: 24, cd: 30, dur: 360, push: 2.6 },
+    airkick: { dmg: 14, reach: 24, cd: 26, dur: 420, push: 3.6 }
+  };
+
+  // ¿Llega el golpe a la altura del rival?
+  function heightConnects(type, attacker, defender) {
+    switch (type) {
+      case 'punch':
+        // golpe alto: pasa por encima del agachado y no alcanza al que salta
+        if (defender.crouching) return false;
+        return defender.y < 0.14;
+      case 'kick':
+        // media altura: pilla agachados y sirve de antiaérea si el rival está bajo
+        return defender.y < 0.20;
+      case 'lowkick':
+        // barrido: solo a rivales pisando el suelo
+        return defender.y < 0.06;
+      case 'airkick':
+        // desde el aire hacia abajo
+        return defender.y < 0.16;
+      default:
+        return true;
+    }
+  }
+
+  function attack(attacker, defender, button) {
     if (!roundActive) return;
     if (attacker.state === "ko" || attacker.cooldown > 0) return;
-    if (attacker.state === "attacking") return;
+    if (attacker.state === "attacking" || attacker.state === "hurt") return;
+    if (attacker.airborne && attacker.airAttacked) return;
+
+    const type = attackKind(attacker, button);
+    const A = ATTACK[type];
 
     attacker.state = "attacking";
-    attacker.attackType = type; // el renderer distingue puñetazo / patada
-    attacker.cooldown = (type === "kick") ? 28 : 22;
+    attacker.attackType = type;
+    attacker.cooldown = A.cd;
+    if (attacker.airborne) attacker.airAttacked = true;
 
-    AudioMgr.play(type === "kick" ? "sfxKick" : "sfxPunch");
+    AudioMgr.play(type === "punch" ? "sfxPunch" : "sfxKick");
 
-    // Hitbox coherente con el alcance visual: la patada llega más lejos
     const dist = Math.abs(attacker.x - defender.x);
-    const reach = (type === "kick") ? 26 : 22;
-    if (dist < reach) {
-      let dmg = (type === "kick") ? 12 : 8;
+    if (dist < A.reach && heightConnects(type, attacker, defender)) {
+      let dmg = A.dmg;
       const ch = (attacker.id === "p1") ? p1Char : p2Char;
       dmg += Math.floor(ch.stats.power * 0.5);
 
+      // El bloqueo protege; agachado y bloqueando protege aún más de los medios
       const blocked = (defender.state === "blocking");
-      if (blocked) dmg = Math.floor(dmg * 0.25);
+      if (blocked) dmg = Math.floor(dmg * (defender.crouching && type !== 'airkick' ? 0.18 : 0.25));
 
       defender.hp -= dmg;
       defender.state = "hurt";
 
-      // Knockback real: el golpeado retrocede un poco
-      const push = ((type === "kick") ? 3.2 : 2.2) * (blocked ? 0.4 : 1);
+      // Knockback: retroceso horizontal (+ caída si estaba en el aire)
+      const push = A.push * (blocked ? 0.4 : 1);
       const dir = (defender.x >= attacker.x) ? 1 : -1;
       defender.x = Math.max(8, Math.min(92, defender.x + push * dir));
+      if (defender.airborne) {
+        defender.vy = Math.max(defender.vy, 0.012);
+        defender.vx = 0.35 * dir;
+      }
 
       setTimeout(() => {
         if (defender.hp > 0 && defender.state === "hurt") defender.state = "idle";
@@ -174,37 +273,39 @@ const BattleScene = (() => {
 
       AudioMgr.play("sfxHit");
       FighterRenderer.hit(defender.id, type, blocked);
-      FighterRenderer.shake(blocked ? 2 : (type === "kick" ? 7 : 5));
-      spawnHitEffect(defender);
+      FighterRenderer.shake(blocked ? 2 : (type === "punch" ? 5 : 7));
+      spawnHitEffect(defender, type, blocked);
       updateBars();
 
       if (defender.hp <= 0) {
         defender.hp = 0;
         defender.state = "ko";
-        FighterRenderer.shake(10);
+        defender.crouching = false;
+        FighterRenderer.shake(11);
         endRound(attacker.id);
       }
     }
 
     setTimeout(() => {
       if (attacker.state === "attacking") attacker.state = "idle";
-    }, type === "kick" ? 340 : 320);
+    }, A.dur);
   }
 
-  function spawnHitEffect(defender) {
+  function spawnHitEffect(defender, type, blocked) {
     const arena = document.getElementById("arena");
     if (!arena) return;
     const fx = document.createElement("div");
-    fx.className = "hit-effect";
-    fx.textContent = ["POW!", "BAM!", "POW!", "WHACK!", "KO!"][Math.floor(Math.random() * 5)];
-    const pos = FighterRenderer.getScreenPos(defender.id); // coords de página
+    fx.className = "hit-effect" + (blocked ? " blocked" : "");
+    fx.textContent = blocked
+      ? "BLOCK!"
+      : (type === 'airkick' ? "SMASH!" : ["POW!", "BAM!", "POW!", "WHACK!", "CRACK!"][Math.floor(Math.random() * 5)]);
+    const pos = FighterRenderer.getScreenPos(defender.id);
     const ar = arena.getBoundingClientRect();
     fx.style.left = (pos.x - ar.left - 40) + "px";
     fx.style.top = (pos.y - ar.top - 60) + "px";
     arena.appendChild(fx);
     setTimeout(() => fx.remove(), 500);
 
-    // Partículas globales (canvas overlay de toda la pantalla)
     Particles.spawnHit(pos.x, pos.y);
   }
 
@@ -230,7 +331,6 @@ const BattleScene = (() => {
       showAnnouncer("DRAW!", 1800);
     }
 
-    // Pose de celebración del ganador de la ronda (si sigue en pie)
     if (winnerId === "p1" && p1.state !== "ko") p1.celebrate = true;
     else if (winnerId === "p2" && p2.state !== "ko") p2.celebrate = true;
 
@@ -238,6 +338,7 @@ const BattleScene = (() => {
     updateRounds();
 
     setTimeout(() => {
+      if (!gameLoopId) return;
       if (GAME_STATE.rounds.p1 >= ROUNDS_TO_WIN) {
         finishMatch("p1");
       } else if (GAME_STATE.rounds.p2 >= ROUNDS_TO_WIN) {
@@ -251,7 +352,6 @@ const BattleScene = (() => {
   function finishMatch(winnerId) {
     GAME_STATE.winner = winnerId;
 
-    // Guardado
     const winnerChar = winnerId === "p1" ? p1Char : p2Char;
     const loserChar = winnerId === "p1" ? p2Char : p1Char;
     const playerWin = winnerId === "p1";
@@ -264,27 +364,119 @@ const BattleScene = (() => {
     }
   }
 
+  /* ============================================
+     MOVIMIENTO
+     ============================================ */
+  function busy(f) {
+    return f.state === "ko" || f.state === "hurt" || f.state === "attacking";
+  }
+
   function setBlocking(fighter, val) {
-    if (fighter.state === "ko" || fighter.state === "hurt" || fighter.state === "attacking") return;
+    if (busy(fighter)) return;
     fighter.state = val ? "blocking" : "idle";
   }
 
-  function moveFighter(fighter, dx) {
-    if (fighter.state === "ko" || fighter.state === "hurt" || fighter.state === "attacking") return;
-    fighter.x = Math.max(8, Math.min(92, fighter.x + dx));
+  function setCrouching(fighter, val) {
+    if (fighter.state === "ko") return;
+    if (val && fighter.airborne) return;
+    fighter.crouching = val;
   }
 
-  function aiUpdate() {
+  function moveFighter(fighter, dx) {
+    if (busy(fighter)) return;
+    if (fighter.crouching && !fighter.airborne) return; // agachado no camina
+    const foe = (fighter === p1) ? p2 : p1;
+    let nx = Math.max(8, Math.min(92, fighter.x + dx));
+
+    // Los cuerpos no se atraviesan andando: para pasar al otro lado hay que saltar
+    if (!fighter.airborne && !foe.airborne && foe.state !== 'ko') {
+      const cur = fighter.x - foe.x;
+      const next = nx - foe.x;
+      if (Math.abs(next) < MIN_GAP && Math.abs(next) < Math.abs(cur)) {
+        nx = (Math.abs(cur) < MIN_GAP)
+          ? fighter.x                                        // ya pegados: no empuja
+          : foe.x + (cur >= 0 ? MIN_GAP : -MIN_GAP);
+      }
+    }
+    fighter.x = nx;
+  }
+
+  function jump(fighter, dirX) {
+    if (busy(fighter) || fighter.airborne) return;
+    fighter.airborne = true;
+    fighter.crouching = false;
+    fighter.airAttacked = false;
+    fighter.vy = -JUMP_V;
+    fighter.vx = dirX * AIR_SPEED;
+    AudioMgr.play("sfxMove");
+  }
+
+  function physics(f, k) {
+    if (!f.airborne) return;
+    f.vy += GRAVITY * k;
+    f.y -= f.vy * k;
+    if (f.vx) f.x = Math.max(8, Math.min(92, f.x + f.vx * k));
+    if (f.y <= 0) {
+      f.y = 0; f.vy = 0; f.vx = 0;
+      f.airborne = false;
+      f.airAttacked = false;
+      if (f.state === "attacking") f.state = "idle";
+    }
+  }
+
+  /* ============================================
+     IA
+     ============================================ */
+  function aiUpdate(k) {
     if (!roundActive || isVsPlayer) return;
-    if (p2.state === "ko" || p2.state === "hurt" || p2.state === "attacking") return;
+    if (p2.state === "ko") return;
 
     const cfg = difficultyMul();
     aiTimer++;
     const dist = Math.abs(p1.x - p2.x);
     const sp = cfg.aiSpeed * aiSpeedMul;
+    const toward = p1.x < p2.x ? -1 : 1;
 
-    if (dist > 22) moveFighter(p2, p1.x < p2.x ? -sp : sp);
-    else if (dist < 18) {
+    // remate en el aire
+    if (p2.airborne) {
+      if (p2.state === 'hurt') return;
+      if (!p2.airAttacked && dist < 26 && p2.vy > -0.01) attack(p2, p1, 'kick');
+      return;
+    }
+    if (busy(p2)) return;
+
+    // dejar de agacharse cuando toque
+    if (p2.crouching && aiTimer > aiPlan.crouchUntil) setCrouching(p2, false);
+
+    // esquivar puños agachándose
+    if (!p2.crouching && p1.state === 'attacking' && p1.attackType === 'punch'
+      && dist < 26 && Math.random() < cfg.aiCrouch * 12) {
+      setCrouching(p2, true);
+      aiPlan.crouchUntil = aiTimer + 22;
+      return;
+    }
+    // castigar barridos y patadas bajas saltando
+    if (p1.state === 'attacking' && p1.attackType === 'lowkick' && dist < 30
+      && aiTimer > aiPlan.jumpCd && Math.random() < cfg.aiJump * 40) {
+      aiPlan.jumpCd = aiTimer + 60;
+      jump(p2, toward * 0.7);
+      return;
+    }
+
+    if (p2.crouching) {
+      if (aiTimer % cfg.aiInterval === 0 && dist < 22) attack(p2, p1, 'kick');
+      return;
+    }
+
+    if (dist > 22) {
+      // acercarse, a veces saltando encima
+      if (dist < 42 && aiTimer > aiPlan.jumpCd && Math.random() < cfg.aiJump) {
+        aiPlan.jumpCd = aiTimer + 80;
+        jump(p2, toward);
+      } else {
+        moveFighter(p2, toward * sp * k);
+      }
+    } else if (dist < 18) {
       if (aiTimer % cfg.aiInterval === 0) {
         if (Math.random() < cfg.aiBlockChance) {
           setBlocking(p2, true);
@@ -293,63 +485,94 @@ const BattleScene = (() => {
           attack(p2, p1, Math.random() < 0.5 ? "punch" : "kick");
         }
       }
-    } else moveFighter(p2, p1.x < p2.x ? -sp * 0.7 : sp * 0.7);
+    } else {
+      moveFighter(p2, toward * sp * 0.7 * k);
+    }
   }
 
-  function gameLoop() {
-    if (!paused) {
-      if (p1.cooldown > 0) p1.cooldown--;
-      if (p2.cooldown > 0) p2.cooldown--;
+  /* ============================================
+     LOOP
+     ============================================ */
+  function playerLoop(f, player, speed, k) {
+    const pre = player + ":";
+    const down = Input.isDown(pre + "down");
+    const left = Input.isDown(pre + "left");
+    const right = Input.isDown(pre + "right");
 
-      if (Input.isDown("1:left")) moveFighter(p1, -p1Speed);
-      if (Input.isDown("1:right")) moveFighter(p1, p1Speed);
-
-      const p1Block = Input.isDown("1:block");
-      if (p1.state === "blocking" && !p1Block) setBlocking(p1, false);
-      if (p1Block && p1.state === "idle") setBlocking(p1, true);
-
-      if (isVsPlayer) {
-        if (Input.isDown("2:left")) moveFighter(p2, -p2Speed);
-        if (Input.isDown("2:right")) moveFighter(p2, p2Speed);
-        const p2Block = Input.isDown("2:block");
-        if (p2.state === "blocking" && !p2Block) setBlocking(p2, false);
-        if (p2Block && p2.state === "idle") setBlocking(p2, true);
-      } else aiUpdate();
+    if (!f.airborne) {
+      if (down && !busy(f)) setCrouching(f, true);
+      else if (!down && f.crouching) setCrouching(f, false);
     }
 
-    // Dibujar el frame del combate (luchadores + escenario + fx)
-    FighterRenderer.frame(p1, p2, { paused });
+    if (!f.crouching) {
+      if (left) moveFighter(f, -speed * k);
+      if (right) moveFighter(f, speed * k);
+    }
 
+    const block = Input.isDown(pre + "block");
+    if (f.state === "blocking" && !block) setBlocking(f, false);
+    if (block && f.state === "idle") setBlocking(f, true);
+  }
+
+  function gameLoop(ts) {
     gameLoopId = requestAnimationFrame(gameLoop);
+
+    const now = ts || performance.now();
+    let k = lastFrameTs ? (now - lastFrameTs) / 16.6667 : 1;
+    lastFrameTs = now;
+    k = Math.max(0.4, Math.min(2.5, k));
+
+    if (!paused) {
+      if (p1.cooldown > 0) p1.cooldown -= k;
+      if (p2.cooldown > 0) p2.cooldown -= k;
+
+      playerLoop(p1, 1, p1Speed, k);
+      if (isVsPlayer) playerLoop(p2, 2, p2Speed, k);
+      else aiUpdate(k);
+
+      physics(p1, k);
+      physics(p2, k);
+    }
+
+    FighterRenderer.frame(p1, p2, { paused });
+  }
+
+  function setPaused(v) {
+    paused = v;
+    const ov = document.getElementById("pause-overlay");
+    if (ov) ov.classList.toggle("show", paused);
   }
 
   function onInput(evt) {
     if (evt.type !== "press") return;
 
     if (evt.action === "pause") {
-      paused = !paused;
-      document.getElementById("pause-overlay").classList.toggle("show", paused);
+      setPaused(!paused);
       return;
     }
 
     if (evt.action === "back") {
       if (paused) SceneManager.go("menu");
-      else {
-        paused = true;
-        document.getElementById("pause-overlay").classList.add("show");
-      }
+      else setPaused(true);
       return;
     }
 
     if (paused || !roundActive) return;
 
     if (evt.player === 1) {
-      if (evt.action === "punch") attack(p1, p2, "punch");
-      else if (evt.action === "kick") attack(p1, p2, "kick");
+      handlePlayerPress(p1, p2, 1, evt.action);
+    } else if (evt.player === 2 && isVsPlayer) {
+      handlePlayerPress(p2, p1, 2, evt.action);
     }
-    if (evt.player === 2 && isVsPlayer) {
-      if (evt.action === "punch") attack(p2, p1, "punch");
-      else if (evt.action === "kick") attack(p2, p1, "kick");
+  }
+
+  function handlePlayerPress(self, foe, player, action) {
+    if (action === "punch") attack(self, foe, "punch");
+    else if (action === "kick") attack(self, foe, "kick");
+    else if (action === "up") {
+      const pre = player + ":";
+      const dir = Input.isDown(pre + "right") ? 1 : (Input.isDown(pre + "left") ? -1 : 0);
+      jump(self, dir);
     }
   }
 
@@ -359,8 +582,8 @@ const BattleScene = (() => {
     p1Char = CHARACTERS[GAME_STATE.p1Index];
     p2Char = CHARACTERS[GAME_STATE.p2Index];
 
-    p1 = { id: "p1", hp: MAX_HP, x: 22, state: "idle", cooldown: 0, attackType: "punch", celebrate: false };
-    p2 = { id: "p2", hp: MAX_HP, x: 78, state: "idle", cooldown: 0, attackType: "punch", celebrate: false };
+    p1 = newFighter("p1", 22);
+    p2 = newFighter("p2", 78);
 
     p1Speed = moveSpeed(p1Char);
     p2Speed = moveSpeed(p2Char);
@@ -368,22 +591,38 @@ const BattleScene = (() => {
 
     paused = false;
     aiTimer = 0;
+    aiPlan = { jumpCd: 0, crouchUntil: 0 };
+    lastFrameTs = 0;
 
     render();
     Input.on(onInput);
+
+    // Al girar el móvil cambia el alto de los controles: recolocamos el suelo
+    onViewportChange = () => {
+      if (isTouch()) FighterRenderer.setBottomInset(Touch.getBattleInset());
+      else FighterRenderer.setBottomInset(0);
+    };
+    window.addEventListener('resize', onViewportChange);
+    window.addEventListener('orientationchange', onViewportChange);
+
     AudioMgr.playMusic("battleMusic");
     GAME_STATE.rounds = { p1: 0, p2: 0 };
+    gameLoopId = requestAnimationFrame(gameLoop);
     startRound();
-    gameLoop();
   }
 
   function exit() {
     Input.off(onInput);
+    if (onViewportChange) {
+      window.removeEventListener('resize', onViewportChange);
+      window.removeEventListener('orientationchange', onViewportChange);
+      onViewportChange = null;
+    }
     if (timerInterval) clearInterval(timerInterval);
     if (gameLoopId) cancelAnimationFrame(gameLoopId);
     gameLoopId = null;
     roundActive = false;
-    FighterRenderer.destroy(); // cancela listeners de resize y libera el canvas
+    FighterRenderer.destroy();
   }
 
   return { enter, exit };

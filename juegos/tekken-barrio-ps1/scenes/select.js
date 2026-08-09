@@ -57,7 +57,9 @@ const SelectScene = (() => {
         </div>
 
         <div class="app-footer">
-          <div class="left">P1: ↑↓←→ + ESPACIO  ${isVsPlayer ? '•  P2: WASD + TAB' : ''}</div>
+          <div class="left">${(window.Touch && Touch.isVisible())
+            ? 'TOCA UN LUCHADOR Y REPITE PARA CONFIRMAR'
+            : 'P1: ↑↓←→ + ESPACIO'}  ${isVsPlayer ? '•  P2: WASD + TAB' : ''}</div>
           <div class="right">ESC = VOLVER</div>
         </div>
 
@@ -66,13 +68,23 @@ const SelectScene = (() => {
             <h2 id="confirm-title">¡LISTOS!</h2>
             <p id="confirm-line1"></p>
             <p id="confirm-line2"></p>
-            <p class="mini-tip">PULSA ESPACIO PARA CONTINUAR</p>
+            <p class="mini-tip" id="confirm-tip">PULSA ESPACIO PARA CONTINUAR</p>
           </div>
         </div>
       </div>
     `;
 
     buildGrid();
+    const tip = document.getElementById('confirm-tip');
+    if (tip && window.Touch && Touch.isVisible()) {
+      tip.textContent = 'PULSA OK PARA CONTINUAR';
+      tip.style.cursor = 'pointer';
+    }
+    // En táctil, tocar el aviso también continúa
+    const ov = document.getElementById('confirm-overlay');
+    if (ov) ov.addEventListener('click', () => {
+      if (ov.classList.contains('show')) startNext();
+    });
     updatePreview(1, p1Index);
     if (!isTournament) updatePreview(2, p2Index);
     updateGridSelection();
@@ -86,7 +98,7 @@ const SelectScene = (() => {
       card.dataset.idx = idx;
       card.innerHTML = `
         <div class="char-portrait">
-          <img src="${char.thumb}" alt="${char.name}" onerror="this.outerHTML='<div class=fallback>NO IMG</div>'" />
+          <img src="${Portraits.url(char, { w: 168, h: 168, framing: 'bust' })}" alt="${char.name}" />
         </div>
         <div class="char-name">${char.name}</div>
         <div class="select-cursor p1-cursor">
@@ -99,12 +111,14 @@ const SelectScene = (() => {
         </div>
       `;
 
+      // Táctil: primer toque selecciona, segundo confirma
       card.addEventListener("click", () => {
-        if (!p1Locked) {
-          p1Index = idx;
-          updatePreview(1, idx);
-          updateGridSelection();
-        }
+        if (p1Locked) return;
+        if (p1Index === idx) { lock(1); return; }
+        p1Index = idx;
+        AudioMgr.play("sfxMove");
+        updatePreview(1, idx);
+        updateGridSelection();
       });
       grid.appendChild(card);
     });
@@ -124,7 +138,7 @@ const SelectScene = (() => {
       `PWR ${char.stats.power} VEL ${char.stats.speed} DEF ${char.stats.defense}`;
 
     const stage = document.getElementById(prefix + "-stage");
-    stage.innerHTML = `<img class="preview-static" src="${char.sprite}" alt="${char.name}" onerror="this.outerHTML='<div class=fallback>SIN SPRITE</div>'" />`;
+    stage.innerHTML = `<img class="preview-static" src="${Portraits.url(char, { w: 320, h: 320, framing: 'full' })}" alt="${char.name}" />`;
 
     const ready = document.getElementById(prefix + "-ready");
     if (ready) {
