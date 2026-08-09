@@ -7,41 +7,58 @@
 <meta name="description" content="Seis sistemas de diseño: paletas, patrones, tipografías y componentes listos para dar identidad a tu web o tu app.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../CSS/cinematic.css">
 <style>
   /* ============================================================
-     HALOGEN — el sistema base con el que esta hecha esta portada.
-     Se aplica sobrescribiendo los tokens de cinematic.css.
+     Esta portada esta hecha con HALOGEN KIT, el mismo sistema que
+     viste la app Escenas. Los valores salen de apps/escenas/halogen.css;
+     aqui solo se traducen a los tokens que espera cinematic.css.
      ============================================================ */
   :root {
-    --halo-void: #0b0c0f;
-    --halo-carbon: #14161b;
-    --halo-slate: #1e222a;
-    --halo-glow: #ffb547;
-    --halo-filament: #ffe3b0;
-    --halo-arc: #6ea8ff;
-    --halo-paper: #f4f1ea;
-    --halo-muted: #8a8f9c;
+    --halo-void: #0a0d0a;
+    --halo-carbon: #12160f;
+    --halo-slate: #1a1f18;
+    --halo-glow: #a3e635;
+    --halo-filament: #e6f7bd;
+    --halo-hairline: #2a312a;
+    --halo-paper: #f2f5f0;
+    --halo-muted: #8f9a8c;
   }
 
   body {
     margin: 0;
     background: var(--halo-void);
     color: var(--halo-paper);
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: "Inter Tight", "Inter", system-ui, sans-serif;
   }
 
   .cine-scroll {
-    --cine-tinta: #0b0c0f;
+    --cine-tinta: #0a0d0a;
     --cine-papel: var(--halo-paper);
-    --cine-tinte: 222 22% 7%;
+    --cine-tinte: 100 12% 6%;
     --cine-acento: var(--halo-glow);
-    --cine-serif: "Fraunces", Georgia, serif;
-    --cine-sans: "Inter", system-ui, sans-serif;
+    /* Halogen no tiene serif: su display es Inter Tight en peso 900. */
+    --cine-serif: "Inter Tight", "Inter", system-ui, sans-serif;
+    --cine-sans: "Inter Tight", "Inter", system-ui, sans-serif;
+    --cine-mono: "JetBrains Mono", ui-monospace, monospace;
   }
 
   .cine-escenario { background: var(--halo-void); }
+
+  /* Display del kit: peso 900, interletraje cerrado, linea muy justa. */
+  .cine-titulo {
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.92;
+  }
+
+  /* Lo monoespaciado marca dato o etiqueta tecnica, como en el kit. */
+  .cine-datos,
+  .sd-mini-titulo,
+  .sd-origen {
+    font-family: var(--cine-mono);
+  }
 
   /* --- Tarjetas del catalogo: cada una lleva su paleta real --- */
   .sd-tarjeta { border-color: color-mix(in srgb, var(--acento) 35%, transparent); }
@@ -246,8 +263,8 @@
   }
 
   .sd-cierre h2 {
-    font-family: "Fraunces", Georgia, serif;
-    font-weight: 500;
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-weight: 700;
     font-size: clamp(1.4rem, 3vw, 2.2rem);
     margin: 0 0 0.6rem;
   }
@@ -359,10 +376,10 @@
 
       <ul class="cine-rail sd-mini-rail" data-rail-pista aria-label="Paleta y tipografía de cada sistema">
         <li>
-          <a class="sd-mini" href="sistemas/halogen.html" style="--m-fondo:#14161b;--m-tinta:#f4f1ea;--m-acento:#ffb547" aria-label="Halogen: paleta y tipografía">
-            <span class="sd-mini-nombre">Halogen</span>
-            <span class="sd-mini-colores" aria-hidden="true"><span style="background:#0b0c0f"></span><span style="background:#ffb547"></span><span style="background:#ffe3b0"></span><span style="background:#6ea8ff"></span></span>
-            <span><span class="sd-mini-display" style="font-family:Fraunces,Georgia,serif">Luz cálida</span><span class="sd-mini-pie">Fraunces + Inter</span></span>
+          <a class="sd-mini" href="sistemas/halogen.html" style="--m-fondo:#12160f;--m-tinta:#f2f5f0;--m-acento:#a3e635" aria-label="Halogen: paleta y tipografía">
+            <span class="sd-mini-nombre">Halogen Kit</span>
+            <span class="sd-mini-colores" aria-hidden="true"><span style="background:#0a0d0a"></span><span style="background:#a3e635"></span><span style="background:#f2f5f0"></span><span style="background:#3a423a"></span></span>
+            <span><span class="sd-mini-display" style="font-family:'Inter Tight',sans-serif;font-weight:900;letter-spacing:-.04em">Alto voltaje</span><span class="sd-mini-pie">Inter Tight + JetBrains Mono</span></span>
           </a>
         </li>
         <li>
@@ -422,16 +439,16 @@
 
       <ul class="cine-rail sd-mini-rail" data-rail-pista aria-label="Componentes de cada sistema">
         <li>
-          <a class="sd-mini" href="sistemas/halogen.html" style="--m-fondo:#14161b;--m-tinta:#f4f1ea;--m-acento:#ffb547;--m-radio:8px" aria-label="Halogen: botones, casillas e iconos">
-            <span class="sd-mini-nombre">Halogen</span>
+          <a class="sd-mini" href="sistemas/halogen.html" style="--m-fondo:#12160f;--m-tinta:#f2f5f0;--m-acento:#a3e635;--m-radio:999px" aria-label="Halogen Kit: botones, casillas e iconos">
+            <span class="sd-mini-nombre">Halogen Kit</span>
             <span class="sd-m-fila" aria-hidden="true">
-              <span class="sd-m-btn" style="background:#ffb547;color:#0b0c0f">Acción</span>
+              <span class="sd-m-btn" style="background:#a3e635;color:#0a0d0a">Renderizar</span>
               <span class="sd-m-btn sd-m-btn--linea">Ver</span>
             </span>
             <span class="sd-m-fila" aria-hidden="true">
-              <span class="sd-m-check" style="background:#ffb547;color:#0b0c0f">&#10003;</span>
-              <span class="sd-m-check sd-m-check--vacio"></span>
-              <span class="sd-m-toggle" style="background:#ffb547"><i></i></span>
+              <span class="sd-m-check" style="background:#a3e635;color:#0a0d0a;border-radius:50%">&#10003;</span>
+              <span class="sd-m-check sd-m-check--vacio" style="border-radius:50%"></span>
+              <span class="sd-m-toggle" style="background:#a3e635"><i></i></span>
               <span class="sd-m-iconos">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/></svg>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
@@ -546,13 +563,13 @@
 
       <ul class="cine-rail" data-rail-pista aria-label="Sistemas de diseño disponibles">
         <li>
-          <a class="cine-tarjeta sd-tarjeta" href="sistemas/halogen.html" style="--acento:#ffb547">
+          <a class="cine-tarjeta sd-tarjeta" href="sistemas/halogen.html" style="--acento:#a3e635">
             <span class="sd-muestras" aria-hidden="true">
-              <span style="background:#0b0c0f"></span><span style="background:#ffb547"></span><span style="background:#ffe3b0"></span><span style="background:#6ea8ff"></span>
+              <span style="background:#0a0d0a"></span><span style="background:#a3e635"></span><span style="background:#f2f5f0"></span><span style="background:#3a423a"></span>
             </span>
-            <h3>Halogen</h3>
-            <p>Grafito y luz cálida. El sistema base: neutro, oscuro y con un solo acento que manda.</p>
-            <span class="sd-origen">Sistema base</span>
+            <h3>Halogen Kit</h3>
+            <p>Negro verdoso y un lima de alto voltaje. Un solo acento, y unos bordes que cambian de forma al pulsarlos.</p>
+            <span class="sd-origen">App Escenas</span>
           </a>
         </li>
         <li>

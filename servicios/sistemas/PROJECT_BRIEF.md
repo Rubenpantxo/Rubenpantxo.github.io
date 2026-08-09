@@ -12,10 +12,13 @@
 ## 2. Direccion visual
 
 - **Concepto**: estudio oscuro. La camara entra en un almacen de piezas de
-  interfaz iluminado por una luz halogena calida desde arriba a la derecha.
-- **Paleta base**: grafito `#0b0c0f` → `#1e222a`, luz ambar `#ffb547`,
-  filamento `#ffe3b0`, frio complementario `#6ea8ff`, papel `#f4f1ea`.
-- **Tipografia**: display serif para titulares, sans del sistema para interfaz.
+  interfaz iluminado por un tubo halogeno desde arriba a la derecha.
+- **Paleta base**: la de **Halogen Kit**, tal cual esta en
+  `apps/escenas/halogen.css`: canvas `#0a0d0a`, surface `#12160f`,
+  raised `#1a1f18`, hairline `#2a312a`, acento halogeno `#a3e635`,
+  ink `#f2f5f0`, ink-dim `#8f9a8c`, unchecked `#3a423a`.
+- **Tipografia**: Inter Tight (display en peso 900, interletraje cerrado) y
+  JetBrains Mono para datos y etiquetas tecnicas.
 - **Luz**: una sola fuente calida arriba a la derecha; sombras largas a la izquierda.
 - **Camara**: altura de pecho, horizonte al 62 %, focal media. Sin picados.
 - **Que NO queremos**: degradados genericos de startup, neon por todas partes,
@@ -43,16 +46,18 @@ Seis tarjetas, cada una con la paleta real del sistema y enlace a su ficha:
 
 | Sistema | Origen | Acentos reales | Ficha |
 |---|---|---|---|
-| Halogen | nuevo, sistema base | `#ffb547` `#6ea8ff` `#ffe3b0` | `sistemas/halogen.html` |
+| Halogen Kit | app Escenas · `apps/escenas/halogen.css` | `#a3e635` `#0a0d0a` `#f2f5f0` | `sistemas/halogen.html` |
 | Rincon | Taberna El Rincon | `#b34a1f` `#fdf6ec` `#2e9e5b` | `sistemas/rincon.html` |
 | Alba | ALBA moda | `#111114` `#e7335a` `#fafafa` | `sistemas/alba.html` |
 | Manolo | Carniceria Manolo | `#a4262c` `#25d366` `#fbf7f1` | `sistemas/manolo.html` |
 | Impulso | IMPULSO gimnasio | `#c8f04c` `#38e1d4` `#ff5e82` | `sistemas/impulso.html` |
 | La Plaza | Super La Plaza | `#1f9d55` `#e67e22` `#10151c` | `sistemas/la-plaza.html` |
 
-Los cinco ultimos **no estan inventados**: sus tokens salen del bloque `:root`
-real de cada demo de `servicios/`. Halogen es nuevo y es el sistema base con el
-que esta construida esta misma portada.
+**Ninguno esta inventado.** Los cinco de abajo salen del bloque `:root` real de
+cada demo de `servicios/`. Halogen Kit ya existia en `apps/escenas/halogen.css`
+(548 lineas, componentes con prefijo `hk-`) y su ficha carga ese mismo CSS en
+lugar de imitarlo, asi que lo que se ve ahi son las piezas de verdad. Esta
+portada esta construida con Halogen Kit.
 
 ## 5. Tecnica
 

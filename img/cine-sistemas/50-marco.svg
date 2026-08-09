@@ -7,7 +7,7 @@
     </radialGradient>
   </defs>
   <rect width="3840" height="2160" fill="url(#mc-vineta)"/>
-  <g fill="none" stroke="#ffb547" stroke-opacity="0.16" stroke-width="4">
+  <g fill="none" stroke="#a3e635" stroke-opacity="0.16" stroke-width="4">
     <path d="M120 220 V120 H220"/>
     <path d="M3620 120 H3720 V220"/>
     <path d="M120 1940 V2040 H220"/>
