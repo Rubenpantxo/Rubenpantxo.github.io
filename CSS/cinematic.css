@@ -1,0 +1,659 @@
+/*!
+ * cinematic.css — escenario, capas de profundidad y coreografia.
+ *
+ * El motor (cinematic-scroll.js) solo escribe estas custom properties en
+ * [data-cine-escenario]:
+ *
+ *   --p              progreso crudo 0..1
+ *   --p-suave        progreso con inercia (== --p con reduced-motion)
+ *   --puntero-x/-y   -1..1, centrado en el escenario
+ *   --s-intro        --s-apertura   --s-salida-plano
+ *   --s-narrativa-a  --s-narrativa-b
+ *   --s-catalogo     --s-controles
+ *
+ * Toda la coreografia vive aqui. Cambiar copy o arte NO debe obligar a tocar
+ * la matematica del motor, y retimar el motor no debe obligar a reescribir esto.
+ *
+ * BANDAS DE Z-INDEX (documentadas y respetadas):
+ *   0-9    mundo y capas de profundidad
+ *   10-19  tinte y encuadre cinematografico
+ *   20-29  copy narrativa y catalogo
+ *   30-39  navegacion y controles
+ *   40+    overlays / modales
+ */
+
+/* ============================================================
+   TOKENS
+   ============================================================ */
+.cine-scroll {
+  /* Color */
+  --cine-tinta: #12100e;
+  --cine-papel: #f6f2ea;
+  --cine-tinte: 210 30% 8%;
+  --cine-acento: #b98a3c;
+
+  /* Tipografia */
+  --cine-serif: "Playfair Display", "Iowan Old Style", Georgia, serif;
+  --cine-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Ritmo y forma */
+  --cine-esp: clamp(1rem, 2.2vw, 2rem);
+  --cine-radio: 14px;
+  --cine-sombra: 0 24px 60px -24px rgb(0 0 0 / 0.55);
+
+  /* Recorrido virtual del timeline (contrato: 3600-5000px en escritorio) */
+  --cine-recorrido: 4400px;
+
+  /* Techo de desenfoque. En moviles se baja a 0 y solo queda el tinte. */
+  --cine-blur-max: 7px;
+
+  position: relative;
+  height: var(--cine-recorrido);
+  color: var(--cine-papel);
+  font-family: var(--cine-sans);
+}
+
+/* ============================================================
+   ESCENARIO PEGADO
+   ============================================================ */
+.cine-escenario {
+  --mov: 1; /* compuerta global de movimiento: 0 con reduced-motion */
+  --gp: 1; /* compuerta del parallax de puntero: 0 en pantallas tactiles */
+
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  min-height: 34rem;
+  overflow: hidden; /* fallback */
+  overflow: clip;
+  isolation: isolate;
+  background: #07090c;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@supports (height: 100dvh) {
+  .cine-escenario {
+    height: 100dvh;
+  }
+}
+
+.cine-escenario.cine-reducido {
+  --mov: 0;
+}
+
+/* ============================================================
+   MUNDO Y CAPAS  (banda 0-9)
+   ============================================================
+   Regla de profundidad: el fondo se mueve MENOS que el medio, y el medio
+   menos que el primer plano. --signo invierte el parallax de puntero entre
+   capas lejanas y cercanas para insinuar volumen.
+*/
+.cine-mundo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 700ms ease;
+
+  /* El desenfoque acompana a la narrativa B y desaparece al refocalizar.
+     Nunca es niebla permanente. */
+  filter: blur(calc(var(--s-narrativa-b, 0) * var(--cine-blur-max) * var(--mov)))
+    brightness(calc(1 - var(--s-narrativa-b, 0) * 0.18))
+    saturate(calc(1 - var(--s-narrativa-b, 0) * 0.12));
+}
+
+.cine-escenario.cine-listo .cine-mundo {
+  opacity: 1;
+}
+
+.cine-capa {
+  --prof: 0.3; /* documenta la profundidad; los valores de abajo la aplican */
+  --desp-y: -30px; /* deriva vertical acumulada a p = 1 */
+  --zoom: 0.06; /* zoom extra a p = 1 */
+  --mov-x: 10px; /* recorrido de parallax de puntero (contrato: 6-24px) */
+  --mov-y: 6px;
+  --signo: 1;
+  --foco: 50% 50%;
+
+  position: absolute;
+  /* 16% de sangrado: ninguna transform debe descubrir el borde del lienzo. */
+  left: -8%;
+  top: -8%;
+  width: 116%;
+  height: 116%;
+  object-fit: cover;
+  object-position: var(--foco);
+  transform-origin: 50% 60%;
+  will-change: transform;
+
+  transform: translate3d(
+      calc(var(--puntero-x, 0) * var(--mov-x) * var(--signo) * var(--mov) * var(--gp)),
+      calc(
+        var(--p-suave, 0) * var(--desp-y) * var(--mov) + var(--puntero-y, 0) * var(--mov-y) *
+          var(--signo) * var(--mov) * var(--gp)
+      ),
+      0
+    )
+    scale(calc(1 + var(--p-suave, 0) * var(--zoom) * var(--mov)));
+}
+
+/* --- 00 cielo: placa opaca, el que menos se mueve --------------- */
+.cine-capa[data-capa="cielo"] {
+  --prof: 0.05;
+  --desp-y: -8px;
+  --zoom: 0.03;
+  --mov-x: 6px;
+  --mov-y: 3px;
+  --signo: -1;
+  z-index: 1;
+}
+
+/* --- 10 lejania ------------------------------------------------- */
+.cine-capa[data-capa="lejania"] {
+  --prof: 0.2;
+  --desp-y: -18px;
+  --zoom: 0.05;
+  --mov-x: 9px;
+  --signo: -1;
+  z-index: 2;
+}
+
+/* --- 20 medio --------------------------------------------------- */
+.cine-capa[data-capa="medio"] {
+  --prof: 0.45;
+  --desp-y: -34px;
+  --zoom: 0.09;
+  --mov-x: 13px;
+  z-index: 3;
+}
+
+/* --- 30 heroe: recibe el push-in de camara en la apertura ------- */
+.cine-capa[data-capa="heroe"] {
+  --prof: 0.7;
+  --desp-y: -48px;
+  --zoom: 0.08;
+  --mov-x: 16px;
+  --mov-y: 9px;
+  --empuje: 0.16; /* push-in adicional durante la apertura */
+  z-index: 4;
+  transform-origin: 50% 52%;
+
+  transform: translate3d(
+      calc(var(--puntero-x, 0) * var(--mov-x) * var(--mov) * var(--gp)),
+      calc(
+        var(--p-suave, 0) * var(--desp-y) * var(--mov) + var(--puntero-y, 0) * var(--mov-y) *
+          var(--mov) * var(--gp)
+      ),
+      0
+    )
+    scale(
+      calc(
+        1 + (var(--p-suave, 0) * var(--zoom) + var(--s-apertura, 0) * var(--empuje)) * var(--mov)
+      )
+    );
+}
+
+/* --- 40/41 primer plano: se abre en la apertura y sale despues ---
+   Dos fases sobre la misma capa: separacion (--s-apertura) y salida
+   definitiva (--s-salida-plano). Al salir revela el panorama limpio. */
+.cine-capa[data-capa^="plano-"] {
+  --prof: 0.9;
+  --desp-y: -20px;
+  --zoom: 0;
+  --mov-x: 22px;
+  --mov-y: 12px;
+  --separacion: 16%; /* recorrido lateral al abrirse */
+  --salida: 34%; /* recorrido lateral al salir de plano */
+  --crece: 0.14; /* escala mientras se acerca al espectador */
+  z-index: 5;
+}
+
+.cine-capa[data-capa="plano-izq"] {
+  --lado: -1;
+  transform-origin: 22% 52%;
+}
+
+.cine-capa[data-capa="plano-der"] {
+  --lado: 1;
+  transform-origin: 78% 52%;
+}
+
+.cine-capa[data-capa^="plano-"] {
+  transform: translate3d(
+      calc(
+        (
+            var(--s-apertura, 0) * var(--separacion) + var(--s-salida-plano, 0) * var(--salida)
+          ) * var(--lado) * var(--mov) + var(--puntero-x, 0) * var(--mov-x) * var(--lado) *
+          var(--mov) * var(--gp)
+      ),
+      calc(
+        var(--p-suave, 0) * var(--desp-y) * var(--mov) + var(--puntero-y, 0) * var(--mov-y) *
+          var(--mov) * var(--gp)
+      ),
+      0
+    )
+    scale(
+      calc(
+        1 + (var(--s-apertura, 0) * var(--crece) + var(--s-salida-plano, 0) * 0.22) * var(--mov)
+      )
+    );
+}
+
+/* --- 50 marco / portal opcional -------------------------------- */
+.cine-capa[data-capa="marco"] {
+  --prof: 1;
+  --desp-y: -6px;
+  --zoom: 0.02;
+  --mov-x: 4px;
+  z-index: 6;
+  opacity: calc(1 - var(--s-salida-plano, 0) * 0.7);
+}
+
+/* ============================================================
+   TINTE Y ENCUADRE  (banda 10-19)
+   ============================================================ */
+.cine-tinte {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  background: radial-gradient(
+      120% 90% at 50% 35%,
+      transparent 35%,
+      hsl(var(--cine-tinte) / 0.55) 100%
+    ),
+    linear-gradient(to bottom, hsl(var(--cine-tinte) / 0.35), transparent 40%, hsl(var(--cine-tinte) / 0.6));
+  opacity: calc(0.35 + var(--s-narrativa-a, 0) * 0.3 + var(--s-narrativa-b, 0) * 0.35);
+}
+
+/* ============================================================
+   NAVEGACION  (banda 30-39)
+   ============================================================ */
+.cine-nav {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cine-esp);
+  padding: clamp(1rem, 2.5vw, 2rem) clamp(1rem, 4vw, 3rem);
+  font-size: clamp(0.78rem, 0.9vw, 0.9rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cine-nav a {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.cine-nav a:hover,
+.cine-nav a:focus-visible {
+  opacity: 1;
+}
+
+/* ============================================================
+   COPY NARRATIVA  (banda 20-29)
+   ============================================================
+   Reglas: animar el texto aparte de las imagenes, con opacidad + traslacion
+   corta (nunca texto volando), y un solo panel visible a la vez.
+   [data-cine-activo="false"] lo escribe el motor: saca el panel apagado del
+   foco y de las tecnologias de asistencia, porque opacity:0 sigue siendo
+   enfocable.
+*/
+.cine-intro,
+.cine-panel,
+.cine-catalogo {
+  position: absolute;
+  z-index: 22;
+}
+
+[data-cine-activo="false"] {
+  visibility: hidden;
+}
+
+.cine-intro {
+  inset: auto auto clamp(3rem, 12vh, 9rem) clamp(1.25rem, 5vw, 5rem);
+  max-width: min(46ch, 82vw);
+  opacity: calc(1 - var(--s-intro, 0));
+  transform: translate3d(0, calc(var(--s-intro, 0) * -28px * var(--mov)), 0);
+}
+
+.cine-titulo {
+  margin: 0 0 0.6em;
+  font-family: var(--cine-serif);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 6.4vw, 5.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 0.45);
+}
+
+.cine-entradilla {
+  margin: 0;
+  max-width: 38ch;
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  line-height: 1.55;
+  opacity: 0.9;
+}
+
+.cine-panel {
+  display: grid;
+  gap: 0.9rem;
+  padding: clamp(1.25rem, 2.4vw, 2.25rem);
+  max-width: min(44ch, 86vw);
+  border-radius: var(--cine-radio);
+  background: hsl(var(--cine-tinte) / 0.55);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--cine-sombra);
+}
+
+.cine-panel h2 {
+  margin: 0;
+  font-family: var(--cine-serif);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  line-height: 1.1;
+}
+
+.cine-panel p {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.15vw, 1.05rem);
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+.cine-panel[data-panel="a"] {
+  /* Dentro del hueco que deja el primer plano al abrirse. */
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  text-align: center;
+  opacity: var(--s-narrativa-a, 0);
+  transform: translate3d(0, calc((1 - var(--s-narrativa-a, 0)) * 22px * var(--mov)), 0)
+    scale(calc(1 - (1 - var(--s-narrativa-a, 0)) * 0.02 * var(--mov)));
+}
+
+.cine-panel[data-panel="b"] {
+  inset: auto clamp(1.25rem, 6vw, 6rem) clamp(4rem, 14vh, 10rem) auto;
+  opacity: var(--s-narrativa-b, 0);
+  transform: translate3d(calc((1 - var(--s-narrativa-b, 0)) * 26px * var(--mov)), 0, 0);
+}
+
+.cine-datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+/* ============================================================
+   CATALOGO FINAL  (banda 20-29)
+   ============================================================ */
+.cine-catalogo {
+  inset: auto 0 clamp(2rem, 8vh, 5rem) 0;
+  display: grid;
+  gap: 1rem;
+  padding-inline: clamp(1rem, 4vw, 3.5rem);
+  opacity: var(--s-catalogo, 0);
+  transform: translate3d(calc((1 - var(--s-catalogo, 0)) * 12% * var(--mov)), 0, 0);
+}
+
+.cine-catalogo-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--cine-esp);
+}
+
+.cine-catalogo-cabecera h2 {
+  margin: 0;
+  font-family: var(--cine-serif);
+  font-weight: 500;
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
+}
+
+.cine-rail {
+  display: flex;
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  margin: 0;
+  padding: 0.25rem 0 1rem;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.cine-rail::-webkit-scrollbar {
+  height: 6px;
+}
+
+.cine-rail::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.28);
+  border-radius: 99px;
+}
+
+/* El item flex es el <li>, no la tarjeta: si se le pone el flex-basis a la
+   tarjeta, los <li> se encogen, el rail no desborda y los controles nacen
+   deshabilitados. */
+.cine-rail > li {
+  flex: 0 0 clamp(13rem, 22vw, 18rem);
+  scroll-snap-align: start;
+  display: flex;
+}
+
+.cine-tarjeta {
+  flex: 1;
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: var(--cine-radio);
+  background: hsl(var(--cine-tinte) / 0.6);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  color: inherit;
+  text-decoration: none;
+}
+
+.cine-tarjeta h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.cine-tarjeta p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+/* Solo los enlaces/botones reales reaccionan: nada debe parecer pulsable sin serlo. */
+a.cine-tarjeta:hover,
+button.cine-tarjeta:hover,
+a.cine-tarjeta:focus-visible,
+button.cine-tarjeta:focus-visible {
+  border-color: var(--cine-acento);
+  background: hsl(var(--cine-tinte) / 0.78);
+}
+
+.cine-rail-controles {
+  display: flex;
+  gap: 0.5rem;
+  opacity: var(--s-controles, 0);
+}
+
+.cine-rail-btn {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.28);
+  background: hsl(var(--cine-tinte) / 0.55);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.cine-rail-btn:hover {
+  background: hsl(var(--cine-tinte) / 0.8);
+}
+
+.cine-rail-btn[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Foco visible en todo lo interactivo. */
+.cine-escenario :focus-visible {
+  outline: 2px solid var(--cine-acento);
+  outline-offset: 3px;
+}
+
+.cine-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   HUD DE QA  (solo con ?cineDebug=1)
+   ============================================================ */
+.cine-hud {
+  position: fixed;
+  z-index: 90;
+  bottom: 12px;
+  left: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.75);
+  color: #fff;
+  font: 600 12px/1 ui-monospace, monospace;
+  pointer-events: none;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================
+   El object-position de escritorio no se traslada solo: cada breakpoint
+   define su propio foco para no decapitar al sujeto.
+*/
+@media (max-width: 1280px) {
+  .cine-scroll {
+    --cine-recorrido: 4000px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .cine-scroll {
+    --cine-recorrido: 3600px;
+    --cine-blur-max: 5px;
+  }
+
+  .cine-capa[data-capa^="plano-"] {
+    --separacion: 22%;
+    --salida: 46%;
+  }
+}
+
+@media (max-width: 768px) {
+  .cine-scroll {
+    --cine-recorrido: 3200px;
+  }
+
+  .cine-capa {
+    --foco: 50% 42%;
+  }
+
+  .cine-panel[data-panel="b"] {
+    inset: auto clamp(1rem, 5vw, 2rem) clamp(9rem, 24vh, 12rem) clamp(1rem, 5vw, 2rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .cine-scroll {
+    /* Un timeline largo en movil se hace agotador: se acorta el recorrido. */
+    --cine-recorrido: 2800px;
+    --cine-blur-max: 0px;
+  }
+
+  .cine-capa {
+    --foco: 50% 38%;
+  }
+
+  .cine-capa[data-capa^="plano-"] {
+    --separacion: 30%;
+    --salida: 62%;
+  }
+
+  .cine-intro {
+    inset: auto 1.25rem clamp(2.5rem, 10vh, 6rem) 1.25rem;
+    max-width: none;
+  }
+
+  .cine-panel {
+    max-width: none;
+  }
+
+  .cine-panel[data-panel="a"] {
+    inset: auto 1.25rem 45% 1.25rem;
+    translate: none;
+  }
+
+  .cine-rail > li {
+    flex-basis: 76vw;
+  }
+}
+
+/* Sin parallax de puntero en pantallas tactiles: no hay puntero fino que seguir.
+   Se apaga con la compuerta heredada --gp, no tocando --mov-x en .cine-capa:
+   las reglas por capa son mas especificas y ganarian a este bloque. */
+@media (pointer: coarse) {
+  .cine-escenario {
+    --gp: 0;
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================
+   No basta con quitar la inercia: fuera zoom agresivo, desplazamiento
+   lateral y desenfoque. La informacion y la interaccion se mantienen
+   completas; los cambios de escena pasan a ser fundidos cortos.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .cine-escenario {
+    --mov: 0;
+  }
+
+  .cine-mundo {
+    filter: none;
+    transition: opacity 200ms linear;
+  }
+
+  .cine-tinte {
+    opacity: calc(0.4 + var(--s-narrativa-b, 0) * 0.25);
+  }
+
+  .cine-rail {
+    scroll-behavior: auto;
+  }
+}

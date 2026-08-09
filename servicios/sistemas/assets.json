@@ -1,0 +1,97 @@
+{
+  "$comentario": "Manifest de capas de la portada cinematica de sistemas de diseno. Todas son SVG vectoriales creados para esta escena: comparten lienzo 3840x2160, la misma camara (horizonte al 62 %) y la misma luz halogena arriba a la derecha.",
+  "schemaVersion": "1.0",
+  "escena": "sistemas-de-diseno",
+  "relacionAspecto": "16:9",
+  "lienzoMaster": { "ancho": 3840, "alto": 2160 },
+  "capas": [
+    {
+      "id": "fondo",
+      "rol": "fondo-opaco",
+      "archivo": "img/cine-sistemas/00-fondo.svg",
+      "ancho": 3840,
+      "alto": 2160,
+      "anchor": "center",
+      "profundidad": 0.05,
+      "critica": true,
+      "estado": "definitivo",
+      "nota": "Pared y suelo del estudio, rejilla tenue y derrame de luz. Unica capa opaca."
+    },
+    {
+      "id": "lejania",
+      "rol": "paneles-lejanos",
+      "archivo": "img/cine-sistemas/10-lejania.svg",
+      "ancho": 3840,
+      "alto": 2160,
+      "anchor": "bottom-center",
+      "profundidad": 0.2,
+      "critica": true,
+      "estado": "definitivo",
+      "nota": "Cuatro paneles de UI apoyados en la pared; los de los extremos salen del lienzo."
+    },
+    {
+      "id": "medio",
+      "rol": "mesa-de-trabajo",
+      "archivo": "img/cine-sistemas/20-medio.svg",
+      "ancho": 3840,
+      "alto": 2160,
+      "anchor": "bottom-center",
+      "profundidad": 0.45,
+      "critica": true,
+      "estado": "definitivo",
+      "nota": "Mesa con rejilla de muestras (acentos reales de los 6 sistemas), especimen tipografico y retal de patron."
+    },
+    {
+      "id": "heroe",
+      "rol": "portal-heroe",
+      "archivo": "img/cine-sistemas/30-heroe.svg",
+      "ancho": 3840,
+      "alto": 2160,
+      "anchor": "bottom-center",
+      "transformOrigin": "50% 52%",
+      "profundidad": 0.7,
+      "critica": true,
+      "estado": "definitivo",
+      "nota": "Dos torres (tokens y componentes) unidas por un dintel. El hueco central queda libre a proposito: ahi entra la narrativa A."
+    },
+    {
+      "id": "planoIzq",
+      "rol": "occlusor-primer-plano-izquierdo",
+      "archivo": "img/cine-sistemas/40-plano-izq.svg",
+      "ancho": 3840,
+      "alto": 2160,
+      "anchor": "bottom-left",
+      "transformOrigin": "22% 52%",
+      "profundidad": 0.9,
+      "critica": true,
+      "estado": "definitivo",
+      "nota": "Componentes a tamano grande. Sale del lienzo por arriba, abajo e izquierda para no descubrir borde al separarse."
+    },
+    {
+      "id": "planoDer",
+      "rol": "occlusor-primer-plano-derecho",
+      "archivo": "img/cine-sistemas/41-plano-der.svg",
+      "ancho": 3840,
+      "alto": 2160,
+      "anchor": "bottom-right",
+      "transformOrigin": "78% 52%",
+      "profundidad": 0.9,
+      "critica": true,
+      "estado": "definitivo",
+      "nota": "Especimen tipografico y escala. Espejo del izquierdo, con sangrado equivalente."
+    },
+    {
+      "id": "marco",
+      "rol": "encuadre",
+      "archivo": "img/cine-sistemas/50-marco.svg",
+      "ancho": 3840,
+      "alto": 2160,
+      "anchor": "center",
+      "profundidad": 1,
+      "critica": false,
+      "estado": "definitivo",
+      "nota": "Vineta suave y esquinas de referencia. Centro totalmente limpio."
+    }
+  ],
+  "pendientes": []
+}

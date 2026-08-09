@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rincón — Sistema de diseño para hostelería</title>
+<meta name="description" content="Rincón: terracota sobre crema. El sistema de diseño nacido de la carta digital de una taberna.">
+<link rel="stylesheet" href="sistema.css">
+<style>
+  :root {
+    --sd-bg: #fdf6ec;
+    --sd-surface: #ffffff;
+    --sd-surface-2: #fffdf9;
+    --sd-ink: #2b1d12;
+    /* El token original (#8a7a6b) se queda en 3,85:1 sobre la crema y no llega
+       a AA para texto pequeno. Para texto se usa esta variante mas oscura;
+       el original sigue documentado en la paleta con su limitacion. */
+    --sd-muted: #7c6e60;
+    --sd-muted-original: #8a7a6b;
+    --sd-accent: #b34a1f;
+    --sd-accent-2: #2e9e5b;
+    --sd-line: #e8dcc9;
+    --sd-radius: 16px;
+    --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --sd-display: Georgia, "Iowan Old Style", serif;
+  }
+</style>
+</head>
+<body>
+<div class="sd-contenedor">
+
+  <header class="sd-cabecera">
+    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <span class="sd-etiqueta">Bar y restaurante</span>
+    <h1 class="sd-titulo">Rincón</h1>
+    <p class="sd-bajada">Terracota sobre crema, esquinas generosas y una tipografía que no compite con la comida. Salió de la carta digital de Taberna El Rincón y funciona en cualquier negocio donde se sirva algo en una mesa.</p>
+  </header>
+
+  <section class="sd-seccion">
+    <h2>Paleta</h2>
+    <p>Un tostado que recuerda al barro cocido, un fondo crema que no deslumbra bajo la luz del local y un verde reservado para confirmar. Nada de rojo salvo para errores.</p>
+    <ul class="sd-paleta">
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#b34a1f"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Terracota</span><span class="sd-color-hex">#b34a1f</span><span class="sd-color-rol">Marca y acción</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#8a3514"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Terracota oscuro</span><span class="sd-color-hex">#8a3514</span><span class="sd-color-rol">Estado pulsado</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#fdf6ec"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Crema</span><span class="sd-color-hex">#fdf6ec</span><span class="sd-color-rol">Fondo</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#ffffff"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Tarjeta</span><span class="sd-color-hex">#ffffff</span><span class="sd-color-rol">Superficie</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#2b1d12"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Tinta</span><span class="sd-color-hex">#2b1d12</span><span class="sd-color-rol">Texto principal</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#8a7a6b"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Apagado</span><span class="sd-color-hex">#8a7a6b</span><span class="sd-color-rol">Solo iconos y bordes: 3,85:1, no llega a AA para texto</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#7c6e60"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Apagado texto</span><span class="sd-color-hex">#7c6e60</span><span class="sd-color-rol">Texto secundario · 4,6:1</span></div>
+      </li>
+      <li class="sd-color">
+        <div class="sd-color-muestra" style="background:#2e9e5b"></div>
+        <div class="sd-color-datos"><span class="sd-color-nombre">Confirmado</span><span class="sd-color-hex">#2e9e5b</span><span class="sd-color-rol">Éxito, pedido en marcha</span></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Tipografía</h2>
+    <p>Serif solo en los titulares, para el nombre del local y el de cada plato. El resto, la pila del sistema: cero peso extra y aspecto nativo en el móvil del cliente.</p>
+    <ul class="sd-tipo">
+      <li><span class="sd-tipo-meta">Display · serif</span><span class="sd-muestra-display">Cocina de temporada</span></li>
+      <li><span class="sd-tipo-meta">Plato · serif</span><span class="sd-muestra-titulo">Alcachofas confitadas</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · sistema / 16px</span><span class="sd-muestra-cuerpo">Con jamón ibérico y aceite de romero. La descripción del plato tiene que caber en dos líneas: nadie lee tres con hambre.</span></li>
+      <li><span class="sd-tipo-meta">Pie · sistema / 13px</span><span class="sd-muestra-pie">Alérgenos, precio por ración y disponibilidad.</span></li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Componentes</h2>
+    <p>Radio de 16 píxeles en todo: cartas, botones y chips. Las zonas pulsables nunca bajan de 44 píxeles de alto, porque se usa de pie y con una mano.</p>
+
+    <h3>Botones</h3>
+    <div class="sd-lienzo">
+      <button class="sd-btn" type="button">Añadir a la comanda</button>
+      <button class="sd-btn sd-btn--linea" type="button">Ver carta</button>
+      <button class="sd-btn sd-btn--suave" type="button">Reservar mesa</button>
+      <button class="sd-btn sd-btn--fantasma" type="button">Quitar</button>
+      <button class="sd-btn" type="button" disabled>Agotado</button>
+    </div>
+
+    <h3>Selección y entrada</h3>
+    <div class="sd-lienzo">
+      <label class="sd-check"><input type="checkbox" checked> Sin gluten</label>
+      <label class="sd-check"><input type="checkbox"> Para llevar</label>
+      <label class="sd-check"><input type="radio" name="rincon-r" checked> Comer aquí</label>
+      <label class="sd-check"><input type="radio" name="rincon-r"> Recoger</label>
+      <label class="sd-campo"><span>Nombre de la reserva</span><input type="text" placeholder="Ana"></label>
+    </div>
+
+    <h3>Iconos</h3>
+    <div class="sd-lienzo sd-iconos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Cubiertos"><path d="M5 2v8a2 2 0 0 0 4 0V2M7 10v12M17 2c-1.5 2-2 4-2 6s.5 3 2 3 2-1 2-3-.5-4-2-6Zm0 9v11"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Copa"><path d="M8 3h8l-1 6a3 3 0 0 1-6 0L8 3ZM12 15v6M9 21h6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Reserva"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Cesta"><path d="M6 8h12l-1.2 11a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Tiempo de espera"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    </div>
+
+    <h3>Tarjeta</h3>
+    <div class="sd-lienzo">
+      <article class="sd-ficha">
+        <span class="sd-insignia">Listo en 12 min</span>
+        <h4>Croquetas de la casa</h4>
+        <p>Seis unidades. Receta de la abuela, freidora de siempre.</p>
+        <button class="sd-btn" type="button">Añadir · 7,50 €</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Cuándo usarlo</h2>
+    <ul class="sd-cuando">
+      <li>Bares, restaurantes, cafeterías y cualquier carta que se lea desde un QR en la mesa.</li>
+      <li>Negocios de barrio donde la calidez importa más que la modernidad.</li>
+      <li>Cuando la fotografía de producto es protagonista y el fondo tiene que dejarla brillar.</li>
+    </ul>
+  </section>
+
+  <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="../bar-restaurante.html">Ver la demo en vivo &#8599;</a>
+    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160" preserveAspectRatio="xMidYMid slice">
+  <title>Capa 40 — panel de componentes en primer plano izquierdo, sale del lienzo</title>
+  <defs>
+    <linearGradient id="pi-panel" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#080a0d"/>
+      <stop offset="0.72" stop-color="#141821"/>
+      <stop offset="1" stop-color="#1c2029"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Masa que ocupa el tercio izquierdo y se sale por arriba, abajo e izquierda. -->
+  <g>
+    <path d="M-500 -240 L1120 -240 C 1090 400, 1150 900, 1100 1400 C 1070 1760, 1120 2000, 1080 2400 L-500 2400 Z" fill="url(#pi-panel)"/>
+    <path d="M1120 -240 C 1090 400, 1150 900, 1100 1400 C 1070 1760, 1120 2000, 1080 2400" fill="none" stroke="#ffb547" stroke-opacity="0.30" stroke-width="8"/>
+
+    <!-- Componentes grandes, cerca de camara: botones, checkbox, campo, tarjeta. -->
+    <g transform="translate(240 300)">
+      <rect width="620" height="150" rx="75" fill="#ffb547" opacity="0.86"/>
+      <rect y="200" width="620" height="150" rx="75" fill="none" stroke="#ffb547" stroke-opacity="0.45" stroke-width="8"/>
+      <rect y="400" width="620" height="150" rx="24" fill="#ffffff" opacity="0.07"/>
+      <rect x="46" y="452" width="300" height="24" rx="12" fill="#ffffff" opacity="0.22"/>
+    </g>
+
+    <g transform="translate(240 1000)">
+      <rect width="130" height="130" rx="24" fill="#c8f04c" opacity="0.85"/>
+      <path d="M34 66 l30 34 58 -68" fill="none" stroke="#0b0c0f" stroke-opacity="0.8" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="176" y="0" width="130" height="130" rx="24" fill="none" stroke="#ffffff" stroke-opacity="0.24" stroke-width="8"/>
+      <rect x="352" y="0" width="130" height="130" rx="24" fill="none" stroke="#ffffff" stroke-opacity="0.24" stroke-width="8"/>
+      <rect x="0" y="196" width="230" height="110" rx="55" fill="#6ea8ff" opacity="0.55"/>
+      <circle cx="175" cy="251" r="40" fill="#0b0c0f" opacity="0.7"/>
+    </g>
+
+    <!-- Rejilla de muestras cortada por el borde. -->
+    <g transform="translate(-120 1520)">
+      <rect x="0" y="0" width="240" height="200" rx="16" fill="#b34a1f" opacity="0.8"/>
+      <rect x="268" y="0" width="240" height="200" rx="16" fill="#e7335a" opacity="0.75"/>
+      <rect x="536" y="0" width="240" height="200" rx="16" fill="#a4262c" opacity="0.7"/>
+      <rect x="0" y="230" width="240" height="200" rx="16" fill="#1f9d55" opacity="0.7"/>
+      <rect x="268" y="230" width="240" height="200" rx="16" fill="#f4f1ea" opacity="0.55"/>
+      <rect x="536" y="230" width="240" height="200" rx="16" fill="#ffb547" opacity="0.6"/>
+    </g>
+  </g>
+</svg>
