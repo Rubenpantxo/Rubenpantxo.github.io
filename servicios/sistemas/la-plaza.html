@@ -38,6 +38,7 @@
     border: 1px solid var(--sd-line);
   }
 </style>
+<script src="copiar-color.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -52,42 +53,78 @@
   <section class="sd-seccion">
     <h2>Paleta</h2>
     <p>El verde manda en la tienda. El naranja avisa y el rojo corrige, nunca al revés. La trastienda usa la misma estructura sobre grises fríos.</p>
-    <ul class="sd-paleta">
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#1f9d55"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Verde</span><span class="sd-color-hex">#1f9d55</span><span class="sd-color-rol">Marca y acción</span></div>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#1F9D55" style="--c:#1f9d55;--t:#101010"
+                aria-label="Copiar #1F9D55, Verde">
+          <span class="pl-color__nombre">Verde</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1F9D55</b></span>
+          <span class="pl-color__rol">Marca y acción</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#157040"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Verde oscuro</span><span class="sd-color-hex">#157040</span><span class="sd-color-rol">Estado pulsado</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#157040" style="--c:#157040;--t:#ffffff"
+                aria-label="Copiar #157040, Verde oscuro">
+          <span class="pl-color__nombre">Verde oscuro</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#157040</b></span>
+          <span class="pl-color__rol">Estado pulsado</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#f4f7f4"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Fondo</span><span class="sd-color-hex">#f4f7f4</span><span class="sd-color-rol">Tienda</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#F4F7F4" style="--c:#f4f7f4;--t:#101010"
+                aria-label="Copiar #F4F7F4, Fondo">
+          <span class="pl-color__nombre">Fondo</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#F4F7F4</b></span>
+          <span class="pl-color__rol">Tienda</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#1c2b21"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Tinta</span><span class="sd-color-hex">#1c2b21</span><span class="sd-color-rol">Texto principal</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#1C2B21" style="--c:#1c2b21;--t:#ffffff"
+                aria-label="Copiar #1C2B21, Tinta">
+          <span class="pl-color__nombre">Tinta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1C2B21</b></span>
+          <span class="pl-color__rol">Texto principal</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#67736a"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Apagado</span><span class="sd-color-hex">#67736a</span><span class="sd-color-rol">Texto secundario · 4,59:1</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#67736A" style="--c:#67736a;--t:#ffffff"
+                aria-label="Copiar #67736A, Apagado">
+          <span class="pl-color__nombre">Apagado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#67736A</b></span>
+          <span class="pl-color__rol">Texto secundario</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#e67e22"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Aviso</span><span class="sd-color-hex">#e67e22</span><span class="sd-color-rol">Stock bajo</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#E67E22" style="--c:#e67e22;--t:#101010"
+                aria-label="Copiar #E67E22, Aviso">
+          <span class="pl-color__nombre">Aviso</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#E67E22</b></span>
+          <span class="pl-color__rol">Stock bajo</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#e74c3c"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Peligro</span><span class="sd-color-hex">#e74c3c</span><span class="sd-color-rol">Sin existencias</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#E74C3C" style="--c:#e74c3c;--t:#101010"
+                aria-label="Copiar #E74C3C, Peligro">
+          <span class="pl-color__nombre">Peligro</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#E74C3C</b></span>
+          <span class="pl-color__rol">Sin existencias</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#10151c"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Gestor fondo</span><span class="sd-color-hex">#10151c</span><span class="sd-color-rol">Trastienda</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#10151C" style="--c:#10151c;--t:#ffffff"
+                aria-label="Copiar #10151C, Gestor fondo">
+          <span class="pl-color__nombre">Gestor fondo</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#10151C</b></span>
+          <span class="pl-color__rol">Trastienda</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#1a212c"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Gestor superficie</span><span class="sd-color-hex">#1a212c</span><span class="sd-color-rol">Tarjeta de almacén</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#1A212C" style="--c:#1a212c;--t:#ffffff"
+                aria-label="Copiar #1A212C, Gestor superficie">
+          <span class="pl-color__nombre">Gestor superficie</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1A212C</b></span>
+          <span class="pl-color__rol">Tarjeta de almacén</span>
+        </button>
       </li>
     </ul>
   </section>
@@ -160,9 +197,11 @@
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="../supermercado.html">Ver la demo en vivo &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>
 
 </div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>

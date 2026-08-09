@@ -22,6 +22,7 @@
     --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
 </style>
+<script src="copiar-color.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -36,38 +37,70 @@
   <section class="sd-seccion">
     <h2>Paleta</h2>
     <p>Un rojo profundo que no es alarma sino producto, y el verde de la mensajería que todo el mundo reconoce. Ese verde no se toca: su valor está en que ya significa algo.</p>
-    <ul class="sd-paleta">
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#a4262c"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Mostrador</span><span class="sd-color-hex">#a4262c</span><span class="sd-color-rol">Marca y acción</span></div>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#A4262C" style="--c:#a4262c;--t:#ffffff"
+                aria-label="Copiar #A4262C, Mostrador">
+          <span class="pl-color__nombre">Mostrador</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#A4262C</b></span>
+          <span class="pl-color__rol">Marca y acción</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#7c181d"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Mostrador oscuro</span><span class="sd-color-hex">#7c181d</span><span class="sd-color-rol">Estado pulsado</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#7C181D" style="--c:#7c181d;--t:#ffffff"
+                aria-label="Copiar #7C181D, Mostrador oscuro">
+          <span class="pl-color__nombre">Mostrador oscuro</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#7C181D</b></span>
+          <span class="pl-color__rol">Estado pulsado</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#fbf7f1"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Crema</span><span class="sd-color-hex">#fbf7f1</span><span class="sd-color-rol">Fondo</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FBF7F1" style="--c:#fbf7f1;--t:#101010"
+                aria-label="Copiar #FBF7F1, Crema">
+          <span class="pl-color__nombre">Crema</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FBF7F1</b></span>
+          <span class="pl-color__rol">Fondo</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#2c2018"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Tinta</span><span class="sd-color-hex">#2c2018</span><span class="sd-color-rol">Texto principal</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#2C2018" style="--c:#2c2018;--t:#ffffff"
+                aria-label="Copiar #2C2018, Tinta">
+          <span class="pl-color__nombre">Tinta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#2C2018</b></span>
+          <span class="pl-color__rol">Texto principal</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#7b6e65"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Apagado</span><span class="sd-color-hex">#7b6e65</span><span class="sd-color-rol">Peso y unidades · 4,62:1</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#7B6E65" style="--c:#7b6e65;--t:#ffffff"
+                aria-label="Copiar #7B6E65, Apagado">
+          <span class="pl-color__nombre">Apagado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#7B6E65</b></span>
+          <span class="pl-color__rol">Peso, unidades</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#25d366"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Mensajería</span><span class="sd-color-hex">#25d366</span><span class="sd-color-rol">Confirmar por WhatsApp</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#25D366" style="--c:#25d366;--t:#101010"
+                aria-label="Copiar #25D366, Mensajería">
+          <span class="pl-color__nombre">Mensajería</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#25D366</b></span>
+          <span class="pl-color__rol">Confirmar por WhatsApp</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#075e54"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Mensajería oscuro</span><span class="sd-color-hex">#075e54</span><span class="sd-color-rol">Cabecera de conversación</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#075E54" style="--c:#075e54;--t:#ffffff"
+                aria-label="Copiar #075E54, Mensajería oscuro">
+          <span class="pl-color__nombre">Mensajería oscuro</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#075E54</b></span>
+          <span class="pl-color__rol">Cabecera de conversación</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#e5ddd5"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Conversación</span><span class="sd-color-hex">#e5ddd5</span><span class="sd-color-rol">Fondo de chat</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#E5DDD5" style="--c:#e5ddd5;--t:#101010"
+                aria-label="Copiar #E5DDD5, Conversación">
+          <span class="pl-color__nombre">Conversación</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#E5DDD5</b></span>
+          <span class="pl-color__rol">Fondo de chat</span>
+        </button>
       </li>
     </ul>
   </section>
@@ -136,9 +169,11 @@
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="../carniceria.html">Ver la demo en vivo &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>
 
 </div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>

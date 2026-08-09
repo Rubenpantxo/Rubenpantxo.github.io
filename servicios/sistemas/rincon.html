@@ -23,6 +23,7 @@
     --sd-display: Georgia, "Iowan Old Style", serif;
   }
 </style>
+<script src="copiar-color.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -37,34 +38,62 @@
   <section class="sd-seccion">
     <h2>Paleta</h2>
     <p>Un tostado que recuerda al barro cocido, un fondo crema que no deslumbra bajo la luz del local y un verde reservado para confirmar. Nada de rojo salvo para errores.</p>
-    <ul class="sd-paleta">
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#b34a1f"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Terracota</span><span class="sd-color-hex">#b34a1f</span><span class="sd-color-rol">Marca y acción</span></div>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#B34A1F" style="--c:#b34a1f;--t:#ffffff"
+                aria-label="Copiar #B34A1F, Terracota">
+          <span class="pl-color__nombre">Terracota</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#B34A1F</b></span>
+          <span class="pl-color__rol">Marca y acción</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#8a3514"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Terracota oscuro</span><span class="sd-color-hex">#8a3514</span><span class="sd-color-rol">Estado pulsado</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#8A3514" style="--c:#8a3514;--t:#ffffff"
+                aria-label="Copiar #8A3514, Terracota oscuro">
+          <span class="pl-color__nombre">Terracota oscuro</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#8A3514</b></span>
+          <span class="pl-color__rol">Estado pulsado</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#fdf6ec"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Crema</span><span class="sd-color-hex">#fdf6ec</span><span class="sd-color-rol">Fondo</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FDF6EC" style="--c:#fdf6ec;--t:#101010"
+                aria-label="Copiar #FDF6EC, Crema">
+          <span class="pl-color__nombre">Crema</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FDF6EC</b></span>
+          <span class="pl-color__rol">Fondo</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#ffffff"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Tarjeta</span><span class="sd-color-hex">#ffffff</span><span class="sd-color-rol">Superficie</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FFFFFF" style="--c:#ffffff;--t:#101010"
+                aria-label="Copiar #FFFFFF, Tarjeta">
+          <span class="pl-color__nombre">Tarjeta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FFFFFF</b></span>
+          <span class="pl-color__rol">Superficie</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#2b1d12"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Tinta</span><span class="sd-color-hex">#2b1d12</span><span class="sd-color-rol">Texto principal</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#2B1D12" style="--c:#2b1d12;--t:#ffffff"
+                aria-label="Copiar #2B1D12, Tinta">
+          <span class="pl-color__nombre">Tinta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#2B1D12</b></span>
+          <span class="pl-color__rol">Texto principal</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#7c6e60"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Apagado</span><span class="sd-color-hex">#7c6e60</span><span class="sd-color-rol">Texto secundario · 4,6:1</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#7C6E60" style="--c:#7c6e60;--t:#ffffff"
+                aria-label="Copiar #7C6E60, Apagado">
+          <span class="pl-color__nombre">Apagado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#7C6E60</b></span>
+          <span class="pl-color__rol">Texto secundario</span>
+        </button>
       </li>
-      <li class="sd-color">
-        <div class="sd-color-muestra" style="background:#2e9e5b"></div>
-        <div class="sd-color-datos"><span class="sd-color-nombre">Confirmado</span><span class="sd-color-hex">#2e9e5b</span><span class="sd-color-rol">Éxito, pedido en marcha</span></div>
+      <li>
+        <button class="pl-color" type="button" data-hex="#2E9E5B" style="--c:#2e9e5b;--t:#101010"
+                aria-label="Copiar #2E9E5B, Confirmado">
+          <span class="pl-color__nombre">Confirmado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#2E9E5B</b></span>
+          <span class="pl-color__rol">Éxito, pedido en marcha</span>
+        </button>
       </li>
     </ul>
   </section>
@@ -133,9 +162,11 @@
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="../bar-restaurante.html">Ver la demo en vivo &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>
 
 </div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>

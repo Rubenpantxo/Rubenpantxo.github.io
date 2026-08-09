@@ -396,3 +396,223 @@ body {
     gap: 0.3rem;
   }
 }
+
+/* ============================================================
+   MUESTRARIO DE COLOR
+   Cada muestra es un boton real: pulsarla copia el hexadecimal.
+   El color del texto (--t) no se calcula aqui: viene decidido en el
+   HTML, eligiendo entre negro y blanco el que mas contraste da sobre
+   ese color concreto. Asi el nombre se lee siempre.
+   ============================================================ */
+.pl-rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pl-color {
+  display: grid;
+  align-content: start;
+  gap: 0.15rem;
+  width: 100%;
+  min-height: 8.5rem;
+  padding: 0.9rem 0.95rem;
+  border: 0;
+  border-radius: var(--sd-radius);
+  background: var(--c);
+  color: var(--t);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgb(128 128 128 / 0.22);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.pl-color:hover {
+  transform: translateY(-2px);
+  box-shadow: inset 0 0 0 1px rgb(128 128 128 / 0.35), 0 10px 24px rgb(0 0 0 / 0.28);
+}
+
+.pl-color:focus-visible {
+  outline: 3px solid var(--sd-accent);
+  outline-offset: 2px;
+}
+
+.pl-color__nombre {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.pl-color__hex {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+}
+
+.pl-color__hex > span {
+  opacity: 0.62;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+}
+
+.pl-color__rol {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  opacity: 0.78;
+}
+
+/* Valor leido de una captura: conviene confirmarlo. */
+.pl-revisar {
+  display: inline-grid;
+  place-items: center;
+  width: 1.05em;
+  height: 1.05em;
+  margin-left: 0.25em;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  font-size: 0.7em;
+  font-style: normal;
+  opacity: 0.7;
+  vertical-align: 0.1em;
+}
+
+/* Aviso de copiado: aparece sobre la propia muestra. */
+.pl-color::after {
+  content: "Copiado";
+  position: absolute;
+  inset: auto 0.55rem 0.55rem auto;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: var(--t);
+  color: var(--c);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 160ms ease, transform 160ms ease;
+  pointer-events: none;
+}
+
+.pl-color.esta-copiado::after {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Agrupaciones ---------- */
+.pl-seccion {
+  margin: 2.5rem 0 0.35rem;
+  font-family: var(--sd-display, var(--sd-font));
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  font-weight: 700;
+}
+
+.pl-intro {
+  margin: 0 0 1.5rem;
+  max-width: 58ch;
+  color: var(--sd-muted);
+}
+
+.pl-grupo {
+  margin-bottom: 1.75rem;
+}
+
+.pl-grupo__cab {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.pl-grupo__cab h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.pl-grupo__ver,
+.pl-tono {
+  font-size: 0.74rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pl-grupo__ver {
+  color: var(--sd-accent);
+  text-decoration: none;
+}
+
+.pl-tono {
+  color: var(--sd-muted);
+}
+
+.pl-grupo__nota {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: var(--sd-muted);
+}
+
+.pl-rejilla--suelta .pl-color {
+  min-height: 7rem;
+}
+
+.pl-indice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.pl-indice a {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--sd-line);
+  border-radius: 999px;
+  color: var(--sd-ink);
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+
+.pl-indice a:hover,
+.pl-indice a:focus-visible {
+  border-color: var(--sd-accent);
+  color: var(--sd-accent);
+}
+
+/* Region viva para anunciar el copiado sin mostrar nada en pantalla. */
+.cine-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .pl-rejilla { grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); }
+  .pl-color { min-height: 7.5rem; padding: 0.7rem 0.75rem; }
+  .pl-color__nombre { font-size: 0.9rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pl-color,
+  .pl-color::after { transition: none; }
+  .pl-color:hover { transform: none; }
+}
+
+.pl-color__hex b {
+  font-weight: 700;
+  /* Se puede seleccionar para copiar a mano si el portapapeles esta bloqueado. */
+  user-select: text;
+}
