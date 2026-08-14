@@ -226,26 +226,6 @@
         }
         body.section-open #jenga-home { display: none; }
         #jenga-canvas { touch-action: none; display: block; max-width: 100%; }
-        #jenga-status { font-size: 0.95rem; color: #4b4234; }
-        #jenga-reset {
-            background: #8a5a2c; color: #ffeec9; border: none; border-radius: 10px;
-            padding: 8px 22px; font-size: 0.95rem; cursor: pointer; font-weight: 600;
-            box-shadow: 0 3px 10px rgba(90,55,15,0.3); transition: transform 0.15s, background 0.2s;
-        }
-        #jenga-reset:hover { background: #a06a34; transform: translateY(-1px); }
-        #jenga-over {
-            position: absolute; inset: 0; display: none;
-            align-items: center; justify-content: center; flex-direction: column; gap: 8px;
-            background: rgba(255,250,238,0.82); backdrop-filter: blur(3px);
-            border-radius: 18px; text-align: center; z-index: 4;
-        }
-        #jenga-over.show { display: flex; }
-        #jenga-over h3 { font-family: 'Kalam', cursive; font-size: 2rem; color: #b04020; }
-        #jenga-over p { color: #5b5244; font-size: 1.05rem; }
-        #jenga-over button {
-            background: #2d2418; color: #ffe9b8; border: none; border-radius: 10px;
-            padding: 10px 26px; font-size: 1rem; cursor: pointer; font-weight: 700;
-        }
 
         /* ============================================
            ZONA PRIVADA - AUTENTICACIÓN
@@ -342,13 +322,6 @@
         <!-- JENGA: torre de madera interactiva para amenizar la portada -->
         <section id="jenga-home" aria-label="Juego de Jenga">
             <canvas id="jenga-canvas"></canvas>
-            <div id="jenga-status"></div>
-            <button id="jenga-reset">Reconstruir torre</button>
-            <div id="jenga-over">
-                <h3>💥 ¡Torre caída!</h3>
-                <p id="jenga-over-score"></p>
-                <button id="jenga-over-btn">Jugar otra vez</button>
-            </div>
         </section>
 
         <main id="content-container" class="mt-16">
