@@ -370,6 +370,16 @@
                 b.tiltV = (Math.random() - 0.5) * 0.03;
             }
         }
+        // la torre también revisa sus apoyos sin esperar a que la toques:
+        // si su sostén se marcha, lo de arriba no se queda levitando
+        if (topL >= 0 && t % 15 === 0) checkTowerIntegrity();
+        // ninguna pieza se queda dormida congelada a medio tumbo
+        for (const b of bodies) {
+            if (b.state === 'free' && b.asleep && b.tilt !== 0) {
+                b.tilt *= 0.8;
+                if (Math.abs(b.tilt) < 0.01) b.tilt = 0;
+            }
+        }
         shake *= 0.92;
         if (!drag && !hand) handSpeed *= 0.8;
         tremble += (targetTremble() - tremble) * 0.25;
@@ -771,7 +781,7 @@
         const b = drag.body;
         wake(b);
         const pScr = proj(b.x, b.y + BH / 2, b.z);
-        if (pScr.y - y > 55 * Math.max(0.5, scale)) {
+        if (drag.sy - y > 32 || pScr.y - y > 55 * Math.max(0.5, scale)) {
             const start = proj(b.x, b.y, b.z);
             b.state = 'hand';
             b.vx = b.vy = b.vz = b.om = 0;
@@ -1071,15 +1081,19 @@
             ctx.restore();
         }
 
-        // sombras en el suelo, una por pieza
+        // sombras en el suelo: la huella real de cada pieza, con su giro.
+        // Es lo que ancla visualmente las piezas caídas a la mesa.
         for (const b of bodies) {
-            if (b.state === 'hand') continue;
             const hgt = Math.max(0, b.y - BH / 2);
-            const a = Math.max(0.04, 0.16 - hgt * 0.0004);
-            const p = proj(b.x, 0, b.z);
+            const a = Math.max(0.04, 0.18 - hgt * 0.00045);
+            const pc = planCorners(b);
             ctx.fillStyle = `rgba(40,20,5,${a})`;
             ctx.beginPath();
-            ctx.ellipse(p.x, tableY + (p.y - baseY) * 0.4, BL * 0.42 * scale, 9 * scale, 0, 0, 7);
+            for (let i = 0; i < 4; i++) {
+                const p = proj(pc[i][0], 0, pc[i][1]);
+                i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y);
+            }
+            ctx.closePath();
             ctx.fill();
         }
 
