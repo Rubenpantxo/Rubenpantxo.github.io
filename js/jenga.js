@@ -341,7 +341,6 @@
         }
     }
 
-    function worldHalfW() { return W / (2 * scale) - 40; }
 
     function physics() {
         const free = bodies.filter(b => b.state === 'free' && !b.asleep);
@@ -488,12 +487,16 @@
             b.tilt *= 0.6; b.tiltV = 0;
         }
 
-        // paredes blandas: que el montón no se salga del lienzo
-        const lim = worldHalfW();
-        if (b.x < -lim) { b.x = -lim; b.vx = Math.abs(b.vx) * 0.3; }
-        if (b.x > lim) { b.x = lim; b.vx = -Math.abs(b.vx) * 0.3; }
-        if (b.z < -150) { b.z = -150; b.vz = Math.abs(b.vz) * 0.3; }
-        if (b.z > 170) { b.z = 170; b.vz = -Math.abs(b.vz) * 0.3; }
+        // topes blandos en el borde de la mesa: se mide la posición ya
+        // proyectada (con la profundidad) para que ninguna pieza quede
+        // visualmente fuera del mantel
+        const m = Math.max(BL, Math.min(W * 0.46, 340) / scale - 85);
+        const cx0 = (W / 2 - baseX) / scale;
+        const px = b.x + b.z * PROJX;
+        if (px < cx0 - m) { b.x += (cx0 - m) - px; b.vx = Math.abs(b.vx) * 0.3; }
+        if (px > cx0 + m) { b.x -= px - (cx0 + m); b.vx = -Math.abs(b.vx) * 0.3; }
+        if (b.z < -140) { b.z = -140; b.vz = Math.abs(b.vz) * 0.3; }
+        if (b.z > 160) { b.z = 160; b.vz = -Math.abs(b.vz) * 0.3; }
 
         // sueño: quieta y apoyada unos cuantos fotogramas
         const speed = Math.hypot(b.vx, b.vy, b.vz);
