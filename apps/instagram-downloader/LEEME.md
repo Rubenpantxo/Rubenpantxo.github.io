@@ -18,7 +18,11 @@ las peticiones entre dominios (CORS). Por eso la descarga la hace `server.js` de
 ordenador usando [yt-dlp](https://github.com/yt-dlp/yt-dlp), que mantiene actualizado el
 método de extracción. No se usa ningún servicio externo y no se envía nada a terceros.
 
-Consecuencia: esta app funciona en tu PC, **no** desde la versión publicada en la web.
+Consecuencia: la descarga ocurre siempre en tu PC. La versión publicada en
+[rubenpantxo.com](https://rubenpantxo.com/apps/instagram-downloader/index_insta_down.html)
+no puede descargar por sí sola (el navegador bloquea `https://` → `http://localhost`), así que
+hace de puente: pegas el enlace, pulsas **Descargar** y te lleva a `http://localhost:8787`
+con el enlace ya cargado y la búsqueda lanzada.
 
 ## Requisitos
 
