@@ -69,6 +69,15 @@ var Game = (function () {
 	var cinematic = true;
 	var cineAngle = 0;
 	var cameraTweening = false;
+	// encuadre responsive: en pantallas estrechas (movil en vertical) elevamos
+	// y alejamos la camara para que quepa todo el tablero
+	var viewWhite = true;          // lado desde el que mira la camara en partida
+	var cineHoriz = 145;           // radio horizontal de la camara del menu
+	var cineHeight = 85;           // altura de la camara del menu
+	var wasPortrait = false;       // para reencuadrar al girar el dispositivo
+	var ORIGIN3 = new THREE.Vector3(0, 0, 0);
+	var boardCornersCache = null;
+	var fitProjector = null;
 
 	// --- relojes ---
 	var chessClock = {
@@ -202,6 +211,10 @@ var Game = (function () {
 		validMoves = GenerateValidMoves();
 		syncBoard();
 
+		// encuadre inicial acorde al tamano de pantalla
+		wasPortrait = camera.aspect < 1;
+		updateCinematicFraming();
+
 		animate();
 
 		// con la pestaña en segundo plano el navegador congela requestAnimationFrame;
@@ -267,6 +280,129 @@ var Game = (function () {
 		renderer.setSize(w, h);
 		camera.aspect = w / h;
 		camera.updateProjectionMatrix();
+		updateCinematicFraming();
+		// reencuadrar la vista de partida al cambiar de tamano/orientacion:
+		// siempre en vertical, y tambien al volver a horizontal desde vertical
+		var portrait = camera.aspect < 1;
+		if (!cinematic && !cameraTweening && (portrait || wasPortrait)) {
+			applySideView(viewWhite, true);
+		}
+		wasPortrait = portrait;
+	}
+
+	/* ---------- encuadre responsive de la camara ---------- */
+
+	// esquinas del volumen que debe caber en pantalla (tablero + altura de piezas)
+	function boardCorners() {
+		if (!boardCornersCache) {
+			boardCornersCache = [];
+			var HW = 56, yTop = 13, yBot = -4;
+			[-HW, HW].forEach(function (x) {
+				[-HW, HW].forEach(function (z) {
+					[yBot, yTop].forEach(function (y) {
+						boardCornersCache.push(new THREE.Vector3(x, y, z));
+					});
+				});
+			});
+		}
+		return boardCornersCache;
+	}
+
+	// coloca la camara en pos, mira al centro y devuelve el maximo |NDC| del tablero
+	// (>1 significa que alguna parte del tablero queda fuera de la pantalla)
+	function maxBoardNdc(pos) {
+		if (!fitProjector) { fitProjector = new THREE.Projector(); }
+		camera.position.copy(pos);
+		camera.lookAt(ORIGIN3);
+		camera.updateMatrixWorld(true);
+		camera.updateProjectionMatrix();
+		var pts = boardCorners();
+		var m = 0;
+		for (var i = 0; i < pts.length; i++) {
+			var v = fitProjector.projectVector(pts[i].clone(), camera);
+			m = Math.max(m, Math.abs(v.x), Math.abs(v.y));
+		}
+		return m;
+	}
+
+	// elevacion de la vista de partida: 45 en apaisado, hasta ~62 en vertical
+	function sideElevation(a) {
+		if (a >= 1) { return Math.PI / 4; }
+		var f = Math.min(1, Math.max(0, (1 - a) / (1 - 0.45)));
+		return (45 + f * 17) * Math.PI / 180;
+	}
+
+	// posicion lateral que hace caber todo el tablero segun el aspecto actual
+	function sidePosition(white) {
+		var a = camera.aspect;
+		var saved = camera.position.clone();
+		var dir, d;
+		if (a >= 1) {
+			// apaisado / escritorio: vista clasica intacta
+			dir = new THREE.Vector3(0, 100, white ? 100 : -100);
+			camera.position.copy(saved);
+			return dir;
+		}
+		var th = sideElevation(a);
+		dir = new THREE.Vector3(0, Math.sin(th), (white ? 1 : -1) * Math.cos(th));
+		var MARGIN = 0.92;
+		d = 140;
+		for (var i = 0; i < 12; i++) {
+			var m = maxBoardNdc(dir.clone().multiplyScalar(d));
+			if (m > MARGIN * 0.9 && m < MARGIN * 1.02) { break; }
+			d = Math.max(80, Math.min(700, d * (m / MARGIN)));
+		}
+		camera.position.copy(saved); // el llamador coloca la posicion definitiva
+		return dir.multiplyScalar(d);
+	}
+
+	// aplica la vista lateral (con encaje) desde el lado indicado
+	function applySideView(white, instant) {
+		viewWhite = white;
+		var target = sidePosition(white);
+		var radius = target.length();
+		// el radio se recorta a maxDistance en OrbitControls.update(): hay que
+		// permitir la distancia calculada o el tablero volveria a recortarse
+		cameraControls.maxDistance = Math.max(200, radius * 1.3);
+		if (instant) {
+			camera.position.copy(target);
+			camera.lookAt(ORIGIN3);
+		} else {
+			tweenCameraTo(target.x, target.y, target.z, 0.9);
+		}
+	}
+
+	// elevacion de la camara del menu (rotatoria)
+	function cineElevation(a) {
+		if (a >= 1) { return 30 * Math.PI / 180; }
+		var f = Math.min(1, Math.max(0, (1 - a) / (1 - 0.45)));
+		return (30 + f * 22) * Math.PI / 180;
+	}
+
+	// ajusta el radio/altura de la camara del menu para que el tablero quepa
+	// en todo su giro (peor caso: esquina de frente)
+	function updateCinematicFraming() {
+		var a = camera.aspect;
+		if (a >= 1) { cineHoriz = 145; cineHeight = 85; return; }
+		var th = cineElevation(a);
+		var MARGIN = 0.9;
+		var r = 150;
+		for (var it = 0; it < 14; it++) {
+			var worst = 0;
+			for (var deg = 0; deg < 360; deg += 30) {
+				var ph = deg * Math.PI / 180;
+				var pos = new THREE.Vector3(
+					Math.sin(ph) * Math.cos(th) * r,
+					Math.sin(th) * r,
+					Math.cos(ph) * Math.cos(th) * r
+				);
+				worst = Math.max(worst, maxBoardNdc(pos));
+			}
+			if (worst > MARGIN * 0.9 && worst < MARGIN * 1.03) { break; }
+			r = Math.max(80, Math.min(800, r * (worst / MARGIN)));
+		}
+		cineHoriz = Math.cos(th) * r;
+		cineHeight = Math.sin(th) * r;
 	}
 
 	function animate() {
@@ -275,13 +411,12 @@ var Game = (function () {
 		updateTweens(delta);
 		if (cinematic) {
 			cineAngle += delta * 0.12;
-			var r = 145;
 			camera.position.set(
-				Math.sin(cineAngle) * r,
-				85,
-				Math.cos(cineAngle) * r
+				Math.sin(cineAngle) * cineHoriz,
+				cineHeight,
+				Math.cos(cineAngle) * cineHoriz
 			);
-			camera.lookAt(new THREE.Vector3(0, 0, 0));
+			camera.lookAt(ORIGIN3);
 		} else if (!cameraTweening) {
 			cameraControls.update(delta);
 		}
@@ -306,13 +441,7 @@ var Game = (function () {
 	}
 
 	function cameraToSide(white, instant) {
-		var z = white ? 100 : -100;
-		if (instant) {
-			camera.position.set(0, 100, z);
-			camera.lookAt(new THREE.Vector3(0, 0, 0));
-			return;
-		}
-		tweenCameraTo(0, 100, z, 0.9);
+		applySideView(white, instant);
 	}
 
 	/* ================= tablero 3D ================= */
@@ -1154,8 +1283,7 @@ var Game = (function () {
 	}
 
 	function flipCamera() {
-		var z = camera.position.z >= 0 ? -100 : 100;
-		tweenCameraTo(0, 100, z, 0.9);
+		applySideView(!viewWhite, false);
 	}
 
 	/* ================= PGN ================= */
@@ -1272,52 +1400,6 @@ var Game = (function () {
 				throw new Error("PGN no válido: " + JSON.stringify(move));
 			}
 		});
-
-		state.playerWhite = whiteToMove();
-		validMoves = GenerateValidMoves();
-		updateCheckHighlight();
-		syncBoard();
-		cinematic = false;
-		cameraToSide(state.playerWhite);
-
-		ensureAnalysisStopped();
-		if (initBackgroundEngine()) {
-			backgroundEngine.postMessage("position " + GetFen());
-		}
-
-		if (ui()) {
-			ui().onNewGameStarted({
-				mode: "ai",
-				playerWhite: state.playerWhite,
-				level: state.level,
-				levelInfo: levels[state.level],
-				clock: false,
-				loaded: true
-			});
-			ui().onHistoryRebuilt(sanHistory.slice());
-			ui().onTurn(whiteToMove());
-			ui().onCapturedUpdate(capturedSummary());
-		}
-		return true;
-	}
-
-	// Carga una posicion arbitraria (por ejemplo, la detectada en una imagen)
-	// a partir de un FEN y arranca una partida contra la IA desde ahi.
-	function loadFEN(fen) {
-		resetCommonState();
-		state.mode = "ai";
-		state.gameOver = false;
-
-		var err = InitializeFromFen(fen);
-		if (err && err.length) {
-			throw new Error(err);
-		}
-
-		g_allMoves = [];
-		sanHistory = [];
-		moveMeta = [];
-		lastMoveIdxs = [];
-		checkIdx = null;
 
 		state.playerWhite = whiteToMove();
 		validMoves = GenerateValidMoves();
@@ -1533,7 +1615,6 @@ var Game = (function () {
 		flipCamera: flipCamera,
 		getPGN: getPGN,
 		loadPGNText: loadPGNText,
-		loadFEN: loadFEN,
 		getFen: function () { return GetFen(); },
 		isAnimating: function () { return animating; },
 		// para depuracion y pruebas automatizadas
