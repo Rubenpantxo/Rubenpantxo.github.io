@@ -41,8 +41,8 @@
   --cine-radio: 14px;
   --cine-sombra: 0 24px 60px -24px rgb(0 0 0 / 0.55);
 
-  /* Recorrido virtual del timeline (contrato: 3600-5000px en escritorio) */
-  --cine-recorrido: 4400px;
+  /* Recorrido virtual del timeline (aumentado para sentir más el avance lento) */
+  --cine-recorrido: 6500px;
 
   /* Techo de desenfoque. En moviles se baja a 0 y solo queda el tinte. */
   --cine-blur-max: 7px;
@@ -144,7 +144,7 @@
 .cine-capa[data-capa="cielo"] {
   --prof: 0.05;
   --desp-y: -8px;
-  --zoom: 0.03;
+  --zoom: 0.06;
   --mov-x: 6px;
   --mov-y: 3px;
   --signo: -1;
@@ -155,7 +155,7 @@
 .cine-capa[data-capa="lejania"] {
   --prof: 0.2;
   --desp-y: -18px;
-  --zoom: 0.05;
+  --zoom: 0.12;
   --mov-x: 9px;
   --signo: -1;
   z-index: 2;
@@ -165,7 +165,7 @@
 .cine-capa[data-capa="medio"] {
   --prof: 0.45;
   --desp-y: -34px;
-  --zoom: 0.09;
+  --zoom: 0.18;
   --mov-x: 13px;
   z-index: 3;
 }
@@ -174,7 +174,7 @@
 .cine-capa[data-capa="heroe"] {
   --prof: 0.7;
   --desp-y: -48px;
-  --zoom: 0.08;
+  --zoom: 0.12;
   --mov-x: 16px;
   --mov-y: 9px;
   --empuje: 0.16; /* push-in adicional durante la apertura */
@@ -349,9 +349,9 @@
   padding: clamp(1.25rem, 2.4vw, 2.25rem);
   max-width: min(44ch, 86vw);
   border-radius: var(--cine-radio);
-  background: hsl(var(--cine-tinte) / 0.55);
-  backdrop-filter: blur(6px);
-  box-shadow: var(--cine-sombra);
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
 }
 
 .cine-panel h2 {
@@ -558,13 +558,13 @@ button.cine-tarjeta:focus-visible {
 */
 @media (max-width: 1280px) {
   .cine-scroll {
-    --cine-recorrido: 4000px;
+    --cine-recorrido: 6000px;
   }
 }
 
 @media (max-width: 1024px) {
   .cine-scroll {
-    --cine-recorrido: 3600px;
+    --cine-recorrido: 5500px;
     --cine-blur-max: 5px;
   }
 
@@ -576,7 +576,7 @@ button.cine-tarjeta:focus-visible {
 
 @media (max-width: 768px) {
   .cine-scroll {
-    --cine-recorrido: 3200px;
+    --cine-recorrido: 5000px;
   }
 
   .cine-capa {
@@ -591,7 +591,7 @@ button.cine-tarjeta:focus-visible {
 @media (max-width: 480px) {
   .cine-scroll {
     /* Un timeline largo en movil se hace agotador: se acorta el recorrido. */
-    --cine-recorrido: 2800px;
+    --cine-recorrido: 4000px;
     --cine-blur-max: 0px;
   }
 

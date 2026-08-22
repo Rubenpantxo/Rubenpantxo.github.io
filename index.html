@@ -1720,6 +1720,7 @@
                     if (body.classList.contains('section-open')) return;
                     const sectionId = item.dataset.section;
                     const targetSection = document.getElementById(sectionId + '-content') || document.getElementById(sectionId);
+                    history.replaceState(null, null, '#' + sectionId);
                     withViewTransition(() => {
                         body.classList.add('section-open');
                         navItems.forEach(i => i.classList.remove('active'));
@@ -1735,7 +1736,16 @@
                 });
             });
 
+            if (window.location.hash) {
+                const targetHash = window.location.hash.substring(1);
+                const targetItem = Array.from(navItems).find(i => i.dataset.section === targetHash);
+                if (targetItem) {
+                    setTimeout(() => targetItem.click(), 100);
+                }
+            }
+
             backArrow.addEventListener('click', () => {
+                history.replaceState(null, null, ' ');
                 withViewTransition(() => {
                     body.classList.remove('section-open');
                     navItems.forEach(item => item.classList.remove('active'));
