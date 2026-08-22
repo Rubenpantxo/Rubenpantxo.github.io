@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es" data-paleta="barro-crema" data-tipo="serif-titulares" data-elem="redondeado" data-preset="terracota" data-tema-memoria="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terracota — Sistema de diseño</title>
+<meta name="description" content="Terracota: terracota sobre crema, esquinas generosas y la serif reservada a los titulares.">
+<link rel="stylesheet" href="tema.css">
+<link rel="stylesheet" href="sistema.css">
+<style>
+</style>
+<script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
+</head>
+<body>
+<div class="sd-contenedor">
+
+  <header class="sd-cabecera">
+    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <span class="sd-etiqueta">Claro · dos acentos · radio 16</span>
+    <h1 class="sd-titulo">Terracota</h1>
+    <p class="sd-bajada">Terracota sobre crema, esquinas generosas y una tipografía que no compite con el contenido. La serif se reserva a los titulares; todo lo demás va en la pila del sistema.</p>
+  </header>
+
+  <section class="sd-seccion">
+    <h2>Paleta</h2>
+    <p>Un tostado que recuerda al barro cocido, un fondo crema que no deslumbra y un verde reservado para confirmar. Nada de rojo salvo para errores.</p>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#B34A1F" style="--c:#b34a1f;--t:#ffffff"
+                aria-label="Copiar #B34A1F, Terracota">
+          <span class="pl-color__nombre">Terracota</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#B34A1F</b></span>
+          <span class="pl-color__rol">Marca y acción</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#8A3514" style="--c:#8a3514;--t:#ffffff"
+                aria-label="Copiar #8A3514, Terracota oscuro">
+          <span class="pl-color__nombre">Terracota oscuro</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#8A3514</b></span>
+          <span class="pl-color__rol">Estado pulsado</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FDF6EC" style="--c:#fdf6ec;--t:#101010"
+                aria-label="Copiar #FDF6EC, Crema">
+          <span class="pl-color__nombre">Crema</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FDF6EC</b></span>
+          <span class="pl-color__rol">Fondo</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FFFFFF" style="--c:#ffffff;--t:#101010"
+                aria-label="Copiar #FFFFFF, Tarjeta">
+          <span class="pl-color__nombre">Tarjeta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FFFFFF</b></span>
+          <span class="pl-color__rol">Superficie</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#2B1D12" style="--c:#2b1d12;--t:#ffffff"
+                aria-label="Copiar #2B1D12, Tinta">
+          <span class="pl-color__nombre">Tinta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#2B1D12</b></span>
+          <span class="pl-color__rol">Texto principal</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#7C6E60" style="--c:#7c6e60;--t:#ffffff"
+                aria-label="Copiar #7C6E60, Apagado">
+          <span class="pl-color__nombre">Apagado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#7C6E60</b></span>
+          <span class="pl-color__rol">Texto secundario</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#2E9E5B" style="--c:#2e9e5b;--t:#101010"
+                aria-label="Copiar #2E9E5B, Confirmado">
+          <span class="pl-color__nombre">Confirmado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#2E9E5B</b></span>
+          <span class="pl-color__rol">Éxito, proceso en marcha</span>
+        </button>
+      </li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Tipografía</h2>
+    <p>Serif solo en los titulares. El resto, la pila del sistema: cero peso extra y aspecto nativo en el móvil de quien lo lea.</p>
+    <ul class="sd-tipo">
+      <li><span class="sd-tipo-meta">Display · serif</span><span class="sd-muestra-display">Titular en serif</span></li>
+      <li><span class="sd-tipo-meta">Subtítulo · serif</span><span class="sd-muestra-titulo">Un segundo nivel</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · sistema / 16px</span><span class="sd-muestra-cuerpo">El párrafo cabe en dos líneas y esa es la restricción: si necesita tres, sobra texto o el componente está mal elegido.</span></li>
+      <li><span class="sd-tipo-meta">Pie · sistema / 13px</span><span class="sd-muestra-pie">Nota al pie, metadatos y disponibilidad.</span></li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Componentes</h2>
+    <p>Radio de 16 píxeles en todo: tarjetas, botones y chips. Las zonas pulsables nunca bajan de 44 píxeles de alto, para que se pueda usar de pie y con una mano.</p>
+
+    <h3>Botones</h3>
+    <div class="sd-lienzo">
+      <button class="sd-btn" type="button">Añadir</button>
+      <button class="sd-btn sd-btn--linea" type="button">Ver más</button>
+      <button class="sd-btn sd-btn--suave" type="button">Guardar</button>
+      <button class="sd-btn sd-btn--fantasma" type="button">Quitar</button>
+      <button class="sd-btn" type="button" disabled>No disponible</button>
+    </div>
+
+    <h3>Selección y entrada</h3>
+    <div class="sd-lienzo">
+      <label class="sd-check"><input type="checkbox" checked> Opción marcada</label>
+      <label class="sd-check"><input type="checkbox"> Opción sin marcar</label>
+      <label class="sd-check"><input type="radio" name="terracota-r" checked> Primera opción</label>
+      <label class="sd-check"><input type="radio" name="terracota-r"> Segunda opción</label>
+      <label class="sd-campo"><span>Nombre</span><input type="text" placeholder="Ana"></label>
+    </div>
+
+    <h3>Iconos</h3>
+    <div class="sd-lienzo sd-iconos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Inicio"><path d="M3 10 12 4l9 6v10H3V10Z"/><path d="M9 20v-6h6v6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Perfil"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Reserva"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Cesta"><path d="M6 8h12l-1.2 11a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Tiempo de espera"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    </div>
+
+    <h3>Tarjeta</h3>
+    <div class="sd-lienzo">
+      <article class="sd-ficha">
+        <span class="sd-insignia">Destacado</span>
+        <h4>Título de la tarjeta</h4>
+        <p>Dos líneas de apoyo: qué es, y el único dato que hace falta para decidir.</p>
+        <button class="sd-btn" type="button">Añadir</button>
+      </article>
+    </div>
+  </section>
+
+
+  <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="../bar-restaurante.html">Ver un ejemplo aplicado &#8599;</a>
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
+    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+
+</div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
+</body>
+</html>

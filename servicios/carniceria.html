@@ -1,20 +1,25 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="grana-mensajeria" data-tipo="peso-alto" data-elem="generoso">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carnicería Manolo — Demo encargos sin colas</title>
+<link rel="stylesheet" href="sistemas/tema.css">
 <style>
     :root {
-        --meat: #a4262c;
-        --meat-dark: #7c181d;
-        --cream: #fbf7f1;
-        --ink: #2c2018;
-        --muted: #7b6e65; /* 4,62:1 sobre la crema; el #94857a anterior se quedaba en 3,34 y no llegaba a AA */
+        --meat: var(--sd-accent);
+        --meat-dark: var(--sd-accent-strong);
+        --meat-text: var(--sd-accent-text);
+        --cream: var(--sd-bg);
+        --ink: var(--sd-ink);
+        --muted: var(--sd-muted);
+        --line: var(--sd-line);
+        --radius: var(--sd-radius);
+        /* El verde de mensajeria NO sigue al tema: es el color de una marca
+           ajena y su valor esta justo en que ya significa algo. */
         --wa: #25d366;
         --wa-dark: #075e54;
         --wa-bg: #e5ddd5;
-        --radius: 16px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -24,7 +29,7 @@
     }
     .demo-badge {
         position: fixed; top: 42px; left: -34px; z-index: 90;
-        background: rgba(44,32,24,.85); color: #fff; font-size: 10px; font-weight: 700;
+        background: color-mix(in srgb, var(--sd-ink) 85%, transparent); color: var(--sd-bg); font-size: 10px; font-weight: 700;
         letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
     }
     .screen { display: none; min-height: 100dvh; }
@@ -32,10 +37,10 @@
 
     /* ---------- PANTALLA 1: PRODUCTOS ---------- */
     .hero {
-        padding: 46px 18px 20px; color: #fff; border-radius: 0 0 26px 26px;
+        padding: 46px 18px 20px; color: var(--sd-on-accent); border-radius: 0 0 26px 26px;
         background:
             radial-gradient(100% 80% at 90% 0%, rgba(255,180,160,.3), transparent 55%),
-            linear-gradient(155deg, #5e1014 0%, #a4262c 70%, #c13b35 100%);
+            linear-gradient(155deg, color-mix(in srgb, var(--sd-accent-strong) 70%, var(--sd-ink)) 0%, var(--sd-accent) 70%, color-mix(in srgb, var(--sd-accent) 78%, var(--sd-bg)) 100%);
     }
     .hero .art { font-size: 46px; }
     .hero h1 { font-size: 26px; font-weight: 800; margin-top: 6px; }
@@ -47,25 +52,25 @@
     }
     .prods { padding: 16px 16px 120px; display: grid; gap: 12px; }
     .prod {
-        background: #fff; border-radius: var(--radius); padding: 14px;
+        background: var(--sd-surface); border-radius: var(--radius); padding: 14px;
         box-shadow: 0 2px 10px rgba(90,40,20,.08); animation: rise .35s ease both;
     }
     @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
     .prod-top { display: flex; gap: 12px; align-items: center; }
     .prod-img {
         flex: 0 0 56px; height: 56px; border-radius: 14px; display: grid; place-items: center;
-        font-size: 28px; background: linear-gradient(145deg, #fde8e0, #f6cfc2);
+        font-size: 28px; background: linear-gradient(145deg, color-mix(in srgb, var(--sd-accent) 12%, var(--sd-bg)), color-mix(in srgb, var(--sd-accent) 26%, var(--sd-bg)));
     }
     .prod-top h3 { font-size: 15px; font-weight: 700; }
     .prod-top .unit { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .prod-top .ppk { margin-left: auto; font-size: 14px; font-weight: 800; color: var(--meat-dark); white-space: nowrap; }
     .prod-ctrl { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
     .wbtn {
-        width: 38px; height: 38px; border-radius: 12px; border: 1.5px solid #ecd9cd;
-        background: #fff; font-size: 18px; font-weight: 800; cursor: pointer; color: var(--ink);
+        width: 38px; height: 38px; border-radius: 12px; border: 1.5px solid var(--line);
+        background: var(--sd-surface); font-size: 18px; font-weight: 800; cursor: pointer; color: var(--ink);
         transition: all .15s;
     }
-    .wbtn:active { transform: scale(.9); background: #fdf0e8; }
+    .wbtn:active { transform: scale(.9); background: color-mix(in srgb, var(--sd-accent) 10%, var(--sd-bg)); }
     .wval { flex: 1; text-align: center; }
     .wval strong { font-size: 16px; }
     .wval small { display: block; font-size: 11px; color: var(--muted); }
@@ -74,7 +79,7 @@
     #orderbar {
         position: fixed; left: 50%; bottom: 16px; transform: translate(-50%, 150%);
         width: calc(100% - 32px); max-width: 448px; border: none; cursor: pointer; z-index: 40;
-        background: var(--meat-dark); color: #fff; border-radius: 16px; padding: 15px 18px;
+        background: var(--meat-dark); color: var(--sd-on-accent); border-radius: 16px; padding: 15px 18px;
         display: flex; justify-content: space-between; font-size: 14px; font-weight: 800;
         box-shadow: 0 10px 30px rgba(124,24,29,.45); transition: transform .35s cubic-bezier(.2,.9,.3,1.2);
     }
@@ -85,13 +90,13 @@
         padding: 50px 18px 16px; display: flex; align-items: center; gap: 12px;
     }
     .back {
-        width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #ecd9cd;
-        background: #fff; font-size: 16px; cursor: pointer;
+        width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line);
+        background: var(--sd-surface); font-size: 16px; cursor: pointer;
     }
     .head2 h1 { font-size: 20px; font-weight: 800; }
     .review { padding: 0 18px 40px; }
-    .rev-card { background: #fff; border-radius: var(--radius); padding: 6px 16px; box-shadow: 0 2px 10px rgba(90,40,20,.08); }
-    .rev-row { display: flex; justify-content: space-between; gap: 10px; padding: 11px 0; border-bottom: 1px dashed #f0e2d6; font-size: 14px; }
+    .rev-card { background: var(--sd-surface); border-radius: var(--radius); padding: 6px 16px; box-shadow: 0 2px 10px rgba(90,40,20,.08); }
+    .rev-row { display: flex; justify-content: space-between; gap: 10px; padding: 11px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
     .rev-row:last-child { border-bottom: none; }
     .rev-row .q { color: var(--muted); font-size: 12px; }
     .rev-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 15px; padding: 14px 2px 4px; }
@@ -99,20 +104,20 @@
     .sect-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 22px 0 10px; }
     .slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .slot {
-        border: 1.5px solid #ecd9cd; background: #fff; border-radius: 12px; padding: 12px 8px;
+        border: 1.5px solid var(--line); background: var(--sd-surface); border-radius: 12px; padding: 12px 8px;
         font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; transition: all .2s;
     }
     .slot small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .slot.active { background: var(--meat-dark); color: #fff; border-color: var(--meat-dark); }
+    .slot.active { background: var(--meat-dark); color: var(--sd-on-accent); border-color: var(--meat-dark); }
     .slot.active small { color: rgba(255,255,255,.7); }
     .review input[type="text"] {
-        width: 100%; padding: 13px 14px; font-size: 14px; border: 1.5px solid #ecd9cd;
-        border-radius: 12px; background: #fff; outline: none;
+        width: 100%; padding: 13px 14px; font-size: 14px; border: 1.5px solid var(--line);
+        border-radius: 12px; background: var(--sd-surface); outline: none;
     }
     .review input[type="text"]:focus { border-color: var(--meat); }
     .btn-wa {
         width: 100%; border: none; cursor: pointer; margin-top: 22px;
-        background: var(--wa); color: #fff; font-size: 15px; font-weight: 800;
+        background: var(--wa); color: #062e1c; font-size: 15px; font-weight: 800;
         padding: 15px; border-radius: 14px; box-shadow: 0 8px 22px rgba(37,211,102,.4);
         display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform .15s;
     }
@@ -122,11 +127,11 @@
     #screen-chat { display: none; flex-direction: column; height: 100dvh; background: var(--wa-bg); }
     #screen-chat.active { display: flex; }
     .chat-head {
-        background: var(--wa-dark); color: #fff; padding: 44px 14px 12px;
+        background: var(--wa-dark); color: #ffffff; padding: 44px 14px 12px;
         display: flex; align-items: center; gap: 12px; flex-shrink: 0;
     }
     .chat-avatar {
-        width: 40px; height: 40px; border-radius: 50%; background: #fff;
+        width: 40px; height: 40px; border-radius: 50%; background: var(--sd-surface);
         display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
     }
     .chat-head h2 { font-size: 16px; font-weight: 700; }
@@ -143,7 +148,7 @@
     }
     @keyframes bubble-in { from { opacity: 0; transform: translateY(10px) scale(.96); } }
     .bubble.out { background: #dcf8c6; margin-left: auto; border-top-right-radius: 4px; }
-    .bubble.in  { background: #fff; margin-right: auto; border-top-left-radius: 4px; }
+    .bubble.in  { background: var(--sd-surface); margin-right: auto; border-top-left-radius: 4px; }
     .bubble .time { display: block; text-align: right; font-size: 10px; color: rgba(0,0,0,.4); margin-top: 4px; }
     .bubble .ticks { color: #4fc3f7; font-size: 11px; }
     .typing { display: inline-flex; gap: 4px; padding: 4px 2px; }
@@ -153,17 +158,19 @@
     @keyframes blink { 0%, 60%, 100% { opacity: .3; } 30% { opacity: 1; } }
     .chat-foot { padding: 12px 14px calc(16px + env(safe-area-inset-bottom)); flex-shrink: 0; }
     .btn-again {
-        width: 100%; border: none; cursor: pointer; background: var(--wa-dark); color: #fff;
+        width: 100%; border: none; cursor: pointer; background: var(--wa-dark); color: #ffffff;
         font-size: 14px; font-weight: 800; padding: 14px; border-radius: 14px;
     }
     .toast {
         position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(16px);
-        background: var(--ink); color: #fff; font-size: 13px; font-weight: 600;
+        background: var(--ink); color: var(--sd-bg); font-size: 13px; font-weight: 600;
         padding: 9px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80;
         pointer-events: none; white-space: nowrap;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
+<script src="sistemas/tema-datos.js"></script>
+<script src="../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="demo-badge">DEMO</div>

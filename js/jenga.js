@@ -341,7 +341,6 @@
         }
     }
 
-    function worldHalfW() { return W / (2 * scale) - 40; }
 
     function physics() {
         const free = bodies.filter(b => b.state === 'free' && !b.asleep);
@@ -368,6 +367,16 @@
             if (!hasSupport(b)) {
                 wake(b);
                 b.tiltV = (Math.random() - 0.5) * 0.03;
+            }
+        }
+        // la torre también revisa sus apoyos sin esperar a que la toques:
+        // si su sostén se marcha, lo de arriba no se queda levitando
+        if (topL >= 0 && t % 15 === 0) checkTowerIntegrity();
+        // ninguna pieza se queda dormida congelada a medio tumbo
+        for (const b of bodies) {
+            if (b.state === 'free' && b.asleep && b.tilt !== 0) {
+                b.tilt *= 0.8;
+                if (Math.abs(b.tilt) < 0.01) b.tilt = 0;
             }
         }
         shake *= 0.92;
@@ -478,12 +487,16 @@
             b.tilt *= 0.6; b.tiltV = 0;
         }
 
-        // paredes blandas: que el montón no se salga del lienzo
-        const lim = worldHalfW();
-        if (b.x < -lim) { b.x = -lim; b.vx = Math.abs(b.vx) * 0.3; }
-        if (b.x > lim) { b.x = lim; b.vx = -Math.abs(b.vx) * 0.3; }
-        if (b.z < -150) { b.z = -150; b.vz = Math.abs(b.vz) * 0.3; }
-        if (b.z > 170) { b.z = 170; b.vz = -Math.abs(b.vz) * 0.3; }
+        // topes blandos en el borde de la mesa: se mide la posición ya
+        // proyectada (con la profundidad) para que ninguna pieza quede
+        // visualmente fuera del mantel
+        const m = Math.max(BL, Math.min(W * 0.46, 340) / scale - 85);
+        const cx0 = (W / 2 - baseX) / scale;
+        const px = b.x + b.z * PROJX;
+        if (px < cx0 - m) { b.x += (cx0 - m) - px; b.vx = Math.abs(b.vx) * 0.3; }
+        if (px > cx0 + m) { b.x -= px - (cx0 + m); b.vx = -Math.abs(b.vx) * 0.3; }
+        if (b.z < -140) { b.z = -140; b.vz = Math.abs(b.vz) * 0.3; }
+        if (b.z > 160) { b.z = 160; b.vz = -Math.abs(b.vz) * 0.3; }
 
         // sueño: quieta y apoyada unos cuantos fotogramas
         const speed = Math.hypot(b.vx, b.vy, b.vz);
@@ -771,7 +784,7 @@
         const b = drag.body;
         wake(b);
         const pScr = proj(b.x, b.y + BH / 2, b.z);
-        if (pScr.y - y > 55 * Math.max(0.5, scale)) {
+        if (drag.sy - y > 32 || pScr.y - y > 55 * Math.max(0.5, scale)) {
             const start = proj(b.x, b.y, b.z);
             b.state = 'hand';
             b.vx = b.vy = b.vz = b.om = 0;
@@ -1071,15 +1084,19 @@
             ctx.restore();
         }
 
-        // sombras en el suelo, una por pieza
+        // sombras en el suelo: la huella real de cada pieza, con su giro.
+        // Es lo que ancla visualmente las piezas caídas a la mesa.
         for (const b of bodies) {
-            if (b.state === 'hand') continue;
             const hgt = Math.max(0, b.y - BH / 2);
-            const a = Math.max(0.04, 0.16 - hgt * 0.0004);
-            const p = proj(b.x, 0, b.z);
+            const a = Math.max(0.04, 0.18 - hgt * 0.00045);
+            const pc = planCorners(b);
             ctx.fillStyle = `rgba(40,20,5,${a})`;
             ctx.beginPath();
-            ctx.ellipse(p.x, tableY + (p.y - baseY) * 0.4, BL * 0.42 * scale, 9 * scale, 0, 0, 7);
+            for (let i = 0; i < 4; i++) {
+                const p = proj(pc[i][0], 0, pc[i][1]);
+                i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y);
+            }
+            ctx.closePath();
             ctx.fill();
         }
 

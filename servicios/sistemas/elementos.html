@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca de elementos</title>
+<meta name="description" content="Casi doscientos botones, tarjetas, casillas, interruptores, cargadores y patrones listos para copiar. De UIverse, bajo licencia MIT.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css">
+<style>
+  /* El cromado va fijo, como en el configurador: cada elemento trae sus
+     propios colores y si la pagina cambiara con ellos no se veria ninguno. */
+  :root {
+    --gl-fondo: #0a0d0a;
+    --gl-panel: #12160f;
+    --gl-alto: #1a1f18;
+    --gl-filo: #2a312a;
+    --gl-tinta: #f2f5f0;
+    --gl-apagado: #8f9a8c;
+    --gl-acento: #a3e635;
+    --gl-sans: "Inter Tight", "Inter", system-ui, sans-serif;
+    --gl-mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding-bottom: clamp(3rem, 8vh, 5rem);
+    background: var(--gl-fondo);
+    color: var(--gl-tinta);
+    font-family: var(--gl-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .gl-ancho {
+    max-width: 82rem;
+    margin: 0 auto;
+    padding-inline: clamp(1.15rem, 4vw, 3rem);
+  }
+
+  .gl-cabecera { padding-top: clamp(2rem, 6vh, 3.5rem); }
+
+  .gl-migas {
+    display: inline-block;
+    margin-bottom: clamp(1.25rem, 3vh, 2rem);
+    color: var(--gl-apagado);
+    text-decoration: none;
+    font-size: 0.88rem;
+  }
+
+  .gl-migas:hover, .gl-migas:focus-visible { color: var(--gl-acento); }
+
+  .gl-cabecera h1 {
+    margin: 0 0 0.6rem;
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+  }
+
+  .gl-entradilla { max-width: 62ch; margin: 0 0 0.5rem; color: var(--gl-apagado); }
+  .gl-entradilla a { color: var(--gl-acento); }
+
+  .gl-credito {
+    max-width: 62ch;
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--gl-apagado);
+  }
+
+  /* --- barra de filtros, pegada arriba --- */
+  .gl-filtros {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: 0.85rem 0;
+    margin-top: clamp(1.25rem, 3vh, 2rem);
+    background: color-mix(in srgb, var(--gl-fondo) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--gl-filo);
+  }
+
+  .gl-fila-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .gl-buscar {
+    flex: 1 1 12rem;
+    min-width: 0;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid var(--gl-filo);
+    border-radius: 999px;
+    background: var(--gl-panel);
+    color: var(--gl-tinta);
+    font: inherit;
+    font-size: 0.85rem;
+  }
+
+  .gl-buscar::placeholder { color: var(--gl-apagado); }
+
+  .gl-contador {
+    font-family: var(--gl-mono);
+    font-size: 0.72rem;
+    color: var(--gl-apagado);
+    white-space: nowrap;
+  }
+
+  .gl-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+  }
+
+  .gl-chip {
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--gl-filo);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--gl-apagado);
+    font: 600 0.75rem/1 var(--gl-sans);
+    cursor: pointer;
+  }
+
+  .gl-chip:hover { color: var(--gl-tinta); }
+  .gl-chip[aria-pressed="true"] { border-color: var(--gl-acento); color: var(--gl-acento); }
+
+  /* --- la rejilla --- */
+  .gl-seccion { padding-top: clamp(1.75rem, 5vh, 2.75rem); }
+  .gl-seccion[hidden] { display: none; }
+
+  .gl-seccion h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0 0 0.9rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .gl-seccion h2 span {
+    font-family: var(--gl-mono);
+    font-size: 0.7rem;
+    color: var(--gl-apagado);
+  }
+
+  .gl-rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 0.85rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gl-pieza {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--gl-filo);
+    border-radius: 12px;
+    background: var(--gl-panel);
+    overflow: hidden;
+  }
+
+  .gl-pieza[hidden] { display: none; }
+
+  /* El elemento vive aqui dentro, en su shadow root. El fondo neutro es a
+     proposito: muchos estan hechos para fondo oscuro y otros para claro, y
+     este gris deja ver los dos sin mentir sobre ninguno. */
+  .gl-muestra {
+    /* El tamano tiene que estar AQUI, en el DOM claro, no solo en el :host de
+       dentro del shadow: sin alto, el IntersectionObserver no dispara nunca y
+       la pieza no llega a montarse. Ademas evita el salto de maquetacion. */
+    display: grid;
+    place-items: center;
+    min-height: 8.5rem;
+    flex: 1;
+    background:
+      linear-gradient(45deg, #1c1c20 25%, transparent 25%, transparent 75%, #1c1c20 75%),
+      linear-gradient(45deg, #1c1c20 25%, #17171b 25%, #17171b 75%, #1c1c20 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 8px 8px;
+    overflow: hidden;
+  }
+
+  .gl-pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 0.7rem;
+    border-top: 1px solid var(--gl-filo);
+    background: var(--gl-alto);
+    font-size: 0.7rem;
+  }
+
+  .gl-autor {
+    font-family: var(--gl-mono);
+    color: var(--gl-acento);
+  }
+
+  .gl-autor::before { content: "por "; color: var(--gl-apagado); }
+
+  .gl-tags {
+    flex: 1 1 100%;
+    order: 3;
+    color: var(--gl-apagado);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .gl-copiar {
+    margin-left: auto;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--gl-filo);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--gl-tinta);
+    font: 600 0.7rem/1 var(--gl-sans);
+    cursor: pointer;
+  }
+
+  .gl-copiar:hover { border-color: var(--gl-acento); color: var(--gl-acento); }
+
+  sd-uiverse[tokenizado] { --sd-marca: 1; }
+
+  .gl-pieza:has(sd-uiverse[tokenizado]) .gl-autor::after {
+    content: " · sigue tu paleta";
+    color: var(--gl-apagado);
+  }
+
+  :focus-visible { outline: 2px solid var(--gl-acento); outline-offset: 2px; }
+
+  .gl-sinjs {
+    margin-top: 2rem;
+    padding: 1rem;
+    border: 1px solid var(--gl-filo);
+    border-radius: 12px;
+    color: var(--gl-apagado);
+  }
+</style>
+<script src="tema-datos.js"></script>
+<script src="uiverse/indice.js"></script>
+<script src="uiverse/tokenizados.js"></script>
+<script src="../../js/galeria-elementos.js" defer></script>
+<script src="../../js/selector-sistema.js" defer></script>
+</head>
+<body>
+
+<header class="gl-cabecera gl-ancho">
+  <a class="gl-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  <h1>Biblioteca de elementos</h1>
+  <p class="gl-entradilla">Botones, tarjetas, casillas, interruptores, cargadores, campos y patrones. Pulsa <em>Copiar código</em> y llévate el HTML con su CSS: cada pieza es autónoma y no necesita ninguna librería.</p>
+  <p class="gl-credito">Vienen de <a href="https://uiverse.io">UIverse.io</a>, bajo licencia MIT, y cada una lleva el nombre de quien la hizo. Los marcados como <em>sigue tu paleta</em> están retokenizados: cambian de color con el sistema que elijas abajo a la derecha.</p>
+</header>
+
+<div class="gl-filtros">
+  <div class="gl-ancho">
+    <div class="gl-fila-filtros">
+      <input class="gl-buscar" type="search" data-buscar placeholder="Buscar por tipo, etiqueta o autor" aria-label="Buscar elementos">
+      <span class="gl-contador" data-contador></span>
+    </div>
+    <div class="gl-chips" data-chips role="group" aria-label="Filtrar por categoría"></div>
+  </div>
+</div>
+
+<main class="gl-ancho" data-galeria></main>
+
+<noscript>
+  <p class="gl-sinjs gl-ancho">La galería necesita JavaScript para montar cada elemento aislado. Sin él, los archivos siguen estando en <code>servicios/sistemas/uiverse/</code>.</p>
+</noscript>
+
+</body>
+</html>
