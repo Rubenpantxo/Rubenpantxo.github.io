@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Ajedrez 3D — Visor de piezas</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600&display=swap">
+  <style>
+    :root{
+      --gold:#c9a84c; --gold-soft:#d8b98c; --cream:#efe6d5; --muted:#a89878;
+      --panel:rgba(14,11,7,0.82); --border:rgba(201,168,76,0.28);
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;height:100%;overflow:hidden;background:#0d0a08;
+      font-family:'Outfit',system-ui,sans-serif;color:var(--cream);}
+    #c{position:fixed;inset:0;display:block;}
+
+    /* pantalla de carga */
+    #load{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:radial-gradient(ellipse at center,#1a130c,#000);z-index:50;transition:opacity .6s;}
+    #load.hide{opacity:0;pointer-events:none;}
+    #load h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;letter-spacing:.28em;
+      font-size:2.4em;color:var(--gold-soft);margin:0 0 .5em .28em;text-shadow:0 0 30px rgba(216,185,140,.4);}
+    #load .bar{width:min(320px,66vw);height:8px;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+    #load .fill{height:100%;width:0;background:linear-gradient(90deg,#7a5c30,var(--gold));transition:width .25s;}
+    #load .pct{margin-top:.7em;color:var(--muted);font-size:.85em;}
+
+    /* cabecera */
+    header{position:fixed;top:0;left:0;right:0;z-index:20;padding:14px 18px;pointer-events:none;
+      display:flex;align-items:baseline;gap:14px;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);}
+    header .title{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:1.5em;color:var(--gold-soft);}
+    header .sub{font-size:.72em;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);}
+    header a{margin-left:auto;pointer-events:auto;color:var(--muted);text-decoration:none;font-size:.8em;
+      border:1px solid var(--border);border-radius:20px;padding:6px 14px;transition:.15s;}
+    header a:hover{color:var(--gold);border-color:var(--gold);}
+
+    /* selector de piezas (izquierda) */
+    #pieces{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:20;
+      display:flex;flex-direction:column;gap:8px;}
+    #pieces button{width:104px;padding:9px 8px;border-radius:11px;border:1px solid var(--border);
+      background:var(--panel);color:var(--cream);font-size:.82em;cursor:pointer;transition:.14s;
+      display:flex;flex-direction:column;align-items:center;gap:2px;backdrop-filter:blur(6px);}
+    #pieces button .en{font-size:.68em;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+    #pieces button:hover{border-color:var(--gold);transform:translateX(3px);}
+    #pieces button.active{background:linear-gradient(180deg,#caa768,#9a7b40);color:#17100a;border-color:#caa768;}
+    #pieces button.active .en{color:#3a2c12;}
+
+    /* panel de controles (derecha) */
+    #panel{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:20;width:210px;
+      background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;
+      backdrop-filter:blur(6px);display:flex;flex-direction:column;gap:14px;}
+    #panel .name{font-family:'Cormorant Garamond',Georgia,serif;font-size:2em;line-height:1;color:var(--gold-soft);}
+    #panel .stats{font-size:.72em;color:var(--muted);letter-spacing:.03em;}
+    #panel .grp{display:flex;flex-direction:column;gap:7px;}
+    #panel .lbl{font-size:.64em;letter-spacing:.18em;text-transform:uppercase;color:#8a7a5a;}
+    .seg{display:flex;gap:6px;}
+    .seg button{flex:1;padding:7px 4px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);
+      color:var(--cream);font-size:.78em;cursor:pointer;transition:.14s;}
+    .seg button:hover{border-color:var(--gold);}
+    .seg button.on{background:var(--gold);color:#17100a;border-color:var(--gold);font-weight:600;}
+    .toggles{display:flex;flex-wrap:wrap;gap:6px;}
+    .chip{padding:6px 11px;border-radius:18px;border:1px solid var(--border);background:rgba(255,255,255,.04);
+      color:var(--cream);font-size:.76em;cursor:pointer;transition:.14s;}
+    .chip:hover{border-color:var(--gold);}
+    .chip.on{background:rgba(201,168,76,.16);border-color:var(--gold);color:var(--gold-soft);}
+    #panel input[type=range]{width:100%;accent-color:var(--gold);}
+
+    #hint{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:20;
+      font-size:.76em;color:var(--muted);background:var(--panel);border:1px solid var(--border);
+      border-radius:20px;padding:7px 16px;backdrop-filter:blur(6px);}
+
+    @media (max-width:760px){
+      #pieces{flex-direction:row;flex-wrap:wrap;left:8px;right:8px;top:auto;bottom:74px;transform:none;justify-content:center;}
+      #pieces button{width:auto;flex-direction:row;gap:6px;padding:7px 12px;}
+      #pieces button .en{display:none;}
+      #panel{right:8px;left:8px;top:56px;bottom:auto;transform:none;width:auto;flex-direction:row;flex-wrap:wrap;
+        align-items:center;gap:10px 16px;}
+      #panel .name{font-size:1.4em;}
+      #hint{display:none;}
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+
+  <div id="load">
+    <h1>PIEZAS&nbsp;3D</h1>
+    <div class="bar"><div class="fill" id="loadfill"></div></div>
+    <div class="pct" id="loadpct">0%</div>
+  </div>
+
+  <header>
+    <span class="title">Ajedrez 3D</span>
+    <span class="sub">Visor de piezas</span>
+    <a href="index.html">← Jugar</a>
+  </header>
+
+  <div id="pieces"></div>
+
+  <div id="panel">
+    <div>
+      <div class="name" id="pname">Rey</div>
+      <div class="stats" id="pstats">—</div>
+    </div>
+    <div class="grp">
+      <span class="lbl">Madera</span>
+      <div class="seg" id="woodseg">
+        <button data-wood="1" class="on">Clara</button>
+        <button data-wood="0">Oscura</button>
+      </div>
+    </div>
+    <div class="grp">
+      <span class="lbl">Brillo</span>
+      <input type="range" id="shine" min="0" max="120" value="60">
+    </div>
+    <div class="grp">
+      <span class="lbl">Vista</span>
+      <div class="toggles">
+        <div class="chip on" id="t-rotate">Giro auto</div>
+        <div class="chip on" id="t-reflect">Reflejo</div>
+        <div class="chip" id="t-wire">Malla</div>
+        <div class="chip" id="t-reset">Centrar</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="hint">Arrastra para rotar · rueda para zoom · clic derecho para desplazar</div>
+
+  <script src="js/lib/three.min.js"></script>
+  <script src="js/lib/OrbitAndPanControls.js"></script>
+  <script>
+  "use strict";
+  (function () {
+    var PIECES = [
+      { id:"king",   es:"Rey",     en:"King" },
+      { id:"queen",  es:"Dama",    en:"Queen" },
+      { id:"rook",   es:"Torre",   en:"Rook" },
+      { id:"bishop", es:"Alfil",   en:"Bishop" },
+      { id:"knight", es:"Caballo", en:"Knight" },
+      { id:"pawn",   es:"Peón",    en:"Pawn" }
+    ];
+    var SIZE = 6;
+
+    var geoms = {}, tex = {};
+    var renderer, scene, camera, controls, clock;
+    var pieceGroup, current = null, curWood = 1, curShine = 60, wire = false, reflectOn = true;
+    var reflection = null, mainMesh = null, floor = null;
+
+    function tile(t, n){ t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(n,n); t.needsUpdate = true; return t; }
+
+    /* ---------- carga de recursos ---------- */
+    function load(done){
+      var res = [];
+      PIECES.forEach(function(p){ res.push({t:"geo", url:"3D/json/"+p.id+".json", key:p.id});
+        res.push({t:"tex", url:"texture/"+p.id+"-ao.jpg", key:p.id+"-ao"}); });
+      ["wood-0","wood-1","wood_N","wood_S"].forEach(function(n){ res.push({t:"tex", url:"texture/"+n+".jpg", key:n}); });
+
+      var n = 0, total = res.length, failed = [];
+      function step(){
+        n++;
+        document.getElementById("loadfill").style.width = Math.round(n/total*100)+"%";
+        document.getElementById("loadpct").textContent = Math.round(n/total*100)+"%";
+        if (n === total){
+          if (failed.length){ document.getElementById("loadpct").textContent = "Error: "+failed[0]; return; }
+          done();
+        }
+      }
+      res.forEach(function(r){
+        if (r.t === "geo"){
+          new THREE.JSONLoader().load(r.url, function(g){ g.computeBoundingBox(); geoms[r.key]=g; step(); });
+        } else {
+          THREE.ImageUtils.loadTexture(r.url, new THREE.UVMapping(),
+            function(t){ tex[r.key]=t; step(); },
+            function(){ failed.push(r.url); step(); });
+        }
+      });
+    }
+
+    /* ---------- escena ---------- */
+    function makeGradientTexture(top, bottom){
+      var cv = document.createElement("canvas"); cv.width = 8; cv.height = 256;
+      var g = cv.getContext("2d").createLinearGradient(0,0,0,256);
+      g.addColorStop(0, top); g.addColorStop(1, bottom);
+      var ctx = cv.getContext("2d"); ctx.fillStyle = g; ctx.fillRect(0,0,8,256);
+      var t = new THREE.Texture(cv); t.needsUpdate = true; return t;
+    }
+    function makeFloorTexture(){
+      var s = 512, cv = document.createElement("canvas"); cv.width = cv.height = s;
+      var ctx = cv.getContext("2d");
+      var g = ctx.createRadialGradient(s/2,s/2,0, s/2,s/2,s/2);
+      g.addColorStop(0,"rgba(13,10,8,0)"); g.addColorStop(0.45,"rgba(13,10,8,0.15)");
+      g.addColorStop(0.75,"rgba(13,10,8,0.75)"); g.addColorStop(1,"rgba(13,10,8,1)");
+      ctx.fillStyle = "#0d0a08"; ctx.fillRect(0,0,s,s);
+      ctx.globalCompositeOperation = "destination-out";
+      var h = ctx.createRadialGradient(s/2,s/2,0, s/2,s/2,s*0.42);
+      h.addColorStop(0,"rgba(0,0,0,1)"); h.addColorStop(0.7,"rgba(0,0,0,0.6)"); h.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.fillStyle = h; ctx.fillRect(0,0,s,s);
+      var t = new THREE.Texture(cv); t.needsUpdate = true; return t;
+    }
+
+    function init(){
+      var canvas = document.getElementById("c");
+      renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:true });
+      renderer.gammaInput = true; renderer.gammaOutput = true;
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x0d0a08, 1);
+
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x0d0a08, 0.012);
+
+      camera = new THREE.PerspectiveCamera(38, window.innerWidth/window.innerHeight, 0.1, 2000);
+      camera.position.set(18, 16, 34);
+
+      controls = new THREE.OrbitAndPanControls(camera, renderer.domElement);
+      controls.minDistance = 8; controls.maxDistance = 120;
+      controls.maxPolarAngle = 172 * Math.PI/180;
+      controls.autoRotate = true; controls.autoRotateSpeed = 1.6;
+
+      // fondo tipo estudio
+      var backdrop = new THREE.Mesh(
+        new THREE.SphereGeometry(600, 24, 16),
+        new THREE.MeshBasicMaterial({ map:makeGradientTexture("#1c150d","#050403"), side:THREE.BackSide, fog:false })
+      );
+      scene.add(backdrop);
+
+      // suelo con degradado (oculta el reflejo hacia los bordes)
+      floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(260,260),
+        new THREE.MeshBasicMaterial({ map:makeFloorTexture(), transparent:true, depthWrite:false })
+      );
+      floor.rotation.x = -Math.PI/2; floor.position.y = 0.02; scene.add(floor);
+
+      // iluminación de estudio (3 puntos)
+      scene.add(new THREE.AmbientLight(0x4a3b2c));
+      var key = new THREE.SpotLight(0xffffff, 1.15); key.position.set(40, 70, 45);
+      key.angle = Math.PI/3; key.exponent = 12; scene.add(key);
+      var rimL = new THREE.PointLight(0xffe6c8, 0.7); rimL.position.set(-55, 45, -25); scene.add(rimL);
+      var fill = new THREE.PointLight(0xfff0e0, 0.45); fill.position.set(30, 8, 55); scene.add(fill);
+
+      pieceGroup = new THREE.Object3D(); scene.add(pieceGroup);
+
+      window.addEventListener("resize", onResize, false);
+      renderer.domElement.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+
+      buildUI();
+      selectPiece("king");
+      animate();
+    }
+
+    function onResize(){
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+      frameCamera();
+    }
+
+    /* ---------- material de pieza (réplica del juego) ---------- */
+    function makeMaterial(){
+      var wood = tile(tex["wood-"+curWood].clone(), 4);
+      var norm = tile(tex["wood_N"].clone(), 4);
+      var spec = tile(tex["wood_S"].clone(), 4);
+      var m = new THREE.MeshPhongMaterial({
+        color:0xffffff, specular:0xaaaaaa, shininess:curShine,
+        map:wood, normalMap:norm, specularMap:spec, wireframe:wire
+      });
+      m.normalScale.set(0.3,0.3);
+      var ao = tex[current+"-ao"]; ao.format = THREE.LuminanceFormat; m.lightMap = ao;
+      return m;
+    }
+
+    function rebuildPiece(){
+      // limpiar
+      while (pieceGroup.children.length) pieceGroup.remove(pieceGroup.children[0]);
+
+      var geo = geoms[current];
+      var mat = makeMaterial();
+      mainMesh = new THREE.Mesh(geo, mat);
+      mainMesh.scale.set(SIZE, SIZE, SIZE);
+      pieceGroup.add(mainMesh);
+
+      // reflejo (clon con escala Y negativa)
+      reflection = mainMesh.clone();
+      reflection.scale.y *= -1;
+      reflection.material = mat.clone();
+      reflection.material.side = THREE.BackSide;
+      reflection.material.transparent = true;
+      reflection.material.opacity = 0.30;
+      reflection.visible = reflectOn;
+      pieceGroup.add(reflection);
+
+      frameCamera();
+
+      document.getElementById("pstats").textContent =
+        geo.vertices.length + " vértices · " + geo.faces.length + " caras";
+    }
+
+    // encuadra la pieza actual teniendo en cuenta el aspecto (móvil incluido)
+    function frameCamera(){
+      if (!current || !geoms[current]) { return; }
+      var bb = geoms[current].boundingBox;
+      var maxY = bb.max.y * SIZE, cy = maxY * 0.5;
+      var rad = Math.max(Math.abs(bb.max.x),Math.abs(bb.min.x),Math.abs(bb.max.z),Math.abs(bb.min.z)) * SIZE;
+      var vfov = camera.fov * Math.PI/180;
+      var halfH = Math.max(maxY * 0.55, rad * 0.6);
+      var distV = halfH / Math.tan(vfov/2);
+      var hfov = 2 * Math.atan(Math.tan(vfov/2) * camera.aspect);
+      var distH = rad / Math.tan(hfov/2);
+      var dist = Math.max(distV, distH) * 1.12 + 6;
+      var dir = new THREE.Vector3(0.45, 0.42, 1).normalize();
+      controls.target.set(0, cy, 0);
+      camera.position.set(dir.x*dist, cy + dir.y*dist, dir.z*dist);
+      controls.update();
+    }
+
+    /* ---------- interacción ---------- */
+    function selectPiece(id){
+      current = id;
+      var p = PIECES.filter(function(x){ return x.id===id; })[0];
+      document.getElementById("pname").textContent = p.es;
+      Array.prototype.forEach.call(document.querySelectorAll("#pieces button"), function(b){
+        b.classList.toggle("active", b.dataset.id === id);
+      });
+      rebuildPiece();
+    }
+
+    function buildUI(){
+      var wrap = document.getElementById("pieces");
+      PIECES.forEach(function(p){
+        var b = document.createElement("button");
+        b.dataset.id = p.id;
+        b.innerHTML = "<span>"+p.es+"</span><span class='en'>"+p.en+"</span>";
+        b.addEventListener("click", function(){ selectPiece(p.id); });
+        wrap.appendChild(b);
+      });
+
+      Array.prototype.forEach.call(document.querySelectorAll("#woodseg button"), function(b){
+        b.addEventListener("click", function(){
+          curWood = parseInt(b.dataset.wood,10);
+          document.querySelectorAll("#woodseg button").forEach(function(x){ x.classList.remove("on"); });
+          b.classList.add("on");
+          rebuildPiece();
+        });
+      });
+
+      document.getElementById("shine").addEventListener("input", function(e){
+        curShine = parseInt(e.target.value,10);
+        if (mainMesh){ mainMesh.material.shininess = curShine; mainMesh.material.needsUpdate = true;
+          if (reflection){ reflection.material.shininess = curShine; reflection.material.needsUpdate = true; } }
+      });
+
+      chip("t-rotate", true, function(on){ controls.autoRotate = on; });
+      chip("t-reflect", true, function(on){ reflectOn = on; if (reflection) reflection.visible = on; if (floor) floor.visible = on; });
+      chip("t-wire", false, function(on){ wire = on; rebuildPiece(); });
+      var reset = document.getElementById("t-reset");
+      reset.addEventListener("click", function(){ reset.classList.remove("on"); rebuildPiece(); });
+    }
+
+    function chip(id, on, fn){
+      var el = document.getElementById(id);
+      el.classList.toggle("on", on);
+      el.addEventListener("click", function(){
+        var now = !el.classList.contains("on");
+        el.classList.toggle("on", now); fn(now);
+      });
+    }
+
+    function animate(){
+      requestAnimationFrame(animate);
+      controls.update(clock.getDelta());
+      renderer.render(scene, camera);
+    }
+
+    /* ---------- arranque ---------- */
+    clock = new THREE.Clock();
+    window.addEventListener("load", function(){
+      load(function(){
+        document.getElementById("load").classList.add("hide");
+        init();
+      });
+    });
+    // handle de depuración
+    window.__visor = function(){ return { renderer:renderer, scene:scene, camera:camera, controls:controls, current:current }; };
+    window.__visorSelect = selectPiece;
+  })();
+  </script>
+</body>
+</html>
