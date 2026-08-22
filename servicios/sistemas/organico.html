@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="arena-salvia" data-tipo="caprasimo-figtree" data-elem="pastilla" data-preset="organico" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,46 +8,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
 <style>
   /* Los valores salen del theme.json del proyecto de Claude Design, no de
      ningun ojo: si alli cambian, se vuelcan aqui y se regenera la ficha. */
-  :root {
-    --sd-bg: #f5ead8;
-    --sd-surface: #ebddc5;
-    --sd-surface-2: #f9f4ed;
-    --sd-ink: #201e1d;
-    --sd-muted: #645c50;
-    --sd-accent: #c67139;
-    --sd-accent-2: #7a8a5e;
-    --sd-line: #dcd3c4;
-    --sd-radius: 16px;
-    --sd-font: "Figtree", ui-sans-serif, system-ui, sans-serif;
-    --sd-display: "Caprasimo", Georgia, serif;
-  }
-
-  /* La decision que define este sistema: todo lo pulsable es una pastilla. */
-  .sd-btn { border-radius: 999px; }
-  .sd-check input { accent-color: var(--sd-accent); }
-
-  /* La terracota (#c67139) se queda en 3:1 contra este fondo crema, asi que
-     ni el relleno ni el texto en acento la usan tal cual: tiran del paso 700
-     de la rampa (#8c491a). El :not() deja intactas las variantes de
-     sistema.css, que van en la hoja anterior. */
-  .sd-btn:not([class*="sd-btn--"]) {
-    background: #8c491a;
-    color: #f5ead8;
-  }
-
-  .sd-btn--linea { border-color: #8c491a; color: #8c491a; }
-
-  /* Sobre el relleno tintado ni siquiera el paso 700 llega: hace falta el 800. */
-  .sd-btn--suave {
-    background: color-mix(in srgb, var(--sd-accent) 22%, transparent);
-    color: #643312;
-  }
 </style>
 <script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -185,6 +154,8 @@
   </section>
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
     <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>

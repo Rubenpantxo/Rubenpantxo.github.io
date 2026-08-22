@@ -1,0 +1,548 @@
+/* TEMA EN VIVO — generado por generar-tema.mjs, no editar a mano.
+   Fuente: sistemas-datos.mjs
+
+   Se aplica con tres atributos independientes en <html>:
+
+     <html data-paleta="…" data-tipo="…" data-elem="…">
+
+   Cada eje es libre: 9 paletas x 9 tipografias x 8 juegos de
+   elementos = 648 combinaciones. Los nueve presets son solo
+   combinaciones de partida:
+
+     preset       paleta             tipografia           elementos
+   halogeno     carbon-lima        inter-mono           pastilla-mutante
+   terracota    barro-crema        serif-titulares      redondeado
+   editorial    tinta-fucsia       caja-alta            recto
+   carmin       grana-mensajeria   peso-alto            generoso
+   neon         noche-neon         tabular              muy-redondo
+   savia        savia-naranja      neutra               redondeado
+   organico     arena-salvia       caprasimo-figtree    pastilla
+   clasico      pergamino-oro      cormorant-lora       filete
+   industrial   acero-plano        barlow               plano-tecnico
+
+   Las fuentes de Google las carga selector-sistema.js cuando hacen falta; el
+   CSS solo nombra las familias. */
+
+/* Valores de partida, por si una pagina no declara los atributos: la
+   combinacion del primer preset. */
+:root {
+  --sd-radius: 12px;
+  --sd-radius-btn: 12px;
+  --sd-border: 1px;
+  --sd-densidad: 1;
+  --sd-icon-stroke: 1.8;
+  --sd-display-peso: 700;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+}
+
+/* ============================================================
+   EJE 1 — PALETAS
+   ============================================================ */
+/* Carbón y lima — Cuatro negros verdosos apilados por profundidad y un único acento de alto voltaje. */
+[data-paleta="carbon-lima"] {
+  --sd-bg: #0a0d0a;
+  --sd-surface: #12160f;
+  --sd-surface-2: #1a1f18;
+  --sd-ink: #f2f5f0;
+  --sd-muted: #8f9a8c;
+  --sd-accent: #a3e635;
+  --sd-accent-strong: #8ecc1f;
+  --sd-accent-solid: #a3e635;
+  --sd-accent-text: #afe668;
+  --sd-on-accent: #0a0d0a;
+  --sd-accent-2: #8ecc1f;
+  --sd-line: #2a312a;
+  --sd-ok: #a3e635;
+  --sd-warn: #e8c547;
+  --sd-danger: #ff6b6b;
+  --sd-banda: dark;
+  color-scheme: dark;
+}
+
+/* Barro y crema — Un tostado de barro cocido sobre un fondo crema que no deslumbra, con verde solo para confirmar. */
+[data-paleta="barro-crema"] {
+  --sd-bg: #fdf6ec;
+  --sd-surface: #ffffff;
+  --sd-surface-2: #fffdf9;
+  --sd-ink: #2b1d12;
+  --sd-muted: #7c6e60;
+  --sd-accent: #b34a1f;
+  --sd-accent-strong: #8a3514;
+  --sd-accent-solid: #b34a1f;
+  --sd-accent-text: #963d18;
+  --sd-on-accent: #fdf6ec;
+  --sd-accent-2: #2e9e5b;
+  --sd-line: #e8dcc9;
+  --sd-ok: #2e9e5b;
+  --sd-warn: #c98a1e;
+  --sd-danger: #c0392b;
+  --sd-banda: light;
+  color-scheme: light;
+}
+
+/* Tinta y fucsia — Tres neutros y un fucsia que solo aparece cuando hay algo que decidir. */
+[data-paleta="tinta-fucsia"] {
+  --sd-bg: #fafafa;
+  --sd-surface: #ffffff;
+  --sd-surface-2: #ffffff;
+  --sd-ink: #111114;
+  --sd-muted: #727278;
+  --sd-accent: #e7335a;
+  --sd-accent-strong: #c11f43;
+  --sd-accent-solid: #c11f43;
+  --sd-accent-text: #c11f43;
+  --sd-on-accent: #ffffff;
+  --sd-accent-2: #111114;
+  --sd-line: #e8e8ec;
+  --sd-ok: #1f8a4c;
+  --sd-warn: #b8860b;
+  --sd-danger: #c11f43;
+  --sd-banda: light;
+  color-scheme: light;
+}
+
+/* Grana y mensajería — Un rojo profundo que hace de marca y el verde de mensajería que ya significa algo para todo el mundo. */
+[data-paleta="grana-mensajeria"] {
+  --sd-bg: #fbf7f1;
+  --sd-surface: #ffffff;
+  --sd-surface-2: #fffdfa;
+  --sd-ink: #2c2018;
+  --sd-muted: #7b6e65;
+  --sd-accent: #a4262c;
+  --sd-accent-strong: #7c181d;
+  --sd-accent-solid: #a4262c;
+  --sd-accent-text: #8e1f25;
+  --sd-on-accent: #fbf7f1;
+  --sd-accent-2: #25d366;
+  --sd-line: #ece0d4;
+  --sd-ok: #1f8a4c;
+  --sd-warn: #c98a1e;
+  --sd-danger: #a4262c;
+  --sd-banda: light;
+  color-scheme: light;
+}
+
+/* Noche neón — Tres superficies de gris azulado y tres acentos con un trabajo cada uno: lima, cian y rosa. */
+[data-paleta="noche-neon"] {
+  --sd-bg: #0d0f14;
+  --sd-surface: #161a22;
+  --sd-surface-2: #1e2430;
+  --sd-ink: #f2f4f8;
+  --sd-muted: #8b93a3;
+  --sd-accent: #c8f04c;
+  --sd-accent-strong: #a8d42c;
+  --sd-accent-solid: #c8f04c;
+  --sd-accent-text: #c8f04c;
+  --sd-on-accent: #0d0f14;
+  --sd-accent-2: #38e1d4;
+  --sd-line: #262d3a;
+  --sd-ok: #c8f04c;
+  --sd-warn: #ffb84d;
+  --sd-danger: #ff5e82;
+  --sd-banda: dark;
+  color-scheme: dark;
+}
+
+/* Savia y naranja — Verde fresco de marca, naranja que avisa y rojo que corrige, nunca al revés. Trae reverso oscuro. */
+[data-paleta="savia-naranja"] {
+  --sd-bg: #f4f7f4;
+  --sd-surface: #ffffff;
+  --sd-surface-2: #fbfdfb;
+  --sd-ink: #1c2b21;
+  --sd-muted: #67736a;
+  --sd-accent: #1f9d55;
+  --sd-accent-strong: #157040;
+  --sd-accent-solid: #157040;
+  --sd-accent-text: #157040;
+  --sd-on-accent: #ffffff;
+  --sd-accent-2: #e67e22;
+  --sd-line: #dde6de;
+  --sd-ok: #1f9d55;
+  --sd-warn: #e67e22;
+  --sd-danger: #e74c3c;
+  --sd-banda: light;
+  color-scheme: light;
+}
+
+/* Reverso de "Savia y naranja": mismos componentes, otra piel. */
+[data-paleta="savia-naranja"] .sd-reverso {
+  --sd-bg: #10151c;
+  --sd-surface: #1a212c;
+  --sd-surface-2: #222b38;
+  --sd-ink: #eef2f6;
+  --sd-muted: #8694a6;
+  --sd-line: #2b3644;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+}
+
+/* Arena y salvia — Crema y arena con un acento terracota y una salvia que hace de segunda voz. */
+[data-paleta="arena-salvia"] {
+  --sd-bg: #f5ead8;
+  --sd-surface: #ebddc5;
+  --sd-surface-2: #f9f4ed;
+  --sd-ink: #201e1d;
+  --sd-muted: #645c50;
+  --sd-accent: #c67139;
+  --sd-accent-strong: #8c491a;
+  --sd-accent-solid: #8c491a;
+  --sd-accent-text: #8c491a;
+  --sd-on-accent: #f5ead8;
+  --sd-accent-2: #7a8a5e;
+  --sd-line: #dcd3c4;
+  --sd-ok: #56633f;
+  --sd-warn: #b2622d;
+  --sd-danger: #9c3a1e;
+  --sd-banda: light;
+  color-scheme: light;
+}
+
+/* Pergamino y oro — Gris cálido y un oro apagado que aparece poco y siempre por algo. */
+[data-paleta="pergamino-oro"] {
+  --sd-bg: #f3f2f2;
+  --sd-surface: #eae9e9;
+  --sd-surface-2: #f8f4f4;
+  --sd-ink: #201f1d;
+  --sd-muted: #605d5d;
+  --sd-accent: #b68235;
+  --sd-accent-strong: #7d5411;
+  --sd-accent-solid: #7d5411;
+  --sd-accent-text: #7d5411;
+  --sd-on-accent: #f3f2f2;
+  --sd-accent-2: #ac803e;
+  --sd-line: #d7d3d3;
+  --sd-ok: #4f6b3a;
+  --sd-warn: #a06f24;
+  --sd-danger: #8f2f2f;
+  --sd-banda: light;
+  color-scheme: light;
+}
+
+/* Acero y azul de plano — Neutros fríos y un solo acento de saturación baja: el color marca lo interactivo y poco más. */
+[data-paleta="acero-plano"] {
+  --sd-bg: #f2f2f3;
+  --sd-surface: #e9e9ea;
+  --sd-surface-2: #f5f5f8;
+  --sd-ink: #1d1f20;
+  --sd-muted: #5d5d60;
+  --sd-accent: #5980a6;
+  --sd-accent-strong: #2c455d;
+  --sd-accent-solid: #2c455d;
+  --sd-accent-text: #2c455d;
+  --sd-on-accent: #f2f2f3;
+  --sd-accent-2: #728fab;
+  --sd-line: #d4d4d7;
+  --sd-ok: #3f6b4a;
+  --sd-warn: #8a6d1f;
+  --sd-danger: #8f3a3a;
+  --sd-banda: light;
+  color-scheme: light;
+}
+
+/* ============================================================
+   EJE 2 — TIPOGRAFIAS
+   ============================================================ */
+/* Inter Tight + JetBrains Mono — Display de peso 900 con el interletraje muy cerrado. Lo monoespaciado marca dato o etiqueta técnica. */
+[data-tipo="inter-mono"] {
+  --sd-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --sd-font: "Inter Tight", "Inter", system-ui, sans-serif;
+  --sd-mono: "JetBrains Mono", ui-monospace, monospace;
+  --sd-display-peso: 900;
+  --sd-display-tracking: -0.04em;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+}
+
+/* Serif en titulares — Serif solo arriba; el cuerpo va en la pila del sistema, sin peso extra que descargar. */
+[data-tipo="serif-titulares"] {
+  --sd-display: Georgia, "Iowan Old Style", serif;
+  --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 700;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+}
+
+/* Caja alta, letra abierta — Una sola familia jugando con mayúsculas y espaciado. Editorial, mucho aire. */
+[data-tipo="caja-alta"] {
+  --sd-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 500;
+  --sd-display-tracking: 0.09em;
+  --sd-display-caja: uppercase;
+  --sd-cifras: normal;
+}
+
+/* Pesos altos, cuerpo grande — Pila del sistema con el cuerpo un punto más grande. Para leerse al sol y con prisa. */
+[data-tipo="peso-alto"] {
+  --sd-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 800;
+  --sd-display-tracking: -0.01em;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+}
+
+/* Cifras tabulares — Pesos extremos y numeración tabular: cuando el dato es el contenido de la pantalla. */
+[data-tipo="tabular"] {
+  --sd-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 800;
+  --sd-display-tracking: -0.02em;
+  --sd-display-caja: none;
+  --sd-cifras: tabular-nums;
+}
+
+/* Pila del sistema — Sin descargar nada: aspecto nativo en cada dispositivo. La opción por defecto sensata. */
+[data-tipo="neutra"] {
+  --sd-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 700;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+}
+
+/* Caprasimo + Figtree — Display gruesa y redonda, que hace de mancha y no de texto largo, sobre una humanista. */
+[data-tipo="caprasimo-figtree"] {
+  --sd-display: "Caprasimo", Georgia, serif;
+  --sd-font: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 400;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+}
+
+/* Cormorant Garamond + Lora — Dos serifs a propósito: la primera fina y de mucho contraste, la segunda hecha para pantalla. */
+[data-tipo="cormorant-lora"] {
+  --sd-display: "Cormorant Garamond", Georgia, serif;
+  --sd-font: "Lora", Georgia, serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 600;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+}
+
+/* Barlow Condensed + Barlow — La misma familia en dos anchos: condensada arriba, normal en el cuerpo. */
+[data-tipo="barlow"] {
+  --sd-display: "Barlow Condensed", "Barlow", sans-serif;
+  --sd-font: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 600;
+  --sd-display-tracking: 0.04em;
+  --sd-display-caja: uppercase;
+  --sd-cifras: normal;
+}
+
+/* ============================================================
+   EJE 3 — ELEMENTOS
+   ============================================================ */
+/* Pastilla mutante — En reposo es pastilla y al activarse se cuadra. La profundidad se dibuja con anillos de luz, no con sombras. */
+[data-elem="pastilla-mutante"] {
+  --sd-radius: 12px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 10px;
+  --sd-border: 1px;
+  --sd-densidad: 1;
+  --sd-icon-stroke: 2;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 0 0 1px color-mix(in srgb, var(--sd-accent) 22%, transparent);
+  --sd-shadow-md: 0 0 0 1px color-mix(in srgb, var(--sd-accent) 34%, transparent);
+  --sd-shadow-lg: 0 0 0 1px color-mix(in srgb, var(--sd-accent) 46%, transparent), 0 0 24px color-mix(in srgb, var(--sd-accent) 18%, transparent);
+  --sd-space-1: 4px;
+  --sd-space-2: 8px;
+  --sd-space-3: 12px;
+  --sd-space-4: 16px;
+  --sd-space-6: 24px;
+  --sd-space-8: 32px;
+}
+
+/* Redondeado — Radio de 16 en todo y zonas pulsables que nunca bajan de 44 píxeles de alto. */
+[data-elem="redondeado"] {
+  --sd-radius: 16px;
+  --sd-radius-btn: 16px;
+  --sd-radius-activo: 16px;
+  --sd-border: 1px;
+  --sd-densidad: 1;
+  --sd-icon-stroke: 1.7;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 12%, transparent);
+  --sd-shadow-md: 0 3px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  --sd-shadow-lg: 0 12px 32px color-mix(in srgb, var(--sd-ink) 20%, transparent);
+  --sd-space-1: 4px;
+  --sd-space-2: 8px;
+  --sd-space-3: 12px;
+  --sd-space-4: 16px;
+  --sd-space-6: 24px;
+  --sd-space-8: 32px;
+}
+
+/* Recto — Sin radio, sin sombras, sin degradados. Todo se separa con líneas de un píxel. */
+[data-elem="recto"] {
+  --sd-radius: 0px;
+  --sd-radius-btn: 0px;
+  --sd-radius-activo: 0px;
+  --sd-border: 1px;
+  --sd-densidad: 1;
+  --sd-icon-stroke: 1.6;
+  --sd-boton: solido;
+  --sd-shadow-sm: none;
+  --sd-shadow-md: none;
+  --sd-shadow-lg: none;
+  --sd-space-1: 4px;
+  --sd-space-2: 8px;
+  --sd-space-3: 12px;
+  --sd-space-4: 16px;
+  --sd-space-6: 24px;
+  --sd-space-8: 32px;
+}
+
+/* Generoso — Pocos elementos y muy grandes. Cada pantalla resuelve una cosa. */
+[data-elem="generoso"] {
+  --sd-radius: 16px;
+  --sd-radius-btn: 16px;
+  --sd-radius-activo: 16px;
+  --sd-border: 1px;
+  --sd-densidad: 1.15;
+  --sd-icon-stroke: 1.8;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 12%, transparent);
+  --sd-shadow-md: 0 3px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  --sd-shadow-lg: 0 12px 32px color-mix(in srgb, var(--sd-ink) 20%, transparent);
+  --sd-space-1: 4.6px;
+  --sd-space-2: 9.2px;
+  --sd-space-3: 13.8px;
+  --sd-space-4: 18.4px;
+  --sd-space-6: 27.6px;
+  --sd-space-8: 36.8px;
+}
+
+/* Muy redondo — El radio más alto del catálogo. Objetivos pulsables enormes, para tocarse con prisa. */
+[data-elem="muy-redondo"] {
+  --sd-radius: 18px;
+  --sd-radius-btn: 18px;
+  --sd-radius-activo: 18px;
+  --sd-border: 1px;
+  --sd-densidad: 1.05;
+  --sd-icon-stroke: 1.8;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 12%, transparent);
+  --sd-shadow-md: 0 3px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  --sd-shadow-lg: 0 12px 32px color-mix(in srgb, var(--sd-ink) 20%, transparent);
+  --sd-space-1: 4.2px;
+  --sd-space-2: 8.4px;
+  --sd-space-3: 12.6px;
+  --sd-space-4: 16.8px;
+  --sd-space-6: 25.2px;
+  --sd-space-8: 33.6px;
+}
+
+/* Pastilla — Contenedores muy curvos y todo lo pulsable en pastilla. Las formas redondas necesitan aire. */
+[data-elem="pastilla"] {
+  --sd-radius: 16px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 999px;
+  --sd-border: 1px;
+  --sd-densidad: 1.1;
+  --sd-icon-stroke: 2.75;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 12%, transparent);
+  --sd-shadow-md: 0 3px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  --sd-shadow-lg: 0 12px 32px color-mix(in srgb, var(--sd-ink) 20%, transparent);
+  --sd-space-1: 4.4px;
+  --sd-space-2: 8.8px;
+  --sd-space-3: 13.2px;
+  --sd-space-4: 17.6px;
+  --sd-space-6: 26.4px;
+  --sd-space-8: 35.2px;
+}
+
+/* Filete — Casi recto pero no del todo. Los contenedores no se rellenan: se delimitan con un filete. */
+[data-elem="filete"] {
+  --sd-radius: 4px;
+  --sd-radius-btn: 4px;
+  --sd-radius-activo: 4px;
+  --sd-border: 1px;
+  --sd-densidad: 1.15;
+  --sd-icon-stroke: 1.4;
+  --sd-boton: contorno;
+  --sd-shadow-sm: none;
+  --sd-shadow-md: none;
+  --sd-shadow-lg: none;
+  --sd-space-1: 4.6px;
+  --sd-space-2: 9.2px;
+  --sd-space-3: 13.8px;
+  --sd-space-4: 18.4px;
+  --sd-space-6: 27.6px;
+  --sd-space-8: 36.8px;
+}
+
+[data-elem="filete"] .sd-btn:not([class*="sd-btn--"]) {
+  background: transparent;
+  border-color: var(--sd-accent);
+  color: var(--sd-accent-text);
+}
+
+/* Plano técnico — Rejilla de 24 píxeles a la vista y escala apretada. Para pantallas con mucho dato. */
+[data-elem="plano-tecnico"] {
+  --sd-radius: 4px;
+  --sd-radius-btn: 4px;
+  --sd-radius-activo: 4px;
+  --sd-border: 1px;
+  --sd-densidad: 0.85;
+  --sd-icon-stroke: 1.4;
+  --sd-boton: solido;
+  --sd-shadow-sm: none;
+  --sd-shadow-md: none;
+  --sd-shadow-lg: none;
+  --sd-space-1: 3.4px;
+  --sd-space-2: 6.8px;
+  --sd-space-3: 10.2px;
+  --sd-space-4: 13.6px;
+  --sd-space-6: 20.4px;
+  --sd-space-8: 27.2px;
+  --sd-rejilla: 24px;
+}
+
+/* ============================================================
+   ENGANCHES COMUNES
+   Lo minimo para que una pagina que declare los atributos ya se vea con su
+   tema, sin depender de la hoja de cada demo.
+   ============================================================ */
+.sd-tema {
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+}
+
+.sd-tema h1,
+.sd-tema h2,
+.sd-tema h3,
+.sd-tema .sd-display {
+  font-family: var(--sd-display);
+  font-weight: var(--sd-display-peso);
+  letter-spacing: var(--sd-display-tracking);
+  text-transform: var(--sd-display-caja);
+}
+
+.sd-tema :is(.sd-cifra, .sd-num) {
+  font-variant-numeric: var(--sd-cifras);
+}
+
+/* El cambio de tema no debe animarse: con 648 combinaciones, una transicion
+   de color en cada elemento se ve como un parpadeo sucio. */
+@media (prefers-reduced-motion: no-preference) {
+  .sd-tema,
+  .sd-tema * {
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  }
+}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="acero-plano" data-tipo="barlow" data-elem="plano-tecnico" data-preset="industrial" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,24 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600&family=Barlow:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
 <style>
   /* Los valores salen del theme.json del proyecto de Claude Design, no de
      ningun ojo: si alli cambian, se vuelcan aqui y se regenera la ficha. */
-  :root {
-    --sd-bg: #f2f2f3;
-    --sd-surface: #e9e9ea;
-    --sd-surface-2: #f5f5f8;
-    --sd-ink: #1d1f20;
-    --sd-muted: #5d5d60;
-    --sd-accent: #5980a6;
-    --sd-accent-2: #728fab;
-    --sd-line: #d4d4d7;
-    --sd-radius: 4px;
-    --sd-font: "Barlow", ui-sans-serif, system-ui, sans-serif;
-    --sd-display: "Barlow Condensed", "Barlow", sans-serif;
-  }
-
   /* Densidad al 0,85: este sistema aprieta. Y los titulares van condensados y
      en caja alta, que es lo que le da el aire de plano tecnico. */
   .sd-titulo,
@@ -33,21 +20,6 @@
   .sd-seccion > h3 {
     text-transform: uppercase;
     letter-spacing: 0.03em;
-  }
-
-  /* El azul (#5980a6) se queda en 3,2:1 como texto sobre este gris, asi que
-     todo lo que sea texto en acento tira del paso 800 de la rampa. El :not()
-     es para no pisar las variantes que define sistema.css. */
-  .sd-btn:not([class*="sd-btn--"]) {
-    background: #2c455d;
-    color: #f2f2f3;
-  }
-
-  .sd-btn--linea { border-color: #2c455d; color: #2c455d; }
-
-  .sd-btn--suave {
-    background: color-mix(in srgb, var(--sd-accent) 22%, transparent);
-    color: #2c455d;
   }
 
   /* La rejilla no se insinua: se ve. */
@@ -58,6 +30,8 @@
   }
 </style>
 <script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -195,6 +169,8 @@
   </section>
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
     <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>

@@ -67,7 +67,8 @@ function railB(s) {
     : ` style="border-color:${p.linea.color};color:${p.linea.color}"`;
   const radioCheck = p.check.radio ? `;border-radius:${p.check.radio}` : '';
   const radioVacio = p.check.radio ? ` style="border-radius:${p.check.radio}"` : '';
-  const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${d}</svg>`;
+  // El grosor lo pone el eje de elementos: es lo que la muestra ensena.
+  const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${p.grosor}">${d}</svg>`;
 
   return `        <li>
           <a class="sd-mini" href="sistemas/${s.ficha}" style="--m-fondo:${s.tipo.fondo};--m-tinta:${s.tipo.tinta};--m-acento:${s.tipo.acento};--m-radio:${p.radio}" aria-label="${esc(s.nombre)}: botones, casillas e iconos">

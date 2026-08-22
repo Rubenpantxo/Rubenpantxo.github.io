@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="carbon-lima" data-tipo="inter-mono" data-elem="pastilla-mutante" data-preset="halogeno" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,23 +11,23 @@
 <!-- Esta ficha no imita los componentes: carga el mismo CSS que esta en
      produccion, asi que lo que se ve aqui son las piezas de verdad. -->
 <link rel="stylesheet" href="../../apps/escenas/halogen.css">
+<link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
 <style>
   /* Puente entre los tokens del kit y la estructura compartida de las fichas. */
+  /* Al reves que antes: ahora el kit sigue al tema, no lo impone. Asi los
+     componentes hk- cambian con la paleta que elijas. */
   :root {
-    --sd-bg: var(--canvas);
-    --sd-surface: var(--surface);
-    --sd-surface-2: var(--raised);
-    --sd-ink: var(--ink);
-    --sd-muted: var(--ink-dim);
-    --sd-accent: var(--halogen);
-    --sd-accent-2: var(--halogen);
-    --sd-line: var(--hairline);
-    --sd-radius: var(--r-morph);
-    --sd-font: var(--font-sans);
-    --sd-display: var(--font-sans);
+    --canvas: var(--sd-bg);
+    --surface: var(--sd-surface);
+    --raised: var(--sd-surface-2);
+    --ink: var(--sd-ink);
+    --ink-dim: var(--sd-muted);
+    --halogen: var(--sd-accent);
+    --hairline: var(--sd-line);
+    --font-sans: var(--sd-font);
+    --font-mono: var(--sd-mono);
   }
-
   .sd-titulo {
     font-weight: 900;
     letter-spacing: -0.04em;
@@ -47,6 +47,8 @@
   .sd-lienzo { align-items: flex-start; }
 </style>
 <script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -214,6 +216,8 @@
 
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
     <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>
