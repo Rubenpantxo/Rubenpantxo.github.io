@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="pergamino-oro" data-tipo="cormorant-lora" data-elem="filete" data-preset="clasico" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,50 +8,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
 <style>
   /* Los valores salen del theme.json del proyecto de Claude Design, no de
      ningun ojo: si alli cambian, se vuelcan aqui y se regenera la ficha. */
-  :root {
-    --sd-bg: #f3f2f2;
-    --sd-surface: #eae9e9;
-    --sd-surface-2: #f8f4f4;
-    --sd-ink: #201f1d;
-    --sd-muted: #605d5d;
-    --sd-accent: #b68235;
-    --sd-accent-2: #ac803e;
-    --sd-line: #d7d3d3;
-    --sd-radius: 4px;
-    --sd-font: "Lora", Georgia, serif;
-    --sd-display: "Cormorant Garamond", Georgia, serif;
-  }
-
-  /* Aqui el boton por defecto es de contorno: el relleno solido se reserva
-     para la accion unica de la pantalla. El :not() es para no pisar las
-     variantes de sistema.css, que van en la hoja de antes. */
-  .sd-btn:not([class*="sd-btn--"]) {
-    background: transparent;
-    border-color: var(--sd-accent);
-    color: #7d5411;
-  }
-
-  /* El oro (#b68235) se queda en 2,6:1 como texto sobre este gris. Todo lo
-     que sea texto en acento tira del paso 700 de la rampa, que da 5,97:1. */
-  .sd-btn--relleno {
-    background: #7d5411;
-    border-color: #7d5411;
-    color: #f3f2f2;
-  }
-
-  /* Sobre el relleno tintado ni siquiera el paso 700 llega: hace falta el 800. */
-  .sd-btn--suave {
-    background: color-mix(in srgb, var(--sd-accent) 20%, transparent);
-    color: #5a3b0a;
-  }
-
   .sd-seccion > h2 { font-weight: 600; }
 </style>
 <script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -189,6 +155,8 @@
   </section>
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
     <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>

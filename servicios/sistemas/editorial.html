@@ -1,28 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="tinta-fucsia" data-tipo="caja-alta" data-elem="recto" data-preset="editorial" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Editorial — Sistema de diseño</title>
 <meta name="description" content="Editorial: casi monocromo, esquinas rectas y un fucsia que corta. Mucho aire y titulares en caja alta.">
+<link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
 <style>
-  :root {
-    --sd-bg: #fafafa;
-    --sd-surface: #ffffff;
-    --sd-surface-2: #ffffff;
-    --sd-ink: #111114;
-    /* Oscurecido desde el #88888f original, que se quedaba en 3,37:1 y no llegaba a
-       AA para texto pequeno. El cambio esta aplicado tambien en la demo. */
-    --sd-muted: #727278;
-    --sd-accent: #e7335a;
-    --sd-accent-2: #111114;
-    --sd-line: #e8e8ec;
-    /* Esquinas rectas: es la decision que define este sistema. */
-    --sd-radius: 0px;
-    --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-
   .sd-titulo,
   .sd-seccion > h2 {
     text-transform: uppercase;
@@ -30,6 +15,8 @@
   }
 </style>
 <script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -152,6 +139,8 @@
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="../tienda-ropa.html">Ver un ejemplo aplicado &#8599;</a>
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
     <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>

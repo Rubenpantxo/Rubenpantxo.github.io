@@ -1,24 +1,33 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="savia-naranja" data-tipo="neutra" data-elem="redondeado">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Super La Plaza — Demo tienda online + gestión de almacén</title>
+<link rel="stylesheet" href="sistemas/tema.css">
 <style>
     :root {
-        --green: #1f9d55;
-        --green-dark: #157040;
-        --bg: #f4f7f4;
-        --ink: #1c2b21;
-        --muted: #67736a; /* 4,59:1 sobre el fondo; el #7c8a80 anterior se quedaba en 3,35 y no llegaba a AA */
-        --card: #ffffff;
-        --warn: #e67e22;
-        --danger: #e74c3c;
+        --green: var(--sd-accent);
+        --green-dark: var(--sd-accent-strong);
+        --green-text: var(--sd-accent-text);
+        --bg: var(--sd-bg);
+        --ink: var(--sd-ink);
+        --muted: var(--sd-muted);
+        --card: var(--sd-surface);
+        --line: var(--sd-line);
+        --warn: var(--sd-warn);
+        --danger: var(--sd-danger);
+        --radius: var(--sd-radius);
+        /* La trastienda es el segundo tema de la paleta. Su dorado se queda
+           fijo: es lo que distingue de un vistazo en que modo estas, y no
+           deberia cambiar al cambiar de sistema. */
         --owner-bg: #10151c;
         --owner-surface: #1a212c;
         --owner-text: #eef2f6;
         --owner-muted: #8694a6;
-        --radius: 16px;
+        --owner-line: var(--owner-line);
+        --owner-gold: var(--owner-gold);
+        --owner-on-gold: var(--owner-on-gold);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -26,10 +35,21 @@
         background: var(--bg); color: var(--ink);
         max-width: 480px; margin: 0 auto; overscroll-behavior: contain;
     }
-    body.owner-mode { background: var(--owner-bg); color: var(--owner-text); }
+    body.owner-mode,
+    .pin-wrap,
+    #dash {
+        --sd-bg: var(--owner-bg);
+        --sd-surface: var(--owner-surface);
+        --sd-surface-2: var(--owner-surface);
+        --sd-ink: var(--owner-text);
+        --sd-muted: var(--owner-muted);
+        --sd-line: var(--owner-line);
+        background: var(--owner-bg);
+        color: var(--owner-text);
+    }
     .demo-badge {
         position: fixed; top: 42px; left: -34px; z-index: 90;
-        background: rgba(28,43,33,.85); color: #fff; font-size: 10px; font-weight: 700;
+        background: color-mix(in srgb, var(--sd-ink) 85%, transparent); color: var(--sd-bg); font-size: 10px; font-weight: 700;
         letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
     }
 
@@ -41,12 +61,12 @@
     .mode-btn {
         flex: 1; border: none; cursor: pointer; font-size: 13px; font-weight: 800;
         padding: 11px 8px; border-radius: 12px; transition: all .25s;
-        background: rgba(31,157,85,.12); color: var(--green-dark);
+        background: color-mix(in srgb, var(--sd-accent) 14%, var(--sd-bg)); color: color-mix(in srgb, var(--sd-accent-text) 80%, var(--sd-ink));
         display: flex; align-items: center; justify-content: center; gap: 6px;
     }
     body.owner-mode .mode-btn { background: rgba(255,255,255,.07); color: var(--owner-muted); }
-    .mode-btn.active { background: var(--green); color: #fff; box-shadow: 0 6px 18px rgba(31,157,85,.35); }
-    body.owner-mode .mode-btn.active { background: #f0b429; color: #1a1408; box-shadow: 0 6px 18px rgba(240,180,41,.3); }
+    .mode-btn.active { background: var(--sd-accent-solid); color: var(--sd-on-accent); box-shadow: 0 6px 18px rgba(31,157,85,.35); }
+    body.owner-mode .mode-btn.active { background: var(--owner-gold); color: var(--owner-on-gold); box-shadow: 0 6px 18px rgba(240,180,41,.3); }
     .mode-btn .lock { font-size: 12px; }
 
     .zone { display: none; }
@@ -55,8 +75,8 @@
     /* ================= TIENDA PÚBLICA ================= */
     .shop-hero {
         margin: 4px 14px 0; border-radius: 18px; padding: 18px;
-        background: linear-gradient(130deg, #157040, #1f9d55 60%, #45b97c);
-        color: #fff; position: relative; overflow: hidden;
+        background: linear-gradient(130deg, var(--sd-accent-strong), var(--sd-accent) 60%, color-mix(in srgb, var(--sd-accent) 70%, var(--sd-bg)));
+        color: var(--sd-on-accent); position: relative; overflow: hidden;
     }
     .shop-hero::after { content: '🥕🍞🥛'; position: absolute; right: 10px; bottom: 8px; font-size: 34px; opacity: .9; }
     .shop-hero h1 { font-size: 22px; font-weight: 800; }
@@ -64,10 +84,10 @@
     .cats { display: flex; gap: 8px; padding: 14px; overflow-x: auto; scrollbar-width: none; }
     .cats::-webkit-scrollbar { display: none; }
     .cat-chip {
-        flex: 0 0 auto; border: 1.5px solid #d9e5dc; background: #fff; color: var(--ink);
+        flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--card); color: var(--ink);
         font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px; cursor: pointer; transition: all .2s;
     }
-    .cat-chip.active { background: var(--green); color: #fff; border-color: var(--green); }
+    .cat-chip.active { background: var(--sd-accent-solid); color: var(--sd-on-accent); border-color: var(--green); }
     .prods { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 14px 130px; }
     .prod {
         background: var(--card); border-radius: var(--radius); padding: 12px;
@@ -79,22 +99,22 @@
     .prod .pr { font-size: 14px; font-weight: 800; color: var(--green-dark); margin-top: 4px; }
     .prod .pr small { font-weight: 500; color: var(--muted); font-size: 10.5px; }
     .low-tag {
-        position: absolute; top: 8px; left: 8px; background: #fdf0e0; color: var(--warn);
+        position: absolute; top: 8px; left: 8px; background: color-mix(in srgb, var(--sd-warn) 18%, var(--sd-bg)); color: color-mix(in srgb, var(--sd-warn) 55%, var(--sd-ink));
         font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 999px;
     }
-    .out-tag { background: #fdeaea; color: var(--danger); }
+    .out-tag { background: color-mix(in srgb, var(--sd-danger) 15%, var(--sd-bg)); color: color-mix(in srgb, var(--sd-danger) 55%, var(--sd-ink)); }
     .prod-add {
         width: 100%; margin-top: 8px; border: none; cursor: pointer;
-        background: var(--green); color: #fff; font-size: 13px; font-weight: 800;
+        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-size: 13px; font-weight: 800;
         padding: 9px; border-radius: 10px; transition: transform .15s;
     }
     .prod-add:active { transform: scale(.95); }
-    .prod-add:disabled { background: #d4ddd6; color: #97a59b; }
+    .prod-add:disabled { background: color-mix(in srgb, var(--sd-ink) 12%, var(--sd-bg)); color: color-mix(in srgb, var(--sd-ink) 62%, var(--sd-bg)); }
 
     #shop-cartbar {
         position: fixed; left: 50%; bottom: 16px; transform: translate(-50%, 150%);
         width: calc(100% - 28px); max-width: 452px; border: none; cursor: pointer; z-index: 40;
-        background: var(--ink); color: #fff; border-radius: 16px; padding: 15px 18px;
+        background: var(--ink); color: var(--sd-bg); border-radius: 16px; padding: 15px 18px;
         display: flex; justify-content: space-between; font-size: 14px; font-weight: 800;
         box-shadow: 0 10px 30px rgba(28,43,33,.4); transition: transform .35s cubic-bezier(.2,.9,.3,1.2);
     }
@@ -108,34 +128,34 @@
     .backdrop.show { opacity: 1; pointer-events: auto; }
     .sheet {
         position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 105%);
-        width: 100%; max-width: 480px; background: #fff; color: var(--ink);
+        width: 100%; max-width: 480px; background: var(--card); color: var(--ink);
         border-radius: 24px 24px 0 0; padding: 18px 18px calc(20px + env(safe-area-inset-bottom));
         z-index: 61; transition: transform .38s cubic-bezier(.2,.9,.3,1.05); max-height: 85dvh; overflow-y: auto;
     }
     .sheet.show { transform: translate(-50%, 0); }
     .sheet h2 { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
-    .s-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed #e8efe9; font-size: 14px; }
+    .s-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
     .s-row .nm { flex: 1; font-weight: 600; }
     .s-row button {
-        width: 26px; height: 26px; border-radius: 8px; border: 1.5px solid #d9e5dc;
-        background: #fff; font-weight: 700; cursor: pointer;
+        width: 26px; height: 26px; border-radius: 8px; border: 1.5px solid var(--line);
+        background: var(--card); font-weight: 700; cursor: pointer;
     }
     .s-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 16px; padding: 14px 0 4px; }
     .s-label { font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: 14px 0 8px; }
     .slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .slot {
-        border: 1.5px solid #d9e5dc; background: #fff; border-radius: 12px; padding: 11px 6px;
+        border: 1.5px solid var(--line); background: var(--card); border-radius: 12px; padding: 11px 6px;
         font-size: 12.5px; font-weight: 700; cursor: pointer; text-align: center; transition: all .2s;
     }
-    .slot.active { background: var(--green); color: #fff; border-color: var(--green); }
+    .slot.active { background: var(--sd-accent-solid); color: var(--sd-on-accent); border-color: var(--green); }
     .sheet input[type="text"] {
-        width: 100%; padding: 12px 14px; font-size: 14px; border: 1.5px solid #d9e5dc;
+        width: 100%; padding: 12px 14px; font-size: 14px; border: 1.5px solid var(--line);
         border-radius: 12px; outline: none;
     }
     .sheet input[type="text"]:focus { border-color: var(--green); }
     .btn-green {
         width: 100%; border: none; cursor: pointer; margin-top: 16px;
-        background: var(--green); color: #fff; font-size: 15px; font-weight: 800;
+        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-size: 15px; font-weight: 800;
         padding: 14px; border-radius: 14px; box-shadow: 0 8px 22px rgba(31,157,85,.35);
         transition: transform .15s;
     }
@@ -144,11 +164,11 @@
 
     .confirm {
         position: fixed; inset: 0; z-index: 70; display: none; place-items: center; text-align: center;
-        background: linear-gradient(150deg, #157040, #1f9d55); color: #fff; padding: 24px;
+        background: linear-gradient(150deg, var(--sd-accent-strong), var(--sd-accent)); color: var(--sd-on-accent); padding: 24px;
     }
     .confirm.show { display: grid; }
     .confirm .check {
-        width: 84px; height: 84px; border-radius: 50%; background: #fff; color: var(--green);
+        width: 84px; height: 84px; border-radius: 50%; background: var(--card); color: var(--green-text);
         display: grid; place-items: center; font-size: 42px; margin: 0 auto 18px;
         animation: pop .5s cubic-bezier(.2,1.4,.4,1) both;
     }
@@ -160,7 +180,7 @@
         border: 1px dashed rgba(255,255,255,.45); border-radius: 14px; padding: 12px 16px; font-size: 12.5px;
     }
     .confirm button {
-        margin-top: 22px; background: #fff; color: var(--green-dark); border: none; cursor: pointer;
+        margin-top: 22px; background: var(--card); color: var(--green-text); border: none; cursor: pointer;
         font-weight: 800; font-size: 14px; padding: 12px 26px; border-radius: 999px;
     }
 
@@ -171,9 +191,9 @@
     .pin-wrap p { font-size: 13px; color: var(--owner-muted); margin-top: 6px; }
     .pin-dots { display: flex; justify-content: center; gap: 14px; margin: 26px 0; }
     .pin-dot {
-        width: 16px; height: 16px; border-radius: 50%; border: 2px solid #39455a; transition: all .15s;
+        width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--owner-line); transition: all .15s;
     }
-    .pin-dot.on { background: #f0b429; border-color: #f0b429; transform: scale(1.15); }
+    .pin-dot.on { background: var(--owner-gold); border-color: var(--owner-gold); transform: scale(1.15); }
     .pin-dots.error .pin-dot { border-color: var(--danger); animation: shake .4s; }
     @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
     .pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 12px; justify-content: center; }
@@ -182,10 +202,10 @@
         background: var(--owner-surface); color: var(--owner-text); font-size: 22px; font-weight: 700;
         transition: all .15s;
     }
-    .pad button:active { transform: scale(.92); background: #232c3a; }
+    .pad button:active { transform: scale(.92); background: var(--owner-surface); }
     .pad .ghost { background: none; font-size: 17px; }
     .pin-hint { margin-top: 22px; font-size: 12px; color: var(--owner-muted); }
-    .pin-hint code { background: var(--owner-surface); padding: 2px 8px; border-radius: 6px; color: #f0b429; font-weight: 700; }
+    .pin-hint code { background: var(--owner-surface); padding: 2px 8px; border-radius: 6px; color: var(--owner-gold); font-weight: 700; }
 
     .dash { padding: 4px 14px 60px; }
     .dash-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 2px 0; }
@@ -196,12 +216,12 @@
     .kpi { background: var(--owner-surface); border-radius: 14px; padding: 14px 10px; text-align: center; }
     .kpi .n { font-size: 22px; font-weight: 800; }
     .kpi .n.warn { color: var(--warn); }
-    .kpi .n.gold { color: #f0b429; }
+    .kpi .n.gold { color: var(--owner-gold); }
     .kpi .l { font-size: 10px; color: var(--owner-muted); margin-top: 3px; text-transform: uppercase; letter-spacing: .07em; }
 
     .dash h2 { font-size: 14px; font-weight: 800; margin: 22px 0 10px; display: flex; align-items: center; gap: 8px; }
     .dash h2 .count {
-        background: #f0b429; color: #1a1408; font-size: 11px; font-weight: 800;
+        background: var(--owner-gold); color: var(--owner-on-gold); font-size: 11px; font-weight: 800;
         min-width: 20px; height: 20px; border-radius: 999px; display: inline-grid; place-items: center; padding: 0 6px;
     }
     .order-card {
@@ -213,19 +233,19 @@
     .order-card .when { font-size: 11.5px; color: var(--owner-muted); margin-top: 2px; }
     .status {
         font-size: 10.5px; font-weight: 800; padding: 4px 10px; border-radius: 999px;
-        background: rgba(240,180,41,.15); color: #f0b429;
+        background: rgba(240,180,41,.15); color: var(--owner-gold);
     }
-    .status.ready { background: rgba(69,185,124,.15); color: #45b97c; }
-    .order-card ul { list-style: none; margin-top: 10px; font-size: 12.5px; color: #c3ccd8; }
+    .status.ready { background: color-mix(in srgb, var(--sd-ok) 18%, var(--owner-bg)); color: color-mix(in srgb, var(--sd-ok) 60%, var(--owner-text)); }
+    .order-card ul { list-style: none; margin-top: 10px; font-size: 12.5px; color: var(--owner-muted); }
     .order-card li { padding: 3px 0; }
     .order-card .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
     .order-card .tot { font-size: 14px; font-weight: 800; }
     .btn-mini {
         border: none; cursor: pointer; font-size: 12px; font-weight: 800;
-        padding: 8px 14px; border-radius: 999px; background: #f0b429; color: #1a1408; transition: transform .15s;
+        padding: 8px 14px; border-radius: 999px; background: var(--owner-gold); color: var(--owner-on-gold); transition: transform .15s;
     }
     .btn-mini:active { transform: scale(.93); }
-    .btn-mini.done { background: rgba(69,185,124,.18); color: #45b97c; }
+    .btn-mini.done { background: color-mix(in srgb, var(--sd-ok) 20%, var(--owner-bg)); color: color-mix(in srgb, var(--sd-ok) 60%, var(--owner-text)); }
     .no-orders { font-size: 13px; color: var(--owner-muted); background: var(--owner-surface); border-radius: 14px; padding: 18px; text-align: center; }
 
     .stock-table { background: var(--owner-surface); border-radius: 14px; overflow: hidden; }
@@ -234,8 +254,8 @@
         padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px;
     }
     .stock-row:last-child { border-bottom: none; }
-    .stock-row.low { background: rgba(230,126,34,.1); }
-    .stock-row.out { background: rgba(231,76,60,.12); }
+    .stock-row.low { background: color-mix(in srgb, var(--sd-warn) 12%, var(--owner-surface)); }
+    .stock-row.out { background: color-mix(in srgb, var(--sd-danger) 14%, var(--owner-surface)); }
     .stock-row .em { font-size: 18px; }
     .stock-row .nm { font-weight: 600; }
     .stock-row .nm small { display: block; font-size: 10.5px; color: var(--owner-muted); font-weight: 500; }
@@ -243,20 +263,22 @@
     .stock-n.warn { color: var(--warn); }
     .stock-n.bad { color: var(--danger); }
     .restock {
-        border: 1.5px solid #39455a; background: none; color: var(--owner-text);
+        border: 1.5px solid var(--owner-line); background: none; color: var(--owner-text);
         font-size: 11.5px; font-weight: 800; padding: 7px 10px; border-radius: 999px; cursor: pointer; transition: all .15s;
     }
-    .restock:active { transform: scale(.92); border-color: #f0b429; color: #f0b429; }
+    .restock:active { transform: scale(.92); border-color: var(--owner-gold); color: var(--owner-gold); }
 
     .toast {
         position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(16px);
-        background: var(--ink); color: #fff; font-size: 13px; font-weight: 600;
+        background: var(--ink); color: var(--sd-bg); font-size: 13px; font-weight: 600;
         padding: 9px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80;
         pointer-events: none; white-space: nowrap;
     }
-    body.owner-mode .toast { background: #f0b429; color: #1a1408; font-weight: 800; }
+    body.owner-mode .toast { background: var(--owner-gold); color: var(--owner-on-gold); font-weight: 800; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
+<script src="sistemas/tema-datos.js"></script>
+<script src="../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="demo-badge">DEMO</div>

@@ -1,28 +1,17 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="grana-mensajeria" data-tipo="peso-alto" data-elem="generoso" data-preset="carmin" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carmín — Sistema de diseño</title>
 <meta name="description" content="Carmín: rojo profundo y verde de mensajería. Cuerpo grande, pesos altos y objetivos pulsables amplios.">
+<link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
 <style>
-  :root {
-    --sd-bg: #fbf7f1;
-    --sd-surface: #ffffff;
-    --sd-surface-2: #fffdfa;
-    --sd-ink: #2c2018;
-    /* Oscurecido desde el #94857a original, que se quedaba en 3,34:1 y no llegaba a
-       AA para texto pequeno. El cambio esta aplicado tambien en la demo. */
-    --sd-muted: #7b6e65;
-    --sd-accent: #a4262c;
-    --sd-accent-2: #25d366;
-    --sd-line: #ece0d4;
-    --sd-radius: 16px;
-    --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
 </style>
 <script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -161,6 +150,8 @@
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="../carniceria.html">Ver un ejemplo aplicado &#8599;</a>
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
     <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>

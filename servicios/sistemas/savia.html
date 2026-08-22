@@ -1,27 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="savia-naranja" data-tipo="neutra" data-elem="redondeado" data-preset="savia" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Savia — Sistema de diseño con doble tema</title>
 <meta name="description" content="Savia: verde fresco para la cara pública y un tema oscuro para el reverso. Dos temas, un solo sistema de diseño.">
+<link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
 <style>
-  :root {
-    --sd-bg: #f4f7f4;
-    --sd-surface: #ffffff;
-    --sd-surface-2: #fbfdfb;
-    --sd-ink: #1c2b21;
-    /* Oscurecido desde el #7c8a80 original, que se quedaba en 3,35:1 y no llegaba a
-       AA para texto pequeno. El cambio esta aplicado tambien en la demo. */
-    --sd-muted: #67736a;
-    --sd-accent: #1f9d55;
-    --sd-accent-2: #e67e22;
-    --sd-line: #dde6de;
-    --sd-radius: 16px;
-    --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-
   /* El segundo tema del sistema: el reverso. Mismos componentes, otra piel,
      porque quien trabaja con ella a diario pasa horas mirandola. */
   .sd-gestor {
@@ -39,6 +25,8 @@
   }
 </style>
 <script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="sd-contenedor">
@@ -146,11 +134,11 @@
 
     <h3>Botones</h3>
     <div class="sd-lienzo">
-      <button class="sd-btn" type="button" style="color:#ffffff">Añadir</button>
+      <button class="sd-btn" type="button">Añadir</button>
       <button class="sd-btn sd-btn--linea" type="button">Ver detalle</button>
       <button class="sd-btn sd-btn--suave" type="button">Repetir</button>
       <button class="sd-btn sd-btn--fantasma" type="button">Vaciar</button>
-      <button class="sd-btn" type="button" style="color:#ffffff" disabled>No disponible</button>
+      <button class="sd-btn" type="button" disabled>No disponible</button>
     </div>
 
     <h3>Selección y entrada</h3>
@@ -178,7 +166,7 @@
           <span class="sd-insignia" style="background:rgba(230,126,34,.18);color:#e67e22">Stock bajo</span>
           <h4>Elemento · SKU 10428</h4>
           <p>38 unidades · caduca en 3 días · grupo 4</p>
-          <button class="sd-btn" type="button" style="color:#0b1016">Reponer</button>
+          <button class="sd-btn" type="button">Reponer</button>
         </article>
         <label class="sd-check"><input type="checkbox" checked> Repuesto hoy</label>
         <label class="sd-campo"><span>Pedido</span><input type="number" value="120" min="0" step="10"></label>
@@ -189,6 +177,8 @@
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="../supermercado.html">Ver un ejemplo aplicado &#8599;</a>
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
     <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>

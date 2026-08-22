@@ -66,6 +66,53 @@ Halogeno, y su ficha carga el CSS de verdad en lugar de imitarlo.
 cualquiera puede vestir un proyecto cualquiera, y por eso las fichas no llevan
 seccion de "cuando usarlo" ni etiqueta de sector.
 
+## 4 ter. Tres ejes, no nueve paquetes
+
+Un sistema ya no es un bloque cerrado. Son tres ejes que se combinan libremente:
+
+| Eje | Cuantos | Se nombran por |
+|---|---|---|
+| Paletas | 9 | sus colores (Carbon y lima, Barro y crema...) |
+| Tipografias | 9 | sus fuentes (Serif en titulares, Caja alta...) |
+| Elementos | 8 | su forma (Pastilla mutante, Recto, Filete...) |
+
+Son 648 combinaciones. Los nueve sistemas con nombre son solo `presets`: la
+combinacion de partida de cada uno.
+
+Se aplica con tres atributos, no con JavaScript:
+
+    <html data-paleta="..." data-tipo="..." data-elem="...">
+
+Cada pagina lleva su combinacion escrita en el HTML, asi que se ve bien aunque
+el script no llegue a correr. `js/selector-sistema.js` solo cambia los
+atributos. En el configurador los atributos van en el lienzo de muestra y no en
+`<html>`, para que la herramienta con la que eliges no se mueva.
+
+`data-tema-memoria="no"` apaga la memoria compartida: lo llevan las nueve
+fichas, porque la ficha DE un sistema no debe abrirse con la paleta de otro.
+
+### Paginas
+
+- `configurador.html` — los tres catalogos con muestra en vivo
+- `elementos.html` — 196 elementos de UIverse (MIT), montados en shadow root
+- `paletas.html` — el muestrario de color
+- las nueve fichas, y las cinco demos de `servicios/`
+
+### Contraste
+
+Nada se elige a ojo. `generar-tema.mjs` audita los 7 pares de texto de cada
+paleta y falla si alguno no llega a 4,5:1. Ojo con dos trampas que ya costaron
+caras:
+
+- `--sd-accent` NO vale como relleno de una accion: sobre banda clara se queda
+  en 3:1. Para eso esta `--sd-accent-solid`, que es el auditado.
+- `--sd-accent` NO vale como texto por la misma razon. Para eso esta
+  `--sd-accent-text`.
+
+Y una trampa de medicion: auditar el contraste cambiando `data-paleta` a mano y
+midiendo acto seguido da falsos positivos a puñados, porque el recalculo aun no
+ha ocurrido. Hay que cargar la pagina con `?paleta=...` y dejarla asentarse.
+
 ## 4 bis. Como se mantiene sincronizado con Claude Design
 
 `servicios/sistemas/sistemas-datos.mjs` es la fuente unica. Cada sistema lleva

@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="tinta-fucsia" data-tipo="caja-alta" data-elem="recto">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ALBA — Demo tienda de moda online</title>
+<link rel="stylesheet" href="sistemas/tema.css">
 <style>
     :root {
-        --ink: #111114;
-        --paper: #fafafa;
-        --muted: #727278; /* 4,58:1 sobre el papel; el #88888f anterior se quedaba en 3,37 y no llegaba a AA */
-        --accent: #e7335a;
-        --line: #e8e8ec;
+        --ink: var(--sd-ink);
+        --paper: var(--sd-bg);
+        --card: var(--sd-surface);
+        --muted: var(--sd-muted);
+        --accent: var(--sd-accent);
+        --accent-text: var(--sd-accent-text);
+        --line: var(--sd-line);
+        --radius: var(--sd-radius);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -21,7 +25,7 @@
     }
     .demo-badge {
         position: fixed; top: 42px; left: -34px; z-index: 90;
-        background: rgba(17,17,20,.85); color: #fff; font-size: 10px; font-weight: 700;
+        background: color-mix(in srgb, var(--sd-ink) 85%, transparent); color: var(--sd-bg); font-size: 10px; font-weight: 700;
         letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
     }
 
@@ -29,7 +33,7 @@
     .top {
         position: sticky; top: 0; z-index: 30;
         display: flex; align-items: center; justify-content: space-between;
-        padding: 40px 16px 12px; background: rgba(250,250,250,.92); backdrop-filter: blur(10px);
+        padding: 40px 16px 12px; background: color-mix(in srgb, var(--sd-bg) 92%, transparent); backdrop-filter: blur(10px);
         border-bottom: 1px solid var(--line);
     }
     .logo { font-size: 22px; font-weight: 900; letter-spacing: .35em; }
@@ -37,7 +41,7 @@
     .icon-btn { position: relative; border: none; background: none; font-size: 20px; cursor: pointer; }
     .badge {
         position: absolute; top: -6px; right: -8px; min-width: 16px; height: 16px;
-        background: var(--accent); color: #fff; font-size: 10px; font-weight: 800;
+        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-size: 10px; font-weight: 800;
         border-radius: 999px; display: grid; place-items: center; padding: 0 4px;
         transform: scale(0); transition: transform .25s cubic-bezier(.2,1.4,.4,1);
     }
@@ -46,15 +50,15 @@
     /* ---------- BANNER ---------- */
     .banner {
         margin: 14px 16px 0; border-radius: 18px; overflow: hidden; position: relative;
-        background: linear-gradient(120deg, #16161a 0%, #2b2030 55%, #5e2237 100%);
-        color: #fff; padding: 26px 20px;
+        background: linear-gradient(120deg, var(--sd-ink) 0%, color-mix(in srgb, var(--sd-ink) 78%, var(--sd-accent)) 55%, color-mix(in srgb, var(--sd-accent-strong) 70%, var(--sd-ink)) 100%);
+        color: var(--sd-bg); padding: 26px 20px;
     }
     .banner::after {
         content: '👗🧥👜'; position: absolute; right: 10px; bottom: 6px; font-size: 44px; opacity: .85;
     }
     .banner small { font-size: 11px; letter-spacing: .25em; opacity: .75; }
     .banner h2 { font-size: 28px; font-weight: 900; letter-spacing: -.02em; margin-top: 4px; }
-    .banner h2 span { color: #ff5e82; }
+    .banner h2 span { color: var(--sd-accent); }
 
     /* ---------- CATEGORÍAS ---------- */
     .cats { display: flex; gap: 18px; padding: 18px 16px 8px; overflow-x: auto; scrollbar-width: none; }
@@ -75,12 +79,12 @@
         display: grid; place-items: center; font-size: 56px;
     }
     .prod-img .sale {
-        position: absolute; top: 8px; left: 8px; background: var(--accent); color: #fff;
+        position: absolute; top: 8px; left: 8px; background: var(--sd-accent-solid); color: var(--sd-on-accent);
         font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
     }
     .fav {
         position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border-radius: 50%;
-        border: none; cursor: pointer; background: rgba(255,255,255,.85); font-size: 15px;
+        border: none; cursor: pointer; background: color-mix(in srgb, var(--sd-surface) 88%, transparent); font-size: 15px;
         display: grid; place-items: center; transition: transform .2s;
     }
     .fav:active { transform: scale(1.25); }
@@ -98,7 +102,7 @@
     .pdp-img { position: relative; aspect-ratio: 1/1.05; display: grid; place-items: center; font-size: 120px; }
     .pdp-close {
         position: absolute; top: 44px; left: 14px; width: 38px; height: 38px; border-radius: 50%;
-        border: none; background: rgba(255,255,255,.9); font-size: 17px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+        border: none; background: color-mix(in srgb, var(--sd-surface) 90%, transparent); font-size: 17px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.12);
     }
     .pdp-body { padding: 18px 18px 0; }
     .pdp-body h2 { font-size: 20px; font-weight: 800; }
@@ -109,21 +113,21 @@
     .sizes { display: flex; gap: 8px; flex-wrap: wrap; }
     .size {
         min-width: 44px; padding: 10px 0; text-align: center; border-radius: 10px;
-        border: 1.5px solid var(--line); background: #fff; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .15s;
+        border: 1.5px solid var(--line); background: var(--card); font-size: 13px; font-weight: 700; cursor: pointer; transition: all .15s;
     }
-    .size.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .size.active { background: var(--ink); color: var(--sd-bg); border-color: var(--ink); }
     .colors { display: flex; gap: 10px; }
-    .color { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; outline: 1.5px solid var(--line); transition: outline-color .15s; }
+    .color { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid var(--card); outline: 1.5px solid var(--line); transition: outline-color .15s; }
     .color.active { outline: 2.5px solid var(--ink); }
     .pdp-cta {
         position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
         width: 100%; max-width: 480px; padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
-        background: rgba(250,250,250,.95); backdrop-filter: blur(10px); border-top: 1px solid var(--line);
+        background: color-mix(in srgb, var(--sd-bg) 95%, transparent); backdrop-filter: blur(10px); border-top: 1px solid var(--line);
         display: none; z-index: 55;
     }
     .pdp.show ~ .pdp-cta { display: block; }
     .btn-dark {
-        width: 100%; border: none; cursor: pointer; background: var(--ink); color: #fff;
+        width: 100%; border: none; cursor: pointer; background: var(--ink); color: var(--sd-bg);
         font-size: 14px; font-weight: 800; letter-spacing: .05em; padding: 15px; border-radius: 14px;
         transition: transform .15s;
     }
@@ -137,7 +141,7 @@
     .cart-backdrop.show { opacity: 1; pointer-events: auto; }
     .cart {
         position: fixed; top: 0; right: 0; height: 100dvh; width: min(86%, 380px); z-index: 61;
-        background: #fff; box-shadow: -10px 0 40px rgba(0,0,0,.15);
+        background: var(--card); box-shadow: -10px 0 40px rgba(0,0,0,.15);
         transform: translateX(105%); transition: transform .38s cubic-bezier(.2,.9,.25,1);
         display: flex; flex-direction: column;
     }
@@ -160,7 +164,7 @@
     /* ---------- CONFIRMACIÓN ---------- */
     .done {
         position: fixed; inset: 0; z-index: 70; display: none; place-items: center; text-align: center;
-        background: var(--ink); color: #fff; padding: 24px;
+        background: var(--ink); color: var(--sd-bg); padding: 24px;
     }
     .done.show { display: grid; }
     .done .ring {
@@ -172,17 +176,19 @@
     .done h2 { font-size: 24px; font-weight: 900; }
     .done p { font-size: 13px; opacity: .8; margin-top: 8px; line-height: 1.6; }
     .done button {
-        margin-top: 24px; background: #fff; color: var(--ink); border: none; cursor: pointer;
+        margin-top: 24px; background: var(--card); color: var(--ink); border: none; cursor: pointer;
         font-weight: 800; font-size: 13px; letter-spacing: .05em; padding: 13px 28px; border-radius: 999px;
     }
     .toast {
         position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(16px);
-        background: var(--ink); color: #fff; font-size: 13px; font-weight: 600;
+        background: var(--ink); color: var(--sd-bg); font-size: 13px; font-weight: 600;
         padding: 9px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80;
         pointer-events: none; white-space: nowrap;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
+<script src="sistemas/tema-datos.js"></script>
+<script src="../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="demo-badge">DEMO</div>
