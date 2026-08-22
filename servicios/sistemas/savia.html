@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Savia — Sistema de diseño con doble tema</title>
+<meta name="description" content="Savia: verde fresco para la cara pública y un tema oscuro para el reverso. Dos temas, un solo sistema de diseño.">
+<link rel="stylesheet" href="sistema.css">
+<style>
+  :root {
+    --sd-bg: #f4f7f4;
+    --sd-surface: #ffffff;
+    --sd-surface-2: #fbfdfb;
+    --sd-ink: #1c2b21;
+    /* Oscurecido desde el #7c8a80 original, que se quedaba en 3,35:1 y no llegaba a
+       AA para texto pequeno. El cambio esta aplicado tambien en la demo. */
+    --sd-muted: #67736a;
+    --sd-accent: #1f9d55;
+    --sd-accent-2: #e67e22;
+    --sd-line: #dde6de;
+    --sd-radius: 16px;
+    --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* El segundo tema del sistema: el reverso. Mismos componentes, otra piel,
+     porque quien trabaja con ella a diario pasa horas mirandola. */
+  .sd-gestor {
+    --sd-bg: #10151c;
+    --sd-surface: #1a212c;
+    --sd-surface-2: #222b38;
+    --sd-ink: #eef2f6;
+    --sd-muted: #8694a6;
+    --sd-line: #2b3644;
+    background: var(--sd-bg);
+    color: var(--sd-ink);
+    padding: clamp(1.1rem, 2.5vw, 1.75rem);
+    border-radius: var(--sd-radius);
+    border: 1px solid var(--sd-line);
+  }
+</style>
+<script src="copiar-color.js" defer></script>
+</head>
+<body>
+<div class="sd-contenedor">
+
+  <header class="sd-cabecera">
+    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <span class="sd-etiqueta">Doble tema · dos acentos · radio 16</span>
+    <h1 class="sd-titulo">Savia</h1>
+    <p class="sd-bajada">Verde fresco para la cara pública y un tema oscuro para el reverso. Es el único del catálogo con dos temas: mismos componentes, dos pieles, dos maneras de pasar el día delante de la pantalla.</p>
+  </header>
+
+  <section class="sd-seccion">
+    <h2>Paleta</h2>
+    <p>El verde manda en el tema claro. El naranja avisa y el rojo corrige, nunca al revés. El reverso usa la misma estructura sobre grises fríos.</p>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#1F9D55" style="--c:#1f9d55;--t:#101010"
+                aria-label="Copiar #1F9D55, Verde">
+          <span class="pl-color__nombre">Verde</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1F9D55</b></span>
+          <span class="pl-color__rol">Marca y acción</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#157040" style="--c:#157040;--t:#ffffff"
+                aria-label="Copiar #157040, Verde oscuro">
+          <span class="pl-color__nombre">Verde oscuro</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#157040</b></span>
+          <span class="pl-color__rol">Estado pulsado</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#F4F7F4" style="--c:#f4f7f4;--t:#101010"
+                aria-label="Copiar #F4F7F4, Fondo">
+          <span class="pl-color__nombre">Fondo</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#F4F7F4</b></span>
+          <span class="pl-color__rol">Tema claro</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#1C2B21" style="--c:#1c2b21;--t:#ffffff"
+                aria-label="Copiar #1C2B21, Tinta">
+          <span class="pl-color__nombre">Tinta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1C2B21</b></span>
+          <span class="pl-color__rol">Texto principal</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#67736A" style="--c:#67736a;--t:#ffffff"
+                aria-label="Copiar #67736A, Apagado">
+          <span class="pl-color__nombre">Apagado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#67736A</b></span>
+          <span class="pl-color__rol">Texto secundario</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#E67E22" style="--c:#e67e22;--t:#101010"
+                aria-label="Copiar #E67E22, Aviso">
+          <span class="pl-color__nombre">Aviso</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#E67E22</b></span>
+          <span class="pl-color__rol">Advertencia</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#E74C3C" style="--c:#e74c3c;--t:#101010"
+                aria-label="Copiar #E74C3C, Peligro">
+          <span class="pl-color__nombre">Peligro</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#E74C3C</b></span>
+          <span class="pl-color__rol">Error, agotado</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#10151C" style="--c:#10151c;--t:#ffffff"
+                aria-label="Copiar #10151C, Reverso fondo">
+          <span class="pl-color__nombre">Reverso fondo</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#10151C</b></span>
+          <span class="pl-color__rol">Tema oscuro</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#1A212C" style="--c:#1a212c;--t:#ffffff"
+                aria-label="Copiar #1A212C, Reverso superficie">
+          <span class="pl-color__nombre">Reverso superficie</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1A212C</b></span>
+          <span class="pl-color__rol">Tarjeta del tema oscuro</span>
+        </button>
+      </li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Tipografía</h2>
+    <p>Pila del sistema en los dos temas. La única diferencia es la densidad: el tema claro respira, el reverso aprieta, porque ahí caben cien filas en pantalla.</p>
+    <ul class="sd-tipo">
+      <li><span class="sd-tipo-meta">Display · 700</span><span class="sd-muestra-display" style="font-weight:700">Dos temas</span></li>
+      <li><span class="sd-tipo-meta">Subtítulo · 600</span><span class="sd-muestra-titulo" style="font-weight:600">Un segundo nivel</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · 400 / 16px</span><span class="sd-muestra-cuerpo">En el tema claro el texto tiene aire; en el reverso el mismo tamaño va con la mitad de interlineado. La escala no cambia: cambia la densidad.</span></li>
+      <li><span class="sd-tipo-meta">Referencia · 500 / 13px</span><span class="sd-muestra-pie">SKU 10428 · 2,45 € · 38 unidades</span></li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Componentes</h2>
+    <p>Los mismos en los dos temas. Cambian los tokens, no el marcado: eso es lo que hace que esto sea un sistema y no dos diseños parecidos.</p>
+
+    <h3>Botones</h3>
+    <div class="sd-lienzo">
+      <button class="sd-btn" type="button" style="color:#ffffff">Añadir</button>
+      <button class="sd-btn sd-btn--linea" type="button">Ver detalle</button>
+      <button class="sd-btn sd-btn--suave" type="button">Repetir</button>
+      <button class="sd-btn sd-btn--fantasma" type="button">Vaciar</button>
+      <button class="sd-btn" type="button" style="color:#ffffff" disabled>No disponible</button>
+    </div>
+
+    <h3>Selección y entrada</h3>
+    <div class="sd-lienzo">
+      <label class="sd-check"><input type="checkbox" checked> Opción marcada</label>
+      <label class="sd-check"><input type="checkbox"> Opción sin marcar</label>
+      <label class="sd-check"><input type="radio" name="savia-r" checked> Primera opción</label>
+      <label class="sd-check"><input type="radio" name="savia-r"> Segunda opción</label>
+      <label class="sd-campo"><span>Cantidad</span><input type="number" value="1" min="0" step="0.5"></label>
+    </div>
+
+    <h3>Iconos</h3>
+    <div class="sd-lienzo sd-iconos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Carro"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.4a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Elemento"><circle cx="12" cy="14" r="7"/><path d="M12 7c0-2 1.5-4 4-4"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Inicio"><path d="M3 10 12 4l9 6v10H3V10Z"/><path d="M9 20v-6h6v6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Envío"><path d="M3 16V7h11v9M14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Etiqueta"><path d="M3 12V4h8l9 9-8 8-9-9Z"/><circle cx="7.5" cy="7.5" r="1.4"/></svg>
+    </div>
+
+    <h3>El segundo tema: el reverso</h3>
+    <div class="sd-gestor">
+      <div class="sd-lienzo" style="border-color:var(--sd-line);background:var(--sd-surface)">
+        <article class="sd-ficha">
+          <span class="sd-insignia" style="background:rgba(230,126,34,.18);color:#e67e22">Stock bajo</span>
+          <h4>Elemento · SKU 10428</h4>
+          <p>38 unidades · caduca en 3 días · grupo 4</p>
+          <button class="sd-btn" type="button" style="color:#0b1016">Reponer</button>
+        </article>
+        <label class="sd-check"><input type="checkbox" checked> Repuesto hoy</label>
+        <label class="sd-campo"><span>Pedido</span><input type="number" value="120" min="0" step="10"></label>
+      </div>
+    </div>
+  </section>
+
+
+  <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="../supermercado.html">Ver un ejemplo aplicado &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
+    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+
+</div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
+</body>
+</html>
