@@ -342,23 +342,6 @@ body {
   color: var(--sd-muted);
 }
 
-/* ---------- Cuando usarlo ---------- */
-.sd-cuando {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 1rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.sd-cuando li {
-  padding: 1rem 1.15rem;
-  border-left: 3px solid var(--sd-accent);
-  border-radius: 0 var(--sd-radius) var(--sd-radius) 0;
-  background: var(--sd-surface);
-}
-
 /* ---------- Pie ---------- */
 .sd-pie {
   display: flex;

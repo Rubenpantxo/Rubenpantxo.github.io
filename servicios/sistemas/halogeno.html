@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Halógeno — Sistema de diseño</title>
+<meta name="description" content="Halógeno: oscuro, cinético y de un solo acento. Sistema de diseño con radios que mutan y profundidad por anillos de luz.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Esta ficha no imita los componentes: carga el mismo CSS que esta en
+     produccion, asi que lo que se ve aqui son las piezas de verdad. -->
+<link rel="stylesheet" href="../../apps/escenas/halogen.css">
+<link rel="stylesheet" href="sistema.css">
+<style>
+  /* Puente entre los tokens del kit y la estructura compartida de las fichas. */
+  :root {
+    --sd-bg: var(--canvas);
+    --sd-surface: var(--surface);
+    --sd-surface-2: var(--raised);
+    --sd-ink: var(--ink);
+    --sd-muted: var(--ink-dim);
+    --sd-accent: var(--halogen);
+    --sd-accent-2: var(--halogen);
+    --sd-line: var(--hairline);
+    --sd-radius: var(--r-morph);
+    --sd-font: var(--font-sans);
+    --sd-display: var(--font-sans);
+  }
+
+  .sd-titulo {
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.92;
+  }
+
+  .sd-mono {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-dim);
+  }
+
+  /* El kit pone box-sizing y tipografia globales; aqui solo se recupera el
+     ancho de la ficha, que el kit no contempla porque nacio para una app. */
+  body { line-height: 1.6; }
+  .sd-lienzo { align-items: flex-start; }
+</style>
+<script src="copiar-color.js" defer></script>
+</head>
+<body>
+<div class="sd-contenedor">
+
+  <header class="sd-cabecera">
+    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <span class="hk-eyebrow">Oscuro · un acento · radio mutante</span>
+    <h1 class="sd-titulo">Halógeno</h1>
+    <p class="sd-bajada">Oscuro, cinético y de un solo acento. Profundidad por anillos de luz en vez de sombras, y radios que mutan: lo que está en reposo es una pastilla y al activarse se cuadra.</p>
+  </header>
+
+  <section class="sd-seccion">
+    <h2>Paleta</h2>
+    <p>Cuatro negros verdosos que se apilan por profundidad y un único acento de alto voltaje. No hay color secundario: si algo necesita destacar, o es lima o no destaca.</p>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#0A0D0A" style="--c:#0a0d0a;--t:#ffffff"
+                aria-label="Copiar #0A0D0A, Canvas">
+          <span class="pl-color__nombre">Canvas</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#0A0D0A</b></span>
+          <span class="pl-color__rol">Fondo de página</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#12160F" style="--c:#12160f;--t:#ffffff"
+                aria-label="Copiar #12160F, Surface">
+          <span class="pl-color__nombre">Surface</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#12160F</b></span>
+          <span class="pl-color__rol">Tarjeta</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#1A1F18" style="--c:#1a1f18;--t:#ffffff"
+                aria-label="Copiar #1A1F18, Raised">
+          <span class="pl-color__nombre">Raised</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1A1F18</b></span>
+          <span class="pl-color__rol">Campo, elemento elevado</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#2A312A" style="--c:#2a312a;--t:#ffffff"
+                aria-label="Copiar #2A312A, Hairline">
+          <span class="pl-color__nombre">Hairline</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#2A312A</b></span>
+          <span class="pl-color__rol">Filo de un píxel</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#A3E635" style="--c:#a3e635;--t:#101010"
+                aria-label="Copiar #A3E635, Halogen">
+          <span class="pl-color__nombre">Halogen</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#A3E635</b></span>
+          <span class="pl-color__rol">Acento único</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#F2F5F0" style="--c:#f2f5f0;--t:#101010"
+                aria-label="Copiar #F2F5F0, Ink">
+          <span class="pl-color__nombre">Ink</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#F2F5F0</b></span>
+          <span class="pl-color__rol">Texto principal</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#8F9A8C" style="--c:#8f9a8c;--t:#101010"
+                aria-label="Copiar #8F9A8C, Ink dim">
+          <span class="pl-color__nombre">Ink dim</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#8F9A8C</b></span>
+          <span class="pl-color__rol">Texto secundario</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#3A423A" style="--c:#3a423a;--t:#ffffff"
+                aria-label="Copiar #3A423A, Unchecked">
+          <span class="pl-color__nombre">Unchecked</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#3A423A</b></span>
+          <span class="pl-color__rol">Casilla sin marcar</span>
+        </button>
+      </li>
+    </ul>
+    <p class="sd-mono">Además: halogen-soft rgba(163,230,53,.14) para fondos tenues y halogen-glow rgba(163,230,53,.35) para el resplandor.</p>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Tipografía</h2>
+    <p>Inter Tight para todo lo que se lee y JetBrains Mono para lo que se mide. El monoespaciado no es decoración: marca lo que es un dato, un estado o una etiqueta técnica.</p>
+    <ul class="sd-tipo">
+      <li><span class="sd-tipo-meta">Display · Inter Tight 900</span><span class="sd-muestra-display hk-display">Alto voltaje</span></li>
+      <li><span class="sd-tipo-meta">Título · Inter Tight 700</span><span class="sd-muestra-titulo" style="font-weight:700">Un solo acento de alto voltaje</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · Inter Tight 400</span><span class="sd-muestra-cuerpo">La interfaz desaparece y deja mandar al contenido. Sobre negro verdoso, un texto claro descansa la vista incluso después de un rato largo.</span></li>
+      <li><span class="sd-tipo-meta">Dato · JetBrains Mono</span><span class="sd-muestra-pie" style="font-family:var(--font-mono);letter-spacing:.18em;text-transform:uppercase">dato · etiqueta técnica</span></li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Componentes</h2>
+    <p>Estos no son una imitación: esta página carga el mismo <span class="sd-mono">halogen.css</span> que está en producción, así que son las piezas de verdad. Pasa el ratón por encima y fíjate en cómo cambian de forma.</p>
+
+    <h3>Botones</h3>
+    <div class="sd-lienzo">
+      <button class="hk-btn hk-btn--primary" type="button">Aceptar <span class="hk-btn__arrow">&#8594;</span></button>
+      <button class="hk-btn" type="button">Restablecer</button>
+      <button class="hk-btn" type="button" disabled>No disponible</button>
+    </div>
+
+    <h3>Chip y baldosa de icono</h3>
+    <div class="sd-lienzo">
+      <span class="hk-chip">Activo</span>
+      <span class="hk-chip hk-chip--mute">Sin definir</span>
+      <span class="hk-tile" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7Z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      </span>
+      <span class="hk-tile hk-tile--soft" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      </span>
+    </div>
+
+    <h3>Casillas</h3>
+    <div class="sd-lienzo" style="flex-direction:column;align-items:stretch;gap:0">
+      <label class="hk-check">
+        <input type="checkbox" checked>
+        <span class="hk-check__dot"></span>
+        <span class="hk-check__label">Mostrar rejilla</span>
+        <span class="hk-check__state">ON</span>
+      </label>
+      <label class="hk-check">
+        <input type="checkbox">
+        <span class="hk-check__dot"></span>
+        <span class="hk-check__label">Sombras suaves</span>
+        <span class="hk-check__state">OFF</span>
+      </label>
+      <label class="hk-check">
+        <input type="checkbox" checked>
+        <span class="hk-check__dot"></span>
+        <span class="hk-check__label">Bloquear proporción</span>
+        <span class="hk-check__state">ON</span>
+      </label>
+    </div>
+
+    <h3>Campo y dato</h3>
+    <div class="sd-lienzo">
+      <span class="hk-field">
+        <input type="text" value="Sin título" aria-label="Nombre del documento">
+      </span>
+      <span class="hk-stat">
+        <span class="hk-stat__value hk-num">128</span>
+        <span class="sd-mono">elementos</span>
+      </span>
+      <span class="hk-stat">
+        <span class="hk-stat__value hk-num">24 px</span>
+        <span class="sd-mono">retícula</span>
+      </span>
+    </div>
+
+    <h3>Tarjeta</h3>
+    <div class="sd-lienzo">
+      <article class="hk-card" style="max-width:22rem">
+        <span class="hk-eyebrow">Ejemplo</span>
+        <h4 style="margin:.5rem 0 .35rem;font-weight:700">Tarjeta de contenido</h4>
+        <p style="margin:0 0 1rem;color:var(--ink-dim);font-size:.9rem">Una línea de apoyo en texto secundario, del largo que suele tener de verdad.</p>
+        <button class="hk-btn hk-btn--primary hk-btn--block" type="button">Abrir <span class="hk-btn__arrow">&#8594;</span></button>
+      </article>
+    </div>
+  </section>
+
+
+  <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
+    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+
+</div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
+</body>
+</html>

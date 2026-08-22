@@ -10,7 +10,8 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { sistemas, capturas } from './paletas-datos.mjs';
+import { sistemas } from './sistemas-datos.mjs';
+import { capturas } from './paletas-datos.mjs';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = join(AQUI, '..', '..');
@@ -62,9 +63,9 @@ const rejilla = (colores, clase = '') =>
 const grupoSistema = s => `    <section class="pl-grupo" id="${s.id}">
       <div class="pl-grupo__cab">
         <h3>${esc(s.nombre)}</h3>
-        <a class="pl-grupo__ver" href="${s.id}.html">Ver el sistema completo &#8599;</a>
+        <a class="pl-grupo__ver" href="${s.ficha}">Ver el sistema completo &#8599;</a>
       </div>
-      <p class="pl-grupo__nota">${esc(s.nota)}</p>
+      <p class="pl-grupo__nota">${esc(s.titular)}</p>
 ${rejilla(s.colores)}
     </section>`;
 
@@ -135,7 +136,7 @@ const html = `<!DOCTYPE html>
 
   <section class="sd-seccion">
     <h2 class="pl-seccion" id="sistemas">Mis sistemas</h2>
-    <p class="pl-intro">Las seis paletas que están en uso ahora mismo. Cada una lleva al detalle completo del sistema.</p>
+    <p class="pl-intro">Las ${sistemas.length} paletas del catálogo. Cada una lleva al detalle completo del sistema.</p>
 ${sistemas.map(grupoSistema).join('\n')}
   </section>
 
@@ -160,7 +161,7 @@ writeFileSync(join(FICHAS, 'paletas.html'), html, 'utf8');
 /* ---------- 2. la paleta de cada ficha ---------- */
 let sustituidas = 0;
 for (const s of sistemas) {
-  const ruta = join(FICHAS, `${s.id}.html`);
+  const ruta = join(FICHAS, s.ficha);
   let txt = readFileSync(ruta, 'utf8');
   const nueva = rejilla(s.colores).replace(/^ {6}/gm, '    ');
   // Acepta la marca original y la ya generada, para poder volver a pasar el
