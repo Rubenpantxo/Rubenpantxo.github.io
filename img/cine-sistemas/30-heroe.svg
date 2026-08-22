@@ -1,110 +1,53 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160" preserveAspectRatio="xMidYMid slice">
-  <title>Capa 30 — portal heroe formado por torres de muestras, con hueco central libre</title>
-  <defs>
-    <linearGradient id="h-torre" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#232a20"/>
-      <stop offset="0.55" stop-color="#1a1f18"/>
-      <stop offset="1" stop-color="#0f1310"/>
+
+<defs>
+    <linearGradient id="hero-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1E293B" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#0F172A" stop-opacity="0.95"/>
     </linearGradient>
-    <linearGradient id="h-torre-der" x1="1" y1="0" x2="0" y2="0">
-      <stop offset="0" stop-color="#262d24"/>
-      <stop offset="0.55" stop-color="#1a1f18"/>
-      <stop offset="1" stop-color="#12160f"/>
-    </linearGradient>
-    <linearGradient id="h-dintel" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#262d24"/>
-      <stop offset="1" stop-color="#12160f"/>
-    </linearGradient>
-  </defs>
+    <filter id="shadowHero" x="-10%" y="-10%" width="120%" height="120%">
+        <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+</defs>
+<g transform="translate(1920, 1080)">
+    <!-- Central massive canvas window -->
+    <rect x="-800" y="-450" width="1600" height="900" rx="24" fill="url(#hero-grad)" stroke="#475569" stroke-width="4" filter="url(#shadowHero)"/>
+    
+    <!-- Top toolbar of the canvas -->
+    <rect x="-800" y="-450" width="1600" height="80" rx="24" fill="#0F172A" opacity="0.6"/>
+    <circle cx="-750" cy="-410" r="8" fill="#EF4444"/>
+    <circle cx="-720" cy="-410" r="8" fill="#F59E0B"/>
+    <circle cx="-690" cy="-410" r="8" fill="#10B981"/>
+    <rect x="-150" y="-425" width="300" height="30" rx="6" fill="#1E293B"/>
+    
+    <!-- Left sidebar (Layers/Components) -->
+    <rect x="-800" y="-370" width="300" height="820" fill="#0F172A" opacity="0.4"/>
+    <g fill="#334155" opacity="0.7">
+        <rect x="-760" y="-330" width="180" height="16" rx="4"/>
+        <rect x="-720" y="-290" width="140" height="16" rx="4"/>
+        <rect x="-720" y="-250" width="120" height="16" rx="4"/>
+        <rect x="-760" y="-210" width="200" height="16" rx="4"/>
+        <rect x="-720" y="-170" width="160" height="16" rx="4"/>
+    </g>
 
-  <!-- Torre izquierda: pila de fichas de token. -->
-  <g>
-    <rect x="1160" y="600" width="330" height="1480" rx="18" fill="url(#h-torre)" stroke="#ffffff" stroke-opacity="0.08" stroke-width="3"/>
-    <g>
-      <rect x="1206" y="672" width="238" height="118" rx="10" fill="#a3e635" opacity="0.92"/>
-      <rect x="1206" y="818" width="238" height="118" rx="10" fill="#b34a1f" opacity="0.92"/>
-      <rect x="1206" y="964" width="238" height="118" rx="10" fill="#e7335a" opacity="0.9"/>
-      <rect x="1206" y="1110" width="238" height="118" rx="10" fill="#a4262c" opacity="0.9"/>
-      <rect x="1206" y="1256" width="238" height="118" rx="10" fill="#c8f04c" opacity="0.9"/>
-      <rect x="1206" y="1402" width="238" height="118" rx="10" fill="#1f9d55" opacity="0.9"/>
-      <rect x="1206" y="1548" width="238" height="118" rx="10" fill="#3a423a" opacity="0.95"/>
-      <rect x="1206" y="1694" width="238" height="118" rx="10" fill="#f2f5f0" opacity="0.8"/>
+    <!-- Right sidebar (Properties Panel) -->
+    <rect x="500" y="-370" width="300" height="820" fill="#0F172A" opacity="0.4"/>
+    <g fill="#334155" opacity="0.7">
+        <rect x="540" y="-330" width="100" height="16" rx="4"/>
+        <!-- Color swatches in prop panel -->
+        <circle cx="560" cy="-280" r="20" fill="#3B82F6"/>
+        <circle cx="620" cy="-280" r="20" fill="#10B981"/>
+        <circle cx="680" cy="-280" r="20" fill="#F59E0B"/>
+        <!-- inputs -->
+        <rect x="540" y="-220" width="220" height="40" rx="6" fill="#1E293B"/>
+        <rect x="540" y="-160" width="100" height="40" rx="6" fill="#1E293B"/>
+        <rect x="660" y="-160" width="100" height="40" rx="6" fill="#1E293B"/>
     </g>
-    <g fill="#ffffff" opacity="0.14">
-      <rect x="1206" y="1860" width="180" height="12" rx="6"/>
-      <rect x="1206" y="1892" width="140" height="12" rx="6"/>
-      <rect x="1206" y="1924" width="200" height="12" rx="6"/>
-    </g>
-  </g>
 
-  <!-- Torre derecha: pila de componentes. -->
-  <g>
-    <rect x="2350" y="600" width="330" height="1480" rx="18" fill="url(#h-torre-der)" stroke="#ffffff" stroke-opacity="0.08" stroke-width="3"/>
-    <!-- botones -->
-    <rect x="2396" y="676" width="238" height="86" rx="43" fill="#a3e635" opacity="0.9"/>
-    <rect x="2396" y="786" width="238" height="86" rx="43" fill="none" stroke="#a3e635" stroke-opacity="0.55" stroke-width="5"/>
-    <rect x="2396" y="896" width="238" height="86" rx="16" fill="#ffffff" opacity="0.10"/>
-    <!-- checkboxes -->
-    <g>
-      <rect x="2396" y="1020" width="76" height="76" rx="14" fill="#1f9d55" opacity="0.9"/>
-      <path d="M2416 1058 l18 20 34 -40" fill="none" stroke="#0a0d0a" stroke-opacity="0.75" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-      <rect x="2494" y="1020" width="76" height="76" rx="14" fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="5"/>
-      <rect x="2592" y="1020" width="76" height="76" rx="14" fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="5"/>
-    </g>
-    <!-- toggles -->
-    <g>
-      <rect x="2396" y="1140" width="130" height="66" rx="33" fill="#c8f04c" opacity="0.85"/>
-      <circle cx="2493" cy="1173" r="24" fill="#0a0d0a" opacity="0.8"/>
-      <rect x="2548" y="1140" width="130" height="66" rx="33" fill="#ffffff" opacity="0.12"/>
-      <circle cx="2581" cy="1173" r="24" fill="#ffffff" opacity="0.35"/>
-    </g>
-    <!-- iconos -->
-    <g fill="none" stroke="#f2f5f0" stroke-opacity="0.5" stroke-width="6">
-      <circle cx="2434" cy="1300" r="34"/>
-      <rect x="2506" y="1266" width="68" height="68" rx="14"/>
-      <path d="M2612 1334 l34 -68 34 68 Z"/>
-      <path d="M2400 1400 h68 M2434 1366 v68"/>
-      <circle cx="2540" cy="1400" r="34"/>
-      <rect x="2612" y="1366" width="68" height="68" rx="34"/>
-    </g>
-    <!-- campos -->
-    <g>
-      <rect x="2396" y="1480" width="238" height="72" rx="12" fill="#ffffff" opacity="0.07"/>
-      <rect x="2418" y="1508" width="120" height="14" rx="7" fill="#ffffff" opacity="0.2"/>
-      <rect x="2396" y="1572" width="238" height="72" rx="12" fill="#ffffff" opacity="0.07"/>
-      <rect x="2418" y="1600" width="90" height="14" rx="7" fill="#ffffff" opacity="0.2"/>
-      <rect x="2396" y="1664" width="238" height="72" rx="12" fill="none" stroke="#f2f5f0" stroke-opacity="0.5" stroke-width="4"/>
-    </g>
-    <g fill="#ffffff" opacity="0.14">
-      <rect x="2396" y="1860" width="200" height="12" rx="6"/>
-      <rect x="2396" y="1892" width="150" height="12" rx="6"/>
-      <rect x="2396" y="1924" width="176" height="12" rx="6"/>
-    </g>
-  </g>
+    <!-- The central stage (left empty for the text/panels to float in) -->
+    <!-- Rulers for the central stage -->
+    <line x1="-500" y1="-370" x2="500" y2="-370" stroke="#334155" stroke-width="20" stroke-dasharray="2 10"/>
+    <line x1="-500" y1="-370" x2="-500" y2="450" stroke="#334155" stroke-width="20" stroke-dasharray="2 10"/>
+</g>
 
-  <!-- Dintel: une las dos torres y cierra el portal por arriba. -->
-  <g>
-    <rect x="1160" y="470" width="1520" height="150" rx="16" fill="url(#h-dintel)" stroke="#ffffff" stroke-opacity="0.08" stroke-width="3"/>
-    <g opacity="0.85">
-      <rect x="1240" y="516" width="120" height="58" rx="29" fill="#a3e635"/>
-      <rect x="1390" y="516" width="120" height="58" rx="29" fill="#b34a1f"/>
-      <rect x="1540" y="516" width="120" height="58" rx="29" fill="#e7335a"/>
-      <rect x="1690" y="516" width="120" height="58" rx="29" fill="#a4262c"/>
-      <rect x="1840" y="516" width="120" height="58" rx="29" fill="#c8f04c"/>
-      <rect x="1990" y="516" width="120" height="58" rx="29" fill="#1f9d55"/>
-      <rect x="2140" y="516" width="120" height="58" rx="29" fill="#3a423a"/>
-      <rect x="2290" y="516" width="120" height="58" rx="29" fill="#f2f5f0"/>
-      <rect x="2440" y="516" width="180" height="58" rx="29" fill="#ffffff" opacity="0.12"/>
-    </g>
-  </g>
-
-  <!-- Reflejo calido en el canto interior de cada torre. -->
-  <g opacity="0.5">
-    <rect x="1484" y="620" width="6" height="1440" fill="#a3e635" opacity="0.35"/>
-    <rect x="2350" y="620" width="6" height="1440" fill="#a3e635" opacity="0.5"/>
-  </g>
-
-  <!-- Sombra de contacto con el suelo. -->
-  <ellipse cx="1325" cy="2075" rx="300" ry="34" fill="#000000" opacity="0.5"/>
-  <ellipse cx="2515" cy="2075" rx="300" ry="34" fill="#000000" opacity="0.5"/>
 </svg>

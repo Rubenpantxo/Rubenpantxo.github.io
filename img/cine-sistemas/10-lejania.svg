@@ -1,69 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160" preserveAspectRatio="xMidYMid slice">
-  <title>Capa 10 — paneles de interfaz lejanos apoyados en la pared del estudio</title>
-  <defs>
-    <linearGradient id="l-panel" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1a1f18"/>
-      <stop offset="1" stop-color="#12160f"/>
-    </linearGradient>
-  </defs>
+<g opacity='0.4'>
+<rect x="2580" y="598" width="80" height="120" rx="8" fill="#EF4444" opacity="0.2" stroke="#EF4444" stroke-width="2"/>
+<rect x="1669" y="1156" width="80" height="120" rx="8" fill="#3B82F6" opacity="0.2" stroke="#3B82F6" stroke-width="2"/>
+<rect x="2917" y="1231" width="80" height="120" rx="8" fill="#8B5CF6" opacity="0.2" stroke="#8B5CF6" stroke-width="2"/>
+<rect x="2665" y="654" width="80" height="120" rx="8" fill="#10B981" opacity="0.2" stroke="#10B981" stroke-width="2"/>
+<rect x="2188" y="1618" width="80" height="120" rx="8" fill="#8B5CF6" opacity="0.2" stroke="#8B5CF6" stroke-width="2"/>
+<rect x="1547" y="1096" width="80" height="120" rx="8" fill="#3B82F6" opacity="0.2" stroke="#3B82F6" stroke-width="2"/>
+<rect x="1245" y="595" width="80" height="120" rx="8" fill="#8B5CF6" opacity="0.2" stroke="#8B5CF6" stroke-width="2"/>
+<rect x="563" y="1111" width="80" height="120" rx="8" fill="#EF4444" opacity="0.2" stroke="#EF4444" stroke-width="2"/>
+<rect x="1701" y="592" width="80" height="120" rx="8" fill="#F59E0B" opacity="0.2" stroke="#F59E0B" stroke-width="2"/>
+<rect x="3420" y="867" width="80" height="120" rx="8" fill="#8B5CF6" opacity="0.2" stroke="#8B5CF6" stroke-width="2"/>
+<rect x="2810" y="1027" width="80" height="120" rx="8" fill="#F59E0B" opacity="0.2" stroke="#F59E0B" stroke-width="2"/>
+<rect x="1053" y="328" width="80" height="120" rx="8" fill="#F59E0B" opacity="0.2" stroke="#F59E0B" stroke-width="2"/>
+<g transform="translate(2115,823)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="48" height="48" fill="none"/><line x1="0" y1="0" x2="48" y2="48"/><line x1="0" y1="48" x2="48" y2="0"/></g>
+<g transform="translate(653,1535)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="64" height="64" fill="none"/><line x1="0" y1="0" x2="64" y2="64"/><line x1="0" y1="64" x2="64" y2="0"/></g>
+<g transform="translate(2922,747)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="96" height="96" fill="none"/><line x1="0" y1="0" x2="96" y2="96"/><line x1="0" y1="96" x2="96" y2="0"/></g>
+<g transform="translate(3404,976)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="48" height="48" fill="none"/><line x1="0" y1="0" x2="48" y2="48"/><line x1="0" y1="48" x2="48" y2="0"/></g>
+<g transform="translate(1932,357)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="96" height="96" fill="none"/><line x1="0" y1="0" x2="96" y2="96"/><line x1="0" y1="96" x2="96" y2="0"/></g>
+<g transform="translate(3249,1569)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="96" height="96" fill="none"/><line x1="0" y1="0" x2="96" y2="96"/><line x1="0" y1="96" x2="96" y2="0"/></g>
+<g transform="translate(226,1150)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="48" height="48" fill="none"/><line x1="0" y1="0" x2="48" y2="48"/><line x1="0" y1="48" x2="48" y2="0"/></g>
+<g transform="translate(2391,393)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="64" height="64" fill="none"/><line x1="0" y1="0" x2="64" y2="64"/><line x1="0" y1="64" x2="64" y2="0"/></g>
+<g transform="translate(3458,244)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="64" height="64" fill="none"/><line x1="0" y1="0" x2="64" y2="64"/><line x1="0" y1="64" x2="64" y2="0"/></g>
+<g transform="translate(3086,936)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="32" height="32" fill="none"/><line x1="0" y1="0" x2="32" y2="32"/><line x1="0" y1="32" x2="32" y2="0"/></g>
+<g transform="translate(1273,1355)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="48" height="48" fill="none"/><line x1="0" y1="0" x2="48" y2="48"/><line x1="0" y1="48" x2="48" y2="0"/></g>
+<g transform="translate(341,1084)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="48" height="48" fill="none"/><line x1="0" y1="0" x2="48" y2="48"/><line x1="0" y1="48" x2="48" y2="0"/></g>
+<g transform="translate(1337,334)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="48" height="48" fill="none"/><line x1="0" y1="0" x2="48" y2="48"/><line x1="0" y1="48" x2="48" y2="0"/></g>
+<g transform="translate(1857,1602)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="64" height="64" fill="none"/><line x1="0" y1="0" x2="64" y2="64"/><line x1="0" y1="64" x2="64" y2="0"/></g>
+<g transform="translate(2872,1365)" stroke="#64748B" stroke-width="1.5" opacity="0.2"><rect width="96" height="96" fill="none"/><line x1="0" y1="0" x2="96" y2="96"/><line x1="0" y1="96" x2="96" y2="0"/></g>
+<text x="881" y="1220" fill="#94A3B8" opacity="0.15" font-family="sans-serif" font-weight="bold" font-size="115">H1</text>
+<text x="942" y="1615" fill="#94A3B8" opacity="0.15" font-family="sans-serif" font-weight="bold" font-size="65">Aa</text>
+<text x="470" y="265" fill="#94A3B8" opacity="0.15" font-family="sans-serif" font-weight="bold" font-size="94">H1</text>
+<text x="3075" y="1105" fill="#94A3B8" opacity="0.15" font-family="sans-serif" font-weight="bold" font-size="103">Aa</text>
+<text x="3090" y="1449" fill="#94A3B8" opacity="0.15" font-family="sans-serif" font-weight="bold" font-size="110">H2</text>
+<text x="2811" y="487" fill="#94A3B8" opacity="0.15" font-family="sans-serif" font-weight="bold" font-size="119">Ag</text>
+<text x="3446" y="611" fill="#94A3B8" opacity="0.15" font-family="sans-serif" font-weight="bold" font-size="116">H2</text>
+<text x="771" y="366" fill="#94A3B8" opacity="0.15" font-family="sans-serif" font-weight="bold" font-size="116">Ag</text>
+<text x="1477" y="891" fill="#94A3B8" opacity="0.15" font-family="sans-serif" font-weight="bold" font-size="64">H2</text>
+<text x="444" y="1323" fill="#94A3B8" opacity="0.15" font-family="sans-serif" font-weight="bold" font-size="89">H1</text>
+</g>
 
-  <!-- Sangrado: los paneles de los extremos salen del lienzo. -->
-  <g opacity="0.92">
-    <!-- panel muy lejano izquierda -->
-    <g transform="translate(-160 470)">
-      <rect width="640" height="880" rx="18" fill="url(#l-panel)" stroke="#ffffff" stroke-opacity="0.05" stroke-width="3"/>
-      <rect x="52" y="60" width="330" height="18" rx="9" fill="#ffffff" opacity="0.10"/>
-      <rect x="52" y="104" width="210" height="14" rx="7" fill="#ffffff" opacity="0.06"/>
-      <g fill="#ffffff" opacity="0.05">
-        <rect x="52" y="180" width="536" height="150" rx="12"/>
-        <rect x="52" y="356" width="536" height="150" rx="12"/>
-        <rect x="52" y="532" width="536" height="150" rx="12"/>
-      </g>
-    </g>
-
-    <!-- panel lejano centro-izquierda -->
-    <g transform="translate(640 620)">
-      <rect width="520" height="720" rx="16" fill="url(#l-panel)" stroke="#ffffff" stroke-opacity="0.05" stroke-width="3"/>
-      <g fill="#ffffff" opacity="0.06">
-        <rect x="44" y="52" width="180" height="180" rx="90"/>
-        <rect x="252" y="70" width="220" height="16" rx="8"/>
-        <rect x="252" y="106" width="150" height="12" rx="6"/>
-        <rect x="44" y="272" width="432" height="12" rx="6"/>
-        <rect x="44" y="308" width="380" height="12" rx="6"/>
-        <rect x="44" y="344" width="410" height="12" rx="6"/>
-      </g>
-      <rect x="44" y="430" width="240" height="64" rx="32" fill="#a3e635" opacity="0.14"/>
-    </g>
-
-    <!-- panel lejano centro-derecha -->
-    <g transform="translate(2560 540)">
-      <rect width="580" height="800" rx="18" fill="url(#l-panel)" stroke="#ffffff" stroke-opacity="0.05" stroke-width="3"/>
-      <g opacity="0.10">
-        <rect x="48" y="56" width="484" height="240" rx="12" fill="#f2f5f0"/>
-      </g>
-      <g fill="#ffffff" opacity="0.06">
-        <rect x="48" y="330" width="300" height="16" rx="8"/>
-        <rect x="48" y="368" width="420" height="12" rx="6"/>
-        <rect x="48" y="402" width="360" height="12" rx="6"/>
-      </g>
-      <g opacity="0.12">
-        <rect x="48" y="470" width="140" height="52" rx="26" fill="#a3e635"/>
-        <rect x="204" y="470" width="140" height="52" rx="26" fill="#ffffff" opacity="0.4"/>
-      </g>
-    </g>
-
-    <!-- panel muy lejano derecha, sale del lienzo -->
-    <g transform="translate(3260 430)">
-      <rect width="740" height="920" rx="20" fill="url(#l-panel)" stroke="#ffffff" stroke-opacity="0.05" stroke-width="3"/>
-      <g fill="#ffffff" opacity="0.05">
-        <rect x="56" y="72" width="300" height="18" rx="9"/>
-        <rect x="56" y="150" width="620" height="120" rx="12"/>
-        <rect x="56" y="298" width="620" height="120" rx="12"/>
-        <rect x="56" y="446" width="620" height="120" rx="12"/>
-      </g>
-    </g>
-  </g>
-
-  <!-- Base comun: sombra donde los paneles tocan el suelo. -->
-  <rect x="-200" y="1330" width="4240" height="26" fill="#000000" opacity="0.35"/>
 </svg>

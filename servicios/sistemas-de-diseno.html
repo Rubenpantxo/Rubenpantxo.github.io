@@ -299,6 +299,35 @@
     outline: 2px solid var(--halo-glow);
     outline-offset: 3px;
   }
+  /* Mostrar los catálogos en cuadrícula vertical sin romper el timeline cinemático */
+  .cine-rail {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 12vw, 13rem), 1fr)) !important;
+    gap: 1rem !important;
+    overflow: visible !important;
+    padding-bottom: 0 !important;
+  }
+  .sd-mini-rail {
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)) !important;
+  }
+  .cine-rail > li {
+    flex: none !important;
+    max-width: none !important;
+  }
+  .cine-rail-controles {
+    display: none !important;
+  }
+  
+  /* Asegurar que si crecen mucho, se puedan hacer scroll sin romper el layout pegado */
+  .cine-panel, .cine-catalogo {
+    max-height: 85vh;
+    overflow-y: auto;
+    pointer-events: auto;
+    scrollbar-width: none;
+  }
+  .cine-panel::-webkit-scrollbar, .cine-catalogo::-webkit-scrollbar {
+    display: none;
+  }
 </style>
 <noscript>
   <style>

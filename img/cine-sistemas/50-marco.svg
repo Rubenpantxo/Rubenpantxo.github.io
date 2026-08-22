@@ -1,16 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160" preserveAspectRatio="xMidYMid slice">
-  <title>Capa 50 — encuadre: vineta suave y esquinas de referencia, centro limpio</title>
-  <defs>
-    <radialGradient id="mc-vineta" cx="0.5" cy="0.48" r="0.74">
-      <stop offset="0.5" stop-color="#000000" stop-opacity="0"/>
-      <stop offset="1" stop-color="#000000" stop-opacity="0.62"/>
-    </radialGradient>
-  </defs>
-  <rect width="3840" height="2160" fill="url(#mc-vineta)"/>
-  <g fill="none" stroke="#a3e635" stroke-opacity="0.16" stroke-width="4">
-    <path d="M120 220 V120 H220"/>
-    <path d="M3620 120 H3720 V220"/>
-    <path d="M120 1940 V2040 H220"/>
-    <path d="M3620 2040 H3720 V1940"/>
-  </g>
+
+<g fill="#475569" font-family="sans-serif" font-size="20" opacity="0.5">
+    <!-- Top ruler -->
+    <rect x="0" y="0" width="3840" height="40" fill="#0F172A" opacity="0.8"/>
+    <line x1="0" y1="40" x2="3840" y2="40" stroke="#334155" stroke-width="2"/>
+    <!-- Top ruler ticks -->
+<line x1="0" y1="20" x2="0" y2="40" stroke="#475569" stroke-width="2"/><text x="5" y="18">0</text><line x1="100" y1="20" x2="100" y2="40" stroke="#475569" stroke-width="2"/><line x1="200" y1="20" x2="200" y2="40" stroke="#475569" stroke-width="2"/><line x1="300" y1="20" x2="300" y2="40" stroke="#475569" stroke-width="2"/><line x1="400" y1="20" x2="400" y2="40" stroke="#475569" stroke-width="2"/><text x="405" y="18">400</text><line x1="500" y1="20" x2="500" y2="40" stroke="#475569" stroke-width="2"/><line x1="600" y1="20" x2="600" y2="40" stroke="#475569" stroke-width="2"/><line x1="700" y1="20" x2="700" y2="40" stroke="#475569" stroke-width="2"/><line x1="800" y1="20" x2="800" y2="40" stroke="#475569" stroke-width="2"/><text x="805" y="18">800</text><line x1="900" y1="20" x2="900" y2="40" stroke="#475569" stroke-width="2"/><line x1="1000" y1="20" x2="1000" y2="40" stroke="#475569" stroke-width="2"/><line x1="1100" y1="20" x2="1100" y2="40" stroke="#475569" stroke-width="2"/><line x1="1200" y1="20" x2="1200" y2="40" stroke="#475569" stroke-width="2"/><text x="1205" y="18">1200</text><line x1="1300" y1="20" x2="1300" y2="40" stroke="#475569" stroke-width="2"/><line x1="1400" y1="20" x2="1400" y2="40" stroke="#475569" stroke-width="2"/><line x1="1500" y1="20" x2="1500" y2="40" stroke="#475569" stroke-width="2"/><line x1="1600" y1="20" x2="1600" y2="40" stroke="#475569" stroke-width="2"/><text x="1605" y="18">1600</text><line x1="1700" y1="20" x2="1700" y2="40" stroke="#475569" stroke-width="2"/><line x1="1800" y1="20" x2="1800" y2="40" stroke="#475569" stroke-width="2"/><line x1="1900" y1="20" x2="1900" y2="40" stroke="#475569" stroke-width="2"/><line x1="2000" y1="20" x2="2000" y2="40" stroke="#475569" stroke-width="2"/><text x="2005" y="18">2000</text><line x1="2100" y1="20" x2="2100" y2="40" stroke="#475569" stroke-width="2"/><line x1="2200" y1="20" x2="2200" y2="40" stroke="#475569" stroke-width="2"/><line x1="2300" y1="20" x2="2300" y2="40" stroke="#475569" stroke-width="2"/><line x1="2400" y1="20" x2="2400" y2="40" stroke="#475569" stroke-width="2"/><text x="2405" y="18">2400</text><line x1="2500" y1="20" x2="2500" y2="40" stroke="#475569" stroke-width="2"/><line x1="2600" y1="20" x2="2600" y2="40" stroke="#475569" stroke-width="2"/><line x1="2700" y1="20" x2="2700" y2="40" stroke="#475569" stroke-width="2"/><line x1="2800" y1="20" x2="2800" y2="40" stroke="#475569" stroke-width="2"/><text x="2805" y="18">2800</text><line x1="2900" y1="20" x2="2900" y2="40" stroke="#475569" stroke-width="2"/><line x1="3000" y1="20" x2="3000" y2="40" stroke="#475569" stroke-width="2"/><line x1="3100" y1="20" x2="3100" y2="40" stroke="#475569" stroke-width="2"/><line x1="3200" y1="20" x2="3200" y2="40" stroke="#475569" stroke-width="2"/><text x="3205" y="18">3200</text><line x1="3300" y1="20" x2="3300" y2="40" stroke="#475569" stroke-width="2"/><line x1="3400" y1="20" x2="3400" y2="40" stroke="#475569" stroke-width="2"/><line x1="3500" y1="20" x2="3500" y2="40" stroke="#475569" stroke-width="2"/><line x1="3600" y1="20" x2="3600" y2="40" stroke="#475569" stroke-width="2"/><text x="3605" y="18">3600</text><line x1="3700" y1="20" x2="3700" y2="40" stroke="#475569" stroke-width="2"/><line x1="3800" y1="20" x2="3800" y2="40" stroke="#475569" stroke-width="2"/>
+    <!-- Left ruler -->
+    <rect x="0" y="0" width="40" height="2160" fill="#0F172A" opacity="0.8"/>
+    <line x1="40" y1="0" x2="40" y2="2160" stroke="#334155" stroke-width="2"/>
+    <!-- Left ruler ticks -->
+<line x1="20" y1="0" x2="40" y2="0" stroke="#475569" stroke-width="2"/><line x1="20" y1="100" x2="40" y2="100" stroke="#475569" stroke-width="2"/><line x1="20" y1="200" x2="40" y2="200" stroke="#475569" stroke-width="2"/><line x1="20" y1="300" x2="40" y2="300" stroke="#475569" stroke-width="2"/><line x1="20" y1="400" x2="40" y2="400" stroke="#475569" stroke-width="2"/><line x1="20" y1="500" x2="40" y2="500" stroke="#475569" stroke-width="2"/><line x1="20" y1="600" x2="40" y2="600" stroke="#475569" stroke-width="2"/><line x1="20" y1="700" x2="40" y2="700" stroke="#475569" stroke-width="2"/><line x1="20" y1="800" x2="40" y2="800" stroke="#475569" stroke-width="2"/><line x1="20" y1="900" x2="40" y2="900" stroke="#475569" stroke-width="2"/><line x1="20" y1="1000" x2="40" y2="1000" stroke="#475569" stroke-width="2"/><line x1="20" y1="1100" x2="40" y2="1100" stroke="#475569" stroke-width="2"/><line x1="20" y1="1200" x2="40" y2="1200" stroke="#475569" stroke-width="2"/><line x1="20" y1="1300" x2="40" y2="1300" stroke="#475569" stroke-width="2"/><line x1="20" y1="1400" x2="40" y2="1400" stroke="#475569" stroke-width="2"/><line x1="20" y1="1500" x2="40" y2="1500" stroke="#475569" stroke-width="2"/><line x1="20" y1="1600" x2="40" y2="1600" stroke="#475569" stroke-width="2"/><line x1="20" y1="1700" x2="40" y2="1700" stroke="#475569" stroke-width="2"/><line x1="20" y1="1800" x2="40" y2="1800" stroke="#475569" stroke-width="2"/><line x1="20" y1="1900" x2="40" y2="1900" stroke="#475569" stroke-width="2"/><line x1="20" y1="2000" x2="40" y2="2000" stroke="#475569" stroke-width="2"/><line x1="20" y1="2100" x2="40" y2="2100" stroke="#475569" stroke-width="2"/>
+    <!-- Crosshairs in corners -->
+    <path d="M60,60 L120,60 M60,60 L60,120" stroke="#F59E0B" stroke-width="4" fill="none"/>
+    <path d="M3780,60 L3720,60 M3780,60 L3780,120" stroke="#F59E0B" stroke-width="4" fill="none"/>
+    <path d="M60,2100 L120,2100 M60,2100 L60,2040" stroke="#F59E0B" stroke-width="4" fill="none"/>
+    <path d="M3780,2100 L3720,2100 M3780,2100 L3780,2040" stroke="#F59E0B" stroke-width="4" fill="none"/>
+    
+    <text x="60" y="2140" fill="#94A3B8" font-size="24">ZOOM: 142%</text>
+    <text x="3600" y="2140" fill="#94A3B8" font-size="24">DESIGN_SYSTEM.FIG</text>
+</g>
+
 </svg>
