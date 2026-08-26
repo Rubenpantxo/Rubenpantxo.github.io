@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es" data-paleta="acero-plano" data-tipo="barlow" data-elem="plano-tecnico" data-preset="industrial" data-tema-memoria="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Industrial — Sistema de diseño</title>
+<meta name="description" content="Industrial: gris frío y azul de plano. Condensada en los titulares, rejilla a la vista y esquinas de 4 píxeles.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600&family=Barlow:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css">
+<link rel="stylesheet" href="sistema.css">
+<style>
+  /* Los valores salen del theme.json del proyecto de Claude Design, no de
+     ningun ojo: si alli cambian, se vuelcan aqui y se regenera la ficha. */
+  /* Densidad al 0,85: este sistema aprieta. Y los titulares van condensados y
+     en caja alta, que es lo que le da el aire de plano tecnico. */
+  .sd-titulo,
+  .sd-seccion > h2,
+  .sd-seccion > h3 {
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* La rejilla no se insinua: se ve. */
+  .sd-lienzo {
+    background-image: linear-gradient(var(--sd-line) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--sd-line) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+</style>
+<script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
+</head>
+<body>
+<div class="sd-contenedor">
+
+  <header class="sd-cabecera">
+    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <span class="sd-etiqueta">Claro · un acento · rejilla marcada</span>
+    <h1 class="sd-titulo">Industrial</h1>
+    <p class="sd-bajada">Gris frío y un azul de plano poco saturado. Titulares condensados en caja alta, rejilla de 24 píxeles a la vista, esquinas de 4 y una escala de espaciado apretada. Es el sistema para pantallas con mucho dato y poco adorno.</p>
+  </header>
+
+  <section class="sd-seccion">
+    <h2>Paleta</h2>
+    <p>Neutros fríos y un solo acento de saturación baja. Aquí el color no jerarquiza —eso lo hace la rejilla— sino que marca lo interactivo y poco más.</p>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#F2F2F3" style="--c:#f2f2f3;--t:#101010"
+                aria-label="Copiar #F2F2F3, Fondo">
+          <span class="pl-color__nombre">Fondo</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#F2F2F3</b></span>
+          <span class="pl-color__rol">Fondo de página</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#E9E9EA" style="--c:#e9e9ea;--t:#101010"
+                aria-label="Copiar #E9E9EA, Superficie">
+          <span class="pl-color__nombre">Superficie</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#E9E9EA</b></span>
+          <span class="pl-color__rol">Tarjeta</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#1D1F20" style="--c:#1d1f20;--t:#ffffff"
+                aria-label="Copiar #1D1F20, Tinta">
+          <span class="pl-color__nombre">Tinta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1D1F20</b></span>
+          <span class="pl-color__rol">Texto principal</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#5980A6" style="--c:#5980a6;--t:#101010"
+                aria-label="Copiar #5980A6, Azul plano">
+          <span class="pl-color__nombre">Azul plano</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#5980A6</b></span>
+          <span class="pl-color__rol">Acento principal</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#728FAB" style="--c:#728fab;--t:#101010"
+                aria-label="Copiar #728FAB, Azul claro">
+          <span class="pl-color__nombre">Azul claro</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#728FAB</b></span>
+          <span class="pl-color__rol">Segundo acento</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#D4D4D7" style="--c:#d4d4d7;--t:#101010"
+                aria-label="Copiar #D4D4D7, Neutro 300">
+          <span class="pl-color__nombre">Neutro 300</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#D4D4D7</b></span>
+          <span class="pl-color__rol">Rejilla y filo</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#5D5D60" style="--c:#5d5d60;--t:#ffffff"
+                aria-label="Copiar #5D5D60, Neutro 700">
+          <span class="pl-color__nombre">Neutro 700</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#5D5D60</b></span>
+          <span class="pl-color__rol">Texto secundario</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#2C455D" style="--c:#2c455d;--t:#ffffff"
+                aria-label="Copiar #2C455D, Azul 800">
+          <span class="pl-color__nombre">Azul 800</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#2C455D</b></span>
+          <span class="pl-color__rol">Texto sobre relleno tintado</span>
+        </button>
+      </li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Tipografía</h2>
+    <p>Barlow Condensed en titulares y Barlow en el cuerpo: la misma familia en dos anchos. Es lo que permite apretar los titulares sin que cambie la voz.</p>
+    <ul class="sd-tipo">
+      <li><span class="sd-tipo-meta">Display · Barlow Condensed 600</span><span class="sd-muestra-display" style="text-transform:uppercase;letter-spacing:.04em">Condensada</span></li>
+      <li><span class="sd-tipo-meta">Subtítulo · Barlow Condensed 600</span><span class="sd-muestra-titulo" style="font-family:'Barlow Condensed',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Un segundo nivel</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · Barlow 400 / 16px</span><span class="sd-muestra-cuerpo">El cuerpo va en Barlow ancho normal, porque condensar el texto corrido lo hace ilegible. La condensada se queda donde gana espacio de verdad: los titulares y las cabeceras de tabla.</span></li>
+      <li><span class="sd-tipo-meta">Dato · Barlow 500 / 13px</span><span class="sd-muestra-pie">REF 0421 · 24 px · lote 8</span></li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Componentes</h2>
+    <p>Escala de espaciado al 0,85 y radio de 4 píxeles. Los contenedores se marcan por las esquinas en vez de por el contorno entero, y la rejilla se deja ver debajo.</p>
+
+    <h3>Botones</h3>
+    <div class="sd-lienzo">
+      <button class="sd-btn" type="button">Ejecutar</button>
+      <button class="sd-btn sd-btn--linea" type="button">Ver plano</button>
+      <button class="sd-btn sd-btn--suave" type="button">Guardar</button>
+      <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
+      <button class="sd-btn" type="button" disabled>No disponible</button>
+    </div>
+
+    <h3>Selección y entrada</h3>
+    <div class="sd-lienzo">
+      <label class="sd-check"><input type="checkbox" checked> Opción marcada</label>
+      <label class="sd-check"><input type="checkbox"> Opción sin marcar</label>
+      <label class="sd-check"><input type="radio" name="industrial-r" checked> Primera opción</label>
+      <label class="sd-check"><input type="radio" name="industrial-r"> Segunda opción</label>
+      <label class="sd-campo"><span>Referencia</span><input type="text" placeholder="REF 0421"></label>
+    </div>
+
+    <h3>Iconos</h3>
+    <p>Lucide a trazo fino, del mismo grosor que la línea de la rejilla. Geometría antes que gesto.</p>
+    <div class="sd-lienzo sd-iconos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Rejilla"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 3v18"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Ajustes"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="4"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Medida"><rect x="2" y="8" width="20" height="8" rx="1"/><path d="M7 8v4M12 8v5M17 8v4"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Capas"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Datos"><path d="M3 17l5-6 4 4 5-8 4 5"/></svg>
+    </div>
+
+    <h3>Tarjeta</h3>
+    <div class="sd-lienzo">
+      <article class="sd-ficha" style="background:var(--sd-bg)">
+        <span class="sd-insignia">Destacado</span>
+        <h4 style="font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.03em">Título de la tarjeta</h4>
+        <p>Dos líneas de apoyo: qué es, y el único dato que hace falta para decidir.</p>
+        <button class="sd-btn" type="button">Ejecutar</button>
+      </article>
+    </div>
+  </section>
+
+  <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
+    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+
+</div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
+</body>
+</html>

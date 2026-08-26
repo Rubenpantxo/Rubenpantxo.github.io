@@ -64,10 +64,10 @@ body{
 .btn95.small{min-width:0;padding:2px 8px}
 /* ---------- Desktop icons ---------- */
 #desktop{position:fixed;inset:0 0 30px 0;overflow:hidden}
-.dicon{position:absolute;width:84px;display:flex;flex-direction:column;align-items:center;gap:4px;
-  cursor:pointer;padding:6px 2px;border:1px dotted transparent;transition:transform .18s var(--ease)}
-.dicon:hover{transform:translateY(-2px)}
+.dicon{position:absolute;width:84px;display:flex;flex-direction:column;align-items:center;gap:4px;touch-action:none;
+  cursor:move;padding:6px 2px;border:1px dotted transparent;transition:filter .18s var(--ease)}
 .dicon:hover .dicon-img{filter:drop-shadow(0 4px 6px rgba(0,0,0,.45)) brightness(1.06)}
+.dicon.dragging{opacity:.85;z-index:50}
 .dicon.sel{border-color:rgba(255,255,255,.7)}
 .dicon.sel .dicon-lbl{background:var(--w95-sel);color:#fff}
 .dicon-img{width:48px;height:48px;image-rendering:pixelated;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));transition:filter .18s var(--ease)}
@@ -83,6 +83,10 @@ body{
 .win.closing{animation:win-close .16s var(--ease) both}
 @keyframes win-close{to{opacity:0;transform:scale(.94) translateY(6px)}}
 .win.minimized{display:none}
+/* asas de redimensionado (estilo Windows): cursor de flecha en bordes y esquinas */
+.win-rsz{position:absolute;z-index:10}
+.tbar-btns{position:relative;z-index:12}
+.win.max .win-rsz{display:none}
 .tbar{display:flex;align-items:center;gap:5px;height:22px;padding:0 3px 0 5px;flex-shrink:0;cursor:default;
   background:linear-gradient(90deg,var(--w95-title-a),var(--w95-title-b));color:#fff}
 .win.inactive>.tbar{background:linear-gradient(90deg,var(--w95-title-inact-a),var(--w95-title-inact-b))}
@@ -175,8 +179,8 @@ body{
 .poplist .intro{font-size:11px;color:#333;margin:2px 2px 8px;line-height:1.5}
 .pill-wrap{display:flex;flex-wrap:wrap;gap:4px}
 /* ---------- Ecosistema IA ---------- */
-.eco-wrap{flex:1;display:flex;min-height:0}
-.eco-canvas{flex:1.55;position:relative;overflow:auto;margin:4px;background:var(--w95-paper);
+.eco-wrap{flex:1;display:flex;flex-direction:column;min-height:0}
+.eco-canvas{flex:1 1 auto;position:relative;overflow:auto;margin:4px 4px 2px;background:var(--w95-paper);
   box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
              inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow)}
 .eco-grid{position:relative;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;padding:16px;min-width:660px}
@@ -201,7 +205,7 @@ body{
   font:bold 14px var(--f-ui);letter-spacing:.5px;transition:all .2s var(--ease);position:relative;z-index:1}
 .eco-core:hover,.eco-core.on{background:#0a1a6e;box-shadow:0 0 0 3px #ffcc00,4px 6px 14px rgba(0,0,0,.4)}
 .eco-core small{display:block;font:10px var(--f-ui);opacity:.75;margin-top:3px;letter-spacing:1px}
-.eco-info{flex:1;display:flex;flex-direction:column;min-width:230px;max-width:330px;margin:4px 4px 4px 0;overflow:hidden}
+.eco-info{flex:0 0 auto;display:flex;flex-direction:column;max-height:46%;min-height:118px;margin:0 4px 4px;overflow:hidden;box-shadow:inset 0 1px 0 var(--w95-hilight),inset 0 2px 0 var(--w95-shadow)}
 .eco-info-body{flex:1;overflow-y:auto;background:var(--w95-paper);padding:10px;user-select:text;
   box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),
              inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow)}
@@ -209,8 +213,8 @@ body{
 .eco-info h3 .sw{width:10px;height:10px;border:1px solid #000;background:var(--gcl,#000080)}
 .eco-info .role{font:10px var(--f-ui);color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
 .eco-info p{font-size:11.5px;line-height:1.55;margin-bottom:10px}
-.eco-conn{display:flex;flex-direction:column;gap:4px}
-.eco-conn-i{display:flex;gap:6px;align-items:flex-start;padding:5px 7px;background:#f6f6f6;border:1px solid #ccc;cursor:pointer;
+.eco-conn{display:flex;flex-direction:row;flex-wrap:wrap;gap:4px}
+.eco-conn-i{display:flex;gap:6px;align-items:flex-start;padding:5px 7px;background:#f6f6f6;border:1px solid #ccc;cursor:pointer;flex:1 1 230px;max-width:340px;
   font-size:10.5px;line-height:1.45;transition:all .15s}
 .eco-conn-i:hover{background:#e8e8ff;border-color:#000080}
 .eco-conn-i b{color:#000080}
@@ -268,7 +272,53 @@ body{
 ::selection{background:var(--w95-sel);color:#fff}
 /* ---------- Tooltip ---------- */
 #tip95{position:fixed;z-index:9999;display:none;padding:3px 7px;background:#ffffe1;border:1px solid #000;font:11px var(--f-ui);pointer-events:none;max-width:260px}
-@media(max-width:760px){.side95{width:128px}.eco-info{display:none}}
+/* ---------- Dashboard de Recursos (mini-app) ---------- */
+.dash-body{flex:1;overflow-y:auto;padding:10px;user-select:text}
+.kpis95{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin-bottom:10px}
+.kpi95{text-align:center;padding:10px 6px;background:var(--w95-paper);
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow)}
+.kpi95 b{display:block;font:bold 20px var(--f-ui);color:var(--w95-title-a)}
+.kpi95 span{font-size:9.5px;color:#555;text-transform:uppercase;letter-spacing:.4px}
+.drow{display:flex;align-items:center;gap:7px;padding:3px 6px;background:var(--w95-paper);border:1px solid #999;margin-bottom:3px;transition:all .15s var(--ease)}
+.drow:hover{transform:translateX(3px);border-color:var(--w95-title-a);background:#eef}
+.drow .di{font-size:13px;width:18px;text-align:center;flex-shrink:0}
+.drow .dn{flex:1;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drow .ds{font:10px var(--f-mono);color:#555;white-space:nowrap}
+.badge95{font:bold 9px var(--f-ui);padding:2px 6px;border:1px solid #0006;white-space:nowrap;flex-shrink:0}
+.b-pub{background:#c8f0c8;color:#0a5a0a}.b-proto{background:#ffe9b8;color:#7a5200}
+.b-rec{background:#dcd2f0;color:#3d2c66}.b-repo{background:#cfe4f7;color:#0a3a66}.b-warn{background:#f7d2d2;color:#7a1212}
+.dnote{padding:7px 9px;background:#ffffd5;border:1px solid #cfc270;font-size:10.5px;line-height:1.55}
+/* ---------- Explorador de archivos (mini-app) ---------- */
+.tree-wrap{flex:1;display:flex;flex-direction:column;min-height:0}
+.tree-toolbar{display:flex;align-items:center;gap:6px;padding:5px 6px;flex-wrap:wrap;flex-shrink:0;
+  border-bottom:1px solid var(--w95-shadow);box-shadow:0 1px 0 var(--w95-hilight)}
+.tree-toolbar .sep{width:2px;align-self:stretch;margin:1px 2px;box-shadow:inset 1px 0 0 var(--w95-shadow),inset -1px 0 0 var(--w95-hilight)}
+.tree-tab{padding:3px 11px;cursor:pointer;font-weight:bold;display:flex;align-items:center;gap:5px;background:var(--w95-face);
+  box-shadow:inset -1px -1px 0 var(--w95-dkshadow),inset 1px 1px 0 var(--w95-hilight),inset -2px -2px 0 var(--w95-shadow),inset 2px 2px 0 var(--w95-light)}
+.tree-tab.on{background:#f47b20;color:#fff;box-shadow:inset 1px 1px 0 #00000055,inset -1px -1px 0 #ffffff55}
+.tree-scroll{flex:1;overflow:auto;margin:6px;background:var(--w95-paper);user-select:text;
+  box-shadow:inset -1px -1px 0 var(--w95-hilight),inset 1px 1px 0 var(--w95-shadow),inset -2px -2px 0 var(--w95-light),inset 2px 2px 0 var(--w95-dkshadow)}
+.tree-head{display:flex;align-items:center;gap:8px;padding:7px 10px;position:sticky;top:0;z-index:2;color:#fff;font-weight:bold;font-size:12px;
+  background:linear-gradient(180deg,#ffa54d,#f47b20);box-shadow:inset 0 1px 0 #ffd0a0,0 1px 3px rgba(0,0,0,.3)}
+.tree-head .hico{font-size:15px}
+.tree-head .hpath{margin-left:auto;font:10px var(--f-mono);font-weight:normal;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56%}
+.trow{display:flex;align-items:center;gap:6px;padding:2px 6px;cursor:pointer;white-space:nowrap;border:1px solid transparent}
+.trow:hover{background:#e8e8ff}
+.trow.sel{background:var(--w95-sel);color:#fff}
+.trow.sel .tmeta,.trow.sel .tx{color:#fff;background:transparent;border-color:#ffffff55}
+.tchev{width:12px;text-align:center;font-size:9px;color:#555;flex-shrink:0}
+.tchev.empty{visibility:hidden}
+.tic{width:18px;text-align:center;flex-shrink:0;font-size:13px}
+.tname{font-weight:bold;overflow:hidden;text-overflow:ellipsis}
+.trow.file .tname{font-weight:normal}
+.trow.known .tname{color:#000080;text-decoration:underline dotted}
+.trow.sel.known .tname{color:#fff}
+.tx{font:10px var(--f-mono);color:#777;background:#eee;padding:0 4px;border:1px solid #ccc}
+.tmeta{margin-left:auto;font:10px var(--f-mono);color:#888;flex-shrink:0;padding-left:10px}
+.tkids{margin-left:13px;border-left:1px dotted #b0b0c0;padding-left:1px}
+.tkids.collapsed{display:none}
+.tmore{color:#999;font-style:italic;padding:2px 6px 2px 22px;font-size:10.5px}
+@media(max-width:760px){.side95{width:128px}.eco-info{max-height:52%}}
 </style>
 </head>
 <body>
@@ -1045,10 +1095,13 @@ function mkWin(id,title,icon,w,h,contentHTML,opts={}){
   el.className='win';el.id='win-'+id;
   const desk=document.getElementById('desktop');
   const dw=desk.clientWidth,dh=desk.clientHeight;
+  const ICON_COL=112; // franja izquierda reservada a los iconos del escritorio
   const W=Math.min(w,dw-16),H=Math.min(h,dh-16);
   el.style.width=W+'px';el.style.height=H+'px';
-  el.style.left=Math.max(4,(dw-W)/2+(winCount%5)*24-48)+'px';
-  el.style.top=Math.max(4,(dh-H)/2+(winCount%5)*18-36)+'px';
+  let L=Math.max(ICON_COL+8,(dw-W)/2+(winCount%5)*26-24);
+  if(L+W>dw-6)L=Math.max(6,dw-W-6); // si no cabe, encájala (la maximización ocupa todo)
+  el.style.left=L+'px';
+  el.style.top=Math.max(6,(dh-H)/2+(winCount%5)*20-40)+'px';
   winCount++;
   el.innerHTML=`<div class="tbar"><span style="font-size:12px">${icon}</span><span class="tbar-tx">${esc(title)}</span>
     <span class="tbar-btns">
@@ -1084,6 +1137,7 @@ function mkWin(id,title,icon,w,h,contentHTML,opts={}){
     addEventListener('pointermove',mv);addEventListener('pointerup',up);
   });
   tb.addEventListener('dblclick',e=>{if(!e.target.closest('.tbtn'))toggleMax(id)});
+  makeResizable(el,id);
   focusWin(id);
   if(opts.onOpen)opts.onOpen(el);
   return wins[id];
@@ -1106,11 +1160,49 @@ function toggleMax(id){
   if(!w.max){w.prev={l:el.style.left,t:el.style.top,w:el.style.width,h:el.style.height};
     el.style.left='0';el.style.top='0';el.style.width=desk.clientWidth+'px';el.style.height=desk.clientHeight+'px';w.max=true}
   else{Object.assign(el.style,{left:w.prev.l,top:w.prev.t,width:w.prev.w,height:w.prev.h});w.max=false}
+  el.classList.toggle('max',w.max);
+}
+// Redimensionado por bordes/esquinas (como las ventanas de Windows)
+function makeResizable(el,id){
+  const mk=(cls,css)=>{const h=document.createElement('div');h.className='win-rsz '+cls;h.style.cssText=css;el.appendChild(h)};
+  mk('r-n','top:0;left:8px;right:8px;height:5px;cursor:ns-resize');
+  mk('r-s','bottom:0;left:8px;right:8px;height:6px;cursor:ns-resize');
+  mk('r-w','top:8px;bottom:8px;left:0;width:5px;cursor:ew-resize');
+  mk('r-e','top:8px;bottom:8px;right:0;width:6px;cursor:ew-resize');
+  mk('r-nw','top:0;left:0;width:10px;height:10px;cursor:nwse-resize');
+  mk('r-ne','top:0;right:0;width:10px;height:10px;cursor:nesw-resize');
+  mk('r-sw','bottom:0;left:0;width:10px;height:10px;cursor:nesw-resize');
+  mk('r-se','bottom:0;right:0;width:13px;height:13px;cursor:nwse-resize');
+  el.querySelectorAll('.win-rsz').forEach(h=>{
+    h.addEventListener('pointerdown',ev=>{
+      const w=wins[id];if(!w||w.max)return;
+      ev.preventDefault();ev.stopPropagation();focusWin(id);
+      const c=h.className;
+      const E=/r-e|r-ne|r-se/.test(c),W=/r-w|r-nw|r-sw/.test(c),N=/r-n|r-nw|r-ne/.test(c),S=/r-s|r-sw|r-se/.test(c);
+      const sx=ev.clientX,sy=ev.clientY,sW=el.offsetWidth,sH=el.offsetHeight,sL=el.offsetLeft,sT=el.offsetTop;
+      const cs=getComputedStyle(el),minW=parseInt(cs.minWidth)||240,minH=parseInt(cs.minHeight)||120;
+      const desk=document.getElementById('desktop'),dw=desk.clientWidth,dh=desk.clientHeight;
+      try{h.setPointerCapture(ev.pointerId)}catch(e){}
+      const mv=e2=>{
+        const dx=e2.clientX-sx,dy=e2.clientY-sy;
+        let w2=sW,h2=sH,l=sL,t=sT;
+        if(E){w2=Math.min(Math.max(minW,sW+dx),dw-sL-2)}
+        if(W){w2=Math.min(Math.max(minW,sW-dx),sL+sW);l=sL+sW-w2}
+        if(S){h2=Math.min(Math.max(minH,sH+dy),dh-sT-2)}
+        if(N){h2=Math.min(Math.max(minH,sH-dy),sT+sH);t=sT+sH-h2}
+        el.style.width=w2+'px';el.style.height=h2+'px';el.style.left=l+'px';el.style.top=t+'px';
+      };
+      const up=()=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up)};
+      window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);
+    });
+  });
 }
 
 // ---------------- Desktop icons ----------------
 const DICONS=[
   {id:'explorer',n:'Format Explorer',img:iconExplorer(),run:openExplorer},
+  {id:'files',n:'Archivos',img:iconFiles(),run:openTree},
+  {id:'dash',n:'Recursos',img:iconDash(),run:openDashboard},
   {id:'eco',n:'Ecosistema IA',img:iconEco(),run:openEco},
   {id:'stats',n:'Estadísticas',img:iconStats(),run:openStats},
   {id:'about',n:'Acerca de',img:iconHelp(),run:openAbout},
@@ -1119,16 +1211,51 @@ function iconExplorer(){return `<svg viewBox="0 0 48 48"><rect x="4" y="10" widt
 function iconEco(){return `<svg viewBox="0 0 48 48"><rect x="17" y="19" width="14" height="10" fill="#000835" stroke="#fff"/><circle cx="9" cy="9" r="6" fill="#2563b0" stroke="#000"/><circle cx="39" cy="9" r="6" fill="#7c3aad" stroke="#000"/><circle cx="9" cy="39" r="6" fill="#3d8b40" stroke="#000"/><circle cx="39" cy="39" r="6" fill="#d23b3b" stroke="#000"/><path d="M13 13 L19 19 M35 13 L29 19 M13 35 L19 29 M35 35 L29 29" stroke="#000080" stroke-width="2"/></svg>`}
 function iconStats(){return `<svg viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" fill="#fff" stroke="#000"/><rect x="11" y="26" width="6" height="12" fill="#000080"/><rect x="21" y="18" width="6" height="20" fill="#b0432a"/><rect x="31" y="12" width="6" height="26" fill="#3d8b40"/></svg>`}
 function iconHelp(){return `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="#ffffd5" stroke="#000"/><text x="24" y="32" text-anchor="middle" font-size="22" font-family="Times New Roman" font-weight="bold" fill="#000080">?</text></svg>`}
+function iconFiles(){return `<svg viewBox="0 0 48 48"><rect x="5" y="13" width="22" height="29" fill="#fff" stroke="#000"/><path d="M5 13 h9 l3 4 h10 v5 H5 z" fill="#e0a93b" stroke="#000"/><rect x="20" y="7" width="23" height="31" fill="#fff" stroke="#000"/><rect x="24" y="14" width="15" height="2.6" fill="#3f6f9a"/><rect x="24" y="19" width="15" height="2.6" fill="#b0432a"/><rect x="24" y="24" width="11" height="2.6" fill="#3d8b40"/><rect x="24" y="29" width="13" height="2.6" fill="#6B4076"/></svg>`}
+function iconDash(){return `<svg viewBox="0 0 48 48"><rect x="5" y="7" width="38" height="34" fill="#fff" stroke="#000"/><rect x="5" y="7" width="38" height="6" fill="#000080"/><rect x="9" y="30" width="6" height="7" fill="#5D7339"/><rect x="18" y="23" width="6" height="14" fill="#3F6F9A"/><rect x="27" y="18" width="6" height="19" fill="#8C2A30"/><rect x="36" y="27" width="3" height="10" fill="#C8901C"/><path d="M9 26 L18 20 L27 16 L38 22" fill="none" stroke="#cc0000" stroke-width="1.6"/></svg>`}
+const ICON_POS_KEY='fx95_icon_pos';
+function loadIconPos(){try{return JSON.parse(localStorage.getItem(ICON_POS_KEY))||{}}catch(e){return{}}}
+function saveIconPos(p){try{localStorage.setItem(ICON_POS_KEY,JSON.stringify(p))}catch(e){}}
 function renderDesktop(){
   const d=document.getElementById('desktop');
+  const pos=loadIconPos();
   DICONS.forEach((ic,i)=>{
     const el=document.createElement('div');
-    el.className='dicon';el.style.left='14px';el.style.top=(14+i*92)+'px';
+    el.className='dicon';el.dataset.icon=ic.id;
+    const p=pos[ic.id];
+    el.style.left=(p?p.x:14)+'px';            // por defecto: una sola columna a la izquierda
+    el.style.top=(p?p.y:14+i*84)+'px';
     el.innerHTML=`<div class="dicon-img">${ic.img}</div><div class="dicon-lbl">${esc(ic.n)}</div>`;
-    el.onclick=()=>{document.querySelectorAll('.dicon').forEach(x=>x.classList.remove('sel'));el.classList.add('sel')};
-    el.ondblclick=()=>ic.run();
+    makeIconDraggable(el,ic);
     d.appendChild(el);
   });
+}
+// Iconos arrastrables como en Windows: se mueven dentro del hub y recuerdan su posición.
+function makeIconDraggable(el,ic){
+  let moved=false,sx=0,sy=0,ox=0,oy=0;
+  el.addEventListener('pointerdown',ev=>{
+    if(ev.button!==0)return;
+    moved=false;sx=ev.clientX;sy=ev.clientY;ox=el.offsetLeft;oy=el.offsetTop;
+    try{el.setPointerCapture(ev.pointerId)}catch(e){}
+    document.querySelectorAll('.dicon').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');
+    const mv=e2=>{
+      const dx=e2.clientX-sx,dy=e2.clientY-sy;
+      if(!moved&&Math.hypot(dx,dy)>4){moved=true;el.classList.add('dragging')}
+      if(moved){
+        const dk=document.getElementById('desktop');
+        const nx=Math.max(0,Math.min(dk.clientWidth-el.offsetWidth,ox+dx));
+        const ny=Math.max(0,Math.min(dk.clientHeight-el.offsetHeight,oy+dy));
+        el.style.left=nx+'px';el.style.top=ny+'px';
+      }
+    };
+    const up=()=>{
+      el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up);
+      el.classList.remove('dragging');
+      if(moved){const pos=loadIconPos();pos[ic.id]={x:el.offsetLeft,y:el.offsetTop};saveIconPos(pos)}
+    };
+    el.addEventListener('pointermove',mv);el.addEventListener('pointerup',up);
+  });
+  el.addEventListener('dblclick',()=>ic.run());
 }
 
 // ---------------- Format Explorer window ----------------
@@ -1137,7 +1264,7 @@ function openExplorer(){
   const catRows=Object.entries(CATS).map(([k,c])=>
     `<div class="cat95${k===curCat?' active':''}" data-cat="${k}"><span class="ci">${c.i}</span><span class="cn">${esc(c.n)}</span><span class="cc">${c.e.length}</span></div>`).join('');
   const html=`
-  <div class="menubar"><span id="fx-menu-eco">🧠 Ecosistema IA</span><span id="fx-menu-stats">📊 Estadísticas</span><span id="fx-menu-about">❓ Ayuda</span></div>
+  <div class="menubar"><span id="fx-menu-files">🗂️ Archivos</span><span id="fx-menu-dash">📈 Recursos</span><span id="fx-menu-eco">🧠 Ecosistema IA</span><span id="fx-menu-stats">📊 Estadísticas</span><span id="fx-menu-about">❓ Ayuda</span></div>
   <div class="toolbar">
     <span style="font-weight:bold">Buscar:</span>
     <input class="input95" id="fx-search" style="flex:1;min-width:120px" placeholder="Extensión o nombre (ej: PNG, vector...)">
@@ -1160,6 +1287,8 @@ function openExplorer(){
       el.querySelectorAll('.cat95').forEach(x=>x.classList.toggle('active',x===c));
       renderGrid();
     });
+    el.querySelector('#fx-menu-files').onclick=openTree;
+    el.querySelector('#fx-menu-dash').onclick=openDashboard;
     el.querySelector('#fx-menu-eco').onclick=openEco;
     el.querySelector('#fx-menu-stats').onclick=openStats;
     el.querySelector('#fx-menu-about').onclick=openAbout;
@@ -1276,8 +1405,10 @@ function openAbout(){
       • <b>Doble clic</b> en un formato para abrir sus Propiedades.<br>
       • Clic en una <b>etiqueta de aplicación</b> → formatos que admite esa app.<br>
       • Clic en la <b>etiqueta de lenguaje</b> → formatos con la misma base.<br>
-      • Abre el <b>🧠 Ecosistema IA</b> para explorar cómo se conectan lenguajes, librerías, gestores, repositorios, CDNs y formatos.<br>
-      • Las ventanas se pueden <b>arrastrar, minimizar y maximizar</b> como en Windows 95.
+      • Abre el <b>🧠 Ecosistema IA</b> para explorar cómo se conectan lenguajes, librerías, gestores, repositorios, CDNs y formatos. Su panel de información aparece <b>debajo del esquema</b>.<br>
+      • <b>🗂️ Archivos</b>: explora tu <b>carpeta local</b> y el <b>repositorio publicado</b> con carpetas desplegables, estilo Explorer.<br>
+      • <b>📈 Recursos</b>: panel con el estado y el peso de cada carpeta del proyecto.<br>
+      • Las ventanas se <b>arrastran, minimizan y maximizan</b>; los <b>iconos del escritorio también se arrastran</b> y recuerdan su posición.
     </div></div></div>`;
   mkWin('about','Acerca de Format Explorer 95','❓',400,330,html);
 }
@@ -1374,10 +1505,140 @@ function selectEco(el,name){
     ${item.ex?`<div class="eco-ex"><b>💡 Ejemplo:</b>${esc(item.ex)}</div>`:''}`;
 }
 
+// ================ Datos: árbol de archivos (local + repo) y dashboard ================
+const FILETREE={"local":{"n":"Github","t":"d","c":[{"n":".claude","t":"d","c":[{"n":"worktrees","t":"d","c":[],"s":"0 B","f":0},{"n":"launch.json","t":"f","x":"JSON","s":"240 B"},{"n":"settings.local.json","t":"f","x":"JSON","s":"196 B"}],"s":"436 B","f":2},{"n":"aplicaciones","t":"d","c":[{"n":"1_alumbrado-pro","t":"d","c":[{"n":"assets","t":"d","c":[{"n":"css","t":"d","c":[],"s":"19 KB","f":1},{"n":"icons","t":"d","c":[],"s":"108 KB","f":8},{"n":"js","t":"d","c":[],"s":"24 KB","f":2}],"s":"151 KB","f":11},{"n":"docs","t":"d","c":[{"n":"INSTALACION.md","t":"f","x":"MD","s":"4.2 KB"}],"s":"4.2 KB","f":1},{"n":".gitignore","t":"f","x":"","s":"556 B"},{"n":"Alumbrado_Pro.html","t":"f","x":"HTML","s":"10 KB"},{"n":"LICENSE","t":"f","x":"","s":"1.0 KB"},{"n":"README.md","t":"f","x":"MD","s":"6.1 KB"}],"s":"174 KB","f":16},{"n":"2_biblioteca","t":"d","c":[{"n":"Biblioteca.html","t":"f","x":"HTML","s":"55 KB"}],"s":"55 KB","f":1},{"n":"3_instagram-downloader","t":"d","c":[{"n":"Instagram_Downloader.html","t":"f","x":"HTML","s":"24 KB"}],"s":"24 KB","f":1},{"n":"4_resource-hub","t":"d","c":[{"n":"Resource_Hub.html","t":"f","x":"HTML","s":"48 KB"}],"s":"48 KB","f":1},{"n":"5_extensiones-archivo","t":"d","c":[{"n":"Extensiones_Archivo.html","t":"f","x":"HTML","s":"48 KB"}],"s":"48 KB","f":1}],"s":"349 KB","f":20},{"n":"juegos","t":"d","c":[{"n":"5_Granja","t":"d","c":[{"n":"assets","t":"d","c":[{"n":"css","t":"d","c":[],"s":"11 KB","f":1},{"n":"images","t":"d","c":[],"s":"13 MB","f":17},{"n":"js","t":"d","c":[],"s":"22 KB","f":1}],"s":"13 MB","f":19},{"n":"unity","t":"d","c":[{"n":"Build","t":"d","c":[],"s":"70 MB","f":4},{"n":"StreamingAssets","t":"d","c":[],"s":"184 B","f":1},{"n":"TemplateData","t":"d","c":[],"s":"15 KB","f":3},{"n":"index.html","t":"f","x":"HTML","s":"3.3 KB"},{"n":"logo.png","t":"f","x":"PNG","s":"61 KB"},{"n":"README.md","t":"f","x":"MD","s":"209 B"},{"n":"style.css","t":"f","x":"CSS","s":"416 B"}],"s":"70 MB","f":12},{"n":"Granja_Simulator.html","t":"f","x":"HTML","s":"42 KB"},{"n":"launcher.html","t":"f","x":"HTML","s":"3.0 KB"}],"s":"83 MB","f":33},{"n":"6_Chess3D","t":"d","c":[{"n":".vs","t":"d","c":[{"n":"Chess3D","t":"d","c":[],"s":"1.3 MB","f":7},{"n":"ProjectSettings.json","t":"f","x":"JSON","s":"37 B"},{"n":"slnx.sqlite","t":"f","x":"SQLITE","s":"88 KB"},{"n":"VSWorkspaceState.json","t":"f","x":"JSON","s":"78 B"}],"s":"1.4 MB","f":10},{"n":"3D","t":"d","c":[{"n":"fbx","t":"d","c":[],"s":"1.7 MB","f":10},{"n":"json","t":"d","c":[],"s":"957 KB","f":8},{"n":"bishop.blend","t":"f","x":"BLEND","s":"980 KB"},{"n":"board.blend","t":"f","x":"BLEND","s":"363 KB"},{"n":"king.blend","t":"f","x":"BLEND","s":"647 KB"},{"n":"knight.blend","t":"f","x":"BLEND","s":"611 KB"},{"n":"pawn.blend","t":"f","x":"BLEND","s":"525 KB"},{"n":"queen.blend","t":"f","x":"BLEND","s":"643 KB"},{"n":"rook.blend","t":"f","x":"BLEND","s":"492 KB"},{"n":"rook2.blend","t":"f","x":"BLEND","s":"595 KB"}],"s":"7.4 MB","f":26},{"n":"_versiones","t":"d","c":[{"n":"Chess3D_original.zip","t":"f","x":"ZIP","s":"37 MB"}],"s":"37 MB","f":1},{"n":"css","t":"d","c":[{"n":"dark-hive","t":"d","c":[],"s":"92 KB","f":17}],"s":"92 KB","f":17},{"n":"js","t":"d","c":[{"n":"AI","t":"d","c":[],"s":"170 KB","f":3},{"n":"jquery","t":"d","c":[],"s":"934 KB","f":3},{"n":"lib","t":"d","c":[],"s":"1.2 MB","f":3},{"n":"Cell.js","t":"f","x":"JS","s":"2.7 KB"},{"n":"chess.js","t":"f","x":"JS","s":"16 KB"},{"n":"factory.js","t":"f","x":"JS","s":"10 KB"},{"n":"geoPieces.js","t":"f","x":"JS","s":"8.9 KB"},{"n":"gui.js","t":"f","x":"JS","s":"13 KB"},{"n":"loading.js","t":"f","x":"JS","s":"7.0 KB"},{"n":"pgnParser.js","t":"f","x":"JS","s":"3.0 KB"},{"n":"three-extend.js","t":"f","x":"JS","s":"827 B"}],"s":"2.4 MB","f":17},{"n":"texture","t":"d","c":[{"n":"bishop-ao.jpg","t":"f","x":"JPG","s":"51 KB"},{"n":"cell-0.jpg","t":"f","x":"JPG","s":"1.3 MB"},{"n":"cell-1.jpg","t":"f","x":"JPG","s":"1.5 MB"},{"n":"cell_N.jpg","t":"f","x":"JPG","s":"1.6 MB"},{"n":"cell_S.jpg","t":"f","x":"JPG","s":"932 KB"},{"n":"fakeShadow.jpg","t":"f","x":"JPG","s":"11 KB"},{"n":"floor.jpg","t":"f","x":"JPG","s":"362 KB"},{"n":"floor_N.jpg","t":"f","x":"JPG","s":"768 KB"},{"n":"floor_S.jpg","t":"f","x":"JPG","s":"328 KB"},{"n":"king-ao.jpg","t":"f","x":"JPG","s":"60 KB"},{"n":"knight-ao.jpg","t":"f","x":"JPG","s":"26 KB"},{"n":"pawn-ao.jpg","t":"f","x":"JPG","s":"74 KB"},{"n":"queen-ao.jpg","t":"f","x":"JPG","s":"41 KB"},{"n":"rook-ao.jpg","t":"f","x":"JPG","s":"18 KB"},{"n":"wood-0.jpg","t":"f","x":"JPG","s":"1.3 MB"},{"n":"wood-1.jpg","t":"f","x":"JPG","s":"1.5 MB"},{"n":"wood_N.jpg","t":"f","x":"JPG","s":"1.6 MB"},{"n":"wood_S.jpg","t":"f","x":"JPG","s":"932 KB"}],"s":"12 MB","f":18},{"n":".gitattributes","t":"f","x":"","s":"505 B"},{"n":".gitignore","t":"f","x":"","s":"2.8 KB"},{"n":"Chess3D.html","t":"f","x":"HTML","s":"81 KB"},{"n":"HANDOFF.md","t":"f","x":"MD","s":"13 KB"},{"n":"LICENSE.md","t":"f","x":"MD","s":"35 KB"},{"n":"README.md","t":"f","x":"MD","s":"656 B"}],"s":"60 MB","f":95},{"n":"7_Circle","t":"d","c":[{"n":"circle.html","t":"f","x":"HTML","s":"37 KB"}],"s":"37 KB","f":1},{"n":"9_tetris","t":"d","c":[{"n":"Tetris.html","t":"f","x":"HTML","s":"23 KB"}],"s":"23 KB","f":1}],"s":"143 MB","f":130},{"n":"Prototipos","t":"d","c":[{"n":"10_Mario","t":"d","c":[{"n":"Mario.html","t":"f","x":"HTML","s":"66 KB"}],"s":"66 KB","f":1},{"n":"8_Granja_Cabanillas","t":"d","c":[{"n":".vs","t":"d","c":[{"n":"CopilotSnapshots","t":"d","c":[],"s":"480 KB","f":9},{"n":"skills-github-pages","t":"d","c":[],"s":"5.9 MB","f":18},{"n":"ProjectSettings.json","t":"f","x":"JSON","s":"37 B"},{"n":"slnx.sqlite","t":"f","x":"SQLITE","s":"88 KB"},{"n":"VSWorkspaceState.json","t":"f","x":"JSON","s":"86 B"}],"s":"6.4 MB","f":30},{"n":"assets","t":"d","c":[{"n":"css","t":"d","c":[],"s":"11 KB","f":1},{"n":"images","t":"d","c":[],"s":"13 MB","f":17},{"n":"js","t":"d","c":[],"s":"21 KB","f":1}],"s":"13 MB","f":19},{"n":".gitignore","t":"f","x":"","s":"555 B"},{"n":"Granja_Cabanillas.html","t":"f","x":"HTML","s":"87 KB"},{"n":"README-Cabanillas.md","t":"f","x":"MD","s":"5.8 KB"},{"n":"README.md","t":"f","x":"MD","s":"4.6 KB"}],"s":"19 MB","f":53}],"s":"19 MB","f":54},{"n":"Recursos_Clau","t":"d","c":[{"n":"Claude Code Game Studios source code_v1.0.0.zip","t":"f","x":"ZIP","s":"1.3 MB"},{"n":"skills-github-pages.zip","t":"f","x":"ZIP","s":"42 MB"}],"s":"43 MB","f":2},{"n":"Rubenpantxo.github.io","t":"d","c":[],"s":"53 MB","f":250},{"n":"Dashboard_Recursos.html","t":"f","x":"HTML","s":"14 KB"}],"s":"260 MB","f":459,"root":"C:\\Users\\RUBEN\\source\\repos\\Github"},"repo":{"n":"Rubenpantxo.github.io","t":"d","c":[{"n":"apps","t":"d","c":[{"n":"alumbrado-pro","t":"d","c":[{"n":"assets","t":"d","c":[{"n":"css","t":"d","c":[],"s":"19 KB","f":1},{"n":"icons","t":"d","c":[],"s":"741 KB","f":11},{"n":"js","t":"d","c":[],"s":"25 KB","f":2}],"s":"785 KB","f":14},{"n":"docs","t":"d","c":[{"n":"INSTALACION.md","t":"f","x":"MD","s":"4.2 KB"}],"s":"4.2 KB","f":1},{"n":".gitignore","t":"f","x":"","s":"556 B"},{"n":"alumbrado.html","t":"f","x":"HTML","s":"10 KB"},{"n":"LICENSE","t":"f","x":"","s":"1.0 KB"},{"n":"README.md","t":"f","x":"MD","s":"6.1 KB"}],"s":"807 KB","f":19},{"n":"biblioteca","t":"d","c":[{"n":"index_biblio.html","t":"f","x":"HTML","s":"54 KB"}],"s":"54 KB","f":1},{"n":"instagram-downloader","t":"d","c":[{"n":"index_insta_down.html","t":"f","x":"HTML","s":"24 KB"}],"s":"24 KB","f":1},{"n":"plants","t":"d","c":[{"n":"app.js","t":"f","x":"JS","s":"9.5 KB"},{"n":"data.js","t":"f","x":"JS","s":"41 KB"},{"n":"Plants.html","t":"f","x":"HTML","s":"36 KB"}],"s":"86 KB","f":3},{"n":"resource-hub","t":"d","c":[{"n":"app_recursos.html","t":"f","x":"HTML","s":"48 KB"}],"s":"48 KB","f":1},{"n":"rubenpantxo-garden","t":"d","c":[{"n":"assets","t":"d","c":[{"n":"icons","t":"d","c":[],"s":"732 KB","f":1}],"s":"732 KB","f":1}],"s":"732 KB","f":1},{"n":"format-explorer.html","t":"f","x":"HTML","s":"157 KB"},{"n":"pantxiko-notes.html","t":"f","x":"HTML","s":"19 KB"},{"n":"qibla.html","t":"f","x":"HTML","s":"25 KB"}],"s":"1.9 MB","f":29},{"n":"CSS","t":"d","c":[{"n":"vendors","t":"d","c":[{"n":"LICENSE.md","t":"f","x":"MD","s":"1.0 KB"},{"n":"normalize.css","t":"f","x":"CSS","s":"7.9 KB"}],"s":"8.9 KB","f":2},{"n":"servicios.css","t":"f","x":"CSS","s":"16 KB"},{"n":"style.css","t":"f","x":"CSS","s":"5.2 KB"}],"s":"30 KB","f":4},{"n":"docs","t":"d","c":[{"n":"GUIA-ACTUALIZACION-NOTICIAS.md","t":"f","x":"MD","s":"5.1 KB"},{"n":"RECURSOS-DISENO.md","t":"f","x":"MD","s":"4.4 KB"}],"s":"9.5 KB","f":2},{"n":"img","t":"d","c":[{"n":"Comidas","t":"d","c":[{"n":"Prim.jpg","t":"f","x":"JPG","s":"79 KB"},{"n":"Seg.jpg","t":"f","x":"JPG","s":"95 KB"},{"n":"txt","t":"f","x":"","s":"17 B"}],"s":"174 KB","f":3},{"n":"Libros","t":"d","c":[{"n":"libreria","t":"f","x":"","s":"7 B"},{"n":"… +17 elementos","t":"more","s":"4.7 MB"}],"s":"4.7 MB","f":18},{"n":"Solar","t":"d","c":[{"n":"Añadir.png","t":"f","x":"PNG","s":"324 KB"},{"n":"Giro_derecha.png","t":"f","x":"PNG","s":"69 KB"},{"n":"Medir.png","t":"f","x":"PNG","s":"742 KB"},{"n":"tejas.jpg","t":"f","x":"JPG","s":"39 KB"},{"n":"tejas_2.jpg","t":"f","x":"JPG","s":"12 KB"},{"n":"tejas_3.jpg","t":"f","x":"JPG","s":"8.0 KB"}],"s":"1.2 MB","f":6},{"n":"IconoMicrofono.png","t":"f","x":"PNG","s":"217 KB"},{"n":"logo.PNG","t":"f","x":"PNG","s":"134 KB"},{"n":"Notes Logo.png","t":"f","x":"PNG","s":"193 KB"},{"n":"Technology.png","t":"f","x":"PNG","s":"4.1 MB"},{"n":"Txapel.png","t":"f","x":"PNG","s":"1.4 MB"},{"n":"TXAPELDUNAK.png","t":"f","x":"PNG","s":"1.4 MB"},{"n":"User_Loged.png","t":"f","x":"PNG","s":"1.9 MB"},{"n":"User_not_Log.png","t":"f","x":"PNG","s":"580 KB"}],"s":"23 MB","f":65},{"n":"js","t":"d","c":[{"n":"vendors","t":"d","c":[{"n":"LICENSE.md","t":"f","x":"MD","s":"1.0 KB"},{"n":"modernizr-custom.js","t":"f","x":"JS","s":"2.5 KB"}],"s":"3.5 KB","f":2},{"n":"jenga.js","t":"f","x":"JS","s":"16 KB"},{"n":"main.js","t":"f","x":"JS","s":"25 KB"},{"n":"servicios.js","t":"f","x":"JS","s":"2.3 KB"}],"s":"48 KB","f":5},{"n":"juegos","t":"d","c":[{"n":"cesta-punta","t":"d","c":[{"n":"index.html","t":"f","x":"HTML","s":"61 KB"}],"s":"61 KB","f":1},{"n":"Chess3D","t":"d","c":[{"n":"Chess3D.html","t":"f","x":"HTML","s":"81 KB"},{"n":"HANDOFF.md","t":"f","x":"MD","s":"13 KB"}],"s":"94 KB","f":2},{"n":"granja","t":"d","c":[{"n":"assets","t":"d","c":[{"n":"css","t":"d","c":[],"s":"11 KB","f":1},{"n":"images","t":"d","c":[],"s":"13 MB","f":17},{"n":"js","t":"d","c":[],"s":"21 KB","f":1}],"s":"13 MB","f":19},{"n":"granja.html","t":"f","x":"HTML","s":"7.0 KB"}],"s":"13 MB","f":20},{"n":"tekken-barrio-ps1","t":"d","c":[{"n":"audio","t":"d","c":[{"n":"README.txt","t":"f","x":"TXT","s":"792 B"}],"s":"792 B","f":1},{"n":"css","t":"d","c":[],"s":"32 KB","f":10},{"n":"icons","t":"d","c":[],"s":"40 KB","f":4},{"n":"js","t":"d","c":[],"s":"60 KB","f":9},{"n":"scenes","t":"d","c":[],"s":"50 KB","f":8},{"n":"sprites","t":"d","c":[{"n":"full","t":"d","c":[],"s":"426 KB","f":30},{"n":"thumbs","t":"d","c":[],"s":"225 KB","f":30}],"s":"652 KB","f":60},{"n":"generate_sprites.py","t":"f","x":"PY","s":"29 KB"},{"n":"index.html","t":"f","x":"HTML","s":"3.0 KB"},{"n":"manifest.webmanifest","t":"f","x":"WEBMANIFEST","s":"585 B"},{"n":"README.md","t":"f","x":"MD","s":"6.2 KB"},{"n":"sw.js","t":"f","x":"JS","s":"1.9 KB"}],"s":"876 KB","f":97},{"n":"tetris","t":"d","c":[{"n":"tetris.html","t":"f","x":"HTML","s":"21 KB"},{"n":"Tetris_Alcachofa.png","t":"f","x":"PNG","s":"2.3 MB"},{"n":"Tetris_Brocoli.png","t":"f","x":"PNG","s":"1.1 MB"},{"n":"Tetris_Coliflor.png","t":"f","x":"PNG","s":"718 KB"},{"n":"Tetris_Esparrago.png","t":"f","x":"PNG","s":"2.4 MB"},{"n":"Tetris_Lechuga.png","t":"f","x":"PNG","s":"2.1 MB"},{"n":"Tetris_Maiz.png","t":"f","x":"PNG","s":"2.7 MB"},{"n":"Tetris_Trigo.png","t":"f","x":"PNG","s":"2.4 MB"}],"s":"14 MB","f":8},{"n":"circle.html","t":"f","x":"HTML","s":"36 KB"}],"s":"28 MB","f":129},{"n":"mapas","t":"d","c":[{"n":"cabanillas-data.js","t":"f","x":"JS","s":"452 KB"},{"n":"cabanillas.html","t":"f","x":"HTML","s":"53 KB"}],"s":"505 KB","f":2},{"n":"servicios","t":"d","c":[{"n":"bar-restaurante.html","t":"f","x":"HTML","s":"24 KB"},{"n":"carniceria.html","t":"f","x":"HTML","s":"19 KB"},{"n":"gimnasio.html","t":"f","x":"HTML","s":"20 KB"},{"n":"supermercado.html","t":"f","x":"HTML","s":"31 KB"},{"n":"tienda-ropa.html","t":"f","x":"HTML","s":"21 KB"}],"s":"115 KB","f":5},{"n":".editorconfig","t":"f","x":"","s":"167 B"},{"n":".gitignore","t":"f","x":"","s":"56 B"},{"n":".htaccess","t":"f","x":"","s":"39 KB"},{"n":"404.html","t":"f","x":"HTML","s":"1.2 KB"},{"n":"CNAME","t":"f","x":"","s":"15 B"},{"n":"index.html","t":"f","x":"HTML","s":"161 KB"},{"n":"LICENSE.txt","t":"f","x":"TXT","s":"3.4 KB"},{"n":"README.md","t":"f","x":"MD","s":"2.6 KB"},{"n":"robots.txt","t":"f","x":"TXT","s":"88 B"}],"s":"53 MB","f":250,"root":"rubenpantxo.github.io"}};
+const DASH={
+  kpis:[['9','Apps y juegos publicados'],['2','Prototipos'],['2','Recursos Claude'],['~260 MB','Almacenamiento total']],
+  groups:[
+    {leg:'aplicaciones\\',note:'💡 <b>5_extensiones-archivo</b> es este mismo <b>Format Explorer</b> en su versión de trabajo local.',rows:[
+      ['💡','1_alumbrado-pro','174 KB · 16 arch.','pub'],['📚','2_biblioteca','55 KB','pub'],
+      ['📥','3_instagram-downloader','24 KB','pub'],['🧰','4_resource-hub','48 KB','pub'],
+      ['🗄️','5_extensiones-archivo','48 KB','pub']]},
+    {leg:'juegos\\',note:'⚠️ <b>5_Granja</b> y <b>6_Chess3D</b> concentran el 95% del peso (assets Unity, texturas y versiones antiguas).',rows:[
+      ['🚜','5_Granja','83 MB · 33 arch.','pub'],['♟️','6_Chess3D','59 MB · 125 arch.','pub'],
+      ['⭕','7_Circle','37 KB','pub'],['🧱','9_tetris','23 KB','pub']]},
+    {leg:'Prototipos\\',note:'🎯 Cuando un prototipo funcione sin errores: muévelo a aplicaciones\\ o juegos\\, cópialo al clon y haz commit + push.',rows:[
+      ['🍄','10_Mario','66 KB','proto'],['🚜','8_Granja_Cabanillas','13 MB · 154 arch.','proto']]},
+    {leg:'Recursos_Clau\\',note:'📌 Guarda aquí skills, source codes y material de ayuda que vayas descargando.',rows:[
+      ['📦','Claude Code Game Studios source code_v1.0.0.zip','1.3 MB','rec'],['🎓','skills-github-pages.zip','42 MB','rec']]},
+    {leg:'Rubenpantxo.github.io\\ · apps',note:'🔎 SOLO EN REPO = publicado en la web pero sin carpeta de trabajo local en aplicaciones\\ o juegos\\.',rows:[
+      ['💡','alumbrado-pro','','repo'],['📚','biblioteca','','repo'],['🗄️','format-explorer.html','','repo'],
+      ['📥','instagram-downloader','','repo'],['📝','pantxiko-notes.html','','warn'],['🌱','plants','','warn'],
+      ['🧭','qibla.html','','warn'],['🧰','resource-hub','','repo'],['🌿','rubenpantxo-garden','','warn']]},
+    {leg:'Rubenpantxo.github.io\\ · juegos',note:'',rows:[
+      ['♟️','Chess3D','','repo'],['🥎','cesta-punta','','warn'],['⭕','circle.html','','repo'],
+      ['🚜','granja','','repo'],['🥊','tekken-barrio-ps1','','warn'],['🧱','tetris','','repo']]},
+  ],
+  storage:[['🎮 juegos\\','#8C2A30',100,'144 MB'],['🌍 Rubenpantxo.github.io\\','#3F6F9A',38,'54 MB'],
+    ['🧠 Recursos_Clau\\','#6B4076',31,'44 MB'],['🚧 Prototipos\\','#C8901C',14,'20 MB'],['📁 aplicaciones\\','#5D7339',1,'0.4 MB']],
+};
+const BADGE={pub:['PUBLICADO','b-pub'],proto:['PROTOTIPO','b-proto'],rec:['RECURSO','b-rec'],repo:['REPO','b-repo'],warn:['SOLO EN REPO','b-warn']};
+
+// ---------------- Dashboard de Recursos (mini-app) ----------------
+function openDashboard(){
+  const kpis=DASH.kpis.map(k=>`<div class="kpi95"><b>${esc(k[0])}</b><span>${esc(k[1])}</span></div>`).join('');
+  const grp=g=>`<div class="fieldset"><legend>${esc(g.leg)}</legend><div style="padding-top:4px">
+    ${g.rows.map(r=>{const b=BADGE[r[3]]||['',''];return `<div class="drow"><span class="di">${r[0]}</span><span class="dn">${esc(r[1])}</span>${r[2]?`<span class="ds">${esc(r[2])}</span>`:''}<span class="badge95 ${b[1]}">${b[0]}</span></div>`}).join('')}
+    ${g.note?`<div class="dnote">${g.note}</div>`:''}</div></div>`;
+  const cols=DASH.groups.map(grp).join('');
+  const bars=DASH.storage.map(s=>`<div class="stat-row"><span class="sn">${esc(s[0])}</span><div class="bar95"><i style="--bcl:${s[1]};width:${s[2]}%"></i></div><span class="sv">${esc(s[3])}</span></div>`).join('');
+  const html=`<div class="dash-body">
+    <div class="kpis95">${kpis}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;font-size:10px">
+      <b>Leyenda:</b><span class="badge95 b-pub">PUBLICADO</span><span class="badge95 b-proto">PROTOTIPO</span>
+      <span class="badge95 b-rec">RECURSO</span><span class="badge95 b-repo">REPO</span><span class="badge95 b-warn">SOLO EN REPO</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:10px">${cols}</div>
+    <div class="fieldset" style="margin-top:12px"><legend>Distribución del almacenamiento</legend><div style="padding-top:4px">${bars}</div></div>
+    <div class="dnote" style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      🗂️ La estructura de carpetas ahora es navegable como un explorador.
+      <button class="btn95 small" id="dash-open-files">Abrir explorador de archivos</button>
+    </div>
+    <div class="dnote" style="margin-top:8px">🔄 <b>Flujo:</b> idea → Prototipos\\ → cuando funciona sin errores → aplicaciones\\ o juegos\\ + copia al clon → <i>git add · commit · push</i> → publicado en <b>rubenpantxo.com</b>.</div>
+  </div>`;
+  mkWin('dash','Dashboard de Recursos — carpeta Github','📈',648,564,html,{onOpen:el=>{
+    const b=el.querySelector('#dash-open-files');if(b)b.onclick=openTree;
+  }});
+}
+
+// ---------------- Explorador de archivos (mini-app, árbol desplegable) ----------------
+let treeTab='local',treeQuery='';
+const SPECIAL_ICON={'package.json':'📦','readme.md':'📘','cname':'🌐','.gitignore':'🚫','.gitattributes':'⚙️','license':'📜','license.txt':'📜','.htaccess':'⚙️','.editorconfig':'⚙️','robots.txt':'🤖','404.html':'🚧','deploy.yml':'🚀','manifest.json':'📦'};
+function fileEmoji(name,ext){
+  const low=name.toLowerCase();
+  if(SPECIAL_ICON[low])return SPECIAL_ICON[low];
+  const cat=catOf(ext);
+  if(cat)return CATS[cat].i;
+  if(ext==='YML'||ext==='YAML')return '⚙️';
+  return '📄';
+}
+function tnodeHTML(node,depth,forceOpen){
+  if(node.t==='more')return `<div class="tmore">${esc(node.n)}${node.s?' · '+esc(node.s):''}</div>`;
+  if(node.t==='d'){
+    const open=forceOpen||depth===0;
+    const has=node.c&&node.c.length;
+    const kids=(node.c||[]).map(c=>tnodeHTML(c,depth+1,forceOpen)).join('');
+    const meta=node.s?`${esc(node.s)}${node.f?' · '+node.f+' arch.':''}`:'';
+    return `<div class="tnode"><div class="trow dir"><span class="tchev${has?'':' empty'}">${open?'▼':'▶'}</span><span class="tic">${open?'📂':'📁'}</span><span class="tname">${esc(node.n)}</span><span class="tmeta">${meta}</span></div><div class="tkids${open?'':' collapsed'}">${kids}</div></div>`;
+  }
+  const ext=node.x||'';
+  const known=!!(ext&&D[ext]);
+  const pill=ext?`<span class="tx">.${esc(ext.toLowerCase())}</span>`:'';
+  return `<div class="trow file${known?' known':''}"${known?` data-ext="${esc(ext)}"`:''} title="${known?'Ver ficha del formato .'+esc(ext.toLowerCase()):esc(node.n)}"><span class="tchev empty"></span><span class="tic">${fileEmoji(node.n,ext)}</span><span class="tname">${esc(node.n)}</span>${pill}<span class="tmeta">${esc(node.s||'')}</span></div>`;
+}
+function filterTree(node,q){
+  if(node.t==='more')return null;
+  if(node.t==='f')return node.n.toLowerCase().includes(q)?node:null;
+  const kids=(node.c||[]).map(c=>filterTree(c,q)).filter(Boolean);
+  if(node.n.toLowerCase().includes(q)||kids.length)return Object.assign({},node,{c:kids});
+  return null;
+}
+function renderTree(el){
+  const scroll=el.querySelector('#tree-scroll');if(!scroll)return;
+  const root=FILETREE[treeTab];
+  const q=treeQuery.trim().toLowerCase();
+  let kids=root.c||[];
+  if(q){const f=filterTree(root,q);kids=f?f.c:[]}
+  const head=`<div class="tree-head"><span class="hico">${treeTab==='local'?'💻':'🌍'}</span><span>${esc(root.n)}</span><span class="hpath">${esc(root.root||'')}</span></div>`;
+  const body=kids.length?kids.map(c=>tnodeHTML(c,0,!!q)).join(''):`<div class="tmore" style="padding:14px">Sin resultados para “${esc(treeQuery)}”.</div>`;
+  scroll.innerHTML=head+`<div style="padding:4px 6px 12px">${body}</div>`;
+}
+function openTree(){
+  const html=`<div class="tree-wrap">
+    <div class="tree-toolbar">
+      <span class="tree-tab" data-tab="local">💻 Carpeta local</span>
+      <span class="tree-tab" data-tab="repo">🌍 Repositorio web</span>
+      <div class="sep"></div>
+      <input class="input95" id="tree-search" style="flex:1;min-width:90px" placeholder="Buscar archivo o carpeta…">
+      <button class="btn95 small" id="tree-exp">Expandir</button>
+      <button class="btn95 small" id="tree-col">Contraer</button>
+    </div>
+    <div class="tree-scroll" id="tree-scroll"></div>
+    <div class="statusbar"><div class="status-cell" id="tree-status">💻 carpeta de trabajo local · 🌍 repositorio publicado. Clic en una carpeta para desplegarla; clic en un archivo de formato conocido para abrir su ficha.</div></div>
+  </div>`;
+  mkWin('files','Explorador de archivos — local + repositorio','🗂️',724,604,html,{onOpen:el=>{
+    const setTab=t=>{treeTab=t;el.querySelectorAll('.tree-tab').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));renderTree(el)};
+    el.querySelectorAll('.tree-tab').forEach(t=>t.onclick=()=>setTab(t.dataset.tab));
+    el.querySelector('#tree-search').addEventListener('input',e=>{treeQuery=e.target.value;renderTree(el)});
+    el.querySelector('#tree-exp').onclick=()=>{el.querySelectorAll('#tree-scroll .tkids').forEach(k=>k.classList.remove('collapsed'));el.querySelectorAll('#tree-scroll .trow.dir').forEach(r=>{const c=r.querySelector('.tchev');if(!c.classList.contains('empty'))c.textContent='▼';r.querySelector('.tic').textContent='📂'})};
+    el.querySelector('#tree-col').onclick=()=>{el.querySelectorAll('#tree-scroll .tkids').forEach(k=>k.classList.add('collapsed'));el.querySelectorAll('#tree-scroll .trow.dir').forEach(r=>{const c=r.querySelector('.tchev');if(!c.classList.contains('empty'))c.textContent='▶';r.querySelector('.tic').textContent='📁'})};
+    el.querySelector('#tree-scroll').addEventListener('click',e=>{
+      const r=e.target.closest('.trow');if(!r)return;
+      el.querySelectorAll('#tree-scroll .trow.sel').forEach(x=>x.classList.remove('sel'));r.classList.add('sel');
+      if(r.classList.contains('dir')){
+        const c=r.querySelector('.tchev');if(c.classList.contains('empty'))return;
+        const col=r.nextElementSibling.classList.toggle('collapsed');
+        c.textContent=col?'▶':'▼';r.querySelector('.tic').textContent=col?'📁':'📂';
+      }else if(r.dataset.ext){openProps(r.dataset.ext)}
+    });
+    setTab('local');
+  }});
+}
+
 // ---------------- Start menu + clock ----------------
 function initShell(){
   const sm=document.getElementById('sm-items');
-  sm.innerHTML=DICONS.map(d=>`<div class="sm-i" data-run="${d.id}"><span class="ic">${{explorer:'🗄️',eco:'🧠',stats:'📊',about:'❓'}[d.id]}</span>${esc(d.n)}</div>`).join('')
+  sm.innerHTML=DICONS.map(d=>`<div class="sm-i" data-run="${d.id}"><span class="ic">${{explorer:'🗄️',files:'🗂️',dash:'📈',eco:'🧠',stats:'📊',about:'❓'}[d.id]}</span>${esc(d.n)}</div>`).join('')
     +`<div class="sm-sep"></div><div class="sm-i" data-run="__web"><span class="ic">🌍</span>rubenpantxo.com</div>`;
   sm.addEventListener('click',e=>{
     const i=e.target.closest('.sm-i');if(!i)return;

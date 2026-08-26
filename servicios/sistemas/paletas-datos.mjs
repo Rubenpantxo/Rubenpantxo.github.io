@@ -1,100 +1,11 @@
-// Datos del muestrario. Un solo sitio del que salen la pagina de paletas y
-// las secciones de paleta de las seis fichas.
+// Paletas de referencia del muestrario, agrupadas por tonalidad.
 //
-// Los 96 colores de los grupos "capturas" estan transcritos de las capturas
-// que aporto Ruben. Los marcados con revisar:true son los que en la imagen
-// aparecen borrosos o sobre degradado y he tenido que interpretar.
-
-export const sistemas = [
-  {
-    id: 'halogen',
-    nombre: 'Halogen Kit',
-    nota: 'Oscuro, cinético y de un solo acento. Viste la app Escenas.',
-    colores: [
-      ['Canvas', '#0a0d0a', 'Fondo de página'],
-      ['Surface', '#12160f', 'Tarjeta'],
-      ['Raised', '#1a1f18', 'Campo, elemento elevado'],
-      ['Hairline', '#2a312a', 'Filo de un píxel'],
-      ['Halogen', '#a3e635', 'Acento único'],
-      ['Ink', '#f2f5f0', 'Texto principal'],
-      ['Ink dim', '#8f9a8c', 'Texto secundario'],
-      ['Unchecked', '#3a423a', 'Casilla sin marcar']
-    ]
-  },
-  {
-    id: 'rincon',
-    nombre: 'Rincón',
-    nota: 'Terracota sobre crema. Nacido de la carta digital de una taberna.',
-    colores: [
-      ['Terracota', '#b34a1f', 'Marca y acción'],
-      ['Terracota oscuro', '#8a3514', 'Estado pulsado'],
-      ['Crema', '#fdf6ec', 'Fondo'],
-      ['Tarjeta', '#ffffff', 'Superficie'],
-      ['Tinta', '#2b1d12', 'Texto principal'],
-      ['Apagado', '#7c6e60', 'Texto secundario'],
-      ['Confirmado', '#2e9e5b', 'Éxito, pedido en marcha']
-    ]
-  },
-  {
-    id: 'alba',
-    nombre: 'Alba',
-    nota: 'Casi monocromo, esquinas rectas y un fucsia que corta.',
-    colores: [
-      ['Tinta', '#111114', 'Texto y botón principal'],
-      ['Papel', '#fafafa', 'Fondo'],
-      ['Blanco', '#ffffff', 'Ficha de producto'],
-      ['Apagado', '#727278', 'Tallas, referencias'],
-      ['Línea', '#e8e8ec', 'Separadores'],
-      ['Fucsia', '#e7335a', 'Rebaja, favorito, alerta']
-    ]
-  },
-  {
-    id: 'manolo',
-    nombre: 'Manolo',
-    nota: 'Rojo de mostrador y verde de mensajería. Comercio de barrio.',
-    colores: [
-      ['Mostrador', '#a4262c', 'Marca y acción'],
-      ['Mostrador oscuro', '#7c181d', 'Estado pulsado'],
-      ['Crema', '#fbf7f1', 'Fondo'],
-      ['Tinta', '#2c2018', 'Texto principal'],
-      ['Apagado', '#7b6e65', 'Peso, unidades'],
-      ['Mensajería', '#25d366', 'Confirmar por WhatsApp'],
-      ['Mensajería oscuro', '#075e54', 'Cabecera de conversación'],
-      ['Conversación', '#e5ddd5', 'Fondo de chat']
-    ]
-  },
-  {
-    id: 'impulso',
-    nombre: 'Impulso',
-    nota: 'Oscuro con lima, cian y rosa. Tres acentos con un trabajo cada uno.',
-    colores: [
-      ['Fondo', '#0d0f14', 'Base'],
-      ['Superficie', '#161a22', 'Tarjeta'],
-      ['Superficie 2', '#1e2430', 'Elemento elevado'],
-      ['Lima', '#c8f04c', 'Completado, progreso'],
-      ['Cian', '#38e1d4', 'Sesión de hoy'],
-      ['Rosa', '#ff5e82', 'Pendiente, intensidad alta'],
-      ['Texto', '#f2f4f8', 'Texto principal'],
-      ['Apagado', '#8b93a3', 'Series, repeticiones']
-    ]
-  },
-  {
-    id: 'la-plaza',
-    nombre: 'La Plaza',
-    nota: 'Verde de fruta fresca y un modo oscuro para quien gestiona.',
-    colores: [
-      ['Verde', '#1f9d55', 'Marca y acción'],
-      ['Verde oscuro', '#157040', 'Estado pulsado'],
-      ['Fondo', '#f4f7f4', 'Tienda'],
-      ['Tinta', '#1c2b21', 'Texto principal'],
-      ['Apagado', '#67736a', 'Texto secundario'],
-      ['Aviso', '#e67e22', 'Stock bajo'],
-      ['Peligro', '#e74c3c', 'Sin existencias'],
-      ['Gestor fondo', '#10151c', 'Trastienda'],
-      ['Gestor superficie', '#1a212c', 'Tarjeta de almacén']
-    ]
-  }
-];
+// Los colores de estos grupos estan transcritos de las capturas que aporto
+// Ruben. Los marcados con revisar:true son los que en la imagen aparecen
+// borrosos o sobre degradado y he tenido que interpretar.
+//
+// Las paletas de los sistemas ya no viven aqui: estan en sistemas-datos.mjs,
+// que es la fuente unica del catalogo.
 
 export const capturas = [
   { nombre: 'Piedra y pizarra', tono: 'neutro', colores: [

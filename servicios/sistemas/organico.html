@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es" data-paleta="arena-salvia" data-tipo="caprasimo-figtree" data-elem="pastilla" data-preset="organico" data-tema-memoria="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orgánico — Sistema de diseño</title>
+<meta name="description" content="Orgánico: crema y arena con terracota y salvia. Todo redondo, contenedores muy curvos y botones en pastilla.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css">
+<link rel="stylesheet" href="sistema.css">
+<style>
+  /* Los valores salen del theme.json del proyecto de Claude Design, no de
+     ningun ojo: si alli cambian, se vuelcan aqui y se regenera la ficha. */
+</style>
+<script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
+</head>
+<body>
+<div class="sd-contenedor">
+
+  <header class="sd-cabecera">
+    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <span class="sd-etiqueta">Claro · dos acentos · radio 16</span>
+    <h1 class="sd-titulo">Orgánico</h1>
+    <p class="sd-bajada">Crema y arena con un acento terracota y una salvia que hace de segunda voz. Todo tiende a la curva: contenedores muy redondeados, botones en pastilla y fotografía lavada para que se hunda en el papel en vez de posarse encima.</p>
+  </header>
+
+  <section class="sd-seccion">
+    <h2>Paleta</h2>
+    <p>Un fondo cálido que no es blanco, dos acentos con trabajos distintos —terracota manda, salvia acompaña— y una rampa de nueve pasos por cada rol para que un tinte suave y un estado pulsado salgan del mismo sitio.</p>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#F5EAD8" style="--c:#f5ead8;--t:#101010"
+                aria-label="Copiar #F5EAD8, Fondo">
+          <span class="pl-color__nombre">Fondo</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#F5EAD8</b></span>
+          <span class="pl-color__rol">Fondo de página</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#EBDDC5" style="--c:#ebddc5;--t:#101010"
+                aria-label="Copiar #EBDDC5, Superficie">
+          <span class="pl-color__nombre">Superficie</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#EBDDC5</b></span>
+          <span class="pl-color__rol">Tarjeta</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#201E1D" style="--c:#201e1d;--t:#ffffff"
+                aria-label="Copiar #201E1D, Tinta">
+          <span class="pl-color__nombre">Tinta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#201E1D</b></span>
+          <span class="pl-color__rol">Texto principal</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#C67139" style="--c:#c67139;--t:#101010"
+                aria-label="Copiar #C67139, Terracota">
+          <span class="pl-color__nombre">Terracota</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#C67139</b></span>
+          <span class="pl-color__rol">Acento principal</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#7A8A5E" style="--c:#7a8a5e;--t:#101010"
+                aria-label="Copiar #7A8A5E, Salvia">
+          <span class="pl-color__nombre">Salvia</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#7A8A5E</b></span>
+          <span class="pl-color__rol">Segundo acento</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#DCD3C4" style="--c:#dcd3c4;--t:#101010"
+                aria-label="Copiar #DCD3C4, Neutro 300">
+          <span class="pl-color__nombre">Neutro 300</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#DCD3C4</b></span>
+          <span class="pl-color__rol">Filo y relleno tenue</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#645C50" style="--c:#645c50;--t:#ffffff"
+                aria-label="Copiar #645C50, Neutro 700">
+          <span class="pl-color__nombre">Neutro 700</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#645C50</b></span>
+          <span class="pl-color__rol">Texto secundario</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#8C491A" style="--c:#8c491a;--t:#ffffff"
+                aria-label="Copiar #8C491A, Terracota 700">
+          <span class="pl-color__nombre">Terracota 700</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#8C491A</b></span>
+          <span class="pl-color__rol">Texto sobre relleno tintado</span>
+        </button>
+      </li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Tipografía</h2>
+    <p>Caprasimo en los titulares y Figtree en todo lo demás. La display es gruesa y redonda por diseño: hace de mancha, no de texto largo, así que nunca baja de tamaño de titular.</p>
+    <ul class="sd-tipo">
+      <li><span class="sd-tipo-meta">Display · Caprasimo 400</span><span class="sd-muestra-display">Forma redonda</span></li>
+      <li><span class="sd-tipo-meta">Subtítulo · Figtree 700</span><span class="sd-muestra-titulo" style="font-weight:700">Un segundo nivel</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · Figtree 400 / 16px</span><span class="sd-muestra-cuerpo">El cuerpo va en Figtree, que es humanista y aguanta párrafos largos sin cansar. La display se queda arriba: si baja al texto corrido, el sistema deja de leerse.</span></li>
+      <li><span class="sd-tipo-meta">Pie · Figtree 400 / 13px</span><span class="sd-muestra-pie">Nota al pie, metadatos y disponibilidad.</span></li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Componentes</h2>
+    <p>Escala de espaciado al 1,10, radio de 16 píxeles en los contenedores y 999 en lo pulsable. Las formas redondas necesitan aire: apretarlas es lo único que rompe este sistema.</p>
+
+    <h3>Botones</h3>
+    <div class="sd-lienzo">
+      <button class="sd-btn" type="button">Aceptar</button>
+      <button class="sd-btn sd-btn--linea" type="button">Ver más</button>
+      <button class="sd-btn sd-btn--suave" type="button">Guardar</button>
+      <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
+      <button class="sd-btn" type="button" disabled>No disponible</button>
+    </div>
+
+    <h3>Selección y entrada</h3>
+    <div class="sd-lienzo">
+      <label class="sd-check"><input type="checkbox" checked> Opción marcada</label>
+      <label class="sd-check"><input type="checkbox"> Opción sin marcar</label>
+      <label class="sd-check"><input type="radio" name="organico-r" checked> Primera opción</label>
+      <label class="sd-check"><input type="radio" name="organico-r"> Segunda opción</label>
+      <label class="sd-campo"><span>Nombre</span><input type="text" placeholder="Ana"></label>
+    </div>
+
+    <h3>Iconos</h3>
+    <p>Lucide con el trazo engordado a 2,75: más redondo y más pesado, para que no se afile al lado de la display.</p>
+    <div class="sd-lienzo sd-iconos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Inicio"><path d="M3 10 12 4l9 6v10H3V10Z"/><path d="M9 20v-6h6v6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Añadir"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Favorito"><path d="M12 21s-7-4.6-7-9.6A4.2 4.2 0 0 1 12 8.4a4.2 4.2 0 0 1 7 3C19 16.4 12 21 12 21Z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Perfil"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Hora"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    </div>
+
+    <h3>Tarjeta</h3>
+    <div class="sd-lienzo">
+      <article class="sd-ficha">
+        <span class="sd-insignia">Destacado</span>
+        <h4>Título de la tarjeta</h4>
+        <p>Dos líneas de apoyo: qué es, y el único dato que hace falta para decidir.</p>
+        <button class="sd-btn" type="button">Aceptar</button>
+      </article>
+    </div>
+  </section>
+
+  <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
+    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+
+</div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
+</body>
+</html>

@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-paleta="noche-neon" data-tipo="tabular" data-elem="muy-redondo">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IMPULSO — Demo app de gimnasio y entrenador personal</title>
+<link rel="stylesheet" href="sistemas/tema.css">
 <style>
     :root {
-        --bg: #0d0f14;
-        --surface: #161a22;
-        --surface-2: #1e2430;
-        --text: #f2f4f8;
-        --muted: #8b93a3;
-        --lime: #c8f04c;
-        --cyan: #38e1d4;
-        --pink: #ff5e82;
-        --radius: 18px;
+        --bg: var(--sd-bg);
+        --surface: var(--sd-surface);
+        --surface-2: var(--sd-surface-2);
+        --text: var(--sd-ink);
+        --muted: var(--sd-muted);
+        --lime: var(--sd-accent);
+        --cyan: var(--sd-accent-2);
+        --pink: var(--sd-danger);
+        --line: var(--sd-line);
+        --radius: var(--sd-radius);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -25,7 +27,7 @@
     }
     .demo-badge {
         position: fixed; top: 42px; left: -34px; z-index: 90;
-        background: rgba(200,240,76,.9); color: #0d0f14; font-size: 10px; font-weight: 800;
+        background: color-mix(in srgb, var(--sd-accent) 90%, transparent); color: var(--sd-on-accent); font-size: 10px; font-weight: 800;
         letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
     }
     .view { display: none; padding: 46px 18px 20px; }
@@ -46,9 +48,9 @@
     .ring::before {
         content: ''; position: absolute; inset: 9px; border-radius: 50%; background: var(--surface);
     }
-    .ring1 { inset: 0;    background: conic-gradient(var(--lime) calc(var(--p) * 1%), #2a3040 0); }
-    .ring2 { inset: 22px; background: conic-gradient(var(--cyan) calc(var(--p) * 1%), #2a3040 0); }
-    .ring3 { inset: 44px; background: conic-gradient(var(--pink) calc(var(--p) * 1%), #2a3040 0); }
+    .ring1 { inset: 0;    background: conic-gradient(var(--lime) calc(var(--p) * 1%), var(--line) 0); }
+    .ring2 { inset: 22px; background: conic-gradient(var(--cyan) calc(var(--p) * 1%), var(--line) 0); }
+    .ring3 { inset: 44px; background: conic-gradient(var(--pink) calc(var(--p) * 1%), var(--line) 0); }
     .ring  { transition: background 1s ease; }
     .rings .center {
         position: absolute; inset: 53px; border-radius: 50%; display: grid; place-items: center; font-size: 20px;
@@ -72,7 +74,7 @@
     .bar-w { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
     .bar {
         width: 100%; border-radius: 8px 8px 4px 4px;
-        background: linear-gradient(to top, #2a3040, var(--lime));
+        background: linear-gradient(to top, var(--sd-line), var(--lime));
         transform-origin: bottom; animation: grow .8s cubic-bezier(.2,.9,.3,1) both;
     }
     .bar.today { background: linear-gradient(to top, var(--cyan), var(--lime)); box-shadow: 0 0 18px rgba(200,240,76,.35); }
@@ -81,7 +83,7 @@
 
     .next-card {
         margin-top: 12px; border-radius: var(--radius); padding: 16px;
-        background: linear-gradient(120deg, #1d2b18, #28361a 60%, #1e2430);
+        background: linear-gradient(120deg, color-mix(in srgb, var(--sd-accent) 14%, var(--sd-bg)), color-mix(in srgb, var(--sd-accent) 22%, var(--sd-bg)) 60%, var(--sd-surface-2));
         border: 1px solid rgba(200,240,76,.25);
         display: flex; align-items: center; gap: 12px;
     }
@@ -89,7 +91,7 @@
     .next-card h3 { font-size: 14px; font-weight: 800; }
     .next-card p { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .next-card button {
-        margin-left: auto; border: none; background: var(--lime); color: #0d0f14;
+        margin-left: auto; border: none; background: var(--sd-accent-solid); color: var(--sd-on-accent);
         font-size: 12px; font-weight: 800; padding: 9px 14px; border-radius: 999px; cursor: pointer;
     }
 
@@ -102,8 +104,8 @@
     }
     .day small { display: block; font-size: 10px; color: var(--muted); text-transform: uppercase; }
     .day strong { font-size: 16px; }
-    .day.active { background: var(--lime); color: #0d0f14; }
-    .day.active small { color: rgba(13,15,20,.6); }
+    .day.active { background: var(--sd-accent-solid); color: var(--sd-on-accent); }
+    .day.active small { color: color-mix(in srgb, var(--sd-on-accent) 72%, transparent); }
     .classes { display: grid; gap: 10px; margin-top: 16px; }
     .clase {
         background: var(--surface); border-radius: var(--radius); padding: 14px 16px;
@@ -114,16 +116,16 @@
     .clase .hora small { display: block; font-size: 10px; color: var(--muted); font-weight: 500; }
     .clase h3 { font-size: 15px; font-weight: 700; }
     .clase .coach { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-    .cap { margin-top: 8px; height: 5px; border-radius: 99px; background: #2a3040; overflow: hidden; }
+    .cap { margin-top: 8px; height: 5px; border-radius: 99px; background: var(--line); overflow: hidden; }
     .cap i { display: block; height: 100%; border-radius: 99px; background: var(--lime); transition: width .4s ease; }
     .cap.full i { background: var(--pink); }
     .cap-txt { font-size: 10.5px; color: var(--muted); margin-top: 4px; }
     .btn-res {
-        border: 1.5px solid var(--lime); color: var(--lime); background: none; cursor: pointer;
+        border: 1.5px solid var(--lime); color: var(--sd-accent-text); background: none; cursor: pointer;
         font-size: 12px; font-weight: 800; padding: 9px 13px; border-radius: 999px; transition: all .2s; white-space: nowrap;
     }
-    .btn-res.booked { background: var(--lime); color: #0d0f14; }
-    .btn-res:disabled { border-color: #3a4150; color: #5a6275; }
+    .btn-res.booked { background: var(--sd-accent-solid); color: var(--sd-on-accent); }
+    .btn-res:disabled { border-color: var(--line); color: var(--muted); }
 
     /* ---------- ENTRENADOR ---------- */
     .coach-card {
@@ -132,7 +134,7 @@
     .coach-ava {
         width: 84px; height: 84px; border-radius: 50%; margin: 0 auto;
         display: grid; place-items: center; font-size: 40px;
-        background: radial-gradient(circle at 30% 25%, #3a4458, #1e2430);
+        background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--sd-ink) 22%, var(--sd-surface-2)), var(--sd-surface-2));
         border: 2px solid var(--lime);
     }
     .coach-card h2 { font-size: 19px; font-weight: 800; margin-top: 12px; }
@@ -146,18 +148,18 @@
     .serv .ico { font-size: 22px; }
     .serv h4 { font-size: 14px; font-weight: 700; }
     .serv p { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-    .serv strong { margin-left: auto; font-size: 15px; color: var(--lime); white-space: nowrap; }
+    .serv strong { margin-left: auto; font-size: 15px; color: var(--sd-accent-text); white-space: nowrap; }
     .goal-box { margin-top: 16px; background: var(--surface); border-radius: var(--radius); padding: 16px; }
     .goal-box h3 { font-size: 14px; font-weight: 800; }
     .goals { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
     .goal {
-        border: 1.5px solid #2e3645; background: none; color: var(--text); cursor: pointer;
+        border: 1.5px solid var(--line); background: none; color: var(--text); cursor: pointer;
         font-size: 12.5px; font-weight: 600; padding: 9px 14px; border-radius: 999px; transition: all .2s;
     }
-    .goal.active { background: var(--cyan); border-color: var(--cyan); color: #0d0f14; font-weight: 800; }
+    .goal.active { background: var(--sd-accent-solid); border-color: var(--sd-accent-solid); color: var(--sd-on-accent); font-weight: 800; }
     .btn-lime {
         width: 100%; margin-top: 14px; border: none; cursor: pointer;
-        background: var(--lime); color: #0d0f14; font-size: 14px; font-weight: 800;
+        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-size: 14px; font-weight: 800;
         padding: 14px; border-radius: 14px; transition: transform .15s;
         box-shadow: 0 8px 24px rgba(200,240,76,.25);
     }
@@ -167,8 +169,8 @@
     .tabbar {
         position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
         width: 100%; max-width: 480px; display: flex; z-index: 50;
-        background: rgba(13,15,20,.9); backdrop-filter: blur(14px);
-        border-top: 1px solid #232a38; padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
+        background: color-mix(in srgb, var(--sd-bg) 90%, transparent); backdrop-filter: blur(14px);
+        border-top: 1px solid var(--line); padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
     }
     .tab {
         flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -181,7 +183,7 @@
 
     .toast {
         position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%) translateY(16px);
-        background: var(--lime); color: #0d0f14; font-size: 13px; font-weight: 700;
+        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-size: 13px; font-weight: 700;
         padding: 10px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80;
         pointer-events: none; white-space: nowrap; box-shadow: 0 8px 24px rgba(200,240,76,.3);
     }
@@ -190,7 +192,7 @@
     /* ---------- CONFIRMACIÓN PLAN ---------- */
     .done {
         position: fixed; inset: 0; z-index: 70; display: none; place-items: center; text-align: center;
-        background: rgba(13,15,20,.96); padding: 24px;
+        background: color-mix(in srgb, var(--sd-bg) 96%, transparent); padding: 24px;
     }
     .done.show { display: grid; }
     .done .flash {
@@ -203,10 +205,12 @@
     .done h2 { font-size: 22px; font-weight: 800; }
     .done p { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
     .done button {
-        margin-top: 22px; background: var(--lime); color: #0d0f14; border: none; cursor: pointer;
+        margin-top: 22px; background: var(--sd-accent-solid); color: var(--sd-on-accent); border: none; cursor: pointer;
         font-weight: 800; font-size: 13px; padding: 13px 28px; border-radius: 999px;
     }
 </style>
+<script src="sistemas/tema-datos.js"></script>
+<script src="../js/selector-sistema.js" defer></script>
 </head>
 <body>
 <div class="demo-badge">DEMO</div>

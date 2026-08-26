@@ -225,9 +225,9 @@ body {
 .sd-btn {
   padding: 0.72rem 1.35rem;
   border: 1px solid transparent;
-  border-radius: var(--sd-radius);
-  background: var(--sd-accent);
-  color: var(--sd-bg);
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: var(--sd-accent-solid, var(--sd-accent));
+  color: var(--sd-on-accent, var(--sd-bg));
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -240,12 +240,15 @@ body {
 .sd-btn--linea {
   background: transparent;
   border-color: var(--sd-accent);
-  color: var(--sd-accent);
+  color: var(--sd-accent-text, var(--sd-accent));
 }
 
 .sd-btn--suave {
   background: color-mix(in srgb, var(--sd-accent) 14%, transparent);
-  color: var(--sd-accent);
+  /* Sobre relleno tintado ni el paso de texto de la rampa llega siempre a
+     4,5:1, asi que se empuja un 20 % hacia la tinta. Sirve igual en banda
+     clara (oscurece) que en oscura (aclara). */
+  color: color-mix(in srgb, var(--sd-accent-text, var(--sd-accent)) 80%, var(--sd-ink));
 }
 
 .sd-btn--fantasma {
@@ -340,23 +343,6 @@ body {
   margin: 0 0 0.9rem;
   font-size: 0.9rem;
   color: var(--sd-muted);
-}
-
-/* ---------- Cuando usarlo ---------- */
-.sd-cuando {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 1rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.sd-cuando li {
-  padding: 1rem 1.15rem;
-  border-left: 3px solid var(--sd-accent);
-  border-radius: 0 var(--sd-radius) var(--sd-radius) 0;
-  background: var(--sd-surface);
 }
 
 /* ---------- Pie ---------- */
