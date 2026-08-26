@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es" data-paleta="tinta-fucsia" data-tipo="caja-alta" data-elem="recto" data-preset="editorial" data-tema-memoria="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editorial — Sistema de diseño</title>
+<meta name="description" content="Editorial: casi monocromo, esquinas rectas y un fucsia que corta. Mucho aire y titulares en caja alta.">
+<link rel="stylesheet" href="tema.css">
+<link rel="stylesheet" href="sistema.css">
+<style>
+  .sd-titulo,
+  .sd-seccion > h2 {
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+</style>
+<script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
+</head>
+<body>
+<div class="sd-contenedor">
+
+  <header class="sd-cabecera">
+    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+    <span class="sd-etiqueta">Claro · un acento · esquina recta</span>
+    <h1 class="sd-titulo">Editorial</h1>
+    <p class="sd-bajada">Casi monocromo, esquinas rectas y un fucsia que solo aparece cuando hay que decidir. Está pensado para que el contenido sea lo único con color en la pantalla.</p>
+  </header>
+
+  <section class="sd-seccion">
+    <h2>Paleta</h2>
+    <p>Tres neutros y un acento. La restricción es el sistema: si el contenido ya trae cien colores, la interfaz no puede añadir ni uno más.</p>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#111114" style="--c:#111114;--t:#ffffff"
+                aria-label="Copiar #111114, Tinta">
+          <span class="pl-color__nombre">Tinta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#111114</b></span>
+          <span class="pl-color__rol">Texto y botón principal</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FAFAFA" style="--c:#fafafa;--t:#101010"
+                aria-label="Copiar #FAFAFA, Papel">
+          <span class="pl-color__nombre">Papel</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FAFAFA</b></span>
+          <span class="pl-color__rol">Fondo</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FFFFFF" style="--c:#ffffff;--t:#101010"
+                aria-label="Copiar #FFFFFF, Blanco">
+          <span class="pl-color__nombre">Blanco</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FFFFFF</b></span>
+          <span class="pl-color__rol">Superficie</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#727278" style="--c:#727278;--t:#ffffff"
+                aria-label="Copiar #727278, Apagado">
+          <span class="pl-color__nombre">Apagado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#727278</b></span>
+          <span class="pl-color__rol">Texto secundario</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#E8E8EC" style="--c:#e8e8ec;--t:#101010"
+                aria-label="Copiar #E8E8EC, Línea">
+          <span class="pl-color__nombre">Línea</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#E8E8EC</b></span>
+          <span class="pl-color__rol">Separadores</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#E7335A" style="--c:#e7335a;--t:#101010"
+                aria-label="Copiar #E7335A, Fucsia">
+          <span class="pl-color__nombre">Fucsia</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#E7335A</b></span>
+          <span class="pl-color__rol">Destacado y alerta</span>
+        </button>
+      </li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Tipografía</h2>
+    <p>Una sola familia, la del sistema, jugando con mayúsculas y espaciado. Los titulares van en caja alta con letra abierta; el cuerpo, en redonda y sin adornos.</p>
+    <ul class="sd-tipo">
+      <li><span class="sd-tipo-meta">Display · caja alta</span><span class="sd-muestra-display" style="text-transform:uppercase;letter-spacing:0.06em">Caja alta</span></li>
+      <li><span class="sd-tipo-meta">Subtítulo · 500</span><span class="sd-muestra-titulo">Un segundo nivel</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · 400 / 16px</span><span class="sd-muestra-cuerpo">Aquí el texto es servicio: cuanto antes resuelva la duda, antes deja de leerse. El cuerpo va en redonda, sin adornos y con mucho aire alrededor.</span></li>
+      <li><span class="sd-tipo-meta">Referencia · 13px</span><span class="sd-muestra-pie">REF. 0421 · metadato · 48 h</span></li>
+    </ul>
+  </section>
+
+  <section class="sd-seccion">
+    <h2>Componentes</h2>
+    <p>Sin radio, sin sombras, sin degradados. Todo se separa con líneas de un píxel. Los botones ocupan el ancho completo en móvil.</p>
+
+    <h3>Botones</h3>
+    <div class="sd-lienzo">
+      <button class="sd-btn" type="button" style="background:#111114;color:#fafafa">Aceptar</button>
+      <button class="sd-btn sd-btn--linea" type="button" style="border-color:#111114;color:#111114">Guardar</button>
+      <button class="sd-btn sd-btn--suave" type="button">Destacado</button>
+      <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
+      <button class="sd-btn" type="button" style="background:#111114;color:#fafafa" disabled>No disponible</button>
+    </div>
+
+    <h3>Selección y entrada</h3>
+    <div class="sd-lienzo">
+      <label class="sd-check"><input type="checkbox" checked> Opción marcada</label>
+      <label class="sd-check"><input type="checkbox"> Opción sin marcar</label>
+      <label class="sd-check"><input type="radio" name="editorial-r" checked> Primera opción</label>
+      <label class="sd-check"><input type="radio" name="editorial-r"> Segunda opción</label>
+      <label class="sd-campo"><span>Buscar</span><input type="search" placeholder="Escribe para filtrar"></label>
+    </div>
+
+    <h3>Iconos</h3>
+    <div class="sd-lienzo sd-iconos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Buscar"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.3-4.3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Favorito"><path d="M12 20s-7-4.4-7-9.2A4 4 0 0 1 12 8a4 4 0 0 1 7 2.8C19 15.6 12 20 12 20Z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Guardar"><path d="M5 7h14l-1 13H6L5 7Z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Deshacer"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Medida"><rect x="2" y="8" width="20" height="8" rx="1"/><path d="M7 8v4M12 8v5M17 8v4"/></svg>
+    </div>
+
+    <h3>Tarjeta</h3>
+    <div class="sd-lienzo">
+      <article class="sd-ficha">
+        <span class="sd-insignia" style="background:#e7335a;color:#ffffff">Nuevo</span>
+        <h4>Título de la tarjeta</h4>
+        <p>Metadato · segundo metadato</p>
+        <button class="sd-btn" type="button" style="background:#111114;color:#fafafa">Aceptar</button>
+      </article>
+    </div>
+  </section>
+
+
+  <nav class="sd-pie" aria-label="Enlaces relacionados">
+    <a class="sd-enlace" href="../tienda-ropa.html">Ver un ejemplo aplicado &#8599;</a>
+    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
+    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
+    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
+    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+
+</div>
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
+</body>
+</html>
