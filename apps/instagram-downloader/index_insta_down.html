@@ -117,6 +117,19 @@
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
     </style>
+
+<style>
+@keyframes arrow-bounce {
+    0% { transform: translateY(-3px); }
+    100% { transform: translateY(3px); }
+}
+.arrow.downloading {
+    animation: arrow-bounce 0.5s infinite alternate ease-in-out;
+}
+.dl-container {
+    background: #0b1115;
+}
+</style>
 </head>
 <body>
     <!-- Header -->
@@ -174,7 +187,7 @@
                     <button
                         onclick="downloadVideo()"
                         id="downloadBtn"
-                        class="btn-download text-white font-bold py-4 px-8 rounded-xl text-lg flex items-center justify-center gap-3"
+                        class="w-full text-center border-2 border-[#00f0ff] text-[#00f0ff] font-bold py-4 px-8 rounded-xl hover:bg-[#00f0ff] hover:bg-opacity-10 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all font-mono uppercase tracking-widest text-lg flex items-center justify-center gap-3 bg-transparent shadow-[0_0_10px_rgba(0,240,255,0.2)]"
                     >
                         <i class="fas fa-download"></i>
                         <span>Descargar Vídeo</span>
@@ -447,15 +460,31 @@
                     '<div>' +
                         (items.length > 1 ? '<p class="text-sm font-semibold text-purple-600 mb-2">Elemento ' + (n + 1) + ' de ' + items.length + '</p>' : '') +
                         '<h4 class="font-semibold text-gray-800 mb-4 text-lg">Descarga:</h4>' +
-                        '<button class="descargar w-full text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transition-all">' +
-                            '<i class="fas fa-download mr-2"></i>Guardar vídeo (MP4)' +
-                        '</button>' +
-                        '<p class="estado text-sm text-gray-500 mt-3"></p>' +
-                        '<div class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">' +
-                            '<p class="text-sm text-green-700 flex items-start gap-2">' +
-                                '<i class="fas fa-check-circle mt-1"></i>' +
-                                '<span>El vídeo se descarga desde tu propio ordenador, sin servicios externos.</span>' +
-                            '</p>' +
+                        
+'<div class="dl-container bg-gray-900 rounded-xl p-6 text-center shadow-2xl">' +
+    '<div class="progress-ui hidden flex-col items-center">' +
+        '<div class="status-text text-sm tracking-widest uppercase mb-4 text-cyan-400 font-mono transition-colors">Downloading</div>' +
+        '<div class="graphics relative w-full h-16 flex items-center justify-center mb-4">' +
+            '<svg width="100%" height="80" viewBox="0 0 200 80" class="absolute bottom-0 left-0 w-full" preserveAspectRatio="none">' +
+                '<path d="M 10,70 L 190,70" class="rail stroke-gray-800" style="stroke-width:4; stroke-linecap:round; fill:none;" />' +
+                '<path d="M 10,70 L 190,70" class="rail--fill" pathLength="1" style="stroke:#00f0ff; stroke-width:4; stroke-linecap:round; fill:none; filter:drop-shadow(0 0 8px rgba(0,240,255,0.6)); stroke-dasharray:1 1; stroke-dashoffset:1; transition: stroke-dashoffset 0.1s linear;" />' +
+            '</svg>' +
+            '<svg class="icon arrow absolute top-2 w-8 h-8 opacity-100 transition-all duration-500 transform scale-100" viewBox="0 0 24 24" style="filter:drop-shadow(0 0 6px rgba(0,240,255,0.6));">' +
+                '<path d="M12 4v16m-6-6 6 6 6-6" stroke="#00f0ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+            '</svg>' +
+            '<svg class="icon check absolute top-2 w-10 h-10 opacity-0 transition-all duration-500 transform -translate-y-4 scale-50" viewBox="0 0 24 24" style="filter:drop-shadow(0 0 6px rgba(0,240,255,0.6));">' +
+                '<path d="M4 12l5 5 11-11" stroke="#00f0ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+            '</svg>' +
+        '</div>' +
+        '<div class="percent text-cyan-400 font-mono text-sm mb-2 tabular-nums">0%</div>' +
+        '<div class="filename text-gray-500 font-mono text-xs">instagram.mp4</div>' +
+    '</div>' +
+    '<button class="descargar w-full text-center border-2 border-cyan-400 text-cyan-400 font-bold py-4 px-6 rounded-xl hover:bg-cyan-400 hover:bg-opacity-10 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all font-mono uppercase tracking-widest">' +
+        '<i class="fas fa-download mr-2"></i>Guardar (MP4)' +
+    '</button>' +
+    '<p class="estado hidden"></p>' +
+'</div>'
+ +
                         '</div>' +
                     '</div>';
 
@@ -474,53 +503,97 @@
             showSection('resultSection');
         }
 
+        
         async function guardarVideo(url, index, boton, estado) {
-            const htmlOriginal = boton.innerHTML;
-            boton.disabled = true;
-            boton.classList.add('opacity-70');
-            boton.innerHTML = '<i class="fas fa-circle-notch loading mr-2"></i>Descargando…';
-            estado.className = 'estado text-sm text-gray-500 mt-3';
-            estado.textContent = 'Esto puede tardar unos segundos.';
+            const container = boton.closest('.dl-container');
+            const progressUi = container.querySelector('.progress-ui');
+            const fill = container.querySelector('.rail--fill');
+            const pct = container.querySelector('.percent');
+            const st = container.querySelector('.status-text');
+            const arrow = container.querySelector('.icon.arrow');
+            const check = container.querySelector('.icon.check');
+            const filenameEl = container.querySelector('.filename');
+
+            boton.classList.add('hidden');
+            progressUi.classList.remove('hidden');
+            progressUi.classList.add('flex');
+            estado.className = 'estado hidden';
+            
+            fill.style.strokeDashoffset = '1';
+            pct.textContent = '0%';
+            st.textContent = 'Downloading';
+            arrow.style.opacity = '1'; arrow.classList.add('downloading');
+            check.style.opacity = '0';
+            check.style.transform = 'translateY(-20px) scale(0.5)';
 
             try {
                 let r;
                 try {
                     r = await fetch(API + '/api/descargar?url=' + encodeURIComponent(url) + '&index=' + index);
                 } catch (fallo) {
-                    throw new Error('Se ha perdido la conexión con el servidor local. Vuelve a arrancar Iniciar.bat.');
+                    throw new Error('Se ha perdido la conexión con el servidor local.');
                 }
+
                 if (!r.ok) {
-                    let msg = 'No se ha podido descargar el vídeo.';
+                    let msg = 'Error en la descarga.';
                     try {
                         const d = await r.json();
                         if (d.error) msg = d.error;
-                    } catch (e) { /* respuesta no JSON */ }
+                    } catch (e) {}
                     throw new Error(msg);
                 }
 
-                const blob = await r.blob();
+                const total = parseInt(r.headers.get('content-length'), 10);
                 const cabecera = r.headers.get('Content-Disposition') || '';
                 const encontrado = cabecera.match(/filename="([^"]+)"/);
+                const filename = encontrado ? encontrado[1] : 'instagram.mp4';
+                filenameEl.textContent = filename;
+
+                let loaded = 0;
+                let chunks = [];
+                const reader = r.body.getReader();
+
+                while(true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                    loaded += value.length;
+                    
+                    let p = total ? loaded / total : 0;
+                    if(p > 1) p = 1;
+                    fill.style.strokeDashoffset = 1 - p;
+                    pct.textContent = Math.floor(p * 100) + '%';
+                }
+
+                const blob = new Blob(chunks);
                 const enlace = document.createElement('a');
                 const objeto = URL.createObjectURL(blob);
                 enlace.href = objeto;
-                enlace.download = encontrado ? encontrado[1] : 'instagram.mp4';
+                enlace.download = filename;
                 document.body.appendChild(enlace);
                 enlace.click();
                 document.body.removeChild(enlace);
                 setTimeout(function () { URL.revokeObjectURL(objeto); }, 30000);
 
-                estado.className = 'estado text-sm text-green-600 mt-3 font-semibold';
-                estado.textContent = 'Guardado en tu carpeta de descargas.';
+                // Success visual state
+                fill.style.strokeDashoffset = '0';
+                pct.textContent = '100%';
+                st.textContent = 'Complete';
+                arrow.style.opacity = '0'; arrow.style.transform = 'translateY(20px) scale(0.5)'; arrow.classList.remove('downloading');
+                check.style.opacity = '1';
+                check.style.transform = 'translateY(0) scale(1)';
+
             } catch (e) {
-                estado.className = 'estado text-sm text-red-600 mt-3 font-semibold';
+                // Restore button on error
+                boton.classList.remove('hidden');
+                progressUi.classList.add('hidden');
+                progressUi.classList.remove('flex');
+                
+                estado.className = 'estado text-sm text-red-600 mt-3 font-semibold block';
                 estado.textContent = e.message;
-            } finally {
-                boton.disabled = false;
-                boton.classList.remove('opacity-70');
-                boton.innerHTML = htmlOriginal;
             }
         }
+
 
         // Puente web -> app local: abre localhost:8787 con el enlace ya cargado.
         function irAlLocal() {
