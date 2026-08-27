@@ -80,34 +80,62 @@
             return servidorListo;
         }
 
+        
         async function downloadVideo() {
             const url = urlInput.value.trim();
             if (!url) {
                 mostrarError('Pega primero un enlace de Instagram.');
                 return;
             }
-
             if (MODO_WEB) {
                 irAlLocal();
                 return;
             }
+            
+            if (!servidorListo && !(await comprobarServidor(false))) {
+                showSection('offlineSection');
+                return;
+            }
 
-            showSection('loadingSection');
+            const btn = document.getElementById('downloadBtn');
+            if(btn.classList.contains('active')) return;
+            btn.classList.add('active');
+            
+            const fill = document.getElementById('mainParaFill');
+            const txt = document.getElementById('mainParaText');
+            const chute = document.getElementById('mainParaChute');
+            
+            let fakeProgress = 0;
+            fill.style.width = '0%';
+            txt.innerHTML = '0%<br><br>CANCEL';
+            
+            const fakeInt = setInterval(() => {
+                fakeProgress += 2;
+                if(fakeProgress > 90) fakeProgress = 90;
+                fill.style.width = fakeProgress + '%';
+                txt.innerHTML = Math.floor(fakeProgress) + '%<br><br>CANCEL';
+                const y = -(fakeProgress / 100 * 50);
+                chute.style.transform = `translateX(-50%) translateY(${y}px)`;
+            }, 50);
+
 
             if (!servidorListo && !(await comprobarServidor(false))) {
                 showSection('offlineSection');
                 return;
             }
 
+            
             let r;
             try {
                 r = await fetch(API + '/api/info?url=' + encodeURIComponent(url));
             } catch (e) {
-                // El servidor se ha caido mientras la pagina seguia abierta.
+                clearInterval(fakeInt);
+                btn.classList.remove('active');
                 await comprobarServidor(false);
                 showSection('offlineSection');
                 return;
             }
+
 
             try {
                 const d = await r.json();
