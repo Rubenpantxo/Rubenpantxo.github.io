@@ -22,7 +22,7 @@ Consecuencia: la descarga ocurre siempre en tu PC. La versión publicada en
 [rubenpantxo.com](https://rubenpantxo.com/apps/instagram-downloader/index_insta_down.html)
 no puede descargar por sí sola (el navegador bloquea `https://` → `http://localhost`), así que
 hace de puente: pegas el enlace, pulsas **Descargar** y te lleva a `http://localhost:8787`
-con el enlace ya cargado y la búsqueda lanzada.
+con el enlace ya escrito en el campo. La descarga **no** arranca sola: hay que pulsar el botón.
 
 ## Requisitos
 
@@ -39,9 +39,33 @@ python -m pip install -U yt-dlp
 
 | Archivo | Para qué sirve |
 |---|---|
-| `Instagram_Downloader.html` | La interfaz |
+| `index_insta_down.html` | La interfaz |
 | `server.js` | Servidor local (puerto 8787) que llama a yt-dlp |
 | `Iniciar.bat` | Lanzador: comprueba requisitos, arranca y abre el navegador |
+
+## Seguridad
+
+Este servidor lanza procesos en tu ordenador, así que tiene tres cerrojos:
+
+- **Token por arranque.** Cada vez que arranca genera un secreto distinto, lo imprime en la
+  ventana negra y lo inyecta en la página que sirve él mismo. Todo `/api/*` lo exige. Por eso
+  hay que entrar por **`http://localhost:8787`**: si abres el `.html` a mano (doble clic,
+  `file://`) no hay token y el servidor responde 403.
+- **Host y origen comprobados.** Solo atiende peticiones cuyo `Host` sea `localhost:8787` o
+  `127.0.0.1:8787`, y solo a una lista corta de orígenes. Esto corta el *DNS rebinding* y que
+  cualquier web que visites use tu servidor de descargador mientras lo tienes abierto.
+- **Cookies solo si las pides.** Antes, si Instagram exigía sesión, el servidor probaba
+  automáticamente las cookies de Chrome, Edge, Firefox, Brave y Opera. Eso es prestarle tu
+  sesión de Instagram a `yt-dlp`. Ahora no lo hace nunca por su cuenta. Para permitirlo en una
+  sesión concreta, cierra el navegador del todo y arranca así:
+
+  ```bat
+  set IGDL_COOKIES_BROWSER=chrome
+  node server.js
+  ```
+
+Además hay un tope de **2 descargas simultáneas**, para que una ráfaga de peticiones no deje
+la máquina sin CPU ni haga que Instagram marque tu IP.
 
 ## Límites
 

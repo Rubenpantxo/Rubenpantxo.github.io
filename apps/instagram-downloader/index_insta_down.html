@@ -8,7 +8,42 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+        /* ==========================================================
+           Liquid glass · sistema de tokens
+           ========================================================== */
+        :root {
+            color-scheme: dark;
+
+            /* Tier 1 · paleta (identidad violeta/rosa de la app) */
+            --violet-deep: #150826;
+            --violet: #8b5cf6;
+            --violet-dark: #6d28d9;
+            --magenta: #c026a8;
+            --pink: #ff4d8d;
+            --pink-soft: #ffc9de;
+
+            /* Tier 2 · cristal */
+            --glass-tint: rgba(20, 7, 38, .66);
+            --glass-sheen: linear-gradient(150deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .03) 42%, rgba(255, 255, 255, .07));
+            --glass-border: rgba(255, 255, 255, .18);
+            --glass-blur: blur(26px) saturate(165%);
+            --glass-blur-sm: blur(14px) saturate(150%);
+            --glass-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .16),
+                0 18px 40px -22px rgba(8, 2, 20, .95),
+                0 40px 90px -50px rgba(120, 30, 140, .75);
+
+            /* Tier 3 · texto (contraste AA sobre el cristal) */
+            --text: #f8f4ff;
+            --text-muted: rgba(240, 232, 255, .88);
+            --text-faint: rgba(233, 224, 255, .82);
+
+            --radius-xl: 28px;
+            --radius-lg: 20px;
+            --radius-pill: 999px;
+        }
 
         * {
             margin: 0;
@@ -16,120 +51,467 @@
             box-sizing: border-box;
         }
 
+        html {
+            background-color: var(--violet-deep);
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            color: var(--text);
+            background: transparent;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
+            overflow-wrap: break-word;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        main { min-width: 0; }
+
+        /* Degradados difuminados que viven por DETRAS del cristal */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: -15%;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(34% 38% at 16% 14%, rgba(139, 92, 246, .60), transparent 68%),
+                radial-gradient(32% 34% at 84% 10%, rgba(255, 77, 141, .48), transparent 68%),
+                radial-gradient(42% 44% at 74% 82%, rgba(192, 38, 168, .48), transparent 70%),
+                radial-gradient(38% 40% at 10% 86%, rgba(109, 40, 217, .50), transparent 70%);
+            filter: blur(40px);
+            animation: aurora 32s ease-in-out infinite alternate;
+        }
+
+        @keyframes aurora {
+            from { translate: -2% -1%; scale: 1; }
+            to   { translate: 3% 2%;   scale: 1.08; }
+        }
+
+        /* ==========================================================
+           Superficies de cristal
+           ========================================================== */
+        .glass {
+            position: relative;
+            background-color: var(--glass-tint);
+            background-image: var(--glass-sheen);
+            -webkit-backdrop-filter: var(--glass-blur);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--glass-shadow);
+        }
+
+        /* Filo especular de 1px: luz blanca a baja opacidad */
+        @supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+            .glass::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: inherit;
+                padding: 1px;
+                pointer-events: none;
+                background: linear-gradient(150deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .04) 38%, rgba(255, 255, 255, .10) 62%, rgba(255, 255, 255, .32));
+                -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                -webkit-mask-composite: xor;
+                mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                mask-composite: exclude;
+            }
+        }
+
+        .glass-inset {
+            background-color: rgba(255, 255, 255, .06);
+            -webkit-backdrop-filter: var(--glass-blur-sm);
+            backdrop-filter: var(--glass-blur-sm);
+            border: 1px solid rgba(255, 255, 255, .14);
+            border-radius: var(--radius-lg);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14);
+        }
+
+        /* ==========================================================
+           Tipografia
+           ========================================================== */
+        .t-strong { color: var(--text); }
+        .t-body   { color: var(--text-muted); }
+        .t-faint  { color: var(--text-faint); }
+
+        .hero-title {
+            font-size: clamp(1.6rem, 1.05rem + 3.2vw, 2.6rem);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -.02em;
+            text-wrap: balance;
+            color: var(--text);
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-image: linear-gradient(120deg, #ffffff 0%, var(--pink-soft) 55%, #dcc9ff 100%);
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
             background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: var(--text);
         }
 
-        .glass {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+        .link-glass {
+            color: var(--pink-soft);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-color: rgba(255, 201, 222, .55);
         }
 
+        .link-glass:hover { color: #fff; text-decoration-color: currentColor; }
+
+        .code-chip {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: .92em;
+            padding: .12em .45em;
+            border-radius: 8px;
+            color: #ffd9ec;
+            background-color: rgba(255, 255, 255, .12);
+            border: 1px solid rgba(255, 255, 255, .16);
+            overflow-wrap: anywhere;
+        }
+
+        /* ==========================================================
+           Orbes de cristal (logo e iconos de estado)
+           ========================================================== */
+        .logo-orb {
+            display: inline-grid;
+            place-items: center;
+            flex: none;
+            inline-size: 3rem;
+            block-size: 3rem;
+            font-size: 1.5rem;
+            color: #fff;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, .35);
+            background-image:
+                linear-gradient(140deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, .05)),
+                linear-gradient(140deg, #7c3aed, #d6249f 60%, #fd5949);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 12px 24px -14px rgba(214, 36, 159, .9);
+        }
+
+        .icon-orb {
+            display: grid;
+            place-items: center;
+            margin-inline: auto;
+            inline-size: 5rem;
+            block-size: 5rem;
+            font-size: 2.1rem;
+            border-radius: 50%;
+            color: var(--pink-soft);
+            background-color: rgba(255, 255, 255, .08);
+            -webkit-backdrop-filter: var(--glass-blur-sm);
+            backdrop-filter: var(--glass-blur-sm);
+            border: 1px solid rgba(255, 255, 255, .22);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 16px 34px -20px rgba(0, 0, 0, .9);
+        }
+
+        .icon-orb--warn   { color: #ffd0a1; border-color: rgba(255, 176, 86, .42); }
+        .icon-orb--danger { color: #ffb3b3; border-color: rgba(255, 107, 107, .42); }
+
+        /* ==========================================================
+           Indicador de estado del servidor
+           ========================================================== */
+        #serverStatus {
+            max-width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+            text-align: center;
+            overflow-wrap: anywhere;
+            color: var(--text-muted);
+            background-color: rgba(255, 255, 255, .09);
+            -webkit-backdrop-filter: var(--glass-blur-sm);
+            backdrop-filter: var(--glass-blur-sm);
+            border: 1px solid rgba(255, 255, 255, .2);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18);
+        }
+
+        #serverStatus.bg-green-100  { color: #a9f2ce; background-color: rgba(16, 185, 129, .22); border-color: rgba(52, 211, 153, .45); }
+        #serverStatus.bg-orange-100 { color: #ffd6a8; background-color: rgba(249, 115, 22, .24); border-color: rgba(251, 146, 60, .45); }
+        #serverStatus.bg-red-100    { color: #ffb4b4; background-color: rgba(239, 68, 68, .24); border-color: rgba(248, 113, 113, .48); }
+        #serverStatus.bg-blue-100   { color: #c3daff; background-color: rgba(59, 130, 246, .24); border-color: rgba(96, 165, 250, .45); }
+
+        /* ==========================================================
+           Campo del enlace
+           ========================================================== */
         .input-field {
-            transition: all 0.3s ease;
+            display: block;
+            inline-size: 100%;
+            padding: 1rem 3.5rem 1rem 1.5rem;
+            color: var(--text);
+            background-color: rgba(255, 255, 255, .08);
+            -webkit-backdrop-filter: var(--glass-blur-sm);
+            backdrop-filter: var(--glass-blur-sm);
+            border: 1px solid rgba(255, 255, 255, .24);
+            border-radius: var(--radius-pill);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 -10px 20px -16px rgba(0, 0, 0, .85);
+            transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease, translate .25s ease;
         }
+
+        .input-field::placeholder { color: rgba(232, 222, 255, .62); }
+
+        .input-field:hover { border-color: rgba(255, 255, 255, .34); }
 
         .input-field:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, .13);
+            border-color: rgba(255, 201, 222, .8);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .3),
+                0 0 0 4px rgba(255, 77, 141, .18),
+                0 14px 30px -18px rgba(0, 0, 0, .9);
+            translate: 0 -2px;
         }
 
+        .input-field:focus-visible { outline: 2px solid rgba(255, 255, 255, .85); outline-offset: 3px; }
+
+        .clear-btn:not(.hidden) {
+            display: grid;
+            place-items: center;
+        }
+
+        .clear-btn {
+            inline-size: 2.25rem;
+            block-size: 2.25rem;
+            min-inline-size: 2.25rem;
+            min-block-size: 2.25rem;
+            border-radius: 50%;
+            color: var(--text-faint);
+            background-color: rgba(255, 255, 255, .1);
+            border: 1px solid rgba(255, 255, 255, .2);
+            transition: color .2s ease, background-color .2s ease;
+        }
+
+        .clear-btn:hover { color: var(--text); background-color: rgba(255, 255, 255, .2); }
+        .clear-btn:focus-visible { outline: 2px solid rgba(255, 255, 255, .85); outline-offset: 2px; }
+
+        /* ==========================================================
+           Boton principal de descarga (cristal oscuro)
+           ========================================================== */
         .btn-download {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-        }
-
-        .btn-download:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-download:active {
-            transform: translateY(0);
+            inline-size: 100%;
+            padding: 1.05rem 2rem;
+            min-block-size: 3.25rem;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, .24);
+            border-radius: var(--radius-pill);
+            background-color: #2b0b4d;
+            background-image:
+                linear-gradient(180deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 55%),
+                linear-gradient(135deg, #2e0b52 0%, #5b1670 48%, #7d1a55 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .28),
+                inset 0 -16px 28px -20px rgba(0, 0, 0, .95),
+                0 18px 36px -18px rgba(20, 4, 40, .95);
+            -webkit-backdrop-filter: blur(10px) saturate(140%);
+            backdrop-filter: blur(10px) saturate(140%);
+            transition: translate .25s ease, box-shadow .25s ease, filter .25s ease;
         }
 
         .btn-download::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, .22) 50%, transparent 65%);
+            translate: -100% 0;
+            transition: translate .6s ease;
         }
 
-        .btn-download:hover::before {
-            left: 100%;
+        .btn-download:hover::before { translate: 100% 0; }
+
+        .btn-download:hover:not(:disabled) {
+            translate: 0 -2px;
+            filter: brightness(1.14);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .34),
+                0 26px 46px -20px rgba(125, 26, 85, .85);
         }
 
-        .loading {
-            animation: spin 1s linear infinite;
+        .btn-download:active:not(:disabled) { translate: 0 0; filter: brightness(.94); }
+        .btn-download:focus-visible { outline: 2px solid rgba(255, 255, 255, .9); outline-offset: 3px; }
+
+        /* ==========================================================
+           Botones secundarios de cristal
+           ========================================================== */
+        .btn-primary-glass,
+        .btn-ghost-glass,
+        .btn-danger-glass,
+        .chip-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--text);
+            border-radius: var(--radius-pill);
+            border: 1px solid rgba(255, 255, 255, .22);
+            -webkit-backdrop-filter: var(--glass-blur-sm);
+            backdrop-filter: var(--glass-blur-sm);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 14px 28px -18px rgba(8, 2, 20, .95);
+            transition: translate .2s ease, background-color .2s ease, filter .2s ease;
         }
+
+        .btn-primary-glass {
+            background-color: #4a1264;
+            background-image: linear-gradient(135deg, #3a0f5e, #6d1873 55%, #93205f);
+        }
+
+        .btn-ghost-glass { background-color: rgba(255, 255, 255, .1); }
+        .btn-danger-glass { background-color: rgba(180, 32, 62, .5); border-color: rgba(255, 138, 138, .4); }
+        .chip-btn { background-color: rgba(255, 255, 255, .13); min-block-size: 1.75rem; }
+
+        :is(.btn-primary-glass, .btn-ghost-glass, .btn-danger-glass, .chip-btn):hover {
+            translate: 0 -2px;
+            filter: brightness(1.16);
+        }
+
+        :is(.btn-primary-glass, .btn-ghost-glass, .btn-danger-glass, .chip-btn):focus-visible {
+            outline: 2px solid rgba(255, 255, 255, .9);
+            outline-offset: 3px;
+        }
+
+        /* ==========================================================
+           Resultados
+           ========================================================== */
+        .video-preview {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .16);
+            box-shadow: 0 18px 38px -22px rgba(8, 2, 20, .95);
+        }
+
+        .video-preview img { display: block; inline-size: 100%; block-size: auto; }
+
+        .quality-badge {
+            background-image: linear-gradient(135deg, #6d1873, #b32063);
+            border: 1px solid rgba(255, 255, 255, .3);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 10px 22px -14px rgba(0, 0, 0, .9);
+        }
+
+        /* El JS pinta estos bloques con utilidades de Tailwind:
+           los re-tintamos aqui sin tocar el JavaScript. */
+        #resultados { overflow-wrap: anywhere; }
+        #resultados :is(.text-gray-800, .text-gray-700) { color: var(--text); }
+        #resultados .text-gray-600 { color: var(--text-muted); }
+        #resultados :is(.text-gray-500, .text-gray-400) { color: var(--text-faint); }
+        #resultados .text-purple-600 { color: var(--pink-soft); }
+        #resultados .text-green-600 { color: #9ff0c4; }
+        #resultados .text-red-600 { color: #ffb0b0; }
+        #resultados .text-green-700 { color: #bdf5da; }
+        #resultados .bg-gray-100 { background-color: rgba(255, 255, 255, .06); }
+        #resultados .bg-green-50 { background-color: rgba(16, 185, 129, .16); }
+        #resultados .border-green-200 { border-color: rgba(52, 211, 153, .38); }
+
+        #resultados .descargar {
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, .24);
+            border-radius: var(--radius-pill);
+            background-color: #2b0b4d;
+            background-image:
+                linear-gradient(180deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 55%),
+                linear-gradient(135deg, #2e0b52 0%, #5b1670 48%, #7d1a55 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .28),
+                inset 0 -16px 28px -20px rgba(0, 0, 0, .95),
+                0 18px 36px -18px rgba(20, 4, 40, .95);
+            -webkit-backdrop-filter: var(--glass-blur-sm);
+            backdrop-filter: var(--glass-blur-sm);
+            transition: filter .2s ease, translate .2s ease;
+        }
+
+        #resultados .descargar:hover:not(:disabled) { translate: 0 -2px; filter: brightness(1.14); }
+        #resultados .descargar:focus-visible { outline: 2px solid rgba(255, 255, 255, .9); outline-offset: 3px; }
+
+        /* ==========================================================
+           Animaciones
+           ========================================================== */
+        .loading { animation: spin 1s linear infinite; }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from { rotate: 0deg; }
+            to   { rotate: 360deg; }
         }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
+        .fade-in { animation: fadeIn .5s ease-in; }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; translate: 0 20px; }
+            to   { opacity: 1; translate: 0 0; }
         }
 
-        .pulse {
-            animation: pulse 2s infinite;
-        }
+        .pulse { animation: pulse 2s infinite; }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: .5; }
         }
 
-        .video-preview {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        /* ==========================================================
+           Movimiento reducido
+           ========================================================== */
+        @media (prefers-reduced-motion: reduce) {
+            body::before { animation: none; }
+            .fade-in { animation: none; }
+            .pulse { animation: none; }
+            .loading { animation-duration: 3s; }
+            .btn-download::before { transition: none; translate: -100% 0; }
+            .btn-download:hover::before { translate: -100% 0; }
+            :is(.btn-download, .input-field, .btn-primary-glass, .btn-ghost-glass, .btn-danger-glass, .chip-btn, #resultados .descargar):hover,
+            .input-field:focus {
+                translate: none;
+            }
         }
 
-        .quality-badge {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        /* ==========================================================
+           Sin backdrop-filter: fondos solidos equivalentes
+           ========================================================== */
+        @supports not (backdrop-filter: blur(2px)) {
+            body::before { filter: none; opacity: .85; }
+            .glass { background-color: #251043; background-image: none; }
+            .glass-inset,
+            .icon-orb,
+            #serverStatus { background-color: #331751; }
+            .input-field { background-color: #35194f; }
+            .clear-btn { background-color: #3d1f5c; }
+            .btn-ghost-glass,
+            .chip-btn { background-color: #3d1f5c; }
+            .btn-danger-glass { background-color: #7a1330; }
+            .btn-download,
+            #resultados .descargar { background-color: #45125f; }
+            #resultados .bg-gray-100 { background-color: #331751; }
+            #resultados .bg-green-50 { background-color: #10402f; }
+        }
+
+        /* ==========================================================
+           Movil (360-430px)
+           ========================================================== */
+        @media (max-width: 480px) {
+            .glass { border-radius: 22px; }
+            .icon-orb { inline-size: 4rem; block-size: 4rem; font-size: 1.7rem; }
+            .btn-download { padding-inline: 1.25rem; }
         }
     </style>
 </head>
 <body>
     <!-- Header -->
     <header class="glass mx-4 mt-4 p-4">
-        <div class="max-w-6xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <i class="fab fa-instagram text-4xl text-purple-600"></i>
-                <div>
-                    <h1 class="text-2xl font-bold gradient-text">Instagram Downloader</h1>
-                    <p class="text-sm text-gray-600">Descarga vídeos gratis</p>
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <span class="logo-orb"><i class="fab fa-instagram"></i></span>
+                <div class="min-w-0">
+                    <h1 class="text-lg sm:text-2xl font-bold gradient-text">Instagram Downloader</h1>
+                    <p class="text-sm t-faint">Descarga vídeos gratis</p>
                 </div>
             </div>
-            <a href="../../index.html" class="text-purple-600 hover:text-purple-800 font-semibold">
+            <a href="../../index.html" class="btn-ghost-glass px-4 py-2 text-sm">
                 <i class="fas fa-home"></i> Volver
             </a>
         </div>
@@ -138,14 +520,11 @@
     <!-- Main Content -->
     <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-8">
         <!-- Download Section -->
-        <section class="glass p-8 mb-8 fade-in">
-            <div class="text-center mb-8">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+        <section class="glass p-5 sm:p-8 mb-6 sm:mb-8 fade-in">
+            <div class="text-center mb-6 sm:mb-8">
+                <h2 class="hero-title mb-4">
                     Descarga Vídeos de Instagram
                 </h2>
-                <p class="text-gray-600 text-lg">
-                    Pega el enlace del vídeo de Instagram y descárgalo en segundos
-                </p>
                 <div id="serverStatus" class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600">
                     <i class="fas fa-circle-notch loading"></i>
                     <span>Comprobando servidor local…</span>
@@ -160,12 +539,14 @@
                             type="text"
                             id="videoUrl"
                             placeholder="https://www.instagram.com/p/..."
-                            class="input-field w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-500"
+                            class="input-field text-lg"
                         />
                         <button
+                            type="button"
                             onclick="clearInput()"
                             id="clearBtn"
-                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden"
+                            aria-label="Borrar el enlace"
+                            class="clear-btn absolute right-3 top-1/2 transform -translate-y-1/2 hidden"
                         >
                             <i class="fas fa-times-circle text-xl"></i>
                         </button>
@@ -174,99 +555,84 @@
                     <button
                         onclick="downloadVideo()"
                         id="downloadBtn"
-                        class="btn-download text-white font-bold py-4 px-8 rounded-xl text-lg flex items-center justify-center gap-3"
+                        class="btn-download font-bold text-lg flex items-center justify-center gap-3"
                     >
                         <i class="fas fa-download"></i>
                         <span>Descargar Vídeo</span>
                     </button>
                 </div>
-
-                <!-- Instructions -->
-                <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <h3 class="font-semibold text-blue-800 mb-2 flex items-center gap-2">
-                        <i class="fas fa-info-circle"></i>
-                        Cómo usar:
-                    </h3>
-                    <ol class="list-decimal list-inside text-sm text-blue-700 space-y-1">
-                        <li>Abre Instagram y encuentra el vídeo que quieres descargar</li>
-                        <li>Toca los tres puntos (...) y selecciona "Copiar enlace"</li>
-                        <li>Pega el enlace en el campo de arriba</li>
-                        <li>Haz clic en "Descargar Vídeo" y espera</li>
-                        <li>Pulsa en "Guardar vídeo" y se descargará en tu carpeta de descargas</li>
-                    </ol>
-                </div>
             </div>
         </section>
 
         <!-- Aviso: servidor local apagado -->
-        <div id="offlineSection" class="glass p-8 mb-8 hidden fade-in">
+        <div id="offlineSection" class="glass p-5 sm:p-8 mb-6 sm:mb-8 hidden fade-in">
             <div class="max-w-2xl mx-auto text-center">
-                <i class="fas fa-plug text-6xl text-orange-500 mb-4"></i>
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">Falta el ayudante local</h3>
-                <p class="text-gray-600 mb-6">
+                <span class="icon-orb icon-orb--warn mb-4"><i class="fas fa-plug"></i></span>
+                <h3 class="text-xl font-semibold t-strong mb-2">Falta el ayudante local</h3>
+                <p class="t-body mb-6">
                     Instagram ya no permite descargar vídeos directamente desde una página web: exige sesión
                     iniciada y bloquea las peticiones entre dominios. Por eso la descarga la hace un pequeño
                     programa que se ejecuta <strong>en tu propio ordenador</strong>. Es gratis, no envía nada a
                     terceros y solo tienes que prepararlo una vez.
                 </p>
 
-                <div class="text-left bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6">
-                    <h4 class="font-semibold text-gray-800 mb-3">Cómo activarlo</h4>
-                    <ol class="list-decimal list-inside text-sm text-gray-700 space-y-2">
-                        <li>Instala <a href="https://nodejs.org" target="_blank" rel="noopener" class="text-purple-600 underline">Node.js</a> y <a href="https://www.python.org/downloads/" target="_blank" rel="noopener" class="text-purple-600 underline">Python</a> si no los tienes.</li>
+                <div class="text-left glass-inset p-5 mb-6">
+                    <h4 class="font-semibold t-strong mb-3">Cómo activarlo</h4>
+                    <ol class="list-decimal list-inside text-sm t-body space-y-2">
+                        <li>Instala <a href="https://nodejs.org" target="_blank" rel="noopener" class="link-glass">Node.js</a> y <a href="https://www.python.org/downloads/" target="_blank" rel="noopener" class="link-glass">Python</a> si no los tienes.</li>
                         <li>Descarga estos dos archivos en una misma carpeta:
-                            <a href="server.js" download class="inline-block mt-2 mr-2 px-3 py-1 bg-purple-600 text-white rounded-lg text-xs"><i class="fas fa-download mr-1"></i>server.js</a>
-                            <a href="Iniciar.bat" download class="inline-block mt-2 px-3 py-1 bg-purple-600 text-white rounded-lg text-xs"><i class="fas fa-download mr-1"></i>Iniciar.bat</a>
+                            <a href="server.js" download class="chip-btn mt-2 mr-2 px-3 py-1 text-xs"><i class="fas fa-download mr-1"></i>server.js</a>
+                            <a href="Iniciar.bat" download class="chip-btn mt-2 px-3 py-1 text-xs"><i class="fas fa-download mr-1"></i>Iniciar.bat</a>
                         </li>
-                        <li>Doble clic en <strong>Iniciar.bat</strong> (la primera vez instala <code class="bg-gray-200 px-1 rounded">yt-dlp</code> solo).</li>
+                        <li>Doble clic en <strong>Iniciar.bat</strong> (la primera vez instala <code class="code-chip">yt-dlp</code> solo).</li>
                         <li>Vuelve aquí y pulsa el botón de abajo.</li>
                     </ol>
-                    <p class="text-xs text-gray-500 mt-3">
-                        ¿Prefieres la consola? En esa carpeta ejecuta <code class="bg-gray-200 px-1 rounded">node server.js</code>.
+                    <p class="text-xs t-faint mt-3">
+                        ¿Prefieres la consola? En esa carpeta ejecuta <code class="code-chip">node server.js</code>.
                         Funciona en Chrome y Edge; en Firefox y Safari abre directamente
-                        <code class="bg-gray-200 px-1 rounded">http://localhost:8787</code>.
+                        <code class="code-chip">http://localhost:8787</code>.
                     </p>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                    <a id="btnLocal" href="http://localhost:8787/" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all">
+                    <a id="btnLocal" href="http://localhost:8787/" class="btn-primary-glass px-6 py-3">
                         <i class="fas fa-arrow-right-to-bracket mr-2"></i>Continuar en mi app local
                     </a>
-                    <button onclick="comprobarServidor(true)" class="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300">
+                    <button type="button" onclick="comprobarServidor(true)" class="btn-ghost-glass px-6 py-3">
                         <i class="fas fa-rotate-right mr-2"></i>Volver a comprobar
                     </button>
                 </div>
-                <p class="text-xs text-gray-500 mt-3">
-                    El botón morado abre <code class="bg-gray-200 px-1 rounded">http://localhost:8787</code> con tu enlace ya puesto.
+                <p class="text-xs t-faint mt-3">
+                    El botón morado abre <code class="code-chip">http://localhost:8787</code> con tu enlace ya puesto.
                     Solo funciona si el ayudante está arrancado.
                 </p>
             </div>
         </div>
 
         <!-- Loading Indicator -->
-        <div id="loadingSection" class="glass p-8 mb-8 hidden fade-in">
+        <div id="loadingSection" class="glass p-5 sm:p-8 mb-6 sm:mb-8 hidden fade-in">
             <div class="text-center">
-                <i class="fas fa-spinner loading text-6xl text-purple-600 mb-4"></i>
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">Procesando...</h3>
-                <p class="text-gray-600">Obteniendo información del vídeo</p>
+                <span class="icon-orb mb-4"><i class="fas fa-spinner loading"></i></span>
+                <h3 class="text-xl font-semibold t-strong mb-2">Procesando...</h3>
+                <p class="t-body">Obteniendo información del vídeo</p>
             </div>
         </div>
 
         <!-- Error Message -->
-        <div id="errorSection" class="glass p-8 mb-8 hidden fade-in">
+        <div id="errorSection" class="glass p-5 sm:p-8 mb-6 sm:mb-8 hidden fade-in">
             <div class="text-center">
-                <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">Error</h3>
-                <p class="text-gray-600" id="errorMessage">Ha ocurrido un error. Por favor, verifica el enlace e inténtalo de nuevo.</p>
-                <button onclick="resetForm()" class="mt-4 px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                <span class="icon-orb icon-orb--danger mb-4"><i class="fas fa-exclamation-triangle"></i></span>
+                <h3 class="text-xl font-semibold t-strong mb-2">Error</h3>
+                <p class="t-body" id="errorMessage">Ha ocurrido un error. Por favor, verifica el enlace e inténtalo de nuevo.</p>
+                <button type="button" onclick="resetForm()" class="btn-danger-glass mt-4 px-6 py-2">
                     Intentar de nuevo
                 </button>
             </div>
         </div>
 
         <!-- Result Section -->
-        <div id="resultSection" class="glass p-8 mb-8 hidden fade-in">
-            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Tu vídeo está listo</h3>
+        <div id="resultSection" class="glass p-5 sm:p-8 mb-6 sm:mb-8 hidden fade-in">
+            <h3 class="text-2xl font-bold t-strong mb-6 text-center">Tu vídeo está listo</h3>
             <div id="resultados" class="space-y-8"></div>
         </div>
 
@@ -274,10 +640,10 @@
 
     <!-- Footer -->
     <footer class="glass mx-4 mb-4 p-6 text-center">
-        <p class="text-gray-600 mb-2">
+        <p class="t-body mb-2">
             <i class="fas fa-heart text-red-500"></i> Hecho con amor para descargar tus vídeos favoritos
         </p>
-        <p class="text-sm text-gray-500">
+        <p class="text-sm t-faint">
             © 2024 Instagram Downloader - Todos los derechos reservados
         </p>
     </footer>
@@ -288,6 +654,12 @@
         const API = (location.protocol === 'http:' && location.port === '8787')
             ? ''
             : 'http://localhost:8787';
+
+        // El servidor local inyecta este token al servir la pagina, y lo exige
+        // en todo /api/*. Si abres este archivo de otra forma no lo hay, y el
+        // servidor responde 403: hay que entrar por http://localhost:8787.
+        const TOKEN = window.__IGDL_TOKEN__ || '';
+        const CAB = { 'X-IGDL-Token': TOKEN };
 
         // Desde https:// el navegador bloquea cualquier peticion a http://localhost
         // (contenido mixto). En ese caso esta pagina hace de puente: pasa el enlace
@@ -348,7 +720,7 @@
                 return false;
             }
             try {
-                const r = await fetch(API + '/api/estado', { cache: 'no-store' });
+                const r = await fetch(API + '/api/estado', { cache: 'no-store', headers: CAB });
                 const d = await r.json();
                 servidorListo = Boolean(d.ytdlp);
                 if (servidorListo) {
@@ -386,7 +758,7 @@
 
             let r;
             try {
-                r = await fetch(API + '/api/info?url=' + encodeURIComponent(url));
+                r = await fetch(API + '/api/info?url=' + encodeURIComponent(url), { headers: CAB });
             } catch (e) {
                 // El servidor se ha caido mientras la pagina seguia abierta.
                 await comprobarServidor(false);
@@ -485,7 +857,7 @@
             try {
                 let r;
                 try {
-                    r = await fetch(API + '/api/descargar?url=' + encodeURIComponent(url) + '&index=' + index);
+                    r = await fetch(API + '/api/descargar?url=' + encodeURIComponent(url) + '&index=' + index, { headers: CAB });
                 } catch (fallo) {
                     throw new Error('Se ha perdido la conexión con el servidor local. Vuelve a arrancar Iniciar.bat.');
                 }
@@ -533,13 +905,16 @@
 
         comprobarServidor(false);
 
-        // Si llegamos desde la version web, el enlace viene en la URL: lo lanzamos solo.
+        // Si llegamos desde la version web, el enlace viene en la URL. Se rellena
+        // el campo y se espera al click: antes se descargaba solo, y eso permitia
+        // que cualquier web te llevara a localhost:8787/?u=... y usara tu maquina
+        // (una navegacion no manda cabecera Origin, asi que la lista blanca no la ve).
         const enlaceEntrante = new URLSearchParams(location.search).get('u');
         if (enlaceEntrante && !MODO_WEB) {
             urlInput.value = enlaceEntrante;
             clearBtn.classList.remove('hidden');
             history.replaceState(null, '', location.pathname);
-            downloadVideo();
+            urlInput.focus();
         }
 </script>
 </body>
