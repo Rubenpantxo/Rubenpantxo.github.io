@@ -3,4 +3,22 @@
 !.gitignore
 !.editorconfig
 !.htaccess
+!.githooks/
+!.githooks/**
 *~
+
+# Dependencias y registros
+node_modules/
+*.log
+
+# --- Aplicaciones solo-locales: NUNCA deben publicarse ---
+# Describen esta maquina y esta casa (arbol de disco con rutas absolutas,
+# SSID, IP privadas, MAC, hostnames y nombres de familia). GitHub Pages no
+# autentica: todo lo que sube aqui es publico. Se ejecutan desde
+# http://127.0.0.1:3000 con `npm run dev`.
+apps/estructura.html
+apps/estructura/
+
+# Datos reales exportados de Red Hogar (la semilla del repo es ficticia)
+red-hogar-datos-reales.json
+*.datos-reales.json

@@ -1,0 +1,58 @@
+#!/bin/sh
+# Hook de pre-commit. Se activa una sola vez con:
+#     git config core.hooksPath .githooks
+#
+# Existe porque este es un sitio estatico en GitHub Pages: todo lo que entra en
+# un commit es publico y no hay CI que lo revise despues. La fuga de datos que
+# ya ocurrio no fue una clave de API, fue un archivo de datos normal.
+#
+# Para saltarselo en un caso concreto:  git commit --no-verify
+
+set -u
+fallos=0
+rojo() { printf '\033[31m%s\033[0m\n' "$1" 2>/dev/null || echo "$1"; }
+
+archivos=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$archivos" ] && exit 0
+
+# --- 1) Aplicaciones que son solo-locales ---------------------------------
+# Describen esta maquina y esta casa. Estan en .gitignore, pero un `git add -f`
+# o un .gitignore editado las colaria igual.
+prohibidos=$(printf '%s\n' "$archivos" | grep -E '^apps/estructura(\.html|/)' || true)
+if [ -n "$prohibidos" ]; then
+    rojo "[pre-commit] Estas aplicaciones no pueden publicarse:"
+    printf '%s\n' "$prohibidos" | sed 's/^/    /'
+    echo "    Incrustan el arbol de este disco, SSID, IP privadas y nombres reales."
+    echo "    Se ejecutan en local:  npm run dev  ->  http://127.0.0.1:3000"
+    fallos=1
+fi
+
+# --- 2) Rutas absolutas de esta maquina -----------------------------------
+if git diff --cached -U0 | grep -qiE '^\+.*C:\\+Users\\+[A-Za-z]'; then
+    rojo "[pre-commit] Hay una ruta absoluta de Windows (C:\\Users\\...) en el cambio."
+    git diff --cached -U0 | grep -inE '^\+.*C:\\+Users\\+[A-Za-z]' | head -5 | cut -c1-140 | sed 's/^/    /'
+    fallos=1
+fi
+
+# --- 3) Escaner de secretos ------------------------------------------------
+if command -v gitleaks >/dev/null 2>&1; then
+    if ! gitleaks protect --staged --redact --no-banner; then
+        rojo "[pre-commit] gitleaks ha encontrado algo. Revisalo antes de commitear."
+        fallos=1
+    fi
+else
+    # Red minima mientras no este gitleaks instalado.
+    if git diff --cached -U0 | grep -qE '^\+.*(-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|xox[baprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35})'; then
+        rojo "[pre-commit] Parece haber una credencial en el cambio."
+        fallos=1
+    fi
+    echo "[pre-commit] gitleaks no esta instalado; solo se ha hecho la comprobacion basica."
+    echo "             Instalalo con:  winget install gitleaks"
+fi
+
+if [ "$fallos" -ne 0 ]; then
+    echo ""
+    echo "Commit detenido. Si estas seguro:  git commit --no-verify"
+    exit 1
+fi
+exit 0
