@@ -1,0 +1,18 @@
+title = "gitleaks — Rubenpantxo.github.io"
+
+# Extiende las reglas por defecto de gitleaks; solo se añaden excepciones.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Excepciones conocidas y no sensibles para este repo"
+paths = [
+    '''^\.git/''',
+    '''node_modules/''',
+]
+regexes = [
+    # Marcador sin sustituir del access_key de Web3Forms (index.html). No es
+    # un secreto: es público por diseño (solo permite enviar correo a la
+    # propia dirección) y esta cadena en concreto ni siquiera es una clave.
+    '''TU_CLAVE_DE_WEB3FORMS_AQUI''',
+]
