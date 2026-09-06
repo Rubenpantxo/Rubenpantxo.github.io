@@ -15,4 +15,13 @@ regexes = [
     # un secreto: es público por diseño (solo permite enviar correo a la
     # propia dirección) y esta cadena en concreto ni siquiera es una clave.
     '''TU_CLAVE_DE_WEB3FORMS_AQUI''',
+
+    # Nombres de archivo de imagen. La regla generica-api-key salta con las
+    # portadas de la biblioteca (p. ej. "el-secreto-de-helena.jpg": la palabra
+    # "secreto" y una cadena larga). Un nombre de archivo no autentica nada.
+    '''[A-Za-z0-9_.-]+\.(?:jpe?g|png|webp|gif|svg|avif)''',
+
+    # Clave de localStorage del Tekken de barrio: nombra un hueco del
+    # navegador del visitante, no da acceso a nada.
+    '''tekken-barrio-save-v1''',
 ]
