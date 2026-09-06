@@ -5,6 +5,9 @@
 !.htaccess
 !.githooks/
 !.githooks/**
+!.github/
+!.github/**
+!.gitleaks.toml
 *~
 
 # Dependencias y registros
