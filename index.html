@@ -468,9 +468,17 @@
                             </div>
                         </div>
                         <form id="sv-contact-form">
+                            <input type="hidden" name="access_key" value="TU_CLAVE_DE_WEB3FORMS_AQUI">
+                            <input type="hidden" name="subject" value="💡 Nueva idea de web/app desde rubenpantxo.com">
+                            <input type="hidden" name="from_name" value="Formulario de Servicios — rubenpantxo.com">
+                            <input type="checkbox" name="botcheck" id="sv-botcheck" style="display:none" tabindex="-1" autocomplete="off">
                             <div>
                                 <label for="sv-nombre">Tu nombre</label>
                                 <input type="text" id="sv-nombre" name="nombre" placeholder="Ej.: María" autocomplete="name" required>
+                            </div>
+                            <div>
+                                <label for="sv-email">Tu correo</label>
+                                <input type="email" id="sv-email" name="email" placeholder="Ej.: maria@ejemplo.com" autocomplete="email" required>
                             </div>
                             <div>
                                 <label for="sv-negocio">Tipo de negocio</label>
@@ -489,6 +497,7 @@
                             </div>
                             <button type="submit" class="sv-submit">Enviar mi idea 🚀</button>
                             <p class="sv-form-note" id="sv-form-note">Se abrirá tu app de correo con el mensaje ya preparado.</p>
+                            <p class="sv-form-status" id="sv-form-status" role="status"></p>
                         </form>
                     </div>
                 </div>
