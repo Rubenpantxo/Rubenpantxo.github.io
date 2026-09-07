@@ -585,55 +585,55 @@ export const presets = [
     id: 'halogeno', nombre: 'Halógeno', ficha: 'halogeno.html',
     proyectoCD: '8769416e-1dd7-434b-a0fd-cc15d9cbe526',
     paleta: 'carbon-lima', tipografia: 'inter-mono', elementos: 'pastilla-mutante',
-    titular: 'Negro verdoso y un lima de alto voltaje. Un solo acento, y unos bordes que cambian de forma al pulsarlos.'
+    titular: 'Negro verdoso y un lima de alto voltaje.'
   },
   {
     id: 'terracota', nombre: 'Terracota', ficha: 'terracota.html',
     proyectoCD: '589fbc66-4234-4521-b64f-de9fbecfb874',
     paleta: 'barro-crema', tipografia: 'serif-titulares', elementos: 'redondeado',
-    titular: 'Terracota sobre crema. Cálido, de mesa de madera, con la serif reservada a los titulares.'
+    titular: 'Terracota sobre crema, de mesa de madera.'
   },
   {
     id: 'editorial', nombre: 'Editorial', ficha: 'editorial.html',
     proyectoCD: '432f110a-8f48-40bf-894f-7ab0f58fcef0',
     paleta: 'tinta-fucsia', tipografia: 'caja-alta', elementos: 'recto',
-    titular: 'Casi monocromo, esquinas rectas y un fucsia que corta. Mucho aire y titulares en caja alta.'
+    titular: 'Casi monocromo, con un fucsia que corta.'
   },
   {
     id: 'carmin', nombre: 'Carmín', ficha: 'carmin.html',
     proyectoCD: '08b67aa5-0aef-4ef2-851f-6c8d1c005cf5',
     paleta: 'grana-mensajeria', tipografia: 'peso-alto', elementos: 'generoso',
-    titular: 'Rojo profundo y verde de mensajería. Cuerpo grande, pesos altos y objetivos pulsables amplios.'
+    titular: 'Rojo profundo y verde de mensajería.'
   },
   {
     id: 'neon', nombre: 'Neón', ficha: 'neon.html',
     proyectoCD: '540c21e0-fe5a-4e91-aad2-dedf374746c6',
     paleta: 'noche-neon', tipografia: 'tabular', elementos: 'muy-redondo',
-    titular: 'Oscuro con lima, cian y rosa. Tres acentos que solo funcionan porque el fondo calla.'
+    titular: 'Oscuro con lima, cian y rosa.'
   },
   {
     id: 'savia', nombre: 'Savia', ficha: 'savia.html',
     proyectoCD: 'cf7e59fc-8f8a-473d-b299-6496f08a26fc',
     paleta: 'savia-naranja', tipografia: 'neutra', elementos: 'redondeado',
-    titular: 'Verde fresco y un tema oscuro para el reverso. Dos pieles, un único juego de componentes.'
+    titular: 'Verde fresco y un reverso oscuro.'
   },
   {
     id: 'organico', nombre: 'Orgánico', ficha: 'organico.html',
     proyectoCD: '7cc98fa6-2bde-41e0-ab0d-b159cef78977',
     paleta: 'arena-salvia', tipografia: 'caprasimo-figtree', elementos: 'pastilla',
-    titular: 'Crema y arena con terracota y salvia. Todo redondo: contenedores muy curvos y botones en pastilla.'
+    titular: 'Crema y arena, terracota y salvia. Todo redondo.'
   },
   {
     id: 'clasico', nombre: 'Clásico', ficha: 'clasico.html',
     proyectoCD: 'af52629c-b8d8-4614-bdb5-07eb2ad98a04',
     paleta: 'pergamino-oro', tipografia: 'cormorant-lora', elementos: 'filete',
-    titular: 'Gris cálido y un oro apagado. Serif en todo, filetes de un píxel y botones de solo contorno.'
+    titular: 'Gris cálido y un oro apagado.'
   },
   {
     id: 'industrial', nombre: 'Industrial', ficha: 'industrial.html',
     proyectoCD: '9c8f62a8-66ca-460d-9927-227b5af6cbd2',
     paleta: 'acero-plano', tipografia: 'barlow', elementos: 'plano-tecnico',
-    titular: 'Gris frío y azul de plano. Condensada en los titulares, rejilla a la vista y esquinas de 4 píxeles.'
+    titular: 'Gris frío y azul de plano.'
   }
 ];
 
