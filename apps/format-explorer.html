@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Format Explorer 95</title>
+<title>Format Explorer</title>
 <style>
 /* ============================================================
-   FORMAT EXPLORER 95 — Windows 95 aesthetic + modern CSS
+   FORMAT EXPLORER — Windows Vista / Aero aesthetic
    ============================================================ */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -319,11 +319,186 @@ body{
 .tkids.collapsed{display:none}
 .tmore{color:#999;font-style:italic;padding:2px 6px 2px 22px;font-size:10.5px}
 @media(max-width:760px){.side95{width:128px}.eco-info{max-height:52%}}
+
+/* ==========================================================
+   AERO SKIN — Windows Vista sobre la base de Format Explorer
+   ========================================================== */
+:root{
+  --f-ui:'Segoe UI','Segoe UI Variable',system-ui,'Trebuchet MS',sans-serif;
+  --w95-face:#eaf2fb;
+  --w95-face-h:#f5faff;
+  --w95-paper:#ffffff;
+  --w95-tx:#10202e;
+  --w95-sel:#3b95e8;
+  --w95-shadow:rgba(70,105,140,.35);
+  --w95-dkshadow:rgba(30,60,90,.35);
+  --w95-light:rgba(255,255,255,.75);
+  --w95-hilight:rgba(255,255,255,.95);
+  --aero-glass:rgba(226,240,252,.62);
+  --aero-glass-2:rgba(255,255,255,.28);
+  --aero-edge:rgba(255,255,255,.75);
+  --aero-deep:#0b3c66;
+  --aero-glow:rgba(120,200,255,.55);
+}
+body{
+  background:
+    radial-gradient(120% 90% at 50% -10%,rgba(150,225,255,.45),transparent 60%),
+    radial-gradient(90% 70% at 15% 100%,rgba(0,150,220,.35),transparent 65%),
+    linear-gradient(160deg,#0a2c52 0%,#0d4f81 45%,#10688f 75%,#0a3a5e 100%);
+  color:var(--w95-tx);
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(60% 40% at 70% 20%,rgba(255,255,255,.14),transparent 70%),
+    radial-gradient(50% 30% at 25% 65%,rgba(120,220,255,.12),transparent 70%);
+}
+/* ---- biseles ---- */
+.raised{background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(226,238,250,.75));border-radius:6px;
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 -1px 0 rgba(120,150,180,.25) inset,0 1px 3px rgba(10,40,70,.18)}
+.sunken{background:rgba(255,255,255,.94);border-radius:6px;
+  box-shadow:inset 0 1px 3px rgba(30,70,110,.22),0 1px 0 rgba(255,255,255,.8)}
+.groove{border-radius:6px;box-shadow:inset 0 0 0 1px rgba(120,160,200,.35)}
+/* ---- ventanas ---- */
+.win{
+  padding:5px;border-radius:9px 9px 6px 6px;
+  background:linear-gradient(180deg,rgba(214,234,250,.72),rgba(198,222,244,.62));
+  backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.55) inset,
+    0 0 0 1px rgba(20,60,100,.45),
+    0 18px 46px rgba(3,20,40,.5),
+    0 2px 10px rgba(3,20,40,.35);
+}
+.win.inactive{background:linear-gradient(180deg,rgba(226,235,244,.6),rgba(210,222,236,.55))}
+.tbar{height:30px;padding:0 4px 0 9px;gap:8px;border-radius:5px 5px 0 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.12) 48%,rgba(150,190,225,.22) 52%,rgba(255,255,255,.3));
+  color:#0d2b45;box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+.win.inactive>.tbar{background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(230,238,246,.2));color:#5b7186}
+.tbar-tx{font:600 12.5px var(--f-ui);color:#0c2b46;letter-spacing:.1px;
+  text-shadow:0 0 6px rgba(255,255,255,.95),0 1px 0 rgba(255,255,255,.9)}
+.tbar-ico{width:16px;height:16px;image-rendering:auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.tbar-btns{gap:3px}
+.tbtn{width:26px;height:19px;border-radius:4px;color:#0b2c48;
+  background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(206,228,247,.7) 50%,rgba(168,205,236,.75));
+  box-shadow:0 0 0 1px rgba(255,255,255,.7) inset,0 0 0 1px rgba(40,90,140,.45),0 1px 2px rgba(0,0,0,.18);
+  transition:filter .15s var(--ease),box-shadow .15s var(--ease)}
+.tbtn:hover{filter:brightness(1.12);box-shadow:0 0 0 1px rgba(255,255,255,.85) inset,0 0 0 1px rgba(40,90,140,.5),0 0 10px var(--aero-glow)}
+.tbtn:active{filter:brightness(.94)}
+.tbtn:last-child{background:linear-gradient(180deg,rgba(255,175,160,.95),rgba(226,80,60,.9) 50%,rgba(180,40,30,.95));color:#fff}
+.tbtn:last-child:hover{box-shadow:0 0 0 1px rgba(255,255,255,.8) inset,0 0 0 1px rgba(130,20,10,.6),0 0 12px rgba(255,120,90,.7)}
+.tbtn svg{width:9px;height:9px;stroke:currentColor}
+.win-body{border-radius:0 0 5px 5px;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(244,249,254,.75));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+/* ---- controles ---- */
+.btn95{border-radius:6px;padding:5px 14px;font:12px var(--f-ui);color:#12374f;
+  background:linear-gradient(180deg,#fdfefe,#eaf3fb 48%,#d6e8f7 52%,#eaf6ff);
+  box-shadow:0 0 0 1px rgba(255,255,255,.9) inset,0 0 0 1px rgba(90,135,175,.55),0 1px 2px rgba(20,50,80,.18)}
+.btn95:hover{background:linear-gradient(180deg,#ffffff,#f2f9ff 48%,#dcefff 52%,#f4fbff);
+  box-shadow:0 0 0 1px rgba(255,255,255,.95) inset,0 0 0 1px rgba(60,130,190,.7),0 0 10px var(--aero-glow)}
+.btn95:active,.btn95.pressed{padding:5px 14px;background:linear-gradient(180deg,#cfe3f4,#dceaf7);
+  box-shadow:inset 0 2px 4px rgba(30,70,110,.28),0 0 0 1px rgba(60,120,175,.6)}
+.btn95:focus-visible{outline:2px solid rgba(90,180,255,.8);outline-offset:1px}
+.input95{border-radius:5px;padding:5px 9px;font:12px var(--f-ui);
+  background:#fff;box-shadow:inset 0 1px 3px rgba(30,70,110,.25),0 0 0 1px rgba(120,160,195,.5),0 1px 0 rgba(255,255,255,.7)}
+.input95:focus{box-shadow:inset 0 1px 3px rgba(30,70,110,.2),0 0 0 1px rgba(60,150,220,.9),0 0 8px var(--aero-glow)}
+.menubar{padding:3px 4px 1px;gap:3px}
+.menubar span{border-radius:5px;padding:3px 10px;font:12px var(--f-ui);color:#14405f;transition:background .15s var(--ease)}
+.menubar span:hover{background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(190,222,250,.9));color:#0a2c4a;
+  box-shadow:0 0 0 1px rgba(90,160,215,.6),0 0 8px var(--aero-glow)}
+.statusbar{padding:3px 4px 4px}
+.status-cell{border-radius:5px;font:11.5px var(--f-ui);color:#20455f;background:rgba(255,255,255,.6);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.75),0 0 0 1px rgba(130,165,200,.4)}
+.toolbar{border-bottom:1px solid rgba(140,175,205,.45);box-shadow:0 1px 0 rgba(255,255,255,.85);padding:6px 8px}
+.toolbar .sep{width:1px;background:rgba(140,175,205,.5);box-shadow:1px 0 0 rgba(255,255,255,.8)}
+/* ---- paneles del explorador ---- */
+.side95,.main95{border-radius:7px;background:rgba(255,255,255,.9);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.9),0 0 0 1px rgba(130,170,205,.45),inset 0 2px 6px rgba(30,70,110,.08)}
+.cat95{border-radius:5px;padding:5px 8px;font:12px var(--f-ui);margin:1px 2px}
+.cat95:hover{background:linear-gradient(180deg,rgba(240,250,255,.95),rgba(206,233,252,.95));box-shadow:0 0 0 1px rgba(120,185,235,.7)}
+.cat95.active{background:linear-gradient(180deg,#63b3f2,#2a7fd0);color:#fff;box-shadow:0 0 0 1px rgba(20,80,140,.6),0 0 10px var(--aero-glow)}
+.fico{border-radius:6px;border:1px solid transparent}
+.fico:hover{background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(214,238,255,.85));box-shadow:0 0 0 1px rgba(130,190,240,.7)}
+.fico.sel{background:linear-gradient(180deg,rgba(200,230,255,.95),rgba(150,205,245,.95));box-shadow:0 0 0 1px rgba(60,140,200,.8)}
+.fieldset{border-radius:8px;box-shadow:0 0 0 1px rgba(140,180,215,.5),inset 0 0 0 1px rgba(255,255,255,.85)}
+.fieldset>legend{font:600 11.5px var(--f-ui);color:#15496e}
+.tag95{border-radius:999px;padding:3px 10px;background:linear-gradient(180deg,#ffffff,#e4f1fc);
+  box-shadow:0 0 0 1px rgba(120,165,205,.6),0 1px 2px rgba(20,60,100,.12)}
+.tag95:hover{box-shadow:0 0 0 1px rgba(70,150,215,.85),0 0 8px var(--aero-glow)}
+/* ---- iconos del escritorio ---- */
+.dicon-img{image-rendering:auto;filter:drop-shadow(0 3px 5px rgba(0,0,0,.5))}
+.dicon-lbl{font:12px var(--f-ui);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 10px rgba(0,40,80,.6)}
+.dicon.sel{border-color:transparent;background:rgba(120,190,255,.22);border-radius:8px;box-shadow:0 0 0 1px rgba(190,225,255,.6)}
+.dicon.sel .dicon-lbl{background:transparent}
+/* ---- barra de tareas ---- */
+#taskbar{height:38px;padding:3px 6px;gap:6px;
+  background:linear-gradient(180deg,rgba(24,44,66,.82),rgba(8,20,34,.88));
+  backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.5),0 -2px 12px rgba(0,0,0,.4)}
+#desktop{inset:0 0 38px 0}
+#startbtn{min-width:0;width:46px;height:30px;padding:0;border-radius:50%;font:0/0 a;
+  background:radial-gradient(circle at 50% 32%,#eaf9ff 0%,#7fd0f5 32%,#1f7fc4 62%,#0a3f6e 100%);
+  box-shadow:0 0 0 2px rgba(255,255,255,.35),0 0 0 3px rgba(10,45,80,.7),0 0 14px rgba(110,205,255,.65),inset 0 -4px 8px rgba(0,30,60,.5)}
+#startbtn::after{content:'\229E';font:16px/1 var(--f-ui);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+#startbtn:hover{filter:brightness(1.15);box-shadow:0 0 0 2px rgba(255,255,255,.5),0 0 0 3px rgba(10,45,80,.7),0 0 22px rgba(140,220,255,.9)}
+.taskitem{border-radius:6px;color:#eaf4ff;font:12px var(--f-ui);
+  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.06));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 0 0 1px rgba(255,255,255,.18)}
+.taskitem:hover{background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.12));box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 0 10px var(--aero-glow)}
+.taskitem.active{background:linear-gradient(180deg,rgba(150,215,255,.4),rgba(60,140,210,.35));font-weight:600;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 0 1px rgba(160,220,255,.5),0 0 12px rgba(110,200,255,.4)}
+#clock{color:#eaf4ff;font:12px var(--f-ui);border-radius:6px;background:rgba(255,255,255,.08);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+/* ---- menu inicio ---- */
+#startmenu{width:250px;border-radius:9px;padding:5px;
+  background:linear-gradient(180deg,rgba(238,247,255,.9),rgba(214,233,250,.86));
+  backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);
+  box-shadow:0 0 0 1px rgba(255,255,255,.7) inset,0 0 0 1px rgba(20,60,100,.4),0 18px 40px rgba(3,20,40,.5)}
+.sm-band{width:26px;border-radius:6px 0 0 6px;background:linear-gradient(180deg,#7fd0f5,#0a3f6e)}
+.sm-band span{font:600 13px var(--f-ui);text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.sm-i{border-radius:6px;padding:8px 10px;font:12px var(--f-ui);color:#14405f}
+.sm-i:hover{background:linear-gradient(180deg,#63b3f2,#2a7fd0);color:#fff;box-shadow:0 0 10px var(--aero-glow)}
+.sm-sep{height:1px;background:rgba(120,160,200,.5);box-shadow:0 1px 0 rgba(255,255,255,.8)}
+/* ---- ecosistema ---- */
+.eco-canvas{border-radius:7px;background:rgba(255,255,255,.9);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.9),0 0 0 1px rgba(130,170,205,.45)}
+.eco-box{border-radius:8px;padding:4px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(232,242,252,.9));
+  box-shadow:0 0 0 1px rgba(130,170,205,.5),0 2px 6px rgba(20,60,100,.12)}
+.eco-box-t{border-radius:5px}
+.eco-box-b{border-radius:5px;box-shadow:inset 0 1px 3px rgba(30,70,110,.12)}
+.eco-item{border-radius:5px;border:1px solid rgba(140,175,205,.55);background:linear-gradient(180deg,#fff,#eef5fc);font:12px var(--f-ui)}
+.eco-item:hover{background:linear-gradient(180deg,#fff,#dceefc);box-shadow:0 0 8px var(--aero-glow)}
+.eco-item.on{box-shadow:0 0 10px var(--aero-glow)}
+.eco-core{border-radius:10px;border:1px solid rgba(255,255,255,.6);outline:none;
+  background:linear-gradient(180deg,#1d69b0,#08284a);box-shadow:0 6px 18px rgba(4,25,50,.45),inset 0 1px 0 rgba(255,255,255,.35)}
+.eco-core:hover,.eco-core.on{background:linear-gradient(180deg,#2a86d8,#0b365f);box-shadow:0 0 0 2px rgba(160,220,255,.7),0 8px 22px rgba(4,25,50,.5)}
+/* panel de informacion: vacio = oculto, para que el esquema se vea entero */
+.eco-info{border-radius:7px;margin:4px;box-shadow:none;transition:max-height .25s var(--ease),opacity .2s var(--ease)}
+.eco-info.empty{max-height:0;min-height:0;margin:0;opacity:0;pointer-events:none;overflow:hidden}
+.eco-info-body{border-radius:7px;background:rgba(255,255,255,.94);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.9),0 0 0 1px rgba(130,170,205,.45)}
+/* ---- barras de desplazamiento ---- */
+::-webkit-scrollbar{width:14px;height:14px}
+::-webkit-scrollbar-track{background:rgba(226,238,250,.6);border-radius:8px}
+::-webkit-scrollbar-thumb{border-radius:8px;border:3px solid transparent;background-clip:padding-box;
+  background-color:rgba(110,165,215,.75);box-shadow:none}
+::-webkit-scrollbar-thumb:hover{background-color:rgba(70,140,200,.9)}
+::-webkit-scrollbar-button:single-button{display:none}
+@supports not (backdrop-filter:blur(2px)){
+  .win{background:rgba(222,236,250,.97)}
+  #startmenu{background:rgba(238,247,255,.98)}
+  #taskbar{background:linear-gradient(180deg,#16304c,#08151f)}
+}
+@media (prefers-reduced-motion:reduce){
+  .win,.win.closing,#startmenu{animation:none}
+  .eco-info{transition:none}
+}
+
 </style>
 </head>
 <body>
 <div id="desktop"></div>
-<div id="startmenu"><div class="sm-band"><span>Format95</span></div><div class="sm-items" id="sm-items"></div></div>
+<div id="startmenu"><div class="sm-band"><span>Explorer</span></div><div class="sm-items" id="sm-items"></div></div>
 <div id="taskbar">
   <button class="btn95" id="startbtn"><img alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAA7fFvVAAAADUlEQVR4nGNgYGBgAAAABQABXvMqOgAAAABJRU5ErkJggg==" style="display:none">🪟 Inicio</button>
   <div id="taskitems" style="display:flex;gap:4px;flex:1;min-width:0;overflow:hidden"></div>
@@ -1201,8 +1376,6 @@ function makeResizable(el,id){
 // ---------------- Desktop icons ----------------
 const DICONS=[
   {id:'explorer',n:'Format Explorer',img:iconExplorer(),run:openExplorer},
-  {id:'files',n:'Archivos',img:iconFiles(),run:openTree},
-  {id:'dash',n:'Recursos',img:iconDash(),run:openDashboard},
   {id:'eco',n:'Ecosistema IA',img:iconEco(),run:openEco},
   {id:'stats',n:'Estadísticas',img:iconStats(),run:openStats},
   {id:'about',n:'Acerca de',img:iconHelp(),run:openAbout},
@@ -1264,7 +1437,7 @@ function openExplorer(){
   const catRows=Object.entries(CATS).map(([k,c])=>
     `<div class="cat95${k===curCat?' active':''}" data-cat="${k}"><span class="ci">${c.i}</span><span class="cn">${esc(c.n)}</span><span class="cc">${c.e.length}</span></div>`).join('');
   const html=`
-  <div class="menubar"><span id="fx-menu-files">🗂️ Archivos</span><span id="fx-menu-dash">📈 Recursos</span><span id="fx-menu-eco">🧠 Ecosistema IA</span><span id="fx-menu-stats">📊 Estadísticas</span><span id="fx-menu-about">❓ Ayuda</span></div>
+  <div class="menubar"><span id="fx-menu-estructura">🗄️ Estructura</span><span id="fx-menu-eco">🧠 Ecosistema IA</span><span id="fx-menu-stats">📊 Estadísticas</span><span id="fx-menu-about">❓ Ayuda</span></div>
   <div class="toolbar">
     <span style="font-weight:bold">Buscar:</span>
     <input class="input95" id="fx-search" style="flex:1;min-width:120px" placeholder="Extensión o nombre (ej: PNG, vector...)">
@@ -1279,7 +1452,7 @@ function openExplorer(){
     <div class="main95" id="fx-grid"></div>
   </div>
   <div class="statusbar"><div class="status-cell" id="fx-status">Listo.</div><div class="status-cell fix">${ALL_EXTS.length} formatos</div><div class="status-cell fix">${APPS.length} aplicaciones</div></div>`;
-  mkWin('explorer','Format Explorer 95','🗄️',880,600,html,{onOpen:el=>{
+  mkWin('explorer','Format Explorer','🗄️',880,600,html,{onOpen:el=>{
     el.querySelector('#fx-search').addEventListener('input',e=>{curSearch=e.target.value.trim().toUpperCase();renderGrid()});
     el.querySelector('#fx-cats').addEventListener('click',e=>{
       const c=e.target.closest('.cat95');if(!c)return;
@@ -1287,8 +1460,7 @@ function openExplorer(){
       el.querySelectorAll('.cat95').forEach(x=>x.classList.toggle('active',x===c));
       renderGrid();
     });
-    el.querySelector('#fx-menu-files').onclick=openTree;
-    el.querySelector('#fx-menu-dash').onclick=openDashboard;
+    el.querySelector('#fx-menu-estructura').onclick=()=>{location.href='estructura.html'};
     el.querySelector('#fx-menu-eco').onclick=openEco;
     el.querySelector('#fx-menu-stats').onclick=openStats;
     el.querySelector('#fx-menu-about').onclick=openAbout;
@@ -1406,11 +1578,11 @@ function openAbout(){
       • Clic en una <b>etiqueta de aplicación</b> → formatos que admite esa app.<br>
       • Clic en la <b>etiqueta de lenguaje</b> → formatos con la misma base.<br>
       • Abre el <b>🧠 Ecosistema IA</b> para explorar cómo se conectan lenguajes, librerías, gestores, repositorios, CDNs y formatos. Su panel de información aparece <b>debajo del esquema</b>.<br>
-      • <b>🗂️ Archivos</b>: explora tu <b>carpeta local</b> y el <b>repositorio publicado</b> con carpetas desplegables, estilo Explorer.<br>
+      • La estructura de carpetas (local y repositorio) vive ahora en <b>🗄️ Estructura</b>, la aplicación hermana.<br>
       • <b>📈 Recursos</b>: panel con el estado y el peso de cada carpeta del proyecto.<br>
       • Las ventanas se <b>arrastran, minimizan y maximizan</b>; los <b>iconos del escritorio también se arrastran</b> y recuerdan su posición.
     </div></div></div>`;
-  mkWin('about','Acerca de Format Explorer 95','❓',400,330,html);
+  mkWin('about','Acerca de Format Explorer','❓',400,330,html);
 }
 
 // ---------------- Ecosistema IA ----------------
@@ -1429,13 +1601,7 @@ function openEco(){
       ${boxes}
       <div class="eco-center" style="grid-row:2;grid-column:2"><div class="eco-core" id="eco-core">🧠 MODELO DE IA<small>haz clic en cualquier elemento</small></div></div>
     </div></div>
-    <div class="eco-info"><div class="eco-info-body" id="eco-info">
-      <h3>🧠 Ecosistema de recursos</h3>
-      <div class="role">Mapa interactivo</div>
-      <p>Este mapa muestra los recursos que un <b>modelo de IA</b> combina para crear software: lenguajes, librerías, gestores de paquetes, repositorios, CDNs y formatos de archivo.</p>
-      <p><b>Haz clic</b> en cualquier elemento (NPM, Three.js, GitHub...) para ver qué es y con qué se conecta. Las líneas rojas animadas marcan sus conexiones.</p>
-      <div class="eco-ex"><b>💡 Ejemplo de flujo completo:</b>NPM instala Three.js → tu .html la importa → Three.js carga un modelo .gltf → publicas en GitHub Pages → jsDelivr la sirve por CDN.</div>
-    </div></div>
+    <div class="eco-info empty" id="eco-info-panel"><div class="eco-info-body" id="eco-info"></div></div>
   </div>`;
   mkWin('eco','Ecosistema de recursos para un Modelo de IA','🧠',980,640,html,{onOpen:el=>{
     drawEcoLines(el);
@@ -1467,6 +1633,7 @@ function drawEcoLines(el,activeGroups){
   }).join('');
 }
 function selectEcoCore(el){
+  el.querySelector('#eco-info-panel').classList.remove('empty');
   el.querySelectorAll('.eco-item').forEach(x=>x.classList.remove('on','linked'));
   el.querySelector('#eco-core').classList.add('on');
   drawEcoLines(el,new Set(Object.keys(ECO_GROUPS)));
@@ -1478,6 +1645,7 @@ function selectEcoCore(el){
 }
 function selectEco(el,name){
   const item=ECO[name];if(!item)return;
+  el.querySelector('#eco-info-panel').classList.remove('empty');
   const G=ECO_GROUPS[item.g];
   el.querySelector('#eco-core').classList.remove('on');
   el.querySelectorAll('.eco-item').forEach(x=>{
@@ -1503,136 +1671,6 @@ function selectEco(el,name){
       return `<div class="eco-conn-i"${target?` data-eco-link="${esc(target)}"`:''}><span class="arr">→</span><span><b>${esc(c[0])}</b> — ${esc(c[1])}</span></div>`;
     }).join('')}</div>
     ${item.ex?`<div class="eco-ex"><b>💡 Ejemplo:</b>${esc(item.ex)}</div>`:''}`;
-}
-
-// ================ Datos: árbol de archivos (local + repo) y dashboard ================
-const FILETREE={"local":{"n":"Github","t":"d","c":[{"n":".claude","t":"d","c":[{"n":"worktrees","t":"d","c":[],"s":"0 B","f":0},{"n":"launch.json","t":"f","x":"JSON","s":"240 B"},{"n":"settings.local.json","t":"f","x":"JSON","s":"196 B"}],"s":"436 B","f":2},{"n":"aplicaciones","t":"d","c":[{"n":"1_alumbrado-pro","t":"d","c":[{"n":"assets","t":"d","c":[{"n":"css","t":"d","c":[],"s":"19 KB","f":1},{"n":"icons","t":"d","c":[],"s":"108 KB","f":8},{"n":"js","t":"d","c":[],"s":"24 KB","f":2}],"s":"151 KB","f":11},{"n":"docs","t":"d","c":[{"n":"INSTALACION.md","t":"f","x":"MD","s":"4.2 KB"}],"s":"4.2 KB","f":1},{"n":".gitignore","t":"f","x":"","s":"556 B"},{"n":"Alumbrado_Pro.html","t":"f","x":"HTML","s":"10 KB"},{"n":"LICENSE","t":"f","x":"","s":"1.0 KB"},{"n":"README.md","t":"f","x":"MD","s":"6.1 KB"}],"s":"174 KB","f":16},{"n":"2_biblioteca","t":"d","c":[{"n":"Biblioteca.html","t":"f","x":"HTML","s":"55 KB"}],"s":"55 KB","f":1},{"n":"3_instagram-downloader","t":"d","c":[{"n":"Instagram_Downloader.html","t":"f","x":"HTML","s":"24 KB"}],"s":"24 KB","f":1},{"n":"4_resource-hub","t":"d","c":[{"n":"Resource_Hub.html","t":"f","x":"HTML","s":"48 KB"}],"s":"48 KB","f":1},{"n":"5_extensiones-archivo","t":"d","c":[{"n":"Extensiones_Archivo.html","t":"f","x":"HTML","s":"48 KB"}],"s":"48 KB","f":1}],"s":"349 KB","f":20},{"n":"juegos","t":"d","c":[{"n":"5_Granja","t":"d","c":[{"n":"assets","t":"d","c":[{"n":"css","t":"d","c":[],"s":"11 KB","f":1},{"n":"images","t":"d","c":[],"s":"13 MB","f":17},{"n":"js","t":"d","c":[],"s":"22 KB","f":1}],"s":"13 MB","f":19},{"n":"unity","t":"d","c":[{"n":"Build","t":"d","c":[],"s":"70 MB","f":4},{"n":"StreamingAssets","t":"d","c":[],"s":"184 B","f":1},{"n":"TemplateData","t":"d","c":[],"s":"15 KB","f":3},{"n":"index.html","t":"f","x":"HTML","s":"3.3 KB"},{"n":"logo.png","t":"f","x":"PNG","s":"61 KB"},{"n":"README.md","t":"f","x":"MD","s":"209 B"},{"n":"style.css","t":"f","x":"CSS","s":"416 B"}],"s":"70 MB","f":12},{"n":"Granja_Simulator.html","t":"f","x":"HTML","s":"42 KB"},{"n":"launcher.html","t":"f","x":"HTML","s":"3.0 KB"}],"s":"83 MB","f":33},{"n":"6_Chess3D","t":"d","c":[{"n":".vs","t":"d","c":[{"n":"Chess3D","t":"d","c":[],"s":"1.3 MB","f":7},{"n":"ProjectSettings.json","t":"f","x":"JSON","s":"37 B"},{"n":"slnx.sqlite","t":"f","x":"SQLITE","s":"88 KB"},{"n":"VSWorkspaceState.json","t":"f","x":"JSON","s":"78 B"}],"s":"1.4 MB","f":10},{"n":"3D","t":"d","c":[{"n":"fbx","t":"d","c":[],"s":"1.7 MB","f":10},{"n":"json","t":"d","c":[],"s":"957 KB","f":8},{"n":"bishop.blend","t":"f","x":"BLEND","s":"980 KB"},{"n":"board.blend","t":"f","x":"BLEND","s":"363 KB"},{"n":"king.blend","t":"f","x":"BLEND","s":"647 KB"},{"n":"knight.blend","t":"f","x":"BLEND","s":"611 KB"},{"n":"pawn.blend","t":"f","x":"BLEND","s":"525 KB"},{"n":"queen.blend","t":"f","x":"BLEND","s":"643 KB"},{"n":"rook.blend","t":"f","x":"BLEND","s":"492 KB"},{"n":"rook2.blend","t":"f","x":"BLEND","s":"595 KB"}],"s":"7.4 MB","f":26},{"n":"_versiones","t":"d","c":[{"n":"Chess3D_original.zip","t":"f","x":"ZIP","s":"37 MB"}],"s":"37 MB","f":1},{"n":"css","t":"d","c":[{"n":"dark-hive","t":"d","c":[],"s":"92 KB","f":17}],"s":"92 KB","f":17},{"n":"js","t":"d","c":[{"n":"AI","t":"d","c":[],"s":"170 KB","f":3},{"n":"jquery","t":"d","c":[],"s":"934 KB","f":3},{"n":"lib","t":"d","c":[],"s":"1.2 MB","f":3},{"n":"Cell.js","t":"f","x":"JS","s":"2.7 KB"},{"n":"chess.js","t":"f","x":"JS","s":"16 KB"},{"n":"factory.js","t":"f","x":"JS","s":"10 KB"},{"n":"geoPieces.js","t":"f","x":"JS","s":"8.9 KB"},{"n":"gui.js","t":"f","x":"JS","s":"13 KB"},{"n":"loading.js","t":"f","x":"JS","s":"7.0 KB"},{"n":"pgnParser.js","t":"f","x":"JS","s":"3.0 KB"},{"n":"three-extend.js","t":"f","x":"JS","s":"827 B"}],"s":"2.4 MB","f":17},{"n":"texture","t":"d","c":[{"n":"bishop-ao.jpg","t":"f","x":"JPG","s":"51 KB"},{"n":"cell-0.jpg","t":"f","x":"JPG","s":"1.3 MB"},{"n":"cell-1.jpg","t":"f","x":"JPG","s":"1.5 MB"},{"n":"cell_N.jpg","t":"f","x":"JPG","s":"1.6 MB"},{"n":"cell_S.jpg","t":"f","x":"JPG","s":"932 KB"},{"n":"fakeShadow.jpg","t":"f","x":"JPG","s":"11 KB"},{"n":"floor.jpg","t":"f","x":"JPG","s":"362 KB"},{"n":"floor_N.jpg","t":"f","x":"JPG","s":"768 KB"},{"n":"floor_S.jpg","t":"f","x":"JPG","s":"328 KB"},{"n":"king-ao.jpg","t":"f","x":"JPG","s":"60 KB"},{"n":"knight-ao.jpg","t":"f","x":"JPG","s":"26 KB"},{"n":"pawn-ao.jpg","t":"f","x":"JPG","s":"74 KB"},{"n":"queen-ao.jpg","t":"f","x":"JPG","s":"41 KB"},{"n":"rook-ao.jpg","t":"f","x":"JPG","s":"18 KB"},{"n":"wood-0.jpg","t":"f","x":"JPG","s":"1.3 MB"},{"n":"wood-1.jpg","t":"f","x":"JPG","s":"1.5 MB"},{"n":"wood_N.jpg","t":"f","x":"JPG","s":"1.6 MB"},{"n":"wood_S.jpg","t":"f","x":"JPG","s":"932 KB"}],"s":"12 MB","f":18},{"n":".gitattributes","t":"f","x":"","s":"505 B"},{"n":".gitignore","t":"f","x":"","s":"2.8 KB"},{"n":"Chess3D.html","t":"f","x":"HTML","s":"81 KB"},{"n":"HANDOFF.md","t":"f","x":"MD","s":"13 KB"},{"n":"LICENSE.md","t":"f","x":"MD","s":"35 KB"},{"n":"README.md","t":"f","x":"MD","s":"656 B"}],"s":"60 MB","f":95},{"n":"7_Circle","t":"d","c":[{"n":"circle.html","t":"f","x":"HTML","s":"37 KB"}],"s":"37 KB","f":1},{"n":"9_tetris","t":"d","c":[{"n":"Tetris.html","t":"f","x":"HTML","s":"23 KB"}],"s":"23 KB","f":1}],"s":"143 MB","f":130},{"n":"Prototipos","t":"d","c":[{"n":"10_Mario","t":"d","c":[{"n":"Mario.html","t":"f","x":"HTML","s":"66 KB"}],"s":"66 KB","f":1},{"n":"8_Granja_Cabanillas","t":"d","c":[{"n":".vs","t":"d","c":[{"n":"CopilotSnapshots","t":"d","c":[],"s":"480 KB","f":9},{"n":"skills-github-pages","t":"d","c":[],"s":"5.9 MB","f":18},{"n":"ProjectSettings.json","t":"f","x":"JSON","s":"37 B"},{"n":"slnx.sqlite","t":"f","x":"SQLITE","s":"88 KB"},{"n":"VSWorkspaceState.json","t":"f","x":"JSON","s":"86 B"}],"s":"6.4 MB","f":30},{"n":"assets","t":"d","c":[{"n":"css","t":"d","c":[],"s":"11 KB","f":1},{"n":"images","t":"d","c":[],"s":"13 MB","f":17},{"n":"js","t":"d","c":[],"s":"21 KB","f":1}],"s":"13 MB","f":19},{"n":".gitignore","t":"f","x":"","s":"555 B"},{"n":"Granja_Cabanillas.html","t":"f","x":"HTML","s":"87 KB"},{"n":"README-Cabanillas.md","t":"f","x":"MD","s":"5.8 KB"},{"n":"README.md","t":"f","x":"MD","s":"4.6 KB"}],"s":"19 MB","f":53}],"s":"19 MB","f":54},{"n":"Recursos_Clau","t":"d","c":[{"n":"Claude Code Game Studios source code_v1.0.0.zip","t":"f","x":"ZIP","s":"1.3 MB"},{"n":"skills-github-pages.zip","t":"f","x":"ZIP","s":"42 MB"}],"s":"43 MB","f":2},{"n":"Rubenpantxo.github.io","t":"d","c":[],"s":"53 MB","f":250},{"n":"Dashboard_Recursos.html","t":"f","x":"HTML","s":"14 KB"}],"s":"260 MB","f":459,"root":"C:\\Users\\RUBEN\\source\\repos\\Github"},"repo":{"n":"Rubenpantxo.github.io","t":"d","c":[{"n":"apps","t":"d","c":[{"n":"alumbrado-pro","t":"d","c":[{"n":"assets","t":"d","c":[{"n":"css","t":"d","c":[],"s":"19 KB","f":1},{"n":"icons","t":"d","c":[],"s":"741 KB","f":11},{"n":"js","t":"d","c":[],"s":"25 KB","f":2}],"s":"785 KB","f":14},{"n":"docs","t":"d","c":[{"n":"INSTALACION.md","t":"f","x":"MD","s":"4.2 KB"}],"s":"4.2 KB","f":1},{"n":".gitignore","t":"f","x":"","s":"556 B"},{"n":"alumbrado.html","t":"f","x":"HTML","s":"10 KB"},{"n":"LICENSE","t":"f","x":"","s":"1.0 KB"},{"n":"README.md","t":"f","x":"MD","s":"6.1 KB"}],"s":"807 KB","f":19},{"n":"biblioteca","t":"d","c":[{"n":"index_biblio.html","t":"f","x":"HTML","s":"54 KB"}],"s":"54 KB","f":1},{"n":"instagram-downloader","t":"d","c":[{"n":"index_insta_down.html","t":"f","x":"HTML","s":"24 KB"}],"s":"24 KB","f":1},{"n":"plants","t":"d","c":[{"n":"app.js","t":"f","x":"JS","s":"9.5 KB"},{"n":"data.js","t":"f","x":"JS","s":"41 KB"},{"n":"Plants.html","t":"f","x":"HTML","s":"36 KB"}],"s":"86 KB","f":3},{"n":"resource-hub","t":"d","c":[{"n":"app_recursos.html","t":"f","x":"HTML","s":"48 KB"}],"s":"48 KB","f":1},{"n":"rubenpantxo-garden","t":"d","c":[{"n":"assets","t":"d","c":[{"n":"icons","t":"d","c":[],"s":"732 KB","f":1}],"s":"732 KB","f":1}],"s":"732 KB","f":1},{"n":"format-explorer.html","t":"f","x":"HTML","s":"157 KB"},{"n":"pantxiko-notes.html","t":"f","x":"HTML","s":"19 KB"},{"n":"qibla.html","t":"f","x":"HTML","s":"25 KB"}],"s":"1.9 MB","f":29},{"n":"CSS","t":"d","c":[{"n":"vendors","t":"d","c":[{"n":"LICENSE.md","t":"f","x":"MD","s":"1.0 KB"},{"n":"normalize.css","t":"f","x":"CSS","s":"7.9 KB"}],"s":"8.9 KB","f":2},{"n":"servicios.css","t":"f","x":"CSS","s":"16 KB"},{"n":"style.css","t":"f","x":"CSS","s":"5.2 KB"}],"s":"30 KB","f":4},{"n":"docs","t":"d","c":[{"n":"GUIA-ACTUALIZACION-NOTICIAS.md","t":"f","x":"MD","s":"5.1 KB"},{"n":"RECURSOS-DISENO.md","t":"f","x":"MD","s":"4.4 KB"}],"s":"9.5 KB","f":2},{"n":"img","t":"d","c":[{"n":"Comidas","t":"d","c":[{"n":"Prim.jpg","t":"f","x":"JPG","s":"79 KB"},{"n":"Seg.jpg","t":"f","x":"JPG","s":"95 KB"},{"n":"txt","t":"f","x":"","s":"17 B"}],"s":"174 KB","f":3},{"n":"Libros","t":"d","c":[{"n":"libreria","t":"f","x":"","s":"7 B"},{"n":"… +17 elementos","t":"more","s":"4.7 MB"}],"s":"4.7 MB","f":18},{"n":"Solar","t":"d","c":[{"n":"Añadir.png","t":"f","x":"PNG","s":"324 KB"},{"n":"Giro_derecha.png","t":"f","x":"PNG","s":"69 KB"},{"n":"Medir.png","t":"f","x":"PNG","s":"742 KB"},{"n":"tejas.jpg","t":"f","x":"JPG","s":"39 KB"},{"n":"tejas_2.jpg","t":"f","x":"JPG","s":"12 KB"},{"n":"tejas_3.jpg","t":"f","x":"JPG","s":"8.0 KB"}],"s":"1.2 MB","f":6},{"n":"IconoMicrofono.png","t":"f","x":"PNG","s":"217 KB"},{"n":"logo.PNG","t":"f","x":"PNG","s":"134 KB"},{"n":"Notes Logo.png","t":"f","x":"PNG","s":"193 KB"},{"n":"Technology.png","t":"f","x":"PNG","s":"4.1 MB"},{"n":"Txapel.png","t":"f","x":"PNG","s":"1.4 MB"},{"n":"TXAPELDUNAK.png","t":"f","x":"PNG","s":"1.4 MB"},{"n":"User_Loged.png","t":"f","x":"PNG","s":"1.9 MB"},{"n":"User_not_Log.png","t":"f","x":"PNG","s":"580 KB"}],"s":"23 MB","f":65},{"n":"js","t":"d","c":[{"n":"vendors","t":"d","c":[{"n":"LICENSE.md","t":"f","x":"MD","s":"1.0 KB"},{"n":"modernizr-custom.js","t":"f","x":"JS","s":"2.5 KB"}],"s":"3.5 KB","f":2},{"n":"jenga.js","t":"f","x":"JS","s":"16 KB"},{"n":"main.js","t":"f","x":"JS","s":"25 KB"},{"n":"servicios.js","t":"f","x":"JS","s":"2.3 KB"}],"s":"48 KB","f":5},{"n":"juegos","t":"d","c":[{"n":"cesta-punta","t":"d","c":[{"n":"index.html","t":"f","x":"HTML","s":"61 KB"}],"s":"61 KB","f":1},{"n":"Chess3D","t":"d","c":[{"n":"Chess3D.html","t":"f","x":"HTML","s":"81 KB"},{"n":"HANDOFF.md","t":"f","x":"MD","s":"13 KB"}],"s":"94 KB","f":2},{"n":"granja","t":"d","c":[{"n":"assets","t":"d","c":[{"n":"css","t":"d","c":[],"s":"11 KB","f":1},{"n":"images","t":"d","c":[],"s":"13 MB","f":17},{"n":"js","t":"d","c":[],"s":"21 KB","f":1}],"s":"13 MB","f":19},{"n":"granja.html","t":"f","x":"HTML","s":"7.0 KB"}],"s":"13 MB","f":20},{"n":"tekken-barrio-ps1","t":"d","c":[{"n":"audio","t":"d","c":[{"n":"README.txt","t":"f","x":"TXT","s":"792 B"}],"s":"792 B","f":1},{"n":"css","t":"d","c":[],"s":"32 KB","f":10},{"n":"icons","t":"d","c":[],"s":"40 KB","f":4},{"n":"js","t":"d","c":[],"s":"60 KB","f":9},{"n":"scenes","t":"d","c":[],"s":"50 KB","f":8},{"n":"sprites","t":"d","c":[{"n":"full","t":"d","c":[],"s":"426 KB","f":30},{"n":"thumbs","t":"d","c":[],"s":"225 KB","f":30}],"s":"652 KB","f":60},{"n":"generate_sprites.py","t":"f","x":"PY","s":"29 KB"},{"n":"index.html","t":"f","x":"HTML","s":"3.0 KB"},{"n":"manifest.webmanifest","t":"f","x":"WEBMANIFEST","s":"585 B"},{"n":"README.md","t":"f","x":"MD","s":"6.2 KB"},{"n":"sw.js","t":"f","x":"JS","s":"1.9 KB"}],"s":"876 KB","f":97},{"n":"tetris","t":"d","c":[{"n":"tetris.html","t":"f","x":"HTML","s":"21 KB"},{"n":"Tetris_Alcachofa.png","t":"f","x":"PNG","s":"2.3 MB"},{"n":"Tetris_Brocoli.png","t":"f","x":"PNG","s":"1.1 MB"},{"n":"Tetris_Coliflor.png","t":"f","x":"PNG","s":"718 KB"},{"n":"Tetris_Esparrago.png","t":"f","x":"PNG","s":"2.4 MB"},{"n":"Tetris_Lechuga.png","t":"f","x":"PNG","s":"2.1 MB"},{"n":"Tetris_Maiz.png","t":"f","x":"PNG","s":"2.7 MB"},{"n":"Tetris_Trigo.png","t":"f","x":"PNG","s":"2.4 MB"}],"s":"14 MB","f":8},{"n":"circle.html","t":"f","x":"HTML","s":"36 KB"}],"s":"28 MB","f":129},{"n":"mapas","t":"d","c":[{"n":"cabanillas-data.js","t":"f","x":"JS","s":"452 KB"},{"n":"cabanillas.html","t":"f","x":"HTML","s":"53 KB"}],"s":"505 KB","f":2},{"n":"servicios","t":"d","c":[{"n":"bar-restaurante.html","t":"f","x":"HTML","s":"24 KB"},{"n":"carniceria.html","t":"f","x":"HTML","s":"19 KB"},{"n":"gimnasio.html","t":"f","x":"HTML","s":"20 KB"},{"n":"supermercado.html","t":"f","x":"HTML","s":"31 KB"},{"n":"tienda-ropa.html","t":"f","x":"HTML","s":"21 KB"}],"s":"115 KB","f":5},{"n":".editorconfig","t":"f","x":"","s":"167 B"},{"n":".gitignore","t":"f","x":"","s":"56 B"},{"n":".htaccess","t":"f","x":"","s":"39 KB"},{"n":"404.html","t":"f","x":"HTML","s":"1.2 KB"},{"n":"CNAME","t":"f","x":"","s":"15 B"},{"n":"index.html","t":"f","x":"HTML","s":"161 KB"},{"n":"LICENSE.txt","t":"f","x":"TXT","s":"3.4 KB"},{"n":"README.md","t":"f","x":"MD","s":"2.6 KB"},{"n":"robots.txt","t":"f","x":"TXT","s":"88 B"}],"s":"53 MB","f":250,"root":"rubenpantxo.github.io"}};
-const DASH={
-  kpis:[['9','Apps y juegos publicados'],['2','Prototipos'],['2','Recursos Claude'],['~260 MB','Almacenamiento total']],
-  groups:[
-    {leg:'aplicaciones\\',note:'💡 <b>5_extensiones-archivo</b> es este mismo <b>Format Explorer</b> en su versión de trabajo local.',rows:[
-      ['💡','1_alumbrado-pro','174 KB · 16 arch.','pub'],['📚','2_biblioteca','55 KB','pub'],
-      ['📥','3_instagram-downloader','24 KB','pub'],['🧰','4_resource-hub','48 KB','pub'],
-      ['🗄️','5_extensiones-archivo','48 KB','pub']]},
-    {leg:'juegos\\',note:'⚠️ <b>5_Granja</b> y <b>6_Chess3D</b> concentran el 95% del peso (assets Unity, texturas y versiones antiguas).',rows:[
-      ['🚜','5_Granja','83 MB · 33 arch.','pub'],['♟️','6_Chess3D','59 MB · 125 arch.','pub'],
-      ['⭕','7_Circle','37 KB','pub'],['🧱','9_tetris','23 KB','pub']]},
-    {leg:'Prototipos\\',note:'🎯 Cuando un prototipo funcione sin errores: muévelo a aplicaciones\\ o juegos\\, cópialo al clon y haz commit + push.',rows:[
-      ['🍄','10_Mario','66 KB','proto'],['🚜','8_Granja_Cabanillas','13 MB · 154 arch.','proto']]},
-    {leg:'Recursos_Clau\\',note:'📌 Guarda aquí skills, source codes y material de ayuda que vayas descargando.',rows:[
-      ['📦','Claude Code Game Studios source code_v1.0.0.zip','1.3 MB','rec'],['🎓','skills-github-pages.zip','42 MB','rec']]},
-    {leg:'Rubenpantxo.github.io\\ · apps',note:'🔎 SOLO EN REPO = publicado en la web pero sin carpeta de trabajo local en aplicaciones\\ o juegos\\.',rows:[
-      ['💡','alumbrado-pro','','repo'],['📚','biblioteca','','repo'],['🗄️','format-explorer.html','','repo'],
-      ['📥','instagram-downloader','','repo'],['📝','pantxiko-notes.html','','warn'],['🌱','plants','','warn'],
-      ['🧭','qibla.html','','warn'],['🧰','resource-hub','','repo'],['🌿','rubenpantxo-garden','','warn']]},
-    {leg:'Rubenpantxo.github.io\\ · juegos',note:'',rows:[
-      ['♟️','Chess3D','','repo'],['🥎','cesta-punta','','warn'],['⭕','circle.html','','repo'],
-      ['🚜','granja','','repo'],['🥊','tekken-barrio-ps1','','warn'],['🧱','tetris','','repo']]},
-  ],
-  storage:[['🎮 juegos\\','#8C2A30',100,'144 MB'],['🌍 Rubenpantxo.github.io\\','#3F6F9A',38,'54 MB'],
-    ['🧠 Recursos_Clau\\','#6B4076',31,'44 MB'],['🚧 Prototipos\\','#C8901C',14,'20 MB'],['📁 aplicaciones\\','#5D7339',1,'0.4 MB']],
-};
-const BADGE={pub:['PUBLICADO','b-pub'],proto:['PROTOTIPO','b-proto'],rec:['RECURSO','b-rec'],repo:['REPO','b-repo'],warn:['SOLO EN REPO','b-warn']};
-
-// ---------------- Dashboard de Recursos (mini-app) ----------------
-function openDashboard(){
-  const kpis=DASH.kpis.map(k=>`<div class="kpi95"><b>${esc(k[0])}</b><span>${esc(k[1])}</span></div>`).join('');
-  const grp=g=>`<div class="fieldset"><legend>${esc(g.leg)}</legend><div style="padding-top:4px">
-    ${g.rows.map(r=>{const b=BADGE[r[3]]||['',''];return `<div class="drow"><span class="di">${r[0]}</span><span class="dn">${esc(r[1])}</span>${r[2]?`<span class="ds">${esc(r[2])}</span>`:''}<span class="badge95 ${b[1]}">${b[0]}</span></div>`}).join('')}
-    ${g.note?`<div class="dnote">${g.note}</div>`:''}</div></div>`;
-  const cols=DASH.groups.map(grp).join('');
-  const bars=DASH.storage.map(s=>`<div class="stat-row"><span class="sn">${esc(s[0])}</span><div class="bar95"><i style="--bcl:${s[1]};width:${s[2]}%"></i></div><span class="sv">${esc(s[3])}</span></div>`).join('');
-  const html=`<div class="dash-body">
-    <div class="kpis95">${kpis}</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;font-size:10px">
-      <b>Leyenda:</b><span class="badge95 b-pub">PUBLICADO</span><span class="badge95 b-proto">PROTOTIPO</span>
-      <span class="badge95 b-rec">RECURSO</span><span class="badge95 b-repo">REPO</span><span class="badge95 b-warn">SOLO EN REPO</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:10px">${cols}</div>
-    <div class="fieldset" style="margin-top:12px"><legend>Distribución del almacenamiento</legend><div style="padding-top:4px">${bars}</div></div>
-    <div class="dnote" style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      🗂️ La estructura de carpetas ahora es navegable como un explorador.
-      <button class="btn95 small" id="dash-open-files">Abrir explorador de archivos</button>
-    </div>
-    <div class="dnote" style="margin-top:8px">🔄 <b>Flujo:</b> idea → Prototipos\\ → cuando funciona sin errores → aplicaciones\\ o juegos\\ + copia al clon → <i>git add · commit · push</i> → publicado en <b>rubenpantxo.com</b>.</div>
-  </div>`;
-  mkWin('dash','Dashboard de Recursos — carpeta Github','📈',648,564,html,{onOpen:el=>{
-    const b=el.querySelector('#dash-open-files');if(b)b.onclick=openTree;
-  }});
-}
-
-// ---------------- Explorador de archivos (mini-app, árbol desplegable) ----------------
-let treeTab='local',treeQuery='';
-const SPECIAL_ICON={'package.json':'📦','readme.md':'📘','cname':'🌐','.gitignore':'🚫','.gitattributes':'⚙️','license':'📜','license.txt':'📜','.htaccess':'⚙️','.editorconfig':'⚙️','robots.txt':'🤖','404.html':'🚧','deploy.yml':'🚀','manifest.json':'📦'};
-function fileEmoji(name,ext){
-  const low=name.toLowerCase();
-  if(SPECIAL_ICON[low])return SPECIAL_ICON[low];
-  const cat=catOf(ext);
-  if(cat)return CATS[cat].i;
-  if(ext==='YML'||ext==='YAML')return '⚙️';
-  return '📄';
-}
-function tnodeHTML(node,depth,forceOpen){
-  if(node.t==='more')return `<div class="tmore">${esc(node.n)}${node.s?' · '+esc(node.s):''}</div>`;
-  if(node.t==='d'){
-    const open=forceOpen||depth===0;
-    const has=node.c&&node.c.length;
-    const kids=(node.c||[]).map(c=>tnodeHTML(c,depth+1,forceOpen)).join('');
-    const meta=node.s?`${esc(node.s)}${node.f?' · '+node.f+' arch.':''}`:'';
-    return `<div class="tnode"><div class="trow dir"><span class="tchev${has?'':' empty'}">${open?'▼':'▶'}</span><span class="tic">${open?'📂':'📁'}</span><span class="tname">${esc(node.n)}</span><span class="tmeta">${meta}</span></div><div class="tkids${open?'':' collapsed'}">${kids}</div></div>`;
-  }
-  const ext=node.x||'';
-  const known=!!(ext&&D[ext]);
-  const pill=ext?`<span class="tx">.${esc(ext.toLowerCase())}</span>`:'';
-  return `<div class="trow file${known?' known':''}"${known?` data-ext="${esc(ext)}"`:''} title="${known?'Ver ficha del formato .'+esc(ext.toLowerCase()):esc(node.n)}"><span class="tchev empty"></span><span class="tic">${fileEmoji(node.n,ext)}</span><span class="tname">${esc(node.n)}</span>${pill}<span class="tmeta">${esc(node.s||'')}</span></div>`;
-}
-function filterTree(node,q){
-  if(node.t==='more')return null;
-  if(node.t==='f')return node.n.toLowerCase().includes(q)?node:null;
-  const kids=(node.c||[]).map(c=>filterTree(c,q)).filter(Boolean);
-  if(node.n.toLowerCase().includes(q)||kids.length)return Object.assign({},node,{c:kids});
-  return null;
-}
-function renderTree(el){
-  const scroll=el.querySelector('#tree-scroll');if(!scroll)return;
-  const root=FILETREE[treeTab];
-  const q=treeQuery.trim().toLowerCase();
-  let kids=root.c||[];
-  if(q){const f=filterTree(root,q);kids=f?f.c:[]}
-  const head=`<div class="tree-head"><span class="hico">${treeTab==='local'?'💻':'🌍'}</span><span>${esc(root.n)}</span><span class="hpath">${esc(root.root||'')}</span></div>`;
-  const body=kids.length?kids.map(c=>tnodeHTML(c,0,!!q)).join(''):`<div class="tmore" style="padding:14px">Sin resultados para “${esc(treeQuery)}”.</div>`;
-  scroll.innerHTML=head+`<div style="padding:4px 6px 12px">${body}</div>`;
-}
-function openTree(){
-  const html=`<div class="tree-wrap">
-    <div class="tree-toolbar">
-      <span class="tree-tab" data-tab="local">💻 Carpeta local</span>
-      <span class="tree-tab" data-tab="repo">🌍 Repositorio web</span>
-      <div class="sep"></div>
-      <input class="input95" id="tree-search" style="flex:1;min-width:90px" placeholder="Buscar archivo o carpeta…">
-      <button class="btn95 small" id="tree-exp">Expandir</button>
-      <button class="btn95 small" id="tree-col">Contraer</button>
-    </div>
-    <div class="tree-scroll" id="tree-scroll"></div>
-    <div class="statusbar"><div class="status-cell" id="tree-status">💻 carpeta de trabajo local · 🌍 repositorio publicado. Clic en una carpeta para desplegarla; clic en un archivo de formato conocido para abrir su ficha.</div></div>
-  </div>`;
-  mkWin('files','Explorador de archivos — local + repositorio','🗂️',724,604,html,{onOpen:el=>{
-    const setTab=t=>{treeTab=t;el.querySelectorAll('.tree-tab').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));renderTree(el)};
-    el.querySelectorAll('.tree-tab').forEach(t=>t.onclick=()=>setTab(t.dataset.tab));
-    el.querySelector('#tree-search').addEventListener('input',e=>{treeQuery=e.target.value;renderTree(el)});
-    el.querySelector('#tree-exp').onclick=()=>{el.querySelectorAll('#tree-scroll .tkids').forEach(k=>k.classList.remove('collapsed'));el.querySelectorAll('#tree-scroll .trow.dir').forEach(r=>{const c=r.querySelector('.tchev');if(!c.classList.contains('empty'))c.textContent='▼';r.querySelector('.tic').textContent='📂'})};
-    el.querySelector('#tree-col').onclick=()=>{el.querySelectorAll('#tree-scroll .tkids').forEach(k=>k.classList.add('collapsed'));el.querySelectorAll('#tree-scroll .trow.dir').forEach(r=>{const c=r.querySelector('.tchev');if(!c.classList.contains('empty'))c.textContent='▶';r.querySelector('.tic').textContent='📁'})};
-    el.querySelector('#tree-scroll').addEventListener('click',e=>{
-      const r=e.target.closest('.trow');if(!r)return;
-      el.querySelectorAll('#tree-scroll .trow.sel').forEach(x=>x.classList.remove('sel'));r.classList.add('sel');
-      if(r.classList.contains('dir')){
-        const c=r.querySelector('.tchev');if(c.classList.contains('empty'))return;
-        const col=r.nextElementSibling.classList.toggle('collapsed');
-        c.textContent=col?'▶':'▼';r.querySelector('.tic').textContent=col?'📁':'📂';
-      }else if(r.dataset.ext){openProps(r.dataset.ext)}
-    });
-    setTab('local');
-  }});
 }
 
 // ---------------- Start menu + clock ----------------
