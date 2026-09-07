@@ -11,9 +11,13 @@ paths = [
     '''node_modules/''',
 ]
 regexes = [
-    # Marcador sin sustituir del access_key de Web3Forms (index.html). No es
-    # un secreto: es público por diseño (solo permite enviar correo a la
-    # propia dirección) y esta cadena en concreto ni siquiera es una clave.
+    # access_key de Web3Forms (index.html) y el marcador que ocupaba su sitio.
+    # La propia Web3Forms la llama "public key" y la documenta para usarla en
+    # codigo de cliente: solo permite enviar un correo a la direccion dueña del
+    # formulario, no leer envios ni tocar la cuenta. No es un secreto en el
+    # sentido de la auditoria, pero se declara aqui para que ningun cambio de
+    # reglas futuro la empiece a marcar en cada revision.
+    '''b8e6ddd6-0aaf-4a87-9718-bd971f811088''',
     '''TU_CLAVE_DE_WEB3FORMS_AQUI''',
 
     # Nombres de archivo de imagen. La regla generica-api-key salta con las
