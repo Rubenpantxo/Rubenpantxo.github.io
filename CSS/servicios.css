@@ -399,7 +399,11 @@
 }
 .sv-submit:hover { transform: translateY(-2px); box-shadow: 0 16px 44px rgba(124, 108, 255, .5); }
 .sv-submit:active { transform: scale(.98); }
+.sv-submit:disabled { opacity: .6; cursor: wait; transform: none; }
 .sv-form-note { font-size: .78rem; color: var(--sv-muted); text-align: center; }
+.sv-form-status { font-size: .85rem; font-weight: 700; text-align: center; min-height: 1.2em; }
+.sv-form-status.is-success { color: #2ecc71; }
+.sv-form-status.is-error { color: #ff5c7a; }
 
 /* ============================================================
    SCROLL-DRIVEN REVEALS
