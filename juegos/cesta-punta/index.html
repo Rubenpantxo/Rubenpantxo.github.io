@@ -11,6 +11,12 @@
   :root{
     --red:#d11f2a; --red-dk:#a3141d; --blue:#2360c2;
     --ink:#0d1014; --panel:rgba(10,12,16,.78); --line:rgba(255,255,255,.25);
+    /* margenes seguros: en movil apaisado el notch come el lateral y la barra
+       de gestos el borde inferior, y los botones pegados al borde no se pueden pulsar */
+    --safe-l:env(safe-area-inset-left,0px);
+    --safe-r:env(safe-area-inset-right,0px);
+    --safe-t:env(safe-area-inset-top,0px);
+    --safe-b:env(safe-area-inset-bottom,0px);
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
   html,body{height:100%;overflow:hidden;background:#0c1014;font-family:'Montserrat',system-ui,sans-serif;color:#fff}
@@ -30,8 +36,9 @@
   .sub{font-weight:600;letter-spacing:.55em;font-size:clamp(10px,1.6vw,15px);color:#cfd6de;margin:10px 0 0 .55em;text-align:center}
   .muted{color:#9aa4af;font-weight:600;font-size:12px;letter-spacing:.12em}
 
-  .topbar{position:absolute;top:0;left:0;right:0;height:64px;display:flex;align-items:center;
-          justify-content:space-between;padding:0 18px;z-index:6}
+  .topbar{position:absolute;top:0;left:0;right:0;min-height:64px;display:flex;align-items:center;
+          justify-content:space-between;z-index:6;
+          padding:calc(var(--safe-t) + 4px) calc(var(--safe-r) + 18px) 0 calc(var(--safe-l) + 18px)}
   .topbar h2{font-weight:900;font-size:clamp(17px,3vw,26px);letter-spacing:.14em;text-align:center;
              border-bottom:3px solid var(--red);padding-bottom:4px}
   .cbtn{width:46px;height:46px;border-radius:50%;border:2px solid var(--line);background:var(--panel);
@@ -49,7 +56,8 @@
   #scrTitle .selector .box{min-width:240px;text-align:center;background:var(--panel);
         border:1px solid var(--line);padding:12px 18px;border-radius:4px}
   #ftName{font-weight:800;letter-spacing:.1em;font-size:15px}
-  .arrow{background:none;border:none;color:#fff;font-size:40px;font-weight:300;cursor:pointer;line-height:1;padding:0 8px}
+  .arrow{background:none;border:none;color:#fff;font-size:40px;font-weight:300;cursor:pointer;line-height:1;
+         padding:0 8px;min-width:48px;min-height:48px}
   .arrow:active{color:var(--red)}
 
   /* config / ajustes */
@@ -62,7 +70,8 @@
   .cell:active{transform:scale(.97)}
 
   /* selección pelotari */
-  #selPanel{position:absolute;left:24px;top:84px;width:min(300px,38vw)}
+  #selPanel{position:absolute;left:calc(var(--safe-l) + 24px);top:calc(var(--safe-t) + 84px);width:min(300px,38vw);
+            pointer-events:none}  /* es solo informativo: nunca debe robar pulsaciones a las flechas */
   #selName{font-weight:900;font-size:clamp(20px,3.4vw,30px);letter-spacing:.06em;
            border-bottom:2px solid rgba(255,255,255,.5);padding-bottom:4px}
   #selRole{font-weight:700;font-size:12px;letter-spacing:.3em;color:#cfd6de;margin:8px 0 22px}
@@ -72,8 +81,9 @@
   .bar i{display:block;height:100%;background:var(--blue);border-radius:2px;transition:width .25s}
   .opp .bar i{background:var(--red)}
   #selMano{font-weight:800;font-size:12px;letter-spacing:.22em;margin-top:20px}
-  #selArrows{position:absolute;bottom:26px;left:0;right:0;display:flex;justify-content:center;gap:34vw}
-  #selArrows .arrow{font-size:54px}
+  #selArrows{position:absolute;bottom:calc(var(--safe-b) + 26px);left:0;right:0;
+             display:flex;justify-content:center;gap:34vw}
+  #selArrows .arrow{font-size:54px;min-width:64px;min-height:64px}
 
   /* HUD partido */
   #hud{justify-content:flex-start;pointer-events:none}
@@ -83,26 +93,26 @@
   #score span{display:flex;align-items:center;padding:8px 14px;white-space:nowrap}
   #sbP{background:var(--red)} #sbC{background:var(--blue)}
   #sbN{background:#14181d;font-size:16px;font-weight:900;letter-spacing:.35em;padding:8px 16px 8px 20px!important}
-  #btnPause{position:absolute;top:10px;right:12px;pointer-events:auto}
+  #btnPause{position:absolute;top:calc(var(--safe-t) + 10px);right:calc(var(--safe-r) + 12px);pointer-events:auto}
   #msg{position:absolute;top:34%;left:0;right:0;text-align:center;font-weight:900;font-style:italic;
        font-size:clamp(30px,6vw,58px);letter-spacing:.08em;opacity:0;transition:opacity .2s;
        text-shadow:0 4px 24px rgba(0,0,0,.65)}
   #subMsg{position:absolute;top:calc(34% + 64px);left:0;right:0;text-align:center;font-weight:700;
        font-size:13px;letter-spacing:.25em;color:#e8edf2;opacity:0;transition:opacity .2s}
 
-  #joy{position:absolute;bottom:26px;left:30px;width:128px;height:128px;border-radius:50%;
+  #joy{position:absolute;bottom:calc(var(--safe-b) + 26px);left:calc(var(--safe-l) + 30px);width:128px;height:128px;border-radius:50%;
        border:2px solid rgba(255,255,255,.35);background:rgba(0,0,0,.30);pointer-events:auto;touch-action:none}
   #knob{position:absolute;left:50%;top:50%;width:58px;height:58px;border-radius:50%;
         background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.5),rgba(170,180,190,.25));
         border:1px solid rgba(255,255,255,.45);transform:translate(-50%,-50%)}
-  #shots{position:absolute;bottom:22px;right:24px;display:grid;grid-template-columns:repeat(2,76px);
+  #shots{position:absolute;bottom:calc(var(--safe-b) + 22px);right:calc(var(--safe-r) + 24px);display:grid;grid-template-columns:repeat(2,76px);
          gap:12px;pointer-events:auto}
   .shot{width:76px;height:76px;border-radius:50%;border:2px solid rgba(255,255,255,.45);
         background:rgba(0,0,0,.38);color:#fff;font-family:inherit;font-weight:800;font-size:10.5px;
         letter-spacing:.06em;cursor:pointer;touch-action:none;line-height:1.2}
   .shot.sel{border-color:var(--red);background:rgba(209,31,42,.45)}
   .shot:active{transform:scale(.92)}
-  #hint{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:10px;opacity:.6;pointer-events:none}
+  #hint{position:absolute;bottom:calc(var(--safe-b) + 6px);left:0;right:0;text-align:center;font-size:10px;opacity:.6;pointer-events:none}
   @media (pointer:coarse){ #hint{display:none} }
 
   /* fin / pausa */
@@ -1094,8 +1104,15 @@ function updateFPViewmodel(dt){
 
 // ── PREVIEW (selección) ────────────────────────────────────────────
 let preview=null, previewBack=null;
+function disposePreview(obj){
+  obj.traverse(o=>{
+    if(o.geometry) o.geometry.dispose();
+    const m=o.material; if(!m) return;
+    (Array.isArray(m)?m:[m]).forEach(mm=>{ if(mm.map) mm.map.dispose(); mm.dispose(); });
+  });
+}
 function buildPreview(idx,isOpp){
-  if(preview){ scene.remove(preview); }
+  if(preview){ scene.remove(preview); disposePreview(preview); preview=null; }
   if(!previewBack){
     previewBack=new THREE.Group();
     const pb=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.1,.08,28),
@@ -1124,11 +1141,20 @@ function buildPreview(idx,isOpp){
   document.getElementById('selTitle').textContent=isOpp?'TU OPONENTE':'TU PELOTARI';
 }
 function clearPreview(){
-  if(preview){ scene.remove(preview); preview=null; }
-  if(previewBack){ scene.remove(previewBack); previewBack=null; }
+  if(preview){ scene.remove(preview); disposePreview(preview); preview=null; }
+  if(previewBack){ scene.remove(previewBack); disposePreview(previewBack); previewBack=null; }
 }
 
 // ── NAVEGACIÓN UI ──────────────────────────────────────────────────
+// Conecta un botón del menú. Si algo falla dentro (audio, preview 3D…) el
+// error se registra pero no rompe el resto de la navegación.
+function on(id,fn){
+  const el=document.getElementById(id);
+  if(!el){ console.warn('[cesta-punta] falta el botón #'+id); return; }
+  el.addEventListener('click',ev=>{
+    try{ fn(ev); }catch(err){ console.error('[cesta-punta] fallo en #'+id,err); }
+  });
+}
 const SCREENS={title:'scrTitle',config:'scrConfig',settings:'scrSettings',selP:'scrSel',selO:'scrSel',
                match:'hud',pause:'scrPause',over:'scrOver'};
 function go(s){
@@ -1136,11 +1162,13 @@ function go(s){
   document.querySelectorAll('.scr').forEach(el=>el.classList.remove('on'));
   document.getElementById(SCREENS[s]).classList.add('on');
   if(s==='pause') document.getElementById('hud').classList.add('on');
-  if(s==='settings') buildSettings();
-  if(s==='match') applyViewUI();
-  if(s==='selP') buildPreview(pIdx,false);
-  else if(s==='selO') buildPreview(oIdx,true);
-  else clearPreview();
+  try{
+    if(s==='settings') buildSettings();
+    if(s==='match') applyViewUI();
+    if(s==='selP') buildPreview(pIdx,false);
+    else if(s==='selO') buildPreview(oIdx,true);
+    else clearPreview();
+  }catch(err){ console.error('[cesta-punta] fallo al preparar la pantalla '+s,err); }
 }
 // muestra/oculta UI según la vista (1ª/3ª persona)
 function applyViewUI(){
@@ -1155,10 +1183,10 @@ function syncTitle(){
   document.getElementById('ftName').textContent=FRONTONES[ftIdx].name;
   document.getElementById('ftCity').textContent=FRONTONES[ftIdx].city;
 }
-document.getElementById('ftL').onclick=()=>{ initAudio(); sfx.ui(); ftIdx=(ftIdx+FRONTONES.length-1)%FRONTONES.length; syncTitle(); buildCourt(); };
-document.getElementById('ftR').onclick=()=>{ initAudio(); sfx.ui(); ftIdx=(ftIdx+1)%FRONTONES.length; syncTitle(); buildCourt(); };
-document.getElementById('btnPlay').onclick=()=>{ initAudio(); sfx.ui(); go('config'); };
-document.querySelector('[data-back="title"]').onclick=()=>{ sfx.ui(); go('title'); };
+on('ftL',()=>{ initAudio(); sfx.ui(); ftIdx=(ftIdx+FRONTONES.length-1)%FRONTONES.length; syncTitle(); buildCourt(); });
+on('ftR',()=>{ initAudio(); sfx.ui(); ftIdx=(ftIdx+1)%FRONTONES.length; syncTitle(); buildCourt(); });
+on('btnPlay',()=>{ initAudio(); sfx.ui(); go('config'); });
+document.querySelectorAll('[data-back="title"]').forEach(b=>b.addEventListener('click',()=>{ sfx.ui(); go('title'); }));
 
 // constructor genérico de columnas de celdas (config y ajustes)
 function mkCells(col,items,get,set){
@@ -1178,7 +1206,7 @@ function buildConfig(){
   mkCells('colGoal',GOALS.map(g=>g+' TANTOS'),()=>goalIdx,i=>goalIdx=i);
 }
 buildConfig();
-document.getElementById('cfgOk').onclick=()=>{ sfx.ui(); go('selP'); };
+on('cfgOk',()=>{ sfx.ui(); go('selP'); });
 
 // ajustes: CÁMARA (3ª p.) · DIFICULTAD · SONIDO
 function buildSettings(){
@@ -1186,31 +1214,31 @@ function buildSettings(){
   mkCells('colDiff',DIFFS.map(d=>d.name),()=>diffIdx,i=>diffIdx=i);
   mkCells('colSound',['SONIDO ON','SONIDO OFF'],()=>soundOn?0:1,i=>soundOn=(i===0));
 }
-document.getElementById('btnSettings').onclick=()=>{ initAudio(); sfx.ui(); settingsFrom='title'; go('settings'); };
-document.getElementById('btnPauseSet').onclick=()=>{ sfx.ui(); settingsFrom='pause'; go('settings'); };
-document.getElementById('setBack').onclick=()=>{ sfx.ui(); go(settingsFrom); };
-document.getElementById('setOk').onclick=()=>{ sfx.ui(); go(settingsFrom); };
+on('btnSettings',()=>{ initAudio(); sfx.ui(); settingsFrom='title'; go('settings'); });
+on('btnPauseSet',()=>{ sfx.ui(); settingsFrom='pause'; go('settings'); });
+on('setBack',()=>{ sfx.ui(); go(settingsFrom); });
+on('setOk',()=>{ sfx.ui(); go(settingsFrom); });
 
 // selección
-document.getElementById('selL').onclick=()=>{ sfx.ui(); step(-1); };
-document.getElementById('selR').onclick=()=>{ sfx.ui(); step(1); };
+on('selL',()=>{ sfx.ui(); step(-1); });
+on('selR',()=>{ sfx.ui(); step(1); });
 function step(d){
   if(state==='selP'){ pIdx=(pIdx+JUGADORES.length+d)%JUGADORES.length; buildPreview(pIdx,false); }
   else { do{ oIdx=(oIdx+JUGADORES.length+d)%JUGADORES.length; }while(oIdx===pIdx); buildPreview(oIdx,true); }
 }
-document.getElementById('selBack').onclick=()=>{ sfx.ui(); go(state==='selO'?'selP':'config'); };
-document.getElementById('selOk').onclick=()=>{
+on('selBack',()=>{ sfx.ui(); go(state==='selO'?'selP':'config'); });
+on('selOk',()=>{
   sfx.ui();
   if(state==='selP'){ if(oIdx===pIdx) oIdx=(pIdx+1)%JUGADORES.length; go('selO'); }
   else startMatch();
-};
+});
 
 // pausa / fin
-document.getElementById('btnPause').onclick=()=>{ sfx.ui(); go('pause'); };
-document.getElementById('btnResume').onclick=()=>{ sfx.ui(); go('match'); };
-document.getElementById('btnQuit').onclick=()=>{ sfx.ui(); ball.mesh.visible=false; ball.ghosts.forEach(g=>g.visible=false); matchGroup.clear(); go('title'); };
-document.getElementById('btnRematch').onclick=()=>{ sfx.ui(); startMatch(); };
-document.getElementById('btnMenu').onclick=()=>{ sfx.ui(); ball.mesh.visible=false; ball.ghosts.forEach(g=>g.visible=false); matchGroup.clear(); go('title'); };
+on('btnPause',()=>{ sfx.ui(); go('pause'); });
+on('btnResume',()=>{ sfx.ui(); go('match'); });
+on('btnQuit',()=>{ sfx.ui(); ball.mesh.visible=false; ball.ghosts.forEach(g=>g.visible=false); matchGroup.clear(); go('title'); });
+on('btnRematch',()=>{ sfx.ui(); startMatch(); });
+on('btnMenu',()=>{ sfx.ui(); ball.mesh.visible=false; ball.ghosts.forEach(g=>g.visible=false); matchGroup.clear(); go('title'); });
 
 // ── BUCLE ──────────────────────────────────────────────────────────
 buildCourt(); syncTitle();
