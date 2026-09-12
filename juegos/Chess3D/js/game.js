@@ -235,11 +235,11 @@ var Game = (function () {
 
 	function createHighlightMaterials() {
 		function cellMat(base, opts) {
-			var diff = textures["texture/wood-" + base + ".jpg"].clone();
+			var diff = textures["texture/cell-" + base + ".jpg"].clone();
 			diff.tile(2);
-			var norm = textures["texture/wood_N.jpg"].clone();
+			var norm = textures["texture/cell_N.jpg"].clone();
 			norm.tile(2);
-			var spec = textures["texture/wood_S.jpg"].clone();
+			var spec = textures["texture/cell_S.jpg"].clone();
 			spec.tile(2);
 			return new THREE.MeshPhongMaterial({
 				color: opts.color,

@@ -66,10 +66,10 @@ var textures = {};
 			"3D/json/pawn.json",
 			"3D/json/board.json",
 			"3D/json/innerBoard.json",
-			"texture/wood-0.jpg",
-			"texture/wood-1.jpg",
-			"texture/wood_N.jpg",
-			"texture/wood_S.jpg",
+			"texture/cell-0.jpg",
+			"texture/cell-1.jpg",
+			"texture/cell_N.jpg",
+			"texture/cell_S.jpg",
 			"texture/knight-ao.jpg",
 			"texture/rook-ao.jpg",
 			"texture/king-ao.jpg",
@@ -82,24 +82,74 @@ var textures = {};
 			"texture/fakeShadow.jpg"
 		];
 
+		var started = false;
+
+		// Textura de emergencia: si un JPG no esta disponible el juego
+		// arranca igual con un color plano en vez de quedarse colgado.
+		function placeholder() {
+			var c = document.createElement("canvas");
+			c.width = c.height = 4;
+			var ctx = c.getContext("2d");
+			ctx.fillStyle = "#b08d57";
+			ctx.fillRect(0, 0, 4, 4);
+			var tex = new THREE.Texture(c);
+			tex.needsUpdate = true;
+			return tex;
+		}
+
+		function warn(msg) {
+			var el = document.getElementById("loading-tip");
+			if (el) {
+				el.textContent = msg;
+				el.style.color = "#ffb347";
+			}
+			if (window.console) { console.warn("[Chess3D] " + msg); }
+		}
+
+		function start() {
+			if (started) { return; }
+			started = true;
+			clearTimeout(watchdog);
+			setProgress(1);
+			setTimeout(function () {
+				removeLoader();
+				window.onLoaded();
+			}, 150);
+		}
+
 		function checkLoad() {
 			setProgress(loaded / resources.length);
 			if (loaded === resources.length) {
 				if (failed.length) {
-					var el = document.getElementById("loading-tip");
-					if (el) {
-						el.textContent = "Error cargando: " + failed.join(", ") +
-							" — ¿estás abriendo el juego con un servidor local? Usa Jugar.bat";
-						el.style.color = "#ff6666";
-					}
+					warn("No se pudieron cargar: " + failed.join(", ") +
+						" — el juego arranca con texturas provisionales.");
+					setTimeout(start, 1200);
 					return;
 				}
-				setTimeout(function () {
-					removeLoader();
-					window.onLoaded();
-				}, 150);
+				start();
 			}
 		}
+
+		// Si algun recurso no responde nunca (404 sin evento de error, red
+		// caida...) no dejamos la pantalla de carga bloqueada para siempre.
+		var watchdog = setTimeout(function () {
+			if (started) { return; }
+			var missing = resources.filter(function (url) {
+				return !geometries[url] && !textures[url];
+			});
+			if (missing.length) {
+				warn("Faltan recursos: " + missing.join(", "));
+				missing.forEach(function (url) {
+					if (url.slice(-5) !== ".json" && !textures[url]) {
+						textures[url] = placeholder();
+					}
+				});
+			}
+			// sin los modelos 3D no hay partida posible
+			var noGeo = missing.some(function (url) { return url.slice(-5) === ".json"; });
+			if (noGeo) { return; }
+			start();
+		}, 20000);
 
 		function loadJSON(url) {
 			var loader = new THREE.JSONLoader();
@@ -121,6 +171,7 @@ var textures = {};
 				},
 				function () {
 					failed.push(url);
+					textures[url] = placeholder();
 					loaded++;
 					checkLoad();
 				}

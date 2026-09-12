@@ -22,12 +22,12 @@ function initPieceFactory () {
 	var tiling = 4;
 	var colors = [];
 	for(var c = 0; c<2; c++) {
-		colors[c] = textures['texture/wood-'+c+'.jpg'].clone();
+		colors[c] = textures['texture/cell-'+c+'.jpg'].clone();
 		colors[c].tile(tiling);
 	}
-	var norm = textures['texture/wood_N.jpg'].clone();
+	var norm = textures['texture/cell_N.jpg'].clone();
 	norm.tile(tiling);
-	var spec = textures['texture/wood_S.jpg'].clone();
+	var spec = textures['texture/cell_S.jpg'].clone();
 	spec.tile(tiling);
 
 	function createPiece(name,color) {
@@ -95,14 +95,14 @@ function initCellFactory() {
 
 	// common textures
 	var diff;
-	var norm = textures['texture/wood_N.jpg'].clone();
+	var norm = textures['texture/cell_N.jpg'].clone();
 	norm.tile(tiling);
-	var spec = textures['texture/wood_S.jpg'].clone();
+	var spec = textures['texture/cell_S.jpg'].clone();
 	spec.tile(tiling);
 
 	for(var c = 0; c<2; c++) {
 
-		diff = textures['texture/wood-'+c+'.jpg'].clone();
+		diff = textures['texture/cell-'+c+'.jpg'].clone();
 		diff.tile(tiling);
 
 		//common material
@@ -183,9 +183,9 @@ function createChessBoard(size) {
 
 	/// board borders
 	var tiling = 6;
-	var wood = textures['texture/wood-0.jpg'].clone();
-	var spec = textures['texture/wood_S.jpg'].clone();
-	var norm = textures['texture/wood_N.jpg'].clone();
+	var wood = textures['texture/cell-0.jpg'].clone();
+	var spec = textures['texture/cell_S.jpg'].clone();
+	var norm = textures['texture/cell_N.jpg'].clone();
 	wood.tile(tiling);
 	spec.tile(tiling);
 	norm.tile(tiling);
@@ -359,14 +359,14 @@ function createValidCellMaterial () {
 
 	// common textures
 	var diff;
-	var norm = textures['texture/wood_N.jpg'].clone();
+	var norm = textures['texture/cell_N.jpg'].clone();
 	norm.tile(tiling);
-	var spec = textures['texture/wood_S.jpg'].clone();
+	var spec = textures['texture/cell_S.jpg'].clone();
 	spec.tile(tiling);
 
 	for(var c = 0; c<2; c++) {
 
-		diff = textures['texture/wood-1.jpg'].clone();
+		diff = textures['texture/cell-1.jpg'].clone();
 		diff.tile(tiling);
 
 		//common material
@@ -391,14 +391,14 @@ function createSelectedMaterial() {
 
 	// common textures
 	var diff;
-	var norm = textures['texture/wood_N.jpg'].clone();
+	var norm = textures['texture/cell_N.jpg'].clone();
 	norm.tile(tiling);
-	var spec = textures['texture/wood_S.jpg'].clone();
+	var spec = textures['texture/cell_S.jpg'].clone();
 	spec.tile(tiling);
 
 	for(var c = 0; c<2; c++) {
 
-		diff = textures['texture/wood-1.jpg'].clone();
+		diff = textures['texture/cell-1.jpg'].clone();
 		diff.tile(tiling);
 
 		//common material
