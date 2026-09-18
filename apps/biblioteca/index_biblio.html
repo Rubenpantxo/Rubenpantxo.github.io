@@ -10,6 +10,12 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Reserva siempre el hueco de la barra: al abrir la ficha 3D
+           (que bloquea el scroll) la pagina no da un salto lateral. */
+        html { scrollbar-gutter: stable; background: #111; }
+        html.b3d-open { overflow: hidden; }
+        body { background: #111; color: #e8e9ee; min-height: 100vh; }
+        img { max-width: 100%; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
@@ -20,7 +26,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect, useRef, useCallback } = React;
 
         // --- SVG Icon Components (replacing lucide-react) ---
 
@@ -494,9 +500,277 @@
             ]
         };
 
+
+        // Portadas descargadas a img/Libros/portadas/ (clave: titulo exacto).
+        // Los libros que no aparecen aqui usan la portada de respaldo por CSS.
+        const COVERS = {
+            "arte": {
+                        "Diccionario de las artes": "arte-026-diccionario-de-las-artes.jpg",
+                        "Fotos con Arte": "arte-fotos-con-arte.jpg",
+                        "Grandes Maestros de la Pintura": "arte-grandes-maestros-de-la-pintura.jpg",
+                        "Hooker's Finest Fruits": "arte-010-hooker-s-finest-fruits.jpg",
+                        "How to Paint like Turner": "arte-how-to-paint-like-turner.jpg",
+                        "Isabel Guerra: El libro de la Paz Interior": "arte-isabel-guerra-el-libro-de-la-paz-interior.jpg",
+                        "La Historia del Arte": "arte-000-la-historia-del-arte.jpg",
+                        "Materiales y técnicas del arte": "arte-014-materiales-y-tecnicas-del-arte.jpg",
+                        "Modos de ver": "arte-023-modos-de-ver.jpg",
+                        "Museo de Navarra": "arte-008-museo-de-navarra.jpg",
+                        "Pintura Zen: Método y arte del Sumi-e": "arte-pintura-zen-metodo-y-arte-del-sumi-e.jpg",
+                        "Ribera 1591-1652": "arte-ribera-1591-1652.jpg",
+                        "Sorolla: Apuntes en la Arena": "arte-028-sorolla-apuntes-en-la-arena.jpg",
+                        "The Last Flower Paintings of Manet": "arte-the-last-flower-paintings-of-manet.jpg",
+                        "Van Gogh: La obra completa": "arte-van-gogh-la-obra-completa.jpg",
+                        "Zaha Hadid": "arte-zaha-hadid.jpg"
+            },
+            "ciencias": {
+                        "Antídotos": "ciencias-014-antidotos.jpg",
+                        "El túnel": "ciencias-013-el-tunel.jpg",
+                        "Gramática Griega": "ciencias-003-gramatica-griega.jpg",
+                        "Los Doce Cantos": "ciencias-011-los-doce-cantos.jpg",
+                        "Mensajes del agua": "ciencias-007-mensajes-del-agua.jpg",
+                        "Ortografía Básica": "ciencias-001-ortografia-basica.jpg",
+                        "Pink Floyd": "ciencias-010-pink-floyd.jpg",
+                        "Pueblos Bellos de España": "ciencias-006-pueblos-bellos-de-espana.jpg"
+            },
+            "cocina": {
+                        "Amigas entre Fogones": "cocina-000-amigas-entre-fogones.jpg",
+                        "Dime qué comes y te diré de qué enfermas": "cocina-dime-que-comes-y-te-dire-de-que-enfermas.jpg",
+                        "Es fácil dejar de fumar, si sabes cómo": "cocina-007-es-facil-dejar-de-fumar-si-sabes-como.jpg",
+                        "La Cocina de la Salud": "cocina-008-la-cocina-de-la-salud.jpg",
+                        "Mis recetas anticáncer": "cocina-006-mis-recetas-anticancer.jpg",
+                        "Operación Adelgazar": "cocina-003-operacion-adelgazar.jpg",
+                        "Prevenir el cáncer": "cocina-009-prevenir-el-cancer.jpg",
+                        "Vinos de Navarra": "cocina-004-vinos-de-navarra.jpg"
+            },
+            "derecho": {
+                        "Asalto al poder": "derecho-004-asalto-al-poder.jpg",
+                        "Derecho Procesal Laboral": "derecho-006-derecho-procesal-laboral.jpg",
+                        "Ley de Arbitraje": "derecho-003-ley-de-arbitraje.jpg"
+            },
+            "enciclopedias": {
+                        "Atlas Actual de Geografía Universal": "enciclopedias-atlas-actual-de-geografia-universal.jpg",
+                        "Diccionario Fundamental de la Lengua Española": "enciclopedias-diccionario-fundamental-de-la-lengua-espanol.jpg"
+            },
+            "historia": {
+                        "Ciencias Políticas y Sociología": "historia-011-ciencias-politicas-y-sociologia.jpg",
+                        "Diccionario Biográfico de Diputados Forales de Navarra": "historia-003-diccionario-biografico-de-diputados-forales-.jpg",
+                        "Economía: Teoría y Política": "historia-008-economia-teoria-y-politica.jpg",
+                        "La Guerra Civil contada a los jóvenes": "historia-004-la-guerra-civil-contada-a-los-jovenes.jpg",
+                        "La época de las Revoluciones: De Goya a la modernidad": "historia-006-la-epoca-de-las-revoluciones-de-goya-a-la-mo.jpg",
+                        "Plan General de Contabilidad (Ed. 2005)": "historia-010-plan-general-de-contabilidad-ed-2005.jpg",
+                        "Seguridad e Higiene en el Trabajo": "historia-013-seguridad-e-higiene-en-el-trabajo.jpg"
+            },
+            "infantiles": {
+                        "Antonio Machado para niños": "infantiles-051-antonio-machado-para-ninos.jpg",
+                        "Ausländer": "infantiles-024-auslander.jpg",
+                        "Busca los animales de la Tierra": "infantiles-056-busca-los-animales-de-la-tierra.jpg",
+                        "Como si no hubiera sucedido": "infantiles-como-si-no-hubiera-sucedido.jpg",
+                        "Diez cuentos de lobos": "infantiles-037-diez-cuentos-de-lobos.jpg",
+                        "Don Quijote": "infantiles-027-don-quijote.jpg",
+                        "El Pequeño Vampiro": "infantiles-014-el-pequeno-vampiro.jpg",
+                        "El Principito": "infantiles-064-el-principito.jpg",
+                        "El detective Warton": "infantiles-035-el-detective-warton.jpg",
+                        "El empollón, el cabeza cuadrada, el gafotas y el pelmazo": "infantiles-005-el-empollon-el-cabeza-cuadrada-el-gafotas-y-.jpg",
+                        "El hámster desaparecido": "infantiles-021-el-hamster-desaparecido.jpg",
+                        "El misterio de los hijos de Lúa": "infantiles-006-el-misterio-de-los-hijos-de-lua.jpg",
+                        "El monstruo goloso": "infantiles-020-el-monstruo-goloso.jpg",
+                        "El niño que quería ser Tintín": "infantiles-044-el-nino-que-queria-ser-tintin.jpg",
+                        "El otro barrio": "infantiles-025-el-otro-barrio.jpg",
+                        "El pirata Garrapata en Japón": "infantiles-el-pirata-garrapata-en-japon.jpg",
+                        "El regreso del gato asesino": "infantiles-033-el-regreso-del-gato-asesino.jpg",
+                        "El secreto de papá": "infantiles-008-el-secreto-de-papa.jpg",
+                        "Fantasmas de día": "infantiles-042-fantasmas-de-dia.jpg",
+                        "Fray Perico de la Mancha": "infantiles-004-fray-perico-de-la-mancha.jpg",
+                        "Fray Perico en la guerra": "infantiles-001-fray-perico-en-la-guerra.jpg",
+                        "Fray Perico y su borrico": "infantiles-000-fray-perico-y-su-borrico.jpg",
+                        "Fray Perico, Calcetín y el guerrillero Martín": "infantiles-002-fray-perico-calcetin-y-el-guerrillero-martin.jpg",
+                        "Junie B. Jones y Warren el Superguapo": "infantiles-junie-b-jones-y-warren-el-superguapo.jpg",
+                        "Junie B. Jones y el autobús apestoso": "infantiles-junie-b-jones-y-el-autobus-apestoso.jpg",
+                        "Kika Superbruja y el hechizo de la Navidad": "infantiles-015-kika-superbruja-y-el-hechizo-de-la-navidad.jpg",
+                        "Kimazi y la montaña": "infantiles-009-kimazi-y-la-montana.jpg",
+                        "La Puerta del Tiempo": "infantiles-la-puerta-del-tiempo.jpg",
+                        "La máquina maravillosa": "infantiles-062-la-maquina-maravillosa.jpg",
+                        "Las Crónicas de Narnia": "infantiles-060-las-cronicas-de-narnia.jpg",
+                        "Las Fieras Fútbol Club: Joschka": "infantiles-las-fieras-futbol-club-joschka.jpg",
+                        "Las Fieras Fútbol Club: Marlon": "infantiles-las-fieras-futbol-club-marlon.jpg",
+                        "Marianela": "infantiles-029-marianela.jpg",
+                        "Mi abuelo era un cerezo": "infantiles-mi-abuelo-era-un-cerezo.jpg",
+                        "Mi primer Quijote": "infantiles-059-mi-primer-quijote.jpg",
+                        "Mi primer libro de la Prehistoria": "infantiles-058-mi-primer-libro-de-la-prehistoria.jpg",
+                        "Mi vida en el paraíso": "infantiles-031-mi-vida-en-el-paraiso.jpg",
+                        "Moby Dick (infantil)": "infantiles-055-moby-dick-infantil.jpg",
+                        "Pandillas rivales": "infantiles-043-pandillas-rivales.jpg",
+                        "Piratas del Caribe": "infantiles-026-piratas-del-caribe.jpg",
+                        "Rastro de Dios y otros cuentos": "infantiles-034-rastro-de-dios-y-otros-cuentos.jpg",
+                        "San Manuel Bueno, mártir": "infantiles-028-san-manuel-bueno-martir.jpg",
+                        "Teo en un día de fiesta": "infantiles-047-teo-en-un-dia-de-fiesta.jpg",
+                        "Teo está enfermo": "infantiles-049-teo-esta-enfermo.jpg",
+                        "Teo y los deportes": "infantiles-046-teo-y-los-deportes.jpg",
+                        "Teo y su cumpleaños": "infantiles-050-teo-y-su-cumpleanos.jpg",
+                        "Teo y su familia": "infantiles-048-teo-y-su-familia.jpg",
+                        "Teo y su hermana": "infantiles-045-teo-y-su-hermana.jpg",
+                        "The Giver": "infantiles-023-the-giver.jpg",
+                        "Tobi Lolness": "infantiles-022-tobi-lolness.jpg",
+                        "Un duende a rayas": "infantiles-032-un-duende-a-rayas.jpg",
+                        "África en el corazón": "infantiles-030-africa-en-el-corazon.jpg"
+            },
+            "navarra": {
+                        "Descubra España: Cantabria I": "navarra-descubra-espana-cantabria-i.jpg"
+            },
+            "novelas": {
+                        "Asesinato en el Orient Express": "novelas-108-asesinato-en-el-orient-express.jpg",
+                        "Canciones para Paula": "novelas-045-canciones-para-paula.jpg",
+                        "Cantares gallegos": "novelas-cantares-gallegos.jpg",
+                        "Chamán": "novelas-047-chaman.jpg",
+                        "Como el río que fluye": "novelas-092-como-el-rio-que-fluye.jpg",
+                        "Con el diablo en los talones": "novelas-078-con-el-diablo-en-los-talones.jpg",
+                        "Cállame con un beso": "novelas-043-callame-con-un-beso.jpg",
+                        "Demian": "novelas-042-demian.jpg",
+                        "Ecce homo": "novelas-053-ecce-homo.jpg",
+                        "El Capitán Alatriste": "novelas-013-el-capitan-alatriste.jpg",
+                        "El Doctor Jivago": "novelas-el-doctor-jivago.jpg",
+                        "El Guardián de la Flor de Loto": "novelas-073-el-guardian-de-la-flor-de-loto.jpg",
+                        "El Jardín de las Mujeres Verelli": "novelas-105-el-jardin-de-las-mujeres-verelli.jpg",
+                        "El Lazarillo de Tormes": "novelas-107-el-lazarillo-de-tormes.jpg",
+                        "El Príncipe": "novelas-055-el-principe.jpg",
+                        "El Rabino": "novelas-046-el-rabino.jpg",
+                        "El Siciliano": "novelas-114-el-siciliano.jpg",
+                        "El cuco de cristal": "novelas-004-el-cuco-de-cristal.jpg",
+                        "El imposible olvido": "novelas-038-el-imposible-olvido.jpg",
+                        "El jurado": "novelas-066-el-jurado.jpg",
+                        "El manuscrito carmesí": "novelas-022-el-manuscrito-carmesi.jpg",
+                        "El médico": "novelas-048-el-medico.jpg",
+                        "El niño que perdió la guerra": "novelas-el-nino-que-perdio-la-guerra.jpg",
+                        "El peligro de estar cuerda": "novelas-097-el-peligro-de-estar-cuerda.jpg",
+                        "El peregrino ruso": "novelas-036-el-peregrino-ruso.jpg",
+                        "El peso de la paja": "novelas-011-el-peso-de-la-paja.jpg",
+                        "El poder y la gloria": "novelas-082-el-poder-y-la-gloria.jpg",
+                        "El sastre de Panamá": "novelas-007-el-sastre-de-panama.jpg",
+                        "El secreto de Helena": "novelas-106-el-secreto-de-helena.jpg",
+                        "El Último Catón": "novelas-003-el-ultimo-caton.jpg",
+                        "Enamoramiento y Amor": "novelas-049-enamoramiento-y-amor.jpg",
+                        "Esclavos de la Libertad": "novelas-esclavos-de-la-libertad.jpg",
+                        "Espiral de Artillería": "novelas-010-espiral-de-artilleria.jpg",
+                        "Gulliver's Travels": "novelas-112-gulliver-s-travels.jpg",
+                        "Historia de una gaviota...": "novelas-051-historia-de-una-gaviota.jpg",
+                        "Historias de Mujeres Casadas": "novelas-002-historias-de-mujeres-casadas.jpg",
+                        "Katharine Hepburn": "novelas-086-katharine-hepburn.jpg",
+                        "La Casa Rusia": "novelas-008-la-casa-rusia.jpg",
+                        "La Invitada": "novelas-023-la-invitada.jpg",
+                        "La Reina muy de cerca": "novelas-021-la-reina-muy-de-cerca.jpg",
+                        "La Saga de los Longevos": "novelas-104-la-saga-de-los-longevos.jpg",
+                        "La canción de Dorotea": "novelas-102-la-cancion-de-dorotea.jpg",
+                        "La carta esférica": "novelas-103-la-carta-esferica.jpg",
+                        "La ciencia y la vida": "novelas-085-la-ciencia-y-la-vida.jpg",
+                        "La espuma de los días": "novelas-la-espuma-de-los-dias.jpg",
+                        "La familia de Pascual Duarte": "novelas-062-la-familia-de-pascual-duarte.jpg",
+                        "La hija del Caníbal": "novelas-012-la-hija-del-canibal.jpg",
+                        "La hoja roja": "novelas-063-la-hoja-roja.jpg",
+                        "La perla": "novelas-057-la-perla.jpg",
+                        "La rabia y el orgullo": "novelas-083-la-rabia-y-el-orgullo.jpg",
+                        "La soledad sonora": "novelas-039-la-soledad-sonora.jpg",
+                        "La sonrisa etrusca": "novelas-037-la-sonrisa-etrusca.jpg",
+                        "La zapatera prodigiosa": "novelas-050-la-zapatera-prodigiosa.jpg",
+                        "Limpieza de sangre": "novelas-014-limpieza-de-sangre.jpg",
+                        "Lo es": "novelas-019-lo-es.jpg",
+                        "Los Hermanos Karamázov (I y II)": "novelas-los-hermanos-karamazov-i-y-ii.jpg",
+                        "Los Santos Inocentes": "novelas-087-los-santos-inocentes.jpg",
+                        "Los Triunfadores": "novelas-024-los-triunfadores.jpg",
+                        "Los besos en el pan": "novelas-017-los-besos-en-el-pan.jpg",
+                        "Los renglones torcidos de Dios": "novelas-040-los-renglones-torcidos-de-dios.jpg",
+                        "Memorias": "novelas-memorias.jpg",
+                        "Memorias de un preso": "novelas-025-memorias-de-un-preso.jpg",
+                        "Mil Soles": "novelas-018-mil-soles.jpg",
+                        "Mrs. Caldwell habla con su hijo": "novelas-061-mrs-caldwell-habla-con-su-hijo.jpg",
+                        "Mujeres": "novelas-115-mujeres.jpg",
+                        "Nadie vale más que otro": "novelas-nadie-vale-mas-que-otro.jpg",
+                        "No pasó nada": "novelas-072-no-paso-nada.jpg",
+                        "Noticia de un secuestro": "novelas-020-noticia-de-un-secuestro.jpg",
+                        "Nuestro Juego": "novelas-109-nuestro-juego.jpg",
+                        "Once minutos": "novelas-074-once-minutos.jpg",
+                        "Padre nuestro que estás en Euskadi": "novelas-088-padre-nuestro-que-estas-en-euskadi.jpg",
+                        "Por el camino de Swann": "novelas-035-por-el-camino-de-swann.jpg",
+                        "Pura vida": "novelas-090-pura-vida.jpg",
+                        "Rabos de lagartija": "novelas-101-rabos-de-lagartija.jpg",
+                        "Réquiem por un campesino español": "novelas-060-requiem-por-un-campesino-espanol.jpg",
+                        "Sentido y sensibilidad": "novelas-041-sentido-y-sensibilidad.jpg",
+                        "Septiembre": "novelas-091-septiembre.jpg",
+                        "Si al atardecer llegara el mensajero": "novelas-076-si-al-atardecer-llegara-el-mensajero.jpg",
+                        "Si te dicen que caí": "novelas-054-si-te-dicen-que-cai.jpg",
+                        "Te di la vida entera": "novelas-016-te-di-la-vida-entera.jpg",
+                        "Tierra": "novelas-028-tierra.jpg",
+                        "Todo Arde": "novelas-005-todo-arde.jpg",
+                        "Todos los nombres": "novelas-059-todos-los-nombres.jpg",
+                        "Travesuras de la niña mala": "novelas-075-travesuras-de-la-nina-mala.jpg",
+                        "Trois jours et une vie": "novelas-071-trois-jours-et-une-vie.jpg",
+                        "Tu nombre envenena mis sueños": "novelas-084-tu-nombre-envenena-mis-suenos.jpg",
+                        "Un hombre": "novelas-015-un-hombre.jpg",
+                        "Una luz en el atardecer": "novelas-077-una-luz-en-el-atardecer.jpg",
+                        "¿Sabes que te quiero?": "novelas-044-sabes-que-te-quiero.jpg",
+                        "Últimas noticias del paraíso": "novelas-110-ultimas-noticias-del-paraiso.jpg",
+                        "Últimos días en Berlín": "novelas-094-ultimos-dias-en-berlin.jpg"
+            },
+            "psicologia": {
+                        "Constelaciones Familiares": "psicologia-036-constelaciones-familiares.jpg",
+                        "Desarrollo psicológico y educación III": "psicologia-desarrollo-psicologico-y-educacion-iii.jpg",
+                        "El Poder del Ahora": "psicologia-034-el-poder-del-ahora.jpg",
+                        "El cambio familiar: Desarrollos de modelos": "psicologia-023-el-cambio-familiar-desarrollos-de-modelos.jpg",
+                        "El sentido del sexo": "psicologia-019-el-sentido-del-sexo.jpg",
+                        "Introducción a la psicopatología y la psiquiatría": "psicologia-032-introduccion-a-la-psicopatologia-y-la-psiqui.jpg",
+                        "Introducción al psicodiagnóstico de Rorschach": "psicologia-introduccion-al-psicodiagnostico-de-rorschac.jpg",
+                        "La fortaleza vacía": "psicologia-018-la-fortaleza-vacia.jpg",
+                        "La psicología como posibilidad": "psicologia-027-la-psicologia-como-posibilidad.jpg",
+                        "Pensamiento, resolución de problemas y cognición": "psicologia-009-pensamiento-resolucion-de-problemas-y-cognic.jpg",
+                        "Poema Pedagógico (1, 2 y 3)": "psicologia-poema-pedagogico-1-2-y-3.jpg",
+                        "Seis sombreros para pensar": "psicologia-035-seis-sombreros-para-pensar.jpg",
+                        "Use su cabeza para variar": "psicologia-016-use-su-cabeza-para-variar.jpg"
+            },
+            "teologia": {
+                        "Almas Muertas": "teologia-046-almas-muertas.jpg",
+                        "Bajo el árbol amigo": "teologia-036-bajo-el-arbol-amigo.jpg",
+                        "Cuentos Rusos": "teologia-044-cuentos-rusos.jpg",
+                        "El Alquimista": "teologia-011-el-alquimista.jpg",
+                        "El Loco": "teologia-049-el-loco.jpg",
+                        "El Profeta": "teologia-048-el-profeta.jpg",
+                        "El camino de Jesús - Relectura de los evangelios": "teologia-032-el-camino-de-jesus-relectura-de-los-evangeli.jpg",
+                        "El conflicto con Dios hoy": "teologia-013-el-conflicto-con-dios-hoy.jpg",
+                        "El libro del masaje": "teologia-042-el-libro-del-masaje.jpg",
+                        "Es fácil dejar de preocuparse": "teologia-014-es-facil-dejar-de-preocuparse.jpg",
+                        "Fuego en el corazón": "teologia-025-fuego-en-el-corazon.jpg",
+                        "Holy Bible": "teologia-000-holy-bible.jpg",
+                        "Introducción al Antiguo Testamento": "teologia-introduccion-al-antiguo-testamento.jpg",
+                        "Jesús de Nazaret": "teologia-031-jesus-de-nazaret.jpg",
+                        "La Décima Revelación": "teologia-023-la-decima-revelacion.jpg",
+                        "La Magia de tu Mente": "teologia-038-la-magia-de-tu-mente.jpg",
+                        "La Paradoja": "teologia-026-la-paradoja.jpg",
+                        "La enfermedad como camino": "teologia-017-la-enfermedad-como-camino.jpg",
+                        "La fuerza del optimismo": "teologia-024-la-fuerza-del-optimismo.jpg",
+                        "Las Siete Llamas Sagradas": "teologia-021-las-siete-llamas-sagradas.jpg",
+                        "Las doce puertas": "teologia-012-las-doce-puertas.jpg",
+                        "Los lugares que te asustan": "teologia-009-los-lugares-que-te-asustan.jpg",
+                        "Meditación: La primera y última libertad": "teologia-034-meditacion-la-primera-y-ultima-libertad.jpg",
+                        "Mensajes desde el retiro de Saint Germain": "teologia-022-mensajes-desde-el-retiro-de-saint-germain.jpg",
+                        "Misal de la asamblea dominical": "teologia-001-misal-de-la-asamblea-dominical.jpg",
+                        "Médicos del Cielo": "teologia-007-medicos-del-cielo.jpg",
+                        "Obedece a tu cuerpo ¡ámate!": "teologia-003-obedece-a-tu-cuerpo-amate.jpg",
+                        "Palabras para cada amanecer": "teologia-037-palabras-para-cada-amanecer.jpg",
+                        "Pide y se te dará": "teologia-004-pide-y-se-te-dara.jpg",
+                        "Rasgar el velo de la Dualidad": "teologia-040-rasgar-el-velo-de-la-dualidad.jpg",
+                        "Shimriti": "teologia-029-shimriti.jpg",
+                        "Todo se puede curar": "teologia-002-todo-se-puede-curar.jpg",
+                        "Vida, Amor y Risa": "teologia-vida-amor-y-risa.jpg",
+                        "Virgo": "teologia-047-virgo.jpg",
+                        "Vivir en la luz": "teologia-019-vivir-en-la-luz.jpg"
+            },
+            "viajes": {
+                        "Acropolis (Griego)": "viajes-007-acropolis-griego.jpg",
+                        "Dubrovnik": "viajes-006-dubrovnik.jpg"
+            }
+        };
+
         // --- CSS STYLES FOR BACKGROUND ---
         const FLASHLIGHT_CSS = `
-            .flashlight-container {
+            .shelf-bg {
                 --color-0: #fff;
                 --color-1: #111;
                 --color-2: #222;
@@ -654,11 +928,16 @@
                 );
                 background-size: 300px 150px;
                 background-position: center bottom;
-                position: relative;
-                overflow-y: auto;
+                /* Capa de fondo fija al viewport: ya no es el contenedor del
+                   contenido ni un scroller, asi que nada de lo que pase en la
+                   rejilla puede moverla. */
+                position: fixed;
+                inset: 0;
+                z-index: 0;
+                pointer-events: none;
             }
 
-            .flashlight-container:before {
+            .shelf-bg:before {
                 content: "";
                 width: 100%;
                 height: 100%;
@@ -819,7 +1098,438 @@
                 width: 100%;
                 min-height: 100vh;
             }
+
+            /* ================= LIBRERÍA: rejilla y tarjetas ================= */
+            /* Nada de esto debe alterar el layout al pasar el ratón: las
+               tarjetas tienen altura fija y solo se anima transform. */
+
+            .library-root { position: relative; min-height: 100vh; }
+
+            .books-grid {
+                display: grid;
+                column-gap: 1rem;
+                row-gap: 1.75rem;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            @media (min-width: 640px)  { .books-grid { grid-template-columns: repeat(3, minmax(0,1fr)); column-gap: 1.25rem; row-gap: 2rem; } }
+            @media (min-width: 768px)  { .books-grid { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+            @media (min-width: 1024px) { .books-grid { grid-template-columns: repeat(5, minmax(0,1fr)); } }
+            @media (min-width: 1280px) { .books-grid { grid-template-columns: repeat(6, minmax(0,1fr)); } }
+
+            .book-card {
+                position: relative;
+                display: block;
+                width: 100%;
+                padding: 0;
+                border: 0;
+                background: none;
+                color: inherit;
+                font: inherit;
+                text-align: left;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .book-card__inner {
+                display: block;
+                transform: translate3d(0, 0, 0);
+                transition: transform .3s cubic-bezier(.22,.61,.36,1), filter .3s ease;
+                will-change: transform;
+            }
+            /* Solo el libro señalado se mueve. Nunca cambia el flujo. */
+            @media (hover: hover) and (pointer: fine) {
+                .book-card:hover  { z-index: 5; }
+                .book-card:hover  .book-card__inner,
+                .book-card:focus-visible .book-card__inner {
+                    transform: translate3d(0, -8px, 0) scale(1.045);
+                }
+                .book-card:hover .book-card__cover { box-shadow: 0 18px 32px -14px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.06); }
+            }
+            .book-card:focus-visible { outline: 2px solid var(--cat, #fff); outline-offset: 4px; border-radius: .5rem; }
+            .book-card:active .book-card__inner { transform: translate3d(0, -3px, 0) scale(.985); }
+
+            .book-card__cover {
+                position: relative;
+                display: block;
+                aspect-ratio: 2 / 3;
+                border-radius: .2rem .45rem .45rem .2rem;
+                overflow: hidden;
+                background: #16181d;
+                box-shadow: 0 10px 22px -14px rgba(0,0,0,.95), 0 1px 4px rgba(0,0,0,.6);
+                transition: box-shadow .3s ease, opacity .3s ease;
+            }
+            .cover-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+            .cover-fallback {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: .4rem;
+                padding: 11% 9%;
+                background-color: var(--cat, #555);
+                background-image: linear-gradient(155deg, rgba(255,255,255,.22), rgba(255,255,255,0) 42%, rgba(0,0,0,.42) 100%);
+            }
+            .cover-fallback::before {
+                content: "";
+                position: absolute;
+                inset: 6% 5%;
+                border: 1px solid currentColor;
+                opacity: .3;
+                border-radius: 2px;
+                pointer-events: none;
+            }
+            .cover-fallback__title {
+                position: relative;
+                font-weight: 800;
+                font-size: clamp(.6rem, 1.45vw, .95rem);
+                line-height: 1.14;
+                letter-spacing: -.01em;
+                display: -webkit-box;
+                -webkit-line-clamp: 6;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .cover-fallback__author {
+                position: relative;
+                font-size: clamp(.52rem, 1.05vw, .74rem);
+                font-weight: 600;
+                opacity: .85;
+                border-top: 1px solid currentColor;
+                padding-top: .28rem;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .book-card__spine {
+                position: absolute;
+                left: 0; top: 0; bottom: 0;
+                width: 8%;
+                background: linear-gradient(90deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.22) 55%, rgba(255,255,255,.05) 100%);
+                pointer-events: none;
+            }
+            .book-card__band {
+                position: absolute;
+                left: 0; top: 0; bottom: 0;
+                width: 3px;
+                background: var(--cat, #888);
+                pointer-events: none;
+            }
+            .book-card__meta {
+                display: block;
+                height: 3.35rem;
+                margin-top: .5rem;
+                overflow: hidden;
+                text-shadow: 0 1px 3px rgba(0,0,0,.95), 0 0 10px rgba(0,0,0,.8);
+            }
+            .book-card__title {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                font-size: .8rem;
+                font-weight: 700;
+                line-height: 1.2;
+                color: #e8e9ee;
+            }
+            .book-card__author {
+                display: block;
+                margin-top: .12rem;
+                font-size: .69rem;
+                color: #9ba1ad;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* El resto del estante queda quieto y atenuado */
+            .books-grid.is-dimmed .book-card:not(.is-open) .book-card__inner { filter: brightness(.35) saturate(.55); }
+            .book-card.is-open .book-card__cover {
+                opacity: .12;
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+            }
+            .book-card.is-open .book-card__meta { opacity: .35; }
+
+            /* ================= FICHA EN 3D ================= */
+
+            .book3d-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 100;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+            }
+            .book3d-backdrop {
+                position: absolute;
+                inset: 0;
+                border: 0;
+                padding: 0;
+                background: rgba(6,7,10,.84);
+                -webkit-backdrop-filter: blur(7px);
+                backdrop-filter: blur(7px);
+                cursor: zoom-out;
+                animation: b3dFade .3s ease both;
+            }
+            .book3d-dialog {
+                position: relative;
+                z-index: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1.25rem;
+                width: 100%;
+                max-width: 60rem;
+                max-height: 100%;
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                padding: .5rem;
+            }
+            @media (min-width: 900px) {
+                .book3d-dialog { flex-direction: row; align-items: center; justify-content: center; gap: 2.75rem; }
+            }
+
+            .book3d-stage {
+                position: relative;
+                flex: 0 0 auto;
+                perspective: 1500px;
+                perspective-origin: 50% 44%;
+                padding: 2rem 1rem 2.75rem;
+            }
+            .book3d-wrap {
+                transform-style: preserve-3d;
+                animation: b3dEnter .95s cubic-bezier(.2,.68,.3,1) both;
+            }
+            .book3d {
+                --bw: clamp(140px, 40vw, 232px);
+                --bh: calc(var(--bw) * 1.48);
+                --bd: clamp(18px, 5vw, 34px);
+                position: relative;
+                width: var(--bw);
+                height: var(--bh);
+                transform-style: preserve-3d;
+                transform: rotateX(7deg) rotateY(-26deg);
+                transition: transform .85s cubic-bezier(.22,.61,.36,1);
+                will-change: transform;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .book3d.is-back { transform: rotateX(7deg) rotateY(-206deg); }
+
+            .book3d-floor {
+                position: absolute;
+                left: 50%;
+                bottom: .9rem;
+                width: clamp(150px, 42vw, 250px);
+                height: 22px;
+                transform: translateX(-50%);
+                background: radial-gradient(ellipse at center, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 70%);
+                filter: blur(3px);
+                pointer-events: none;
+            }
+
+            .b3d-face {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                overflow: hidden;
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+            }
+            .b3d-front, .b3d-back { width: var(--bw); height: var(--bh); }
+            .b3d-front {
+                transform: translate(-50%, -50%) translateZ(calc(var(--bd) / 2));
+                border-radius: 2px 6px 6px 2px;
+                box-shadow: inset 0 0 0 1px rgba(0,0,0,.4);
+            }
+            .b3d-front::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(105deg, rgba(255,255,255,.26) 0%, rgba(255,255,255,0) 32%, rgba(0,0,0,.28) 100%);
+                pointer-events: none;
+            }
+            .b3d-back {
+                transform: translate(-50%, -50%) rotateY(180deg) translateZ(calc(var(--bd) / 2));
+                border-radius: 6px 2px 2px 6px;
+                background-color: var(--cat, #444);
+                background-image: linear-gradient(200deg, rgba(0,0,0,.45), rgba(0,0,0,.05));
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 12% 10%;
+            }
+            .b3d-back__text { font-size: clamp(.55rem, 1.5vw, .74rem); line-height: 1.35; opacity: .9; }
+            .b3d-back__mark { font-size: clamp(.5rem, 1.3vw, .64rem); letter-spacing: .12em; text-transform: uppercase; opacity: .65; }
+
+            .b3d-spine {
+                width: var(--bd);
+                height: var(--bh);
+                transform: translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--bw) / 2));
+                background-color: var(--cat, #444);
+                background-image: linear-gradient(90deg, rgba(0,0,0,.5), rgba(255,255,255,.12) 45%, rgba(0,0,0,.45));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: .5rem .1rem;
+                border-radius: 2px 0 0 2px;
+            }
+            .b3d-spine__text {
+                writing-mode: vertical-rl;
+                text-orientation: mixed;
+                font-size: clamp(.42rem, 1.25vw, .62rem);
+                font-weight: 800;
+                letter-spacing: .04em;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-height: 100%;
+            }
+            .b3d-edge {
+                width: var(--bd);
+                height: var(--bh);
+                transform: translate(-50%, -50%) rotateY(90deg) translateZ(calc(var(--bw) / 2));
+                background-color: #efe8d8;
+                background-image: repeating-linear-gradient(to right, rgba(0,0,0,.16) 0 1px, rgba(0,0,0,0) 1px 3px);
+                box-shadow: inset -6px 0 10px -6px rgba(0,0,0,.55);
+                border-radius: 0 3px 3px 0;
+            }
+            .b3d-top, .b3d-bottom {
+                width: var(--bw);
+                height: var(--bd);
+                background-color: #efe8d8;
+                background-image: repeating-linear-gradient(to bottom, rgba(0,0,0,.14) 0 1px, rgba(0,0,0,0) 1px 3px);
+            }
+            .b3d-top    { transform: translate(-50%, -50%) rotateX(90deg)  translateZ(calc(var(--bh) / 2)); }
+            .b3d-bottom { transform: translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--bh) / 2)); box-shadow: inset 0 -6px 10px -6px rgba(0,0,0,.6); }
+
+            .book3d-info {
+                flex: 1 1 20rem;
+                min-width: 0;
+                max-width: 30rem;
+                background: rgba(16,18,23,.88);
+                border: 1px solid rgba(255,255,255,.09);
+                border-radius: 1rem;
+                padding: 1.35rem 1.4rem;
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
+                box-shadow: 0 30px 60px -30px rgba(0,0,0,.9);
+                animation: b3dInfo .5s .15s cubic-bezier(.2,.68,.3,1) both;
+            }
+            .book3d-info__kicker {
+                display: inline-flex;
+                align-items: center;
+                gap: .45rem;
+                font-size: .68rem;
+                font-weight: 700;
+                letter-spacing: .14em;
+                text-transform: uppercase;
+                color: var(--cat, #ccc);
+            }
+            .book3d-info__kicker::before {
+                content: "";
+                width: .55rem; height: .55rem;
+                border-radius: 50%;
+                background: var(--cat, #ccc);
+                box-shadow: 0 0 10px var(--cat, #ccc);
+            }
+            .book3d-info__title { margin-top: .5rem; font-size: clamp(1.2rem, 3.4vw, 1.65rem); font-weight: 800; line-height: 1.15; color: #f3f4f7; }
+            .book3d-info__author { margin-top: .3rem; font-size: .95rem; color: #a9b0bd; }
+            .book3d-facts { margin-top: 1.1rem; display: grid; grid-template-columns: auto 1fr; gap: .45rem .9rem; font-size: .82rem; }
+            .book3d-facts dt { color: #7f8794; font-weight: 600; }
+            .book3d-facts dd { color: #dfe2e8; margin: 0; overflow-wrap: anywhere; }
+            .book3d-actions { margin-top: 1.35rem; display: flex; flex-wrap: wrap; gap: .6rem; }
+            .book3d-btn {
+                border: 1px solid rgba(255,255,255,.16);
+                background: rgba(255,255,255,.06);
+                color: #e8eaf0;
+                border-radius: .6rem;
+                padding: .5rem .95rem;
+                font-size: .82rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background .2s ease, border-color .2s ease;
+            }
+            .book3d-btn:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); }
+            .book3d-btn--primary { border-color: var(--cat, #888); color: var(--cat, #ddd); }
+            .book3d-hint { margin-top: .8rem; font-size: .7rem; color: #6f7783; }
+
+            @keyframes b3dFade { from { opacity: 0 } to { opacity: 1 } }
+            @keyframes b3dInfo { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+            @keyframes b3dEnter {
+                from { opacity: 0; transform: translate3d(-18%, 8%, -320px) rotateY(-62deg) scale(.82); }
+                55%  { opacity: 1; }
+                to   { opacity: 1; transform: translate3d(0, 0, 0) rotateY(0deg) scale(1); }
+            }
+
+            /* Versión sin giro para quien prefiere menos movimiento */
+            @media (prefers-reduced-motion: reduce) {
+                .book-card__inner { transition: none; }
+                .book-card:hover .book-card__inner,
+                .book-card:focus-visible .book-card__inner { transform: none; }
+                .book3d-wrap { animation: none; }
+                .book3d-backdrop, .book3d-info { animation: none; }
+                .book3d { transition: none; transform: none; }
+                .book3d.is-back { transform: rotateY(180deg); }
+                .book3d-floor { display: none; }
+            }
         `;
+
+        // --- HELPERS DE PORTADA ---
+
+        const COVER_BASE = '../../img/Libros/portadas/';
+
+        const hexToRgb = (hex) => {
+            const h = String(hex || '#888888').replace('#', '');
+            const f = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+            return [
+                parseInt(f.slice(0, 2), 16) || 0,
+                parseInt(f.slice(2, 4), 16) || 0,
+                parseInt(f.slice(4, 6), 16) || 0
+            ];
+        };
+
+        // Tinta legible sobre el color del género (portada de respaldo)
+        const readableOn = (hex) => {
+            const [r, g, b] = hexToRgb(hex);
+            const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+            return lum > 0.55 ? '#111318' : '#f6f4ef';
+        };
+
+        const coverFileFor = (catId, book) => {
+            const map = COVERS[catId];
+            return (map && map[book.title]) || null;
+        };
+
+        // Portada real si existe; si no, portada generada por CSS con el color del género
+        const CoverArt = ({ book, color, file, variant }) => {
+            const [failed, setFailed] = useState(false);
+            const useImage = Boolean(file) && !failed;
+
+            if (useImage) {
+                return (
+                    <img
+                        className="cover-img"
+                        src={COVER_BASE + file}
+                        alt={'Portada de ' + book.title}
+                        loading={variant === 'card' ? 'lazy' : 'eager'}
+                        decoding="async"
+                        draggable="false"
+                        onError={() => setFailed(true)}
+                    />
+                );
+            }
+
+            return (
+                <span className="cover-fallback" style={{ '--cat': color, color: readableOn(color) }}>
+                    <span className="cover-fallback__title">{book.title}</span>
+                    <span className="cover-fallback__author">{book.author}</span>
+                </span>
+            );
+        };
 
         // --- COMPONENTS ---
 
@@ -850,32 +1560,148 @@
             );
         };
 
-        const BookItem = ({ book, color }) => {
+        // Ejemplar en la estantería. Al pasar el ratón SOLO se transforma este
+        // elemento (transform + will-change): ni el fondo, ni la rejilla, ni el
+        // resto de libros cambian de sitio porque nada altera el flujo.
+        const BookItem = ({ book, color, file, isOpen, onSelect }) => {
             return (
-                <div
-                    className="relative group cursor-pointer"
-                    style={{ minHeight: '160px' }}
+                <button
+                    type="button"
+                    className={'book-card' + (isOpen ? ' is-open' : '')}
+                    style={{ '--cat': color }}
+                    aria-label={'Ver ficha de ' + book.title + ', de ' + book.author}
+                    onClick={onSelect}
                 >
-                    <div
-                        className="h-full w-full rounded-lg p-4 flex flex-col items-center justify-center text-center transition-all duration-300 transform group-hover:scale-105 shadow-lg border-l-4 border-opacity-50 border-black/20"
-                        style={{
-                            backgroundColor: color,
-                            color: '#000',
-                            boxShadow: '5px 5px 15px rgba(0,0,0,0.5)'
-                        }}
-                    >
-                        <div className="absolute left-2 top-0 bottom-0 w-1 bg-black/10"></div>
+                    <span className="book-card__inner">
+                        <span className="book-card__cover">
+                            <CoverArt book={book} color={color} file={file} variant="card" />
+                            <span className="book-card__spine" aria-hidden="true"></span>
+                            <span className="book-card__band" aria-hidden="true"></span>
+                        </span>
+                        <span className="book-card__meta">
+                            <span className="book-card__title">{book.title}</span>
+                            <span className="book-card__author">{book.author}</span>
+                        </span>
+                    </span>
+                </button>
+            );
+        };
 
-                        <div className="flex flex-col items-center justify-center h-full w-full transition-all duration-300">
-                            <BookIcon className="w-8 h-8 mb-2 opacity-70" />
-                            <h4 className="font-bold text-lg leading-tight transition-all duration-300 group-hover:-translate-y-2">
-                                {book.title}
-                            </h4>
-                            <div className="max-h-0 overflow-hidden group-hover:max-h-20 transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100">
-                                <p className="text-sm mt-2 font-medium border-t border-black/50 pt-1 inline-block opacity-80">
-                                    {book.author}
-                                </p>
+        // Campos opcionales: si algún día los libros guardan más datos,
+        // la ficha los muestra sola sin tocar el componente.
+        const EXTRA_FIELDS = [
+            ['year', 'Año'], ['anio', 'Año'], ['año', 'Año'],
+            ['publisher', 'Editorial'], ['editorial', 'Editorial'],
+            ['edition', 'Edición'], ['edicion', 'Edición'],
+            ['isbn', 'ISBN'],
+            ['pages', 'Páginas'], ['paginas', 'Páginas'],
+            ['language', 'Idioma'], ['idioma', 'Idioma'],
+            ['saga', 'Saga'], ['series', 'Saga'],
+            ['status', 'Estado de lectura'], ['estado', 'Estado de lectura'], ['leido', 'Estado de lectura'],
+            ['rating', 'Valoración'], ['valoracion', 'Valoración'],
+            ['location', 'Ubicación'], ['ubicacion', 'Ubicación'], ['balda', 'Balda'],
+            ['notes', 'Notas'], ['notas', 'Notas']
+        ];
+
+        // Ficha en 3D: el ejemplar sale del estante y gira mostrando su portada.
+        const Book3DModal = ({ book, category, file, index, total, onClose }) => {
+            const [showBack, setShowBack] = useState(false);
+            const closeRef = useRef(null);
+
+            useEffect(() => {
+                const root = document.documentElement;
+                root.classList.add('b3d-open');
+                const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+                document.addEventListener('keydown', onKey);
+                if (closeRef.current) closeRef.current.focus();
+                return () => {
+                    root.classList.remove('b3d-open');
+                    document.removeEventListener('keydown', onKey);
+                };
+            }, [onClose]);
+
+            const extras = EXTRA_FIELDS.filter(
+                ([key]) => book[key] !== undefined && book[key] !== null && String(book[key]).trim() !== ''
+            );
+            const seen = {};
+
+            return (
+                <div className="book3d-overlay" role="dialog" aria-modal="true" aria-label={'Ficha de ' + book.title}>
+                    <button className="book3d-backdrop" aria-label="Cerrar ficha" onClick={onClose}></button>
+
+                    <div className="book3d-dialog" style={{ '--cat': category.color }}>
+                        <div className="book3d-stage">
+                            <div className="book3d-wrap">
+                                <div
+                                    className={'book3d' + (showBack ? ' is-back' : '')}
+                                    style={{ '--cat': category.color, color: readableOn(category.color) }}
+                                    onClick={() => setShowBack((v) => !v)}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={showBack ? 'Ver la portada' : 'Ver la contraportada'}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowBack((v) => !v); }
+                                    }}
+                                >
+                                    <div className="b3d-face b3d-front">
+                                        <CoverArt book={book} color={category.color} file={file} variant="hero" />
+                                    </div>
+                                    <div className="b3d-face b3d-back">
+                                        <span className="b3d-back__text">{book.title}</span>
+                                        <span className="b3d-back__mark">Biblioteca · {category.name}</span>
+                                    </div>
+                                    <div className="b3d-face b3d-spine">
+                                        <span className="b3d-spine__text">{book.title}</span>
+                                    </div>
+                                    <div className="b3d-face b3d-edge"></div>
+                                    <div className="b3d-face b3d-top"></div>
+                                    <div className="b3d-face b3d-bottom"></div>
+                                </div>
                             </div>
+                            <div className="book3d-floor" aria-hidden="true"></div>
+                        </div>
+
+                        <div className="book3d-info" style={{ '--cat': category.color }}>
+                            <span className="book3d-info__kicker">{category.name}</span>
+                            <h3 className="book3d-info__title">{book.title}</h3>
+                            <p className="book3d-info__author">{book.author}</p>
+
+                            <dl className="book3d-facts">
+                                <dt>Género</dt>
+                                <dd>{category.name}</dd>
+                                <dt>Autor</dt>
+                                <dd>{book.author}</dd>
+                                {extras.map(([key, label]) => {
+                                    if (seen[label]) return null;
+                                    seen[label] = true;
+                                    return (
+                                        <React.Fragment key={key}>
+                                            <dt>{label}</dt>
+                                            <dd>{String(book[key])}</dd>
+                                        </React.Fragment>
+                                    );
+                                })}
+                                <dt>En el estante</dt>
+                                <dd>Ejemplar {index + 1} de {total}</dd>
+                                <dt>Balda</dt>
+                                <dd>{category.name} · {category.label}</dd>
+                                <dt>Portada</dt>
+                                <dd>{file ? 'Archivo local (Open Library)' : 'Generada con el color del género'}</dd>
+                            </dl>
+
+                            <div className="book3d-actions">
+                                <button
+                                    type="button"
+                                    className="book3d-btn book3d-btn--primary"
+                                    onClick={() => setShowBack((v) => !v)}
+                                >
+                                    {showBack ? 'Ver portada' : 'Girar el libro'}
+                                </button>
+                                <button type="button" className="book3d-btn" ref={closeRef} onClick={onClose}>
+                                    Devolver al estante
+                                </button>
+                            </div>
+                            <p className="book3d-hint">Toca el libro para girarlo. Pulsa Esc o fuera para cerrarlo.</p>
                         </div>
                     </div>
                 </div>
@@ -884,12 +1710,28 @@
 
         function App() {
             const [selectedCategory, setSelectedCategory] = useState(null);
+            const [selected, setSelected] = useState(null); // { index }
+
+            const openCategory = useCallback((cat) => {
+                setSelected(null);
+                setSelectedCategory(cat);
+            }, []);
+
+            const closeBook = useCallback(() => setSelected(null), []);
+
+            const list = selectedCategory ? (BOOKS[selectedCategory.id] || []) : [];
+            const openBook = selected ? list[selected.index] : null;
 
             return (
                 <>
                     <style>{FLASHLIGHT_CSS}</style>
 
-                    <div className="flashlight-container font-sans text-gray-100">
+                    <div className="library-root font-sans text-gray-100">
+
+                        {/* Fondo de estantería: capa fija propia. Al estar fuera del
+                            flujo y anclada al viewport, nunca se mueve por hover ni
+                            por cambios de altura del contenido. */}
+                        <div className="shelf-bg" aria-hidden="true"></div>
 
                         <div className="content-wrapper">
 
@@ -906,7 +1748,7 @@
 
                                     {selectedCategory && (
                                         <button
-                                            onClick={() => setSelectedCategory(null)}
+                                            onClick={() => { setSelected(null); setSelectedCategory(null); }}
                                             className="flex items-center gap-2 px-4 py-2 bg-gray-800/80 hover:bg-gray-700/80 border border-gray-600 rounded-lg transition-colors text-sm font-medium backdrop-blur-sm"
                                         >
                                             <ArrowLeft className="w-4 h-4" />
@@ -916,7 +1758,7 @@
                                 </div>
                             </header>
 
-                            <main className="max-w-7xl mx-auto p-4 md:p-8">
+                            <main className="max-w-7xl mx-auto p-4 md:p-8 pb-16">
 
                                 {!selectedCategory ? (
                                     <div>
@@ -926,7 +1768,7 @@
                                                 <CategoryCard
                                                     key={cat.id}
                                                     category={cat}
-                                                    onClick={setSelectedCategory}
+                                                    onClick={openCategory}
                                                 />
                                             ))}
                                         </div>
@@ -940,19 +1782,22 @@
                                             >
                                                 {selectedCategory.name}
                                             </h2>
-                                            <span className="text-gray-400 font-medium">{BOOKS[selectedCategory.id]?.length || 0} libros</span>
+                                            <span className="text-gray-400 font-medium">{list.length} libros</span>
                                         </div>
 
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-                                            {BOOKS[selectedCategory.id]?.map((book, index) => (
+                                        <div className={'books-grid' + (openBook ? ' is-dimmed' : '')}>
+                                            {list.map((book, index) => (
                                                 <BookItem
-                                                    key={index}
+                                                    key={selectedCategory.id + '-' + index}
                                                     book={book}
                                                     color={selectedCategory.color}
+                                                    file={coverFileFor(selectedCategory.id, book)}
+                                                    isOpen={Boolean(selected) && selected.index === index}
+                                                    onSelect={() => setSelected({ index })}
                                                 />
                                             ))}
 
-                                            {(!BOOKS[selectedCategory.id] || BOOKS[selectedCategory.id].length === 0) && (
+                                            {list.length === 0 && (
                                                 <div className="col-span-full text-center py-20 text-gray-500">
                                                     <p>No hay libros registrados en esta categoría aún.</p>
                                                 </div>
@@ -962,16 +1807,27 @@
                                 )}
                             </main>
 
-                            <footer className="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm border-t border-gray-800/50 p-2 text-center text-xs text-gray-500">
-                                Sistema de Archivo v1.1
+                            <footer className="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm border-t border-gray-800/50 p-2 text-center text-xs text-gray-500 z-40">
+                                Sistema de Archivo v1.2
                             </footer>
 
                         </div>
+
+                        {openBook && (
+                            <Book3DModal
+                                key={selectedCategory.id + '-' + selected.index}
+                                book={openBook}
+                                category={selectedCategory}
+                                file={coverFileFor(selectedCategory.id, openBook)}
+                                index={selected.index}
+                                total={list.length}
+                                onClose={closeBook}
+                            />
+                        )}
                     </div>
                 </>
             );
         }
-
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
