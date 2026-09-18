@@ -125,8 +125,9 @@
 
     // Elementos ligados a una escena. Mientras su escena esta apagada quedan
     // fuera del foco y de las tecnologias de asistencia: opacity: 0 NO basta.
-    // Prefijo "!" = logica invertida (visible mientras la escena esta a 0),
-    // que es el caso de la copy de apertura: se va cuando --s-intro sube.
+    // Prefijo "!" = logica invertida: el elemento vive mientras su escena NO
+    // ha terminado, que es el caso de la copy de apertura: se desliza fuera
+    // mientras --s-intro sube y solo se retira cuando la rampa se acaba.
     var porEscena = {};
     var escenaActiva = {};
     Array.prototype.forEach.call(seccion.querySelectorAll('[data-cine-escena]'), function (el) {
@@ -176,11 +177,19 @@
 
         var ligados = porEscena[nombre];
         if (ligados) {
+          // Escena normal: se enciende en cuanto arranca.
+          // Escena invertida (prefijo "!"): sigue viva hasta que la escena
+          // TERMINA de reproducirse, para que su salida se vea entera. Antes
+          // compartia umbral con las normales (v > 0.02), asi que se ocultaba
+          // en el primer fotograma de la rampa y el bloque desaparecia de
+          // golpe por mucho que el CSS lo estuviese sacando de pantalla.
           var encendida = v > 0.02;
-          if (escenaActiva[nombre] !== encendida) {
-            escenaActiva[nombre] = encendida;
+          var saliendo = v < 0.98;
+          var firma = (encendida ? 1 : 0) + (saliendo ? 2 : 0);
+          if (escenaActiva[nombre] !== firma) {
+            escenaActiva[nombre] = firma;
             for (var i = 0; i < ligados.length; i++) {
-              var activo = ligados[i].invertida ? !encendida : encendida;
+              var activo = ligados[i].invertida ? saliendo : encendida;
               ligados[i].el.setAttribute('data-cine-activo', activo ? 'true' : 'false');
             }
           }
