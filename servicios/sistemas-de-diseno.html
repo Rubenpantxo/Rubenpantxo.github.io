@@ -70,14 +70,14 @@
 
   .sd-muestras {
     display: flex;
-    gap: 6px;
-    margin-bottom: 0.35rem;
+    gap: 7px;
+    margin-bottom: 0.2rem;
   }
 
   .sd-muestras > span {
-    width: 26px;
-    height: 26px;
-    border-radius: 7px;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
   }
 
@@ -170,7 +170,7 @@
 
   .sd-mini-colores > span {
     flex: 1;
-    height: 20px;
+    height: 26px;
     border-radius: 5px;
     box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.18);
   }
@@ -333,6 +333,38 @@
   .cine-panel::-webkit-scrollbar, .cine-catalogo::-webkit-scrollbar {
     display: none;
   }
+
+  /* ============================================================
+     PRESENTACION, NO LECTURA
+     Aqui se viene a ver paletas, tipografias y componentes. Asi que manda el
+     titular, la linea de apoyo se retira a pie de foto y las muestras
+     visuales se quedan con el peso. Nada de bloques de parrafo.
+     ============================================================ */
+  .cine-entradilla {
+    max-width: 40ch;
+    font-size: clamp(0.92rem, 1.05vw, 1.05rem);
+    opacity: 0.7;
+  }
+
+  .cine-panel > h2 {
+    letter-spacing: -0.03em;
+  }
+
+  /* Una sola linea por panel, y por debajo del titular en peso visual. */
+  .cine-panel > p {
+    max-width: 46ch;
+    font-size: clamp(0.85rem, 1vw, 0.95rem);
+    line-height: 1.4;
+    opacity: 0.62;
+  }
+
+  /* El pie de la tarjeta describe; la ficha tecnica (.sd-rasgo) compara. Ni
+     uno ni otra deben pesar mas que las cuatro muestras de color de arriba. */
+  .cine-tarjeta p {
+    font-size: 0.79rem;
+    line-height: 1.4;
+    opacity: 0.62;
+  }
 </style>
 <noscript>
   <style>
@@ -340,7 +372,17 @@
        se pierda ni una linea de contenido ni un enlace. */
     .cine-scroll { height: auto; }
     .cine-escenario { position: static; height: auto; min-height: 0; padding: 2rem 0 3rem; }
-    .cine-mundo { opacity: 1; position: relative; height: 52vh; filter: none; }
+    /* El mundo vuelve al flujo: ni sangrado, ni empuje de camara, ni el
+       encuadre que dependia del progreso que aqui nadie calcula. */
+    .cine-mundo {
+      opacity: 1;
+      position: relative;
+      inset: auto;
+      height: 52vh;
+      filter: none;
+      transform: none;
+      animation: none;
+    }
     .cine-tinte { display: none; }
     .cine-nav { position: static; }
     .cine-intro,
@@ -392,15 +434,15 @@
     <!-- ---------- INTRO ---------- -->
     <div class="cine-intro" data-cine-escena="!intro">
       <h1 class="cine-titulo"><!--@N-->Nueve<!--/@N--> maneras de que tu web se sienta tuya</h1>
-      <p class="cine-entradilla">Un sistema de diseño es todo lo que se decide antes de dibujar la primera pantalla. Ninguno está atado a un tipo de negocio: eliges el que te gusta y viste tu proyecto.</p>
+      <p class="cine-entradilla">Paletas, tipografías y componentes. Ninguno atado a un sector: eliges y vistes tu proyecto.</p>
     </div>
 
     <!-- ---------- NARRATIVA A: p = 0.27 ----------
          Lleva su propio muestrario de paletas y tipografías: cada tarjeta
          está pintada con los colores reales de su sistema y enlaza a la ficha. -->
     <article class="cine-panel cine-panel--ancho" data-panel="a" data-cine-escena="narrativaA" data-cine-rail>
-      <h2>Lo que se decide antes de dibujar nada</h2>
-      <p>Paleta, patrones, tipografías. Un sistema no empieza en una pantalla bonita: empieza cuando eliges los seis colores que van a repetirse mil veces y la fuente que alguien leerá en su móvil a las once de la noche.</p>
+      <h2>Antes de dibujar nada</h2>
+      <p>Los colores y la letra que se van a repetir mil veces.</p>
 
       <div class="sd-mini-cabecera">
         <span class="sd-mini-titulo">Paletas y tipografías</span>
@@ -486,7 +528,7 @@
          dentro son muestras (aria-hidden); lo pulsable es la tarjeta entera. -->
     <article class="cine-panel cine-panel--ancho" data-panel="b" data-cine-escena="narrativaB" data-cine-rail>
       <h2>Y luego, lo que el dedo toca</h2>
-      <p>Iconos, botones, checkboxes. Las piezas que nadie mira dos veces cuando están bien hechas, y que arruinan la confianza en tu web cuando no lo están.</p>
+      <p>Botones, casillas, iconos. Nadie los mira dos veces cuando están bien hechos.</p>
 
       <div class="sd-mini-cabecera">
         <span class="sd-mini-titulo">Componentes de cada sistema</span>
@@ -684,7 +726,7 @@
               <span style="background:#a3e635"></span><span style="background:#0a0d0a"></span><span style="background:#f2f5f0"></span><span style="background:#8ecc1f"></span>
             </span>
             <h3>Halógeno</h3>
-            <p>Negro verdoso y un lima de alto voltaje. Un solo acento, y unos bordes que cambian de forma al pulsarlos.</p>
+            <p>Negro verdoso y un lima de alto voltaje.</p>
             <span class="sd-rasgo">Oscuro · pastilla mutante · Inter Tight + JetBrains Mono</span>
           </a>
         </li>
@@ -694,7 +736,7 @@
               <span style="background:#b34a1f"></span><span style="background:#fdf6ec"></span><span style="background:#2b1d12"></span><span style="background:#2e9e5b"></span>
             </span>
             <h3>Terracota</h3>
-            <p>Terracota sobre crema. Cálido, de mesa de madera, con la serif reservada a los titulares.</p>
+            <p>Terracota sobre crema, de mesa de madera.</p>
             <span class="sd-rasgo">Claro · redondeado · Serif en titulares</span>
           </a>
         </li>
@@ -704,7 +746,7 @@
               <span style="background:#e7335a"></span><span style="background:#fafafa"></span><span style="background:#111114"></span><span style="background:#111114"></span>
             </span>
             <h3>Editorial</h3>
-            <p>Casi monocromo, esquinas rectas y un fucsia que corta. Mucho aire y titulares en caja alta.</p>
+            <p>Casi monocromo, con un fucsia que corta.</p>
             <span class="sd-rasgo">Claro · recto · Caja alta, letra abierta</span>
           </a>
         </li>
@@ -714,7 +756,7 @@
               <span style="background:#a4262c"></span><span style="background:#fbf7f1"></span><span style="background:#2c2018"></span><span style="background:#25d366"></span>
             </span>
             <h3>Carmín</h3>
-            <p>Rojo profundo y verde de mensajería. Cuerpo grande, pesos altos y objetivos pulsables amplios.</p>
+            <p>Rojo profundo y verde de mensajería.</p>
             <span class="sd-rasgo">Claro · generoso · Pesos altos, cuerpo grande</span>
           </a>
         </li>
@@ -724,7 +766,7 @@
               <span style="background:#c8f04c"></span><span style="background:#0d0f14"></span><span style="background:#f2f4f8"></span><span style="background:#38e1d4"></span>
             </span>
             <h3>Neón</h3>
-            <p>Oscuro con lima, cian y rosa. Tres acentos que solo funcionan porque el fondo calla.</p>
+            <p>Oscuro con lima, cian y rosa.</p>
             <span class="sd-rasgo">Oscuro · muy redondo · Cifras tabulares</span>
           </a>
         </li>
@@ -734,7 +776,7 @@
               <span style="background:#1f9d55"></span><span style="background:#f4f7f4"></span><span style="background:#1c2b21"></span><span style="background:#e67e22"></span>
             </span>
             <h3>Savia</h3>
-            <p>Verde fresco y un tema oscuro para el reverso. Dos pieles, un único juego de componentes.</p>
+            <p>Verde fresco y un reverso oscuro.</p>
             <span class="sd-rasgo">Claro · redondeado · Pila del sistema</span>
           </a>
         </li>
@@ -744,7 +786,7 @@
               <span style="background:#c67139"></span><span style="background:#f5ead8"></span><span style="background:#201e1d"></span><span style="background:#7a8a5e"></span>
             </span>
             <h3>Orgánico</h3>
-            <p>Crema y arena con terracota y salvia. Todo redondo: contenedores muy curvos y botones en pastilla.</p>
+            <p>Crema y arena, terracota y salvia. Todo redondo.</p>
             <span class="sd-rasgo">Claro · pastilla · Caprasimo + Figtree</span>
           </a>
         </li>
@@ -754,7 +796,7 @@
               <span style="background:#b68235"></span><span style="background:#f3f2f2"></span><span style="background:#201f1d"></span><span style="background:#ac803e"></span>
             </span>
             <h3>Clásico</h3>
-            <p>Gris cálido y un oro apagado. Serif en todo, filetes de un píxel y botones de solo contorno.</p>
+            <p>Gris cálido y un oro apagado.</p>
             <span class="sd-rasgo">Claro · filete · Cormorant Garamond + Lora</span>
           </a>
         </li>
@@ -764,7 +806,7 @@
               <span style="background:#5980a6"></span><span style="background:#f2f2f3"></span><span style="background:#1d1f20"></span><span style="background:#728fab"></span>
             </span>
             <h3>Industrial</h3>
-            <p>Gris frío y azul de plano. Condensada en los titulares, rejilla a la vista y esquinas de 4 píxeles.</p>
+            <p>Gris frío y azul de plano.</p>
             <span class="sd-rasgo">Claro · plano técnico · Barlow Condensed + Barlow</span>
           </a>
         </li>
@@ -779,8 +821,8 @@
 
 <section class="sd-cierre">
   <h2>¿Y si ninguno es exactamente el tuyo?</h2>
-  <p>Estos <!--@n-->nueve<!--/@n--> no son plantillas cerradas: son puntos de partida, y ninguno pertenece a un sector. Cualquiera de ellos puede vestir cualquier proyecto, y cambiar de sistema es cambiar los tokens, no rehacer las pantallas. Lo normal es coger uno y torcerlo hasta que se parezca a lo tuyo.</p>
-  <p>Si lo que buscas es el color exacto, en el muestrario están los <!--@colores-->166<!--/@colores--> agrupados por paletas y por tonalidad, cada uno con su nombre y su código. Un clic y lo tienes copiado.</p>
+  <p>No son plantillas cerradas: son puntos de partida. Cambiar de sistema es cambiar los tokens, no rehacer las pantallas.</p>
+  <p>En el muestrario están los <!--@colores-->166<!--/@colores--> colores, con su nombre y su código. Un clic y lo copias.</p>
   <a class="sd-volver" href="sistemas/configurador.html">Montar el tuyo &#8594;</a>
   <a class="sd-volver" href="sistemas/elementos.html">Biblioteca de elementos &#8594;</a>
   <a class="sd-volver" href="sistemas/paletas.html">Ver el muestrario de color &#8594;</a>
