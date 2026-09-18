@@ -41,8 +41,20 @@
   --cine-radio: 14px;
   --cine-sombra: 0 24px 60px -24px rgb(0 0 0 / 0.55);
 
-  /* Recorrido virtual del timeline (aumentado para sentir más el avance lento) */
-  --cine-recorrido: 6500px;
+  /* Recorrido virtual del timeline. Cuanto mas alto, mas rato se tarda en
+     cruzar la escena: el empuje de camara se reparte entre mas scroll y se
+     nota que nos adentramos, en vez de llegar al fondo en dos ruedas. */
+  --cine-recorrido: 9400px;
+
+  /* Profundidad del empuje de camara sobre el mundo entero.
+     "lejos" es el encuadre del primer fotograma (la ventana arranca mas
+     atras) y "cerca" el del ultimo. El sangrado de .cine-mundo esta calculado
+     para que ni siquiera en "lejos" se descubra el borde del lienzo. */
+  --cine-fondo-lejos: 0.82;
+  --cine-fondo-cerca: 1.08;
+
+  /* Cuanto se desliza la copy de apertura hacia la izquierda al marcharse. */
+  --cine-intro-salida: 72vw;
 
   /* Techo de desenfoque. En moviles se baja a 0 y solo queda el tinte. */
   --cine-blur-max: 7px;
@@ -92,7 +104,10 @@
 */
 .cine-mundo {
   position: absolute;
-  inset: 0;
+  /* Sangrado propio del mundo (116%). Es lo que deja sitio para arrancar la
+     escena mas atras: incluso en --cine-fondo-lejos las capas siguen tapando
+     el escenario de sobra. */
+  inset: -8%;
   z-index: 0;
   pointer-events: none;
   opacity: 0;
@@ -103,6 +118,49 @@
   filter: blur(calc(var(--s-narrativa-b, 0) * var(--cine-blur-max) * var(--mov)))
     brightness(calc(1 - var(--s-narrativa-b, 0) * 0.18))
     saturate(calc(1 - var(--s-narrativa-b, 0) * 0.12));
+
+  /* Empuje de camara sobre el mundo entero: la escena empieza lejos y se va
+     acercando durante todo el recorrido. Esta declaracion es la via de
+     respaldo (Firefox y cualquier navegador sin scroll-driven animations):
+     usa el progreso que ya escribe el motor, asi que va sincronizada con la
+     inercia de las capas. Donde hay soporte nativo manda el @supports de
+     abajo, que ademas es mas barato. */
+  transform: scale(
+    calc(
+      1 +
+        (
+          var(--cine-fondo-lejos) - 1 +
+            (var(--cine-fondo-cerca) - var(--cine-fondo-lejos)) * var(--p-suave, 0)
+        ) * var(--mov)
+    )
+  );
+}
+
+/* Profundidad nativa. El (animation-range: entry) del @supports no es adorno:
+   descarta los navegadores con soporte parcial, que aceptarian el
+   animation-timeline y luego ignorarian el rango.
+   "entry 100% -> exit 0%" es exactamente el tramo en el que el escenario esta
+   pegado, o sea el mismo 0..1 que calcula el motor. */
+@supports ((animation-timeline: view()) and (animation-range: entry)) {
+  .cine-scroll {
+    view-timeline: --cine-vista block;
+  }
+
+  .cine-mundo {
+    animation: cine-adentro linear both;
+    animation-timeline: --cine-vista;
+    animation-range: entry 100% exit 0%;
+  }
+
+  @keyframes cine-adentro {
+    from {
+      transform: scale(var(--cine-fondo-lejos));
+    }
+
+    to {
+      transform: scale(var(--cine-fondo-cerca));
+    }
+  }
 }
 
 .cine-escenario.cine-listo .cine-mundo {
@@ -320,8 +378,22 @@
 .cine-intro {
   inset: auto auto clamp(3rem, 12vh, 9rem) clamp(1.25rem, 5vw, 5rem);
   max-width: min(46ch, 82vw);
-  opacity: calc(1 - var(--s-intro, 0));
-  transform: translate3d(0, calc(var(--s-intro, 0) * -28px * var(--mov)), 0);
+  will-change: transform, opacity;
+
+  /* No se apaga en el sitio: se va de pantalla por la izquierda, como si la
+     dejasemos atras al entrar en la escena. La opacidad aguanta el primer
+     tercio del viaje (1.5 - s * 1.5 se clampa a 1 hasta s = 0.33) y solo se
+     funde en el ultimo tramo, cuando el bloque ya esta saliendo del encuadre.
+     El escalado minimo es lo que vende el "pasar de largo" en vez del "irse
+     lejos". Con reduced-motion --mov es 0: queda un fundido limpio, sin
+     desplazamiento. */
+  opacity: calc(1.5 - var(--s-intro, 0) * 1.5);
+  transform: translate3d(
+      calc(var(--s-intro, 0) * var(--cine-intro-salida) * -1 * var(--mov)),
+      calc(var(--s-intro, 0) * -10px * var(--mov)),
+      0
+    )
+    scale(calc(1 + var(--s-intro, 0) * 0.05 * var(--mov)));
 }
 
 .cine-titulo {
@@ -558,13 +630,13 @@ button.cine-tarjeta:focus-visible {
 */
 @media (max-width: 1280px) {
   .cine-scroll {
-    --cine-recorrido: 6000px;
+    --cine-recorrido: 8800px;
   }
 }
 
 @media (max-width: 1024px) {
   .cine-scroll {
-    --cine-recorrido: 5500px;
+    --cine-recorrido: 8000px;
     --cine-blur-max: 5px;
   }
 
@@ -576,7 +648,7 @@ button.cine-tarjeta:focus-visible {
 
 @media (max-width: 768px) {
   .cine-scroll {
-    --cine-recorrido: 5000px;
+    --cine-recorrido: 7200px;
   }
 
   .cine-capa {
@@ -591,8 +663,11 @@ button.cine-tarjeta:focus-visible {
 @media (max-width: 480px) {
   .cine-scroll {
     /* Un timeline largo en movil se hace agotador: se acorta el recorrido. */
-    --cine-recorrido: 4000px;
+    --cine-recorrido: 5600px;
     --cine-blur-max: 0px;
+
+    /* A pantalla completa la copy necesita cruzarla entera para irse. */
+    --cine-intro-salida: 100vw;
   }
 
   .cine-capa {
@@ -644,7 +719,12 @@ button.cine-tarjeta:focus-visible {
     --mov: 0;
   }
 
+  /* Sin empuje de camara: el mundo se queda quieto en su encuadre base, que
+     es justo el que da inset: 0 sin escalado. */
   .cine-mundo {
+    inset: 0;
+    transform: none;
+    animation: none;
     filter: none;
     transition: opacity 200ms linear;
   }

@@ -16,16 +16,33 @@ if errorlevel 1 (
     exit /b 1
 )
 
-python -m yt_dlp --version >nul 2>&1
+set "PY="
+py -3 --version >nul 2>&1 && set "PY=py -3"
+if not defined PY ( python --version >nul 2>&1 && set "PY=python" )
+if not defined PY (
+    echo   [X] Falta Python. Instalalo desde https://www.python.org/downloads/
+    echo       IMPORTANTE: marca la casilla "Add python.exe to PATH" al instalarlo.
+    echo.
+    pause
+    exit /b 1
+)
+
+%PY% -m yt_dlp --version >nul 2>&1
 if errorlevel 1 (
     echo   Instalando yt-dlp (solo la primera vez)...
-    python -m pip install --upgrade yt-dlp
+    %PY% -m pip install --upgrade yt-dlp
+    echo.
+) else (
+    echo   Actualizando yt-dlp...
+    %PY% -m pip install --quiet --upgrade yt-dlp
     echo.
 )
 
-echo   Abriendo http://localhost:8787 en el navegador...
-start "" http://localhost:8787
+echo   Arrancando el servidor en http://localhost:8787
+echo   (deja esta ventana abierta mientras descargas)
 echo.
+
+start "" /b cmd /c "timeout /t 3 >nul & start "" http://localhost:8787"
 
 node server.js
 
