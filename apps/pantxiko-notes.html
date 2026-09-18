@@ -525,6 +525,38 @@
   let isListening = false;
   const btnDictate = document.getElementById('btnDictate');
 
+  // El dictado empieza donde esta el cursor, no al final de la nota
+  let pnSavedRange = null;
+  const pnRememberCaret = () => {
+      const sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return;
+      const r = sel.getRangeAt(0);
+      if (editor.contains(r.commonAncestorContainer)) pnSavedRange = r.cloneRange();
+  };
+  document.addEventListener('selectionchange', () => { if (document.activeElement === editor) pnRememberCaret(); });
+  ['keyup','mouseup','touchend','blur'].forEach(ev => editor.addEventListener(ev, pnRememberCaret));
+  const pnCaretRange = () => {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount) {
+          const r = sel.getRangeAt(0);
+          if (editor.contains(r.commonAncestorContainer)) return r.cloneRange();
+      }
+      if (pnSavedRange && editor.contains(pnSavedRange.commonAncestorContainer)) return pnSavedRange.cloneRange();
+      return null;
+  };
+  const pnPlaceInterim = span => {
+      const r = pnCaretRange();
+      if (r) { r.deleteContents(); r.collapse(false); r.insertNode(span); }
+      else { editor.appendChild(span); }
+  };
+  const pnCaretAfter = node => {
+      if (!node || !node.parentNode) return;
+      const r = document.createRange();
+      r.setStartAfter(node); r.collapse(true);
+      pnSavedRange = r.cloneRange();
+      const sel = window.getSelection();
+      if (sel) { sel.removeAllRanges(); sel.addRange(r); }
+  };
   if (SpeechRecognition) {
     recognition = new SpeechRecognition();
     recognition.continuous = true;
@@ -542,7 +574,7 @@
       isListening = false;
       btnDictate.classList.remove('recording');
       btnDictate.querySelector('.dictate-label').textContent = 'Dictar';
-      if (interimSpan) { interimSpan.remove(); interimSpan = null; }
+      if (interimSpan) { const prev = interimSpan.previousSibling; interimSpan.remove(); interimSpan = null; if (prev) pnCaretAfter(prev); }
     };
 
     recognition.onresult = e => {
@@ -550,7 +582,7 @@
         interimSpan = document.createElement('span');
         interimSpan.style.color = 'rgba(100,60,20,0.5)';
         interimSpan.style.fontStyle = 'italic';
-        editor.appendChild(interimSpan);
+        pnPlaceInterim(interimSpan);
       }
       let interim = '';
       let finalText = '';
@@ -564,6 +596,7 @@
       if (finalText) {
         const textNode = document.createTextNode(finalText + ' ');
         interimSpan.before(textNode);
+                        pnCaretAfter(textNode);
         interimSpan.textContent = '';
         saveNote();
       }
