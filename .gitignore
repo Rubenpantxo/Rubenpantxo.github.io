@@ -11,13 +11,17 @@
 node_modules/
 *.log
 
-# --- Aplicaciones solo-locales: NUNCA deben publicarse ---
-# Viven en apps-locales/ (fuera de apps/, que si se publica).
-# Describen esta maquina y esta casa (arbol de disco con rutas absolutas,
-# SSID, IP privadas, MAC, hostnames y nombres de familia). GitHub Pages no
-# autentica: todo lo que sube aqui es publico. Se ejecutan desde
-# http://127.0.0.1:3000 con `npm run dev`.
+# --- Red de seguridad: contenido solo-local ---
+# Las apps solo-locales (estructura, red-hogar) viven ahora FUERA del repo,
+# en repos/apps locales/, y los materiales de trabajo en repos/recursos locales/.
+# Describen esta maquina y esta casa (rutas absolutas, SSID, IP privadas,
+# MAC, hostnames y nombres de familia). GitHub Pages no autentica: todo lo
+# que sube aqui es publico. Estas reglas evitan republicarlas por error si
+# alguna copia vuelve a caer dentro del repo.
 apps-locales/
+apps/estructura.html
+apps/estructura/
+red-hogar/
 
 # Datos reales exportados de Red Hogar (la semilla del repo es ficticia)
 red-hogar-datos-reales.json

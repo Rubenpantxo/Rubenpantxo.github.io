@@ -1437,7 +1437,7 @@ function openExplorer(){
   const catRows=Object.entries(CATS).map(([k,c])=>
     `<div class="cat95${k===curCat?' active':''}" data-cat="${k}"><span class="ci">${c.i}</span><span class="cn">${esc(c.n)}</span><span class="cc">${c.e.length}</span></div>`).join('');
   const html=`
-  <div class="menubar"><span id="fx-menu-estructura">🗄️ Estructura</span><span id="fx-menu-eco">🧠 Ecosistema IA</span><span id="fx-menu-stats">📊 Estadísticas</span><span id="fx-menu-about">❓ Ayuda</span></div>
+  <div class="menubar"><span id="fx-menu-eco">🧠 Ecosistema IA</span><span id="fx-menu-stats">📊 Estadísticas</span><span id="fx-menu-about">❓ Ayuda</span></div>
   <div class="toolbar">
     <span style="font-weight:bold">Buscar:</span>
     <input class="input95" id="fx-search" style="flex:1;min-width:120px" placeholder="Extensión o nombre (ej: PNG, vector...)">
@@ -1460,7 +1460,6 @@ function openExplorer(){
       el.querySelectorAll('.cat95').forEach(x=>x.classList.toggle('active',x===c));
       renderGrid();
     });
-    el.querySelector('#fx-menu-estructura').onclick=()=>{location.href='../apps-locales/estructura.html'};
     el.querySelector('#fx-menu-eco').onclick=openEco;
     el.querySelector('#fx-menu-stats').onclick=openStats;
     el.querySelector('#fx-menu-about').onclick=openAbout;

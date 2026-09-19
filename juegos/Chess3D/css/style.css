@@ -150,6 +150,9 @@ button {
 }
 
 .mode-card {
+	display: block;
+	cursor: pointer;
+	text-decoration: none;
 	width: 190px;
 	padding: 22px 18px;
 	background: var(--panel-bg);
