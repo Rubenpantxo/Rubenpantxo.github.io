@@ -22,11 +22,16 @@ no puede funcionar en una pagina estatica sin framework:
 - lo que pide una URL de fuera (imagenes, CDNs)
 - lo que trae `<script>` o `<img>`
 - lo muy largo, por peso
+- en tarjetas, las que no llevan texto: una forma vacia no ensena nada
 
 ## Como se vuelve a generar
 
     git clone --depth 1 https://github.com/uiverse-io/galaxy.git
     node servicios/sistemas/importar-uiverse.mjs ./galaxy
+
+Para rehacer una sola categoria sin tocar las demas:
+
+    node servicios/sistemas/importar-uiverse.mjs ./galaxy --solo=tarjetas
 
 El clon no se guarda en el repo: solo entra lo importado.
 
