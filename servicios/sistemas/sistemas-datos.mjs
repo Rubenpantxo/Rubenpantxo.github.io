@@ -9,7 +9,7 @@
 //   elementos    la forma: radio, sombra, densidad, grosor de icono
 //
 // Los `presets` son solo atajos: la combinacion por defecto de cada uno de los
-// nueve sistemas que ya existian. Nada obliga a respetarlos.
+// nueve sistemas. Nada obliga a respetarlos.
 //
 // Ningun nombre alude a un negocio ni a una app. Los tres ejes tampoco se
 // llaman como el preset del que salieron: una paleta se llama por sus colores,
@@ -18,10 +18,18 @@
 // De aqui salen la portada, el muestrario, el configurador, el tema en vivo de
 // las demos y los bundles de Claude Design:
 //
-//     node servicios/sistemas/generar-sistemas.mjs
-//     node servicios/sistemas/generar-paletas.mjs
-//     node servicios/sistemas/generar-tema.mjs
+//     node servicios/sistemas/generar-tema.mjs      tema.css (con las pieles)
+//     node servicios/sistemas/generar-kits.mjs      sistema.css y kits/
+//     node servicios/sistemas/generar-fichas.mjs    las fichas de cada sistema
+//     node servicios/sistemas/generar-paletas.mjs   paletas.html (y la paleta de cada ficha)
+//     node servicios/sistemas/generar-sistemas.mjs  la portada
 //     node servicios/sistemas/generar-bundle-cd.mjs
+//
+// En ese orden: generar-fichas reescribe las fichas enteras y generar-paletas
+// repinta despues su muestrario de color.
+//
+// Las pieles (pixel, vidrio, arcilla...) y los componentes del kit viven en
+// componentes.mjs; lo que se dice en cada ficha, en fichas-datos.mjs.
 
 /* ============================================================
    EJE 1 — PALETAS
@@ -333,6 +341,39 @@ export const paletas = [
       ['Neutro 700', '#5d5d60', 'Texto secundario'],
       ['Azul 800', '#2c455d', 'Texto sobre relleno tintado']
     ]
+  },
+  {
+    id: 'tinta-oro',
+    nombre: 'Tinta y oro',
+    banda: 'oscura',
+    nota: 'Una tinta casi negra y cálida, marfil para leer y un oro que enmarca: va en filetes, no en rellenos.',
+    tokens: {
+      fondo: '#14110d',
+      superficie: '#1c1813',
+      superficie2: '#241e17',
+      tinta: '#f1e8d8',
+      apagado: '#a89a84',
+      acento: '#c9a255',
+      acentoSolido: '#c9a255',
+      acentoFuerte: '#a8823a',
+      acentoTexto: '#d4b26e',
+      onAcento: '#14110d',
+      acento2: '#9c7b4a',
+      linea: '#3a3126',
+      ok: '#9fbf7a',
+      aviso: '#e0b04c',
+      peligro: '#e0806a'
+    },
+    colores: [
+      ['Tinta', '#14110d', 'Fondo de página'],
+      ['Estuche', '#1c1813', 'Superficie'],
+      ['Relieve', '#241e17', 'Tarjeta, campo'],
+      ['Filete', '#3a3126', 'Línea de un píxel'],
+      ['Oro', '#c9a255', 'Acento, filete doble'],
+      ['Oro viejo', '#a8823a', 'Estado pulsado'],
+      ['Marfil', '#f1e8d8', 'Texto principal'],
+      ['Marfil apagado', '#a89a84', 'Texto secundario']
+    ]
   }
 ];
 
@@ -459,6 +500,62 @@ export const tipografias = [
     cajaDisplay: 'uppercase',
     google: 'Barlow+Condensed:wght@400;600&family=Barlow:wght@400;500;700',
     muestra: 'Condensada'
+  },
+  {
+    id: 'pixel',
+    nombre: 'Press Start 2P + Pixelify Sans',
+    nota: 'Titulares en la letra de una recreativa de 8 bits; el cuerpo en una pixelada que sí se lee a 16 píxeles.',
+    // Las mayusculas con tilde de Press Start 2P son mas bajas: en una rejilla
+    // de 8x8 no cabe otra cosa. Pixelify va detras para lo que no traiga (€, ▲).
+    display: '"Press Start 2P", "Pixelify Sans", ui-monospace, monospace',
+    cuerpo: '"Pixelify Sans", ui-sans-serif, system-ui, sans-serif',
+    mono: '"VT323", ui-monospace, monospace',
+    pesoDisplay: 400,
+    trackingDisplay: '0',
+    cajaDisplay: 'uppercase',
+    tabular: true,
+    google: 'Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=VT323',
+    muestra: 'Nivel 1'
+  },
+  {
+    id: 'anton-archivo',
+    nombre: 'Anton + Archivo',
+    nota: 'Una condensada de cartel, siempre en mayúsculas y enorme, sobre una grotesca sobria para el texto.',
+    display: '"Anton", Impact, "Arial Narrow", sans-serif',
+    cuerpo: '"Archivo", ui-sans-serif, system-ui, sans-serif',
+    mono: 'ui-monospace, monospace',
+    pesoDisplay: 400,
+    trackingDisplay: '0.01em',
+    cajaDisplay: 'uppercase',
+    google: 'Anton&family=Archivo:wght@400;500;700',
+    muestra: 'Cartel'
+  },
+  {
+    id: 'space-grotesk',
+    nombre: 'Space Grotesk + Space Mono',
+    nota: 'Una grotesca de rasgos raros y peso firme, con su monoespaciada para las cifras. Directa, sin rodeos.',
+    display: '"Space Grotesk", ui-sans-serif, system-ui, sans-serif',
+    cuerpo: '"Space Grotesk", ui-sans-serif, system-ui, sans-serif',
+    mono: '"Space Mono", ui-monospace, monospace',
+    pesoDisplay: 700,
+    trackingDisplay: '-0.03em',
+    cajaDisplay: 'none',
+    google: 'Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700',
+    muestra: 'Sin rodeos'
+  },
+  {
+    id: 'cormorant-cursiva',
+    nombre: 'Cormorant en cursiva + Lora',
+    nota: 'Titulares en una serif de mucho contraste y en cursiva, como grabados en oro; el cuerpo en una serif de pantalla.',
+    display: '"Cormorant Garamond", Georgia, serif',
+    cuerpo: '"Lora", Georgia, serif',
+    mono: 'ui-monospace, monospace',
+    pesoDisplay: 500,
+    estiloDisplay: 'italic',
+    trackingDisplay: '0',
+    cajaDisplay: 'none',
+    google: 'Cormorant+Garamond:ital,wght@0,400;0,600;1,500;1,600&family=Lora:wght@400;600',
+    muestra: 'Oro y cursiva'
   }
 ];
 
@@ -480,7 +577,8 @@ export const elementos = [
     sombra: 'anillo',
     densidad: 1.0,
     grosorIcono: 2,
-    botonPrincipal: 'solido'
+    botonPrincipal: 'solido',
+    piel: 'mutante'
   },
   {
     id: 'redondeado',
@@ -558,7 +656,8 @@ export const elementos = [
     sombra: 'ninguna',
     densidad: 1.15,
     grosorIcono: 1.4,
-    botonPrincipal: 'contorno'
+    botonPrincipal: 'contorno',
+    piel: 'filete'
   },
   {
     id: 'plano-tecnico',
@@ -572,7 +671,92 @@ export const elementos = [
     densidad: 0.85,
     grosorIcono: 1.4,
     rejilla: '24px',
-    botonPrincipal: 'solido'
+    botonPrincipal: 'solido',
+    piel: 'plano'
+  },
+  {
+    id: 'pixel',
+    nombre: 'Pixel',
+    nota: 'Sin una curva: las esquinas se muerden en escalón de 4 píxeles y las sombras son bloques sólidos, sin desenfoque.',
+    radio: '0px',
+    radioBoton: '0px',
+    radioActivo: '0px',
+    filo: '4px',
+    sombra: 'dura',
+    densidad: 1.0,
+    grosorIcono: 2.5,
+    botonPrincipal: 'solido',
+    piel: 'pixel'
+  },
+  {
+    id: 'vidrio',
+    nombre: 'Vidrio esmerilado',
+    nota: 'Superficies translúcidas que flotan sobre un fondo de luz de color. El borde es un reflejo, no una línea.',
+    radio: '22px',
+    radioBoton: '999px',
+    radioActivo: '999px',
+    filo: '1px',
+    sombra: 'vidrio',
+    densidad: 1.05,
+    grosorIcono: 1.6,
+    botonPrincipal: 'solido',
+    piel: 'vidrio'
+  },
+  {
+    id: 'arcilla',
+    nombre: 'Arcilla',
+    nota: 'Todo parece moldeado en arcilla blanda: luz por arriba, sombra por abajo y ni un solo borde.',
+    radio: '28px',
+    radioBoton: '999px',
+    radioActivo: '999px',
+    filo: '0px',
+    sombra: 'arcilla',
+    densidad: 1.1,
+    grosorIcono: 2.2,
+    botonPrincipal: 'solido',
+    piel: 'arcilla'
+  },
+  {
+    id: 'neobrutal',
+    nombre: 'Neobrutal',
+    nota: 'Bordes de tinta de tres píxeles y sombras duras desplazadas. Al pulsar, la pieza se hunde hasta tocar su sombra.',
+    radio: '6px',
+    radioBoton: '6px',
+    radioActivo: '6px',
+    filo: '3px',
+    sombra: 'dura',
+    densidad: 1.05,
+    grosorIcono: 2.4,
+    botonPrincipal: 'solido',
+    piel: 'neobrutal'
+  },
+  {
+    id: 'cartel',
+    nombre: 'Cartel',
+    nota: 'Reglas gruesas, titulares enormes y bloques de color plano, como un cartel pegado en la calle.',
+    radio: '0px',
+    radioBoton: '0px',
+    radioActivo: '0px',
+    filo: '3px',
+    sombra: 'ninguna',
+    densidad: 1.1,
+    grosorIcono: 2,
+    botonPrincipal: 'solido',
+    piel: 'cartel'
+  },
+  {
+    id: 'relieve',
+    nombre: 'Relieve',
+    nota: 'Todo es plano menos la acción principal, que tiene relieve de verdad: capas, luz arriba y un hundimiento al pulsarla.',
+    radio: '12px',
+    radioBoton: '12px',
+    radioActivo: '12px',
+    filo: '1px',
+    sombra: 'suave',
+    densidad: 1.05,
+    grosorIcono: 1.8,
+    botonPrincipal: 'solido',
+    piel: 'relieve'
   }
 ];
 
@@ -585,55 +769,55 @@ export const presets = [
     id: 'halogeno', nombre: 'Halógeno', ficha: 'halogeno.html',
     proyectoCD: '8769416e-1dd7-434b-a0fd-cc15d9cbe526',
     paleta: 'carbon-lima', tipografia: 'inter-mono', elementos: 'pastilla-mutante',
-    titular: 'Negro verdoso y un lima de alto voltaje.'
+    titular: 'Negro verdoso, un lima de alto voltaje y radios que mutan.'
   },
   {
     id: 'terracota', nombre: 'Terracota', ficha: 'terracota.html',
     proyectoCD: '589fbc66-4234-4521-b64f-de9fbecfb874',
-    paleta: 'barro-crema', tipografia: 'serif-titulares', elementos: 'redondeado',
-    titular: 'Terracota sobre crema, de mesa de madera.'
+    paleta: 'barro-crema', tipografia: 'serif-titulares', elementos: 'relieve',
+    titular: 'Terracota sobre crema y un botón que se hunde al pulsarlo.'
   },
   {
     id: 'editorial', nombre: 'Editorial', ficha: 'editorial.html',
     proyectoCD: '432f110a-8f48-40bf-894f-7ab0f58fcef0',
-    paleta: 'tinta-fucsia', tipografia: 'caja-alta', elementos: 'recto',
-    titular: 'Casi monocromo, con un fucsia que corta.'
+    paleta: 'tinta-fucsia', tipografia: 'anton-archivo', elementos: 'cartel',
+    titular: 'Cartel en blanco y negro con un fucsia que corta.'
   },
   {
     id: 'carmin', nombre: 'Carmín', ficha: 'carmin.html',
     proyectoCD: '08b67aa5-0aef-4ef2-851f-6c8d1c005cf5',
-    paleta: 'grana-mensajeria', tipografia: 'peso-alto', elementos: 'generoso',
-    titular: 'Rojo profundo y verde de mensajería.'
+    paleta: 'grana-mensajeria', tipografia: 'space-grotesk', elementos: 'neobrutal',
+    titular: 'Rojo profundo, bordes de tinta y sombras duras.'
   },
   {
     id: 'neon', nombre: 'Neón', ficha: 'neon.html',
     proyectoCD: '540c21e0-fe5a-4e91-aad2-dedf374746c6',
-    paleta: 'noche-neon', tipografia: 'tabular', elementos: 'muy-redondo',
-    titular: 'Oscuro con lima, cian y rosa.'
+    paleta: 'noche-neon', tipografia: 'pixel', elementos: 'pixel',
+    titular: 'Recreativa de 8 bits: lima, cian y rosa sobre la noche.'
   },
   {
     id: 'savia', nombre: 'Savia', ficha: 'savia.html',
     proyectoCD: 'cf7e59fc-8f8a-473d-b299-6496f08a26fc',
-    paleta: 'savia-naranja', tipografia: 'neutra', elementos: 'redondeado',
-    titular: 'Verde fresco y un reverso oscuro.'
+    paleta: 'savia-naranja', tipografia: 'neutra', elementos: 'vidrio',
+    titular: 'Vidrio esmerilado sobre luz verde y naranja.'
   },
   {
     id: 'organico', nombre: 'Orgánico', ficha: 'organico.html',
     proyectoCD: '7cc98fa6-2bde-41e0-ab0d-b159cef78977',
-    paleta: 'arena-salvia', tipografia: 'caprasimo-figtree', elementos: 'pastilla',
-    titular: 'Crema y arena, terracota y salvia. Todo redondo.'
+    paleta: 'arena-salvia', tipografia: 'caprasimo-figtree', elementos: 'arcilla',
+    titular: 'Arena y salvia moldeadas en arcilla blanda.'
   },
   {
     id: 'clasico', nombre: 'Clásico', ficha: 'clasico.html',
     proyectoCD: 'af52629c-b8d8-4614-bdb5-07eb2ad98a04',
-    paleta: 'pergamino-oro', tipografia: 'cormorant-lora', elementos: 'filete',
-    titular: 'Gris cálido y un oro apagado.'
+    paleta: 'tinta-oro', tipografia: 'cormorant-cursiva', elementos: 'filete',
+    titular: 'Tinta profunda, filetes de oro y serif en cursiva.'
   },
   {
     id: 'industrial', nombre: 'Industrial', ficha: 'industrial.html',
     proyectoCD: '9c8f62a8-66ca-460d-9927-227b5af6cbd2',
     paleta: 'acero-plano', tipografia: 'barlow', elementos: 'plano-tecnico',
-    titular: 'Gris frío y azul de plano.'
+    titular: 'Gris frío, azul de plano y cotas a la vista.'
   }
 ];
 
@@ -693,6 +877,7 @@ export function resolver({ paleta, tipografia, elementos: elem, ...resto }) {
       acento: k.acentoTexto,
       muestra: t.muestra,
       estilo: `font-family:${t.display};font-weight:${t.pesoDisplay}`
+        + (t.estiloDisplay ? `;font-style:${t.estiloDisplay}` : '')
         + `;letter-spacing:${t.trackingDisplay};text-transform:${t.cajaDisplay}`
         + (t.tabular ? ';font-variant-numeric:tabular-nums' : ''),
       pie: t.nombre

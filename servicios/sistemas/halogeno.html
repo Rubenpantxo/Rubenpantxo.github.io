@@ -214,10 +214,122 @@
     </div>
   </section>
 
+  <section class="sd-seccion" id="componentes">
+    <h2>El kit</h2>
+    <p>Los ocho componentes que tienen todos los sistemas, con la piel de Halógeno: radios que se cuadran al tocarlos y anillos de luz en vez de sombras. Son los mismos que puedes copiar sueltos en la Biblioteca de elementos.</p>
+    <!--@bloque kit-->
+    <ul class="sd-kit-rejilla">
+      <li class="sd-kit-pieza">
+        <h3>Botones</h3>
+        <div class="sd-escena">
+          <div class="sd-fila">
+            <button class="sd-btn" type="button">Continuar</button>
+            <button class="sd-btn sd-btn--linea" type="button">Ver más</button>
+            <button class="sd-btn sd-btn--suave" type="button">Guardar</button>
+            <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Tarjeta</h3>
+        <div class="sd-escena">
+          <article class="sd-ficha">
+            <span class="sd-insignia">Nuevo</span>
+            <h4>Título de la tarjeta</h4>
+            <p>Dos líneas que explican qué hay dentro y por qué merece la pena abrirla.</p>
+            <div class="sd-progreso" role="progressbar" aria-label="Avance" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100"><span style="--v:64%"></span></div>
+            <div class="sd-fila">
+              <button class="sd-btn" type="button">Abrir</button>
+              <button class="sd-btn sd-btn--fantasma" type="button">Más tarde</button>
+            </div>
+          </article>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Acceso</h3>
+        <div class="sd-escena">
+          <div class="sd-ficha">
+            <h4>Entrar</h4>
+            <label class="sd-campo"><span>Correo</span><input type="email" placeholder="nombre@correo.com" autocomplete="off"></label>
+            <label class="sd-campo"><span>Contraseña</span><input type="password" placeholder="••••••••" autocomplete="off"></label>
+            <label class="sd-check"><input type="checkbox" checked> Recordarme</label>
+            <button class="sd-btn sd-btn--ancho" type="button">Entrar</button>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Selección</h3>
+        <div class="sd-escena">
+          <div class="sd-ficha">
+            <label class="sd-interruptor"><input type="checkbox" role="switch" checked> Avisos</label>
+            <label class="sd-interruptor"><input type="checkbox" role="switch"> Modo compacto</label>
+            <label class="sd-check"><input type="checkbox" checked> Opción marcada</label>
+            <label class="sd-check"><input type="checkbox"> Opción sin marcar</label>
+            <label class="sd-check"><input type="radio" name="sd-halogeno-r" checked> Primera</label>
+            <label class="sd-check"><input type="radio" name="sd-halogeno-r"> Segunda</label>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Avisos</h3>
+        <div class="sd-escena">
+          <div class="sd-pila">
+            <div class="sd-aviso sd-aviso--ok" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div><strong>Guardado</strong><p>Los cambios ya están a salvo.</p></div></div>
+            <div class="sd-aviso sd-aviso--peligro" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><strong>No se pudo enviar</strong><p>Revisa la conexión e inténtalo otra vez.</p></div></div>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Pestañas y filtros</h3>
+        <div class="sd-escena">
+          <div class="sd-pila">
+            <div class="sd-pestanas" role="tablist" aria-label="Vista">
+              <button type="button" role="tab" aria-selected="true">Resumen</button>
+              <button type="button" role="tab" aria-selected="false">Detalle</button>
+              <button type="button" role="tab" aria-selected="false">Historial</button>
+            </div>
+            <div class="sd-fila">
+              <span class="sd-chip sd-chip--activo">Todo</span>
+              <span class="sd-chip">Hoy</span>
+              <span class="sd-chip">Esta semana</span>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Dato</h3>
+        <div class="sd-escena">
+          <div class="sd-dato">
+            <span class="sd-dato__etiqueta">Visitas este mes</span>
+            <strong class="sd-dato__valor">2.480</strong>
+            <span class="sd-dato__delta">▲ 12 % frente al mes anterior</span>
+            <div class="sd-progreso" role="progressbar" aria-label="Objetivo" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><span style="--v:72%"></span></div>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Plan</h3>
+        <div class="sd-escena">
+          <article class="sd-ficha">
+            <span class="sd-insignia">Recomendado</span>
+            <h4>Plan estándar</h4>
+            <p class="sd-precio"><strong>12 €</strong> / mes</p>
+            <ul class="sd-lista">
+              <li>Hasta cinco personas</li>
+              <li>Copia de seguridad diaria</li>
+              <li>Respuesta en un día</li>
+            </ul>
+            <button class="sd-btn sd-btn--ancho" type="button">Elegir plan</button>
+          </article>
+        </div>
+      </li>
+    </ul>
+    <!--/@bloque kit-->
+  </section>
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
-    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
+    <a class="sd-enlace" href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
     <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>

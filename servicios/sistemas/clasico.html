@@ -1,20 +1,16 @@
 <!DOCTYPE html>
-<html lang="es" data-paleta="pergamino-oro" data-tipo="cormorant-lora" data-elem="filete" data-preset="clasico" data-tema-memoria="no">
+<!-- Generado por generar-fichas.mjs desde sistemas-datos.mjs y fichas-datos.mjs. No editar a mano. -->
+<html lang="es" data-paleta="tinta-oro" data-tipo="cormorant-cursiva" data-elem="filete" data-preset="clasico" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clásico — Sistema de diseño</title>
-<meta name="description" content="Clásico: gris cálido y un oro apagado. Serif en todo, filetes de un píxel y botones de solo contorno.">
+<meta name="description" content="Clásico: tinta profunda, filetes de oro y serif en cursiva. Un sistema oscuro y sereno, de estuche.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500;1,600&family=Lora:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
-<style>
-  /* Los valores salen del theme.json del proyecto de Claude Design, no de
-     ningun ojo: si alli cambian, se vuelcan aqui y se regenera la ficha. */
-  .sd-seccion > h2 { font-weight: 600; }
-</style>
 <script src="copiar-color.js" defer></script>
 <script src="tema-datos.js"></script>
 <script src="../../js/selector-sistema.js" defer></script>
@@ -24,77 +20,77 @@
 
   <header class="sd-cabecera">
     <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-    <span class="sd-etiqueta">Claro · un acento · radio 4</span>
+    <span class="sd-etiqueta">Oscuro · oro · serif en cursiva</span>
     <h1 class="sd-titulo">Clásico</h1>
-    <p class="sd-bajada">Gris cálido y un oro apagado que aparece poco y siempre por algo. Serif en titulares y en cuerpo, columnas justificadas, filetes de un píxel donde otros pondrían una caja. El color se usa de trazo, no de relleno.</p>
+    <p class="sd-bajada">Tinta casi negra, marfil para leer y oro para enmarcar. Los titulares van en cursiva, como grabados, y los contenedores no se rellenan: se delimitan con un filete doble.</p>
   </header>
 
   <section class="sd-seccion">
     <h2>Paleta</h2>
-    <p>Un solo acento, y apagado. La jerarquía se construye con la tipografía y con el filete, no con el color: por eso el oro puede permitirse ser discreto sin que la pantalla se aplane.</p>
+    <p>Una tinta cálida en tres profundidades, marfil para el texto y un oro que se usa en líneas, casi nunca en rellenos. Si el oro ocupa mucho, deja de ser oro.</p>
     <ul class="pl-rejilla">
       <li>
-        <button class="pl-color" type="button" data-hex="#F3F2F2" style="--c:#f3f2f2;--t:#101010"
-                aria-label="Copiar #F3F2F2, Fondo">
-          <span class="pl-color__nombre">Fondo</span>
-          <span class="pl-color__hex"><span>HEX</span> <b>#F3F2F2</b></span>
+        <button class="pl-color" type="button" data-hex="#14110D" style="--c:#14110d;--t:#ffffff"
+                aria-label="Copiar #14110D, Tinta">
+          <span class="pl-color__nombre">Tinta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#14110D</b></span>
           <span class="pl-color__rol">Fondo de página</span>
         </button>
       </li>
       <li>
-        <button class="pl-color" type="button" data-hex="#EAE9E9" style="--c:#eae9e9;--t:#101010"
-                aria-label="Copiar #EAE9E9, Superficie">
-          <span class="pl-color__nombre">Superficie</span>
-          <span class="pl-color__hex"><span>HEX</span> <b>#EAE9E9</b></span>
-          <span class="pl-color__rol">Tarjeta</span>
+        <button class="pl-color" type="button" data-hex="#1C1813" style="--c:#1c1813;--t:#ffffff"
+                aria-label="Copiar #1C1813, Estuche">
+          <span class="pl-color__nombre">Estuche</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#1C1813</b></span>
+          <span class="pl-color__rol">Superficie</span>
         </button>
       </li>
       <li>
-        <button class="pl-color" type="button" data-hex="#201F1D" style="--c:#201f1d;--t:#ffffff"
-                aria-label="Copiar #201F1D, Tinta">
-          <span class="pl-color__nombre">Tinta</span>
-          <span class="pl-color__hex"><span>HEX</span> <b>#201F1D</b></span>
+        <button class="pl-color" type="button" data-hex="#241E17" style="--c:#241e17;--t:#ffffff"
+                aria-label="Copiar #241E17, Relieve">
+          <span class="pl-color__nombre">Relieve</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#241E17</b></span>
+          <span class="pl-color__rol">Tarjeta, campo</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#3A3126" style="--c:#3a3126;--t:#ffffff"
+                aria-label="Copiar #3A3126, Filete">
+          <span class="pl-color__nombre">Filete</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#3A3126</b></span>
+          <span class="pl-color__rol">Línea de un píxel</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#C9A255" style="--c:#c9a255;--t:#101010"
+                aria-label="Copiar #C9A255, Oro">
+          <span class="pl-color__nombre">Oro</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#C9A255</b></span>
+          <span class="pl-color__rol">Acento, filete doble</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#A8823A" style="--c:#a8823a;--t:#101010"
+                aria-label="Copiar #A8823A, Oro viejo">
+          <span class="pl-color__nombre">Oro viejo</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#A8823A</b></span>
+          <span class="pl-color__rol">Estado pulsado</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#F1E8D8" style="--c:#f1e8d8;--t:#101010"
+                aria-label="Copiar #F1E8D8, Marfil">
+          <span class="pl-color__nombre">Marfil</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#F1E8D8</b></span>
           <span class="pl-color__rol">Texto principal</span>
         </button>
       </li>
       <li>
-        <button class="pl-color" type="button" data-hex="#B68235" style="--c:#b68235;--t:#101010"
-                aria-label="Copiar #B68235, Oro">
-          <span class="pl-color__nombre">Oro</span>
-          <span class="pl-color__hex"><span>HEX</span> <b>#B68235</b></span>
-          <span class="pl-color__rol">Acento principal</span>
-        </button>
-      </li>
-      <li>
-        <button class="pl-color" type="button" data-hex="#AC803E" style="--c:#ac803e;--t:#101010"
-                aria-label="Copiar #AC803E, Oro apagado">
-          <span class="pl-color__nombre">Oro apagado</span>
-          <span class="pl-color__hex"><span>HEX</span> <b>#AC803E</b></span>
-          <span class="pl-color__rol">Segundo acento</span>
-        </button>
-      </li>
-      <li>
-        <button class="pl-color" type="button" data-hex="#D7D3D3" style="--c:#d7d3d3;--t:#101010"
-                aria-label="Copiar #D7D3D3, Neutro 300">
-          <span class="pl-color__nombre">Neutro 300</span>
-          <span class="pl-color__hex"><span>HEX</span> <b>#D7D3D3</b></span>
-          <span class="pl-color__rol">Filete de un píxel</span>
-        </button>
-      </li>
-      <li>
-        <button class="pl-color" type="button" data-hex="#605D5D" style="--c:#605d5d;--t:#ffffff"
-                aria-label="Copiar #605D5D, Neutro 700">
-          <span class="pl-color__nombre">Neutro 700</span>
-          <span class="pl-color__hex"><span>HEX</span> <b>#605D5D</b></span>
+        <button class="pl-color" type="button" data-hex="#A89A84" style="--c:#a89a84;--t:#101010"
+                aria-label="Copiar #A89A84, Marfil apagado">
+          <span class="pl-color__nombre">Marfil apagado</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#A89A84</b></span>
           <span class="pl-color__rol">Texto secundario</span>
-        </button>
-      </li>
-      <li>
-        <button class="pl-color" type="button" data-hex="#7D5411" style="--c:#7d5411;--t:#ffffff"
-                aria-label="Copiar #7D5411, Oro 700">
-          <span class="pl-color__nombre">Oro 700</span>
-          <span class="pl-color__hex"><span>HEX</span> <b>#7D5411</b></span>
-          <span class="pl-color__rol">Texto sobre relleno tintado</span>
         </button>
       </li>
     </ul>
@@ -102,61 +98,138 @@
 
   <section class="sd-seccion">
     <h2>Tipografía</h2>
-    <p>Cormorant Garamond en los titulares y Lora en el cuerpo. Dos serifs distintas a propósito: la primera es fina y de mucho contraste, la segunda robusta y hecha para leerse en pantalla.</p>
+    <p>Cormorant Garamond en cursiva para los titulares: mucho contraste y trazo fino. Lora para leer, una serif pensada para pantalla.</p>
     <ul class="sd-tipo">
-      <li><span class="sd-tipo-meta">Display · Cormorant Garamond 600</span><span class="sd-muestra-display">Filete y serif</span></li>
-      <li><span class="sd-tipo-meta">Subtítulo · Cormorant Garamond 600</span><span class="sd-muestra-titulo" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600">Un segundo nivel</span></li>
-      <li><span class="sd-tipo-meta">Cuerpo · Lora 400 / 16px</span><span class="sd-muestra-cuerpo">El cuerpo va en Lora, con la escala de espaciado al 1,15 para que el texto respire. Cormorant es preciosa en grande y floja en pequeño, así que no baja nunca del titular.</span></li>
-      <li><span class="sd-tipo-meta">Pie · Lora 400 / 13px</span><span class="sd-muestra-pie">Nota al pie, metadatos y disponibilidad.</span></li>
+      <li><span class="sd-tipo-meta">Display · Cormorant cursiva</span><span class="sd-muestra-display">Oro y cursiva</span></li>
+      <li><span class="sd-tipo-meta">Título · Cormorant cursiva</span><span class="sd-muestra-titulo">Un segundo nivel</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · Lora 400</span><span class="sd-muestra-cuerpo">La serif de cuerpo va derecha: la cursiva cansa en párrafos largos y aquí se reserva para lo que tiene que lucir.</span></li>
+      <li><span class="sd-tipo-meta">Pie · Lora / 13px</span><span class="sd-muestra-pie">Colección · número 12 · otoño</span></li>
     </ul>
   </section>
 
-  <section class="sd-seccion">
+  <section class="sd-seccion" id="componentes">
     <h2>Componentes</h2>
-    <p>Radio de 4 píxeles: casi recto, pero no del todo. Los contenedores no se rellenan, se delimitan con un filete. La sombra existe pero se reserva al diálogo.</p>
-
-    <h3>Botones</h3>
-    <div class="sd-lienzo">
-      <button class="sd-btn sd-btn--relleno" type="button">Aceptar</button>
-      <button class="sd-btn" type="button">Ver más</button>
-      <button class="sd-btn sd-btn--suave" type="button">Guardar</button>
-      <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
-      <button class="sd-btn sd-btn--relleno" type="button" disabled>No disponible</button>
-    </div>
-
-    <h3>Selección y entrada</h3>
-    <div class="sd-lienzo">
-      <label class="sd-check"><input type="checkbox" checked> Opción marcada</label>
-      <label class="sd-check"><input type="checkbox"> Opción sin marcar</label>
-      <label class="sd-check"><input type="radio" name="clasico-r" checked> Primera opción</label>
-      <label class="sd-check"><input type="radio" name="clasico-r"> Segunda opción</label>
-      <label class="sd-campo"><span>Nombre</span><input type="text" placeholder="Ana"></label>
-    </div>
+    <p>Filete de oro al 50 % y un segundo filete, más tenue, a cuatro píxeles: el marco doble de una lámina. Botones en contorno y versalitas espaciadas.</p>
+    <ul class="sd-kit-rejilla">
+      <li class="sd-kit-pieza">
+        <h3>Botones</h3>
+        <div class="sd-escena">
+          <div class="sd-fila">
+            <button class="sd-btn" type="button">Continuar</button>
+            <button class="sd-btn sd-btn--linea" type="button">Ver más</button>
+            <button class="sd-btn sd-btn--suave" type="button">Guardar</button>
+            <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Tarjeta</h3>
+        <div class="sd-escena">
+          <article class="sd-ficha">
+            <span class="sd-insignia">Nuevo</span>
+            <h4>Título de la tarjeta</h4>
+            <p>Dos líneas que explican qué hay dentro y por qué merece la pena abrirla.</p>
+            <div class="sd-progreso" role="progressbar" aria-label="Avance" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100"><span style="--v:64%"></span></div>
+            <div class="sd-fila">
+              <button class="sd-btn" type="button">Abrir</button>
+              <button class="sd-btn sd-btn--fantasma" type="button">Más tarde</button>
+            </div>
+          </article>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Acceso</h3>
+        <div class="sd-escena">
+          <div class="sd-ficha">
+            <h4>Entrar</h4>
+            <label class="sd-campo"><span>Correo</span><input type="email" placeholder="nombre@correo.com" autocomplete="off"></label>
+            <label class="sd-campo"><span>Contraseña</span><input type="password" placeholder="••••••••" autocomplete="off"></label>
+            <label class="sd-check"><input type="checkbox" checked> Recordarme</label>
+            <button class="sd-btn sd-btn--ancho" type="button">Entrar</button>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Selección</h3>
+        <div class="sd-escena">
+          <div class="sd-ficha">
+            <label class="sd-interruptor"><input type="checkbox" role="switch" checked> Avisos</label>
+            <label class="sd-interruptor"><input type="checkbox" role="switch"> Modo compacto</label>
+            <label class="sd-check"><input type="checkbox" checked> Opción marcada</label>
+            <label class="sd-check"><input type="checkbox"> Opción sin marcar</label>
+            <label class="sd-check"><input type="radio" name="sd-clasico-r" checked> Primera</label>
+            <label class="sd-check"><input type="radio" name="sd-clasico-r"> Segunda</label>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Avisos</h3>
+        <div class="sd-escena">
+          <div class="sd-pila">
+            <div class="sd-aviso sd-aviso--ok" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div><strong>Guardado</strong><p>Los cambios ya están a salvo.</p></div></div>
+            <div class="sd-aviso sd-aviso--peligro" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><strong>No se pudo enviar</strong><p>Revisa la conexión e inténtalo otra vez.</p></div></div>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Pestañas y filtros</h3>
+        <div class="sd-escena">
+          <div class="sd-pila">
+            <div class="sd-pestanas" role="tablist" aria-label="Vista">
+              <button type="button" role="tab" aria-selected="true">Resumen</button>
+              <button type="button" role="tab" aria-selected="false">Detalle</button>
+              <button type="button" role="tab" aria-selected="false">Historial</button>
+            </div>
+            <div class="sd-fila">
+              <span class="sd-chip sd-chip--activo">Todo</span>
+              <span class="sd-chip">Hoy</span>
+              <span class="sd-chip">Esta semana</span>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Dato</h3>
+        <div class="sd-escena">
+          <div class="sd-dato">
+            <span class="sd-dato__etiqueta">Visitas este mes</span>
+            <strong class="sd-dato__valor">2.480</strong>
+            <span class="sd-dato__delta">▲ 12 % frente al mes anterior</span>
+            <div class="sd-progreso" role="progressbar" aria-label="Objetivo" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><span style="--v:72%"></span></div>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Plan</h3>
+        <div class="sd-escena">
+          <article class="sd-ficha">
+            <span class="sd-insignia">Recomendado</span>
+            <h4>Plan estándar</h4>
+            <p class="sd-precio"><strong>12 €</strong> / mes</p>
+            <ul class="sd-lista">
+              <li>Hasta cinco personas</li>
+              <li>Copia de seguridad diaria</li>
+              <li>Respuesta en un día</li>
+            </ul>
+            <button class="sd-btn sd-btn--ancho" type="button">Elegir plan</button>
+          </article>
+        </div>
+      </li>
+    </ul>
 
     <h3>Iconos</h3>
-    <p>Lucide a trazo fino, del grosor del filete que separa las secciones. El icono aquí es puntuación, no señal.</p>
     <div class="sd-lienzo sd-iconos">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Índice"><path d="M4 5h16M4 12h16M4 19h10"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Documento"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Buscar"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.3-4.3"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Marcador"><path d="M6 3h12v18l-6-4-6 4V3Z"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Hora"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-    </div>
-
-    <h3>Tarjeta</h3>
-    <div class="sd-lienzo">
-      <article class="sd-ficha" style="background:transparent;border:1px solid var(--sd-line)">
-        <span class="sd-insignia">Destacado</span>
-        <h4 style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600">Título de la tarjeta</h4>
-        <p>Dos líneas de apoyo: qué es, y el único dato que hace falta para decidir.</p>
-        <button class="sd-btn" type="button">Ver más</button>
-      </article>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Inicio"><path d="M3 10 12 4l9 6v10H3V10Z"/><path d="M9 20v-6h6v6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Buscar"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.3-4.3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Ajustes"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Aviso"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Progreso"><path d="M3 17l5-6 4 4 5-8 4 5"/></svg>
     </div>
   </section>
 
   <nav class="sd-pie" aria-label="Enlaces relacionados">
     <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
-    <a class="sd-enlace" href="elementos.html">Biblioteca de elementos &#8599;</a>
+    <a class="sd-enlace" href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
     <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
     <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   </nav>

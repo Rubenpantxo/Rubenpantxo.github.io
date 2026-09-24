@@ -1,0 +1,118 @@
+<div class="sd-kit">
+<div class="sd-pila">
+  <div class="sd-aviso sd-aviso--ok" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div><strong>Guardado</strong><p>Los cambios ya están a salvo.</p></div></div>
+  <div class="sd-aviso sd-aviso--peligro" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><strong>No se pudo enviar</strong><p>Revisa la conexión e inténtalo otra vez.</p></div></div>
+</div>
+</div>
+<style>
+/* Terracota — Avisos. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/terracota.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #fdf6ec;
+  --sd-surface: #ffffff;
+  --sd-surface-2: #fffdf9;
+  --sd-ink: #2b1d12;
+  --sd-muted: #7c6e60;
+  --sd-accent: #b34a1f;
+  --sd-accent-strong: #8a3514;
+  --sd-accent-solid: #b34a1f;
+  --sd-accent-text: #963d18;
+  --sd-on-accent: #fdf6ec;
+  --sd-accent-2: #2e9e5b;
+  --sd-line: #e8dcc9;
+  --sd-ok: #2e9e5b;
+  --sd-warn: #c98a1e;
+  --sd-danger: #c0392b;
+  --sd-display: Georgia, "Iowan Old Style", serif;
+  --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 700;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+  --sd-radius: 12px;
+  --sd-radius-btn: 12px;
+  --sd-radius-activo: 12px;
+  --sd-border: 1px;
+  --sd-densidad: 1.05;
+  --sd-icon-stroke: 1.8;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 12%, transparent);
+  --sd-shadow-md: 0 3px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  --sd-shadow-lg: 0 12px 32px color-mix(in srgb, var(--sd-ink) 20%, transparent);
+  --sd-space-1: 4.2px;
+  --sd-space-2: 8.4px;
+  --sd-space-3: 12.6px;
+  --sd-space-4: 16.8px;
+  --sd-space-6: 25.2px;
+  --sd-space-8: 33.6px;
+  color-scheme: light;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-pila {
+  display: grid;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-aviso {
+  --tono: var(--sd-accent);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.9rem 1rem;
+  border: var(--sd-border, 1px) solid color-mix(in srgb, var(--tono) 45%, var(--sd-line));
+  border-radius: var(--sd-radius);
+  background: color-mix(in srgb, var(--tono) 10%, var(--sd-surface));
+  color: var(--sd-ink);
+}
+
+.sd-kit .sd-aviso--ok {
+  --tono: var(--sd-ok);
+}
+
+.sd-kit .sd-aviso--peligro {
+  --tono: var(--sd-danger);
+}
+
+.sd-kit .sd-aviso svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 0.1rem;
+  color: var(--tono);
+  stroke-width: var(--sd-icon-stroke, 2);
+}
+
+.sd-kit .sd-aviso strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.sd-kit .sd-aviso p {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-aviso {
+  box-shadow: none;
+}
+</style>

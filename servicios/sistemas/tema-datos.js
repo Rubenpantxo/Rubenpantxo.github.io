@@ -135,6 +135,21 @@ window.SD_CATALOGO = {
       "fondo": "#f2f2f3",
       "tinta": "#1d1f20",
       "acento": "#5980a6"
+    },
+    {
+      "id": "tinta-oro",
+      "nombre": "Tinta y oro",
+      "banda": "oscura",
+      "nota": "Una tinta casi negra y cálida, marfil para leer y un oro que enmarca: va en filetes, no en rellenos.",
+      "muestras": [
+        "#c9a255",
+        "#14110d",
+        "#f1e8d8",
+        "#9c7b4a"
+      ],
+      "fondo": "#14110d",
+      "tinta": "#f1e8d8",
+      "acento": "#c9a255"
     }
   ],
   "tipografias": [
@@ -147,6 +162,7 @@ window.SD_CATALOGO = {
       "peso": 900,
       "tracking": "-0.04em",
       "caja": "none",
+      "estilo": "normal",
       "google": "Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700"
     },
     {
@@ -158,6 +174,7 @@ window.SD_CATALOGO = {
       "peso": 700,
       "tracking": "0",
       "caja": "none",
+      "estilo": "normal",
       "google": null
     },
     {
@@ -169,6 +186,7 @@ window.SD_CATALOGO = {
       "peso": 500,
       "tracking": "0.09em",
       "caja": "uppercase",
+      "estilo": "normal",
       "google": null
     },
     {
@@ -180,6 +198,7 @@ window.SD_CATALOGO = {
       "peso": 800,
       "tracking": "-0.01em",
       "caja": "none",
+      "estilo": "normal",
       "google": null
     },
     {
@@ -191,6 +210,7 @@ window.SD_CATALOGO = {
       "peso": 800,
       "tracking": "-0.02em",
       "caja": "none",
+      "estilo": "normal",
       "google": null
     },
     {
@@ -202,6 +222,7 @@ window.SD_CATALOGO = {
       "peso": 700,
       "tracking": "0",
       "caja": "none",
+      "estilo": "normal",
       "google": null
     },
     {
@@ -213,6 +234,7 @@ window.SD_CATALOGO = {
       "peso": 400,
       "tracking": "0",
       "caja": "none",
+      "estilo": "normal",
       "google": "Caprasimo&family=Figtree:wght@400;600;700"
     },
     {
@@ -224,6 +246,7 @@ window.SD_CATALOGO = {
       "peso": 600,
       "tracking": "0",
       "caja": "none",
+      "estilo": "normal",
       "google": "Cormorant+Garamond:wght@400;600&family=Lora:wght@400;600"
     },
     {
@@ -235,7 +258,56 @@ window.SD_CATALOGO = {
       "peso": 600,
       "tracking": "0.04em",
       "caja": "uppercase",
+      "estilo": "normal",
       "google": "Barlow+Condensed:wght@400;600&family=Barlow:wght@400;500;700"
+    },
+    {
+      "id": "pixel",
+      "nombre": "Press Start 2P + Pixelify Sans",
+      "nota": "Titulares en la letra de una recreativa de 8 bits; el cuerpo en una pixelada que sí se lee a 16 píxeles.",
+      "muestra": "Nivel 1",
+      "display": "\"Press Start 2P\", \"Pixelify Sans\", ui-monospace, monospace",
+      "peso": 400,
+      "tracking": "0",
+      "caja": "uppercase",
+      "estilo": "normal",
+      "google": "Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=VT323"
+    },
+    {
+      "id": "anton-archivo",
+      "nombre": "Anton + Archivo",
+      "nota": "Una condensada de cartel, siempre en mayúsculas y enorme, sobre una grotesca sobria para el texto.",
+      "muestra": "Cartel",
+      "display": "\"Anton\", Impact, \"Arial Narrow\", sans-serif",
+      "peso": 400,
+      "tracking": "0.01em",
+      "caja": "uppercase",
+      "estilo": "normal",
+      "google": "Anton&family=Archivo:wght@400;500;700"
+    },
+    {
+      "id": "space-grotesk",
+      "nombre": "Space Grotesk + Space Mono",
+      "nota": "Una grotesca de rasgos raros y peso firme, con su monoespaciada para las cifras. Directa, sin rodeos.",
+      "muestra": "Sin rodeos",
+      "display": "\"Space Grotesk\", ui-sans-serif, system-ui, sans-serif",
+      "peso": 700,
+      "tracking": "-0.03em",
+      "caja": "none",
+      "estilo": "normal",
+      "google": "Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700"
+    },
+    {
+      "id": "cormorant-cursiva",
+      "nombre": "Cormorant en cursiva + Lora",
+      "nota": "Titulares en una serif de mucho contraste y en cursiva, como grabados en oro; el cuerpo en una serif de pantalla.",
+      "muestra": "Oro y cursiva",
+      "display": "\"Cormorant Garamond\", Georgia, serif",
+      "peso": 500,
+      "tracking": "0",
+      "caja": "none",
+      "estilo": "italic",
+      "google": "Cormorant+Garamond:ital,wght@0,400;0,600;1,500;1,600&family=Lora:wght@400;600"
     }
   ],
   "elementos": [
@@ -246,7 +318,8 @@ window.SD_CATALOGO = {
       "radio": "12px",
       "radioBoton": "999px",
       "densidad": 1,
-      "boton": "solido"
+      "boton": "solido",
+      "piel": "mutante"
     },
     {
       "id": "redondeado",
@@ -255,7 +328,8 @@ window.SD_CATALOGO = {
       "radio": "16px",
       "radioBoton": "16px",
       "densidad": 1,
-      "boton": "solido"
+      "boton": "solido",
+      "piel": null
     },
     {
       "id": "recto",
@@ -264,7 +338,8 @@ window.SD_CATALOGO = {
       "radio": "0px",
       "radioBoton": "0px",
       "densidad": 1,
-      "boton": "solido"
+      "boton": "solido",
+      "piel": null
     },
     {
       "id": "generoso",
@@ -273,7 +348,8 @@ window.SD_CATALOGO = {
       "radio": "16px",
       "radioBoton": "16px",
       "densidad": 1.15,
-      "boton": "solido"
+      "boton": "solido",
+      "piel": null
     },
     {
       "id": "muy-redondo",
@@ -282,7 +358,8 @@ window.SD_CATALOGO = {
       "radio": "18px",
       "radioBoton": "18px",
       "densidad": 1.05,
-      "boton": "solido"
+      "boton": "solido",
+      "piel": null
     },
     {
       "id": "pastilla",
@@ -291,7 +368,8 @@ window.SD_CATALOGO = {
       "radio": "16px",
       "radioBoton": "999px",
       "densidad": 1.1,
-      "boton": "solido"
+      "boton": "solido",
+      "piel": null
     },
     {
       "id": "filete",
@@ -300,7 +378,8 @@ window.SD_CATALOGO = {
       "radio": "4px",
       "radioBoton": "4px",
       "densidad": 1.15,
-      "boton": "contorno"
+      "boton": "contorno",
+      "piel": "filete"
     },
     {
       "id": "plano-tecnico",
@@ -309,7 +388,68 @@ window.SD_CATALOGO = {
       "radio": "4px",
       "radioBoton": "4px",
       "densidad": 0.85,
-      "boton": "solido"
+      "boton": "solido",
+      "piel": "plano"
+    },
+    {
+      "id": "pixel",
+      "nombre": "Pixel",
+      "nota": "Sin una curva: las esquinas se muerden en escalón de 4 píxeles y las sombras son bloques sólidos, sin desenfoque.",
+      "radio": "0px",
+      "radioBoton": "0px",
+      "densidad": 1,
+      "boton": "solido",
+      "piel": "pixel"
+    },
+    {
+      "id": "vidrio",
+      "nombre": "Vidrio esmerilado",
+      "nota": "Superficies translúcidas que flotan sobre un fondo de luz de color. El borde es un reflejo, no una línea.",
+      "radio": "22px",
+      "radioBoton": "999px",
+      "densidad": 1.05,
+      "boton": "solido",
+      "piel": "vidrio"
+    },
+    {
+      "id": "arcilla",
+      "nombre": "Arcilla",
+      "nota": "Todo parece moldeado en arcilla blanda: luz por arriba, sombra por abajo y ni un solo borde.",
+      "radio": "28px",
+      "radioBoton": "999px",
+      "densidad": 1.1,
+      "boton": "solido",
+      "piel": "arcilla"
+    },
+    {
+      "id": "neobrutal",
+      "nombre": "Neobrutal",
+      "nota": "Bordes de tinta de tres píxeles y sombras duras desplazadas. Al pulsar, la pieza se hunde hasta tocar su sombra.",
+      "radio": "6px",
+      "radioBoton": "6px",
+      "densidad": 1.05,
+      "boton": "solido",
+      "piel": "neobrutal"
+    },
+    {
+      "id": "cartel",
+      "nombre": "Cartel",
+      "nota": "Reglas gruesas, titulares enormes y bloques de color plano, como un cartel pegado en la calle.",
+      "radio": "0px",
+      "radioBoton": "0px",
+      "densidad": 1.1,
+      "boton": "solido",
+      "piel": "cartel"
+    },
+    {
+      "id": "relieve",
+      "nombre": "Relieve",
+      "nota": "Todo es plano menos la acción principal, que tiene relieve de verdad: capas, luz arriba y un hundimiento al pulsarla.",
+      "radio": "12px",
+      "radioBoton": "12px",
+      "densidad": 1.05,
+      "boton": "solido",
+      "piel": "relieve"
     }
   ],
   "presets": [
@@ -317,7 +457,7 @@ window.SD_CATALOGO = {
       "id": "halogeno",
       "nombre": "Halógeno",
       "ficha": "halogeno.html",
-      "titular": "Negro verdoso y un lima de alto voltaje. Un solo acento, y unos bordes que cambian de forma al pulsarlos.",
+      "titular": "Negro verdoso, un lima de alto voltaje y radios que mutan.",
       "paleta": "carbon-lima",
       "tipo": "inter-mono",
       "elem": "pastilla-mutante"
@@ -326,70 +466,70 @@ window.SD_CATALOGO = {
       "id": "terracota",
       "nombre": "Terracota",
       "ficha": "terracota.html",
-      "titular": "Terracota sobre crema. Cálido, de mesa de madera, con la serif reservada a los titulares.",
+      "titular": "Terracota sobre crema y un botón que se hunde al pulsarlo.",
       "paleta": "barro-crema",
       "tipo": "serif-titulares",
-      "elem": "redondeado"
+      "elem": "relieve"
     },
     {
       "id": "editorial",
       "nombre": "Editorial",
       "ficha": "editorial.html",
-      "titular": "Casi monocromo, esquinas rectas y un fucsia que corta. Mucho aire y titulares en caja alta.",
+      "titular": "Cartel en blanco y negro con un fucsia que corta.",
       "paleta": "tinta-fucsia",
-      "tipo": "caja-alta",
-      "elem": "recto"
+      "tipo": "anton-archivo",
+      "elem": "cartel"
     },
     {
       "id": "carmin",
       "nombre": "Carmín",
       "ficha": "carmin.html",
-      "titular": "Rojo profundo y verde de mensajería. Cuerpo grande, pesos altos y objetivos pulsables amplios.",
+      "titular": "Rojo profundo, bordes de tinta y sombras duras.",
       "paleta": "grana-mensajeria",
-      "tipo": "peso-alto",
-      "elem": "generoso"
+      "tipo": "space-grotesk",
+      "elem": "neobrutal"
     },
     {
       "id": "neon",
       "nombre": "Neón",
       "ficha": "neon.html",
-      "titular": "Oscuro con lima, cian y rosa. Tres acentos que solo funcionan porque el fondo calla.",
+      "titular": "Recreativa de 8 bits: lima, cian y rosa sobre la noche.",
       "paleta": "noche-neon",
-      "tipo": "tabular",
-      "elem": "muy-redondo"
+      "tipo": "pixel",
+      "elem": "pixel"
     },
     {
       "id": "savia",
       "nombre": "Savia",
       "ficha": "savia.html",
-      "titular": "Verde fresco y un tema oscuro para el reverso. Dos pieles, un único juego de componentes.",
+      "titular": "Vidrio esmerilado sobre luz verde y naranja.",
       "paleta": "savia-naranja",
       "tipo": "neutra",
-      "elem": "redondeado"
+      "elem": "vidrio"
     },
     {
       "id": "organico",
       "nombre": "Orgánico",
       "ficha": "organico.html",
-      "titular": "Crema y arena con terracota y salvia. Todo redondo: contenedores muy curvos y botones en pastilla.",
+      "titular": "Arena y salvia moldeadas en arcilla blanda.",
       "paleta": "arena-salvia",
       "tipo": "caprasimo-figtree",
-      "elem": "pastilla"
+      "elem": "arcilla"
     },
     {
       "id": "clasico",
       "nombre": "Clásico",
       "ficha": "clasico.html",
-      "titular": "Gris cálido y un oro apagado. Serif en todo, filetes de un píxel y botones de solo contorno.",
-      "paleta": "pergamino-oro",
-      "tipo": "cormorant-lora",
+      "titular": "Tinta profunda, filetes de oro y serif en cursiva.",
+      "paleta": "tinta-oro",
+      "tipo": "cormorant-cursiva",
       "elem": "filete"
     },
     {
       "id": "industrial",
       "nombre": "Industrial",
       "ficha": "industrial.html",
-      "titular": "Gris frío y azul de plano. Condensada en los titulares, rejilla a la vista y esquinas de 4 píxeles.",
+      "titular": "Gris frío, azul de plano y cotas a la vista.",
       "paleta": "acero-plano",
       "tipo": "barlow",
       "elem": "plano-tecnico"

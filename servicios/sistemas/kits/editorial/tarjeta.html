@@ -1,0 +1,226 @@
+<div class="sd-kit">
+<article class="sd-ficha">
+  <span class="sd-insignia">Nuevo</span>
+  <h4>Título de la tarjeta</h4>
+  <p>Dos líneas que explican qué hay dentro y por qué merece la pena abrirla.</p>
+  <div class="sd-progreso" role="progressbar" aria-label="Avance" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100"><span style="--v:64%"></span></div>
+  <div class="sd-fila">
+    <button class="sd-btn" type="button">Abrir</button>
+    <button class="sd-btn sd-btn--fantasma" type="button">Más tarde</button>
+  </div>
+</article>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&display=swap");
+/* Editorial — Tarjeta. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/editorial.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #fafafa;
+  --sd-surface: #ffffff;
+  --sd-surface-2: #ffffff;
+  --sd-ink: #111114;
+  --sd-muted: #727278;
+  --sd-accent: #e7335a;
+  --sd-accent-strong: #c11f43;
+  --sd-accent-solid: #c11f43;
+  --sd-accent-text: #c11f43;
+  --sd-on-accent: #ffffff;
+  --sd-accent-2: #111114;
+  --sd-line: #e8e8ec;
+  --sd-ok: #1f8a4c;
+  --sd-warn: #b8860b;
+  --sd-danger: #c11f43;
+  --sd-display: "Anton", Impact, "Arial Narrow", sans-serif;
+  --sd-font: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 400;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0.01em;
+  --sd-display-caja: uppercase;
+  --sd-cifras: normal;
+  --sd-radius: 0px;
+  --sd-radius-btn: 0px;
+  --sd-radius-activo: 0px;
+  --sd-border: 3px;
+  --sd-densidad: 1.1;
+  --sd-icon-stroke: 2;
+  --sd-boton: solido;
+  --sd-shadow-sm: none;
+  --sd-shadow-md: none;
+  --sd-shadow-lg: none;
+  --sd-space-1: 4.4px;
+  --sd-space-2: 8.8px;
+  --sd-space-3: 13.2px;
+  --sd-space-4: 17.6px;
+  --sd-space-6: 26.4px;
+  --sd-space-8: 35.2px;
+  color-scheme: light;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.72rem 1.35rem;
+  border: var(--sd-border, 1px) solid transparent;
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: var(--sd-accent-solid, var(--sd-accent));
+  color: var(--sd-on-accent, var(--sd-bg));
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-radius 0.22s ease, filter 0.12s ease;
+}
+
+.sd-kit .sd-btn:hover {
+  filter: brightness(1.08);
+}
+
+.sd-kit .sd-btn--fantasma {
+  background: transparent;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-btn--fantasma:hover {
+  color: var(--sd-ink);
+}
+
+.sd-kit .sd-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.sd-kit .sd-insignia {
+  display: inline-block;
+  justify-self: start;
+  width: fit-content;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sd-accent-2, var(--sd-accent)) 18%, transparent);
+  color: color-mix(in srgb, var(--sd-accent-2, var(--sd-accent)) 70%, var(--sd-ink));
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.sd-kit .sd-progreso {
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: var(--sd-radius-btn, 999px);
+  background: color-mix(in srgb, var(--sd-ink) 12%, transparent);
+}
+
+.sd-kit .sd-progreso > span {
+  display: block;
+  width: var(--v, 50%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sd-accent);
+}
+
+.sd-kit .sd-ficha {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+  max-width: 22rem;
+  padding: 1.2rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface-2, var(--sd-surface));
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-kit .sd-ficha h4 {
+  margin: 0;
+  font-family: var(--sd-display, var(--sd-font));
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  letter-spacing: var(--sd-display-tracking, 0);
+  text-transform: var(--sd-display-caja, none);
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.sd-kit .sd-ficha p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-ficha {
+  border: var(--sd-border) solid var(--sd-ink);
+  box-shadow: none;
+}
+
+.sd-kit .sd-ficha {
+  border-top-width: 12px;
+}
+
+.sd-kit .sd-ficha h4 {
+  font-size: 1.9rem;
+  line-height: 0.95;
+}
+
+.sd-kit .sd-btn {
+  border-color: var(--sd-ink);
+  font-family: var(--sd-display);
+  font-weight: var(--sd-display-peso);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sd-kit .sd-btn:not([class*="sd-btn--"]) {
+  border-color: var(--sd-accent-solid);
+}
+
+.sd-kit .sd-btn--fantasma {
+  border-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.sd-kit .sd-insignia {
+  border-radius: 0;
+  background: var(--sd-ink);
+  color: var(--sd-bg);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sd-kit .sd-progreso {
+  height: 0.75rem;
+  border-radius: 0;
+}
+
+.sd-kit .sd-progreso > span {
+  border-radius: 0;
+  background: var(--sd-accent-solid);
+}
+</style>
