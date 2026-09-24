@@ -1,5 +1,5 @@
 /*
-  sistema.css — hoja compartida por las seis fichas de sistema de diseno.
+  sistema.css — hoja compartida por las fichas de sistema de diseno.
 
   No define ni un color ni una fuente: solo estructura. Cada ficha declara sus
   propios tokens en un :root y la pagina se pinta con el sistema que documenta.
@@ -65,6 +65,16 @@ body {
   text-transform: uppercase;
 }
 
+/* Los rasgos de la tipografia (peso, cursiva, caja) vienen de tema.css. */
+.sd-titulo,
+.sd-seccion > h2,
+.sd-muestra-display,
+.sd-muestra-titulo {
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  text-transform: var(--sd-display-caja, none);
+}
+
 .sd-titulo {
   margin: 0 0 0.5rem;
   font-family: var(--sd-display, var(--sd-font));
@@ -94,7 +104,6 @@ body {
   margin: 0 0 0.35rem;
   font-family: var(--sd-display, var(--sd-font));
   font-size: clamp(1.3rem, 2.6vw, 1.9rem);
-  font-weight: 600;
   letter-spacing: -0.01em;
 }
 
@@ -210,6 +219,11 @@ body {
   color: var(--sd-muted);
 }
 
+.sd-muestra-dato {
+  font-family: var(--sd-mono, ui-monospace, monospace);
+  letter-spacing: 0.04em;
+}
+
 /* ---------- Componentes ---------- */
 .sd-lienzo {
   display: flex;
@@ -222,15 +236,38 @@ body {
   background: var(--sd-surface);
 }
 
+/* Los componentes (boton, casilla, campo, aviso...) no se escriben aqui:
+   salen de componentes.mjs, que es la fuente comun con las piezas sueltas
+   del kit. Las pieles de cada sistema estan en tema.css. */
+/*@bloque componentes*/
+/* Generado por generar-kits.mjs desde componentes.mjs — no editar a mano. */
+.sd-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-pila {
+  display: grid;
+  gap: var(--sd-space-3, 12px);
+}
+
 .sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   padding: 0.72rem 1.35rem;
-  border: 1px solid transparent;
+  border: var(--sd-border, 1px) solid transparent;
   border-radius: var(--sd-radius-btn, var(--sd-radius));
   background: var(--sd-accent-solid, var(--sd-accent));
   color: var(--sd-on-accent, var(--sd-bg));
   font: inherit;
   font-weight: 600;
+  line-height: 1.2;
   cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-radius 0.22s ease, filter 0.12s ease;
 }
 
 .sd-btn:hover {
@@ -245,9 +282,6 @@ body {
 
 .sd-btn--suave {
   background: color-mix(in srgb, var(--sd-accent) 14%, transparent);
-  /* Sobre relleno tintado ni el paso de texto de la rampa llega siempre a
-     4,5:1, asi que se empuja un 20 % hacia la tinta. Sirve igual en banda
-     clara (oscurece) que en oscura (aclara). */
   color: color-mix(in srgb, var(--sd-accent-text, var(--sd-accent)) 80%, var(--sd-ink));
 }
 
@@ -260,6 +294,10 @@ body {
   color: var(--sd-ink);
 }
 
+.sd-btn--ancho {
+  width: 100%;
+}
+
 .sd-btn[disabled] {
   opacity: 0.45;
   cursor: not-allowed;
@@ -269,21 +307,81 @@ body {
 .sd-check {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.6rem;
   cursor: pointer;
 }
 
 .sd-check input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
   width: 1.25rem;
   height: 1.25rem;
-  accent-color: var(--sd-accent);
+  margin: 0;
+  border: max(1.5px, var(--sd-border, 1px)) solid color-mix(in srgb, var(--sd-ink) 40%, transparent);
+  border-radius: min(var(--sd-radius), 6px);
+  background: var(--sd-surface-2, var(--sd-surface));
   cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.sd-check input[type="radio"] {
+  border-radius: 50%;
+}
+
+.sd-check input:checked {
+  border-color: var(--sd-accent-solid, var(--sd-accent));
+  background: var(--sd-accent-solid, var(--sd-accent));
+  box-shadow: inset 0 0 0 3px var(--sd-surface-2, var(--sd-surface));
+}
+
+.sd-interruptor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  cursor: pointer;
+}
+
+.sd-interruptor input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex: none;
+  width: 2.75rem;
+  height: 1.5rem;
+  margin: 0;
+  border: 0;
+  border-radius: var(--sd-radius-btn, 999px);
+  background: color-mix(in srgb, var(--sd-ink) 22%, transparent);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sd-interruptor input::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(1.5rem - 6px);
+  height: calc(1.5rem - 6px);
+  border-radius: inherit;
+  background: var(--sd-surface, #fff);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
+  transition: transform 0.2s ease;
+}
+
+.sd-interruptor input:checked {
+  background: var(--sd-accent-solid, var(--sd-accent));
+}
+
+.sd-interruptor input:checked::before {
+  transform: translateX(1.25rem);
 }
 
 .sd-campo {
   display: grid;
   gap: 0.35rem;
-  min-width: 15rem;
+  min-width: 0;
 }
 
 .sd-campo span {
@@ -292,12 +390,17 @@ body {
 }
 
 .sd-campo input {
+  width: 100%;
   padding: 0.7rem 0.85rem;
-  border: 1px solid var(--sd-line);
+  border: var(--sd-border, 1px) solid var(--sd-line);
   border-radius: var(--sd-radius);
   background: var(--sd-surface-2, var(--sd-bg));
   color: var(--sd-ink);
   font: inherit;
+}
+
+.sd-campo input::placeholder {
+  color: var(--sd-muted);
 }
 
 .sd-campo input:focus {
@@ -306,13 +409,212 @@ body {
 }
 
 .sd-insignia {
+  display: inline-block;
+  justify-self: start;
+  width: fit-content;
   padding: 0.25rem 0.65rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--sd-accent-2, var(--sd-accent)) 18%, transparent);
-  color: var(--sd-accent-2, var(--sd-accent));
+  color: color-mix(in srgb, var(--sd-accent-2, var(--sd-accent)) 70%, var(--sd-ink));
   font-size: 0.76rem;
   font-weight: 700;
 }
+
+.sd-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.8rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius-btn, 999px);
+  color: var(--sd-ink);
+  font-size: 0.82rem;
+}
+
+.sd-chip--activo {
+  border-color: var(--sd-ink);
+  background: var(--sd-ink);
+  color: var(--sd-bg);
+}
+
+.sd-pestanas {
+  display: flex;
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: var(--sd-surface-2, var(--sd-surface));
+}
+
+.sd-pestanas button {
+  flex: 1;
+  padding: 0.5rem 0.9rem;
+  border: 0;
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: transparent;
+  color: var(--sd-muted);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sd-pestanas button[aria-selected="true"] {
+  background: var(--sd-surface);
+  color: var(--sd-ink);
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-aviso {
+  --tono: var(--sd-accent);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.9rem 1rem;
+  border: var(--sd-border, 1px) solid color-mix(in srgb, var(--tono) 45%, var(--sd-line));
+  border-radius: var(--sd-radius);
+  background: color-mix(in srgb, var(--tono) 10%, var(--sd-surface));
+  color: var(--sd-ink);
+}
+
+.sd-aviso--ok { --tono: var(--sd-ok); }
+.sd-aviso--atencion { --tono: var(--sd-warn); }
+.sd-aviso--peligro { --tono: var(--sd-danger); }
+
+.sd-aviso svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 0.1rem;
+  color: var(--tono);
+  stroke-width: var(--sd-icon-stroke, 2);
+}
+
+.sd-aviso strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.sd-aviso p {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  color: var(--sd-muted);
+}
+
+.sd-progreso {
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: var(--sd-radius-btn, 999px);
+  background: color-mix(in srgb, var(--sd-ink) 12%, transparent);
+}
+
+.sd-progreso > span {
+  display: block;
+  width: var(--v, 50%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sd-accent);
+}
+
+.sd-dato {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1.1rem 1.2rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface-2, var(--sd-surface));
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-dato__etiqueta {
+  font-size: 0.8rem;
+  color: var(--sd-muted);
+}
+
+.sd-dato__valor {
+  font-family: var(--sd-display, var(--sd-font));
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  letter-spacing: var(--sd-display-tracking, 0);
+  font-size: 2.4rem;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.sd-dato__delta {
+  margin-bottom: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--sd-ok) 70%, var(--sd-ink));
+}
+
+.sd-ficha {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+  max-width: 22rem;
+  padding: 1.2rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface-2, var(--sd-surface));
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-ficha h4 {
+  margin: 0;
+  font-family: var(--sd-display, var(--sd-font));
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  letter-spacing: var(--sd-display-tracking, 0);
+  text-transform: var(--sd-display-caja, none);
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.sd-ficha p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sd-muted);
+}
+
+.sd-precio {
+  color: var(--sd-muted);
+}
+
+.sd-precio strong {
+  font-family: var(--sd-display, var(--sd-font));
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  font-size: 2.2rem;
+  color: var(--sd-ink);
+}
+
+.sd-lista {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+}
+
+.sd-lista li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+
+.sd-lista li::before {
+  content: "";
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: var(--sd-radius-btn, 50%);
+  background: var(--sd-accent);
+}
+/*/@bloque componentes*/
 
 .sd-iconos {
   display: flex;
@@ -326,23 +628,52 @@ body {
   height: 1.9rem;
 }
 
-.sd-ficha {
-  max-width: 22rem;
-  padding: 1.1rem;
-  border: 1px solid var(--sd-line);
+.sd-iconos svg {
+  stroke-width: var(--sd-icon-stroke, 1.8);
+}
+
+/* ---------- El kit de cada ficha ---------- */
+.sd-kit-rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sd-kit-pieza {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0.6rem;
+}
+
+.sd-kit-pieza h3 {
+  margin: 0;
+}
+
+.sd-escena {
+  display: grid;
+  place-items: center;
+  min-height: 14rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px dashed color-mix(in srgb, var(--sd-ink) 18%, transparent);
   border-radius: var(--sd-radius);
-  background: var(--sd-surface-2, var(--sd-surface));
 }
 
-.sd-ficha h4 {
-  margin: 0 0 0.3rem;
-  font-size: 1.05rem;
+.sd-escena > * {
+  width: 100%;
+  max-width: 22rem;
 }
 
-.sd-ficha p {
-  margin: 0 0 0.9rem;
-  font-size: 0.9rem;
-  color: var(--sd-muted);
+/* El segundo tema, cuando la paleta lo trae: mismas piezas, otra piel. */
+.sd-reverso {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-radius: var(--sd-radius);
+}
+
+.sd-reverso .sd-kit-rejilla {
+  margin-top: 0.5rem;
 }
 
 /* ---------- Pie ---------- */

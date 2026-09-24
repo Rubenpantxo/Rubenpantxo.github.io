@@ -1,0 +1,207 @@
+<div class="sd-kit">
+<article class="sd-ficha">
+  <span class="sd-insignia">Nuevo</span>
+  <h4>Título de la tarjeta</h4>
+  <p>Dos líneas que explican qué hay dentro y por qué merece la pena abrirla.</p>
+  <div class="sd-progreso" role="progressbar" aria-label="Avance" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100"><span style="--v:64%"></span></div>
+  <div class="sd-fila">
+    <button class="sd-btn" type="button">Abrir</button>
+    <button class="sd-btn sd-btn--fantasma" type="button">Más tarde</button>
+  </div>
+</article>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap");
+/* Halógeno — Tarjeta. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/halogeno.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #0a0d0a;
+  --sd-surface: #12160f;
+  --sd-surface-2: #1a1f18;
+  --sd-ink: #f2f5f0;
+  --sd-muted: #8f9a8c;
+  --sd-accent: #a3e635;
+  --sd-accent-strong: #8ecc1f;
+  --sd-accent-solid: #a3e635;
+  --sd-accent-text: #afe668;
+  --sd-on-accent: #0a0d0a;
+  --sd-accent-2: #8ecc1f;
+  --sd-line: #2a312a;
+  --sd-ok: #a3e635;
+  --sd-warn: #e8c547;
+  --sd-danger: #ff6b6b;
+  --sd-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --sd-font: "Inter Tight", "Inter", system-ui, sans-serif;
+  --sd-mono: "JetBrains Mono", ui-monospace, monospace;
+  --sd-display-peso: 900;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: -0.04em;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+  --sd-radius: 12px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 10px;
+  --sd-border: 1px;
+  --sd-densidad: 1;
+  --sd-icon-stroke: 2;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 0 0 1px color-mix(in srgb, var(--sd-accent) 22%, transparent);
+  --sd-shadow-md: 0 0 0 1px color-mix(in srgb, var(--sd-accent) 34%, transparent);
+  --sd-shadow-lg: 0 0 0 1px color-mix(in srgb, var(--sd-accent) 46%, transparent), 0 0 24px color-mix(in srgb, var(--sd-accent) 18%, transparent);
+  --sd-space-1: 4px;
+  --sd-space-2: 8px;
+  --sd-space-3: 12px;
+  --sd-space-4: 16px;
+  --sd-space-6: 24px;
+  --sd-space-8: 32px;
+  color-scheme: dark;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.72rem 1.35rem;
+  border: var(--sd-border, 1px) solid transparent;
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: var(--sd-accent-solid, var(--sd-accent));
+  color: var(--sd-on-accent, var(--sd-bg));
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-radius 0.22s ease, filter 0.12s ease;
+}
+
+.sd-kit .sd-btn:hover {
+  filter: brightness(1.08);
+}
+
+.sd-kit .sd-btn--fantasma {
+  background: transparent;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-btn--fantasma:hover {
+  color: var(--sd-ink);
+}
+
+.sd-kit .sd-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.sd-kit .sd-insignia {
+  display: inline-block;
+  justify-self: start;
+  width: fit-content;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sd-accent-2, var(--sd-accent)) 18%, transparent);
+  color: color-mix(in srgb, var(--sd-accent-2, var(--sd-accent)) 70%, var(--sd-ink));
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.sd-kit .sd-progreso {
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: var(--sd-radius-btn, 999px);
+  background: color-mix(in srgb, var(--sd-ink) 12%, transparent);
+}
+
+.sd-kit .sd-progreso > span {
+  display: block;
+  width: var(--v, 50%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sd-accent);
+}
+
+.sd-kit .sd-ficha {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+  max-width: 22rem;
+  padding: 1.2rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface-2, var(--sd-surface));
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-kit .sd-ficha h4 {
+  margin: 0;
+  font-family: var(--sd-display, var(--sd-font));
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  letter-spacing: var(--sd-display-tracking, 0);
+  text-transform: var(--sd-display-caja, none);
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.sd-kit .sd-ficha p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-btn:hover,
+.sd-kit .sd-btn:focus-visible {
+  border-radius: var(--sd-radius-activo);
+}
+
+.sd-kit .sd-btn:active {
+  transform: scale(0.97);
+}
+
+.sd-kit .sd-btn:not([class*="sd-btn--"]) {
+  box-shadow: 0 0 0 0 transparent;
+}
+
+.sd-kit .sd-btn:not([class*="sd-btn--"]):hover {
+  box-shadow: 0 0 22px color-mix(in srgb, var(--sd-accent) 45%, transparent);
+}
+
+.sd-kit .sd-ficha {
+  box-shadow: var(--sd-shadow-md);
+}
+
+.sd-kit .sd-ficha:hover {
+  box-shadow: var(--sd-shadow-lg);
+}
+
+.sd-kit .sd-insignia {
+  border-radius: var(--sd-radius-activo);
+  font-family: var(--sd-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+</style>

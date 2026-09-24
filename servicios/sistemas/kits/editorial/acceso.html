@@ -1,0 +1,236 @@
+<div class="sd-kit">
+<div class="sd-ficha">
+  <h4>Entrar</h4>
+  <label class="sd-campo"><span>Correo</span><input type="email" placeholder="nombre@correo.com" autocomplete="off"></label>
+  <label class="sd-campo"><span>Contraseña</span><input type="password" placeholder="••••••••" autocomplete="off"></label>
+  <label class="sd-check"><input type="checkbox" checked> Recordarme</label>
+  <button class="sd-btn sd-btn--ancho" type="button">Entrar</button>
+</div>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&display=swap");
+/* Editorial — Acceso. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/editorial.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #fafafa;
+  --sd-surface: #ffffff;
+  --sd-surface-2: #ffffff;
+  --sd-ink: #111114;
+  --sd-muted: #727278;
+  --sd-accent: #e7335a;
+  --sd-accent-strong: #c11f43;
+  --sd-accent-solid: #c11f43;
+  --sd-accent-text: #c11f43;
+  --sd-on-accent: #ffffff;
+  --sd-accent-2: #111114;
+  --sd-line: #e8e8ec;
+  --sd-ok: #1f8a4c;
+  --sd-warn: #b8860b;
+  --sd-danger: #c11f43;
+  --sd-display: "Anton", Impact, "Arial Narrow", sans-serif;
+  --sd-font: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 400;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0.01em;
+  --sd-display-caja: uppercase;
+  --sd-cifras: normal;
+  --sd-radius: 0px;
+  --sd-radius-btn: 0px;
+  --sd-radius-activo: 0px;
+  --sd-border: 3px;
+  --sd-densidad: 1.1;
+  --sd-icon-stroke: 2;
+  --sd-boton: solido;
+  --sd-shadow-sm: none;
+  --sd-shadow-md: none;
+  --sd-shadow-lg: none;
+  --sd-space-1: 4.4px;
+  --sd-space-2: 8.8px;
+  --sd-space-3: 13.2px;
+  --sd-space-4: 17.6px;
+  --sd-space-6: 26.4px;
+  --sd-space-8: 35.2px;
+  color-scheme: light;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.72rem 1.35rem;
+  border: var(--sd-border, 1px) solid transparent;
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: var(--sd-accent-solid, var(--sd-accent));
+  color: var(--sd-on-accent, var(--sd-bg));
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-radius 0.22s ease, filter 0.12s ease;
+}
+
+.sd-kit .sd-btn:hover {
+  filter: brightness(1.08);
+}
+
+.sd-kit .sd-btn--ancho {
+  width: 100%;
+}
+
+.sd-kit .sd-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.sd-kit .sd-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+
+.sd-kit .sd-check input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  border: max(1.5px, var(--sd-border, 1px)) solid color-mix(in srgb, var(--sd-ink) 40%, transparent);
+  border-radius: min(var(--sd-radius), 6px);
+  background: var(--sd-surface-2, var(--sd-surface));
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.sd-kit .sd-check input[type="radio"] {
+  border-radius: 50%;
+}
+
+.sd-kit .sd-check input:checked {
+  border-color: var(--sd-accent-solid, var(--sd-accent));
+  background: var(--sd-accent-solid, var(--sd-accent));
+  box-shadow: inset 0 0 0 3px var(--sd-surface-2, var(--sd-surface));
+}
+
+.sd-kit .sd-campo {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.sd-kit .sd-campo span {
+  font-size: 0.8rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-campo input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface-2, var(--sd-bg));
+  color: var(--sd-ink);
+  font: inherit;
+}
+
+.sd-kit .sd-campo input::placeholder {
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-campo input:focus {
+  outline: 2px solid var(--sd-accent);
+  outline-offset: 1px;
+}
+
+.sd-kit .sd-ficha {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+  max-width: 22rem;
+  padding: 1.2rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface-2, var(--sd-surface));
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-kit .sd-ficha h4 {
+  margin: 0;
+  font-family: var(--sd-display, var(--sd-font));
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  letter-spacing: var(--sd-display-tracking, 0);
+  text-transform: var(--sd-display-caja, none);
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.sd-kit .sd-ficha p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-ficha {
+  border: var(--sd-border) solid var(--sd-ink);
+  box-shadow: none;
+}
+
+.sd-kit .sd-ficha {
+  border-top-width: 12px;
+}
+
+.sd-kit .sd-ficha h4 {
+  font-size: 1.9rem;
+  line-height: 0.95;
+}
+
+.sd-kit .sd-btn {
+  border-color: var(--sd-ink);
+  font-family: var(--sd-display);
+  font-weight: var(--sd-display-peso);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sd-kit .sd-btn:not([class*="sd-btn--"]) {
+  border-color: var(--sd-accent-solid);
+}
+
+.sd-kit .sd-campo input {
+  border-width: 0 0 var(--sd-border);
+  border-color: var(--sd-ink);
+  background: transparent;
+  padding-inline: 0;
+}
+
+.sd-kit .sd-campo span {
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--sd-ink);
+}
+</style>

@@ -11,8 +11,16 @@
  *   - lo que pide una URL de fuera (imagenes, CDNs)
  *   - lo que trae <script> o <img>
  *
+ * Ademas, en las tarjetas se exige texto visible: UIverse tiene muchas
+ * "tarjetas" que son solo una forma vacia (un rectangulo con sombra), y en una
+ * biblioteca eso no ensena nada.
+ *
  * Uso:
  *   node servicios/sistemas/importar-uiverse.mjs <ruta-al-clon-de-galaxy>
+ *   node servicios/sistemas/importar-uiverse.mjs <ruta> --solo=tarjetas
+ *
+ * Con --solo se regenera una sola categoria y las demas se dejan como estan,
+ * para no mover elementos que ya tienen trabajo encima (tokenizados.js).
  *
  * El clon no se guarda en el repo: solo entra lo importado.
  */
@@ -24,6 +32,7 @@ const AQUI = dirname(fileURLToPath(import.meta.url));
 const DESTINO = join(AQUI, 'uiverse');
 
 const ORIGEN = process.argv[2];
+const SOLO = (process.argv.find(a => a.startsWith('--solo=')) || '').slice(7) || null;
 if (!ORIGEN || !existsSync(ORIGEN)) {
   console.error('Falta la ruta al clon de uiverse-io/galaxy.');
   console.error('  git clone --depth 1 https://github.com/uiverse-io/galaxy.git');
@@ -46,6 +55,15 @@ const CUPOS = [
   ['Forms', 'formularios', 'Formularios', 8]
 ];
 
+// Caracteres de texto visible que se piden como minimo, por categoria.
+const TEXTO_MINIMO = { Cards: 25 };
+
+// Descartados a mano tras verlos montados: pasan los filtros pero en reposo
+// no ensenan nada (el contenido solo aparece al pasar el raton).
+const DESCARTES = new Set([
+  'AbanoubMagdy1_hard-zebra-100.html'
+]);
+
 const TAILWIND = /class="[^"]*\b(bg-\w|text-\w+-\d|flex\b|grid\b|p[xytblr]?-\d|m[xytblr]?-\d|w-\d|h-\d|rounded-\w|border-\w|shadow-\w|hover:)/;
 
 function leer(cat, archivo) {
@@ -54,10 +72,12 @@ function leer(cat, archivo) {
   const markup = (i === -1 ? bruto : bruto.slice(0, i)).trim();
   const css = i === -1 ? '' : bruto.slice(i + 7, bruto.lastIndexOf('</style>')).trim();
   const credito = css.match(/\/\*\s*From Uiverse\.io by ([^\s]+)\s*(?:-\s*Tags:\s*([^*]*))?\*\//);
+  const texto = markup.replace(/<svg[\s\S]*?<\/svg>/gi, ' ').replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim();
   const colores = [...new Set((css.match(/#[0-9a-fA-F]{3,8}\b/g) || []).map(c => c.toLowerCase()))];
 
   return {
-    archivo, bruto, markup, css, colores,
+    archivo, bruto, markup, css, colores, texto,
     autor: credito ? credito[1] : 'anónimo',
     tags: credito && credito[2] ? credito[2].trim().replace(/\s+/g, ' ') : '',
     animado: /@keyframes|transition/.test(css),
@@ -67,6 +87,8 @@ function leer(cat, archivo) {
       && !/<img\b|url\(["']?https?:/i.test(bruto)
       && css.length > 60
       && bruto.length < 6000
+      && texto.length >= (TEXTO_MINIMO[cat] || 0)
+      && !DESCARTES.has(archivo)
   };
 }
 
@@ -75,20 +97,39 @@ function leer(cat, archivo) {
 function puntuar(e, cat) {
   let p = 100;
   p -= e.colores.length * 6;
-  p -= Math.floor(e.css / 220);
+  p -= Math.floor(e.css.length / 220);
   if (e.animado) p += cat === 'loaders' ? 14 : 5;
   if (e.tags) p += 4;
   if (e.markup.length > 900) p -= 12;
   return p;
 }
 
-rmSync(DESTINO, { recursive: true, force: true });
-mkdirSync(DESTINO, { recursive: true });
+if (SOLO && !CUPOS.some(c => c[1] === SOLO)) {
+  console.error(`No hay ninguna categoria "${SOLO}".`);
+  process.exit(1);
+}
+
+// Con --solo se parte del indice que ya hay y solo se rehace esa categoria.
+let previo = [];
+if (SOLO) {
+  const js = readFileSync(join(DESTINO, 'indice.js'), 'utf8');
+  previo = JSON.parse(js.slice(js.indexOf('{'), js.lastIndexOf('}') + 1)).elementos;
+  rmSync(join(DESTINO, SOLO), { recursive: true, force: true });
+} else {
+  rmSync(DESTINO, { recursive: true, force: true });
+  mkdirSync(DESTINO, { recursive: true });
+}
 
 const indice = [];
 const resumen = [];
 
 for (const [cat, slug, titulo, cupo] of CUPOS) {
+  if (SOLO && slug !== SOLO) {
+    indice.push(...previo.filter(e => e.cat === slug));
+    resumen.push({ titulo, slug });
+    continue;
+  }
+
   const todos = readdirSync(join(ORIGEN, cat))
     .filter(a => a.endsWith('.html'))
     .map(a => leer(cat, a))
@@ -159,11 +200,16 @@ no puede funcionar en una pagina estatica sin framework:
 - lo que pide una URL de fuera (imagenes, CDNs)
 - lo que trae \`<script>\` o \`<img>\`
 - lo muy largo, por peso
+- en tarjetas, las que no llevan texto: una forma vacia no ensena nada
 
 ## Como se vuelve a generar
 
     git clone --depth 1 https://github.com/uiverse-io/galaxy.git
     node servicios/sistemas/importar-uiverse.mjs ./galaxy
+
+Para rehacer una sola categoria sin tocar las demas:
+
+    node servicios/sistemas/importar-uiverse.mjs ./galaxy --solo=tarjetas
 
 El clon no se guarda en el repo: solo entra lo importado.
 

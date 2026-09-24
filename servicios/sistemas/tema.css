@@ -5,19 +5,19 @@
 
      <html data-paleta="…" data-tipo="…" data-elem="…">
 
-   Cada eje es libre: 9 paletas x 9 tipografias x 8 juegos de
-   elementos = 648 combinaciones. Los nueve presets son solo
+   Cada eje es libre: 10 paletas x 13 tipografias x 14 juegos de
+   elementos = 1820 combinaciones. Los nueve presets son solo
    combinaciones de partida:
 
      preset       paleta             tipografia           elementos
    halogeno     carbon-lima        inter-mono           pastilla-mutante
-   terracota    barro-crema        serif-titulares      redondeado
-   editorial    tinta-fucsia       caja-alta            recto
-   carmin       grana-mensajeria   peso-alto            generoso
-   neon         noche-neon         tabular              muy-redondo
-   savia        savia-naranja      neutra               redondeado
-   organico     arena-salvia       caprasimo-figtree    pastilla
-   clasico      pergamino-oro      cormorant-lora       filete
+   terracota    barro-crema        serif-titulares      relieve
+   editorial    tinta-fucsia       anton-archivo        cartel
+   carmin       grana-mensajeria   space-grotesk        neobrutal
+   neon         noche-neon         pixel                pixel
+   savia        savia-naranja      neutra               vidrio
+   organico     arena-salvia       caprasimo-figtree    arcilla
+   clasico      tinta-oro          cormorant-cursiva    filete
    industrial   acero-plano        barlow               plano-tecnico
 
    Las fuentes de Google las carga selector-sistema.js cuando hacen falta; el
@@ -32,6 +32,7 @@
   --sd-densidad: 1;
   --sd-icon-stroke: 1.8;
   --sd-display-peso: 700;
+  --sd-display-estilo: normal;
   --sd-display-tracking: 0;
   --sd-display-caja: none;
   --sd-cifras: normal;
@@ -241,6 +242,27 @@
   color-scheme: light;
 }
 
+/* Tinta y oro — Una tinta casi negra y cálida, marfil para leer y un oro que enmarca: va en filetes, no en rellenos. */
+[data-paleta="tinta-oro"] {
+  --sd-bg: #14110d;
+  --sd-surface: #1c1813;
+  --sd-surface-2: #241e17;
+  --sd-ink: #f1e8d8;
+  --sd-muted: #a89a84;
+  --sd-accent: #c9a255;
+  --sd-accent-strong: #a8823a;
+  --sd-accent-solid: #c9a255;
+  --sd-accent-text: #d4b26e;
+  --sd-on-accent: #14110d;
+  --sd-accent-2: #9c7b4a;
+  --sd-line: #3a3126;
+  --sd-ok: #9fbf7a;
+  --sd-warn: #e0b04c;
+  --sd-danger: #e0806a;
+  --sd-banda: dark;
+  color-scheme: dark;
+}
+
 /* ============================================================
    EJE 2 — TIPOGRAFIAS
    ============================================================ */
@@ -250,6 +272,7 @@
   --sd-font: "Inter Tight", "Inter", system-ui, sans-serif;
   --sd-mono: "JetBrains Mono", ui-monospace, monospace;
   --sd-display-peso: 900;
+  --sd-display-estilo: normal;
   --sd-display-tracking: -0.04em;
   --sd-display-caja: none;
   --sd-cifras: normal;
@@ -261,6 +284,7 @@
   --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --sd-mono: ui-monospace, monospace;
   --sd-display-peso: 700;
+  --sd-display-estilo: normal;
   --sd-display-tracking: 0;
   --sd-display-caja: none;
   --sd-cifras: normal;
@@ -272,6 +296,7 @@
   --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --sd-mono: ui-monospace, monospace;
   --sd-display-peso: 500;
+  --sd-display-estilo: normal;
   --sd-display-tracking: 0.09em;
   --sd-display-caja: uppercase;
   --sd-cifras: normal;
@@ -283,6 +308,7 @@
   --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --sd-mono: ui-monospace, monospace;
   --sd-display-peso: 800;
+  --sd-display-estilo: normal;
   --sd-display-tracking: -0.01em;
   --sd-display-caja: none;
   --sd-cifras: normal;
@@ -294,6 +320,7 @@
   --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --sd-mono: ui-monospace, monospace;
   --sd-display-peso: 800;
+  --sd-display-estilo: normal;
   --sd-display-tracking: -0.02em;
   --sd-display-caja: none;
   --sd-cifras: tabular-nums;
@@ -305,6 +332,7 @@
   --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --sd-mono: ui-monospace, monospace;
   --sd-display-peso: 700;
+  --sd-display-estilo: normal;
   --sd-display-tracking: 0;
   --sd-display-caja: none;
   --sd-cifras: normal;
@@ -316,6 +344,7 @@
   --sd-font: "Figtree", ui-sans-serif, system-ui, sans-serif;
   --sd-mono: ui-monospace, monospace;
   --sd-display-peso: 400;
+  --sd-display-estilo: normal;
   --sd-display-tracking: 0;
   --sd-display-caja: none;
   --sd-cifras: normal;
@@ -327,6 +356,7 @@
   --sd-font: "Lora", Georgia, serif;
   --sd-mono: ui-monospace, monospace;
   --sd-display-peso: 600;
+  --sd-display-estilo: normal;
   --sd-display-tracking: 0;
   --sd-display-caja: none;
   --sd-cifras: normal;
@@ -338,8 +368,57 @@
   --sd-font: "Barlow", ui-sans-serif, system-ui, sans-serif;
   --sd-mono: ui-monospace, monospace;
   --sd-display-peso: 600;
+  --sd-display-estilo: normal;
   --sd-display-tracking: 0.04em;
   --sd-display-caja: uppercase;
+  --sd-cifras: normal;
+}
+
+/* Press Start 2P + Pixelify Sans — Titulares en la letra de una recreativa de 8 bits; el cuerpo en una pixelada que sí se lee a 16 píxeles. */
+[data-tipo="pixel"] {
+  --sd-display: "Press Start 2P", "Pixelify Sans", ui-monospace, monospace;
+  --sd-font: "Pixelify Sans", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: "VT323", ui-monospace, monospace;
+  --sd-display-peso: 400;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0;
+  --sd-display-caja: uppercase;
+  --sd-cifras: tabular-nums;
+}
+
+/* Anton + Archivo — Una condensada de cartel, siempre en mayúsculas y enorme, sobre una grotesca sobria para el texto. */
+[data-tipo="anton-archivo"] {
+  --sd-display: "Anton", Impact, "Arial Narrow", sans-serif;
+  --sd-font: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 400;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0.01em;
+  --sd-display-caja: uppercase;
+  --sd-cifras: normal;
+}
+
+/* Space Grotesk + Space Mono — Una grotesca de rasgos raros y peso firme, con su monoespaciada para las cifras. Directa, sin rodeos. */
+[data-tipo="space-grotesk"] {
+  --sd-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --sd-font: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: "Space Mono", ui-monospace, monospace;
+  --sd-display-peso: 700;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: -0.03em;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+}
+
+/* Cormorant en cursiva + Lora — Titulares en una serif de mucho contraste y en cursiva, como grabados en oro; el cuerpo en una serif de pantalla. */
+[data-tipo="cormorant-cursiva"] {
+  --sd-display: "Cormorant Garamond", Georgia, serif;
+  --sd-font: "Lora", Georgia, serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 500;
+  --sd-display-estilo: italic;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
   --sd-cifras: normal;
 }
 
@@ -513,6 +592,1042 @@
   --sd-rejilla: 24px;
 }
 
+/* Pixel — Sin una curva: las esquinas se muerden en escalón de 4 píxeles y las sombras son bloques sólidos, sin desenfoque. */
+[data-elem="pixel"] {
+  --sd-radius: 0px;
+  --sd-radius-btn: 0px;
+  --sd-radius-activo: 0px;
+  --sd-border: 4px;
+  --sd-densidad: 1;
+  --sd-icon-stroke: 2.5;
+  --sd-boton: solido;
+  --sd-shadow-sm: 2px 2px 0 var(--sd-ink);
+  --sd-shadow-md: 4px 4px 0 var(--sd-ink);
+  --sd-shadow-lg: 6px 6px 0 var(--sd-ink);
+  --sd-space-1: 4px;
+  --sd-space-2: 8px;
+  --sd-space-3: 12px;
+  --sd-space-4: 16px;
+  --sd-space-6: 24px;
+  --sd-space-8: 32px;
+}
+
+/* Vidrio esmerilado — Superficies translúcidas que flotan sobre un fondo de luz de color. El borde es un reflejo, no una línea. */
+[data-elem="vidrio"] {
+  --sd-radius: 22px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 999px;
+  --sd-border: 1px;
+  --sd-densidad: 1.05;
+  --sd-icon-stroke: 1.6;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 8%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  --sd-shadow-md: 0 8px 24px color-mix(in srgb, var(--sd-ink) 12%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.45);
+  --sd-shadow-lg: 0 20px 50px color-mix(in srgb, var(--sd-ink) 18%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.5);
+  --sd-space-1: 4.2px;
+  --sd-space-2: 8.4px;
+  --sd-space-3: 12.6px;
+  --sd-space-4: 16.8px;
+  --sd-space-6: 25.2px;
+  --sd-space-8: 33.6px;
+}
+
+/* Arcilla — Todo parece moldeado en arcilla blanda: luz por arriba, sombra por abajo y ni un solo borde. */
+[data-elem="arcilla"] {
+  --sd-radius: 28px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 999px;
+  --sd-border: 0px;
+  --sd-densidad: 1.1;
+  --sd-icon-stroke: 2.2;
+  --sd-boton: solido;
+  --sd-shadow-sm: 4px 4px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent), -3px -3px 8px rgb(255 255 255 / 0.7);
+  --sd-shadow-md: 10px 10px 24px color-mix(in srgb, var(--sd-ink) 16%, transparent), -8px -8px 20px rgb(255 255 255 / 0.75), inset 3px 3px 6px rgb(255 255 255 / 0.55), inset -4px -4px 8px color-mix(in srgb, var(--sd-ink) 7%, transparent);
+  --sd-shadow-lg: 16px 16px 36px color-mix(in srgb, var(--sd-ink) 20%, transparent), -10px -10px 28px rgb(255 255 255 / 0.8), inset 4px 4px 8px rgb(255 255 255 / 0.6), inset -6px -6px 12px color-mix(in srgb, var(--sd-ink) 8%, transparent);
+  --sd-space-1: 4.4px;
+  --sd-space-2: 8.8px;
+  --sd-space-3: 13.2px;
+  --sd-space-4: 17.6px;
+  --sd-space-6: 26.4px;
+  --sd-space-8: 35.2px;
+}
+
+/* Neobrutal — Bordes de tinta de tres píxeles y sombras duras desplazadas. Al pulsar, la pieza se hunde hasta tocar su sombra. */
+[data-elem="neobrutal"] {
+  --sd-radius: 6px;
+  --sd-radius-btn: 6px;
+  --sd-radius-activo: 6px;
+  --sd-border: 3px;
+  --sd-densidad: 1.05;
+  --sd-icon-stroke: 2.4;
+  --sd-boton: solido;
+  --sd-shadow-sm: 2px 2px 0 var(--sd-ink);
+  --sd-shadow-md: 4px 4px 0 var(--sd-ink);
+  --sd-shadow-lg: 6px 6px 0 var(--sd-ink);
+  --sd-space-1: 4.2px;
+  --sd-space-2: 8.4px;
+  --sd-space-3: 12.6px;
+  --sd-space-4: 16.8px;
+  --sd-space-6: 25.2px;
+  --sd-space-8: 33.6px;
+}
+
+/* Cartel — Reglas gruesas, titulares enormes y bloques de color plano, como un cartel pegado en la calle. */
+[data-elem="cartel"] {
+  --sd-radius: 0px;
+  --sd-radius-btn: 0px;
+  --sd-radius-activo: 0px;
+  --sd-border: 3px;
+  --sd-densidad: 1.1;
+  --sd-icon-stroke: 2;
+  --sd-boton: solido;
+  --sd-shadow-sm: none;
+  --sd-shadow-md: none;
+  --sd-shadow-lg: none;
+  --sd-space-1: 4.4px;
+  --sd-space-2: 8.8px;
+  --sd-space-3: 13.2px;
+  --sd-space-4: 17.6px;
+  --sd-space-6: 26.4px;
+  --sd-space-8: 35.2px;
+}
+
+/* Relieve — Todo es plano menos la acción principal, que tiene relieve de verdad: capas, luz arriba y un hundimiento al pulsarla. */
+[data-elem="relieve"] {
+  --sd-radius: 12px;
+  --sd-radius-btn: 12px;
+  --sd-radius-activo: 12px;
+  --sd-border: 1px;
+  --sd-densidad: 1.05;
+  --sd-icon-stroke: 1.8;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 12%, transparent);
+  --sd-shadow-md: 0 3px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  --sd-shadow-lg: 0 12px 32px color-mix(in srgb, var(--sd-ink) 20%, transparent);
+  --sd-space-1: 4.2px;
+  --sd-space-2: 8.4px;
+  --sd-space-3: 12.6px;
+  --sd-space-4: 16.8px;
+  --sd-space-6: 25.2px;
+  --sd-space-8: 33.6px;
+}
+
+/* ============================================================
+   PIELES
+   ============================================================ */
+/* Piel "mutante" — Pastilla mutante */
+[data-elem="pastilla-mutante"] .sd-btn:hover,
+[data-elem="pastilla-mutante"] .sd-btn:focus-visible {
+  border-radius: var(--sd-radius-activo);
+}
+
+[data-elem="pastilla-mutante"] .sd-btn:active {
+  transform: scale(0.97);
+}
+
+[data-elem="pastilla-mutante"] .sd-btn:not([class*="sd-btn--"]) {
+  box-shadow: 0 0 0 0 transparent;
+}
+
+[data-elem="pastilla-mutante"] .sd-btn:not([class*="sd-btn--"]):hover {
+  box-shadow: 0 0 22px color-mix(in srgb, var(--sd-accent) 45%, transparent);
+}
+
+[data-elem="pastilla-mutante"] .sd-ficha,
+[data-elem="pastilla-mutante"] .sd-dato {
+  box-shadow: var(--sd-shadow-md);
+}
+
+[data-elem="pastilla-mutante"] .sd-ficha:hover,
+[data-elem="pastilla-mutante"] .sd-dato:hover {
+  box-shadow: var(--sd-shadow-lg);
+}
+
+[data-elem="pastilla-mutante"] .sd-chip--activo {
+  border-color: var(--sd-accent);
+  background: transparent;
+  color: var(--sd-accent-text);
+}
+
+[data-elem="pastilla-mutante"] .sd-pestanas button[aria-selected="true"] {
+  background: var(--sd-accent-solid);
+  color: var(--sd-on-accent);
+}
+
+[data-elem="pastilla-mutante"] .sd-insignia {
+  border-radius: var(--sd-radius-activo);
+  font-family: var(--sd-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+[data-elem="pastilla-mutante"] .sd-dato__etiqueta {
+  font-family: var(--sd-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+/* Piel "filete" — Filete */
+[data-elem="filete"] .sd-lienzo,
+[data-elem="filete"] .sd-ficha,
+[data-elem="filete"] .sd-dato,
+[data-elem="filete"] .sd-aviso {
+  border-color: color-mix(in srgb, var(--sd-accent) 50%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--sd-accent) 22%, transparent);
+  outline-offset: 4px;
+  box-shadow: none;
+}
+
+[data-elem="filete"] .sd-ficha,
+[data-elem="filete"] .sd-dato {
+  background: var(--sd-surface);
+}
+
+[data-elem="filete"] .sd-seccion > h2::after {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 1px;
+  margin-top: 0.7rem;
+  background: var(--sd-accent);
+}
+
+[data-elem="filete"] .sd-btn {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+[data-elem="filete"] .sd-insignia,
+[data-elem="filete"] .sd-chip {
+  border: 1px solid color-mix(in srgb, var(--sd-accent) 55%, transparent);
+  border-radius: 0;
+  background: transparent;
+  color: var(--sd-accent-text);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+[data-elem="filete"] .sd-chip--activo {
+  background: var(--sd-accent-solid);
+  color: var(--sd-on-accent);
+}
+
+[data-elem="filete"] .sd-campo input {
+  border-width: 0 0 1px;
+  border-color: color-mix(in srgb, var(--sd-accent) 50%, transparent);
+  border-radius: 0;
+  background: transparent;
+  padding-inline: 0;
+}
+
+[data-elem="filete"] .sd-campo span,
+[data-elem="filete"] .sd-dato__etiqueta {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+[data-elem="filete"] .sd-pestanas {
+  border-color: color-mix(in srgb, var(--sd-accent) 45%, transparent);
+  background: transparent;
+}
+
+[data-elem="filete"] .sd-pestanas button[aria-selected="true"] {
+  background: transparent;
+  color: var(--sd-accent-text);
+  box-shadow: inset 0 -1px 0 var(--sd-accent);
+}
+
+[data-elem="filete"] .sd-progreso {
+  height: 3px;
+}
+
+[data-elem="filete"] .sd-lista li::before {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+[data-elem="filete"] .sd-etiqueta {
+  border: 1px solid color-mix(in srgb, var(--sd-accent) 55%, transparent);
+  border-radius: 0;
+  background: transparent;
+  letter-spacing: 0.2em;
+}
+
+[data-elem="filete"] .sd-dato__valor,
+[data-elem="filete"] .sd-precio strong {
+  font-size: 2.8rem;
+  color: var(--sd-accent-text);
+}
+
+/* Piel "plano" — Plano técnico */
+[data-elem="plano-tecnico"] body {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--sd-line) 60%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--sd-line) 60%, transparent) 1px, transparent 1px);
+  background-size: var(--sd-rejilla, 24px) var(--sd-rejilla, 24px);
+}
+
+[data-elem="plano-tecnico"] .sd-titulo,
+[data-elem="plano-tecnico"] .sd-seccion > h2,
+[data-elem="plano-tecnico"] .sd-seccion > h3 {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+[data-elem="plano-tecnico"] .sd-lienzo,
+[data-elem="plano-tecnico"] .sd-ficha,
+[data-elem="plano-tecnico"] .sd-dato,
+[data-elem="plano-tecnico"] .sd-aviso {
+  border-color: color-mix(in srgb, var(--sd-ink) 22%, transparent);
+  box-shadow: none;
+  background:
+    linear-gradient(var(--sd-accent), var(--sd-accent)) left top / 12px 2px no-repeat,
+    linear-gradient(var(--sd-accent), var(--sd-accent)) left top / 2px 12px no-repeat,
+    linear-gradient(var(--sd-accent), var(--sd-accent)) right top / 12px 2px no-repeat,
+    linear-gradient(var(--sd-accent), var(--sd-accent)) right top / 2px 12px no-repeat,
+    linear-gradient(var(--sd-accent), var(--sd-accent)) left bottom / 12px 2px no-repeat,
+    linear-gradient(var(--sd-accent), var(--sd-accent)) left bottom / 2px 12px no-repeat,
+    linear-gradient(var(--sd-accent), var(--sd-accent)) right bottom / 12px 2px no-repeat,
+    linear-gradient(var(--sd-accent), var(--sd-accent)) right bottom / 2px 12px no-repeat,
+    var(--sd-surface);
+}
+
+[data-elem="plano-tecnico"] .sd-aviso {
+  border-left: 4px solid var(--tono);
+}
+
+[data-elem="plano-tecnico"] .sd-btn {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.86rem;
+}
+
+[data-elem="plano-tecnico"] .sd-campo span,
+[data-elem="plano-tecnico"] .sd-dato__etiqueta,
+[data-elem="plano-tecnico"] .sd-insignia,
+[data-elem="plano-tecnico"] .sd-chip {
+  font-family: var(--sd-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+}
+
+[data-elem="plano-tecnico"] .sd-insignia {
+  border-radius: var(--sd-radius);
+}
+
+[data-elem="plano-tecnico"] .sd-dato__valor {
+  font-family: var(--sd-mono);
+  letter-spacing: -0.03em;
+}
+
+[data-elem="plano-tecnico"] .sd-progreso {
+  height: 0.7rem;
+  border-radius: 0;
+  background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--sd-ink) 18%, transparent) 0 1px, transparent 1px 10%), color-mix(in srgb, var(--sd-ink) 8%, transparent);
+}
+
+[data-elem="plano-tecnico"] .sd-progreso > span {
+  border-radius: 0;
+}
+
+[data-elem="plano-tecnico"] .sd-etiqueta {
+  border-radius: var(--sd-radius);
+  font-family: var(--sd-mono);
+}
+
+/* Piel "pixel" — Pixel */
+[data-elem="pixel"] {
+  --pix: 4px;
+  --pix-c: var(--sd-ink);
+}
+
+[data-elem="pixel"] body {
+  -webkit-font-smoothing: none;
+  background-image: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.028) 0 1px, transparent 1px 3px);
+}
+
+[data-elem="pixel"] .sd-titulo {
+  font-size: clamp(1.5rem, 5.5vw, 2.8rem);
+  line-height: 1.35;
+}
+
+[data-elem="pixel"] .sd-seccion > h2 {
+  font-size: clamp(0.95rem, 2.4vw, 1.3rem);
+  line-height: 1.5;
+}
+
+[data-elem="pixel"] .sd-muestra-display {
+  line-height: 1.4;
+}
+
+[data-elem="pixel"] .sd-etiqueta {
+  border-radius: 0;
+}
+
+[data-elem="pixel"] .sd-muestra-dato {
+  font-size: 1.35rem;
+}
+
+[data-elem="pixel"] .sd-lienzo,
+[data-elem="pixel"] .sd-ficha,
+[data-elem="pixel"] .sd-dato,
+[data-elem="pixel"] .sd-aviso,
+[data-elem="pixel"] .sd-pestanas,
+[data-elem="pixel"] .sd-campo input {
+  border: 0;
+  border-radius: 0;
+  box-shadow:
+    0 calc(var(--pix) * -1) 0 0 var(--pix-c),
+    0 var(--pix) 0 0 var(--pix-c),
+    calc(var(--pix) * -1) 0 0 0 var(--pix-c),
+    var(--pix) 0 0 0 var(--pix-c);
+}
+
+[data-elem="pixel"] .sd-aviso {
+  --pix-c: var(--tono);
+}
+
+[data-elem="pixel"] .sd-campo input {
+  --pix-c: color-mix(in srgb, var(--sd-ink) 45%, transparent);
+  --pix: 3px;
+}
+
+[data-elem="pixel"] .sd-campo input:focus {
+  --pix-c: var(--sd-accent);
+  outline: 0;
+}
+
+[data-elem="pixel"] .sd-ficha h4,
+[data-elem="pixel"] .sd-precio strong,
+[data-elem="pixel"] .sd-dato__valor {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+[data-elem="pixel"] .sd-precio strong,
+[data-elem="pixel"] .sd-dato__valor {
+  font-size: 1.5rem;
+  color: var(--sd-accent-text);
+}
+
+[data-elem="pixel"] .sd-btn {
+  border: 0;
+  border-radius: 0;
+  font-family: var(--sd-display);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  line-height: 1.6;
+  box-shadow:
+    0 calc(var(--pix) * -1) 0 0 var(--pix-c),
+    0 var(--pix) 0 0 var(--pix-c),
+    calc(var(--pix) * -1) 0 0 0 var(--pix-c),
+    var(--pix) 0 0 0 var(--pix-c),
+    inset 0 calc(var(--pix) * -1) 0 0 rgb(0 0 0 / 0.28),
+    inset 0 var(--pix) 0 0 rgb(255 255 255 / 0.25);
+}
+
+[data-elem="pixel"] .sd-btn:hover {
+  filter: none;
+  transform: translateY(-2px);
+}
+
+[data-elem="pixel"] .sd-btn:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 calc(var(--pix) * -1) 0 0 var(--pix-c),
+    0 var(--pix) 0 0 var(--pix-c),
+    calc(var(--pix) * -1) 0 0 0 var(--pix-c),
+    var(--pix) 0 0 0 var(--pix-c),
+    inset 0 var(--pix) 0 0 rgb(0 0 0 / 0.28);
+}
+
+[data-elem="pixel"] .sd-btn--linea {
+  --pix-c: var(--sd-accent);
+}
+
+[data-elem="pixel"] .sd-btn--suave {
+  --pix-c: color-mix(in srgb, var(--sd-accent) 40%, transparent);
+}
+
+[data-elem="pixel"] .sd-btn--fantasma {
+  box-shadow: none;
+}
+
+[data-elem="pixel"] .sd-check input,
+[data-elem="pixel"] .sd-check input[type="radio"],
+[data-elem="pixel"] .sd-interruptor input,
+[data-elem="pixel"] .sd-interruptor input::before,
+[data-elem="pixel"] .sd-progreso,
+[data-elem="pixel"] .sd-progreso > span,
+[data-elem="pixel"] .sd-insignia,
+[data-elem="pixel"] .sd-chip,
+[data-elem="pixel"] .sd-pestanas button,
+[data-elem="pixel"] .sd-lista li::before {
+  border-radius: 0;
+}
+
+[data-elem="pixel"] .sd-check input {
+  border-width: 3px;
+}
+
+[data-elem="pixel"] .sd-interruptor input::before {
+  box-shadow: none;
+}
+
+[data-elem="pixel"] .sd-progreso {
+  height: 0.9rem;
+  background: color-mix(in srgb, var(--sd-ink) 14%, transparent);
+}
+
+[data-elem="pixel"] .sd-progreso > span {
+  background: repeating-linear-gradient(90deg, var(--sd-accent) 0 10px, transparent 10px 13px);
+}
+
+[data-elem="pixel"] .sd-insignia {
+  font-family: var(--sd-mono);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.3rem 0.5rem;
+  background: var(--sd-accent-2);
+  color: var(--sd-bg);
+}
+
+[data-elem="pixel"] .sd-pestanas button {
+  font-family: var(--sd-mono);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+[data-elem="pixel"] .sd-pestanas button[aria-selected="true"] {
+  background: var(--sd-accent-2);
+  color: var(--sd-bg);
+  box-shadow: none;
+}
+
+[data-elem="pixel"] .sd-chip {
+  font-family: var(--sd-mono);
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+[data-elem="pixel"] .sd-dato__etiqueta,
+[data-elem="pixel"] .sd-campo span {
+  font-family: var(--sd-mono);
+  font-size: 1.05rem;
+  text-transform: uppercase;
+}
+
+/* Piel "vidrio" — Vidrio esmerilado */
+[data-elem="vidrio"] body {
+  background:
+    radial-gradient(38rem 28rem at 8% 6%, color-mix(in srgb, var(--sd-accent) 42%, transparent), transparent 70%),
+    radial-gradient(34rem 26rem at 92% 18%, color-mix(in srgb, var(--sd-accent-2) 40%, transparent), transparent 70%),
+    radial-gradient(40rem 30rem at 50% 104%, color-mix(in srgb, var(--sd-accent) 30%, transparent), transparent 70%),
+    var(--sd-bg);
+  background-attachment: fixed;
+}
+
+[data-elem="vidrio"] .sd-lienzo,
+[data-elem="vidrio"] .sd-ficha,
+[data-elem="vidrio"] .sd-dato,
+[data-elem="vidrio"] .sd-aviso,
+[data-elem="vidrio"] .sd-pestanas {
+  border: 1px solid color-mix(in srgb, #fff 60%, transparent);
+  background: color-mix(in srgb, var(--sd-surface) 48%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  backdrop-filter: blur(22px) saturate(170%);
+  box-shadow: var(--sd-shadow-md);
+}
+
+[data-elem="vidrio"] .sd-aviso {
+  background: color-mix(in srgb, var(--tono) 12%, color-mix(in srgb, var(--sd-surface) 50%, transparent));
+}
+
+[data-elem="vidrio"] .sd-campo input {
+  border-color: color-mix(in srgb, #fff 55%, transparent);
+  background: color-mix(in srgb, var(--sd-surface) 55%, transparent);
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--sd-ink) 8%, transparent);
+}
+
+[data-elem="vidrio"] .sd-btn:not([class*="sd-btn--"]) {
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--sd-accent-solid) 35%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+[data-elem="vidrio"] .sd-btn--linea,
+[data-elem="vidrio"] .sd-btn--suave {
+  border-color: color-mix(in srgb, #fff 60%, transparent);
+  background: color-mix(in srgb, var(--sd-surface) 45%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--sd-shadow-sm);
+}
+
+[data-elem="vidrio"] .sd-pestanas button[aria-selected="true"] {
+  background: color-mix(in srgb, var(--sd-surface) 85%, transparent);
+  box-shadow: var(--sd-shadow-sm);
+}
+
+[data-elem="vidrio"] .sd-chip {
+  border-color: color-mix(in srgb, #fff 55%, transparent);
+  background: color-mix(in srgb, var(--sd-surface) 40%, transparent);
+}
+
+[data-elem="vidrio"] .sd-interruptor input {
+  background: color-mix(in srgb, var(--sd-ink) 16%, transparent);
+  box-shadow: inset 0 1px 3px color-mix(in srgb, var(--sd-ink) 15%, transparent);
+}
+
+[data-elem="vidrio"] .sd-progreso {
+  background: color-mix(in srgb, var(--sd-surface) 55%, transparent);
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--sd-ink) 10%, transparent);
+}
+
+[data-elem="vidrio"] .sd-progreso > span {
+  background: linear-gradient(90deg, var(--sd-accent), var(--sd-accent-2));
+}
+
+/* Piel "arcilla" — Arcilla */
+[data-elem="arcilla"] .sd-lienzo,
+[data-elem="arcilla"] .sd-ficha,
+[data-elem="arcilla"] .sd-dato,
+[data-elem="arcilla"] .sd-aviso,
+[data-elem="arcilla"] .sd-pestanas {
+  border: 0;
+  background: var(--sd-surface);
+  box-shadow: var(--sd-shadow-md);
+}
+
+[data-elem="arcilla"] .sd-aviso {
+  background: color-mix(in srgb, var(--tono) 14%, var(--sd-surface));
+}
+
+[data-elem="arcilla"] .sd-btn {
+  border: 0;
+  box-shadow:
+    6px 6px 14px color-mix(in srgb, var(--sd-ink) 22%, transparent),
+    -4px -4px 10px rgb(255 255 255 / 0.65),
+    inset 3px 3px 6px rgb(255 255 255 / 0.32),
+    inset -4px -4px 8px rgb(0 0 0 / 0.16);
+}
+
+[data-elem="arcilla"] .sd-btn:hover {
+  filter: none;
+  transform: translateY(-1px);
+}
+
+[data-elem="arcilla"] .sd-btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 4px 4px 8px rgb(0 0 0 / 0.2), inset -3px -3px 6px rgb(255 255 255 / 0.3);
+}
+
+[data-elem="arcilla"] .sd-btn--linea,
+[data-elem="arcilla"] .sd-btn--suave {
+  background: var(--sd-surface);
+}
+
+[data-elem="arcilla"] .sd-btn--fantasma {
+  box-shadow: none;
+}
+
+[data-elem="arcilla"] .sd-campo input,
+[data-elem="arcilla"] .sd-check input,
+[data-elem="arcilla"] .sd-interruptor input,
+[data-elem="arcilla"] .sd-progreso {
+  border: 0;
+  background: var(--sd-bg);
+  box-shadow: inset 4px 4px 8px color-mix(in srgb, var(--sd-ink) 13%, transparent), inset -4px -4px 8px rgb(255 255 255 / 0.75);
+}
+
+[data-elem="arcilla"] .sd-check input:checked {
+  background: var(--sd-accent-solid);
+  box-shadow: inset 0 0 0 4px var(--sd-bg), inset 3px 3px 6px rgb(0 0 0 / 0.2);
+}
+
+[data-elem="arcilla"] .sd-interruptor input:checked {
+  background: var(--sd-accent-solid);
+  box-shadow: inset 3px 3px 6px rgb(0 0 0 / 0.22);
+}
+
+[data-elem="arcilla"] .sd-interruptor input::before {
+  background: var(--sd-surface);
+  box-shadow: 2px 2px 5px color-mix(in srgb, var(--sd-ink) 25%, transparent), inset 1px 1px 2px rgb(255 255 255 / 0.8);
+}
+
+[data-elem="arcilla"] .sd-progreso {
+  height: 0.8rem;
+}
+
+[data-elem="arcilla"] .sd-progreso > span {
+  box-shadow: inset 2px 2px 3px rgb(255 255 255 / 0.4), inset -2px -2px 4px rgb(0 0 0 / 0.15);
+}
+
+[data-elem="arcilla"] .sd-pestanas {
+  background: var(--sd-bg);
+  box-shadow: inset 4px 4px 8px color-mix(in srgb, var(--sd-ink) 12%, transparent), inset -4px -4px 8px rgb(255 255 255 / 0.7);
+}
+
+[data-elem="arcilla"] .sd-pestanas button[aria-selected="true"] {
+  background: var(--sd-surface);
+  box-shadow: var(--sd-shadow-sm);
+}
+
+[data-elem="arcilla"] .sd-chip {
+  border: 0;
+  background: var(--sd-surface);
+  box-shadow: var(--sd-shadow-sm);
+}
+
+[data-elem="arcilla"] .sd-chip--activo {
+  background: var(--sd-ink);
+}
+
+/* Piel "neobrutal" — Neobrutal */
+[data-elem="neobrutal"] body {
+  background-image: radial-gradient(color-mix(in srgb, var(--sd-ink) 16%, transparent) 1px, transparent 1.3px);
+  background-size: 22px 22px;
+}
+
+[data-elem="neobrutal"] .sd-lienzo,
+[data-elem="neobrutal"] .sd-ficha,
+[data-elem="neobrutal"] .sd-dato,
+[data-elem="neobrutal"] .sd-aviso,
+[data-elem="neobrutal"] .sd-pestanas,
+[data-elem="neobrutal"] .sd-campo input,
+[data-elem="neobrutal"] .sd-btn,
+[data-elem="neobrutal"] .sd-insignia,
+[data-elem="neobrutal"] .sd-chip,
+[data-elem="neobrutal"] .sd-check input,
+[data-elem="neobrutal"] .sd-interruptor input,
+[data-elem="neobrutal"] .sd-progreso {
+  border: var(--sd-border) solid var(--sd-ink);
+}
+
+[data-elem="neobrutal"] .sd-lienzo,
+[data-elem="neobrutal"] .sd-ficha,
+[data-elem="neobrutal"] .sd-dato,
+[data-elem="neobrutal"] .sd-aviso {
+  box-shadow: var(--sd-shadow-md);
+}
+
+[data-elem="neobrutal"] .sd-aviso {
+  background: color-mix(in srgb, var(--tono) 22%, var(--sd-surface));
+}
+
+[data-elem="neobrutal"] .sd-btn {
+  box-shadow: var(--sd-shadow-md);
+  font-weight: 700;
+}
+
+[data-elem="neobrutal"] .sd-btn:hover {
+  filter: none;
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sd-shadow-lg);
+}
+
+[data-elem="neobrutal"] .sd-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 var(--sd-ink);
+}
+
+[data-elem="neobrutal"] .sd-btn--linea {
+  border-color: var(--sd-ink);
+  background: var(--sd-surface);
+}
+
+[data-elem="neobrutal"] .sd-btn--suave {
+  border-color: var(--sd-ink);
+  background: var(--sd-accent-2);
+  color: var(--sd-ink);
+}
+
+[data-elem="neobrutal"] .sd-btn--fantasma {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+[data-elem="neobrutal"] .sd-btn--fantasma:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+[data-elem="neobrutal"] .sd-campo input:focus {
+  outline: 0;
+  box-shadow: 4px 4px 0 var(--sd-accent);
+}
+
+[data-elem="neobrutal"] .sd-check input:checked {
+  border-color: var(--sd-ink);
+}
+
+[data-elem="neobrutal"] .sd-interruptor input {
+  background: var(--sd-surface);
+}
+
+[data-elem="neobrutal"] .sd-interruptor input::before {
+  top: 1px;
+  left: 1px;
+  background: var(--sd-ink);
+  box-shadow: none;
+}
+
+[data-elem="neobrutal"] .sd-interruptor input:checked::before {
+  background: var(--sd-surface);
+}
+
+[data-elem="neobrutal"] .sd-insignia {
+  background: var(--sd-accent-2);
+  color: var(--sd-ink);
+}
+
+[data-elem="neobrutal"] .sd-chip--activo {
+  background: var(--sd-accent-solid);
+  border-color: var(--sd-ink);
+  color: var(--sd-on-accent);
+}
+
+[data-elem="neobrutal"] .sd-pestanas button[aria-selected="true"] {
+  background: var(--sd-ink);
+  color: var(--sd-bg);
+  box-shadow: none;
+}
+
+[data-elem="neobrutal"] .sd-progreso {
+  height: 0.9rem;
+  background: var(--sd-surface);
+}
+
+[data-elem="neobrutal"] .sd-progreso > span {
+  background: var(--sd-accent-solid);
+  border-right: var(--sd-border) solid var(--sd-ink);
+}
+
+[data-elem="neobrutal"] .sd-dato__valor {
+  font-family: var(--sd-mono);
+  letter-spacing: -0.02em;
+}
+
+[data-elem="neobrutal"] .sd-etiqueta {
+  border: 2px solid var(--sd-ink);
+  border-radius: var(--sd-radius);
+  background: var(--sd-accent-2);
+  color: var(--sd-ink);
+}
+
+/* Piel "cartel" — Cartel */
+[data-elem="cartel"] .sd-cabecera {
+  border-bottom: 8px solid var(--sd-ink);
+}
+
+[data-elem="cartel"] .sd-seccion {
+  border-bottom: 3px solid var(--sd-ink);
+}
+
+[data-elem="cartel"] .sd-titulo {
+  font-size: clamp(3.4rem, 13vw, 9rem);
+  line-height: 0.86;
+  letter-spacing: 0;
+}
+
+[data-elem="cartel"] .sd-seccion > h2 {
+  font-size: clamp(2rem, 5.5vw, 3.6rem);
+  line-height: 0.95;
+}
+
+[data-elem="cartel"] .sd-lienzo,
+[data-elem="cartel"] .sd-ficha,
+[data-elem="cartel"] .sd-dato,
+[data-elem="cartel"] .sd-aviso,
+[data-elem="cartel"] .sd-pestanas {
+  border: var(--sd-border) solid var(--sd-ink);
+  box-shadow: none;
+}
+
+[data-elem="cartel"] .sd-ficha {
+  border-top-width: 12px;
+}
+
+[data-elem="cartel"] .sd-ficha h4 {
+  font-size: 1.9rem;
+  line-height: 0.95;
+}
+
+[data-elem="cartel"] .sd-btn {
+  border-color: var(--sd-ink);
+  font-family: var(--sd-display);
+  font-weight: var(--sd-display-peso);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+[data-elem="cartel"] .sd-btn:not([class*="sd-btn--"]) {
+  border-color: var(--sd-accent-solid);
+}
+
+[data-elem="cartel"] .sd-btn--linea {
+  border-color: var(--sd-ink);
+  color: var(--sd-ink);
+}
+
+[data-elem="cartel"] .sd-btn--suave {
+  border-color: transparent;
+}
+
+[data-elem="cartel"] .sd-btn--fantasma {
+  border-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+[data-elem="cartel"] .sd-campo input {
+  border-width: 0 0 var(--sd-border);
+  border-color: var(--sd-ink);
+  background: transparent;
+  padding-inline: 0;
+}
+
+[data-elem="cartel"] .sd-campo span,
+[data-elem="cartel"] .sd-dato__etiqueta {
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--sd-ink);
+}
+
+[data-elem="cartel"] .sd-insignia {
+  border-radius: 0;
+  background: var(--sd-ink);
+  color: var(--sd-bg);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+[data-elem="cartel"] .sd-chip {
+  border-radius: 0;
+  border-color: var(--sd-ink);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.74rem;
+}
+
+[data-elem="cartel"] .sd-chip--activo {
+  background: var(--sd-accent-solid);
+  border-color: var(--sd-accent-solid);
+  color: var(--sd-on-accent);
+}
+
+[data-elem="cartel"] .sd-pestanas {
+  padding: 0;
+  gap: 0;
+}
+
+[data-elem="cartel"] .sd-pestanas button {
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+}
+
+[data-elem="cartel"] .sd-pestanas button + button {
+  border-left: var(--sd-border) solid var(--sd-ink);
+}
+
+[data-elem="cartel"] .sd-pestanas button[aria-selected="true"] {
+  background: var(--sd-ink);
+  color: var(--sd-bg);
+  box-shadow: none;
+}
+
+[data-elem="cartel"] .sd-progreso {
+  height: 0.75rem;
+  border-radius: 0;
+}
+
+[data-elem="cartel"] .sd-progreso > span {
+  border-radius: 0;
+  background: var(--sd-accent-solid);
+}
+
+[data-elem="cartel"] .sd-dato__valor,
+[data-elem="cartel"] .sd-precio strong {
+  font-size: 3.4rem;
+  line-height: 0.9;
+}
+
+[data-elem="cartel"] .sd-aviso {
+  border-left-width: 12px;
+  border-left-color: var(--tono);
+}
+
+[data-elem="cartel"] .sd-lista li::before {
+  border-radius: 0;
+  background: var(--sd-ink);
+}
+
+[data-elem="cartel"] .sd-etiqueta {
+  border-radius: 0;
+  background: var(--sd-ink);
+  color: var(--sd-bg);
+}
+
+/* Piel "relieve" — Relieve */
+[data-elem="relieve"] .sd-lienzo,
+[data-elem="relieve"] .sd-ficha,
+[data-elem="relieve"] .sd-dato,
+[data-elem="relieve"] .sd-aviso,
+[data-elem="relieve"] .sd-pestanas {
+  box-shadow: none;
+}
+
+[data-elem="relieve"] .sd-btn:not([class*="sd-btn--"]) {
+  border: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--sd-accent-solid) 82%, #fff) 0%, var(--sd-accent-solid) 55%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    inset 0 -2px 0 rgb(0 0 0 / 0.14),
+    0 4px 0 var(--sd-accent-strong),
+    0 7px 14px color-mix(in srgb, var(--sd-accent-strong) 35%, transparent);
+  transform: translateY(-2px);
+}
+
+[data-elem="relieve"] .sd-btn:not([class*="sd-btn--"]):hover {
+  filter: none;
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    inset 0 -2px 0 rgb(0 0 0 / 0.14),
+    0 5px 0 var(--sd-accent-strong),
+    0 9px 18px color-mix(in srgb, var(--sd-accent-strong) 38%, transparent);
+}
+
+[data-elem="relieve"] .sd-btn:not([class*="sd-btn--"]):active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 2px 3px rgb(0 0 0 / 0.2),
+    0 0 0 var(--sd-accent-strong),
+    0 1px 3px color-mix(in srgb, var(--sd-accent-strong) 30%, transparent);
+}
+
+[data-elem="relieve"] .sd-pestanas button[aria-selected="true"] {
+  box-shadow: 0 1px 0 var(--sd-line), 0 2px 0 color-mix(in srgb, var(--sd-ink) 8%, transparent);
+}
+
+[data-elem="relieve"] .sd-chip--activo {
+  background: var(--sd-accent-solid);
+  border-color: var(--sd-accent-solid);
+  color: var(--sd-on-accent);
+}
+
 /* ============================================================
    ENGANCHES COMUNES
    Lo minimo para que una pagina que declare los atributos ya se vea con su
@@ -530,6 +1645,7 @@
 .sd-tema .sd-display {
   font-family: var(--sd-display);
   font-weight: var(--sd-display-peso);
+  font-style: var(--sd-display-estilo);
   letter-spacing: var(--sd-display-tracking);
   text-transform: var(--sd-display-caja);
 }
@@ -538,7 +1654,7 @@
   font-variant-numeric: var(--sd-cifras);
 }
 
-/* El cambio de tema no debe animarse: con 648 combinaciones, una transicion
+/* El cambio de tema no debe animarse: con 1820 combinaciones, una transicion
    de color en cada elemento se ve como un parpadeo sucio. */
 @media (prefers-reduced-motion: no-preference) {
   .sd-tema,

@@ -1,0 +1,169 @@
+<div class="sd-kit">
+<div class="sd-dato">
+  <span class="sd-dato__etiqueta">Visitas este mes</span>
+  <strong class="sd-dato__valor">2.480</strong>
+  <span class="sd-dato__delta">▲ 12 % frente al mes anterior</span>
+  <div class="sd-progreso" role="progressbar" aria-label="Objetivo" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><span style="--v:72%"></span></div>
+</div>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=VT323&display=swap");
+/* Neón — Dato. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/neon.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #0d0f14;
+  --sd-surface: #161a22;
+  --sd-surface-2: #1e2430;
+  --sd-ink: #f2f4f8;
+  --sd-muted: #8b93a3;
+  --sd-accent: #c8f04c;
+  --sd-accent-strong: #a8d42c;
+  --sd-accent-solid: #c8f04c;
+  --sd-accent-text: #c8f04c;
+  --sd-on-accent: #0d0f14;
+  --sd-accent-2: #38e1d4;
+  --sd-line: #262d3a;
+  --sd-ok: #c8f04c;
+  --sd-warn: #ffb84d;
+  --sd-danger: #ff5e82;
+  --sd-display: "Press Start 2P", "Pixelify Sans", ui-monospace, monospace;
+  --sd-font: "Pixelify Sans", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: "VT323", ui-monospace, monospace;
+  --sd-display-peso: 400;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0;
+  --sd-display-caja: uppercase;
+  --sd-cifras: tabular-nums;
+  --sd-radius: 0px;
+  --sd-radius-btn: 0px;
+  --sd-radius-activo: 0px;
+  --sd-border: 4px;
+  --sd-densidad: 1;
+  --sd-icon-stroke: 2.5;
+  --sd-boton: solido;
+  --sd-shadow-sm: 2px 2px 0 var(--sd-ink);
+  --sd-shadow-md: 4px 4px 0 var(--sd-ink);
+  --sd-shadow-lg: 6px 6px 0 var(--sd-ink);
+  --sd-space-1: 4px;
+  --sd-space-2: 8px;
+  --sd-space-3: 12px;
+  --sd-space-4: 16px;
+  --sd-space-6: 24px;
+  --sd-space-8: 32px;
+  color-scheme: dark;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-progreso {
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: var(--sd-radius-btn, 999px);
+  background: color-mix(in srgb, var(--sd-ink) 12%, transparent);
+}
+
+.sd-kit .sd-progreso > span {
+  display: block;
+  width: var(--v, 50%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sd-accent);
+}
+
+.sd-kit .sd-dato {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1.1rem 1.2rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface-2, var(--sd-surface));
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-kit .sd-dato__etiqueta {
+  font-size: 0.8rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-dato__valor {
+  font-family: var(--sd-display, var(--sd-font));
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  letter-spacing: var(--sd-display-tracking, 0);
+  font-size: 2.4rem;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.sd-kit .sd-dato__delta {
+  margin-bottom: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--sd-ok) 70%, var(--sd-ink));
+}
+
+.sd-kit {
+  --pix: 4px;
+  --pix-c: var(--sd-ink);
+}
+
+.sd-kit {
+  -webkit-font-smoothing: none;
+  background-image: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.028) 0 1px, transparent 1px 3px);
+}
+
+.sd-kit .sd-dato {
+  border: 0;
+  border-radius: 0;
+  box-shadow:
+    0 calc(var(--pix) * -1) 0 0 var(--pix-c),
+    0 var(--pix) 0 0 var(--pix-c),
+    calc(var(--pix) * -1) 0 0 0 var(--pix-c),
+    var(--pix) 0 0 0 var(--pix-c);
+}
+
+.sd-kit .sd-dato__valor {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.sd-kit .sd-dato__valor {
+  font-size: 1.5rem;
+  color: var(--sd-accent-text);
+}
+
+.sd-kit .sd-progreso,
+.sd-kit .sd-progreso > span {
+  border-radius: 0;
+}
+
+.sd-kit .sd-progreso {
+  height: 0.9rem;
+  background: color-mix(in srgb, var(--sd-ink) 14%, transparent);
+}
+
+.sd-kit .sd-progreso > span {
+  background: repeating-linear-gradient(90deg, var(--sd-accent) 0 10px, transparent 10px 13px);
+}
+
+.sd-kit .sd-dato__etiqueta {
+  font-family: var(--sd-mono);
+  font-size: 1.05rem;
+  text-transform: uppercase;
+}
+</style>
