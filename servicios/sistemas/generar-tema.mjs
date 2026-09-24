@@ -20,6 +20,9 @@ import { writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { paletas, tipografias, elementos, presets } from './sistemas-datos.mjs';
+import { varsPaleta, varsTipo, varsElem, PIELES, pielParaTema } from './componentes.mjs';
+
+const decl = pares => pares.map(([k, v]) => `  ${k}: ${v};`).join('\n');
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const SALIDA = join(AQUI, 'tema.css');
@@ -43,21 +46,7 @@ const bloquePaleta = p => {
 
   return `/* ${p.nombre} — ${p.nota} */
 [data-paleta="${p.id}"] {
-  --sd-bg: ${t.fondo};
-  --sd-surface: ${t.superficie};
-  --sd-surface-2: ${t.superficie2};
-  --sd-ink: ${t.tinta};
-  --sd-muted: ${t.apagado};
-  --sd-accent: ${t.acento};
-  --sd-accent-strong: ${t.acentoFuerte};
-  --sd-accent-solid: ${t.acentoSolido};
-  --sd-accent-text: ${t.acentoTexto};
-  --sd-on-accent: ${t.onAcento};
-  --sd-accent-2: ${t.acento2};
-  --sd-line: ${t.linea};
-  --sd-ok: ${t.ok};
-  --sd-warn: ${t.aviso};
-  --sd-danger: ${t.peligro};
+${decl(varsPaleta(t))}
   --sd-banda: ${p.banda === 'oscura' ? 'dark' : 'light'};
   color-scheme: ${p.banda === 'oscura' ? 'dark' : 'light'};
 }${rev}`;
@@ -66,32 +55,12 @@ const bloquePaleta = p => {
 /* ---------- tipografia ---------- */
 const bloqueTipo = t => `/* ${t.nombre} — ${t.nota} */
 [data-tipo="${t.id}"] {
-  --sd-display: ${t.display};
-  --sd-font: ${t.cuerpo};
-  --sd-mono: ${t.mono};
-  --sd-display-peso: ${t.pesoDisplay};
-  --sd-display-tracking: ${t.trackingDisplay};
-  --sd-display-caja: ${t.cajaDisplay};
-  --sd-cifras: ${t.tabular ? 'tabular-nums' : 'normal'};
+${decl(varsTipo(t))}
 }`;
 
 /* ---------- elementos ---------- */
-// La sombra se escribe con color-mix sobre la tinta de la paleta, no con un
-// color fijo: asi el mismo juego de elementos funciona en banda clara y oscura
-// sin tener una variante por cada paleta.
-const SOMBRAS = {
-  ninguna: { sm: 'none', md: 'none', lg: 'none' },
-  suave: {
-    sm: '0 1px 2px color-mix(in srgb, var(--sd-ink) 12%, transparent)',
-    md: '0 3px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent)',
-    lg: '0 12px 32px color-mix(in srgb, var(--sd-ink) 20%, transparent)'
-  },
-  anillo: {
-    sm: '0 0 0 1px color-mix(in srgb, var(--sd-accent) 22%, transparent)',
-    md: '0 0 0 1px color-mix(in srgb, var(--sd-accent) 34%, transparent)',
-    lg: '0 0 0 1px color-mix(in srgb, var(--sd-accent) 46%, transparent), 0 0 24px color-mix(in srgb, var(--sd-accent) 18%, transparent)'
-  }
-};
+// Las variables (y las sombras de las que salen) viven en componentes.mjs:
+// alli las usan tambien las piezas sueltas del kit.
 
 // Cuando el juego de elementos contornea la accion principal, el boton solido
 // deja de rellenarse. El :not() evita pisar las variantes de sistema.css.
@@ -103,30 +72,17 @@ const bloqueContorno = e => e.botonPrincipal !== 'contorno' ? '' : `
   color: var(--sd-accent-text);
 }`;
 
-const bloqueElem = e => {
-  const s = SOMBRAS[e.sombra];
-  const esp = n => +(4 * e.densidad * n).toFixed(1);
-  const rejilla = e.rejilla ? `\n  --sd-rejilla: ${e.rejilla};` : '';
-  return `/* ${e.nombre} — ${e.nota} */
+const bloqueElem = e => `/* ${e.nombre} — ${e.nota} */
 [data-elem="${e.id}"] {
-  --sd-radius: ${e.radio};
-  --sd-radius-btn: ${e.radioBoton};
-  --sd-radius-activo: ${e.radioActivo};
-  --sd-border: ${e.filo};
-  --sd-densidad: ${e.densidad};
-  --sd-icon-stroke: ${e.grosorIcono};
-  --sd-boton: ${e.botonPrincipal};
-  --sd-shadow-sm: ${s.sm};
-  --sd-shadow-md: ${s.md};
-  --sd-shadow-lg: ${s.lg};
-  --sd-space-1: ${esp(1)}px;
-  --sd-space-2: ${esp(2)}px;
-  --sd-space-3: ${esp(3)}px;
-  --sd-space-4: ${esp(4)}px;
-  --sd-space-6: ${esp(6)}px;
-  --sd-space-8: ${esp(8)}px;${rejilla}
+${decl(varsElem(e))}
 }${bloqueContorno(e)}`;
-};
+
+// La piel: lo que convierte la misma estructura en pixel art, vidrio,
+// arcilla... Cuelga de [data-elem], asi que gana a la regla suelta de
+// sistema.css por especificidad, no por orden de carga.
+const bloquePiel = e => e.piel
+  ? `/* Piel "${e.piel}" — ${e.nombre} */\n${pielParaTema(e.id, PIELES[e.piel])}`
+  : '';
 
 /* ---------- los presets, como atajo ---------- */
 // Poner data-preset en <html> no aplica nada por si mismo: lo lee el selector
@@ -161,6 +117,7 @@ ${tablaPresets}
   --sd-densidad: 1;
   --sd-icon-stroke: 1.8;
   --sd-display-peso: 700;
+  --sd-display-estilo: normal;
   --sd-display-tracking: 0;
   --sd-display-caja: none;
   --sd-cifras: normal;
@@ -182,6 +139,11 @@ ${tipografias.map(bloqueTipo).join('\n\n')}
 ${elementos.map(bloqueElem).join('\n\n')}
 
 /* ============================================================
+   PIELES
+   ============================================================ */
+${elementos.map(bloquePiel).filter(Boolean).join('\n\n')}
+
+/* ============================================================
    ENGANCHES COMUNES
    Lo minimo para que una pagina que declare los atributos ya se vea con su
    tema, sin depender de la hoja de cada demo.
@@ -198,6 +160,7 @@ ${elementos.map(bloqueElem).join('\n\n')}
 .sd-tema .sd-display {
   font-family: var(--sd-display);
   font-weight: var(--sd-display-peso);
+  font-style: var(--sd-display-estilo);
   letter-spacing: var(--sd-display-tracking);
   text-transform: var(--sd-display-caja);
 }
@@ -206,7 +169,7 @@ ${elementos.map(bloqueElem).join('\n\n')}
   font-variant-numeric: var(--sd-cifras);
 }
 
-/* El cambio de tema no debe animarse: con 648 combinaciones, una transicion
+/* El cambio de tema no debe animarse: con ${paletas.length * tipografias.length * elementos.length} combinaciones, una transicion
    de color en cada elemento se ve como un parpadeo sucio. */
 @media (prefers-reduced-motion: no-preference) {
   .sd-tema,
@@ -245,6 +208,7 @@ const catalogo = {
     peso: t.pesoDisplay,
     tracking: t.trackingDisplay,
     caja: t.cajaDisplay,
+    estilo: t.estiloDisplay || 'normal',
     google: t.google
   })),
   elementos: elementos.map(e => ({
@@ -254,7 +218,8 @@ const catalogo = {
     radio: e.radio,
     radioBoton: e.radioBoton,
     densidad: e.densidad,
-    boton: e.botonPrincipal
+    boton: e.botonPrincipal,
+    piel: e.piel || null
   })),
   presets: presets.map(p => ({
     id: p.id,
@@ -310,5 +275,5 @@ if (avisos.length) {
   avisos.forEach(a => console.log(a));
   process.exitCode = 1;
 } else {
-  console.log('contraste: los 7 pares de texto de las 9 paletas llegan a 4,5:1');
+  console.log(`contraste: los 7 pares de texto de las ${paletas.length} paletas llegan a 4,5:1`);
 }

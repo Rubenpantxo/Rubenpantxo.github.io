@@ -1,0 +1,145 @@
+<div class="sd-kit">
+<div class="sd-dato">
+  <span class="sd-dato__etiqueta">Visitas este mes</span>
+  <strong class="sd-dato__valor">2.480</strong>
+  <span class="sd-dato__delta">▲ 12 % frente al mes anterior</span>
+  <div class="sd-progreso" role="progressbar" aria-label="Objetivo" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><span style="--v:72%"></span></div>
+</div>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500;1,600&family=Lora:wght@400;600&display=swap");
+/* Clásico — Dato. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/clasico.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #14110d;
+  --sd-surface: #1c1813;
+  --sd-surface-2: #241e17;
+  --sd-ink: #f1e8d8;
+  --sd-muted: #a89a84;
+  --sd-accent: #c9a255;
+  --sd-accent-strong: #a8823a;
+  --sd-accent-solid: #c9a255;
+  --sd-accent-text: #d4b26e;
+  --sd-on-accent: #14110d;
+  --sd-accent-2: #9c7b4a;
+  --sd-line: #3a3126;
+  --sd-ok: #9fbf7a;
+  --sd-warn: #e0b04c;
+  --sd-danger: #e0806a;
+  --sd-display: "Cormorant Garamond", Georgia, serif;
+  --sd-font: "Lora", Georgia, serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 500;
+  --sd-display-estilo: italic;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+  --sd-radius: 4px;
+  --sd-radius-btn: 4px;
+  --sd-radius-activo: 4px;
+  --sd-border: 1px;
+  --sd-densidad: 1.15;
+  --sd-icon-stroke: 1.4;
+  --sd-boton: contorno;
+  --sd-shadow-sm: none;
+  --sd-shadow-md: none;
+  --sd-shadow-lg: none;
+  --sd-space-1: 4.6px;
+  --sd-space-2: 9.2px;
+  --sd-space-3: 13.8px;
+  --sd-space-4: 18.4px;
+  --sd-space-6: 27.6px;
+  --sd-space-8: 36.8px;
+  color-scheme: dark;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-progreso {
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: var(--sd-radius-btn, 999px);
+  background: color-mix(in srgb, var(--sd-ink) 12%, transparent);
+}
+
+.sd-kit .sd-progreso > span {
+  display: block;
+  width: var(--v, 50%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sd-accent);
+}
+
+.sd-kit .sd-dato {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1.1rem 1.2rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface-2, var(--sd-surface));
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-kit .sd-dato__etiqueta {
+  font-size: 0.8rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-dato__valor {
+  font-family: var(--sd-display, var(--sd-font));
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  letter-spacing: var(--sd-display-tracking, 0);
+  font-size: 2.4rem;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.sd-kit .sd-dato__delta {
+  margin-bottom: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--sd-ok) 70%, var(--sd-ink));
+}
+
+.sd-kit .sd-dato {
+  border-color: color-mix(in srgb, var(--sd-accent) 50%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--sd-accent) 22%, transparent);
+  outline-offset: 4px;
+  box-shadow: none;
+}
+
+.sd-kit .sd-dato {
+  background: var(--sd-surface);
+}
+
+.sd-kit .sd-dato__etiqueta {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.sd-kit .sd-progreso {
+  height: 3px;
+}
+
+.sd-kit .sd-dato__valor {
+  font-size: 2.8rem;
+  color: var(--sd-accent-text);
+}
+</style>

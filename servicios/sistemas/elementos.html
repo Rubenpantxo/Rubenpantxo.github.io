@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Biblioteca de elementos</title>
-<meta name="description" content="Casi doscientos botones, tarjetas, casillas, interruptores, cargadores y patrones listos para copiar. De UIverse, bajo licencia MIT.">
+<meta name="description" content="Los nueve sistemas de diseño de la casa con su kit de componentes, y casi doscientos botones, tarjetas, casillas, cargadores y patrones de UIverse listos para copiar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -175,13 +175,12 @@
      proposito: muchos estan hechos para fondo oscuro y otros para claro, y
      este gris deja ver los dos sin mentir sobre ninguno. */
   .gl-muestra {
-    /* El tamano tiene que estar AQUI, en el DOM claro, no solo en el :host de
-       dentro del shadow: sin alto, el IntersectionObserver no dispara nunca y
-       la pieza no llega a montarse. Ademas evita el salto de maquetacion. */
-    display: grid;
-    place-items: center;
-    min-height: 8.5rem;
-    flex: 1;
+    /* Alto fijo y AQUI, en el DOM claro: la carga perezosa mide esta caja
+       antes de que haya nada dentro, y un alto fijo hace que todas las
+       casillas de una fila sean iguales. La pieza se escala para caber. */
+    display: block;
+    height: 10rem;
+    flex: none;
     background:
       linear-gradient(45deg, #1c1c20 25%, transparent 25%, transparent 75%, #1c1c20 75%),
       linear-gradient(45deg, #1c1c20 25%, #17171b 25%, #17171b 75%, #1c1c20 75%);
@@ -189,6 +188,111 @@
     background-position: 0 0, 8px 8px;
     overflow: hidden;
   }
+
+  /* Las tarjetas y los formularios son piezas grandes: mas alto para que no
+     queden diminutas al escalarlas. */
+  .gl-pieza[data-cat="tarjetas"] .gl-muestra,
+  .gl-pieza[data-cat="formularios"] .gl-muestra,
+  .gl-pieza[data-cat="sistemas"] .gl-muestra { height: 19rem; }
+
+  /* --- los sistemas, como los UI Kits de UIverse --- */
+  .gl-nota {
+    max-width: 62ch;
+    margin: -0.4rem 0 1.25rem;
+    color: var(--gl-apagado);
+    font-size: 0.88rem;
+  }
+
+  .gl-kit {
+    padding: 1.1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--gl-filo);
+    border-radius: 16px;
+    background: var(--gl-panel);
+  }
+
+  .gl-kit[hidden] { display: none; }
+
+  .gl-kit__cab {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .gl-kit__colores {
+    display: grid;
+    grid-template-columns: repeat(2, 1.35rem);
+    gap: 3px;
+    flex: none;
+  }
+
+  .gl-kit__colores span {
+    height: 1.35rem;
+    border-radius: 4px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  }
+
+  .gl-kit__texto { flex: 1 1 18rem; min-width: 0; }
+
+  .gl-kit__texto h3 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  .gl-kit__texto p { margin: 0.2rem 0 0; font-size: 0.9rem; }
+
+  .gl-kit__rasgo {
+    font-family: var(--gl-mono);
+    font-size: 0.72rem !important;
+    color: var(--gl-apagado);
+  }
+
+  .gl-kit__acciones { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+
+  .gl-kit__btn {
+    padding: 0.5rem 0.95rem;
+    border: 1px solid var(--gl-filo);
+    border-radius: 999px;
+    color: var(--gl-tinta);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .gl-kit__btn:hover, .gl-kit__btn:focus-visible { border-color: var(--gl-acento); color: var(--gl-acento); }
+  .gl-kit__btn--pri { border-color: var(--gl-acento); background: var(--gl-acento); color: var(--gl-fondo); }
+  .gl-kit__btn--pri:hover, .gl-kit__btn--pri:focus-visible { background: transparent; }
+
+  /* Cuatro columnas anchas: la pieza de un sistema lleva su fondo y su texto,
+     y en una casilla estrecha habria que encogerla demasiado. */
+  .gl-rejilla--kit { grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); }
+
+  /* La casilla toma el fondo del sistema: asi la pieza no parece una pegatina
+     sobre el damero. */
+  .gl-pieza[data-cat="sistemas"] .gl-muestra { background: var(--gl-fondo-pieza, var(--gl-alto)); }
+  .gl-autor.gl-autor--kit::before { content: none; }
+
+  .gl-separador {
+    margin: clamp(2.5rem, 7vh, 4rem) 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gl-filo);
+    font-family: var(--gl-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gl-apagado);
+  }
+
+  .gl-separador[hidden] { display: none; }
+
+  /* El pie crece para que todas las fichas de una fila acaben a la par. */
+  .gl-pie { flex: 1; align-content: flex-start; }
 
   .gl-pie {
     display: flex;
@@ -250,6 +354,7 @@
 <script src="tema-datos.js"></script>
 <script src="uiverse/indice.js"></script>
 <script src="uiverse/tokenizados.js"></script>
+<script src="kits/indice.js"></script>
 <script src="../../js/galeria-elementos.js" defer></script>
 <script src="../../js/selector-sistema.js" defer></script>
 </head>
@@ -258,8 +363,8 @@
 <header class="gl-cabecera gl-ancho">
   <a class="gl-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
   <h1>Biblioteca de elementos</h1>
-  <p class="gl-entradilla">Botones, tarjetas, casillas, interruptores, cargadores, campos y patrones. Pulsa <em>Copiar código</em> y llévate el HTML con su CSS: cada pieza es autónoma y no necesita ninguna librería.</p>
-  <p class="gl-credito">Vienen de <a href="https://uiverse.io">UIverse.io</a>, bajo licencia MIT, y cada una lleva el nombre de quien la hizo. Los marcados como <em>sigue tu paleta</em> están retokenizados: cambian de color con el sistema que elijas abajo a la derecha.</p>
+  <p class="gl-entradilla">Arriba, los nueve sistemas de la casa con su kit de componentes: pixel art, vidrio esmerilado, arcilla, neobrutalismo… Debajo, botones, tarjetas, casillas, cargadores, campos y patrones sueltos. Pulsa <em>Copiar código</em> y llévate el HTML con su CSS: cada pieza es autónoma y no necesita ninguna librería.</p>
+  <p class="gl-credito">Los sueltos vienen de <a href="https://uiverse.io">UIverse.io</a>, bajo licencia MIT, y cada una lleva el nombre de quien la hizo. Los marcados como <em>sigue tu paleta</em> están retokenizados: cambian de color con el sistema que elijas abajo a la derecha.</p>
 </header>
 
 <div class="gl-filtros">

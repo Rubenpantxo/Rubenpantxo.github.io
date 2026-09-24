@@ -1,0 +1,163 @@
+<div class="sd-kit">
+<div class="sd-pila">
+  <div class="sd-pestanas" role="tablist" aria-label="Vista">
+    <button type="button" role="tab" aria-selected="true">Resumen</button>
+    <button type="button" role="tab" aria-selected="false">Detalle</button>
+    <button type="button" role="tab" aria-selected="false">Historial</button>
+  </div>
+  <div class="sd-fila">
+    <span class="sd-chip sd-chip--activo">Todo</span>
+    <span class="sd-chip">Hoy</span>
+    <span class="sd-chip">Esta semana</span>
+  </div>
+</div>
+</div>
+<style>
+/* Savia — Pestañas y filtros. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/savia.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #f4f7f4;
+  --sd-surface: #ffffff;
+  --sd-surface-2: #fbfdfb;
+  --sd-ink: #1c2b21;
+  --sd-muted: #67736a;
+  --sd-accent: #1f9d55;
+  --sd-accent-strong: #157040;
+  --sd-accent-solid: #157040;
+  --sd-accent-text: #157040;
+  --sd-on-accent: #ffffff;
+  --sd-accent-2: #e67e22;
+  --sd-line: #dde6de;
+  --sd-ok: #1f9d55;
+  --sd-warn: #e67e22;
+  --sd-danger: #e74c3c;
+  --sd-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 700;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+  --sd-radius: 22px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 999px;
+  --sd-border: 1px;
+  --sd-densidad: 1.05;
+  --sd-icon-stroke: 1.6;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 8%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  --sd-shadow-md: 0 8px 24px color-mix(in srgb, var(--sd-ink) 12%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.45);
+  --sd-shadow-lg: 0 20px 50px color-mix(in srgb, var(--sd-ink) 18%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.5);
+  --sd-space-1: 4.2px;
+  --sd-space-2: 8.4px;
+  --sd-space-3: 12.6px;
+  --sd-space-4: 16.8px;
+  --sd-space-6: 25.2px;
+  --sd-space-8: 33.6px;
+  color-scheme: light;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-pila {
+  display: grid;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.8rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius-btn, 999px);
+  color: var(--sd-ink);
+  font-size: 0.82rem;
+}
+
+.sd-kit .sd-chip--activo {
+  border-color: var(--sd-ink);
+  background: var(--sd-ink);
+  color: var(--sd-bg);
+}
+
+.sd-kit .sd-pestanas {
+  display: flex;
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: var(--sd-surface-2, var(--sd-surface));
+}
+
+.sd-kit .sd-pestanas button {
+  flex: 1;
+  padding: 0.5rem 0.9rem;
+  border: 0;
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: transparent;
+  color: var(--sd-muted);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sd-kit .sd-pestanas button[aria-selected="true"] {
+  background: var(--sd-surface);
+  color: var(--sd-ink);
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-kit {
+  background:
+    radial-gradient(38rem 28rem at 8% 6%, color-mix(in srgb, var(--sd-accent) 42%, transparent), transparent 70%),
+    radial-gradient(34rem 26rem at 92% 18%, color-mix(in srgb, var(--sd-accent-2) 40%, transparent), transparent 70%),
+    radial-gradient(40rem 30rem at 50% 104%, color-mix(in srgb, var(--sd-accent) 30%, transparent), transparent 70%),
+    var(--sd-bg);
+  background-attachment: fixed;
+}
+
+.sd-kit .sd-pestanas {
+  border: 1px solid color-mix(in srgb, #fff 60%, transparent);
+  background: color-mix(in srgb, var(--sd-surface) 48%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  backdrop-filter: blur(22px) saturate(170%);
+  box-shadow: var(--sd-shadow-md);
+}
+
+.sd-kit .sd-pestanas button[aria-selected="true"] {
+  background: color-mix(in srgb, var(--sd-surface) 85%, transparent);
+  box-shadow: var(--sd-shadow-sm);
+}
+
+.sd-kit .sd-chip {
+  border-color: color-mix(in srgb, #fff 55%, transparent);
+  background: color-mix(in srgb, var(--sd-surface) 40%, transparent);
+}
+</style>
