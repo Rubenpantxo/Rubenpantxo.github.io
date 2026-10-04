@@ -6,7 +6,7 @@
 
 | Fase | Descripción | Estado |
 |---|---|---|
-| 0 | Andamiaje | Hecha salvo `check_env.py` en `cabdrive` (falta Miniforge) |
+| 0 | Andamiaje | Hecha: `npm run dev` y `check_env.py` en `cabdrive` sin errores |
 | 1 | Pipeline de datos | 1.0 hecho (script listo; informe: faltan todos los datos) · 1.1–1.4 pendientes |
 | 2 | Escena 3D (Blender headless) | Pendiente |
 | 3 | Conducción | Pendiente |
@@ -26,21 +26,20 @@
 - `tools/00_inspect_raw.py`: inventario de `data/raw/` → `data/processed/informe_raw.md`. Probado con `data/raw/` vacío y con datos sintéticos fuera del proyecto (detecta falta de CRS, cobertura < 100 %, años distintos y Catastro dentro de ZIP).
 
 ## Pendiente
-- [ ] Rubén: instalar Miniforge (GUIA A3).
-- [ ] Claude: `conda env create -f environment.yml` y `conda run -n cabdrive python tools/check_env.py` sin errores (cierra la aceptación de la fase 0).
+- [x] Rubén: instalar Miniforge (GUIA A3).
+- [x] Claude: entorno `cabdrive` creado; `check_env.py`: Python 3.11.16, GDAL 3.12.3, rasterio 1.4.4, geopandas 1.2.0, pyproj 3.7.2, Blender 5.0.1 → todo correcto.
 - [ ] Rubén: poner `zona.geojson`, MDT, MDS y Catastro en `data/raw/` (GUIA C, D, E).
 - [ ] Claude: volver a ejecutar `tools/00_inspect_raw.py` y enseñar el informe.
 - [ ] 1.1 `01_origin_terrain.py` (solo tras el "OK").
 
 ## Decisiones
 - **Blender 5.0** (instalado: 5.0.1) en lugar de 4.x. Así lo decidió Rubén el 2026-10-04. `config.json` apunta a `Blender 5.0/blender.exe`.
-- **Worktree**: el proyecto vive en la rama `feat/cabanillas-drive` (sale de `main`), en el worktree `Rubenpantxo.github.io-cabanillas/`. Así no se tocan los cambios sin commitear de `feat/sistemas-kits-y-galeria`.
+- **Worktree**: el proyecto vive en la rama `feat/cabanillas-drive` (sale de `main`), en el worktree `repos/Github/bifurcaciones/feat-cabanillas-drive/` (carpeta de bifurcaciones, para no confundirla con el repo principal). Así no se tocan los cambios sin commitear de `feat/sistemas-kits-y-galeria`.
 - `config.json` gana `raw_dir` y `processed_dir` para que ningún script tenga rutas fijas.
 - `00_inspect_raw.py` carga las librerías geográficas solo cuando hay datos que leer. Sale con código 1 si hay bloqueantes.
 - La escena usa el `Sky` de `three/examples/jsm` (viene en el paquete npm de three, no es un asset externo).
 
 ## Problemas abiertos
 - Faltan todos los datos de entrada (`data/raw/` vacío).
-- Sin conda: no se ha podido ejecutar `check_env.py` en `cabdrive`. Con el Python del sistema solo falla por las librerías geográficas; Blender 5.0.1 responde bien.
 - `npm audit`: 3 vulnerabilidades altas, solo en dependencias de desarrollo (`@gltf-transform/cli`). Las de ejecución están limpias.
 - Si se publica esta carpeta tal cual en GitHub Pages, `prototipos/cabanillas-drive/index.html` no funciona sin compilar (imports de npm). El juego se publica desde `dist/` (PLAN §8).
