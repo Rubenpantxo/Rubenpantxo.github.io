@@ -1,0 +1,13 @@
+{
+  "blender_path": "C:/Program Files/Blender Foundation/Blender 5.0/blender.exe",
+  "zona": "data/raw/zona.geojson",
+  "raw_dir": "data/raw",
+  "processed_dir": "data/processed",
+  "terrain_resolution_m": 1.0,
+  "ortho_px_per_m": 4,
+  "ortho_tile_px": 2048,
+  "building_height_default_m": 6.0,
+  "building_height_min_m": 2.5,
+  "building_height_max_m": 40.0,
+  "osm_overpass_url": "https://overpass-api.de/api/interpreter"
+}
