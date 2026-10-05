@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "coches": "node tools/optimiza_coches.mjs",
+    "personas": "node tools/optimiza_personas.mjs",
     "escena": "gltf-transform optimize data/processed/cabanillas_raw.glb public/assets/cabanillas.glb --compress meshopt --texture-compress webp --join false --palette false --instance false --simplify-lock-border true",
     "arboles": "node tools/genera_arboles.mjs",
     "movil": "node tools/variantes_movil.mjs",

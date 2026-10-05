@@ -83,6 +83,23 @@
       peatonales; un lado de calle no se usa si atraviesa un edificio del Catastro. Eligen calle en los cruces,
       a veces cruzan o se paran; los coches del tráfico les ceden el paso y se apartan del coche del jugador
       (a 29 y 50 km/h quedan a 1,6–1,7 m de su eje). 60/40/16 según calidad, un 30 % de noche; 0,05 ms por fotograma.
+  - Segunda tanda de extras (2026-10-05, petición de Rubén):
+    - Fachadas mucho más variadas (`fachadas.glsl.js`): ladrillo con medidas, aparejos, ladrillo manual y
+      morteros distintos; piedra en sillería, mampostería, canto rodado y verdugadas; enfoscados con grano,
+      churretes, humedad y desconchones según la edad; zócalos, plantas bajas de otro material, recercados y
+      paletas con variación por casa. En calidad baja, versión simplificada.
+    - Muros y vallas (`tools/13_muros.py`, `src/escena/muros.js`): 18 barreras de OSM y 754 tapias que el
+      nDSM mide en los linderos del Catastro (5,1 km), con acabados procedurales, malla metálica y colisión.
+    - Inventario de OSM (`tools/04b_osm_inventario.py`, API oficial; Overpass estaba caído): en
+      `data/processed/osm_inventario.md`. Quedan por usar: 53 bancos, 10 STOP y 2 ceda el paso, la línea
+      eléctrica con 5 torres, 48 piscinas, la marquesina, fuentes y 831 números de portal.
+    - Carteles de lugares a ~55 %; portada a pantalla completa (en vertical, a lo ancho sobre la imagen
+      desenfocada para no cortar el título).
+    - Peatones realistas: 12 personas de MakeHuman (`tools/personas.json` → `tools/14_personas.py` →
+      `build_personas.py` en Blender con configuración aislada → `npm run personas`): malla reducida,
+      esqueleto de 53 huesos, piel, pelo y ropa en un atlas, animaciones de andar y quieto propias;
+      2,8 MB en total. 45/30/12 según calidad (6 variantes en baja), dibujados hasta 110/85/60 m, sombra
+      hasta 45 m; las aceras evitan las tapias.
   - Calidad alta más robusta: el AO no se crea a 0×0 si la página se abre en un panel oculto y se avisa si la GPU
     retira el contexto WebGL (pasaba con varias pestañas del juego abiertas a la vez en calidad alta).
 

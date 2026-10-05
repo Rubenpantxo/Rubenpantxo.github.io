@@ -1,0 +1,262 @@
+{
+  "_nota": "Personas genéricas para los peatones (MakeHuman/MPFB, recursos CC0). edad en años; peso, músculo y altura 0–1 (0,5 = medio); pelo_gris aclara y quita color al pelo (mayores).",
+  "proxy": {
+    "hombre": "male1591.proxy",
+    "mujer": "female1605.proxy"
+  },
+  "ojos": "low-poly.mhclo",
+  "pestanas": "eyelashes01.mhclo",
+  "personas": [
+    {
+      "id": "h_joven",
+      "sexo": "hombre",
+      "edad": 27,
+      "peso": 0.5,
+      "musculo": 0.55,
+      "altura": 0.55,
+      "raza": [
+        0.05,
+        0.9,
+        0.05
+      ],
+      "piel": "young_caucasian_male.mhmat",
+      "pelo": "short02.mhclo",
+      "cejas": "eyebrow001.mhclo",
+      "ropa": [
+        "male_casualsuit03.mhclo",
+        "shoes01.mhclo"
+      ]
+    },
+    {
+      "id": "h_polo",
+      "sexo": "hombre",
+      "edad": 46,
+      "peso": 0.72,
+      "musculo": 0.45,
+      "altura": 0.5,
+      "raza": [
+        0.05,
+        0.9,
+        0.05
+      ],
+      "piel": "middleage_caucasian_male.mhmat",
+      "pelo": "short04.mhclo",
+      "cejas": "eyebrow007.mhclo",
+      "ropa": [
+        "namuhekam_male_polo_shirt.mhclo",
+        "toigo_wool_pants.mhclo",
+        "shoes03.mhclo"
+      ]
+    },
+    {
+      "id": "h_mayor",
+      "sexo": "hombre",
+      "edad": 72,
+      "peso": 0.6,
+      "musculo": 0.35,
+      "altura": 0.4,
+      "raza": [
+        0.05,
+        0.9,
+        0.05
+      ],
+      "piel": "old_caucasian_male.mhmat",
+      "pelo": "short01.mhclo",
+      "pelo_gris": 0.85,
+      "cejas": "eyebrow010.mhclo",
+      "ropa": [
+        "male_casualsuit05.mhclo",
+        "shoes05.mhclo",
+        "fedora01.mhclo"
+      ]
+    },
+    {
+      "id": "h_trabajo",
+      "sexo": "hombre",
+      "edad": 36,
+      "peso": 0.58,
+      "musculo": 0.7,
+      "altura": 0.6,
+      "raza": [
+        0.05,
+        0.9,
+        0.05
+      ],
+      "piel": "middleage_caucasian_male.mhmat",
+      "pelo": "short02.mhclo",
+      "cejas": "eyebrow002.mhclo",
+      "ropa": [
+        "male_worksuit01.mhclo",
+        "toigo_ankle_boots_male.mhclo"
+      ]
+    },
+    {
+      "id": "h_camiseta",
+      "sexo": "hombre",
+      "edad": 21,
+      "peso": 0.45,
+      "musculo": 0.55,
+      "altura": 0.62,
+      "raza": [
+        0.85,
+        0.1,
+        0.05
+      ],
+      "piel": "young_african_male.mhmat",
+      "pelo": "short04.mhclo",
+      "cejas": "eyebrow003.mhclo",
+      "ropa": [
+        "elvs_crude_t-shirt_male.mhclo",
+        "cortu_cargo_pants.mhclo",
+        "shoes02.mhclo"
+      ]
+    },
+    {
+      "id": "h_maduro",
+      "sexo": "hombre",
+      "edad": 58,
+      "peso": 0.62,
+      "musculo": 0.45,
+      "altura": 0.45,
+      "raza": [
+        0.05,
+        0.85,
+        0.1
+      ],
+      "piel": "middleage_caucasian_male.mhmat",
+      "pelo": "short02.mhclo",
+      "pelo_gris": 0.5,
+      "cejas": "eyebrow005.mhclo",
+      "ropa": [
+        "male_casualsuit06.mhclo",
+        "shoes04.mhclo"
+      ]
+    },
+    {
+      "id": "m_joven",
+      "sexo": "mujer",
+      "edad": 25,
+      "peso": 0.45,
+      "musculo": 0.5,
+      "altura": 0.5,
+      "raza": [
+        0.05,
+        0.9,
+        0.05
+      ],
+      "piel": "young_caucasian_female.mhmat",
+      "pelo": "ponytail01.mhclo",
+      "cejas": "eyebrow009.mhclo",
+      "ropa": [
+        "toigo_keyhole_tank_top.mhclo",
+        "toigo_wool_pants.mhclo",
+        "toigo_flats.mhclo"
+      ]
+    },
+    {
+      "id": "m_media",
+      "sexo": "mujer",
+      "edad": 42,
+      "peso": 0.55,
+      "musculo": 0.45,
+      "altura": 0.45,
+      "raza": [
+        0.05,
+        0.9,
+        0.05
+      ],
+      "piel": "middleage_caucasian_female.mhmat",
+      "pelo": "bob01.mhclo",
+      "cejas": "eyebrow011.mhclo",
+      "ropa": [
+        "joepal_crude_t-shirt_female.mhclo",
+        "cortu_cargo_pants.mhclo",
+        "toigo_ankle_boots_female.mhclo"
+      ]
+    },
+    {
+      "id": "m_mayor",
+      "sexo": "mujer",
+      "edad": 70,
+      "peso": 0.65,
+      "musculo": 0.35,
+      "altura": 0.35,
+      "raza": [
+        0.05,
+        0.9,
+        0.05
+      ],
+      "piel": "old_caucasian_female.mhmat",
+      "pelo": "rehmanpolanski_hair_bun_brown.mhclo",
+      "pelo_gris": 0.9,
+      "cejas": "eyebrow012.mhclo",
+      "ropa": [
+        "toigo_fisherman_sweater.mhclo",
+        "toigo_long_full_skirt.mhclo",
+        "toigo_ballet_flats.mhclo"
+      ]
+    },
+    {
+      "id": "m_verano",
+      "sexo": "mujer",
+      "edad": 31,
+      "peso": 0.5,
+      "musculo": 0.5,
+      "altura": 0.55,
+      "raza": [
+        0.05,
+        0.75,
+        0.2
+      ],
+      "piel": "onlytheghosts_young_eurasian_female.mhmat",
+      "pelo": "long01.mhclo",
+      "cejas": "eyebrow009.mhclo",
+      "ropa": [
+        "toigo_basic_tucked_t-shirt.mhclo",
+        "toigo_tiered_skirt.mhclo",
+        "toigo_flats.mhclo"
+      ]
+    },
+    {
+      "id": "m_elegante",
+      "sexo": "mujer",
+      "edad": 52,
+      "peso": 0.55,
+      "musculo": 0.4,
+      "altura": 0.5,
+      "raza": [
+        0.05,
+        0.9,
+        0.05
+      ],
+      "piel": "middleage_caucasian_female.mhmat",
+      "pelo": "toigo_inverted_bob.mhclo",
+      "cejas": "eyebrow011.mhclo",
+      "ropa": [
+        "female_elegantsuit01.mhclo",
+        "toigo_ballet_flats.mhclo"
+      ]
+    },
+    {
+      "id": "m_deporte",
+      "sexo": "mujer",
+      "edad": 19,
+      "peso": 0.42,
+      "musculo": 0.6,
+      "altura": 0.6,
+      "raza": [
+        0.05,
+        0.9,
+        0.05
+      ],
+      "piel": "young_caucasian_female2.mhmat",
+      "pelo": "braid01.mhclo",
+      "cejas": "eyebrow009.mhclo",
+      "ropa": [
+        "toigo_camisole_top.mhclo",
+        "cortu_jeans_shorts.mhclo",
+        "shoes06.mhclo"
+      ]
+    }
+  ]
+}

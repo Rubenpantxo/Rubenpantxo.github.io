@@ -18,7 +18,7 @@ import { cargaMuros, creaMuros } from '../escena/muros.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
 import { creaLuces } from './luces.js';
-import { creaPeatones } from './peatones.js';
+import { cargaPersonas, creaPeatones } from './peatones.js';
 import { textoHora } from '../escena/cicloDia.js';
 import { PEATON } from '../config/peaton.js';
 import { cargaMundo } from '../escena/mundo.js';
@@ -34,7 +34,7 @@ const DISTANCIAS_COCHES = {
 export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   ui.estado.textContent = 'Cargando Cabanillas…';
   creaReflejos(renderer, escena);
-  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos, datosMuros] = await Promise.all([
+  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos, datosMuros, personas] = await Promise.all([
     cargaMundo(renderer, ESCENA, {
       alProgresar: (f) => { ui.estado.textContent = `Cargando escena… ${Math.round(f * 100)} %`; },
     }),
@@ -47,6 +47,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     cargaGeoJSON(ESCENA.rutaPoi).catch(() => null),
     cargaGeoJSON(ESCENA.rutaCaminos).catch(() => null),
     cargaMuros(ESCENA.rutaMuros),
+    cargaPersonas(ESCENA.rutaPersonas),
   ]);
   escena.add(mundo.raiz);
   const cochesAparcados = creaCochesAparcados(modelosCoches, aparcados, mundo.terreno, { excluir: [VEHICULO.modelo] });
@@ -72,7 +73,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     excluirModelo: VEHICULO.modelo,
   });
   const peaton = creaPeaton(fisica, mundo.terreno);
-  const peatones = creaPeatones({ calles: geoCalles, caminos: geoCaminos, edificios: mundo.geoEdificios, terreno: mundo.terreno });
+  const peatones = creaPeatones({
+    calles: geoCalles, caminos: geoCaminos, edificios: mundo.geoEdificios, muros: datosMuros, terreno: mundo.terreno, personas,
+  });
   escena.add(peatones.raiz);
   const infoCoche = modelosCoches[VEHICULO.modelo].info;
   let obstaculosPeatones = [];
