@@ -5,6 +5,8 @@ import { VEHICULO } from '../config/vehiculo.js';
 import { creaCamaraCoche } from '../camara/camaraCoche.js';
 import { creaEntrada } from '../controles/entrada.js';
 import { nodoMasCercano, nodosDeCalles } from '../datos/calles.js';
+import { cargaModelosArboles, colisionaArboles, creaArboles } from '../escena/arboles.js';
+import { cargaVegetacion, creaHierba } from '../escena/hierba.js';
 import { cargaModelosCoches, colisionaCochesAparcados, creaCochesAparcados } from '../escena/coches.js';
 import { creaReflejos } from '../escena/entorno.js';
 import { cargaMundo } from '../escena/mundo.js';
@@ -17,21 +19,29 @@ const MAX_PASOS_POR_FOTOGRAMA = 4;
 export async function iniciaJuego({ renderer, escena, camara, ui }) {
   ui.estado.textContent = 'Cargando Cabanillas…';
   creaReflejos(renderer, escena);
-  const [mundo, geoCalles, modelosCoches, aparcados] = await Promise.all([
+  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion] = await Promise.all([
     cargaMundo(renderer, ESCENA, {
       alProgresar: (f) => { ui.estado.textContent = `Cargando escena… ${Math.round(f * 100)} %`; },
     }),
     cargaGeoJSON(ESCENA.rutaCalles),
     cargaModelosCoches(ESCENA.rutaCoches),
     cargaGeoJSON(ESCENA.rutaCochesAparcados),
+    cargaModelosArboles(ESCENA.rutaModelosArboles),
+    cargaGeoJSON(ESCENA.rutaArboles),
+    cargaVegetacion(ESCENA.rutaVegetacion),
   ]);
   escena.add(mundo.raiz);
   const cochesAparcados = creaCochesAparcados(modelosCoches, aparcados, mundo.terreno, { excluir: [VEHICULO.modelo] });
   escena.add(cochesAparcados.raiz);
+  const arboles = creaArboles(renderer, modelosArboles, datosArboles, mundo.terreno, { entorno: escena });
+  escena.add(arboles.raiz);
+  const hierba = creaHierba(vegetacion, mundo.terreno, { radio: ESCENA.radioHierba });
+  escena.add(hierba.raiz);
 
   ui.estado.textContent = 'Preparando la física…';
   const fisica = await creaFisica(mundo.terreno, mundo.geoEdificios);
   colisionaCochesAparcados(fisica, cochesAparcados.colocados);
+  colisionaArboles(fisica, arboles.colocados);
   const nodos = nodosDeCalles(geoCalles);
   const coche = creaCoche(fisica, escena, modelosCoches[VEHICULO.modelo]);
   const entrada = creaEntrada(ui.tactil);
@@ -80,9 +90,13 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
     tiempoVolcado = e.volcado ? tiempoVolcado + dt : 0;
 
     camaraCoche.actualiza(dt);
+    arboles.avanza(dt);
+    hierba.avanza(dt);
+    hierba.actualiza(camara.position);
     tiempoReparto -= dt;
     if (tiempoReparto <= 0) {
       cochesAparcados.actualiza(camara.position, ESCENA.distanciaCochesDetalle);
+      arboles.actualiza(camara.position, ESCENA.distanciaArbolesDetalle);
       tiempoReparto = ESCENA.segundosRepartoCoches;
     }
 
@@ -99,8 +113,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
       : (ui.mostrarFps ? `${fps} FPS` : '');
   }
 
-  const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches,
+  const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba,
     get fps() { return fps; } };
-  if (import.meta.env.DEV) window.__juego = Object.assign(api, { THREE, camara, escena, colocaEn });
+  if (import.meta.env.DEV) window.__juego = Object.assign(api, { THREE, renderer, camara, escena, colocaEn });
   return { actualiza, api };
 }
