@@ -30,6 +30,7 @@ const pantallas = creaPantallas({
     api?.ponPausa(!jugando);
     // Los mandos táctiles solo con el juego en marcha (vuelven si ya se estaban usando)
     if (!jugando) {
+      document.exitPointerLock?.();
       tactilVisible = tactilVisible || !ui.tactil.hidden;
       ui.tactil.hidden = true;
     } else if (tactilVisible) {

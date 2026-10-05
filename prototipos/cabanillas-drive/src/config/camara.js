@@ -26,6 +26,8 @@ export const CONTROLES = {
     frenoMano: ['Space'],
     reiniciar: ['KeyR'],
     camara: ['KeyC'],
+    bajar: ['KeyE', 'KeyF'],          // bajarse del coche / volver a subir
+    correr: ['ShiftLeft', 'ShiftRight'],
   },
   joystick: {
     radio: 60,                // px de recorrido del mando

@@ -40,7 +40,7 @@
       @media (pointer: coarse) {
         /* entre el botón de menú (izquierda) y los de cámara/recolocar (derecha) */
         #brujula { left: calc(max(12px, env(safe-area-inset-left)) + 54px); transform: none;
-          width: min(220px, calc(100% - 196px)); height: 40px; }
+          width: min(220px, calc(100% - 258px)); height: 40px; }
         #minimapa { top: calc(max(12px, env(safe-area-inset-top)) + 54px); bottom: auto; width: 118px; height: 118px; }
         #velocimetro { top: calc(max(12px, env(safe-area-inset-top)) + 70px); bottom: auto; width: 116px; height: 116px; }
         #panel { top: calc(max(12px, env(safe-area-inset-top)) + 44px); }
@@ -126,6 +126,7 @@
         <button class="boton-tactil" type="button" data-mantener="freno" aria-label="Frenar o marcha atrás">▼</button>
       </div>
       <div class="botones-superiores">
+        <button class="boton-tactil pequeno" type="button" data-pulsar="bajar" aria-label="Bajarse del coche o subir">🚶</button>
         <button class="boton-tactil pequeno" type="button" data-pulsar="camara" aria-label="Cambiar cámara">👁</button>
         <button class="boton-tactil pequeno" type="button" data-pulsar="reiniciar" aria-label="Recolocar el coche">↺</button>
       </div>
@@ -148,9 +149,12 @@
         </div>
         <div class="controles">
           <p class="teclado"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> o flechas: conducir · <kbd>Espacio</kbd> freno de mano ·
-            <kbd>R</kbd> recolocar · <kbd>C</kbd> cámara · <kbd>M</kbd> minimapa · <kbd>Esc</kbd> pausa</p>
+            <kbd>R</kbd> recolocar · <kbd>C</kbd> cámara · <kbd>M</kbd> minimapa · <kbd>Esc</kbd> pausa<br>
+            <kbd>E</kbd> bajarse o subir · a pie: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> andar, ratón (clic) o flechas para mirar,
+            <kbd>Mayús</kbd> correr</p>
           <p class="tactil">Arrastra a la izquierda para girar · ▲ acelerar · ▼ frenar y marcha atrás · Mano: freno de mano ·
-            👁 cámara · ↺ recolocar · ☰ pausa</p>
+            👁 cámara · ↺ recolocar · ☰ pausa · 🚶 bajarse o subir (a pie: joystick para andar, arrastra para mirar,
+            ▲ correr)</p>
         </div>
       </div>
     </section>

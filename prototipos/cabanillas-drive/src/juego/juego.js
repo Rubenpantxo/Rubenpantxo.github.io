@@ -14,6 +14,8 @@ import { cargaModelosCoches, colisionaCochesAparcados, creaCochesAparcados } fro
 import { creaReflejos } from '../escena/entorno.js';
 import { creaHud } from '../hud/hud.js';
 import { creaTrafico } from './trafico.js';
+import { creaPeaton } from './peaton.js';
+import { PEATON } from '../config/peaton.js';
 import { cargaMundo } from '../escena/mundo.js';
 import { PASO_FISICA, creaFisica, creaGestorColisiones } from '../fisica/fisica.js';
 import { creaCoche } from '../vehiculo/coche.js';
@@ -58,6 +60,57 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
   const trafico = creaTrafico({
     escena, fisica, modelos: modelosCoches, grafo: creaGrafoCalles(geoCalles), terreno: mundo.terreno,
     excluirModelo: VEHICULO.modelo,
+  });
+  const peaton = creaPeaton(fisica, mundo.terreno);
+  const botonBajar = document.querySelector('[data-pulsar="bajar"]');
+  let aPie = false;
+  let avisoHasta = 0;
+  let aviso = '';
+  const PARADO = { acelerador: 0, freno: 0, direccion: 0, frenoMano: true, analogica: false };
+  const avisa = (texto, segundos = 2.5) => { aviso = texto; avisoHasta = performance.now() + segundos * 1000; };
+
+  // Bajarse: con el coche casi parado, por el lado del conductor (si está ocupado, por el otro,
+  // por detrás o por delante)
+  function bajarse() {
+    const e = coche.estado();
+    if (Math.abs(e.velocidadKmh) > PEATON.velocidadBajarKmh) { avisa('Para el coche para bajarte'); return; }
+    const f = e.adelante.clone().setY(0).normalize();
+    const izquierda = new THREE.Vector3(f.z, 0, -f.x);
+    const { largo, ancho } = modelosCoches[VEHICULO.modelo].info;
+    const huecos = [
+      izquierda.clone().multiplyScalar(ancho / 2 + 0.7), izquierda.clone().multiplyScalar(-(ancho / 2 + 0.7)),
+      f.clone().multiplyScalar(-(largo / 2 + 0.8)), f.clone().multiplyScalar(largo / 2 + 0.8),
+    ];
+    for (const h of huecos) {
+      const x = e.posicion.x + h.x;
+      const z = e.posicion.z + h.z;
+      if (!peaton.libre(x, z)) continue;
+      peaton.activa(x, z, Math.atan2(-f.x, -f.z));
+      aPie = true;
+      botonBajar.textContent = '🚗';
+      camara.fov = PEATON.fov;
+      camara.updateProjectionMatrix();
+      avisa('A pie · E (o 🚗) cerca del coche para subir', 3);
+      return;
+    }
+    avisa('No hay sitio para bajarse aquí');
+  }
+
+  function subirse() {
+    const p = peaton.estado().posicion;
+    const c = coche.cuerpo.translation();
+    if (Math.hypot(p.x - c.x, p.z - c.z) > PEATON.distanciaSubirM + 1.2) { avisa('Acércate al coche para subir'); return; }
+    peaton.desactiva();
+    aPie = false;
+    botonBajar.textContent = '🚶';
+    document.exitPointerLock?.();
+  }
+
+  // Con ratón: clic sobre la escena para capturar el puntero y mirar alrededor andando
+  renderer.domElement.addEventListener('click', (ev) => {
+    if (aPie && !pausado && ev.pointerType !== 'touch' && document.pointerLockElement !== renderer.domElement) {
+      renderer.domElement.requestPointerLock?.();
+    }
   });
 
   // Salida: el nodo de calle más cercano al origen (centro del casco)
@@ -116,16 +169,26 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
       return;
     }
     const mandos = entrada.actualiza();
-    if (entrada.consume('reiniciar')) recolocaCerca();
-    if (entrada.consume('camara')) camaraCoche.cambia();
+    const mirada = entrada.consumeMirada();
+    if (entrada.consume('bajar')) {
+      if (aPie) subirse(); else bajarse();
+    }
+    if (entrada.consume('reiniciar') && !aPie) recolocaCerca();
+    if (entrada.consume('camara') && !aPie) camaraCoche.cambia();
 
+    // Lo que importa para colisiones y tráfico: el coche y, a pie, también el peatón
     const posCoche = coche.cuerpo.translation();
-    colisiones.actualiza(posCoche, coche.cuerpo.linvel(), dt);
-    trafico.actualiza(dt, { jugador: posCoche, camara, otros: [{ x: posCoche.x, z: posCoche.z, radio: 2.5 }] });
+    const estadoPie = aPie ? peaton.estado() : null;
+    const centro = aPie ? estadoPie.posicion : posCoche;
+    colisiones.actualiza(centro, aPie ? { x: 0, z: 0 } : coche.cuerpo.linvel(), dt);
+    const otros = [{ x: posCoche.x, z: posCoche.z, radio: 2.5 }];
+    if (aPie) otros.push({ x: centro.x, z: centro.z, radio: 0.6 });
+    trafico.actualiza(dt, { jugador: centro, camara, otros });
     acumulado += Math.min(dt, PASO_FISICA * MAX_PASOS_POR_FOTOGRAMA);
     while (acumulado >= PASO_FISICA) {
-      coche.aplicaEntrada(mandos, PASO_FISICA);
+      coche.aplicaEntrada(aPie ? PARADO : mandos, PASO_FISICA);
       coche.paso(PASO_FISICA);
+      if (aPie) peaton.paso(mandos, PASO_FISICA);
       fisica.mundo.step();
       acumulado -= PASO_FISICA;
     }
@@ -133,10 +196,15 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
 
     const e = coche.estado();
     const suelo = mundo.terreno.alturaEn(e.posicion.x, e.posicion.z);
-    if (e.posicion.y < suelo - VEHICULO.reinicio.caidaMaxima) recolocaCerca();
-    tiempoVolcado = e.volcado ? tiempoVolcado + dt : 0;
+    if (!aPie && e.posicion.y < suelo - VEHICULO.reinicio.caidaMaxima) recolocaCerca();
+    tiempoVolcado = !aPie && e.volcado ? tiempoVolcado + dt : 0;
 
-    camaraCoche.actualiza(dt);
+    if (aPie) {
+      peaton.mira(mirada.dx, mirada.dy, mandos.giro, dt);
+      peaton.colocaCamara(camara);
+    } else {
+      camaraCoche.actualiza(dt);
+    }
     arboles.avanza(dt);
     hierba.avanza(dt);
     hierba.actualiza(camara.position);
@@ -162,13 +230,15 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
           + `calidad ${CALIDAD.nivel} · resolución ${Math.round((ui.proporcionPixeles?.() ?? 1) * 100)} %`;
       }
     }
-    hud.actualiza(e, dt, trafico.posiciones());
-    ui.estado.textContent = tiempoVolcado > VEHICULO.reinicio.segundosVolcado
-      ? 'Coche volcado: pulsa R (o ↺) para recolocarlo'
-      : textoDepuracion;
+    hud.actualiza(aPie ? peaton.estado() : e, dt, trafico.posiciones());
+    let texto = textoDepuracion;
+    if (tiempoVolcado > VEHICULO.reinicio.segundosVolcado) texto = 'Coche volcado: pulsa R (o ↺) para recolocarlo';
+    if (performance.now() < avisoHasta) texto = aviso;
+    ui.estado.textContent = texto;
   }
 
-  const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico,
+  const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico, peaton,
+    get aPie() { return aPie; }, bajarse, subirse,
     get fps() { return fps; },
     get pausado() { return pausado; },
     // Al volver de la pausa no se recupera el tiempo parado (la física no da un salto)
