@@ -107,7 +107,12 @@ vec3 piedras(vec2 p, vec3 base, float semilla, vec2 aa, float lejos, float largo
   bool canto = tipo > 0.62 && tipo < 0.78;
   float celda = canto ? 0.14 : 0.38;
   float lc = max(lejos, smoothstep(0.1, 0.3, max(aa.x, aa.y) / celda));
+#ifdef FACHADA_SIMPLE
+  vec2 v = vec2(1.0, azar2(floor(p / vec2(0.45, 0.3)) + semilla));   // móvil: sin Voronoi
+  lc = 1.0;
+#else
   vec2 v = voronoiF(p / (canto ? vec2(0.16, 0.12) : vec2(0.45, 0.3)), semilla);
+#endif
   float mortero = (1.0 - smoothstep(canto ? 0.12 : 0.05, canto ? 0.26 : 0.14, v.x)) * (1.0 - lc);
   vec3 tono = canto ? mix(vec3(0.6, 0.56, 0.5), vec3(0.82, 0.75, 0.64), azar1(v.y * 7.0)) : base;
   vec3 medio = canto ? vec3(0.7, 0.65, 0.57) : base * 0.97;
@@ -139,7 +144,11 @@ vec3 enfoscado(vec2 p, vec3 base, float semilla, vec2 aa, float lejos, float alt
   c *= 1.0 - 0.12 * churrete * viejo;
   float hHum = mix(0.25, 0.9, viejo) + (ruidoF(vec2(p.x * 1.2, semilla)) - 0.5) * 0.35;
   c *= 1.0 - 0.16 * (1.0 - smoothstep(hHum - 0.12, hHum + 0.12, p.y)) * viejo;
+#ifdef FACHADA_SIMPLE
+  if (false) {
+#else
   if (viejo > 0.82) {
+#endif
     float mancha = fbmF(p * vec2(0.45, 0.7) + semilla * 3.1) + (1.0 - smoothstep(0.0, 2.2, p.y)) * 0.1;
     float hueco = smoothstep(0.71, 0.73, mancha) * (1.0 - lejos * 0.7);
     float borde = smoothstep(0.68, 0.71, mancha) - hueco;

@@ -4,6 +4,7 @@
 // - fachadas procedurales individuales (fachadas.glsl.js) según plantas, estilo y calle
 // Se agrupan en los mismos chunks que el terreno (orto.json) para la carga por distancia.
 import * as THREE from 'three';
+import { CALIDAD } from '../config/calidad.js';
 import { GLSL_FACHADA, LUCES_FACHADA } from './fachadas.glsl.js';
 
 // Colores base por estilo; cada casa además varía un poco tono, saturación y luz
@@ -244,6 +245,7 @@ vMuro = aMuro;
 vMuro2 = aMuro2;`);
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>
+${CALIDAD.nivel === 'bajo' ? '#define FACHADA_SIMPLE' : ''}
 ${GLSL_FACHADA}`)
       .replace('#include <color_fragment>', `#include <color_fragment>
 float vidrioFachada = 0.0;
@@ -255,7 +257,7 @@ totalEmissiveRadiance += colorLuzFachada * luzFachada * uIntensidadVentanas;`)
       .replace('#include <common>', `#include <common>
 uniform float uIntensidadVentanas;`);
   };
-  material.customProgramCacheKey = () => 'fachada-v3';
+  material.customProgramCacheKey = () => `fachada-v3-${CALIDAD.nivel}`;
   return material;
 }
 
