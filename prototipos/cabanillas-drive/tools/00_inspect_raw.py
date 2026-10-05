@@ -324,8 +324,12 @@ def inspecciona_catastro(inf: Informe, carpeta: Path, zona) -> None:
         inf.t(f"- `{origen}`")
     inf.t("")
 
-    objetivo = [c for c in capas if c[2].lower() == CAPA_EDIFICIOS.lower()] or \
-               [c for c in capas if CAPA_EDIFICIOS.lower() in c[2].lower()]
+    # La descarga municipal la nombra CATAST_Pol_Edificacion: se comparan sin "_" ni mayúsculas
+    def normal(nombre: str) -> str:
+        return nombre.replace("_", "").lower()
+
+    objetivo = [c for c in capas if normal(c[2]) == normal(CAPA_EDIFICIOS)] or \
+               [c for c in capas if normal(CAPA_EDIFICIOS) in normal(c[2])]
     if not objetivo:
         inf.bloquea(f"No se encuentra la capa `{CAPA_EDIFICIOS}` en el Catastro.")
         parecidas = [c[0] for c in capas if "edific" in c[2].lower()]
@@ -407,7 +411,9 @@ def main() -> int:
         inf.bloquea(f"No existe `{raw}`.")
     else:
         esperados = {zona_ruta.name, "mdt", "mds", "catastro", "orto"}
-        extra = sorted(p.name for p in raw.iterdir() if p.name not in esperados)
+        # Los auxiliares de la zona (p. ej. zona.qmd que guarda QGIS) no son inesperados
+        extra = sorted(p.name for p in raw.iterdir() if p.name not in esperados
+                       and not (p.stem == zona_ruta.stem and extension(p) in EXT_AUXILIARES))
         if extra:
             inf.avisa(f"Elementos no previstos en data/raw/: {', '.join(extra)}.")
 
