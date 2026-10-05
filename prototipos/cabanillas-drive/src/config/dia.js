@@ -20,9 +20,14 @@ export const DIA = {
   // Luz de la ortofoto (terreno, tejados, impostores) de noche y su tono al atardecer
   fotoNoche: [0.05, 0.06, 0.1],
   tonoDorado: [1.0, 0.78, 0.6],
-  nieblaNoche: [0.02, 0.025, 0.045],
+  nieblaNoche: [0.05, 0.04, 0.035],         // algo cálida: el resplandor de las luces del pueblo
   nieblaDorada: [0.78, 0.56, 0.44],
-  hemisferioNoche: { cielo: 0x2a3b66, suelo: 0x15151c, intensidad: 0.35 },
+  hemisferioNoche: { cielo: 0x2a3b66, suelo: 0x2b2119, intensidad: 0.35 },   // suelo cálido: luz rebotada de las calles
+  // Ventanas encendidas (decorativas): fracción según la hora [hora, fracción], en orden
+  ventanas: {
+    intensidad: 2.0,
+    porHora: [[6, 0.16], [8, 0.0], [19, 0.0], [21, 0.36], [23, 0.3], [1.5, 0.1], [4, 0.05]],
+  },
   estrellas: 1800,
   faros: { intensidad: 90, alcanceM: 70, anguloGrados: 34, penumbra: 0.55 },
 };
