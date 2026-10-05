@@ -116,7 +116,7 @@ export function creaMinimapa(lienzo, datos, zona) {
     }
   }
 
-  function actualiza({ x, z, rumbo, kmh }, dt) {
+  function actualiza({ x, z, rumbo, kmh, otros = [] }, dt) {
     ajusta();
     const objetivo = cfg.radioVisibleM + (cfg.radioVisibleRapidoM - cfg.radioVisibleM) * Math.min(1, Math.abs(kmh) / 90);
     radioActual += (objetivo - radioActual) * Math.min(1, dt * 1.5);
@@ -137,6 +137,17 @@ export function creaMinimapa(lienzo, datos, zona) {
     ctx.rotate(giro);
     ctx.scale(escala / cfg.pixelesPorMetro, escala / cfg.pixelesPorMetro);
     ctx.drawImage(mapa, -(x - zona.x0) * cfg.pixelesPorMetro, -(z - zona.z0) * cfg.pixelesPorMetro);
+    // Otros coches: puntos de tamaño fijo en pantalla
+    const radioPunto = (3.2 * (t / 200)) / (escala / cfg.pixelesPorMetro);
+    for (const o of otros) {
+      ctx.beginPath();
+      ctx.arc((o.x - x) * cfg.pixelesPorMetro, (o.z - z) * cfg.pixelesPorMetro, radioPunto, 0, Math.PI * 2);
+      ctx.fillStyle = cfg.colores.trafico;
+      ctx.fill();
+      ctx.lineWidth = radioPunto * 0.45;
+      ctx.strokeStyle = '#1b2430';
+      ctx.stroke();
+    }
     ctx.restore();
 
     // Jugador: flecha en el centro (arriba si el mapa gira; si no, según el rumbo)

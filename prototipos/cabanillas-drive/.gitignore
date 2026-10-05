@@ -8,6 +8,7 @@ data/processed/*
 # Dependencias y compilación
 node_modules/
 dist/
+dist-muestra/
 
 # Datos generados por tools/ (se regeneran; el juego publicado los lleva en dist/)
 public/assets/
