@@ -11,3 +11,6 @@ dist/
 
 # Datos generados por tools/ (se regeneran; el juego publicado los lleva en dist/)
 public/assets/
+
+# Caché de Python (también la crea Blender al importar tools/comun.py)
+__pycache__/
