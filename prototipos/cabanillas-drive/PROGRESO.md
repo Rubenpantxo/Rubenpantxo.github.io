@@ -1,14 +1,14 @@
 # PROGRESO — Cabanillas Drive
 
-**Fase actual:** 1 — Pipeline de datos **terminada**. **Parada obligatoria:** revisión de Rubén de las previews y decisión sobre commitear `public/assets/`. Siguiente: fase 2 (Blender).
+**Fase actual:** 2 — Escena 3D **terminada**. **Parada obligatoria:** revisión de Rubén en el visor (`npm run dev`). Siguiente: fase 3 (conducción).
 
 ## Fases
 
 | Fase | Descripción | Estado |
 |---|---|---|
 | 0 | Andamiaje | Hecha: `npm run dev` y `check_env.py` en `cabdrive` sin errores |
-| 1 | Pipeline de datos | Hecha (pendiente de revisión de Rubén) |
-| 2 | Escena 3D (Blender headless) | Pendiente |
+| 1 | Pipeline de datos | Hecha y revisada |
+| 2 | Escena 3D (Blender headless) | Hecha (pendiente de revisión de Rubén) |
 | 3 | Conducción | Pendiente |
 | 4 | HUD | Pendiente |
 | 5 | Rendimiento móvil | Pendiente |
@@ -36,7 +36,12 @@
 - [x] 1.4 `04_osm.py`: 423 elementos → 90 calles, 245 caminos, 5 agua, 58 usos, 13 POI. `osm.png`.
 - [x] `05_superposicion.py`: `superposicion.png` (2 px/m) y `superposicion_detalle.png` (400 m a 4 px/m). Huellas sobre tejados y ejes OSM sobre calzadas: alineados.
 - [x] Repetir 02–04 desde caché deja `public/assets/` idéntico (17,5 MB en 25 archivos; objetivo < 40 MB).
-- [ ] Rubén: revisar `data/processed/previews/` y decidir si `public/assets/` se commitea.
+- [x] Rubén revisó la fase 1 y decidió **no** commitear `public/assets/` (2026-10-05).
+
+### Fase 2
+- [x] 2.1 `tools/build_scene.py` (Blender 5.0.1, ~15 s): 16 chunks de terreno (4,2 M triángulos, UV a su tesela), 1815 edificios en 12 chunks con fachada en color de vértice y teja oscura. `cabanillas_raw.glb` (78 MB) y `cabanillas.blend`. Ningún edificio flota > 0,5 m (máx. 0,20 m) ni tiene el tejado bajo el terreno.
+- [x] 2.2 `npm run escena` (gltf-transform optimize, meshopt + WebP, simplificación con bordes bloqueados): **12,5 MB**; terreno 657 k triángulos, edificios 26 k. `public/assets/` total ≈ 30 MB.
+- [x] 2.3 Visor en `src/`: GLB + calles OSM sobre el terreno (L / botón para ocultarlas) y comprobación GLB ↔ terrain.f32 por rayos: media 1,0 cm, p95 2,8 cm, máx. 7,1 cm. Probado en escritorio y móvil, sin errores. `npm run build` correcto (dist 30 MB).
 
 ## Decisiones
 - Origen: E_centro 621972, N_centro 4654542, H_base 243,842 m (mínimo del MDT 0,5 m en la zona).
@@ -47,7 +52,12 @@
 - Edificios: el Catastro trocea las construcciones en volúmenes (mediana 46 m²); se respeta. En 70 edificios el techo medido por MDS difiere > 1 m (máx. 3 m) de base_y + height por estar en pendiente; se sigue el PLAN (p90 del nDSM). Coordenadas [x, z] con anillo exterior CCW en ese plano.
 - OSM: `highway=pedestrian` va a caminos (no se circula en coche). Overpass dio un 504 al primer intento y respondió al segundo.
 - `CATAST_Txt_EdifAlturas` trae rótulos de plantas (I, II, SS+II, PISCINA…): no se usa ahora; podría servir para afinar alturas o tipos más adelante.
-- `public/assets/` no se commitea todavía (terrain.f32 = 8 MB): se decide al cerrar la fase 1 para no inflar el historial del repo con binarios que se regeneran.
+- `public/assets/` **no se commitea** (decisión de Rubén): está en `.gitignore`; se regenera con los scripts y el juego publicado lo lleva en `dist/`.
+- Altura de edificios: p90 del **MDS** − base (en vez del p90 del nDSM del PLAN). En llano es lo mismo; en pendiente deja el tejado a su cota real (70 edificios ganaban hasta 3 m). Respaldo: nDSM y después la altura por defecto.
+- Ejes: Blender se construye en (x, −z, y) y se exporta +Y arriba, así el GLB queda en coordenadas locales del juego. Triángulos del terreno con diagonal NO–SE.
+- Terreno del GLB simplificado por meshoptimizer (error ≤ 0,01 % de la extensión ≈ 3,75 cm por chunk) con bordes bloqueados: sin grietas entre chunks. La física de la fase 3 usará terrain.f32, no el GLB.
+- El terreno se pinta sin iluminación (`MeshBasicMaterial`): la ortofoto ya trae la luz. Ajustable en `src/config/escena.js`.
+- `gltf-transform`: `--join false` para conservar los chunks (carga por distancia en la fase 5) y `--palette false`. Materiales de una sola cara.
 - `zona.geojson`: Rubén la dibujó girada; a petición suya, Claude la reescribió como rectángulo alineado con los ejes respetando su encuadre (2026-10-05).
 - La capa de edificios se llama `CATAST_Pol_Edificacion` en la descarga municipal; el script compara nombres sin `_`.
 - Ejecutar los scripts con `conda run -n cabdrive` (llamar al python.exe del entorno sin activar falla por GDAL_DATA/PROJ).
@@ -58,5 +68,6 @@
 - La escena usa el `Sky` de `three/examples/jsm` (viene en el paquete npm de three, no es un asset externo).
 
 ## Problemas abiertos
+- `public/assets/orto/` (9 MB) solo lo usa Blender; el GLB lleva su propia copia en WebP. Si el minimapa de la fase 4 no la usa, se puede sacar de `public/` para aligerar `dist/`.
 - `npm audit`: 3 vulnerabilidades altas, solo en dependencias de desarrollo (`@gltf-transform/cli`). Las de ejecución están limpias.
 - Si se publica esta carpeta tal cual en GitHub Pages, `prototipos/cabanillas-drive/index.html` no funciona sin compilar (imports de npm). El juego se publica desde `dist/` (PLAN §8).

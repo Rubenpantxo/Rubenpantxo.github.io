@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "escena": "gltf-transform optimize data/processed/cabanillas_raw.glb public/assets/cabanillas.glb --compress meshopt --texture-compress webp --join false --palette false --instance false --simplify-lock-border true"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.14.0",

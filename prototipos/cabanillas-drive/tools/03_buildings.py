@@ -3,8 +3,9 @@
 - Lee la capa de edificaciones (CATASTPolEdificacion / CATAST_Pol_Edificacion),
   la recorta a la zona y descarta polígonos de menos de 8 m².
 - Por edificio: base_y = mínimo del MDT bajo la huella (local, − H_base);
-  height = percentil 90 del nDSM dentro de la huella, limitado a [min, max] de
-  config.json; sin píxeles válidos → building_height_default_m.
+  height = percentil 90 del MDS dentro de la huella − base (en llano equivale al p90
+  del nDSM del PLAN; en pendiente deja el tejado a su cota real), limitado a
+  [min, max] de config.json. Sin MDS → p90 del nDSM; sin LiDAR → building_height_default_m.
 - Simplifica (0,3 m) y orienta los anillos: exterior CCW en el plano (x, z) tal
   como se guardan las coordenadas.
 
@@ -132,18 +133,26 @@ def main() -> int:
             falla(f"Edificio {i}: no hay MDT bajo la huella (no debería pasar tras el relleno de 1.1).")
         base = float(suelo.min())
 
+        # Tejado = p90 del MDS dentro de la huella. Se mide desde base_y (el punto más bajo
+        # del suelo) para que en pendiente el tejado quede a su cota real; en llano equivale
+        # al p90 del nDSM del PLAN, que queda como respaldo si falta el MDS.
+        techo = mds.bajo(poligono)
         sobre = ndsm.bajo(poligono)
-        if sobre.size:
+        if techo.size:
+            altura = float(np.percentile(techo, PERCENTIL_ALTURA)) - base
+            if sobre.size:
+                difs_techo.append(altura - float(np.percentile(sobre, PERCENTIL_ALTURA)))
+        elif sobre.size:
             altura = float(np.percentile(sobre, PERCENTIL_ALTURA))
-            techo_mds = mds.bajo(poligono)
-            if techo_mds.size:
-                difs_techo.append(float(np.percentile(techo_mds, PERCENTIL_ALTURA)) - base - altura)
+        else:
+            altura = None
+        if altura is None:
+            altura = h_def
+            sin_datos += 1
+        else:
             if altura < h_min or altura > h_max:
                 recortados += 1
             altura = min(max(altura, h_min), h_max)
-        else:
-            altura = h_def
-            sin_datos += 1
 
         simple = poligono.simplify(TOLERANCIA_SIMPLIFICAR_M, preserve_topology=True)
         if simple.is_empty or not simple.is_valid or simple.area < AREA_MIN_M2 / 2:
@@ -170,10 +179,10 @@ def main() -> int:
     alturas, bases, difs = np.array(alturas), np.array(bases), np.array(difs_techo)
     print(f"Alturas: p10 {np.percentile(alturas, 10):.1f} · mediana {np.median(alturas):.1f} · "
           f"p90 {np.percentile(alturas, 90):.1f} · máx {alturas.max():.1f} m")
-    print(f"  Limitadas a [{h_min:g}, {h_max:g}] m: {recortados} · sin nDSM válido (altura {h_def:g} m): {sin_datos}")
+    print(f"  Limitadas a [{h_min:g}, {h_max:g}] m: {recortados} · sin LiDAR válido (altura {h_def:g} m): {sin_datos}")
     print(f"base_y: {bases.min():.2f} – {bases.max():.2f} m")
-    print(f"Techo por MDS frente a base_y + height: {(np.abs(difs) > 1).sum()} edificios difieren más de 1 m "
-          f"(máx {np.abs(difs).max():.1f} m); suelen ser huellas en pendiente")
+    print(f"Altura por MDS frente a p90 del nDSM: {(np.abs(difs) > 1).sum()} edificios ganan más de 1 m "
+          f"(máx {np.abs(difs).max():.1f} m): son huellas en pendiente")
 
     # --- Vista previa: relieve en gris + huellas coloreadas por altura
     lienzo = Lienzo(origin, 2, fondo=sombreado(dir_assets(config) / "terrain"))
@@ -182,7 +191,7 @@ def main() -> int:
     escala = lambda h: rampa((h - 3) / 15, paradas, colores)  # noqa: E731  # 3 m → azul, 18 m → rojo
     for f in features:
         lienzo.geometria(f["geometry"], relleno=escala(f["properties"]["height"]), borde=(15, 15, 15), ancho=1)
-    lienzo.rotulo([f"Edificios: {len(features)} · altura = p{PERCENTIL_ALTURA} del nDSM", "Norte arriba · 2 px/m"],
+    lienzo.rotulo([f"Edificios: {len(features)} · altura = p{PERCENTIL_ALTURA} del MDS - base", "Norte arriba · 2 px/m"],
                   leyenda=[(f"{h} m", escala(h)) for h in (3, 6, 9, 12, 15, 18)])
     lienzo.guarda(dir_previews(config) / "alturas.png")
 

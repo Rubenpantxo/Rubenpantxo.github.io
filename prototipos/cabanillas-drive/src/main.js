@@ -1,86 +1,89 @@
-// Cabanillas Drive — fase 0: escena mínima para comprobar el andamiaje.
-// Convención: 1 unidad = 1 m, Y arriba, norte = −Z.
+// Cabanillas Drive — fase 2: visor de comprobación de la escena.
+// Carga el GLB (terreno + edificios), dibuja encima las calles de OSM y compara el
+// terreno del GLB con terrain.f32. Convención: 1 unidad = 1 m, Y arriba, norte = −Z.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import { CALIDAD } from './config/calidad.js';
+import { ESCENA } from './config/escena.js';
+import { cargaTerreno } from './datos/terreno.js';
+import { cargaEscena } from './escena/cargaEscena.js';
+import { creaEntorno } from './escena/entorno.js';
+import { compruebaTerreno } from './visor/comprobacion.js';
+import { cargaGeoJSON, lineasSobreTerreno } from './visor/lineas.js';
 
 const lienzo = document.getElementById('escena');
+const estado = document.getElementById('estado');
+const textoComprobacion = document.getElementById('comprobacion');
+const botonCalles = document.getElementById('botonCalles');
 
 const renderer = new THREE.WebGLRenderer({ canvas: lienzo, antialias: CALIDAD.antialias });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, CALIDAD.pixelRatioMax));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.6;
-renderer.shadowMap.enabled = CALIDAD.sombras;
+renderer.toneMappingExposure = 0.75;
 
 const escena = new THREE.Scene();
+creaEntorno(escena, ESCENA);
 
 const camara = new THREE.PerspectiveCamera(
-  55, window.innerWidth / window.innerHeight, CALIDAD.camaraCerca, CALIDAD.camaraLejos,
+  ESCENA.camara.fov, window.innerWidth / window.innerHeight, CALIDAD.camaraCerca, CALIDAD.camaraLejos,
 );
-camara.position.set(30, 10, 40);
+camara.position.set(...ESCENA.camara.posicion);
 
-// Cielo físico y sol
-const cielo = new Sky();
-cielo.scale.setScalar(10000);
-escena.add(cielo);
-
-const sol = new THREE.Vector3().setFromSphericalCoords(
-  1, THREE.MathUtils.degToRad(90 - 35), THREE.MathUtils.degToRad(200),
-);
-const uniformesCielo = cielo.material.uniforms;
-uniformesCielo.turbidity.value = 2;
-uniformesCielo.rayleigh.value = 2.5;
-uniformesCielo.mieCoefficient.value = 0.005;
-uniformesCielo.mieDirectionalG.value = 0.8;
-uniformesCielo.sunPosition.value.copy(sol);
-
-// Luces: ambiente hemisférico + direccional alineada con el sol del cielo
-escena.add(new THREE.HemisphereLight(0xbfd8ff, 0x8a7a5a, 0.9));
-
-const luzSol = new THREE.DirectionalLight(0xffffff, 2.2);
-luzSol.position.copy(sol).multiplyScalar(200);
-luzSol.castShadow = CALIDAD.sombras;
-luzSol.shadow.mapSize.setScalar(CALIDAD.tamanoMapaSombras);
-Object.assign(luzSol.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, near: 1, far: 500 });
-escena.add(luzSol);
-
-// Niebla suave para que el borde del suelo se funda con el horizonte
-escena.fog = new THREE.Fog(0xc9d6e3, 400, 1400);
-
-// Suelo provisional: plano gris de 3 × 3 km (el tamaño aproximado de la zona real)
-const suelo = new THREE.Mesh(
-  new THREE.PlaneGeometry(3000, 3000),
-  new THREE.MeshStandardMaterial({ color: 0x8c8c8c, roughness: 0.95 }),
-);
-suelo.rotation.x = -Math.PI / 2;
-suelo.receiveShadow = true;
-escena.add(suelo);
-
-// Cubo de referencia de 4 m para tener escala y una sombra visible
-const cubo = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 4, 4),
-  new THREE.MeshStandardMaterial({ color: 0xd9b77e, roughness: 0.8 }),
-);
-cubo.position.y = 2;
-cubo.castShadow = true;
-escena.add(cubo);
-
-// Cámara orbital (ratón y táctil)
 const controles = new OrbitControls(camara, lienzo);
-controles.target.set(0, 4, 0);
+controles.target.set(...ESCENA.camara.objetivo);
 controles.enableDamping = true;
-controles.maxPolarAngle = Math.PI / 2 - 0.05; // no bajar por debajo del suelo
+controles.maxPolarAngle = Math.PI / 2 - 0.03;
 controles.minDistance = 5;
-controles.maxDistance = 600;
+controles.maxDistance = ESCENA.camara.distanciaMax;
 
-function alRedimensionar() {
+let calles = null;
+function alternaCalles() {
+  if (!calles) return;
+  calles.visible = !calles.visible;
+  botonCalles.setAttribute('aria-pressed', String(calles.visible));
+}
+botonCalles.addEventListener('click', alternaCalles);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'l' || e.key === 'L') alternaCalles();
+});
+
+async function inicia() {
+  const [terreno, modelo, geoCalles] = await Promise.all([
+    cargaTerreno(ESCENA.rutaTerreno),
+    cargaEscena(renderer, ESCENA.rutaGlb, {
+      terrenoSinLuz: ESCENA.terrenoSinLuz,
+      alProgresar: (f) => { estado.textContent = `Cargando escena… ${Math.round(f * 100)} %`; },
+    }),
+    cargaGeoJSON(ESCENA.rutaCalles),
+  ]);
+  escena.add(modelo.raiz);
+  calles = lineasSobreTerreno(geoCalles, terreno, ESCENA.calles);
+  escena.add(calles);
+
+  const triangulos = (mallas) => mallas.reduce((s, m) => s + (m.geometry.index?.count ?? 0) / 3, 0);
+  estado.textContent = `Terreno ${Math.round(triangulos(modelo.terreno) / 1000)} k triángulos · `
+    + `edificios ${Math.round(triangulos(modelo.edificios) / 1000)} k · ${geoCalles.features.length} calles OSM`;
+
+  // Se deja pintar un fotograma antes de lanzar los rayos
+  requestAnimationFrame(() => {
+    const r = compruebaTerreno(modelo.terreno, terreno, ESCENA.puntosComprobacion);
+    textoComprobacion.textContent = `GLB vs terrain.f32 (${r.puntos} puntos): media ${(r.media * 100).toFixed(1)} cm · `
+      + `p95 ${(r.p95 * 100).toFixed(1)} cm · máx ${(r.maxima * 100).toFixed(1)} cm`;
+    console.info('[comprobación]', r);
+  });
+}
+
+inicia().catch((error) => {
+  estado.textContent = `Error: ${error.message}`;
+  console.error(error);
+});
+
+window.addEventListener('resize', () => {
   camara.aspect = window.innerWidth / window.innerHeight;
   camara.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-}
-window.addEventListener('resize', alRedimensionar);
+});
 
 renderer.setAnimationLoop(() => {
   controles.update();
