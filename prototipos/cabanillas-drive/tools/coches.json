@@ -1,0 +1,37 @@
+{
+  "_descripcion": "Modelos de coche descargados por Rubén (data/raw/coches/<id>/). largo_m = largo real; girar = grados alrededor de la vertical tras alinear el largo con el eje del coche (0 o 180 según hacia dónde mire el frontal); excluir = expresiones regulares de nombres de objeto que se quitan; pintura = expresiones de los materiales de carrocería (false = no se tiñe); rotar_objetos = correcciones de ejes por objeto; tris = presupuesto de triángulos propio.",
+  "tris_aparcado": 9000,
+  "tris_lejos": 1500,
+  "tris_jugador": 45000,
+  "lado_textura_max": 1024,
+  "modelos": [
+    {"id": "landcruiser", "archivo": "Toyota+Land+Cruiser.fbx", "largo_m": 4.95, "girar": 0, "jugador": true,
+     "excluir": ["Steer$"], "pintura": ["^Paint$"], "fuente": "3DExport (Toyota Land Cruiser)"},
+    {"id": "tesla", "archivo": "tesla_model_s_plaid_2023.glb", "largo_m": 5.02, "girar": 180, "pintura": false,
+     "fuente": "«Tesla model S Plaid 2023» de slowpoly (Sketchfab), CC-BY-4.0"},
+    {"id": "gclass", "archivo": "mercedes-benz_g-class_free_download.glb", "largo_m": 4.87, "girar": 0, "pintura": false,
+     "fuente": "«Mercedes-Benz G-Class Free Download» de slowpoly (Sketchfab), CC-BY-4.0"},
+    {"id": "maxus", "archivo": "Maxus T60 Double Cab.glb", "largo_m": 5.37, "girar": 0, "tris": 20000,
+     "pintura": ["Paint Gloss White"], "fuente": "3DExport (Maxus T60)"},
+    {"id": "byd", "archivo": "BYD Song Plus EV.glb", "largo_m": 4.78, "girar": 0, "un_coche": true,
+     "pintura": ["Carpaint"], "fuente": "3DExport (BYD Song Plus EV)"},
+    {"id": "civil05", "archivo": "CivilianVehicle05.FBX", "largo_m": 4.62, "girar": 0,
+     "excluir": ["LOD[1-9]", "_Col$", "USA", "Civil01", "Footsteps", "SteeringWheel"],
+     "rotar_objetos": [
+       {"patron": "^(BrakeLights|DayTimeLight|FogLight|MainLight|RearSideLight|ReverseLight|TurnSignal)", "eje": "X", "grados": 180},
+       {"patron": ".", "eje": "X", "grados": 90}
+     ],
+     "pintura": ["^Paint$"], "fuente": "3DExport (Civilian Vehicle 05)"},
+    {"id": "gris", "archivo": "grey car fbx.FBX", "largo_m": 4.68, "girar": 0, "pintura": ["^asdasd$"], "fuente": "3DExport (Grey car)"},
+    {"id": "kuga", "archivo": "Kuga2017_FBX.fbx", "largo_m": 4.52, "girar": 180, "excluir": ["INTERIOR"],
+     "pintura": ["CARSKIN"], "fuente": "3DExport (Ford Kuga 2017)"},
+    {"id": "coche14", "archivo": "car.obj", "largo_m": 4.74, "girar": 0, "excluir": ["^Plane"], "fuente": "Car (14-car.zip)"},
+    {"id": "coche43", "archivo": "202009122216-2.blend", "largo_m": 4.26, "girar": 180, "excluir": ["^Plane", "^Cube"],
+     "un_coche": true, "pintura": ["^CARR$"], "fuente": "Car (43-202009122216-2.zip)"},
+    {"id": "challenger", "archivo": "Challenger.blend", "largo_m": 5.02, "girar": 0, "excluir": ["^Plane\\.00[23]$"], "pintura": ["^Material$"],
+     "fuente": "Dodge Challenger (89-challenger.zip)"},
+    {"id": "bmw", "archivo": "Car/Car.fbx/car.fbx", "largo_m": 4.86, "girar": 0, "pintura": ["^Gray8$"], "fuente": "Car (3vhh1v51xvk0-Car.rar)"},
+    {"id": "cls", "archivo": "Mercedes-CLS500-2021-Corona.fbx", "largo_m": 4.94, "girar": 180, "pintura": ["CLS500-025$"],
+     "fuente": "3DExport (Mercedes CLS500 2021)"}
+  ]
+}

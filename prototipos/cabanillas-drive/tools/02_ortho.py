@@ -183,9 +183,30 @@ def main() -> int:
     with rasterio.open(processed / "orto_mosaico.tif", "w", **perfil) as ds:
         ds.write(np.moveaxis(imagen, -1, 0))
 
-    # Teselas para el juego (se borran las de una rejilla anterior)
+    total = escribe_teselas(imagen, config, origin, fuente)
+    Image.fromarray(imagen).resize((round(ancho), round(alto)), Image.LANCZOS).save(
+        dir_previews(config) / "orto.jpg", quality=88, optimize=True)
+
+    print(f"\nSalidas:\n  {dir_orto} — {n * n} teselas, {total / 1_048_576:.1f} MB en total\n"
+          f"  {processed / 'orto_mosaico.tif'}\n  {dir_previews(config) / 'orto.jpg'}")
+    print("  Si se usan coches 3D, vuelve a ejecutar 07_coches_orto.py (borra los coches de las teselas)")
+    return 0
+
+
+def escribe_teselas(imagen: np.ndarray, config: dict, origin: dict, fuente: str) -> int:
+    """Corta la ortofoto (H × W × 3, cubre la zona) en la rejilla N×N alineada con el
+    terreno y escribe orto_{fila}_{col}.jpg + orto.json. Devuelve los bytes escritos.
+    También la usa 07_coches_orto.py para publicar la ortofoto sin coches."""
+    dir_orto = dir_assets(config) / "orto"
+    dir_orto.mkdir(parents=True, exist_ok=True)
+    terreno = json.loads((dir_assets(config) / "terrain" / "terrain.json").read_text(encoding="utf-8"))
+    px_m = float(config["ortho_px_per_m"])
+    ancho, alto = origin["ancho"], origin["alto"]
+    ancho_px, alto_px = imagen.shape[1], imagen.shape[0]
+    n, tx, tz, tpx_x, tpx_z = rejilla_teselas(ancho, alto, px_m, terreno["paso_m"], int(config["ortho_tile_px"]))
+
     calidad = int(config.get("ortho_jpeg_quality", 85))
-    for viejo in dir_orto.glob("orto_*.jpg"):
+    for viejo in dir_orto.glob("orto_*.jpg"):    # las de una rejilla anterior
         viejo.unlink()
     teselas = []
     total = 0
@@ -210,13 +231,7 @@ def main() -> int:
         "teselas": teselas,
     }
     (dir_orto / "orto.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-    Image.fromarray(imagen).resize((round(ancho), round(alto)), Image.LANCZOS).save(
-        dir_previews(config) / "orto.jpg", quality=88, optimize=True)
-
-    print(f"\nSalidas:\n  {dir_orto} — {n * n} teselas, {total / 1_048_576:.1f} MB en total\n"
-          f"  {processed / 'orto_mosaico.tif'}\n  {dir_previews(config) / 'orto.jpg'}")
-    return 0
+    return total
 
 
 if __name__ == "__main__":

@@ -1,15 +1,17 @@
 // Coche con DynamicRayCastVehicleController de Rapier: chasis caja, 4 ruedas, tracción trasera.
 // Ejes locales del chasis: Y = arriba, Z = adelante (la izquierda es +X).
+// El modelo 3D manda: largo, ancho, posición y radio de las ruedas salen de él.
 import * as THREE from 'three';
 import { VEHICULO } from '../config/vehiculo.js';
-import { creaModeloCoche } from './modeloCoche.js';
+import { preparaCocheJugador } from '../escena/coches.js';
 
 const DELANTERAS = [0, 1];
 const TRASERAS = [2, 3];
 
-export function creaCoche(fisica, escena) {
+export function creaCoche(fisica, escena, modeloJugador) {
   const { RAPIER, mundo } = fisica;
   const { chasis, ruedas, motor, frenos, direccion } = VEHICULO;
+  const pieza = preparaCocheJugador(modeloJugador, VEHICULO.color);
 
   const cuerpo = mundo.createRigidBody(
     RAPIER.RigidBodyDesc.dynamic()
@@ -18,7 +20,13 @@ export function creaCoche(fisica, escena) {
       .setLinearDamping(chasis.amortiguacionLineal)
       .setAngularDamping(chasis.amortiguacionAngular),
   );
-  const { masa: m, ancho: a, alto: h, largo: l } = chasis;
+  // Caja de colisión: el largo y ancho del modelo, levantada alturaLibre del suelo.
+  // El origen del cuerpo es el centro de esa caja, a h0 sobre el suelo en reposo.
+  const m = chasis.masa;
+  const l = modeloJugador.info.largo;
+  const a = Math.min(modeloJugador.info.ancho, chasis.anchoMax);
+  const h = chasis.altoCaja;
+  const h0 = chasis.alturaLibre + h / 2;
   const inercia = { x: (m / 12) * (h * h + l * l), y: (m / 12) * (a * a + l * l), z: (m / 12) * (a * a + h * h) };
   const collider = mundo.createCollider(
     RAPIER.ColliderDesc.cuboid(a / 2, h / 2, l / 2)
@@ -30,16 +38,14 @@ export function creaCoche(fisica, escena) {
   const vehiculo = mundo.createVehicleController(cuerpo);
   vehiculo.indexUpAxis = 1;
   vehiculo.setIndexForwardAxis = 2;
-  // Orden: 0 delantera izquierda, 1 delantera derecha, 2 trasera izquierda, 3 trasera derecha
-  const anclajes = [
-    [ruedas.via / 2, ruedas.alturaAnclaje, ruedas.distanciaEjes / 2],
-    [-ruedas.via / 2, ruedas.alturaAnclaje, ruedas.distanciaEjes / 2],
-    [ruedas.via / 2, ruedas.alturaAnclaje, -ruedas.distanciaEjes / 2],
-    [-ruedas.via / 2, ruedas.alturaAnclaje, -ruedas.distanciaEjes / 2],
-  ];
+  // Orden: 0 delantera izquierda, 1 delantera derecha, 2 trasera izquierda, 3 trasera derecha.
+  // Anclaje = centro de la rueda del modelo + recorrido de reposo: en reposo la rueda queda
+  // donde la dibujó el modelo y toca el suelo.
+  const anclajes = pieza.ruedas.map((r) => [r.centro.x, r.centro.y - h0 + ruedas.suspensionReposo, r.centro.z]);
   for (let i = 0; i < anclajes.length; i++) {
     const [x, y, z] = anclajes[i];
-    vehiculo.addWheel({ x, y, z }, { x: 0, y: -1, z: 0 }, { x: -1, y: 0, z: 0 }, ruedas.suspensionReposo, ruedas.radio);
+    vehiculo.addWheel({ x, y, z }, { x: 0, y: -1, z: 0 }, { x: -1, y: 0, z: 0 }, ruedas.suspensionReposo,
+      pieza.ruedas[i].radio);
     vehiculo.setWheelMaxSuspensionTravel(i, ruedas.recorridoMax);
     vehiculo.setWheelSuspensionStiffness(i, ruedas.rigidez);
     vehiculo.setWheelSuspensionCompression(i, ruedas.compresion);
@@ -49,7 +55,12 @@ export function creaCoche(fisica, escena) {
     vehiculo.setWheelSideFrictionStiffness(i, ruedas.rigidezLateral);
   }
 
-  const modelo = creaModeloCoche(chasis, ruedas);
+  // Contenedor que sigue al cuerpo físico; el modelo va desplazado −h0 (su suelo en y = 0)
+  const modelo = { grupo: new THREE.Group(), ruedas: pieza.ruedas };
+  modelo.grupo.name = 'coche_jugador';
+  pieza.grupo.position.y = -h0;
+  modelo.grupo.add(pieza.grupo);
+  for (const r of pieza.ruedas) modelo.grupo.add(r.pivote);
   escena.add(modelo.grupo);
 
   let volante = 0;          // ángulo actual de la dirección (rad)

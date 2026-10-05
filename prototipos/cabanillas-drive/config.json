@@ -9,6 +9,8 @@
   "ortho_tile_px": 2048,
   "ortho_jpeg_quality": 85,
   "ortho_wms_url": "https://www.ign.es/wms-inspire/pnoa-ma",
+  "detector_coches": "yolo11m-obb.pt",
+  "detector_confianza": 0.15,
   "building_height_default_m": 6.0,
   "building_height_min_m": 2.5,
   "building_height_max_m": 40.0,

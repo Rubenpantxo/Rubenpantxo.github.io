@@ -1,6 +1,15 @@
-// Cielo, luces y niebla comunes a todas las vistas.
+// Cielo, luces, reflejos y niebla comunes a todas las vistas.
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
+
+// Mapa de reflejos suave para que la pintura y los cristales de los coches brillen
+export function creaReflejos(renderer, escena, intensidad = 0.55) {
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  escena.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  escena.environmentIntensity = intensidad;
+  pmrem.dispose();
+}
 
 export function creaEntorno(escena, ajustes) {
   const { sol, niebla } = ajustes;
