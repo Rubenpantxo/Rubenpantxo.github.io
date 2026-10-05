@@ -9,10 +9,12 @@ import { cargaCielo, creaEntorno } from './escena/entorno.js';
 import { configuraSombras, creaRender } from './escena/render.js';
 import { creaCicloDia } from './escena/cicloDia.js';
 import { creaPantallas } from './hud/pantallas.js';
+import { vigilaDescargas } from './hud/progresoCarga.js';
 import { iniciaJuego } from './juego/juego.js';
 import { iniciaVisor } from './visor/visor.js';
 import { iniciaVisorArboles } from './visor/visorArboles.js';
 
+vigilaDescargas();   // antes de la primera descarga: la barra de inicio cuenta todos los bytes
 const parametros = new URLSearchParams(location.search);
 if (parametros.has('debug')) console.info(`[calidad] nivel ${CALIDAD.nivel}`, CALIDAD);
 const esJuego = !parametros.has('visor') && !parametros.has('arboles');
@@ -25,9 +27,11 @@ const ui = {
 const estadoJuego = ui.estado;
 let api = null;
 let tactilVisible = false;
+let pistaMostrada = false;
 const pantallas = creaPantallas({
   alCambiar(estado) {
     const jugando = estado === 'jugando';
+    if (jugando && !pistaMostrada && esJuego) muestraPista();
     api?.ponPausa(!jugando);
     // Los mandos táctiles solo con el juego en marcha (vuelven si ya se estaban usando)
     if (!jugando) {
@@ -39,6 +43,12 @@ const pantallas = creaPantallas({
     }
   },
 });
+// Al empezar a jugar, un recordatorio de dónde están los controles
+function muestraPista() {
+  if (!api) return;
+  pistaMostrada = true;
+  api.avisa(matchMedia('(pointer: coarse)').matches ? '☰: pausa y controles' : 'Esc: pausa y controles', 6);
+}
 if (esJuego) ui.estado = pantallas.textoCarga;   // durante la carga, el progreso va a la pantalla de inicio
 else pantallas.omite();
 
@@ -54,7 +64,7 @@ renderer.domElement.addEventListener('webglcontextlost', (ev) => {
   ev.preventDefault();
   const aviso = 'La gráfica se ha quedado sin memoria: cierra otras pestañas con el juego o baja la calidad, y recarga';
   ui.estado.textContent = aviso;
-  document.getElementById('estado-carga').textContent = aviso;
+  pantallas.textoCarga.textContent = aviso;
   console.warn('[render] contexto WebGL perdido');
 });
 renderer.domElement.addEventListener('webglcontextrestored', () => location.reload());

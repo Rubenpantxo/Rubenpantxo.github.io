@@ -77,6 +77,17 @@
   - Calidad alta más robusta: el AO no se crea a 0×0 si la página se abre en un panel oculto y se avisa si la GPU
     retira el contexto WebGL (pasaba con varias pestañas del juego abiertas a la vez en calidad alta).
 
+- [x] Pantallas (petición de Rubén, 2026-10-05): inicio solo con la portada (`public/ui/portada.webp`, imagen de
+  Rubén), barra de carga, Jugar, Calidad y Hora; sin lema, sin párrafo de controles y sin Créditos (siguen en la pausa).
+  La barra cuenta los bytes de **todas** las descargas (`src/hud/progresoCarga.js` envuelve `fetch`; antes solo el GLB y se
+  quedaba parada al 100 %), con estimación por nivel en `calidad.js` (`descargaEstimadaMB`: 22 alto/medio, 13 bajo).
+  Si en 25 s no avanza nada, ofrece «Recargar» y «Probar con calidad baja». El desplegable de Hora tiene sus opciones desde
+  el principio (antes esperaba al cielo y salía vacío); lo elegido antes de cargar se aplica al crear el ciclo.
+  Pausa: Continuar, **Controles** (captura del juego con marcas numeradas y leyenda; pestañas teclado / táctil, empieza
+  por la del aparato; capturas en `public/ui/controles_*.webp`), Ir a…, Calidad, Hora y Créditos. Al empezar a jugar
+  aparece 6 s «Esc / ☰: pausa y controles». Medido en local: 2,6 s en frío (escritorio, 22 MB por fetch), 0,7 s en móvil.
+  Abierto: en móvil apaisado el velocímetro tapa parte del botón ▲.
+
 ### Fase 2b — Aspecto individual de los edificios (petición de Rubén, 2026-10-05)
 - [x] `03_buildings.py` lee los rótulos `CATAST_Txt_EdifAlturas`: plantas reales (1101 de 1 planta, 653 de 2, 55 de 3, 3 de 4), porches/tejavanas (168) y singulares; descarta sótanos sin nada sobre rasante. Marca 4503 lados medianeros.
 - [x] `06_aspecto.py`: atlas `tejados.jpg` (4096×2048, 1,7 MB) con la ortofoto de cada tejado y 1556 fachadas a la calle.

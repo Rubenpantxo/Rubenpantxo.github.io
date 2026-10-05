@@ -13,6 +13,8 @@ export const NIVELES = {
     distanciaEdificiosDetalle: 700, sombrasEdificios: true, unirMaterialesCoche: false,
     terreno: 'assets/cabanillas.glb', atlasTejados: 'assets/tejados.jpg',
     niebla: null, camaraLejos: 6000,
+    // Descarga aproximada (MB): la barra de carga no baja de aquí hasta conocer los tamaños reales
+    descargaEstimadaMB: 22,
     // Resolución dinámica: si los FPS caen del objetivo, baja la resolución interna (hasta el mínimo)
     resolucionDinamica: { objetivoFps: 45, minimo: 0.75 },
   },
@@ -25,7 +27,7 @@ export const NIVELES = {
     distanciaCochesDetalle: 55, distanciaCochesLejos: 120, distanciaCochesMax: 600,
     distanciaEdificiosDetalle: 400, sombrasEdificios: true, unirMaterialesCoche: false,
     terreno: 'assets/cabanillas.glb', atlasTejados: 'assets/tejados.jpg',
-    niebla: null, camaraLejos: 6000,
+    niebla: null, camaraLejos: 6000, descargaEstimadaMB: 22,
     resolucionDinamica: { objetivoFps: 35, minimo: 0.7 },
   },
   // Móvil: terreno simplificado con ortofoto a 768 px, atlas de tejados a la mitad, niebla
@@ -41,7 +43,7 @@ export const NIVELES = {
     // calculan; y el coche del jugador agrupa sus materiales (menos llamadas de dibujo)
     distanciaEdificiosDetalle: 160, sombrasEdificios: false, unirMaterialesCoche: true,
     terreno: 'assets/cabanillas_bajo.glb', atlasTejados: 'assets/tejados_bajo.jpg',
-    niebla: { cerca: 450, lejos: 1300 }, camaraLejos: 1400,
+    niebla: { cerca: 450, lejos: 1300 }, camaraLejos: 1400, descargaEstimadaMB: 13,
     resolucionDinamica: { objetivoFps: 30, minimo: 0.6 },
   },
 };
