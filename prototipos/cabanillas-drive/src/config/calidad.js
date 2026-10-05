@@ -7,5 +7,5 @@ export const CALIDAD = {
   tamanoMapaSombras: 2048,
   // Planos de recorte de la cámara, en metros
   camaraCerca: 0.5,
-  camaraLejos: 5000,
+  camaraLejos: 6000,
 };
