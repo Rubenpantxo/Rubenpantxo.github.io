@@ -20,6 +20,12 @@ condiciones de cada web antes de publicar el juego.
 - Cortezas: Poly Haven (CC0) y TextureCan (CC0), incluidas en EZ-Tree.
 - Palmeras, racimos de hojas y mechones de hierba: dibujados por los scripts del proyecto.
 
+## Elementos urbanos
+- Posición de bancos, mesas, fuentes, señales, hitos, paneles, parada, piscinas, campos, gradas, parques
+  infantiles y números de portal: © colaboradores de OpenStreetMap (ODbL). Los modelos son genéricos,
+  hechos por `src/escena/elementos.js`; el plano de los paneles se dibuja con las calles de OSM y los
+  edificios del Catastro.
+
 ## Personas (peatones)
 - Cuerpos, pieles, ojos, cejas, pestañas, pelo y ropa: recursos de la comunidad MakeHuman (CC0):
   makehuman_system_assets, hair01, shoes01, pants01, shirts01, skirts01, skins01 y skins02, en
