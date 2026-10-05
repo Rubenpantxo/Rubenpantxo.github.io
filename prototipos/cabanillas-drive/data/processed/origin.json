@@ -1,0 +1,14 @@
+{
+  "E_centro": 621972.0,
+  "N_centro": 4654542.0,
+  "H_base": 243.842,
+  "ancho": 1500.0,
+  "alto": 1400.0,
+  "crs": "EPSG:25830",
+  "E_min": 621222.0,
+  "E_max": 622722.0,
+  "N_min": 4653842.0,
+  "N_max": 4655242.0,
+  "convencion": "1 unidad = 1 m; x = E − E_centro; z = −(N − N_centro) (norte = −Z); y = altura − H_base",
+  "H_base_origen": "mínimo del MDT a 0.5 m dentro de la zona"
+}
