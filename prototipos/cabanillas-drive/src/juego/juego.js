@@ -14,6 +14,7 @@ import { cargaModelosCoches, colisionaCochesAparcados, creaCochesAparcados } fro
 import { creaReflejos } from '../escena/entorno.js';
 import { creaHud } from '../hud/hud.js';
 import { creaCarteles } from '../escena/carteles.js';
+import { cargaMuros, creaMuros } from '../escena/muros.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
 import { creaLuces } from './luces.js';
@@ -33,7 +34,7 @@ const DISTANCIAS_COCHES = {
 export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   ui.estado.textContent = 'Cargando Cabanillas…';
   creaReflejos(renderer, escena);
-  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos] = await Promise.all([
+  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos, datosMuros] = await Promise.all([
     cargaMundo(renderer, ESCENA, {
       alProgresar: (f) => { ui.estado.textContent = `Cargando escena… ${Math.round(f * 100)} %`; },
     }),
@@ -45,6 +46,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     cargaVegetacion(ESCENA.rutaVegetacion),
     cargaGeoJSON(ESCENA.rutaPoi).catch(() => null),
     cargaGeoJSON(ESCENA.rutaCaminos).catch(() => null),
+    cargaMuros(ESCENA.rutaMuros),
   ]);
   escena.add(mundo.raiz);
   const cochesAparcados = creaCochesAparcados(modelosCoches, aparcados, mundo.terreno, { excluir: [VEHICULO.modelo] });
@@ -58,6 +60,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   const fisica = await creaFisica(mundo.terreno, mundo.geoEdificios);
   colisionaCochesAparcados(fisica, cochesAparcados.colocados);
   colisionaArboles(fisica, arboles.colocados);
+  const muros = creaMuros(datosMuros, mundo.terreno, fisica);
+  escena.add(muros.raiz);
   const colisiones = creaGestorColisiones(fisica, { radio: CALIDAD.radioColisiones });
   const nodos = nodosDeCalles(geoCalles);
   const coche = creaCoche(fisica, escena, modelosCoches[VEHICULO.modelo]);
@@ -288,7 +292,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   }
 
   const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico, peaton,
-    get aPie() { return aPie; }, bajarse, subirse, irA, avisa, carteles, luces, ciclo, peatones,
+    get aPie() { return aPie; }, bajarse, subirse, irA, avisa, carteles, luces, ciclo, peatones, muros,
     lugares: carteles.lugares.map(({ nombre, icono }) => ({ nombre, icono })),
     get fps() { return fps; },
     get pausado() { return pausado; },

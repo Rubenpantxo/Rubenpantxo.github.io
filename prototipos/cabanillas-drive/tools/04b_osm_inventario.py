@@ -56,7 +56,10 @@ def pide_overpass(config: dict, consulta: str) -> dict:
 
 def lee_osm(ruta) -> dict:
     """XML de la API de OSM → mismo formato que Overpass (solo lo que usa el inventario)."""
-    import xml.etree.ElementTree as ET
+    try:
+        import defusedxml.ElementTree as ET
+    except ImportError:
+        import xml.etree.ElementTree as ET
     raiz = ET.parse(ruta).getroot()
     elementos = []
     for el in raiz:
