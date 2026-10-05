@@ -5,7 +5,9 @@
 - Edificios: extrusión de buildings.geojson (base en base_y, techo plano en
   base_y + height), agrupados por chunk. Fachada con colores ocre/blanco de la Ribera
   (variación por edificio en color de vértice) y techo de teja oscura.
-- Exporta <processed>/cabanillas_raw.glb (+Y arriba) y guarda <processed>/cabanillas.blend.
+- Exporta <processed>/cabanillas_raw.glb (+Y arriba) SOLO con el terreno y guarda la
+  escena completa en <processed>/cabanillas.blend. Los edificios del juego se generan en
+  el navegador (src/escena/edificios.js) con tejado de ortofoto y fachadas procedurales.
 
 Ejes: Blender es Z arriba. Se construye en (X, Y, Z) = (x, −z, y) para que, al exportar
 con +Y arriba (glTF: x, Z, −Y), el GLB quede en coordenadas locales (x, y, z) del juego.
@@ -209,11 +211,16 @@ def altura_terreno(alturas, meta, x, z):
     return (h00 * (1 - tc) + h01 * tc) * (1 - tf) + (h10 * (1 - tc) + h11 * tc) * tf
 
 
-def exporta_glb(ruta):
+def exporta_glb(ruta, objetos):
+    """Exporta solo `objetos`. Los edificios del juego se generan en el navegador desde
+    buildings.geojson (tejado con ortofoto y fachadas procedurales); aquí quedan en el
+    .blend para revisarlos."""
+    for obj in bpy.context.scene.objects:
+        obj.select_set(obj in objetos)
     opciones = dict(filepath=str(ruta), export_format="GLB", export_yup=True, export_apply=True,
                     export_texcoords=True, export_normals=True, export_materials="EXPORT",
                     export_image_format="AUTO", export_vertex_color="MATERIAL", export_cameras=False,
-                    export_lights=False, use_selection=False, export_extras=False)
+                    export_lights=False, use_selection=True, export_extras=False)
     disponibles = set(bpy.ops.export_scene.gltf.get_rna_type().properties.keys())
     bpy.ops.export_scene.gltf(**{k: v for k, v in opciones.items() if k in disponibles})
 
@@ -235,12 +242,13 @@ def main():
 
     # --- Terreno
     tris_terreno = 0
+    terreno = []
     for tesela in orto["teselas"]:
         nombre = f"terreno_{tesela['fila']}_{tesela['col']}"
         malla, n = malla_terreno(nombre, alturas, meta, tesela)
         malla.materials.append(material_orto(f"orto_{tesela['fila']}_{tesela['col']}",
                                              assets / "orto" / tesela["archivo"]))
-        nuevo_objeto(nombre, malla)
+        terreno.append(nuevo_objeto(nombre, malla))
         tris_terreno += n
     print(f"Terreno: {tris_terreno:,} triángulos ({time.time() - t0:.0f} s)")
 
@@ -293,8 +301,8 @@ def main():
 
     # --- Exportación
     ruta_glb = processed / "cabanillas_raw.glb"
-    exporta_glb(ruta_glb)
-    print(f"GLB: {ruta_glb} ({ruta_glb.stat().st_size / 1_048_576:.1f} MB)")
+    exporta_glb(ruta_glb, terreno)
+    print(f"GLB (solo terreno): {ruta_glb} ({ruta_glb.stat().st_size / 1_048_576:.1f} MB)")
 
     ruta_blend = processed / "cabanillas.blend"
     bpy.ops.file.pack_all()
