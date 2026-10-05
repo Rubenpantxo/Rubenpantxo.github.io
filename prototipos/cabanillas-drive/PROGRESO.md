@@ -1,6 +1,6 @@
 # PROGRESO — Cabanillas Drive
 
-**Fase actual:** 4 — HUD **terminada** (2026-10-05). **Parada obligatoria:** Rubén la prueba (`npm run dev`, escritorio y móvil). Siguiente: fase 5 (rendimiento móvil); R4 (splats) cuando haya capturas.
+**Fase actual:** 5 — Rendimiento móvil **terminada en lo medible desde el PC** (2026-10-05). **Parada obligatoria:** Rubén la prueba en su Android (`npm run dev:red` y abrir `http://<IP del PC>:5173/?debug=1` en el móvil, misma wifi). Siguiente: R4 (splats) cuando haya capturas; fase 6 solo si Rubén la pide.
 
 **Siguiente (decidido por Rubén el 2026-10-05):** plan de realismo en `PLAN_REALISMO.md` (R1 árboles y vegetación → R2 tejados LiDAR → R3 render → R4 splats), antes de la fase 4. Pausa pedida por Rubén para recargar su uso.
 - **R1 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/08_arboles.py` (4 640 árboles del LiDAR, tipos con correcciones en `tools/arboles_tipos.json`, troncos fuera de la calzada) → `tools/texturas_arboles.py` → `npm run arboles` (9 variantes EZ-Tree/palmera, 0,9 MB) → `src/escena/arboles.js` (3D a < 90 m, impostores más lejos, viento, cilindro de colisión por tronco). `tools/08b_vegetacion_baja.py` → `src/escena/hierba.js` (césped y rastrojo en 3D a < 60 m con el color de la ortofoto). Galería de modelos: `?arboles`. Coste medido: ~1,7 ms por fotograma en la zona más cargada. R1 aprobado.
@@ -18,7 +18,7 @@
 | 2 | Escena 3D (Blender headless) | Hecha y revisada; edificios con aspecto individual |
 | 3 | Conducción | Hecha (pendiente de revisión de Rubén) |
 | 4 | HUD | Hecha, pendiente del OK |
-| 5 | Rendimiento móvil | Pendiente |
+| 5 | Rendimiento móvil | Hecha, falta medir en un Android real |
 | 6 | Extras (solo si Rubén lo pide) | — |
 
 ## Hecho
@@ -39,6 +39,28 @@
   brújula en franja con grados, pantalla de inicio (progreso de carga, Jugar, calidad, controles), pausa (Esc/P/☰) con
   la cámara girando alrededor del coche y la física parada, y créditos con todas las atribuciones. Ajustes en
   `src/config/hud.js`. Diseño adaptado a móvil (pantalla táctil: minimapa y velocímetro arriba).
+- [x] Fase 5 (rendimiento móvil), medido en el PC con calidad «bajo» y pantalla de móvil (375×812):
+  | | antes | después |
+  |---|---|---|
+  | paso de física (Rapier) | 4,8 ms | 0,17 ms |
+  | llamadas de dibujo (calle) | 586 | 124–130 |
+  | triángulos (calle) | 2,47 M | 0,53 M |
+  | CPU de render (calle) | 20,8 ms | 2,4 ms |
+  | memoria de texturas | 271 MB | ~105 MB |
+  | descarga del móvil | ~43 MB | ~20 MB |
+  - Física: los obstáculos fijos (edificios, árboles, coches aparcados) se activan solo cerca del coche
+    (`creaGestorColisiones`, radio 45 m + anticipación 0,8 s). Con los 6 723 activos cada paso costaba ~5 ms.
+  - Coches aparcados en 3 niveles: modelo completo / versión ligera / coche genérico instanciado (2 llamadas para
+    todos); más allá del máximo no se dibujan. Mallas vacías ocultas (no piden llamadas).
+  - Edificios por celdas de 250 m con LOD: techo plano para todos y tejados del LiDAR solo en las celdas cercanas
+    (se generan al acercarse y se liberan al alejarse).
+  - Calidad «bajo»: terreno simplificado (error ≤ 8 cm) con ortofoto a 768 px (`cabanillas_bajo.glb`), atlas de
+    tejados a la mitad, niebla y plano lejano a 1,3–1,4 km, sin sombras de edificios (ya están pintadas en la foto),
+    coche del jugador con materiales agrupados (36 → 12 piezas), proporción de píxeles 1 y resolución dinámica
+    (objetivo 30 FPS, mínimo 60 %).
+  - Alturas en Uint16 (`terrain.u16`, la mitad que el Float32). `npm run movil` genera las variantes.
+  - Contador con `?debug=1`: FPS, ms, llamadas, triángulos, colisiones activas, calidad y resolución.
+  - Falta: medir en un Android de gama media real (objetivo ≥ 30 FPS en «bajo»).
 
 ### Fase 2b — Aspecto individual de los edificios (petición de Rubén, 2026-10-05)
 - [x] `03_buildings.py` lee los rótulos `CATAST_Txt_EdifAlturas`: plantas reales (1101 de 1 planta, 653 de 2, 55 de 3, 3 de 4), porches/tejavanas (168) y singulares; descarta sótanos sin nada sobre rasante. Marca 4503 lados medianeros.
@@ -79,7 +101,7 @@
 
 ## Decisiones
 - Rubén pide usar todos sus modelos de coche aunque no traigan licencia (2026-10-05): se salta la regla de assets de CLAUDE.md para ellos. Atribuciones en `CREDITOS.md`. Los 2 de slowpoly son CC-BY-4.0.
-- Pipeline completo: 00 → 01 → 02 → 03 → 04 → 05 → 06 → 07_coches_orto → 08_arboles → 08b_vegetacion_baja → 09_tejados → 10_sol → 11_suelo → 12_cielo → Blender `build_scene.py` → `npm run escena`; coches: Blender `build_coches.py` → `npm run coches`; árboles: `texturas_arboles.py` → `npm run arboles`.
+- Pipeline completo: 00 → 01 → 02 → 03 → 04 → 05 → 06 → 07_coches_orto → 08_arboles → 08b_vegetacion_baja → 09_tejados → 10_sol → 11_suelo → 12_cielo → Blender `build_scene.py` → `npm run escena` → `npm run movil` (variantes para móvil y alturas Uint16); coches: Blender `build_coches.py` → `npm run coches`; árboles: `texturas_arboles.py` → `npm run arboles`.
 - Edificios del juego generados en el navegador desde buildings.geojson (no desde el GLB): mismo dato para gráficos y física, atributos por muro para las fachadas procedurales y sin problemas de cuantización de UV en gltf-transform.
 - Los rótulos PAV/J/SUELO/PISCINA del Catastro están fuera de las huellas de edificación (son patios de parcela): no generaban cajas falsas.
 - Ejes del coche: Z adelante, Y arriba (la izquierda es +X). `setIndexForwardAxis = 2`, eje de rueda (−1, 0, 0): comprobado que la fuerza positiva empuja hacia delante y que D gira a la derecha.
@@ -108,7 +130,7 @@
 - La escena usa el `Sky` de `three/examples/jsm` (viene en el paquete npm de three, no es un asset externo).
 
 ## Problemas abiertos
-- `public/assets/orto/` (9 MB) solo lo usa Blender; el GLB lleva su propia copia en WebP. Si el minimapa de la fase 4 no la usa, se puede sacar de `public/` para aligerar `dist/`.
+- Resuelto en la fase 5: `vite.config.js` quita de `dist/` las teselas de `assets/orto/` y `terrain.f32` (solo los usa el pipeline).
 - El JS del juego pesa 2,7 MB (939 KB gzip), casi todo Rapier con el wasm incrustado (`-compat`). Se puede revisar en la fase 5.
 - El modelo del coche es sencillo (primitivas); mejorable si Rubén quiere.
 - `npm audit`: 3 vulnerabilidades altas, solo en dependencias de desarrollo (`@gltf-transform/cli`). Las de ejecución están limpias.

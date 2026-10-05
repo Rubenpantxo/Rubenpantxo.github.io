@@ -30,11 +30,15 @@ export async function cargaMundo(renderer, ajustes, { alProgresar } = {}) {
   const cargadorTexturas = new THREE.TextureLoader();
   const [terreno, modelo, orto, geoEdificios, aspecto, atlas, tejados, detalleSuelo] = await Promise.all([
     cargaTerreno(ajustes.rutaTerreno),
-    cargaEscena(renderer, ajustes.rutaGlb, { terrenoSinLuz: ajustes.terrenoSinLuz, alProgresar }),
+    // Terreno y atlas según la calidad (móvil: versiones ligeras); si faltan, las normales
+    cargaEscena(renderer, CALIDAD.terreno ?? ajustes.rutaGlb,
+      { terrenoSinLuz: ajustes.terrenoSinLuz, alProgresar, liberaImagenes: CALIDAD.nivel === 'bajo' })
+      .catch(() => cargaEscena(renderer, ajustes.rutaGlb, { terrenoSinLuz: ajustes.terrenoSinLuz, alProgresar })),
     json(ajustes.rutaOrto),
     json(ajustes.rutaEdificios),
     json(ajustes.rutaAspecto),
-    cargadorTexturas.loadAsync(ajustes.rutaAtlasTejados),
+    cargadorTexturas.loadAsync(CALIDAD.atlasTejados ?? ajustes.rutaAtlasTejados)
+      .catch(() => cargadorTexturas.loadAsync(ajustes.rutaAtlasTejados)),
     cargaTejados(ajustes.rutaTejados),
     CALIDAD.detalleSuelo ? cargaDetalleSuelo(ajustes.rutaSuelo, renderer) : null,
   ]);
@@ -50,7 +54,10 @@ export async function cargaMundo(renderer, ajustes, { alProgresar } = {}) {
     ancho: terreno.meta['tamaño_x_m'],
     alto: terreno.meta['tamaño_z_m'],
   };
-  const edificios = creaEdificios(geoEdificios, aspecto, atlas, rejilla, { tejadosSinLuz: ajustes.tejadosSinLuz, tejados });
+  const edificios = creaEdificios(geoEdificios, aspecto, atlas, rejilla, {
+    tejadosSinLuz: ajustes.tejadosSinLuz, tejados,
+    distanciaDetalle: CALIDAD.distanciaEdificiosDetalle, proyectaSombras: CALIDAD.sombrasEdificios,
+  });
 
   const raiz = new THREE.Group();
   raiz.name = 'mundo';

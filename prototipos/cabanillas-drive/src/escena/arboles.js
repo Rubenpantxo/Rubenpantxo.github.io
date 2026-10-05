@@ -5,6 +5,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { registraEstatico } from '../fisica/fisica.js';
+import { geometriaFlotante } from './geometria.js';
 
 const LADO_CASILLA = 256;         // px de cada impostor en el atlas
 const ESCALA_COPA = [0.65, 1.5];  // límites del estiramiento horizontal respecto al modelo
@@ -18,23 +20,6 @@ function azar(semilla) {
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
-}
-
-// meshopt guarda posiciones cuantizadas (enteros) y la escala en el nodo: se pasan a coma
-// flotante con la matriz aplicada para que el modelo mida de verdad 1 de alto
-function geometriaReal(geometria, matriz) {
-  const g = new THREE.BufferGeometry();
-  for (const [nombre, attr] of Object.entries(geometria.attributes)) {
-    const datos = new Float32Array(attr.count * attr.itemSize);
-    for (let i = 0; i < attr.count; i++) {
-      for (let k = 0; k < attr.itemSize; k++) datos[i * attr.itemSize + k] = attr.getComponent(i, k);
-    }
-    g.setAttribute(nombre, new THREE.BufferAttribute(datos, attr.itemSize));
-  }
-  g.setIndex(geometria.index);
-  g.applyMatrix4(matriz);
-  g.computeBoundingSphere();
-  return g;
 }
 
 export async function cargaModelosArboles(ruta) {
@@ -51,7 +36,7 @@ export async function cargaModelosArboles(ruta) {
     const malla = (sufijo) => {
       let m = null;
       nodo.getObjectByName(`${id}_${sufijo}`).traverse((o) => { if (o.isMesh) m = o; });
-      return { geometry: geometriaReal(m.geometry, m.matrixWorld), material: m.material };
+      return { geometry: geometriaFlotante(m.geometry, m.matrixWorld), material: m.material };
     };
     modelos[id] = { id, info, tronco: malla('tronco'), hojas: malla('hojas') };
   }
@@ -275,12 +260,14 @@ export function creaArboles(renderer, { modelos, manifiesto }, datos, terreno, o
       }
       for (const inst of [c.tronco, c.hojas]) {
         inst.count = n;
+        inst.visible = n > 0;   // sin llamadas de dibujo vacías
         inst.instanceMatrix.needsUpdate = true;
         if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
       }
       triangulos += n * c.triangulos;
     }
     lejos.count = nLejos;
+    lejos.visible = nLejos > 0;
     lejos.instanceMatrix.needsUpdate = true;
     if (lejos.instanceColor) lejos.instanceColor.needsUpdate = true;
     casillaAttr.needsUpdate = true;
@@ -303,8 +290,9 @@ export function colisionaArboles(fisica, colocados) {
   for (const a of colocados) {
     const radio = THREE.MathUtils.clamp(a.radioTronco, 0.1, 0.45);
     const alto = Math.min(3, a.altura * 0.5);
-    mundo.createCollider(
+    const collider = mundo.createCollider(
       RAPIER.ColliderDesc.cylinder(alto / 2, radio).setTranslation(a.x, a.y + alto / 2, a.z).setFriction(0.8),
     );
+    registraEstatico(fisica, collider, a.x, a.z, radio);
   }
 }

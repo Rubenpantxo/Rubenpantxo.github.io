@@ -1,8 +1,12 @@
-// Mundo físico (Rapier): terreno como heightfield desde terrain.f32, edificios desde
-// buildings.geojson y muros invisibles en el borde de la zona.
+// Mundo físico (Rapier): terreno como heightfield, edificios desde buildings.geojson y muros
+// invisibles en el borde de la zona. Los obstáculos fijos (edificios, árboles, coches
+// aparcados) se registran con su posición: el gestor de colisiones solo deja activos los que
+// están cerca del coche (con miles activos, cada paso de Rapier costaba ~5 ms; con los
+// cercanos, <1 ms).
 import RAPIER from '@dimforge/rapier3d-compat';
 
 export const PASO_FISICA = 1 / 60;
+const CELDA_M = 32;          // rejilla del índice de obstáculos fijos
 const ENTERRADO_M = 2;       // los colliders de edificios bajan por debajo de base_y
 const ALTO_MUROS_M = 200;
 
@@ -66,6 +70,7 @@ export async function creaFisica(terreno, geoEdificios) {
   );
 
   // --- Edificios: prisma convexo si se puede, trimesh si es cóncavo o tiene patios
+  const estaticos = [];
   let convexos = 0;
   let concavos = 0;
   for (const f of geoEdificios.features) {
@@ -85,7 +90,13 @@ export async function creaFisica(terreno, geoEdificios) {
       desc = trimeshEdificio(anillos, y0, y1);
       concavos++;
     }
-    mundo.createCollider(desc.setFriction(0.6));
+    const collider = mundo.createCollider(desc.setFriction(0.6));
+    let cx = 0; let cz = 0;
+    for (const [x, z] of anillos[0]) { cx += x; cz += z; }
+    cx /= anillos[0].length; cz /= anillos[0].length;
+    let radio = 0;
+    for (const [x, z] of anillos[0]) radio = Math.max(radio, Math.hypot(x - cx, z - cz));
+    estaticos.push({ collider, x: cx, z: cz, radio });
   }
 
   // --- Límites de la zona: muros invisibles
@@ -100,7 +111,74 @@ export async function creaFisica(terreno, geoEdificios) {
     mundo.createCollider(RAPIER.ColliderDesc.cuboid(hx, ALTO_MUROS_M / 2, hz).setTranslation(x, 0, z));
   }
 
-  return { RAPIER, mundo, suelo, resumen: { convexos, concavos } };
+  return { RAPIER, mundo, suelo, estaticos, resumen: { convexos, concavos } };
+}
+
+// Registra un obstáculo fijo creado fuera de aquí (árboles, coches aparcados)
+export function registraEstatico(fisica, collider, x, z, radio) {
+  fisica.estaticos.push({ collider, x, z, radio });
+}
+
+// Activa solo los obstáculos fijos a menos de «radio» del coche o del punto al que va
+// (posición + velocidad × anticipación). Con margen para no encender y apagar en el borde.
+export function creaGestorColisiones(fisica, { radio = 45, anticipacionS = 0.8, margen = 12, cadaS = 0.15 } = {}) {
+  const { estaticos } = fisica;
+  const celdas = new Map();
+  estaticos.forEach((e, i) => {
+    e.activo = true;
+    const clave = `${Math.floor(e.x / CELDA_M)},${Math.floor(e.z / CELDA_M)}`;
+    if (!celdas.has(clave)) celdas.set(clave, []);
+    celdas.get(clave).push(i);
+  });
+  const radioMax = estaticos.reduce((m, e) => Math.max(m, e.radio), 0);
+  let espera = 0;
+  let activos = estaticos.length;
+
+  function aplica(px, pz, vx, vz) {
+    const ax = px + vx * anticipacionS;
+    const az = pz + vz * anticipacionS;
+    const alcance = radio + margen + radioMax;
+    const necesarios = new Set();
+    const x0 = Math.floor((Math.min(px, ax) - alcance) / CELDA_M);
+    const x1 = Math.floor((Math.max(px, ax) + alcance) / CELDA_M);
+    const z0 = Math.floor((Math.min(pz, az) - alcance) / CELDA_M);
+    const z1 = Math.floor((Math.max(pz, az) + alcance) / CELDA_M);
+    for (let i = x0; i <= x1; i++) {
+      for (let j = z0; j <= z1; j++) {
+        for (const k of celdas.get(`${i},${j}`) ?? []) necesarios.add(k);
+      }
+    }
+    activos = 0;
+    estaticos.forEach((e, k) => {
+      let quiere = false;
+      if (necesarios.has(k)) {
+        const d = Math.min(Math.hypot(e.x - px, e.z - pz), Math.hypot(e.x - ax, e.z - az)) - e.radio;
+        quiere = d < radio || (e.activo && d < radio + margen);
+      }
+      if (quiere !== e.activo) {
+        e.collider.setEnabled(quiere);
+        e.activo = quiere;
+      }
+      if (e.activo) activos++;
+    });
+  }
+
+  return {
+    // Llamar cada fotograma; recalcula cada «cadaS» segundos
+    actualiza(posicion, velocidad, dt) {
+      espera -= dt;
+      if (espera > 0) return;
+      espera = cadaS;
+      aplica(posicion.x, posicion.z, velocidad.x, velocidad.z);
+    },
+    // Tras teletransportar el coche (recolocar): recalcular ya
+    fuerza(posicion) {
+      espera = cadaS;
+      aplica(posicion.x, posicion.z, 0, 0);
+    },
+    get activos() { return activos; },
+    get total() { return estaticos.length; },
+  };
 }
 
 // Altura del suelo físico bajo (x, z) lanzando un rayo vertical solo contra el terreno
