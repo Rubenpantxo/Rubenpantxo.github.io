@@ -13,8 +13,10 @@
    conífera (verde oscuro), palmera (copa pequeña, aislada y de borde brusco) y frondosa
    (el resto). En las manchas de arbolado con varias copas manda el tipo mayoritario
    (pinar, chopera…). Se corrige a mano en tools/arboles_tipos.json.
+5. Los árboles cuya copa vuela sobre la calzada (su centro cae dentro de la mitad del ancho
+   típico de la calle OSM) se apartan hasta el bordillo: el tronco está en la acera.
 
-Requiere 01_origin_terrain.py, 02_ortho.py y 03_buildings.py.
+Requiere 01_origin_terrain.py, 02_ortho.py, 03_buildings.py y 04_osm.py.
 
 Salidas:
     <assets>/arboles.json   {tipos, campos, arboles: [[x, z, altura, radio, tipo, r, g, b], …]}
@@ -50,6 +52,9 @@ RUGOSIDAD_MIN_M = 0.18      # desviación típica del nDSM en una copa: por deba
 MANCHA_MIN_COPAS = 6        # manchas con al menos estas copas toman el tipo mayoritario
 HILERA_SEPARACION_M = (3.5, 13.0)   # distancia entre árboles de una alineación de calle
 HILERA_MIN_ARBOLES = 4
+# Media calzada por tipo de vía OSM (m): ningún tronco dentro
+MEDIA_CALZADA_M = {"primary": 4.0, "secondary": 4.0, "tertiary": 3.5, "residential": 3.0,
+                   "unclassified": 3.0, "living_street": 2.5, "service": 2.2, "pedestrian": 0.0}
 SIGMA_SUAVIZADO_PX = 1.2
 AREA_MIN_M2 = 1.0
 # Diámetro de la ventana de búsqueda de cimas según la altura (Popescu y Wynne, 2004):
@@ -177,6 +182,34 @@ def hileras(arboles):
             n += 1
             numero[miembros] = n
     return numero
+
+
+def aparta_de_calzada(arboles, calles):
+    """Lleva al bordillo los árboles cuyo centro cae en la calzada de una calle OSM."""
+    from shapely import STRtree
+    lineas, medias = [], []
+    for f in calles:
+        m = MEDIA_CALZADA_M.get(f["properties"].get("tipo"), 3.0)
+        if m > 0:
+            lineas.append(shape(f["geometry"]))
+            medias.append(m)
+    indice = STRtree(lineas)
+    movidos = 0
+    for a in arboles:
+        p = Point(a["x"], a["z"])
+        for k in indice.query(p.buffer(max(medias))):
+            linea, m = lineas[k], medias[k]
+            d = linea.distance(p)
+            if d < m:
+                q = linea.interpolate(linea.project(p))
+                dx, dz = a["x"] - q.x, a["z"] - q.y
+                if d < 1e-3:                       # justo en el eje: hacia cualquier lado
+                    dx, dz = 1.0, 0.0
+                    d = 1.0
+                a["x"], a["z"] = q.x + dx / d * (m + 0.3), q.y + dz / d * (m + 0.3)
+                p = Point(a["x"], a["z"])
+                movidos += 1
+    return movidos
 
 
 def aplica_correcciones(arboles, ruta):
@@ -308,6 +341,8 @@ def main() -> int:
     print(f"Hileras (alineaciones de calle): {len({a['hilera'] for a in arboles}) - 1}, "
           f"{sum(a['hilera'] > 0 for a in arboles)} árboles")
 
+    calles = json.loads((assets / "osm" / "calles.geojson").read_text(encoding="utf-8"))["features"]
+    print(f"Apartados de la calzada: {aparta_de_calzada(arboles, calles)}")
     arboles, cambios = aplica_correcciones(arboles, RAIZ / "tools" / "arboles_tipos.json")
     if cambios:
         print(f"Correcciones manuales aplicadas: {cambios}")

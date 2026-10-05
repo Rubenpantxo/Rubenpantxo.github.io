@@ -1,4 +1,5 @@
-// Cabanillas Drive — arranque. Por defecto el juego; con ?visor, el visor de comprobación.
+// Cabanillas Drive — arranque. Por defecto el juego; con ?visor, el visor de comprobación;
+// con ?arboles, la galería de modelos de árbol.
 // Convención: 1 unidad = 1 m, Y arriba, norte = −Z.
 import * as THREE from 'three';
 import { CALIDAD } from './config/calidad.js';
@@ -7,6 +8,7 @@ import { ESCENA } from './config/escena.js';
 import { creaEntorno } from './escena/entorno.js';
 import { iniciaJuego } from './juego/juego.js';
 import { iniciaVisor } from './visor/visor.js';
+import { iniciaVisorArboles } from './visor/visorArboles.js';
 
 const parametros = new URLSearchParams(location.search);
 const ui = {
@@ -36,7 +38,7 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const modo = parametros.has('visor') ? iniciaVisor : iniciaJuego;
+const modo = parametros.has('visor') ? iniciaVisor : parametros.has('arboles') ? iniciaVisorArboles : iniciaJuego;
 const reloj = new THREE.Clock();
 let actualiza = () => {};
 renderer.setAnimationLoop(() => {

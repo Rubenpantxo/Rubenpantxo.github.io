@@ -15,5 +15,10 @@
 Los modelos sin licencia explícita se usan por decisión de Rubén (2026-10-05); conviene revisar las
 condiciones de cada web antes de publicar el juego.
 
+## Árboles y vegetación
+- Generador de árboles EZ-Tree, de Daniel Greenheck (licencia MIT), con sus texturas de hojas.
+- Cortezas: Poly Haven (CC0) y TextureCan (CC0), incluidas en EZ-Tree.
+- Palmeras, racimos de hojas y mechones de hierba: dibujados por los scripts del proyecto.
+
 ## Herramientas del pipeline (no se distribuyen con el juego)
 - Detector de coches YOLO11-OBB de Ultralytics (AGPL-3.0), entrenado con el conjunto DOTA.

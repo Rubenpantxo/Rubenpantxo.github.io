@@ -20,6 +20,23 @@ function azar(semilla) {
   };
 }
 
+// meshopt guarda posiciones cuantizadas (enteros) y la escala en el nodo: se pasan a coma
+// flotante con la matriz aplicada para que el modelo mida de verdad 1 de alto
+function geometriaReal(geometria, matriz) {
+  const g = new THREE.BufferGeometry();
+  for (const [nombre, attr] of Object.entries(geometria.attributes)) {
+    const datos = new Float32Array(attr.count * attr.itemSize);
+    for (let i = 0; i < attr.count; i++) {
+      for (let k = 0; k < attr.itemSize; k++) datos[i * attr.itemSize + k] = attr.getComponent(i, k);
+    }
+    g.setAttribute(nombre, new THREE.BufferAttribute(datos, attr.itemSize));
+  }
+  g.setIndex(geometria.index);
+  g.applyMatrix4(matriz);
+  g.computeBoundingSphere();
+  return g;
+}
+
 export async function cargaModelosArboles(ruta) {
   const respuesta = await fetch(`${ruta}arboles_modelos.json`);
   if (!respuesta.ok) throw new Error(`No se pudo leer ${ruta}arboles_modelos.json`);
@@ -27,13 +44,14 @@ export async function cargaModelosArboles(ruta) {
   const cargador = new GLTFLoader();
   cargador.setMeshoptDecoder(MeshoptDecoder);
   const gltf = await cargador.loadAsync(`${ruta}arboles.glb`);
+  gltf.scene.updateMatrixWorld(true);
   const modelos = {};
   for (const [id, info] of Object.entries(manifiesto.variantes)) {
     const nodo = gltf.scene.getObjectByName(id);
     const malla = (sufijo) => {
       let m = null;
       nodo.getObjectByName(`${id}_${sufijo}`).traverse((o) => { if (o.isMesh) m = o; });
-      return m;
+      return { geometry: geometriaReal(m.geometry, m.matrixWorld), material: m.material };
     };
     modelos[id] = { id, info, tronco: malla('tronco'), hojas: malla('hojas') };
   }
@@ -66,7 +84,7 @@ function conViento(material, uniformes, { hojas }) {
 }
 
 // Imagen lateral de cada variante (alto 1, base abajo) en un atlas: el impostor de lejos
-function creaAtlasImpostores(renderer, modelos) {
+function creaAtlasImpostores(renderer, modelos, entorno) {
   const ids = Object.keys(modelos);
   const columnas = Math.ceil(Math.sqrt(ids.length));
   const filas = Math.ceil(ids.length / columnas);
@@ -76,10 +94,14 @@ function creaAtlasImpostores(renderer, modelos) {
     magFilter: THREE.LinearFilter,
     colorSpace: THREE.SRGBColorSpace,
   });
+  // Luz de la escena del juego (sol, cielo y reflejos), con el sol algo de frente para que la
+  // tarjeta no quede en sombra cuando se mira desde el lado contrario
   const escena = new THREE.Scene();
-  escena.add(new THREE.HemisphereLight(0xcfe2ff, 0x8a7a5a, 1.3));
-  const sol = new THREE.DirectionalLight(0xfff4e0, 1.6);
-  sol.position.set(0.6, 1, 1);
+  escena.environment = entorno.environment;
+  escena.environmentIntensity = entorno.environmentIntensity;
+  escena.add(new THREE.HemisphereLight(0xcfe2ff, 0x8a7a5a, 1.1));
+  const sol = new THREE.DirectionalLight(0xfff4e0, 2.2);
+  sol.position.set(0.5, 1, 1.2);
   escena.add(sol);
   const casillas = {};
   const previo = { destino: renderer.getRenderTarget(), color: renderer.getClearColor(new THREE.Color()),
@@ -150,7 +172,9 @@ function eligeVariante(tipo, altura, manifiesto, r) {
   return opciones[Math.floor(r() * opciones.length)];
 }
 
-export function creaArboles(renderer, { modelos, manifiesto }, datos, terreno) {
+// opciones.variantes: variante fija por árbol (galería ?arboles); si no, se sortea por tipo y altura.
+// opciones.entorno: la escena del juego, para iluminar los impostores con sus mismos reflejos.
+export function creaArboles(renderer, { modelos, manifiesto }, datos, terreno, opciones = {}) {
   const tipos = datos.tipos;
   const uniformes = { uTiempo: { value: 0 } };
   const porVariante = new Map(Object.keys(modelos).map((id) => [id, []]));
@@ -170,7 +194,7 @@ export function creaArboles(renderer, { modelos, manifiesto }, datos, terreno) {
   datos.arboles.forEach(([x, z, altura, radio, t, rr, gg, bb], i) => {
     const r = azar(i * 7919 + 101);
     const tipo = tipos[t];
-    const id = eligeVariante(tipo, altura, manifiesto, r);
+    const id = opciones.variantes?.[i] ?? eligeVariante(tipo, altura, manifiesto, r);
     const info = modelos[id].info;
     const natural = altura;                        // escala horizontal sin estirar
     const horizontal = THREE.MathUtils.clamp(radio / info.radio, natural * ESCALA_COPA[0], natural * ESCALA_COPA[1]);
@@ -212,7 +236,7 @@ export function creaArboles(renderer, { modelos, manifiesto }, datos, terreno) {
   }
 
   // Lejos: impostores en una sola malla instanciada
-  const atlas = creaAtlasImpostores(renderer, modelos);
+  const atlas = creaAtlasImpostores(renderer, modelos, opciones.entorno ?? {});
   const tarjeta = new THREE.PlaneGeometry(1, 1).translate(0, 0.5, 0);
   tarjeta.setAttribute('aCasilla', new THREE.InstancedBufferAttribute(new Float32Array(datos.arboles.length * 2), 2));
   const lejos = new THREE.InstancedMesh(tarjeta, materialImpostor(atlas), datos.arboles.length);

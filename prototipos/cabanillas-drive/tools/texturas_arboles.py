@@ -3,6 +3,10 @@
 - Hojas y cortezas de EZ-Tree (MIT; cortezas CC0 de Poly Haven y TextureCan), reducidas a
   512 px y con el color de las hojas extendido a los píxeles transparentes (sin halos
   claros en los mipmaps).
+- Racimos: muchas ramitas de EZ-Tree giradas y superpuestas en una textura densa, para
+  que pocas tarjetas llenen una copa (con ramitas sueltas los árboles salían ralos).
+- Mechones de hierba (verde y seca), dibujados aquí en gris: el juego les da el color de
+  la ortofoto en cada punto.
 - Palmera, dibujada aquí: hoja pinnada (raquis + foliolos) y tronco con las cicatrices de
   las hojas viejas. Sin fuentes externas.
 
@@ -33,6 +37,24 @@ def extiende_color(rgba: np.ndarray) -> np.ndarray:
     salida = rgba.copy()
     salida[..., :3] = rgba[fi, ci, :3]
     return salida
+
+
+def racimo(ramita: Image.Image, n=30, lado=LADO, semilla=1) -> Image.Image:
+    """Ramitas superpuestas alrededor del centro: una mata de hojas casi opaca y de borde
+    irregular. Las de debajo, más oscuras (sombra interior de la copa)."""
+    r = np.random.default_rng(semilla)
+    lienzo = Image.new("RGBA", (lado, lado), (0, 0, 0, 0))
+    for i in range(n):
+        tam = int(lado * r.uniform(0.42, 0.62))
+        pieza = ramita.resize((tam, tam), Image.LANCZOS).rotate(r.uniform(0, 360), Image.BICUBIC, expand=True)
+        luz = 0.62 + 0.45 * (i / n) * r.uniform(0.85, 1.1)     # las últimas (encima), más claras
+        a = np.array(pieza).astype(np.float32)
+        a[..., :3] *= luz
+        pieza = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
+        ang, dist = r.uniform(0, 2 * np.pi), lado * 0.2 * np.sqrt(r.uniform(0, 1))
+        cx, cy = lado / 2 + dist * np.cos(ang), lado / 2 + dist * np.sin(ang)
+        lienzo.alpha_composite(pieza, (int(cx - pieza.width / 2), int(cy - pieza.height / 2)))
+    return Image.fromarray(extiende_color(np.array(lienzo)))
 
 
 def hoja_palmera(ancho=1024, alto=256, semilla=3) -> Image.Image:
@@ -99,6 +121,37 @@ def tronco_palmera(ancho=256, alto=512, semilla=5) -> Image.Image:
     return Image.fromarray(img).filter(ImageFilter.GaussianBlur(0.6))
 
 
+def mechon(seca: bool, lado=256, semilla=9) -> Image.Image:
+    """Hojas de hierba desde abajo (base oscura, puntas claras) sobre fondo transparente."""
+    r = np.random.default_rng(semilla + seca)
+    escala = 2
+    L = lado * escala
+    img = Image.new("RGBA", (L, L), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    n = 70 if not seca else 46
+    for _ in range(n):
+        x0 = L * r.uniform(0.12, 0.88)
+        alto = L * r.uniform(0.45, 0.98) * (0.85 if seca else 1)
+        inclina = r.uniform(-0.35, 0.35) * alto
+        grosor = escala * r.uniform(2.5, 4.5)
+        tramos = 8
+        pts = []
+        for k in range(tramos + 1):
+            s = k / tramos
+            pts.append((x0 + inclina * s * s, L - alto * s))
+        for k in range(tramos):
+            s = k / tramos
+            g = int(120 + 120 * s * r.uniform(0.8, 1.05))
+            color = (g, g, g, 255)
+            ancho = max(1, int(grosor * (1 - s * 0.85)))
+            d.line([pts[k], pts[k + 1]], fill=color, width=ancho)
+        if seca and r.uniform() < 0.4:                       # espiga
+            px, py = pts[-1]
+            d.ellipse([px - escala * 3, py - escala * 9, px + escala * 3, py + escala * 2], fill=(235, 235, 235, 255))
+    img = img.resize((lado, lado), Image.LANCZOS)
+    return Image.fromarray(extiende_color(np.array(img)))
+
+
 def normal_desde_altura(gris: np.ndarray, fuerza=2.5) -> Image.Image:
     gy, gx = np.gradient(gris.astype(np.float32) / 255)
     n = np.dstack([-gx * fuerza, gy * fuerza, np.ones_like(gx)])
@@ -113,15 +166,21 @@ def main() -> int:
     if not EZ.is_dir():
         print(f"No encuentro {EZ}: ejecuta antes «npm install»")
         return 1
-    for h in HOJAS:
-        rgba = np.array(Image.open(EZ / "leaves" / f"{h}_color.png").convert("RGBA").resize((LADO, LADO), Image.LANCZOS))
+    for k, h in enumerate(HOJAS):
+        ramita = Image.open(EZ / "leaves" / f"{h}_color.png").convert("RGBA")
+        rgba = np.array(ramita.resize((LADO, LADO), Image.LANCZOS))
         Image.fromarray(extiende_color(rgba)).save(salida / f"hoja_{h}.png", optimize=True)
+        racimo(ramita, semilla=k + 1).save(salida / f"racimo_{h}.png", optimize=True)
     for c in CORTEZAS:
         Image.open(EZ / "bark" / f"{c}_color_1k.jpg").convert("RGB").resize((LADO, LADO), Image.LANCZOS) \
             .save(salida / f"corteza_{c}.jpg", quality=88)
         Image.open(EZ / "bark" / f"{c}_normal_1k.jpg").convert("RGB").resize((LADO, LADO), Image.LANCZOS) \
             .save(salida / f"corteza_{c}_normal.png", optimize=True)
     hoja_palmera().save(salida / "hoja_palmera.png", optimize=True)
+    destino_hierba = RAIZ / cargar_config().get("assets_dir", "public/assets") / "vegetacion"
+    destino_hierba.mkdir(parents=True, exist_ok=True)
+    mechon(False).save(destino_hierba / "mechon_verde.png", optimize=True)
+    mechon(True).save(destino_hierba / "mechon_seco.png", optimize=True)
     tronco = tronco_palmera()
     tronco.save(salida / "corteza_palmera.jpg", quality=88)
     normal_desde_altura(np.array(tronco.convert("L"))).save(salida / "corteza_palmera_normal.png", optimize=True)

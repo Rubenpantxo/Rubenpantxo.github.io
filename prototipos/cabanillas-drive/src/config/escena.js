@@ -9,9 +9,16 @@ export const ESCENA = {
   rutaAtlasTejados: 'assets/tejados.jpg',
   rutaCoches: 'assets/coches/',
   rutaCochesAparcados: 'assets/coches_aparcados.json',
+  rutaArboles: 'assets/arboles.json',
+  rutaModelosArboles: 'assets/arboles/',
+  rutaVegetacion: 'assets/vegetacion/',
   // Coches aparcados: a menos de esta distancia de la cámara se dibuja el modelo detallado
   distanciaCochesDetalle: 70,
   segundosRepartoCoches: 0.25,
+  // Árboles: a menos de esta distancia, modelo 3D; más lejos, impostor (tarjeta)
+  distanciaArbolesDetalle: 90,
+  // Césped y rastrojo en 3D solo hasta esta distancia de la cámara
+  radioHierba: 60,
 
   // La ortofoto ya trae la luz del día en que se tomó: sin iluminación se ve como la foto
   terrenoSinLuz: true,

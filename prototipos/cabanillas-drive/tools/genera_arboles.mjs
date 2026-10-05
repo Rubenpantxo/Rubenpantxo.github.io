@@ -28,46 +28,49 @@ const procesados = join(raiz, config.processed_dir ?? 'data/processed');
 const dirTexturas = join(procesados, 'arboles_tex');
 const destino = join(raiz, config.assets_dir ?? 'public/assets', 'arboles');
 
-const TRIANGULOS_MAX = 3000;
+const TRIANGULOS_MAX = 3500;
 
-// Cada variante: preset de EZ-Tree de partida + cambios. «hojas» y «corteza» son las texturas
-// de arboles_tex; «tinte» multiplica el color de la hoja.
+// Cada variante: preset de EZ-Tree de partida + cambios. «hojas» (racimos) y «corteza» son las
+// texturas de arboles_tex; «tinte» multiplica el color de la hoja.
 const VARIANTES = [
   // Frondosas de calle, plaza y jardín (plátano, morera, olmo, almez…): copa redonda y densa
-  { id: 'frondosa_a', tipo: 'frondosa', preset: 'Oak Medium', hojas: 'oak', corteza: 'oak', tinte: 0xdce8c4,
-    cambios: { seed: 4101, branch: { children: { 0: 5, 1: 3, 2: 2 }, sections: { 0: 6, 1: 4, 2: 3, 3: 1 },
-      segments: { 0: 7, 1: 4, 2: 3, 3: 3 } }, leaves: { count: 8, size: 4.2 } } },
-  { id: 'frondosa_b', tipo: 'frondosa', preset: 'Ash Medium', hojas: 'ash', corteza: 'oak', tinte: 0xffffff,
-    cambios: { seed: 4202, branch: { children: { 0: 6, 1: 3, 2: 2 }, sections: { 0: 6, 1: 4, 2: 3, 3: 2 },
-      segments: { 0: 7, 1: 4, 2: 3, 3: 3 } }, leaves: { count: 8, size: 4.0 } } },
+  { id: 'frondosa_a', tipo: 'frondosa', preset: 'Oak Medium', hojas: 'racimo_oak', corteza: 'oak', tinte: 0xb4c49c,
+    cambios: { seed: 4101, branch: { children: { 0: 5, 1: 3, 2: 2 }, start: { 1: 0.5 },
+      sections: { 0: 5, 1: 3, 2: 2, 3: 1 }, segments: { 0: 6, 1: 4, 2: 3, 3: 3 } },
+      leaves: { count: 4, size: 9, sizeVariance: 0.3, angle: 50 } } },
+  { id: 'frondosa_b', tipo: 'frondosa', preset: 'Ash Medium', hojas: 'racimo_ash', corteza: 'oak', tinte: 0xc4d0a8,
+    cambios: { seed: 4202, branch: { children: { 0: 6, 1: 3, 2: 2 }, start: { 1: 0.4 },
+      sections: { 0: 5, 1: 3, 2: 2, 3: 1 }, segments: { 0: 6, 1: 4, 2: 3, 3: 3 } },
+      leaves: { count: 4, size: 9, sizeVariance: 0.3 } } },
   // Árbol pequeño o frutal de huerta (olivo, almendro, granado…)
-  { id: 'frondosa_baja', tipo: 'frondosa', preset: 'Oak Small', hojas: 'oak', corteza: 'oak', tinte: 0xc4cca8,
-    cambios: { seed: 4303, branch: { sections: { 0: 6, 1: 4, 2: 3, 3: 1 }, segments: { 0: 6, 1: 4, 2: 3, 3: 3 } },
-      leaves: { count: 10, size: 2.4 } } },
+  { id: 'frondosa_baja', tipo: 'frondosa', preset: 'Oak Small', hojas: 'racimo_oak', corteza: 'oak', tinte: 0x9cac8c,
+    cambios: { seed: 4303, branch: { sections: { 0: 6, 1: 3, 2: 2, 3: 1 }, segments: { 0: 6, 1: 4, 2: 3, 3: 3 } },
+      leaves: { count: 4, size: 5, sizeVariance: 0.3 } } },
   // Pino carrasco: tronco limpio y copa irregular aparasolada
-  { id: 'pino_a', tipo: 'conifera', preset: 'Ash Medium', hojas: 'pine', corteza: 'pine', tinte: 0xd4dcc0,
+  { id: 'pino_a', tipo: 'conifera', preset: 'Ash Medium', hojas: 'racimo_pine', corteza: 'pine', tinte: 0xb0bca0,
     cambios: { seed: 5101, bark: { textureScale: { x: 1, y: 2 } },
-      branch: { angle: { 1: 38, 2: 55, 3: 50 }, children: { 0: 6, 1: 3, 2: 2 }, start: { 1: 0.45, 2: 0.2, 3: 0 },
-        sections: { 0: 6, 1: 4, 2: 3, 3: 2 }, segments: { 0: 7, 1: 4, 2: 3, 3: 3 },
+      branch: { angle: { 1: 40, 2: 55, 3: 50 }, children: { 0: 6, 1: 3, 2: 2 }, start: { 1: 0.5, 2: 0.2, 3: 0 },
+        sections: { 0: 5, 1: 3, 2: 2, 3: 1 }, segments: { 0: 6, 1: 4, 2: 3, 3: 3 },
         gnarliness: { 0: 0.06, 1: 0.3, 2: 0.25, 3: 0.1 } },
-      leaves: { count: 9, size: 3.6, angle: 30 } } },
-  { id: 'pino_b', tipo: 'conifera', preset: 'Oak Medium', hojas: 'pine', corteza: 'pine', tinte: 0xc8d4b4,
+      leaves: { count: 4, size: 8, sizeVariance: 0.3, angle: 30 } } },
+  { id: 'pino_b', tipo: 'conifera', preset: 'Oak Medium', hojas: 'racimo_pine', corteza: 'pine', tinte: 0xa8b498,
     cambios: { seed: 5202, bark: { textureScale: { x: 1, y: 2 } },
-      branch: { children: { 0: 5, 1: 3, 2: 2 }, sections: { 0: 6, 1: 4, 2: 3, 3: 1 }, segments: { 0: 7, 1: 4, 2: 3, 3: 3 } },
-      leaves: { count: 9, size: 3.8, angle: 30 } } },
+      branch: { children: { 0: 5, 1: 3, 2: 2 }, start: { 1: 0.55 }, sections: { 0: 5, 1: 3, 2: 2, 3: 1 },
+        segments: { 0: 6, 1: 4, 2: 3, 3: 3 } },
+      leaves: { count: 4, size: 8.5, sizeVariance: 0.3, angle: 30 } } },
   // Ciprés: columna estrecha y oscura
-  { id: 'cipres', tipo: 'cipres', preset: 'Pine Medium', hojas: 'pine', corteza: 'pine', tinte: 0x9cac8c,
-    cambios: { seed: 6101, branch: { children: { 0: 44 }, angle: { 1: 35 }, length: { 0: 50, 1: 7 },
-      sections: { 0: 10, 1: 3 }, segments: { 0: 6, 1: 3 }, start: { 1: 0.08 } },
-      leaves: { count: 7, size: 2.6, angle: 20 } } },
+  { id: 'cipres', tipo: 'cipres', preset: 'Pine Medium', hojas: 'racimo_pine', corteza: 'pine', tinte: 0x7c8c6c,
+    cambios: { seed: 6101, branch: { children: { 0: 40 }, angle: { 1: 30 }, length: { 0: 50, 1: 6 },
+      sections: { 0: 8, 1: 2 }, segments: { 0: 6, 1: 3 }, start: { 1: 0.05 } },
+      leaves: { count: 4, size: 5.5, sizeVariance: 0.25, angle: 15 } } },
   // Chopo: alto y estrecho, corteza clara
-  { id: 'chopo', tipo: 'chopo', preset: 'Aspen Large', hojas: 'ash', corteza: 'birch', tinte: 0xe4f0c8,
+  { id: 'chopo', tipo: 'chopo', preset: 'Aspen Large', hojas: 'racimo_ash', corteza: 'birch', tinte: 0xc8d8b0,
     cambios: { seed: 7101, branch: { angle: { 1: 28, 2: 40 }, children: { 0: 14, 1: 4 },
-      sections: { 0: 8, 1: 4, 2: 3 }, segments: { 0: 7, 1: 4, 2: 3 } },
-      leaves: { count: 9, size: 3.6 } } },
+      sections: { 0: 7, 1: 3, 2: 2 }, segments: { 0: 6, 1: 4, 2: 3 } },
+      leaves: { count: 4, size: 8, sizeVariance: 0.3 } } },
   // Palmeras (tipo Phoenix): construidas por creaPalmera()
-  { id: 'palmera_a', tipo: 'palmera', palmera: { semilla: 11, hojas: 20, troncoAlto: 0.74, largoHoja: 0.42, curva: 0.05 } },
-  { id: 'palmera_b', tipo: 'palmera', palmera: { semilla: 23, hojas: 16, troncoAlto: 0.66, largoHoja: 0.46, curva: -0.03 } },
+  { id: 'palmera_a', tipo: 'palmera', palmera: { semilla: 11, hojas: 22, troncoAlto: 0.7, largoHoja: 0.5, curva: 0.05 } },
+  { id: 'palmera_b', tipo: 'palmera', palmera: { semilla: 23, hojas: 18, troncoAlto: 0.62, largoHoja: 0.55, curva: -0.03 } },
 ];
 
 function azar(semilla) {
@@ -147,12 +150,12 @@ function creaPalmera({ semilla, hojas: nHojas, troncoAlto, largoHoja, curva }) {
   for (let k = 0; k < nHojas; k++) {
     const azimut = k * 2.39996 + r() * 0.4;              // ángulo áureo: reparto sin huecos
     const edad = k / (nHojas - 1);                       // 0 = joven (alta), 1 = vieja (caída)
-    const elevacion = THREE.MathUtils.degToRad(55 - 85 * edad + (r() - 0.5) * 14);
+    const elevacion = THREE.MathUtils.degToRad(62 - 72 * edad + (r() - 0.5) * 14);
     const largo = largoHoja * (0.85 + 0.25 * r()) * (1 - 0.15 * (1 - edad));
     const dir = new THREE.Vector3(Math.cos(azimut) * Math.cos(elevacion), Math.sin(elevacion),
       Math.sin(azimut) * Math.cos(elevacion));
     const lado = new THREE.Vector3().crossVectors(arriba, dir).normalize();
-    const caida = 0.35 + 0.35 * edad;                    // cuánto se arquea hacia abajo
+    const caida = 0.22 + 0.3 * edad;                     // cuánto se arquea hacia abajo
     const pliegue = THREE.MathUtils.degToRad(28);        // hoja en V
     const ancho = largo * 0.5;
     const base = hp.length / 3;
@@ -269,7 +272,7 @@ for (const v of VARIANTES) {
   const nodo = doc.createNode(v.id);
   const tronco = aMalla(doc, buffer, `${v.id}_tronco`, geo.tronco, materialCorteza(esPalmera ? 'palmera' : v.corteza));
   const hojas = aMalla(doc, buffer, `${v.id}_hojas`, geo.hojas,
-    materialHojas(v.id, esPalmera ? 'hoja_palmera.png' : `hoja_${v.hojas}.png`, v.tinte));
+    materialHojas(v.id, esPalmera ? 'hoja_palmera.png' : `${v.hojas}.png`, v.tinte));
   nodo.addChild(doc.createNode(`${v.id}_tronco`).setMesh(tronco));
   nodo.addChild(doc.createNode(`${v.id}_hojas`).setMesh(hojas));
   escena.addChild(nodo);
