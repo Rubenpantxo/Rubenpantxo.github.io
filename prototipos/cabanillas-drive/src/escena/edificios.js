@@ -1,5 +1,6 @@
 // Edificios generados en el navegador desde buildings.geojson (Catastro + LiDAR):
-// - tejado con su trozo real de ortofoto (atlas tejados.jpg)
+// - tejado con su forma real del LiDAR (tools/09_tejados.py: faldones, aleros y altura de
+//   cada muro siguiendo el borde del tejado) y su trozo real de ortofoto (atlas tejados.jpg)
 // - fachadas procedurales individuales (fachadas.glsl.js) según plantas, estilo y calle
 // Se agrupan en los mismos chunks que el terreno (orto.json) para la carga por distancia.
 import * as THREE from 'three';
@@ -88,6 +89,71 @@ class Chunk {
       m.uvMuro.push(u, w);
       m.muro.push(alto, datos[0], largo, datos[1]);
       m.muro2.push(...datos2);
+    }
+  }
+
+  // Muro cuyo borde superior sigue el tejado: perfil = [t0, y0, t1, y1, …] (t de 0 a 1 en el
+  // lado, y absoluta). Para las ventanas cuenta el alero más bajo del lado.
+  muroPerfil(a, b, base, perfil, color, datos, datos2) {
+    const [x0, z0] = a;
+    const [x1, z1] = b;
+    const largo = Math.hypot(x1 - x0, z1 - z0);
+    if (largo < 0.05) return;
+    let alero = Infinity;
+    for (let k = 1; k < perfil.length; k += 2) alero = Math.min(alero, perfil[k] - base);
+    const nx = (z1 - z0) / largo;
+    const nz = -(x1 - x0) / largo;
+    const m = this.muros;
+    for (let k = 0; k + 3 < perfil.length; k += 2) {
+      const [ta, ya, tb, yb] = [perfil[k], perfil[k + 1], perfil[k + 2], perfil[k + 3]];
+      if (tb - ta < 1e-4) continue;
+      const pa = [x0 + ta * (x1 - x0), z0 + ta * (z1 - z0)];
+      const pb = [x0 + tb * (x1 - x0), z0 + tb * (z1 - z0)];
+      const ua = ta * largo; const ub = tb * largo;
+      // Mismo sentido que muro(): a abajo, b abajo, b arriba / a abajo, b arriba, a arriba
+      let v = [[pa[0], base, pa[1], ua, 0], [pb[0], base, pb[1], ub, 0], [pb[0], yb, pb[1], ub, yb - base],
+        [pa[0], base, pa[1], ua, 0], [pb[0], yb, pb[1], ub, yb - base], [pa[0], ya, pa[1], ua, ya - base]];
+      const e1 = [v[1][0] - v[0][0], v[1][1] - v[0][1], v[1][2] - v[0][2]];
+      const e2 = [v[2][0] - v[0][0], v[2][1] - v[0][1], v[2][2] - v[0][2]];
+      const cx = e1[1] * e2[2] - e1[2] * e2[1];
+      const cz = e1[0] * e2[1] - e1[1] * e2[0];
+      if (cx * nx + cz * nz < 0) v = [v[0], v[2], v[1], v[3], v[5], v[4]];
+      for (const [x, y, z, u, w] of v) {
+        m.pos.push(x, y, z);
+        m.nor.push(nx, 0, nz);
+        m.col.push(color.r, color.g, color.b);
+        m.uvMuro.push(u, w);
+        m.muro.push(alero, datos[0], largo, datos[1]);
+        m.muro2.push(...datos2);
+      }
+    }
+  }
+
+  // Tejado del LiDAR: triángulos indexados del binario, con la UV del atlas por la huella
+  tejadoMalla(tejados, rango, ref, caja, uvRect) {
+    const [desde, , desdeIdx, nIdx] = rango;
+    if (!nIdx) return;
+    const [u0, v0, u1, v1] = uvRect;
+    const [xmin, zmin, xmax, zmax] = caja;
+    const t = this.tejados;
+    const V = tejados.vertices;
+    const p = [];
+    const ab = new THREE.Vector3();
+    const ac = new THREE.Vector3();
+    for (let k = 0; k < nIdx; k += 3) {
+      for (let j = 0; j < 3; j++) {
+        const i = (desde + tejados.indices[desdeIdx + k + j]) * 3;
+        p[j] = [ref[0] + V[i] / 100, ref[1] + V[i + 1] / 100, ref[2] + V[i + 2] / 100];
+      }
+      ab.set(p[1][0] - p[0][0], p[1][1] - p[0][1], p[1][2] - p[0][2]);
+      ac.set(p[2][0] - p[0][0], p[2][1] - p[0][1], p[2][2] - p[0][2]);
+      ab.cross(ac).normalize();
+      for (const [x, y, z] of p) {
+        t.pos.push(x, y, z);
+        t.nor.push(ab.x, ab.y, ab.z);
+        t.uv.push(u0 + ((x - xmin) / (xmax - xmin || 1)) * (u1 - u0),
+          v0 + ((z - zmin) / (zmax - zmin || 1)) * (v1 - v0));
+      }
     }
   }
 
@@ -183,11 +249,12 @@ roughnessFactor = mix(roughnessFactor, 0.12, vidrioFachada);`);
   return material;
 }
 
-export function creaEdificios(geojson, aspecto, atlas, rejilla, { tejadosSinLuz }) {
+export function creaEdificios(geojson, aspecto, atlas, rejilla, { tejadosSinLuz, tejados }) {
   const chunks = new Map();
   const { filas, columnas, tx, tz, ancho, alto } = rejilla;
   const color = new THREE.Color();
   let sinAspecto = 0;
+  let conTejadoLidar = 0;
 
   for (const f of geojson.features) {
     const props = f.properties;
@@ -217,15 +284,36 @@ export function creaEdificios(geojson, aspecto, atlas, rejilla, { tejadosSinLuz 
     if (!chunks.has(clave)) chunks.set(clave, new Chunk());
     const chunk = chunks.get(clave);
 
+    const lidar = tejados?.edificios[String(props.id)];
+    const perfiles = lidar?.p;
     anillos.forEach((anillo, k) => {
       for (let i = 0; i < anillo.length; i++) {
         const exteriorYcalle = k === 0 && aCalle.has(i) ? 1 : 0;
         const pegado = k === 0 && medianeras.has(i) ? 1 : 0;
-        chunk.muro(anillo[i], anillo[(i + 1) % anillo.length], props.base_y, props.height, color,
-          [props.plantas ?? 1, semilla], [exteriorYcalle, pegado, ESTILOS[estilo], i]);
+        const datos = [props.plantas ?? 1, semilla];
+        const datos2 = [exteriorYcalle, pegado, ESTILOS[estilo], i];
+        const perfil = perfiles?.[k]?.[i];
+        if (perfil && perfil.length >= 4) {
+          chunk.muroPerfil(anillo[i], anillo[(i + 1) % anillo.length], props.base_y, perfil, color, datos, datos2);
+        } else {
+          chunk.muro(anillo[i], anillo[(i + 1) % anillo.length], props.base_y, props.height, color, datos, datos2);
+        }
       }
     });
-    chunk.tejado(anillos, props.base_y + props.height, info?.uv ?? [0, 0, 0, 0]);
+    const uvRect = info?.uv ?? [0, 0, 0, 0];
+    if (lidar) {
+      let xmin = Infinity; let xmax = -Infinity; let zmin = Infinity; let zmax = -Infinity;
+      for (const [x, z] of exterior) {
+        xmin = Math.min(xmin, x); xmax = Math.max(xmax, x);
+        zmin = Math.min(zmin, z); zmax = Math.max(zmax, z);
+      }
+      const caja = [xmin, zmin, xmax, zmax];
+      chunk.tejadoMalla(tejados, lidar.t, lidar.ref, caja, uvRect);
+      chunk.tejadoMalla(tejados, lidar.a, lidar.ref, caja, uvRect);
+      conTejadoLidar++;
+    } else {
+      chunk.tejado(anillos, props.base_y + props.height, uvRect);
+    }
   }
 
   const fachada = materialFachada();
@@ -245,5 +333,5 @@ export function creaEdificios(geojson, aspecto, atlas, rejilla, { tejadosSinLuz 
     triangulos += n;
   }
   if (sinAspecto) console.warn(`[edificios] ${sinAspecto} edificios sin entrada en edificios_aspecto.json`);
-  return { grupo, mallas, triangulos, edificios: geojson.features.length };
+  return { grupo, mallas, triangulos, edificios: geojson.features.length, conTejadoLidar };
 }
