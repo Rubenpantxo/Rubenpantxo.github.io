@@ -187,6 +187,7 @@ export function creaHierba(vegetacion, terreno, { radio = 60, maxPorClase = 4000
     triangulos = 0;
     mallas.forEach((malla, k) => {
       malla.count = cuenta[k];
+      malla.visible = cuenta[k] > 0;
       malla.instanceMatrix.needsUpdate = true;
       if (malla.instanceColor) malla.instanceColor.needsUpdate = true;
       triangulos += cuenta[k] * 6;

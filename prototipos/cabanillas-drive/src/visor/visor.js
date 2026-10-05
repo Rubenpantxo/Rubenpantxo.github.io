@@ -52,5 +52,10 @@ export async function iniciaVisor({ renderer, escena, camara, ui }) {
       + `máx ${(r.maxima * 100).toFixed(1)} cm`;
   });
 
-  return { actualiza: () => controles.update() };
+  return {
+    actualiza: () => {
+      controles.update();
+      mundo.edificios.actualiza(camara.position);
+    },
+  };
 }

@@ -12,7 +12,7 @@ function grupoDe(objeto) {
   return null;
 }
 
-export async function cargaEscena(renderer, ruta, { terrenoSinLuz, alProgresar } = {}) {
+export async function cargaEscena(renderer, ruta, { terrenoSinLuz, alProgresar, liberaImagenes = false } = {}) {
   const cargador = new GLTFLoader();
   cargador.setMeshoptDecoder(MeshoptDecoder);
   const gltf = await cargador.loadAsync(ruta, (e) => {
@@ -28,6 +28,9 @@ export async function cargaEscena(renderer, ruta, { terrenoSinLuz, alProgresar }
     if (grupo === 'terreno') {
       const mapa = o.material.map;
       if (mapa) mapa.anisotropy = anisotropia; // nitidez de la ortofoto en vistas rasantes
+      // En móvil: tras subir la textura a la GPU se suelta la copia decodificada (la ortofoto no
+      // cambia nunca, no hace falta volver a subirla)
+      if (mapa && liberaImagenes) mapa.onUpdate = () => { mapa.image?.close?.(); };
       if (terrenoSinLuz) {
         const original = o.material;
         o.material = materialSuelo(mapa, original.name);

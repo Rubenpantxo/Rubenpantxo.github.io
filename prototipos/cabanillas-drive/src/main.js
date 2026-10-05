@@ -44,12 +44,14 @@ const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('esce
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, CALIDAD.pixelRatioMax));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.info.autoReset = false;   // se pone a cero una vez por fotograma (cuenta todas las pasadas)
 renderer.toneMappingExposure = 0.75;
 
 // Sol del día de la ortofoto (tools/10_sol.py); sin él, el de config/escena.js
 const sol = await fetch(ESCENA.rutaSol).then((r) => (r.ok ? r.json() : null)).catch(() => null);
 const escena = new THREE.Scene();
 const { luzSol, direccion } = creaEntorno(escena, ESCENA, sol);
+if (CALIDAD.niebla) Object.assign(escena.fog, CALIDAD.niebla);   // móvil: recorta lo lejano
 const camara = new THREE.PerspectiveCamera(
   CAMARA.persecucion.fov, window.innerWidth / window.innerHeight, CALIDAD.camaraCerca, CALIDAD.camaraLejos,
 );
@@ -67,9 +69,41 @@ window.addEventListener('resize', () => {
 const modo = parametros.has('visor') ? iniciaVisor : parametros.has('arboles') ? iniciaVisorArboles : iniciaJuego;
 const reloj = new THREE.Clock();
 let actualiza = () => {};
+
+// Resolución dinámica: ventanas de 2 s; por debajo del objetivo baja la proporción de píxeles
+// (hasta el mínimo de la calidad), y con margen de sobra la recupera poco a poco
+const dinamica = CALIDAD.resolucionDinamica;
+const proporcionMax = Math.min(window.devicePixelRatio, CALIDAD.pixelRatioMax);
+let proporcion = proporcionMax;
+let ventanaT = 0;
+let ventanaN = 0;
+function gobiernaResolucion(dtReal) {
+  if (!dinamica || !esJuego || !api || api.pausado || document.hidden) {
+    ventanaT = 0; ventanaN = 0;
+    return;
+  }
+  ventanaT += dtReal;
+  ventanaN++;
+  if (ventanaT < 2) return;
+  const fps = ventanaN / ventanaT;
+  ventanaT = 0; ventanaN = 0;
+  let nueva = proporcion;
+  if (fps < dinamica.objetivoFps - 2) nueva = Math.max(dinamica.minimo * proporcionMax, proporcion - 0.1);
+  else if (fps > dinamica.objetivoFps + 15) nueva = Math.min(proporcionMax, proporcion + 0.05);
+  if (Math.abs(nueva - proporcion) > 1e-3) {
+    proporcion = nueva;
+    render.ponProporcionPixeles(proporcion);
+  }
+}
+if (import.meta.env.DEV) window.__resolucion = () => proporcion;
+ui.proporcionPixeles = () => proporcion / proporcionMax;
+
 renderer.setAnimationLoop(() => {
-  const dt = Math.min(reloj.getDelta(), 0.1);
+  const dtReal = reloj.getDelta();
+  const dt = Math.min(dtReal, 0.1);
+  gobiernaResolucion(dtReal);
   actualiza(dt);
+  renderer.info.reset();
   render.render();
 });
 

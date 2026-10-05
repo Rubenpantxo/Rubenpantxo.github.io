@@ -9,7 +9,7 @@ import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { N8AOPass } from 'n8ao';
 
 // Lo que no proyecta ni recibe sombras: cielo, hierba e impostores (lejos o diminutos)
-const SIN_SOMBRA = new Set(['cielo', 'hierba', 'arboles_impostores']);
+const SIN_SOMBRA = new Set(['cielo', 'hierba', 'arboles_impostores', 'coches_genericos']);
 
 export function configuraSombras(raiz) {
   raiz.traverse((o) => {
@@ -17,7 +17,7 @@ export function configuraSombras(raiz) {
       o.traverse((h) => { h.castShadow = false; h.receiveShadow = false; h.userData.sinSombra = true; });
       return;
     }
-    if (!o.isMesh || o.userData.sinSombra) return;
+    if (!o.isMesh || o.userData.sinSombra || o.userData.sombrasPropias) return;
     if (o.userData.esTerreno) {          // el terreno solo recibe (material de suelo.js)
       o.receiveShadow = true;
       return;
@@ -90,6 +90,14 @@ export function creaRender(renderer, escena, camara, luzSol, calidad) {
     },
     redimensiona(ancho, alto) {
       if (compositor) compositor.setSize(ancho, alto);
+    },
+    ponProporcionPixeles(proporcion) {
+      renderer.setPixelRatio(proporcion);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      if (compositor) {
+        compositor.setPixelRatio(proporcion);
+        compositor.setSize(window.innerWidth, window.innerHeight);
+      }
     },
     ao,
   };

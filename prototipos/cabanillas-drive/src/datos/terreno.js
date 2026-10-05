@@ -1,16 +1,32 @@
-// Terreno exportado por tools/01_origin_terrain.py (terrain.f32 + terrain.json).
-// Lo usa el visor para posar líneas sobre el suelo y, en la fase 3, el heightfield de Rapier.
+// Terreno exportado por tools/01_origin_terrain.py (terrain.json + alturas).
+// Alturas: terrain.u16 (tools/variantes_movil.mjs, la mitad de peso, paso < 1 mm) si existe;
+// si no, terrain.f32. Lo usan el visor, la física (heightfield) y todo lo que se apoya en el suelo.
+
+async function binario(ruta) {
+  const respuesta = await fetch(ruta);
+  if (!respuesta.ok) throw new Error(`No se pudo leer ${ruta}`);
+  return respuesta.arrayBuffer();
+}
+
+async function leeAlturas(base) {
+  const compacto = await fetch(`${base}terrain_u16.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  if (compacto) {
+    const u16 = new Uint16Array(await binario(`${base}${compacto.archivo}`));
+    const alturas = new Float32Array(u16.length);
+    for (let i = 0; i < u16.length; i++) alturas[i] = compacto.minimo + u16[i] * compacto.escala;
+    return alturas;
+  }
+  return new Float32Array(await binario(`${base}terrain.f32`));
+}
 
 export async function cargaTerreno(base) {
   const respuestaMeta = await fetch(`${base}terrain.json`);
   if (!respuestaMeta.ok) throw new Error(`No se pudo leer ${base}terrain.json`);
   const meta = await respuestaMeta.json();
 
-  const respuestaDatos = await fetch(`${base}terrain.f32`);
-  if (!respuestaDatos.ok) throw new Error(`No se pudo leer ${base}terrain.f32`);
-  const alturas = new Float32Array(await respuestaDatos.arrayBuffer());
+  const alturas = await leeAlturas(base);
   if (alturas.length !== meta.filas * meta.columnas) {
-    throw new Error(`terrain.f32 tiene ${alturas.length} valores; se esperaban ${meta.filas * meta.columnas}`);
+    throw new Error(`Las alturas tienen ${alturas.length} valores; se esperaban ${meta.filas * meta.columnas}`);
   }
 
   const { filas, columnas, paso_m: paso } = meta;
