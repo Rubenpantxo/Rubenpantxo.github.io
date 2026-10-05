@@ -5,7 +5,7 @@ import { creaBrujula } from './brujula.js';
 import { creaMinimapa } from './minimapa.js';
 import { creaVelocimetro } from './velocimetro.js';
 
-export async function creaHud(mundo) {
+export async function creaHud(mundo, { lugares = [] } = {}) {
   const [calles, caminos, agua, usos] = await Promise.all(
     [ESCENA.rutaCalles, ESCENA.rutaCaminos, ESCENA.rutaAgua, ESCENA.rutaUsos].map((r) => cargaGeoJSON(r).catch(() => null)));
   const meta = mundo.terreno.meta;
@@ -13,7 +13,7 @@ export async function creaHud(mundo) {
   const contenedor = document.getElementById('hud');
   const brujula = creaBrujula(document.getElementById('brujula'));
   const minimapa = creaMinimapa(document.getElementById('minimapa'),
-    { calles, caminos, agua, usos, edificios: mundo.geoEdificios }, zona);
+    { calles, caminos, agua, usos, edificios: mundo.geoEdificios }, zona, lugares);
   const velocimetro = creaVelocimetro(document.getElementById('velocimetro'));
 
   const alterna = () => minimapa.alternaGiro();

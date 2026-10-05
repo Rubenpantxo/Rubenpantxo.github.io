@@ -73,6 +73,8 @@
       .controles .tactil { display: none; }
       @media (pointer: coarse) { .controles .teclado { display: none; } .controles .tactil { display: block; } }
       label.calidad { display: flex; gap: 8px; align-items: center; color: var(--tenue); font-size: 13px; }
+      label.ir-a { margin-top: 10px; }
+      label.ir-a[hidden] { display: none; }
       label.calidad select { flex: 1; padding: 9px; border-radius: 8px; background: #26313f; color: #fff; border: 1px solid rgba(255, 255, 255, .25); font: inherit; }
       #creditos .tarjeta { width: min(640px, 100%); }
       #creditos ul { margin: 0; padding-left: 18px; color: var(--tenue); font-size: 13px; }
@@ -163,6 +165,7 @@
       <div class="tarjeta">
         <h2 id="titulo-pausa">Pausa</h2>
         <button class="boton" type="button" data-cierra="pausa">Continuar</button>
+        <label class="calidad ir-a" hidden>Ir a <select id="ir-a"><option value="">Elige un lugar…</option></select></label>
         <div class="fila">
           <button class="boton secundario" type="button" data-abre="creditos">Créditos</button>
           <label class="calidad">Calidad <select data-calidad>

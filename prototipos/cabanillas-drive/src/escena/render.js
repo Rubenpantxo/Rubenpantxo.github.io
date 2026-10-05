@@ -9,7 +9,7 @@ import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { N8AOPass } from 'n8ao';
 
 // Lo que no proyecta ni recibe sombras: cielo, hierba e impostores (lejos o diminutos)
-const SIN_SOMBRA = new Set(['cielo', 'hierba', 'arboles_impostores', 'coches_genericos']);
+const SIN_SOMBRA = new Set(['cielo', 'hierba', 'arboles_impostores', 'coches_genericos', 'carteles']);
 
 export function configuraSombras(raiz) {
   raiz.traverse((o) => {
@@ -47,7 +47,7 @@ export function creaRender(renderer, escena, camara, luzSol, calidad) {
   let ao = null;
   if (calidad.ao) {
     compositor = new EffectComposer(renderer);
-    ao = new N8AOPass(escena, camara, window.innerWidth, window.innerHeight);
+    ao = new N8AOPass(escena, camara, Math.max(1, window.innerWidth), Math.max(1, window.innerHeight));
     ao.setQualityMode(calidad.aoMediaResolucion ? 'Low' : 'Medium');   // antes: fija muestras y resolución
     Object.assign(ao.configuration, {
       aoRadius: 3.0, distanceFalloff: 1.0, intensity: 4.5, gammaCorrection: false,
@@ -92,6 +92,7 @@ export function creaRender(renderer, escena, camara, luzSol, calidad) {
       if (compositor) compositor.setSize(ancho, alto);
     },
     ponProporcionPixeles(proporcion) {
+      if (!window.innerWidth || !window.innerHeight) return;
       renderer.setPixelRatio(proporcion);
       renderer.setSize(window.innerWidth, window.innerHeight);
       if (compositor) {

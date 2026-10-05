@@ -100,7 +100,7 @@ function creaMapa({ calles, caminos, agua, usos, edificios }, zona) {
   return lienzo;
 }
 
-export function creaMinimapa(lienzo, datos, zona) {
+export function creaMinimapa(lienzo, datos, zona, lugares = []) {
   const cfg = HUD.minimapa;
   const mapa = creaMapa(datos, zona);
   const ctx = lienzo.getContext('2d');
@@ -147,6 +147,24 @@ export function creaMinimapa(lienzo, datos, zona) {
       ctx.lineWidth = radioPunto * 0.45;
       ctx.strokeStyle = '#1b2430';
       ctx.stroke();
+    }
+    ctx.restore();
+
+    // Lugares: icono derecho aunque el mapa gire
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(c, c, r - 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.font = `${Math.round(15 * (t / 200))}px system-ui, "Segoe UI Emoji", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const cosG = Math.cos(giro);
+    const senG = Math.sin(giro);
+    for (const l of lugares) {
+      const dx = (l.x - x) * escala;
+      const dz = (l.z - z) * escala;
+      if (Math.hypot(dx, dz) > r) continue;
+      ctx.fillText(l.icono, c + dx * cosG - dz * senG, c + dx * senG + dz * cosG);
     }
     ctx.restore();
 
