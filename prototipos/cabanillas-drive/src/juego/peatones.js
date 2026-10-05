@@ -1,12 +1,17 @@
-// Peatones: figuras genéricas que pasean por las aceras (config/peatones.js).
+// Peatones: personas de MakeHuman (tools/build_personas.py) que pasean por las aceras
+// (config/peatones.js).
 // - Caminos: cada tramo de calle OSM del casco urbano con su acera a cada lado (a media calzada
 //   + media acera del centro, como el suelo de tools/11_suelo.py) y las sendas peatonales por
 //   el centro. Un lado no se usa si choca con un edificio (Catastro).
 // - Cada peatón sigue su acera; en los cruces elige otra calle y a veces cruza al otro lado.
 //   Si un coche se le acerca rápido, se aparta; nunca se deja atropellar.
-// - Dibujo: 5 mallas instanciadas para todos (piernas, brazos, cuerpo, cabeza, pelo) animadas
-//   con el paso. Aparecen cerca del jugador y desaparecen lejos, como el tráfico.
+// - Dibujo: cada peatón es un clon de una de las personas (malla con esqueleto, un material) con
+//   su mezclador: «andar» al ritmo de su velocidad y «quieto» al pararse. Los lejanos actualizan
+//   la animación con menos frecuencia. Aparecen cerca del jugador y desaparecen lejos.
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { clone as clonaConEsqueleto } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { CALIDAD } from '../config/calidad.js';
 import { PEATONES } from '../config/peatones.js';
 
@@ -72,8 +77,39 @@ function indiceEdificios(geo) {
   return { dentro, cerca };
 }
 
+// Índice de los muros y vallas (tools/13_muros.py): ¿hay alguno a menos de r?
+function indiceMuros(datos) {
+  const celdas = new Map();
+  for (const m of datos?.muros ?? []) {
+    for (let i = 1; i < m.p.length; i++) {
+      const [x0, z0] = m.p[i - 1];
+      const [x1, z1] = m.p[i];
+      const s = { x0, z0, x1, z1 };
+      for (let cx = Math.floor(Math.min(x0, x1) / CELDA); cx <= Math.floor(Math.max(x0, x1) / CELDA); cx++) {
+        for (let cz = Math.floor(Math.min(z0, z1) / CELDA); cz <= Math.floor(Math.max(z0, z1) / CELDA); cz++) {
+          const k = claveCelda(cx, cz);
+          if (!celdas.has(k)) celdas.set(k, []);
+          celdas.get(k).push(s);
+        }
+      }
+    }
+  }
+  return {
+    cerca(x, z, r) {
+      for (const s of celdas.get(claveCelda(Math.floor(x / CELDA), Math.floor(z / CELDA))) ?? []) {
+        const ex = s.x1 - s.x0;
+        const ez = s.z1 - s.z0;
+        const l2 = ex * ex + ez * ez || 1;
+        const k = Math.max(0, Math.min(1, ((x - s.x0) * ex + (z - s.z0) * ez) / l2));
+        if (Math.hypot(s.x0 + ex * k - x, s.z0 + ez * k - z) < r) return true;
+      }
+      return false;
+    },
+  };
+}
+
 // Grafo no dirigido de aceras y sendas
-function creaCaminos(calles, caminos, edificios) {
+function creaCaminos(calles, caminos, edificios, muros) {
   const nodos = new Map();
   const aristas = [];
   const nodo = (x, z) => {
@@ -89,7 +125,7 @@ function creaCaminos(calles, caminos, edificios) {
       const x = a.x + dx * s + nx;
       const z = a.z + dz * s + nz;
       if (edificios.dentro(x, z) || edificios.dentro(x + 0.35, z) || edificios.dentro(x - 0.35, z)
-        || edificios.dentro(x, z + 0.35) || edificios.dentro(x, z - 0.35)) return false;
+        || edificios.dentro(x, z + 0.35) || edificios.dentro(x, z - 0.35) || muros.cerca(x, z, 0.45)) return false;
     }
     return true;
   };
@@ -101,12 +137,18 @@ function creaCaminos(calles, caminos, edificios) {
     if (!edificios.cerca((a.x + b.x) / 2, (a.z + b.z) / 2, PEATONES.edificioCercaM)) return;   // fuera del pueblo
     const dx = (b.x - a.x) / largo;
     const dz = (b.z - a.z) / largo;
-    // Lados: +1 a la izquierda de a→b (normal (−dz, dx)), −1 a la derecha; 0 = por el centro
-    const lados = desplazamiento > 0
-      ? [1, -1].filter((l) => libre(a, dx, dz, largo, l * desplazamiento))
-      : (libre(a, dx, dz, largo, 0) ? [0] : []);
+    // Lados: +1 a la izquierda de a→b (normal (−dz, dx)), −1 a la derecha; 0 = por el centro. Si
+    // la línea de la acera choca con un muro o una casa, se prueba algo más cerca de la calzada
+    const despPorLado = { 0: 0 };
+    const lados = [];
+    if (desplazamiento > 0) {
+      for (const l of [1, -1]) {
+        const d = [0, 0.35, 0.7].map((m) => desplazamiento - m).find((d) => libre(a, dx, dz, largo, l * d));
+        if (d !== undefined) { despPorLado[l] = d; lados.push(l); }
+      }
+    } else if (libre(a, dx, dz, largo, 0)) lados.push(0);
     if (!lados.length) return;
-    const arista = { a, b, largo, dx, dz, desplazamiento, lados, mediaCalzada: Math.max(0, desplazamiento - PEATONES.mediaAceraM) };
+    const arista = { a, b, largo, dx, dz, desplazamiento, despPorLado, lados, mediaCalzada: Math.max(0, desplazamiento - PEATONES.mediaAceraM) };
     aristas.push(arista);
     a.aristas.push(arista);
     b.aristas.push(arista);
@@ -124,76 +166,62 @@ function creaCaminos(calles, caminos, edificios) {
   return aristas;
 }
 
-// Figura: piezas con el origen en su articulación
-function piezas() {
-  const pierna = new THREE.CapsuleGeometry(0.075, 0.72, 3, 6).translate(0, -0.435, 0);
-  const brazo = new THREE.CapsuleGeometry(0.055, 0.5, 3, 6).translate(0, -0.305, 0);
-  const cuerpo = new THREE.CapsuleGeometry(0.17, 0.42, 3, 8).scale(1.2, 1, 0.72);
-  const cabeza = new THREE.SphereGeometry(0.105, 10, 8);
-  const pelo = new THREE.SphereGeometry(0.113, 10, 6, 0, Math.PI * 2, 0, Math.PI * 0.55).rotateX(-0.25);
-  return { pierna, brazo, cuerpo, cabeza, pelo };
+// Personas (public/assets/personas/): manifiesto y modelos. En calidad baja, menos variantes.
+export async function cargaPersonas(ruta) {
+  const manifiesto = await fetch(`${ruta}personas.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  if (!manifiesto) return null;
+  const cargador = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+  const lista = manifiesto.personas.slice(0, PEATONES.variantes[CALIDAD.nivel] ?? manifiesto.personas.length);
+  const modelos = await Promise.all(lista.map(async (p) => {
+    const gltf = await cargador.loadAsync(`${ruta}${p.archivo}`);
+    gltf.scene.traverse((o) => {
+      if (!o.isMesh) return;
+      o.material.alphaTest = 0.5;          // pelo, cejas y pestañas recortados
+      o.material.transparent = false;
+      o.material.depthWrite = true;        // el GLB lo trae como transparente (sin profundidad)
+      o.material.roughness = 0.85;
+      o.material.metalness = 0;
+    });
+    const clip = (nombre) => gltf.animations.find((a) => a.name === nombre);
+    return { id: p.id, escena: gltf.scene, andar: clip('andar'), quieto: clip('quieto') };
+  }));
+  return { metrosPorCiclo: manifiesto.metros_por_ciclo, modelos: modelos.filter((m) => m.andar && m.quieto) };
 }
 
-const ROPA = ['#2f4f7f', '#7a2e2e', '#3d6b45', '#d8d2c4', '#222428', '#8a6d3b', '#5b4a7a', '#c96f2d', '#9aa3ad', '#e2c25a', '#1f6f74', '#b04a6a'];
-const PANTALON = ['#2b3442', '#1d1f24', '#4a4036', '#6b6f78', '#33465e', '#7d6a55'];
-const PIEL = ['#f0c9a6', '#e1b08a', '#c68e66', '#9c6a45', '#6e4a31'];
-const PELO = ['#2a1d14', '#4a3222', '#16120f', '#8a6a3e', '#b9b2a6', '#d9c18f'];
-
-export function creaPeatones({ calles, caminos, edificios, terreno, azar = Math.random }) {
-  const aristas = creaCaminos(calles, caminos, indiceEdificios(edificios));
+export function creaPeatones({ calles, caminos, edificios, muros, terreno, personas, azar = Math.random }) {
+  const aristas = creaCaminos(calles, caminos, indiceEdificios(edificios), indiceMuros(muros));
   const total = PEATONES.cantidad[CALIDAD.nivel] ?? PEATONES.cantidad.medio;
   const raiz = new THREE.Group();
   raiz.name = 'peatones';
-  const g = piezas();
-  const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
-  const malla = (geo, n, nombre) => {
-    const m = new THREE.InstancedMesh(geo, material, n);
-    m.name = `peatones_${nombre}`;
-    m.frustumCulled = false;
-    m.count = 0;
-    raiz.add(m);
-    return m;
-  };
-  const mallas = {
-    piernas: malla(g.pierna, total * 2, 'piernas'),
-    brazos: malla(g.brazo, total * 2, 'brazos'),
-    cuerpos: malla(g.cuerpo, total, 'cuerpos'),
-    cabezas: malla(g.cabeza, total, 'cabezas'),
-    pelos: malla(g.pelo, total, 'pelos'),
-  };
-  const elige = (lista) => lista[Math.floor(azar() * lista.length)];
-
-  // Colores de cada peatón; se escriben en el hueco de dibujo que le toque (cambia cuando
-  // aparecen o desaparecen otros)
-  function pintaEn(ag, hueco) {
-    const { pantalon, ropa, piel, pelo } = ag.colores;
-    mallas.piernas.setColorAt(hueco * 2, pantalon); mallas.piernas.setColorAt(hueco * 2 + 1, pantalon);
-    mallas.brazos.setColorAt(hueco * 2, ropa); mallas.brazos.setColorAt(hueco * 2 + 1, ropa);
-    mallas.cuerpos.setColorAt(hueco, ropa);
-    mallas.cabezas.setColorAt(hueco, piel);
-    mallas.pelos.setColorAt(hueco, pelo);
-    ag.hueco = hueco;
-  }
-  const agentes = Array.from({ length: total }, () => {
+  const variantes = personas?.modelos ?? [];
+  const metrosPorCiclo = personas?.metrosPorCiclo ?? 1.39;
+  const agentes = Array.from({ length: variantes.length ? total : 0 }, (_, i) => {
+    const v = variantes[i % variantes.length];
+    const objeto = clonaConEsqueleto(v.escena);
+    objeto.visible = false;
+    let malla = null;
+    objeto.traverse((o) => { if (o.isSkinnedMesh) malla = o; });
+    raiz.add(objeto);
+    const mezclador = new THREE.AnimationMixer(objeto);
+    const andar = mezclador.clipAction(v.andar);
+    const quieto = mezclador.clipAction(v.quieto);
+    andar.play();
+    quieto.play();
+    andar.time = azar() * v.andar.duration;
+    quieto.time = azar() * v.quieto.duration;
     return {
-      colores: {
-        pantalon: new THREE.Color(elige(PANTALON)), ropa: new THREE.Color(elige(ROPA)),
-        piel: new THREE.Color(elige(PIEL)), pelo: new THREE.Color(elige(PELO)),
-      },
-      hueco: -1,
+      objeto, malla, mezclador, andar, quieto, duracionPaso: v.andar.duration, pendiente: 0, turno: i % 3,
       activo: false, arista: null, sentido: 1, s: 0, lado: 1,
-      pos: new THREE.Vector2(), rumbo: 0, fase: azar() * 6.28, rapidez: 0,
+      pos: new THREE.Vector2(), rumbo: 0, rapidez: 0,
       v: THREE.MathUtils.lerp(...PEATONES.velocidadMs, azar()),
-      escala: THREE.MathUtils.lerp(0.92, 1.07, azar()),
       parado: 0,
     };
   });
-  agentes.forEach((ag, i) => pintaEn(ag, i));
 
   const ideal = new THREE.Vector2();
   function puntoIdeal(ag, destino = ideal) {
     const a = ag.arista;
-    const d = a.desplazamiento * ag.lado;
+    const d = a.despPorLado[ag.lado] * ag.lado;
     return destino.set(a.a.x + a.dx * ag.s - a.dz * d, a.a.z + a.dz * ag.s + a.dx * d);
   }
 
@@ -274,40 +302,26 @@ export function creaPeatones({ calles, caminos, edificios, terreno, azar = Math.
     }
   }
 
-  const m4 = new THREE.Matrix4();
-  const base = new THREE.Matrix4();
-  const q = new THREE.Quaternion();
-  const qPieza = new THREE.Quaternion();
-  const t = new THREE.Vector3();
-  const s = new THREE.Vector3();
-  const ejeY = new THREE.Vector3(0, 1, 0);
-  const ejeX = new THREE.Vector3(1, 0, 0);
-  const local = new THREE.Matrix4();
-  function pieza(mallaPieza, indice, x, y, z, angulo) {
-    qPieza.setFromAxisAngle(ejeX, angulo);
-    local.compose(t.set(x, y, z), qPieza, s.set(1, 1, 1));
-    mallaPieza.setMatrixAt(indice, m4.multiplyMatrices(base, local));
-  }
-
   const anterior = new THREE.Vector2();
+  const visibleM = PEATONES.visibleHastaM[CALIDAD.nivel] ?? 90;
   let activos = 0;
+  let contador = 0;
   return {
     raiz,
     agentes,
     aristas,
     get activos() { return activos; },
     actualiza(dt, { jugador, camara, coche = null, aPie = null, oscuridad = 0 }) {
-      if (!aristas.length || !PEATONES.activo) { raiz.visible = false; return; }
+      if (!aristas.length || !agentes.length || !PEATONES.activo) { raiz.visible = false; return; }
       raiz.visible = true;
       const objetivo = Math.round(total * THREE.MathUtils.lerp(1, PEATONES.fraccionNoche, oscuridad));
       let n = 0;
-      let colorCambiado = false;
       for (let i = 0; i < total; i++) {
         const ag = agentes[i];
-        if (i >= objetivo) { ag.activo = false; continue; }
+        if (i >= objetivo) { ag.activo = false; ag.objeto.visible = false; continue; }
         if (ag.activo && Math.hypot(ag.pos.x - jugador.x, ag.pos.y - jugador.z) > PEATONES.desapareceM) ag.activo = false;
         if (!ag.activo) aparece(ag, jugador, camara);
-        if (!ag.activo) continue;
+        if (!ag.activo) { ag.objeto.visible = false; continue; }
 
         anterior.copy(ag.pos);
         // Avanza por su tramo solo si va pegado a su punto (si no, primero llega a él: cruces)
@@ -342,34 +356,27 @@ export function creaPeatones({ calles, caminos, edificios, terreno, azar = Math.
           giro = Math.atan2(Math.sin(giro), Math.cos(giro));
           ag.rumbo += giro * (1 - Math.exp(-dt * 7));
         }
-        ag.fase += ag.rapidez * dt * (Math.PI * 2 / 1.35);
-        const k = Math.min(1, ag.rapidez / 0.9);
-        const balanceo = Math.sin(ag.fase) * k;
-
-        const y = terreno.alturaEn(ag.pos.x, ag.pos.y) + Math.abs(Math.cos(ag.fase)) * 0.03 * k;
-        q.setFromAxisAngle(ejeY, ag.rumbo);
-        base.compose(t.set(ag.pos.x, y, ag.pos.y), q, s.setScalar(ag.escala));
-        pieza(mallas.piernas, n * 2, -0.1, 0.92, 0, balanceo * 0.45);
-        pieza(mallas.piernas, n * 2 + 1, 0.1, 0.92, 0, -balanceo * 0.45);
-        pieza(mallas.brazos, n * 2, -0.235, 1.43, 0, -balanceo * 0.35);
-        pieza(mallas.brazos, n * 2 + 1, 0.235, 1.43, 0, balanceo * 0.35);
-        pieza(mallas.cuerpos, n, 0, 1.2, 0, 0);
-        pieza(mallas.cabezas, n, 0, 1.69, 0.01, 0);
-        pieza(mallas.pelos, n, 0, 1.70, -0.005, 0);
-        if (ag.hueco !== n) {
-          // El hueco pudo ser de otro: quien lo tenía tendrá que repintarse en el suyo
-          for (const otro of agentes) if (otro !== ag && otro.hueco === n) otro.hueco = -1;
-          pintaEn(ag, n);
-          colorCambiado = true;
+        // Animación: mezcla de andar y quieto según la velocidad; el paso al ritmo de lo andado
+        const k = THREE.MathUtils.clamp(ag.rapidez / 0.8, 0, 1);
+        ag.andar.setEffectiveWeight(k);
+        ag.quieto.setEffectiveWeight(1 - k);
+        ag.andar.timeScale = Math.max(0.3, ag.rapidez) / (metrosPorCiclo / ag.duracionPaso);
+        // Lejos: animación 1 de cada 3 fotogramas, sin sombra y, más allá, sin dibujar
+        const dJugador = Math.hypot(ag.pos.x - jugador.x, ag.pos.y - jugador.z);
+        const visible = dJugador < visibleM;
+        ag.pendiente += dt;
+        if (visible && (dJugador < PEATONES.animacionCercaM || (contador + ag.turno) % 3 === 0)) {
+          ag.mezclador.update(ag.pendiente);
+          ag.pendiente = 0;
         }
+        ag.objeto.position.set(ag.pos.x, terreno.alturaEn(ag.pos.x, ag.pos.y), ag.pos.y);
+        ag.objeto.rotation.y = ag.rumbo;
+        ag.objeto.visible = visible;
+        if (ag.malla) ag.malla.castShadow = dJugador < PEATONES.sombraHastaM;
         n++;
       }
       activos = n;
-      for (const m of Object.values(mallas)) {
-        m.count = n * (m === mallas.piernas || m === mallas.brazos ? 2 : 1);
-        m.instanceMatrix.needsUpdate = true;
-        if (colorCambiado) m.instanceColor.needsUpdate = true;
-      }
+      contador++;
     },
     // Para el tráfico: los que están en la calzada (cruzando)
     obstaculos() {
@@ -380,7 +387,7 @@ export function creaPeatones({ calles, caminos, edificios, terreno, azar = Math.
         const rx = ag.pos.x - a.a.x;
         const rz = ag.pos.y - a.a.z;
         const lateral = Math.abs(-rx * a.dz + rz * a.dx);
-        if (lateral < a.mediaCalzada + 0.3) lista.push({ x: ag.pos.x, z: ag.pos.y, radio: 0.7 });
+        if (lateral < a.mediaCalzada + 0.15) lista.push({ x: ag.pos.x, z: ag.pos.y, radio: 0.7 });
       }
       return lista;
     },

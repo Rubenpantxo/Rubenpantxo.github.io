@@ -20,10 +20,17 @@ condiciones de cada web antes de publicar el juego.
 - Cortezas: Poly Haven (CC0) y TextureCan (CC0), incluidas en EZ-Tree.
 - Palmeras, racimos de hojas y mechones de hierba: dibujados por los scripts del proyecto.
 
+## Personas (peatones)
+- Cuerpos, pieles, ojos, cejas, pestañas, pelo y ropa: recursos de la comunidad MakeHuman (CC0):
+  makehuman_system_assets, hair01, shoes01, pants01, shirts01, skirts01, skins01 y skins02, en
+  `data/raw/externos/makehuman/`. Generadas con MPFB2 (GPL-3.0, solo en el pipeline; no se distribuye).
+- Animaciones de andar y de estar quieto: hechas por `tools/build_personas.py`.
+
 ## Render
 - Cielo: HDRI «Kloofendal 48d Partly Cloudy (Pure Sky)», de Poly Haven (CC0), en `data/raw/externos/cielo/`.
 - Detalle del suelo: Asphalt031, PavingStones136 y Ground109, de ambientCG (CC0), en `data/raw/externos/texturas/`.
 - N8AO (oclusión ambiental), de N8python, licencia ISC; postprocessing (pmndrs), licencia Zlib.
 
 ## Herramientas del pipeline (no se distribuyen con el juego)
+- MPFB2 (MakeHuman Plugin For Blender) 2.0.17, GPL-3.0, de extensions.blender.org.
 - Detector de coches YOLO11-OBB de Ultralytics (AGPL-3.0), entrenado con el conjunto DOTA.
