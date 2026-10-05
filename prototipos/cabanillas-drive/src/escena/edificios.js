@@ -6,10 +6,14 @@
 import * as THREE from 'three';
 import { GLSL_FACHADA, LUCES_FACHADA } from './fachadas.glsl.js';
 
+// Colores base por estilo; cada casa además varía un poco tono, saturación y luz
 const PALETAS = {
-  enfoscado: ['#ece5d4', '#e7d9b9', '#ddc69c', '#f0eadf', '#e9d0b0', '#d8c2a2', '#f2ede3', '#e5caa9', '#e0d6c4'],
-  ladrillo: ['#9d5b3d', '#a9674b', '#8f5139', '#b17b59', '#975f46', '#a0705a'],
-  piedra: ['#c0af90', '#cabb9e', '#ae9d81'],
+  enfoscado: ['#ece5d4', '#e7d9b9', '#ddc69c', '#f0eadf', '#e9d0b0', '#d8c2a2', '#f2ede3', '#e5caa9', '#e0d6c4',
+    '#f4f1ea', '#e8dcc0', '#d9b98d', '#e3c79f', '#cfb79a', '#e6d3c3', '#dcc8b8', '#efe0c4', '#d6cbb7', '#c9b9a1',
+    '#e9c9a8', '#dfd5bd', '#f1e4cf', '#cdbfa8', '#e2d1b0'],
+  ladrillo: ['#9d5b3d', '#a9674b', '#8f5139', '#b17b59', '#975f46', '#a0705a', '#b5683f', '#7a4532', '#c49a6c',
+    '#d1b38a', '#8b6d5c', '#6e4a3a', '#b8846a', '#a35a36', '#c07a50', '#8a5a44'],
+  piedra: ['#c0af90', '#cabb9e', '#ae9d81', '#b8a888', '#9d927f', '#c9b48e', '#a89a84', '#d2c3a3', '#b5a07c'],
   nave: ['#cacdcf', '#d9d7d0', '#b9bdc0', '#e3e1db', '#c4c9c2'],
   hormigon: ['#aaa7a1', '#b9b5ad'],
   porche: ['#d8cdb8', '#bfb39c'],
@@ -251,7 +255,7 @@ totalEmissiveRadiance += colorLuzFachada * luzFachada * uIntensidadVentanas;`)
       .replace('#include <common>', `#include <common>
 uniform float uIntensidadVentanas;`);
   };
-  material.customProgramCacheKey = () => 'fachada-v2';
+  material.customProgramCacheKey = () => 'fachada-v3';
   return material;
 }
 
@@ -264,7 +268,8 @@ function preparaEdificio(f, aspecto) {
   const r = azar(props.id * 2654435761);
   const estilo = eligeEstilo(props, areaAnillo(exterior), r);
   const paleta = PALETAS[estilo];
-  const color = new THREE.Color(paleta[Math.floor(r() * paleta.length)]).convertSRGBToLinear();
+  const color = new THREE.Color(paleta[Math.floor(r() * paleta.length)]);
+  color.offsetHSL((r() - 0.5) * 0.03, (r() - 0.5) * 0.12, (r() - 0.5) * 0.08).convertSRGBToLinear();
   color.multiplyScalar(0.94 + r() * 0.1);
   const info = aspecto.edificios[String(props.id)];
   let cx = 0; let cz = 0;
