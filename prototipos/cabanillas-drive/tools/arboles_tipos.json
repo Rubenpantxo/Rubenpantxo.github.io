@@ -1,0 +1,11 @@
+{
+  "_ayuda": "Correcciones manuales del tipo de árbol (tools/08_arboles.py). Coordenadas locales en metros (x este, z sur), las del visor. Reglas: {x, z, radio, tipo} o {linea: [[x, z], …], ancho, tipo}. Tipos: frondosa, conifera, cipres, chopo, palmera, quitar.",
+  "correcciones": [
+    { "nota": "Calle N-S de la urbanización del norte: palmeras en las dos aceras (vistas en la ortofoto)",
+      "linea": [[103.5, -205], [109, 0]], "ancho": 7, "tipo": "palmera" },
+    { "nota": "Calle diagonal junto a la balsa: palmeras a ambos lados",
+      "linea": [[153.0, -201.0], [126.2, -158.8], [111.8, -136.2]], "ancho": 6.5, "tipo": "palmera" },
+    { "nota": "Calle E-O al este de la anterior: palmeras en la acera norte",
+      "linea": [[166.1, -73.5], [219.3, -74.5]], "ancho": 3, "tipo": "palmera" }
+  ]
+}

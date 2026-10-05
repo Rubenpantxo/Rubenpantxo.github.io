@@ -3,6 +3,7 @@
 **Fase actual:** 3 — Conducción **terminada**. **Parada obligatoria:** Rubén prueba a conducir (`npm run dev`, escritorio y móvil). Siguiente: fase 4 (HUD).
 
 **Siguiente (decidido por Rubén el 2026-10-05):** plan de realismo en `PLAN_REALISMO.md` (R1 árboles y vegetación → R2 tejados LiDAR → R3 render → R4 splats), antes de la fase 4. Pausa pedida por Rubén para recargar su uso.
+- **R1 en curso (2026-10-05):** hecho R1.1 (`tools/08_arboles.py` → 4 640 árboles; correcciones en `tools/arboles_tipos.json`) y R1.2 (`tools/texturas_arboles.py` + `npm run arboles`). Escrito `src/escena/arboles.js` (instancias, impostores, viento, colisión) pero **sin conectar a juego.js ni probar**. Falta: conectarlo, revisar el aspecto en el navegador y ajustar los modelos, y R1.4 (césped y cultivos).
 
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
