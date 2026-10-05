@@ -28,6 +28,7 @@ export const CONTROLES = {
     camara: ['KeyC'],
     bajar: ['KeyE', 'KeyF'],          // bajarse del coche / volver a subir
     correr: ['ShiftLeft', 'ShiftRight'],
+    hora: ['KeyT'],                   // adelantar una hora
   },
   joystick: {
     radio: 60,                // px de recorrido del mando

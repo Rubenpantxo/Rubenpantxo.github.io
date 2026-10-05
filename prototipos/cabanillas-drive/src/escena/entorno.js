@@ -45,6 +45,7 @@ export async function cargaCielo(ruta, renderer, escena, direccion) {
   const cielo = escena.getObjectByName('cielo');
   if (cielo) cielo.visible = false;
   escena.userData.cieloFoto = true;
+  escena.userData.giroCieloBase = anguloFoto;
   return true;
 }
 

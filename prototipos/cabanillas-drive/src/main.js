@@ -7,6 +7,7 @@ import { CAMARA } from './config/camara.js';
 import { ESCENA } from './config/escena.js';
 import { cargaCielo, creaEntorno } from './escena/entorno.js';
 import { configuraSombras, creaRender } from './escena/render.js';
+import { creaCicloDia } from './escena/cicloDia.js';
 import { creaPantallas } from './hud/pantallas.js';
 import { iniciaJuego } from './juego/juego.js';
 import { iniciaVisor } from './visor/visor.js';
@@ -70,6 +71,9 @@ const camara = new THREE.PerspectiveCamera(
 await cargaCielo(ESCENA.rutaCielo, renderer, escena, direccion);
 const render = creaRender(renderer, escena, camara, luzSol, CALIDAD);
 if (import.meta.env.DEV) window.__render = render;
+const ciclo = creaCicloDia({ escena, camara, luzSol, direccionRender: render.direccion, intensidadSol: ESCENA.sol.intensidad });
+if (import.meta.env.DEV) window.__ciclo = ciclo;
+pantallas.ponHoras(ciclo);
 // Tamaño: se comprueba en cada fotograma (además del evento), porque si la página se abre en una
 // pestaña oculta o un panel sin tamaño, el primer «resize» puede no llegar nunca
 let tamanoAplicado = '';
@@ -125,11 +129,12 @@ renderer.setAnimationLoop(() => {
   if (!tamanoAplicado) return;          // aún sin tamaño (panel oculto): no se dibuja
   gobiernaResolucion(dtReal);
   actualiza(dt);
+  ciclo.actualiza(dt, { avanza: !api?.pausado });
   renderer.info.reset();
   render.render();
 });
 
-modo({ renderer, escena, camara, ui })
+modo({ renderer, escena, camara, ui, ciclo })
   .then((m) => {
     configuraSombras(escena);
     actualiza = m.actualiza;

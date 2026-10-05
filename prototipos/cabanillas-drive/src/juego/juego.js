@@ -16,6 +16,8 @@ import { creaHud } from '../hud/hud.js';
 import { creaCarteles } from '../escena/carteles.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
+import { creaLuces } from './luces.js';
+import { textoHora } from '../escena/cicloDia.js';
 import { PEATON } from '../config/peaton.js';
 import { cargaMundo } from '../escena/mundo.js';
 import { PASO_FISICA, creaFisica, creaGestorColisiones } from '../fisica/fisica.js';
@@ -27,7 +29,7 @@ const DISTANCIAS_COCHES = {
   detalle: CALIDAD.distanciaCochesDetalle, lejos: CALIDAD.distanciaCochesLejos, max: CALIDAD.distanciaCochesMax,
 };
 
-export async function iniciaJuego({ renderer, escena, camara, ui }) {
+export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   ui.estado.textContent = 'Cargando Cabanillas…';
   creaReflejos(renderer, escena);
   const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi] = await Promise.all([
@@ -64,6 +66,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
     excluirModelo: VEHICULO.modelo,
   });
   const peaton = creaPeaton(fisica, mundo.terreno);
+  const luces = creaLuces({
+    escena, cocheJugador: coche.modelo.grupo, infoJugador: modelosCoches[VEHICULO.modelo].info, agentes: trafico.agentes,
+  });
   const botonBajar = document.querySelector('[data-pulsar="bajar"]');
   let aPie = false;
   let avisoHasta = 0;
@@ -199,6 +204,10 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
     }
     if (entrada.consume('reiniciar') && !aPie) recolocaCerca();
     if (entrada.consume('camara') && !aPie) camaraCoche.cambia();
+    if (entrada.consume('hora') && ciclo) {
+      ciclo.adelanta(1);
+      avisa(`🕒 ${textoHora(ciclo.estado.hora)}`, 2);
+    }
 
     // Lo que importa para colisiones y tráfico: el coche y, a pie, también el peatón
     const posCoche = coche.cuerpo.translation();
@@ -256,6 +265,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
       }
     }
     hud.actualiza(aPie ? peaton.estado() : e, dt, trafico.posiciones());
+    luces.actualiza(ciclo ? ciclo.estado.oscuridad : 0);
     let texto = textoDepuracion;
     if (tiempoVolcado > VEHICULO.reinicio.segundosVolcado) texto = 'Coche volcado: pulsa R (o ↺) para recolocarlo';
     if (performance.now() < avisoHasta) texto = aviso;
@@ -263,7 +273,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
   }
 
   const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico, peaton,
-    get aPie() { return aPie; }, bajarse, subirse, irA, carteles,
+    get aPie() { return aPie; }, bajarse, subirse, irA, carteles, luces, ciclo,
     lugares: carteles.lugares.map(({ nombre, icono }) => ({ nombre, icono })),
     get fps() { return fps; },
     get pausado() { return pausado; },

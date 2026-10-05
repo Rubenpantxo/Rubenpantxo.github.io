@@ -7,7 +7,7 @@ import { CONTROLES } from '../config/camara.js';
 export function creaEntrada(raizTactil) {
   const estado = { acelerador: 0, freno: 0, direccion: 0, frenoMano: false, analogica: false,
     avance: 0, lateral: 0, giro: 0, correr: false };
-  const pendientes = { reiniciar: false, camara: false, bajar: false };
+  const pendientes = { reiniciar: false, camara: false, bajar: false, hora: false };
   const mirada = { dx: 0, dy: 0 };
   const pulsadas = new Set();
   const teclas = CONTROLES.teclas;
@@ -22,6 +22,7 @@ export function creaEntrada(raizTactil) {
       if (teclas.reiniciar.includes(e.code)) pendientes.reiniciar = true;
       if (teclas.camara.includes(e.code)) pendientes.camara = true;
       if (teclas.bajar.includes(e.code)) pendientes.bajar = true;
+      if (teclas.hora.includes(e.code)) pendientes.hora = true;
     }
     pulsadas.add(e.code);
   });
