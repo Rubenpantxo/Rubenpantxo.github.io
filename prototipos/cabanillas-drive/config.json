@@ -3,6 +3,7 @@
   "zona": "data/raw/zona.geojson",
   "raw_dir": "data/raw",
   "processed_dir": "data/processed",
+  "assets_dir": "public/assets",
   "terrain_resolution_m": 1.0,
   "ortho_px_per_m": 4,
   "ortho_tile_px": 2048,

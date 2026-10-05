@@ -1,13 +1,13 @@
 # PROGRESO — Cabanillas Drive
 
-**Fase actual:** 1 — Pipeline de datos, paso 1.0 hecho. **Parada obligatoria:** datos completos e informe sin bloqueantes; esperando el "OK" de Rubén para 1.1.
+**Fase actual:** 1 — Pipeline de datos, paso 1.1 hecho. Siguiente: 1.2 (ortofoto PNOA por WMS).
 
 ## Fases
 
 | Fase | Descripción | Estado |
 |---|---|---|
 | 0 | Andamiaje | Hecha: `npm run dev` y `check_env.py` en `cabdrive` sin errores |
-| 1 | Pipeline de datos | 1.0 hecho (informe sin bloqueantes) · 1.1–1.4 pendientes |
+| 1 | Pipeline de datos | 1.0 y 1.1 hechos · 1.2–1.4 pendientes |
 | 2 | Escena 3D (Blender headless) | Pendiente |
 | 3 | Conducción | Pendiente |
 | 4 | HUD | Pendiente |
@@ -30,9 +30,15 @@
 - [x] Claude: entorno `cabdrive` creado; `check_env.py`: Python 3.11.16, GDAL 3.12.3, rasterio 1.4.4, geopandas 1.2.0, pyproj 3.7.2, Blender 5.0.1 → todo correcto.
 - [x] Datos en `data/raw/`: zona 1500 × 1400 m (E 621222–622722, N 4653842–4655242); MDT y MDS 2024 a 50 cm, hojas 0282_44 y 0283_14; Catastro municipal (`CATAST_Pol_Edificacion`, 2220 huellas en la zona).
 - [x] Informe 1.0: cobertura 100 % de MDT y MDS, mismo año, sin bloqueantes.
-- [ ] 1.1 `01_origin_terrain.py` (solo tras el "OK").
+- [x] 1.1 `01_origin_terrain.py` (OK de Rubén el 2026-10-05): origin.json, terreno 1501×1401 a 1 m, recortes, nDSM y relieve.png.
+- [ ] 1.2 `02_ortho.py` · 1.3 `03_buildings.py` · 1.4 `04_osm.py` · `superposicion.png`.
 
 ## Decisiones
+- Origen: E_centro 621972, N_centro 4654542, H_base 243,842 m (mínimo del MDT 0,5 m en la zona).
+- Terreno a **1 m exacto, 1501×1401 vértices**, sin 2^n+1: con 1500×1400 m daría celdas no cuadradas (1,465×1,367 m con 1025 o 0,73×0,68 m con 2049). Los chunks 4×4 de la fase 2 salen exactos (375×350 celdas).
+- Cada vértice es la media de los píxeles de 0,5 m de su celda de 1 m, ponderada por área: los .asc de Navarra tienen `xllcorner` en .875 (centros en .125/.625), así que no coinciden con los metros enteros. Comprobado contra el MDT original: 0,00 cm.
+- Huecos: el MDT se rellena por interpolación (3 px en la zona); el MDS se deja sin dato. Solapes entre hojas: MDT ±8 cm, MDS hasta 1,7 m en puntos aislados (manda la hoja 0282_44).
+- `public/assets/` no se commitea todavía (terrain.f32 = 8 MB): se decide al cerrar la fase 1 para no inflar el historial del repo con binarios que se regeneran.
 - `zona.geojson`: Rubén la dibujó girada; a petición suya, Claude la reescribió como rectángulo alineado con los ejes respetando su encuadre (2026-10-05).
 - La capa de edificios se llama `CATAST_Pol_Edificacion` en la descarga municipal; el script compara nombres sin `_`.
 - Ejecutar los scripts con `conda run -n cabdrive` (llamar al python.exe del entorno sin activar falla por GDAL_DATA/PROJ).

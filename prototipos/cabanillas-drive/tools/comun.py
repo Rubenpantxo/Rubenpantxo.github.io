@@ -40,6 +40,15 @@ def dir_processed(config: dict) -> Path:
     return ruta_proyecto(config.get("processed_dir", "data/processed"))
 
 
+def dir_assets(config: dict) -> Path:
+    """Lo que sirve el juego (public/assets)."""
+    return ruta_proyecto(config.get("assets_dir", "public/assets"))
+
+
+def dir_previews(config: dict) -> Path:
+    return dir_processed(config) / "previews"
+
+
 def ruta_zona(config: dict) -> Path:
     return ruta_proyecto(config["zona"])
 
@@ -47,3 +56,21 @@ def ruta_zona(config: dict) -> Path:
 def ruta_origin(config: dict) -> Path:
     """origin.json: fuente única de E_centro, N_centro y H_base (PLAN.md §4)."""
     return dir_processed(config) / "origin.json"
+
+
+def cargar_origin(config: dict) -> dict:
+    """Lee origin.json. Solo 01_origin_terrain.py lo escribe; el resto lo lee de aquí."""
+    ruta = ruta_origin(config)
+    if not ruta.is_file():
+        raise FileNotFoundError(f"No existe {ruta}. Ejecuta antes tools/01_origin_terrain.py")
+    with ruta.open(encoding="utf-8") as f:
+        return json.load(f)
+
+
+def utm_a_local(origin: dict, e, n, h=None):
+    """UTM (EPSG:25830) → local: x = E − E_centro, z = −(N − N_centro), y = h − H_base."""
+    x = e - origin["E_centro"]
+    z = -(n - origin["N_centro"])
+    if h is None:
+        return x, z
+    return x, h - origin["H_base"], z
