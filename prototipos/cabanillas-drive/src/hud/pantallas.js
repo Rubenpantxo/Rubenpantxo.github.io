@@ -1,6 +1,7 @@
 // Pantallas de inicio, pausa y créditos (marcado en index.html).
 // Estados: «inicio» (cargando o esperando a Jugar) → «jugando» ⇄ «pausa». Esc o P pausan.
 import { CALIDAD } from '../config/calidad.js';
+import { DIA } from '../config/dia.js';
 
 export function creaPantallas({ alCambiar }) {
   const $ = (id) => document.getElementById(id);
@@ -53,6 +54,27 @@ export function creaPantallas({ alCambiar }) {
     else if (estado === 'pausa') cambia('jugando');
   });
 
+  // Hora del día (ciclo de día y noche): se aplica al momento
+  function ponHoras(ciclo) {
+    const selectores = document.querySelectorAll('[data-hora]');
+    for (const sel of selectores) {
+      for (const [valor, { nombre }] of Object.entries(DIA.modos)) {
+        const o = document.createElement('option');
+        o.value = valor;
+        o.textContent = nombre;
+        sel.append(o);
+      }
+      sel.value = ciclo.modo;
+      sel.addEventListener('change', () => {
+        ciclo.ponModo(sel.value);
+        selectores.forEach((s) => { s.value = ciclo.modo; });
+      });
+    }
+    // Al abrir la pausa, el selector refleja el modo (T pasa a ciclo)
+    new MutationObserver(() => selectores.forEach((s) => { s.value = ciclo.modo; }))
+      .observe(pausa, { attributes: true, attributeFilter: ['hidden'] });
+  }
+
   // «Ir a…»: lista de lugares; al elegir uno se cierra la pausa
   function ponLugares(lugares, alElegir) {
     const sel = $('ir-a');
@@ -73,6 +95,7 @@ export function creaPantallas({ alCambiar }) {
 
   return {
     ponLugares,
+    ponHoras,
     get estado() { return estado; },
     textoCarga,
     listo() {

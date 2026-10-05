@@ -101,5 +101,6 @@ export function creaRender(renderer, escena, camara, luzSol, calidad) {
       }
     },
     ao,
+    direccion,          // hacia el sol (o la luna): la mueve el ciclo de día
   };
 }

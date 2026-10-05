@@ -1,6 +1,6 @@
 # PROGRESO — Cabanillas Drive
 
-**Fase actual:** 6 — Extras **en curso** (pedida por Rubén el 2026-10-05): tráfico por las calles OSM → bajarse del coche y caminar → carteles (lugares y nombres de calle) → ciclo día/noche.
+**Fase actual:** 6 — Extras **hecha, pendiente del OK de Rubén** (pedida el 2026-10-05): tráfico, caminar, carteles y ciclo día/noche.
 
 **Siguiente (decidido por Rubén el 2026-10-05):** plan de realismo en `PLAN_REALISMO.md` (R1 árboles y vegetación → R2 tejados LiDAR → R3 render → R4 splats), antes de la fase 4. Pausa pedida por Rubén para recargar su uso.
 - **R1 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/08_arboles.py` (4 640 árboles del LiDAR, tipos con correcciones en `tools/arboles_tipos.json`, troncos fuera de la calzada) → `tools/texturas_arboles.py` → `npm run arboles` (9 variantes EZ-Tree/palmera, 0,9 MB) → `src/escena/arboles.js` (3D a < 90 m, impostores más lejos, viento, cilindro de colisión por tronco). `tools/08b_vegetacion_baja.py` → `src/escena/hierba.js` (césped y rastrojo en 3D a < 60 m con el color de la ortofoto). Galería de modelos: `?arboles`. Coste medido: ~1,7 ms por fotograma en la zona más cargada. R1 aprobado.
@@ -19,7 +19,7 @@
 | 3 | Conducción | Hecha (pendiente de revisión de Rubén) |
 | 4 | HUD | Hecha, pendiente del OK |
 | 5 | Rendimiento móvil | Hecha, falta medir en un Android real |
-| 6 | Extras (solo si Rubén lo pide) | — |
+| 6 | Extras (tráfico, a pie, carteles, día/noche) | Hecha, pendiente del OK |
 
 ## Hecho
 
@@ -61,6 +61,21 @@
   - Alturas en Uint16 (`terrain.u16`, la mitad que el Float32). `npm run movil` genera las variantes.
   - Contador con `?debug=1`: FPS, ms, llamadas, triángulos, colisiones activas, calidad y resolución.
   - Falta: medir en un Android de gama media real (objetivo ≥ 30 FPS en «bajo»).
+- [x] Fase 6 (extras):
+  - Tráfico (`src/juego/trafico.js`, `src/datos/grafoCalles.js`): coches cinemáticos por el grafo dirigido de
+    `calles.geojson` (respeta los sentidos únicos), siguen al de delante y reaparecen fuera de la vista.
+  - A pie (`src/juego/peaton.js`): E/F (o 🚶) para bajarse con el coche parado; cápsula con el controlador de
+    personaje de Rapier (bordillos, choques); ratón con clic para mirar, Mayús para correr.
+  - Carteles (`src/escena/carteles.js`): 11 lugares de `poi.geojson` con icono sobre el edificio y 44 placas de
+    nombre de calle en las fachadas de las esquinas; iconos en el minimapa; «Ir a…» en la pausa.
+  - Día y noche (`src/escena/cicloDia.js`, `src/config/dia.js`, `src/juego/luces.js`): el sol recorre el camino del
+    día del vuelo (declinación y hora sacadas de `sol.json` y la latitud: la foto es de las 14:43); de noche, luna,
+    estrellas y cielo calculado fundido con el fotográfico; la ortofoto se oscurece y recibe la luz de la luna y los
+    faros; faros reales en el coche y puntos de faros y pilotos en el tráfico. Selector «Hora» en inicio y pausa
+    (hora de la foto, ciclo de 24 min, mañana, atardecer, noche; se recuerda) y T para adelantar una hora.
+    Sin ventanas iluminadas ni farolas: no hay datos de farolas y las fachadas no tienen ventanas modeladas.
+  - Calidad alta más robusta: el AO no se crea a 0×0 si la página se abre en un panel oculto y se avisa si la GPU
+    retira el contexto WebGL (pasaba con varias pestañas del juego abiertas a la vez en calidad alta).
 
 ### Fase 2b — Aspecto individual de los edificios (petición de Rubén, 2026-10-05)
 - [x] `03_buildings.py` lee los rótulos `CATAST_Txt_EdifAlturas`: plantas reales (1101 de 1 planta, 653 de 2, 55 de 3, 3 de 4), porches/tejavanas (168) y singulares; descarta sótanos sin nada sobre rasante. Marca 4503 lados medianeros.

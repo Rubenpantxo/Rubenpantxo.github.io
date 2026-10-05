@@ -9,6 +9,15 @@ const FUERZA_SOMBRA = 0.55;                 // cuánto oscurece una sombra 3D el
 const LUZ_SOMBRA_PINTADA = [0.035, 0.12];   // luminancia lineal: por debajo, ya es sombra en la foto
 const DETALLE_HASTA_M = 45;
 
+// Luz del terreno, común a todas sus mallas (la mueve el ciclo de día, cicloDia.js): la foto
+// como emisivo multiplicado por «emisivo», y de noche además como color difuso que recibe la
+// luz de la luna y de los faros
+export const LUZ_SUELO = {
+  emisivo: { value: new THREE.Color(1, 1, 1) },
+  factor: { value: 1 },
+  difuso: { value: 0 },
+};
+
 export async function cargaDetalleSuelo(ruta, renderer) {
   const meta = await fetch(`${ruta}suelo.json`).then((r) => (r.ok ? r.json() : null));
   if (!meta) return null;
@@ -25,8 +34,18 @@ export async function cargaDetalleSuelo(ruta, renderer) {
 
 export function materialSuelo(mapa, nombre, detalle = null) {
   // Lambert negro + emisivo = la foto sin iluminar, pero con los datos de sombras disponibles
-  const material = new THREE.MeshLambertMaterial({ color: 0x000000, emissive: 0xffffff, emissiveMap: mapa, name: nombre });
+  const material = new THREE.MeshLambertMaterial({ color: 0xffffff, map: mapa, emissive: 0xffffff, emissiveMap: mapa, name: nombre });
+  material.userData.esSuelo = true;
   material.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, { uEmisivo: LUZ_SUELO.emisivo, uFactorLuz: LUZ_SUELO.factor, uDifuso: LUZ_SUELO.difuso });
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', `#include <common>
+        uniform vec3 uEmisivo;
+        uniform float uFactorLuz, uDifuso;`)
+      .replace('#include <map_fragment>', `#include <map_fragment>
+        diffuseColor.rgb *= uDifuso;`)
+      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+        totalEmissiveRadiance *= uEmisivo;`);
     if (detalle) {
       const { meta } = detalle;
       Object.assign(shader.uniforms, {
@@ -67,14 +86,14 @@ export function materialSuelo(mapa, nombre, detalle = null) {
         #include <shadowmask_pars_fragment>`)
       .replace('#include <opaque_fragment>', `
         {
-          float luzFoto = dot(totalEmissiveRadiance, vec3(0.2126, 0.7152, 0.0722));
+          float luzFoto = dot(totalEmissiveRadiance, vec3(0.2126, 0.7152, 0.0722)) / max(uFactorLuz, 0.02);
           float soleado = smoothstep(${LUZ_SOMBRA_PINTADA[0]}, ${LUZ_SOMBRA_PINTADA[1]}, luzFoto);
           float sombra = 1.0 - getShadowMask();
-          outgoingLight *= 1.0 - ${FUERZA_SOMBRA.toFixed(3)} * sombra * soleado;
+          outgoingLight *= 1.0 - ${FUERZA_SOMBRA.toFixed(3)} * min(uFactorLuz, 1.0) * sombra * soleado;
         }
         #include <opaque_fragment>`);
   };
-  material.customProgramCacheKey = () => (detalle ? 'suelo_ortofoto_detalle' : 'suelo_ortofoto');
+  material.customProgramCacheKey = () => (detalle ? 'suelo_ortofoto_detalle_dia' : 'suelo_ortofoto_dia');
   return material;
 }
 
