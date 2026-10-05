@@ -5,7 +5,9 @@ texturas de detalle para quitar lo borroso de la ortofoto a ras de suelo.
   tipo de vía), G = acera (franja de 1,8 m a cada lado, más calles peatonales y senderos
   urbanos), B = tierra (caminos agrícolas sin asfaltar). Suavizado para que no haya escalones.
 - asfalto.png, baldosa.png, tierra.png: detalle en gris (128 = sin cambio), que el juego
-  multiplica sobre el color de la ortofoto solo cerca de la cámara. Dibujados aquí.
+  multiplica sobre el color de la ortofoto solo cerca de la cámara. Salen de las texturas
+  CC0 de ambientCG descargadas en <raw>/externos/texturas/ (color × oclusión, en gris y
+  normalizado a su media: la foto pone el color); si no están, se dibujan aquí.
 
 Requiere 04_osm.py y 08_arboles.py (anchos de calzada).
 
@@ -26,12 +28,20 @@ from rasterio.features import rasterize
 from scipy import ndimage
 from shapely.geometry import shape
 
-from comun import cargar_config, cargar_origin, dir_assets
+import zipfile
+
+from comun import cargar_config, cargar_origin, dir_assets, dir_raw
 
 PASO_M = 0.5
 ACERA_M = 1.8
 LADO_TEX = 512
-METROS_TEX = {"asfalto": 4.0, "baldosa": 2.0, "tierra": 4.0}   # metros que cubre cada textura
+METROS_TEX = {"asfalto": 4.0, "baldosa": 2.0, "tierra": 4.0}   # texturas dibujadas: metros que cubren
+# Texturas de ambientCG (CC0): archivo y metros reales que cubre cada una
+EXTERNAS = {
+    "asfalto": ("Asphalt031", 2.0, 1.0),
+    "baldosa": ("PavingStones136", 1.6, 1.0),     # 4×4 baldosas de 40 cm
+    "tierra": ("Ground109", 2.5, 0.8),
+}                                                 # (id, metros, fuerza del contraste)
 
 
 def ruido(lado, sigma, r):
@@ -76,6 +86,25 @@ def textura_tierra(r):
     return normaliza(v + guijarros * 2.5, 22)
 
 
+def textura_externa(carpeta, id_, fuerza):
+    """Detalle en gris de una textura de ambientCG: color × oclusión, normalizado a 128."""
+    zip_ = carpeta / f"{id_}_1K-JPG.zip"
+    if not zip_.is_file():
+        return None
+    with zipfile.ZipFile(zip_) as z:
+        def lee(sufijo, modo):
+            with z.open(f"{id_}_1K-JPG_{sufijo}.jpg") as f:
+                return np.asarray(Image.open(f).convert(modo).resize((LADO_TEX, LADO_TEX), Image.LANCZOS), np.float32)
+        color = lee("Color", "RGB")
+        try:
+            ao = lee("AmbientOcclusion", "L") / 255
+        except KeyError:
+            ao = np.ones(color.shape[:2], np.float32)
+    lum = (color @ np.array([0.2126, 0.7152, 0.0722], np.float32)) * ao
+    rel = lum / lum.mean()
+    return np.clip(128 * (1 + (rel - 1) * fuerza), 0, 255).astype(np.uint8)
+
+
 def main() -> int:
     config = cargar_config()
     origin = cargar_origin(config)
@@ -112,12 +141,22 @@ def main() -> int:
     Image.fromarray(tipos.astype(np.uint8)).save(salida / "tipos.png", optimize=True)
 
     r = np.random.default_rng(5)
-    Image.fromarray(textura_asfalto(r)).save(salida / "asfalto.png", optimize=True)
-    Image.fromarray(textura_baldosa(r)).save(salida / "baldosa.png", optimize=True)
-    Image.fromarray(textura_tierra(r)).save(salida / "tierra.png", optimize=True)
+    dibujadas = {"asfalto": textura_asfalto, "baldosa": textura_baldosa, "tierra": textura_tierra}
+    metros = dict(METROS_TEX)
+    externas = dir_raw(config) / "externos" / "texturas"
+    for nombre, dibuja in dibujadas.items():
+        id_, m, fuerza = EXTERNAS[nombre]
+        img = textura_externa(externas, id_, fuerza)
+        if img is not None:
+            metros[nombre] = m
+            print(f"  {nombre}: ambientCG {id_} ({m} m)")
+        else:
+            img = dibuja(r)
+            print(f"  {nombre}: dibujada (falta {id_}_1K-JPG.zip)")
+        Image.fromarray(img).save(salida / f"{nombre}.png", optimize=True)
     (salida / "suelo.json").write_text(json.dumps({
         "paso_m": PASO_M, "columnas": columnas, "filas": filas, "x0": -origin["ancho"] / 2, "z0": -origin["alto"] / 2,
-        "metros_textura": METROS_TEX,
+        "metros_textura": metros,
         "canales": {"R": "calzada", "G": "acera", "B": "tierra"},
     }, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"Calzada {calzada.sum() * PASO_M ** 2 / 1e4:.1f} ha · acera {acera.sum() * PASO_M ** 2 / 1e4:.1f} ha · "

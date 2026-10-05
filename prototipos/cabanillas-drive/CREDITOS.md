@@ -21,6 +21,8 @@ condiciones de cada web antes de publicar el juego.
 - Palmeras, racimos de hojas y mechones de hierba: dibujados por los scripts del proyecto.
 
 ## Render
+- Cielo: HDRI «Kloofendal 48d Partly Cloudy (Pure Sky)», de Poly Haven (CC0), en `data/raw/externos/cielo/`.
+- Detalle del suelo: Asphalt031, PavingStones136 y Ground109, de ambientCG (CC0), en `data/raw/externos/texturas/`.
 - N8AO (oclusión ambiental), de N8python, licencia ISC; postprocessing (pmndrs), licencia Zlib.
 
 ## Herramientas del pipeline (no se distribuyen con el juego)
