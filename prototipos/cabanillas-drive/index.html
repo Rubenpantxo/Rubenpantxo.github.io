@@ -46,36 +46,70 @@
         #panel { top: calc(max(12px, env(safe-area-inset-top)) + 44px); }
       }
 
-      /* Pantallas: inicio, pausa y créditos */
+      /* Pantallas: inicio, pausa, controles y créditos */
       .pantalla { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; box-sizing: border-box;
         background: radial-gradient(ellipse at center, rgba(16, 22, 30, .55), rgba(10, 14, 20, .88)); z-index: 10; overflow-y: auto; }
       .pantalla[hidden] { display: none; }
-      .tarjeta { width: min(520px, 100%); box-sizing: border-box; padding: 28px 26px; border-radius: 16px;
+      .tarjeta { width: min(420px, 100%); box-sizing: border-box; padding: 24px 22px; border-radius: 16px;
         background: rgba(18, 25, 34, .92); border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 20px 60px rgba(0, 0, 0, .45); }
-      .tarjeta h1 { margin: 0 0 4px; font-size: clamp(30px, 7vw, 44px); letter-spacing: -.5px; line-height: 1.05; }
-      .tarjeta h1 span { color: var(--acento); }
-      .tarjeta h2 { margin: 0 0 12px; font-size: 22px; }
+      .tarjeta h2 { margin: 0 0 4px; font-size: 22px; }
       .tarjeta h3 { margin: 16px 0 4px; font-size: 14px; color: var(--acento); text-transform: uppercase; letter-spacing: .6px; }
-      .lema { margin: 0 0 20px; color: var(--tenue); }
       .boton { display: block; width: 100%; padding: 13px 16px; border-radius: 10px; border: 0; background: var(--acento);
         color: #1b2430; font: 700 17px system-ui, sans-serif; cursor: pointer; }
-      .boton:disabled { background: #4a5563; color: #9aa6b3; cursor: progress; }
+      .boton[hidden] { display: none; }
       .boton.secundario { background: transparent; color: var(--tinta); border: 1px solid rgba(255, 255, 255, .3); font-weight: 600; font-size: 15px; }
-      .fila { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
-      .fila > * { flex: 1; }
-      .carga { margin: 0 0 16px; }
-      .barra { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+      .boton.discreto { background: transparent; color: var(--tenue); border: 0; padding: 8px; font: 500 13px system-ui, sans-serif;
+        text-decoration: underline; text-underline-offset: 3px; }
+      .pila { display: grid; gap: 10px; }
+      .fila { display: flex; gap: 10px; align-items: end; }
+      .fila > * { flex: 1; min-width: 0; }
+      label.calidad { display: grid; gap: 4px; color: var(--tenue); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+      label.calidad[hidden] { display: none; }
+      label.calidad select { width: 100%; min-height: 42px; padding: 8px 10px; border-radius: 8px; background: #26313f; color: #fff;
+        border: 1px solid rgba(255, 255, 255, .25); font: 15px system-ui, sans-serif; text-transform: none; letter-spacing: 0; cursor: pointer; }
+
+      /* Inicio: portada, barra de carga, Jugar, calidad y hora */
+      #inicio { background: #10161e; overflow: hidden auto; }
+      #inicio::before { content: ""; position: fixed; inset: -40px; background: url(ui/portada.webp) center / cover;
+        filter: blur(28px) brightness(.45); }
+      .portada { position: relative; display: grid; justify-items: center; gap: clamp(8px, 2.2vh, 16px); width: min(440px, 100%); }
+      .portada img { display: block; width: auto; max-width: 100%; height: auto; max-height: min(56vh, 520px); aspect-ratio: 652 / 599;
+        filter: drop-shadow(0 18px 40px rgba(0, 0, 0, .55)); }
+      .portada > :not(img, h1) { width: min(360px, 100%); }
+      .carga[hidden] { display: none; }
+      .barra { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .15); overflow: hidden; }
       .barra span { display: block; height: 100%; width: 0; background: var(--acento); transition: width .3s; }
-      #estado-carga { margin: 6px 0 0; color: var(--tenue); font-size: 13px; min-height: 1.4em; }
-      .controles { margin-top: 18px; color: var(--tenue); font-size: 13px; }
-      .controles kbd { display: inline-block; min-width: 1.4em; padding: 1px 5px; border-radius: 4px; text-align: center;
+      #estado-carga { margin: 6px 0 0; color: var(--tenue); font-size: 13px; text-align: center; min-height: 1.4em; }
+      .atasco { margin-top: 8px; display: grid; gap: 4px; }
+      .atasco[hidden] { display: none; }
+      .solo-visual { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+      /* Controles: captura del juego con marcas numeradas y leyenda */
+      #controles .tarjeta { width: min(920px, 100%); }
+      .pestanas { display: flex; gap: 6px; margin: 10px 0 12px; flex-wrap: wrap; }
+      .pestanas button { padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .3); background: transparent;
+        color: var(--tenue); font: 600 14px system-ui, sans-serif; cursor: pointer; }
+      .pestanas button[aria-selected="true"] { background: var(--acento); border-color: var(--acento); color: #1b2430; }
+      .vista[hidden] { display: none; }
+      .captura { position: relative; width: min(100%, calc(52vh * var(--proporcion))); margin: 0 auto; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .15); }
+      .captura img { display: block; width: 100%; height: auto; }
+      .marca { position: absolute; transform: translate(-50%, -50%); width: 26px; height: 26px; border-radius: 50%;
+        display: grid; place-items: center; background: var(--acento); color: #1b2430; font: 800 14px system-ui, sans-serif;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, .45); }
+      .leyenda { margin: 12px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 6px 16px; color: var(--tenue); font-size: 13px; }
+      .leyenda li { display: flex; gap: 8px; align-items: baseline; }
+      .leyenda .num { flex: none; width: 20px; height: 20px; border-radius: 50%; display: inline-grid; place-items: center;
+        background: var(--acento); color: #1b2430; font: 800 12px system-ui, sans-serif; }
+      .leyenda b { color: #fff; font-weight: 600; }
+      .extra { margin: 12px 0 0; color: var(--tenue); font-size: 13px; }
+      .extra summary { cursor: pointer; color: #fff; font-weight: 600; }
+      .extra p { margin: 6px 0 0; }
+      kbd { display: inline-block; min-width: 1.4em; padding: 1px 5px; border-radius: 4px; text-align: center;
         background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .2); font: 600 12px system-ui, sans-serif; color: #fff; }
-      .controles .tactil { display: none; }
-      @media (pointer: coarse) { .controles .teclado { display: none; } .controles .tactil { display: block; } }
-      label.calidad { display: flex; gap: 8px; align-items: center; color: var(--tenue); font-size: 13px; }
-      label.ir-a { margin-top: 10px; }
-      label.ir-a[hidden] { display: none; }
-      label.calidad select { flex: 1; padding: 9px; border-radius: 8px; background: #26313f; color: #fff; border: 1px solid rgba(255, 255, 255, .25); font: inherit; }
+      @media (max-width: 600px) { .marca { width: 20px; height: 20px; font-size: 11px; } }
+
+      #controles, #creditos { background: rgba(10, 14, 20, .96); }
       #creditos .tarjeta { width: min(640px, 100%); }
       #creditos ul { margin: 0; padding-left: 18px; color: var(--tenue); font-size: 13px; }
       #creditos li { margin: 2px 0; }
@@ -135,44 +169,110 @@
     </div>
 
     <section id="inicio" class="pantalla" aria-labelledby="titulo-inicio">
-      <div class="tarjeta">
-        <h1 id="titulo-inicio">Cabanillas <span>Drive</span></h1>
-        <p class="lema">Conduce por Cabanillas (Navarra), reconstruida con datos reales: LiDAR, Catastro, ortofoto y OpenStreetMap.</p>
+      <div class="portada">
+        <h1 id="titulo-inicio" class="solo-visual">Cabanillas Drive</h1>
+        <img src="ui/portada.webp" alt="Cabanillas Drive" width="652" height="599" fetchpriority="high" />
         <div class="carga">
           <div class="barra"><span id="barra-carga"></span></div>
           <p id="estado-carga">Cargando…</p>
+          <div class="atasco" hidden>
+            <button class="boton secundario" type="button" data-recarga>Recargar</button>
+            <button class="boton discreto" type="button" data-recarga="bajo">Probar con calidad baja</button>
+          </div>
         </div>
-        <button id="jugar" class="boton" type="button" disabled>Jugar</button>
+        <button id="jugar" class="boton" type="button" hidden>Jugar</button>
         <div class="fila">
-          <button class="boton secundario" type="button" data-abre="creditos">Créditos</button>
           <label class="calidad">Calidad <select data-calidad>
             <option value="alto">Alta</option><option value="medio">Media</option><option value="bajo">Baja (móvil)</option>
           </select></label>
           <label class="calidad">Hora <select data-hora></select></label>
-        </div>
-        <div class="controles">
-          <p class="teclado"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> o flechas: conducir · <kbd>Espacio</kbd> freno de mano ·
-            <kbd>R</kbd> recolocar · <kbd>C</kbd> cámara · <kbd>M</kbd> minimapa · <kbd>T</kbd> +1 hora · <kbd>Esc</kbd> pausa<br>
-            <kbd>E</kbd> bajarse o subir · a pie: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> andar, ratón (clic) o flechas para mirar,
-            <kbd>Mayús</kbd> correr</p>
-          <p class="tactil">Arrastra a la izquierda para girar · ▲ acelerar · ▼ frenar y marcha atrás · Mano: freno de mano ·
-            👁 cámara · ↺ recolocar · ☰ pausa · 🚶 bajarse o subir (a pie: joystick para andar, arrastra para mirar,
-            ▲ correr)</p>
         </div>
       </div>
     </section>
 
     <section id="pausa" class="pantalla" hidden aria-labelledby="titulo-pausa">
-      <div class="tarjeta">
+      <div class="tarjeta pila">
         <h2 id="titulo-pausa">Pausa</h2>
         <button class="boton" type="button" data-cierra="pausa">Continuar</button>
+        <button class="boton secundario" type="button" data-abre="controles">Controles</button>
         <label class="calidad ir-a" hidden>Ir a <select id="ir-a"><option value="">Elige un lugar…</option></select></label>
         <div class="fila">
-          <button class="boton secundario" type="button" data-abre="creditos">Créditos</button>
           <label class="calidad">Calidad <select data-calidad>
             <option value="alto">Alta</option><option value="medio">Media</option><option value="bajo">Baja (móvil)</option>
           </select></label>
           <label class="calidad">Hora <select data-hora></select></label>
+        </div>
+        <button class="boton discreto" type="button" data-abre="creditos">Créditos</button>
+      </div>
+    </section>
+
+    <section id="controles" class="pantalla" hidden aria-labelledby="titulo-controles">
+      <div class="tarjeta">
+        <h2 id="titulo-controles">Controles</h2>
+        <div class="pestanas" role="tablist">
+          <button type="button" role="tab" data-vista="teclado" aria-selected="true">Teclado y ratón</button>
+          <button type="button" role="tab" data-vista="tactil" aria-selected="false">Pantalla táctil</button>
+        </div>
+
+        <div class="vista" data-vista="teclado">
+          <figure class="captura" style="--proporcion: 1.778">
+            <img src="ui/controles_teclado.webp" alt="Pantalla de juego en el ordenador" width="1280" height="720" loading="lazy" />
+            <span class="marca" style="left: 6.5%; top: 6%">1</span>
+            <span class="marca" style="left: 50%; top: 13%">2</span>
+            <span class="marca" style="left: 50%; top: 54%">3</span>
+            <span class="marca" style="left: 16.5%; top: 72%">4</span>
+            <span class="marca" style="left: 84%; top: 74%">5</span>
+            <span class="marca" style="left: 91%; top: 33%">6</span>
+          </figure>
+          <ol class="leyenda">
+            <li><span class="num">1</span><span><b>Pausa y menú:</b> <kbd>Esc</kbd> o <kbd>P</kbd></span></li>
+            <li><span class="num">2</span><span><b>Brújula:</b> rumbo del coche</span></li>
+            <li><span class="num">3</span><span><b>Conducir:</b> <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> o flechas · <kbd>Espacio</kbd> freno de mano</span></li>
+            <li><span class="num">4</span><span><b>Minimapa:</b> <kbd>M</kbd> o clic para girarlo con el coche o norte arriba</span></li>
+            <li><span class="num">5</span><span><b>Velocímetro:</b> km/h; «R» indica marcha atrás</span></li>
+            <li><span class="num">6</span><span><b>Lugares:</b> carteles; «Ir a…» en la pausa te lleva</span></li>
+          </ol>
+          <p class="extra"><kbd>R</kbd> recolocar el coche · <kbd>C</kbd> cambiar cámara · <kbd>T</kbd> adelantar una hora ·
+            <kbd>E</kbd> bajarse o subir</p>
+          <details class="extra">
+            <summary>A pie</summary>
+            <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> andar · ratón (haz clic) o flechas para mirar · <kbd>Mayús</kbd> correr ·
+              <kbd>E</kbd> subir al coche</p>
+          </details>
+        </div>
+
+        <div class="vista" data-vista="tactil" hidden>
+          <figure class="captura" style="--proporcion: 2.164">
+            <img src="ui/controles_tactil.webp" alt="Pantalla de juego en el móvil" width="1266" height="585" loading="lazy" />
+            <span class="marca" style="left: 4%; top: 20%">1</span>
+            <span class="marca" style="left: 17%; top: 44%">2</span>
+            <span class="marca" style="left: 25%; top: 75%">3</span>
+            <span class="marca" style="left: 80.7%; top: 22%">4</span>
+            <span class="marca" style="left: 88.1%; top: 22%">5</span>
+            <span class="marca" style="left: 95.5%; top: 22%">6</span>
+            <span class="marca" style="left: 80.6%; top: 75%">7</span>
+            <span class="marca" style="left: 92.4%; top: 70%">8</span>
+            <span class="marca" style="left: 86%; top: 88%">9</span>
+          </figure>
+          <ol class="leyenda">
+            <li><span class="num">1</span><span><b>☰</b> pausa y menú</span></li>
+            <li><span class="num">2</span><span><b>Minimapa:</b> tócalo para girarlo o norte arriba</span></li>
+            <li><span class="num">3</span><span><b>Mitad izquierda:</b> arrastra para girar</span></li>
+            <li><span class="num">4</span><span><b>🚶</b> bajarse o subir al coche</span></li>
+            <li><span class="num">5</span><span><b>👁</b> cambiar cámara</span></li>
+            <li><span class="num">6</span><span><b>↺</b> recolocar el coche</span></li>
+            <li><span class="num">7</span><span><b>Mano:</b> freno de mano</span></li>
+            <li><span class="num">8</span><span><b>▲</b> acelerar</span></li>
+            <li><span class="num">9</span><span><b>▼</b> frenar y marcha atrás</span></li>
+          </ol>
+          <details class="extra">
+            <summary>A pie</summary>
+            <p>Joystick (mitad izquierda) para andar · arrastra a la derecha para mirar · ▲ correr · 🚗 subir al coche</p>
+          </details>
+        </div>
+
+        <div class="fila" style="margin-top: 16px">
+          <button class="boton" type="button" data-cierra="controles">Cerrar</button>
         </div>
       </div>
     </section>

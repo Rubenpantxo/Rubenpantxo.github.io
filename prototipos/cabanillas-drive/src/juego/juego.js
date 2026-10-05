@@ -273,7 +273,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   }
 
   const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico, peaton,
-    get aPie() { return aPie; }, bajarse, subirse, irA, carteles, luces, ciclo,
+    get aPie() { return aPie; }, bajarse, subirse, irA, avisa, carteles, luces, ciclo,
     lugares: carteles.lugares.map(({ nombre, icono }) => ({ nombre, icono })),
     get fps() { return fps; },
     get pausado() { return pausado; },
