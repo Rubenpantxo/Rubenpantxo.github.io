@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { CALIDAD } from './config/calidad.js';
 import { CAMARA } from './config/camara.js';
 import { ESCENA } from './config/escena.js';
-import { creaEntorno } from './escena/entorno.js';
+import { cargaCielo, creaEntorno } from './escena/entorno.js';
 import { configuraSombras, creaRender } from './escena/render.js';
 import { iniciaJuego } from './juego/juego.js';
 import { iniciaVisor } from './visor/visor.js';
@@ -31,11 +31,12 @@ renderer.toneMappingExposure = 0.75;
 // Sol del día de la ortofoto (tools/10_sol.py); sin él, el de config/escena.js
 const sol = await fetch(ESCENA.rutaSol).then((r) => (r.ok ? r.json() : null)).catch(() => null);
 const escena = new THREE.Scene();
-const { luzSol } = creaEntorno(escena, ESCENA, sol);
+const { luzSol, direccion } = creaEntorno(escena, ESCENA, sol);
 const camara = new THREE.PerspectiveCamera(
   CAMARA.persecucion.fov, window.innerWidth / window.innerHeight, CALIDAD.camaraCerca, CALIDAD.camaraLejos,
 );
 
+await cargaCielo(ESCENA.rutaCielo, renderer, escena, direccion);
 const render = creaRender(renderer, escena, camara, luzSol, CALIDAD);
 if (import.meta.env.DEV) window.__render = render;
 window.addEventListener('resize', () => {

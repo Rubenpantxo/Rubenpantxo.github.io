@@ -1,13 +1,15 @@
 """Paso R2 — Tejados reales desde el LiDAR (MDS a 0,5 m).
 
 Por edificio:
-1. Puntos del MDS dentro de la huella (encogida 0,35 m para no coger el borde ni la calle).
+1. Puntos del MDS dentro de la huella (encogida 0,35 m para no coger el borde ni la calle),
+   sin los que en la ortofoto son verdes: copas de árbol que tapan el tejado.
 2. Hasta 4 planos por RANSAC sucesivo (faldones). El tejado es el mínimo de los planos:
    así salen bien los de un agua, dos aguas, cuatro aguas y los planos, con cumbreras y
    limatesas exactas (cada faldón es la huella recortada por semiplanos, sin escalones).
 3. Se elige el número de planos con menos error (penalizando cada plano de más). Si ni así
    cuadra (tejados en L con limahoyas, varias alturas, cubiertas curvas…), malla de rejilla
-   del propio MDS filtrado.
+   del propio MDS filtrado; salvo en edificios muy estrechos o si la rejilla tampoco cuadra:
+   entonces el juego deja el techo plano de siempre.
 4. Aleros de 0,3 m (sin invadir a los vecinos) con su canto y su cara inferior.
 5. Muros: la altura de cada lado sigue el borde real del tejado (perfil por lado).
 
@@ -53,6 +55,8 @@ ERROR_MAX_PLANOS_M = 0.35    # por encima, rejilla
 ALERO_M = 0.3
 CANTO_ALERO_M = 0.18
 PASO_REJILLA_M = 1.0
+REJILLA_MEDIO_ANCHO_MIN_M = 1.25
+ERROR_MAX_REJILLA_M = 0.6
 DECIMALES = 2
 SEMILLA = 11
 
@@ -246,7 +250,7 @@ def tejado_rejilla(f, poligono, mds, tr, origin, base, techo):
     _, (fi, ci) = ndimage.distance_transform_edt(~ok, return_indices=True)
     parche = parche[fi, ci]
     parche = ndimage.median_filter(parche, size=3)
-    parche = np.clip(parche, base + 1.5, techo + 1.0)
+    parche = np.clip(parche, base + 1.5, techo + 0.5)
 
     def altura(x, z):
         e = np.asarray(x) + origin["E_centro"]
@@ -313,6 +317,15 @@ def main() -> int:
     with rasterio.open(processed / "mds_clip.tif") as ds:
         mds = ds.read(1, masked=True).filled(np.nan).astype(np.float32) - origin["H_base"]
         tr = ds.transform
+    # Copas de árbol sobre los tejados: fuera (el hueco se rellena con el tejado de alrededor)
+    import importlib
+    _, orto, tr_orto = importlib.import_module("08_arboles").lee_rasters(processed)
+    assert tr_orto == tr, "el nDSM y el MDS deberían compartir rejilla"
+    r_, g_, b_ = orto[..., 0], orto[..., 1], orto[..., 2]
+    verde = (2 * g_ - r_ - b_) / (r_ + g_ + b_ + 1) > 0.06
+    verde = ndimage.binary_dilation(verde, iterations=1)
+    mds[verde] = np.nan
+    print(f"Píxeles de vegetación excluidos del MDS: {verde.sum()}")
     edificios = json.loads((assets / "buildings.geojson").read_text(encoding="utf-8"))["features"]
     poligonos = [shape(f["geometry"]) for f in edificios]
     indice = STRtree(poligonos)
@@ -346,8 +359,12 @@ def main() -> int:
                     resultado = tejado_planos(f, pol, elegidos, vecinos, base)
                     modo, err = "planos", mejor[0]
                     n_planos.append(mejor[1])
-            if resultado is None:
+            # Rejilla solo en edificios con anchura suficiente: en franjas de menos de ~2,5 m el
+            # MDS mezcla las fachadas vecinas y la calle y sale una «tienda de campaña»
+            if resultado is None and not pol.buffer(-REJILLA_MEDIO_ANCHO_MIN_M).is_empty:
                 rejilla = tejado_rejilla(f, pol, mds, tr, origin, base, techo)
+                if rejilla is not None and rejilla[-1] > ERROR_MAX_REJILLA_M:
+                    rejilla = None
                 if rejilla is not None:
                     modo = "rejilla"
                     *resultado, err = rejilla

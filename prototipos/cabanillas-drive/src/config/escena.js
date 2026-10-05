@@ -15,6 +15,7 @@ export const ESCENA = {
   rutaVegetacion: 'assets/vegetacion/',
   rutaSol: 'assets/sol.json',
   rutaSuelo: 'assets/suelo/',
+  rutaCielo: 'assets/cielo/',
   // Coches aparcados: a menos de esta distancia de la cámara se dibuja el modelo detallado
   distanciaCochesDetalle: 70,
   segundosRepartoCoches: 0.25,

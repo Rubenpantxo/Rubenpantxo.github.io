@@ -20,9 +20,38 @@ function ajustaCielo(cielo, direccion) {
   u.sunPosition.value.copy(direccion);
 }
 
-// Reflejos (y luz ambiente de los materiales PBR) sacados del propio cielo, con un suelo
-// del color medio del terreno: la pintura y los cristales reflejan lo que hay alrededor
+// Cielo fotográfico (tools/12_cielo.py, HDRI CC0 de Poly Haven): fondo, reflejos y luz
+// ambiente. Se gira para que su sol quede en el acimut del sol de la ortofoto. Sin él, se
+// queda el cielo calculado (Sky).
+export async function cargaCielo(ruta, renderer, escena, direccion) {
+  const info = await fetch(`${ruta}cielo.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  if (!info) return false;
+  const textura = await new THREE.TextureLoader().loadAsync(`${ruta}cielo.jpg`);
+  textura.mapping = THREE.EquirectangularReflectionMapping;
+  textura.colorSpace = THREE.SRGBColorSpace;
+  // En la textura, el ángulo horizontal es atan(z, x); el giro lleva el sol de la foto al del
+  // juego (comprobado mirando hacia el sol: el giro se aplica a la dirección de consulta)
+  const anguloFoto = (info.u_sol - 0.5) * Math.PI * 2;
+  const giro = anguloFoto - Math.atan2(direccion.z, direccion.x);
+  escena.background = textura;
+  escena.backgroundRotation.set(0, giro, 0);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  escena.environment = pmrem.fromEquirectangular(textura).texture;
+  escena.environmentRotation.set(0, giro, 0);
+  escena.environmentIntensity = 0.75;
+  pmrem.dispose();
+  const [r, g, b] = info.color_horizonte_srgb;
+  escena.fog?.color.setRGB(r / 255, g / 255, b / 255, THREE.SRGBColorSpace);
+  const cielo = escena.getObjectByName('cielo');
+  if (cielo) cielo.visible = false;
+  escena.userData.cieloFoto = true;
+  return true;
+}
+
+// Reflejos (y luz ambiente de los materiales PBR) sacados del cielo calculado, con un suelo
+// del color medio del terreno. Si ya hay cielo fotográfico, no hace nada.
 export function creaReflejos(renderer, escena, intensidad = 0.6) {
+  if (escena.userData.cieloFoto) return;
   const cielo = escena.getObjectByName('cielo');
   const fuente = new THREE.Scene();
   const copia = new Sky();
