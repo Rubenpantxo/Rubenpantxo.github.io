@@ -67,6 +67,33 @@ def cargar_origin(config: dict) -> dict:
         return json.load(f)
 
 
+def busca_capa(carpeta: Path, nombre: str) -> tuple[str, str | None] | None:
+    """Localiza una capa vectorial (.shp, .gpkg o .shp dentro de .zip) por nombre, sin
+    distinguir mayúsculas ni "_" (la descarga municipal usa CATAST_Pol_Edificacion).
+    Devuelve (ruta para GDAL, nombre de capa o None) o None si no está."""
+    import zipfile
+
+    def normal(texto: str) -> str:
+        return texto.replace("_", "").lower()
+
+    buscado = normal(nombre)
+    for ruta in sorted(p for p in carpeta.rglob("*") if p.is_file()):
+        ext = ruta.suffix.lower()
+        if ext == ".shp" and normal(ruta.stem) == buscado:
+            return str(ruta), None
+        if ext == ".gpkg":
+            import pyogrio
+            for capa, _ in pyogrio.list_layers(ruta):
+                if normal(capa) == buscado:
+                    return str(ruta), capa
+        if ext == ".zip":
+            with zipfile.ZipFile(ruta) as z:
+                for interno in z.namelist():
+                    if interno.lower().endswith(".shp") and normal(Path(interno).stem) == buscado:
+                        return f"/vsizip/{ruta.as_posix()}/{interno}", None
+    return None
+
+
 def utm_a_local(origin: dict, e, n, h=None):
     """UTM (EPSG:25830) → local: x = E − E_centro, z = −(N − N_centro), y = h − H_base."""
     x = e - origin["E_centro"]
