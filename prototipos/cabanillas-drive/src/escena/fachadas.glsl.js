@@ -92,7 +92,7 @@ vec3 ladrillos(vec2 p, vec3 base, float semilla, vec2 aa, float lejos) {
 // de mampostería, esquinas de sillares alternos
 vec3 piedras(vec2 p, vec3 base, float semilla, vec2 aa, float lejos, float largoMuro) {
   float tipo = azar1(semilla * 3.9);
-  vec3 col;
+  vec3 col = base;
   if (tipo < 0.35) {
     float altoS = mix(0.28, 0.45, azar1(semilla * 2.2));
     float fila = floor(p.y / altoS);
