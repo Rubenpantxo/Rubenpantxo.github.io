@@ -2,6 +2,8 @@
 // Las aceras son las mismas que dibuja el suelo (tools/11_suelo.py): franja de 1,8 m junto a la
 // calzada de cada calle OSM, más las calles peatonales y sendas urbanas.
 export const PEATONES = {
+  // Apagados hasta tener personas realistas (las figuras simples no encajan con la réplica)
+  activo: false,
   cantidad: { alto: 60, medio: 40, bajo: 16 },
   // De noche sale menos gente (fracción de la cantidad con oscuridad total)
   fraccionNoche: 0.3,
