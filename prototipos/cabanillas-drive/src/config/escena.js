@@ -3,9 +3,14 @@ export const ESCENA = {
   rutaGlb: 'assets/cabanillas.glb',
   rutaTerreno: 'assets/terrain/',
   rutaCalles: 'assets/osm/calles.geojson',
+  rutaOrto: 'assets/orto/orto.json',
+  rutaEdificios: 'assets/buildings.geojson',
+  rutaAspecto: 'assets/edificios_aspecto.json',
+  rutaAtlasTejados: 'assets/tejados.jpg',
 
   // La ortofoto ya trae la luz del día en que se tomó: sin iluminación se ve como la foto
   terrenoSinLuz: true,
+  tejadosSinLuz: true,
 
   // Líneas de calles OSM sobre el terreno (comprobación de alineación)
   calles: { color: 0xffe000, alturaSobreSuelo: 0.6, pasoMaxM: 2 },
