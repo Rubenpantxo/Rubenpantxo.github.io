@@ -48,7 +48,7 @@ export async function iniciaVisor({ renderer, escena, camara, ui }) {
     + `${geoCalles.features.length} calles OSM`;
   requestAnimationFrame(() => {
     const r = compruebaTerreno(mundo.mallasTerreno, mundo.terreno, ESCENA.puntosComprobacion);
-    ui.velocidad.textContent = `GLB vs terrain.f32: media ${(r.media * 100).toFixed(1)} cm · `
+    ui.estado.textContent += ` · GLB vs terrain.f32: media ${(r.media * 100).toFixed(1)} cm · `
       + `máx ${(r.maxima * 100).toFixed(1)} cm`;
   });
 

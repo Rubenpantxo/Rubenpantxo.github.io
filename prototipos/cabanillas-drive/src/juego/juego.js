@@ -1,4 +1,5 @@
-// Fase 3: conducir por Cabanillas. Física a paso fijo (1/60 s) y render a lo que dé la pantalla.
+// Conducir por Cabanillas. Física a paso fijo (1/60 s) y render a lo que dé la pantalla.
+// En pausa (o en la pantalla de inicio) la física se detiene y la cámara gira despacio alrededor del coche.
 import * as THREE from 'three';
 import { CALIDAD } from '../config/calidad.js';
 import { ESCENA } from '../config/escena.js';
@@ -10,6 +11,7 @@ import { cargaModelosArboles, colisionaArboles, creaArboles } from '../escena/ar
 import { cargaVegetacion, creaHierba } from '../escena/hierba.js';
 import { cargaModelosCoches, colisionaCochesAparcados, creaCochesAparcados } from '../escena/coches.js';
 import { creaReflejos } from '../escena/entorno.js';
+import { creaHud } from '../hud/hud.js';
 import { cargaMundo } from '../escena/mundo.js';
 import { PASO_FISICA, creaFisica } from '../fisica/fisica.js';
 import { creaCoche } from '../vehiculo/coche.js';
@@ -55,8 +57,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
   }
   const salida = nodoMasCercano(nodos, 0, 0, { excluirServicio: true });
   colocaEn(salida);
+  const hud = await creaHud(mundo);
   ui.estado.textContent = '';
-  ui.ayuda.hidden = false;
 
   let acumulado = 0;
   let tiempoVolcado = 0;
@@ -64,6 +66,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
   let fotogramas = 0;
   let tiempoFps = 0;
   let fps = 0;
+  let pausado = true;
+  let anguloOrbita = 0;
+  const centroOrbita = new THREE.Vector3();
 
   function recolocaCerca() {
     const e = coche.estado();
@@ -71,7 +76,30 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
     tiempoVolcado = 0;
   }
 
+  // Cámara de presentación: vuelta lenta alrededor del coche, algo elevada
+  function orbita(dt) {
+    anguloOrbita += dt * 0.12;
+    const e = coche.estado();
+    centroOrbita.copy(e.posicion);
+    const r = 16;
+    camara.position.set(centroOrbita.x + Math.sin(anguloOrbita) * r, centroOrbita.y + 6, centroOrbita.z + Math.cos(anguloOrbita) * r);
+    camara.lookAt(centroOrbita.x, centroOrbita.y + 1.2, centroOrbita.z);
+  }
+
   function actualiza(dt) {
+    if (pausado) {
+      orbita(dt);
+      arboles.avanza(dt);
+      hierba.avanza(dt);
+      hierba.actualiza(camara.position);
+      tiempoReparto -= dt;
+      if (tiempoReparto <= 0) {
+        cochesAparcados.actualiza(camara.position, ESCENA.distanciaCochesDetalle);
+        arboles.actualiza(camara.position, CALIDAD.distanciaArbolesDetalle);
+        tiempoReparto = ESCENA.segundosRepartoCoches;
+      }
+      return;
+    }
     const mandos = entrada.actualiza();
     if (entrada.consume('reiniciar')) recolocaCerca();
     if (entrada.consume('camara')) camaraCoche.cambia();
@@ -108,14 +136,22 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
       fotogramas = 0;
       tiempoFps = 0;
     }
-    ui.velocidad.textContent = `${Math.round(Math.abs(e.velocidadKmh))} km/h`;
+    hud.actualiza(e, dt);
     ui.estado.textContent = tiempoVolcado > VEHICULO.reinicio.segundosVolcado
       ? 'Coche volcado: pulsa R (o ↺) para recolocarlo'
       : (ui.mostrarFps ? `${fps} FPS` : '');
   }
 
-  const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba,
-    get fps() { return fps; } };
+  const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud,
+    get fps() { return fps; },
+    get pausado() { return pausado; },
+    // Al volver de la pausa no se recupera el tiempo parado (la física no da un salto)
+    ponPausa(valor) {
+      pausado = valor;
+      acumulado = 0;
+      hud.mostrar(!valor);
+    },
+  };
   if (import.meta.env.DEV) window.__juego = Object.assign(api, { THREE, renderer, camara, escena, colocaEn });
   return { actualiza, api };
 }

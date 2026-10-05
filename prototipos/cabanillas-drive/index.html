@@ -6,25 +6,77 @@
     <meta name="theme-color" content="#1b2430" />
     <title>Cabanillas Drive</title>
     <style>
+      :root { --tinta: #fff; --tenue: #c9d3de; --acento: #ffd54a; --fondo-ui: rgba(16, 22, 30, .78); }
       html, body { margin: 0; height: 100%; overflow: hidden; background: #1b2430; overscroll-behavior: none; }
-      body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+      body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+        font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--tinta); }
       #escena { position: fixed; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
+
+      /* Mensajes del juego (volcado, FPS en ?debug) */
       #panel {
-        position: fixed; top: max(12px, env(safe-area-inset-top)); left: 12px; max-width: calc(100% - 24px);
-        box-sizing: border-box; padding: 8px 12px; border-radius: 8px; background: rgba(20, 28, 38, .72);
-        font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; color: #fff; pointer-events: none;
+        position: fixed; top: calc(max(12px, env(safe-area-inset-top)) + 56px); left: 50%; transform: translateX(-50%);
+        max-width: calc(100% - 24px); box-sizing: border-box; padding: 6px 12px; border-radius: 8px;
+        background: var(--fondo-ui); font-size: 13px; pointer-events: none; text-align: center;
       }
-      #panel h1 { margin: 0; font-size: 15px; font-weight: 650; }
-      #panel p { margin: 0; color: #c9d3de; }
-      #panel p:empty { display: none; }
-      #velocidad { font-size: 22px; font-weight: 700; color: #fff !important; font-variant-numeric: tabular-nums; }
+      #panel:has(#estado:empty) { display: none; }
+      #panel p { margin: 0; }
       #panel button {
         pointer-events: auto; margin-top: 6px; padding: 5px 10px; border: 1px solid #ffe000; border-radius: 6px;
         background: transparent; color: #ffe000; font: inherit; cursor: pointer;
       }
       #panel button[aria-pressed="false"] { border-color: #8a96a3; color: #8a96a3; }
-      #ayuda { font-size: 12px; }
-      @media (pointer: coarse) { #ayuda .teclado { display: none; } }
+
+      /* HUD */
+      #hud[hidden] { display: none; }
+      #brujula { position: fixed; top: max(12px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+        width: 300px; height: 44px; pointer-events: none; }
+      #minimapa { position: fixed; left: max(16px, env(safe-area-inset-left)); bottom: max(16px, env(safe-area-inset-bottom));
+        width: 200px; height: 200px; cursor: pointer; }
+      #velocimetro { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom));
+        width: 190px; height: 190px; pointer-events: none; }
+      #boton-menu { position: fixed; left: max(12px, env(safe-area-inset-left)); top: max(12px, env(safe-area-inset-top));
+        width: 44px; height: 44px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .3); background: var(--fondo-ui);
+        color: #fff; font-size: 20px; cursor: pointer; }
+      @media (pointer: coarse) {
+        /* entre el botón de menú (izquierda) y los de cámara/recolocar (derecha) */
+        #brujula { left: calc(max(12px, env(safe-area-inset-left)) + 54px); transform: none;
+          width: min(220px, calc(100% - 196px)); height: 40px; }
+        #minimapa { top: calc(max(12px, env(safe-area-inset-top)) + 54px); bottom: auto; width: 118px; height: 118px; }
+        #velocimetro { top: calc(max(12px, env(safe-area-inset-top)) + 70px); bottom: auto; width: 116px; height: 116px; }
+        #panel { top: calc(max(12px, env(safe-area-inset-top)) + 44px); }
+      }
+
+      /* Pantallas: inicio, pausa y créditos */
+      .pantalla { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; box-sizing: border-box;
+        background: radial-gradient(ellipse at center, rgba(16, 22, 30, .55), rgba(10, 14, 20, .88)); z-index: 10; overflow-y: auto; }
+      .pantalla[hidden] { display: none; }
+      .tarjeta { width: min(520px, 100%); box-sizing: border-box; padding: 28px 26px; border-radius: 16px;
+        background: rgba(18, 25, 34, .92); border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 20px 60px rgba(0, 0, 0, .45); }
+      .tarjeta h1 { margin: 0 0 4px; font-size: clamp(30px, 7vw, 44px); letter-spacing: -.5px; line-height: 1.05; }
+      .tarjeta h1 span { color: var(--acento); }
+      .tarjeta h2 { margin: 0 0 12px; font-size: 22px; }
+      .tarjeta h3 { margin: 16px 0 4px; font-size: 14px; color: var(--acento); text-transform: uppercase; letter-spacing: .6px; }
+      .lema { margin: 0 0 20px; color: var(--tenue); }
+      .boton { display: block; width: 100%; padding: 13px 16px; border-radius: 10px; border: 0; background: var(--acento);
+        color: #1b2430; font: 700 17px system-ui, sans-serif; cursor: pointer; }
+      .boton:disabled { background: #4a5563; color: #9aa6b3; cursor: progress; }
+      .boton.secundario { background: transparent; color: var(--tinta); border: 1px solid rgba(255, 255, 255, .3); font-weight: 600; font-size: 15px; }
+      .fila { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
+      .fila > * { flex: 1; }
+      .carga { margin: 0 0 16px; }
+      .barra { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+      .barra span { display: block; height: 100%; width: 0; background: var(--acento); transition: width .3s; }
+      #estado-carga { margin: 6px 0 0; color: var(--tenue); font-size: 13px; min-height: 1.4em; }
+      .controles { margin-top: 18px; color: var(--tenue); font-size: 13px; }
+      .controles kbd { display: inline-block; min-width: 1.4em; padding: 1px 5px; border-radius: 4px; text-align: center;
+        background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .2); font: 600 12px system-ui, sans-serif; color: #fff; }
+      .controles .tactil { display: none; }
+      @media (pointer: coarse) { .controles .teclado { display: none; } .controles .tactil { display: block; } }
+      label.calidad { display: flex; gap: 8px; align-items: center; color: var(--tenue); font-size: 13px; }
+      label.calidad select { flex: 1; padding: 9px; border-radius: 8px; background: #26313f; color: #fff; border: 1px solid rgba(255, 255, 255, .25); font: inherit; }
+      #creditos .tarjeta { width: min(640px, 100%); }
+      #creditos ul { margin: 0; padding-left: 18px; color: var(--tenue); font-size: 13px; }
+      #creditos li { margin: 2px 0; }
 
       /* Controles táctiles */
       #tactil[hidden] { display: none; }
@@ -53,12 +105,16 @@
   </head>
   <body>
     <canvas id="escena"></canvas>
-    <div id="panel">
-      <h1>Cabanillas Drive</h1>
-      <p id="velocidad"></p>
-      <p id="estado">Cargando…</p>
-      <p id="ayuda" hidden><span class="teclado">WASD / flechas · Espacio freno de mano · R recolocar · C cámara</span></p>
+
+    <div id="panel"><p id="estado"></p></div>
+
+    <div id="hud" hidden>
+      <canvas id="brujula" aria-hidden="true"></canvas>
+      <canvas id="minimapa" title="Minimapa (M: girar con el coche o norte arriba)" aria-label="Minimapa"></canvas>
+      <canvas id="velocimetro" aria-hidden="true"></canvas>
+      <button id="boton-menu" type="button" aria-label="Menú">☰</button>
     </div>
+
     <div id="tactil" hidden>
       <div class="zona-joystick">
         <div class="joystick-base" hidden><div class="joystick-mando"></div></div>
@@ -74,6 +130,76 @@
         <button class="boton-tactil pequeno" type="button" data-pulsar="reiniciar" aria-label="Recolocar el coche">↺</button>
       </div>
     </div>
+
+    <section id="inicio" class="pantalla" aria-labelledby="titulo-inicio">
+      <div class="tarjeta">
+        <h1 id="titulo-inicio">Cabanillas <span>Drive</span></h1>
+        <p class="lema">Conduce por Cabanillas (Navarra), reconstruida con datos reales: LiDAR, Catastro, ortofoto y OpenStreetMap.</p>
+        <div class="carga">
+          <div class="barra"><span id="barra-carga"></span></div>
+          <p id="estado-carga">Cargando…</p>
+        </div>
+        <button id="jugar" class="boton" type="button" disabled>Jugar</button>
+        <div class="fila">
+          <button class="boton secundario" type="button" data-abre="creditos">Créditos</button>
+          <label class="calidad">Calidad <select data-calidad>
+            <option value="alto">Alta</option><option value="medio">Media</option><option value="bajo">Baja (móvil)</option>
+          </select></label>
+        </div>
+        <div class="controles">
+          <p class="teclado"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> o flechas: conducir · <kbd>Espacio</kbd> freno de mano ·
+            <kbd>R</kbd> recolocar · <kbd>C</kbd> cámara · <kbd>M</kbd> minimapa · <kbd>Esc</kbd> pausa</p>
+          <p class="tactil">Arrastra a la izquierda para girar · ▲ acelerar · ▼ frenar y marcha atrás · Mano: freno de mano ·
+            👁 cámara · ↺ recolocar · ☰ pausa</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pausa" class="pantalla" hidden aria-labelledby="titulo-pausa">
+      <div class="tarjeta">
+        <h2 id="titulo-pausa">Pausa</h2>
+        <button class="boton" type="button" data-cierra="pausa">Continuar</button>
+        <div class="fila">
+          <button class="boton secundario" type="button" data-abre="creditos">Créditos</button>
+          <label class="calidad">Calidad <select data-calidad>
+            <option value="alto">Alta</option><option value="medio">Media</option><option value="bajo">Baja (móvil)</option>
+          </select></label>
+        </div>
+      </div>
+    </section>
+
+    <section id="creditos" class="pantalla" hidden aria-labelledby="titulo-creditos">
+      <div class="tarjeta">
+        <h2 id="titulo-creditos">Créditos</h2>
+        <h3>Datos geográficos</h3>
+        <ul>
+          <li>LiDAR (MDT y MDS 2024) y Catastro: © Gobierno de Navarra.</li>
+          <li>Ortofoto: PNOA cedido por © Instituto Geográfico Nacional.</li>
+          <li>Calles, caminos, agua y usos del suelo: © colaboradores de OpenStreetMap (ODbL).</li>
+        </ul>
+        <h3>Modelos y texturas</h3>
+        <ul>
+          <li>«Tesla model S Plaid 2023» y «Mercedes-Benz G-Class», de slowpoly (Sketchfab), CC-BY-4.0.</li>
+          <li>Toyota Land Cruiser, Maxus T60, BYD Song Plus EV, Civilian Vehicle 05, Grey car, Ford Kuga 2017,
+            Mercedes CLS500 2021, Dodge Challenger y otros: descargas gratuitas aportadas por Rubén.</li>
+          <li>Árboles: generador EZ-Tree, de Daniel Greenheck (MIT); cortezas de Poly Haven y TextureCan (CC0).</li>
+          <li>Cielo: HDRI «Kloofendal 48d Partly Cloudy», de Poly Haven (CC0).</li>
+          <li>Asfalto, baldosa y tierra: ambientCG (CC0).</li>
+        </ul>
+        <h3>Programas</h3>
+        <ul>
+          <li>three.js (MIT) · Rapier (Apache-2.0) · N8AO (ISC) · postprocessing (Zlib).</li>
+        </ul>
+        <h3>Proyecto</h3>
+        <ul>
+          <li>Cabanillas Drive, de Rubén. Prototipo sin fines comerciales.</li>
+        </ul>
+        <div class="fila" style="margin-top: 18px">
+          <button class="boton" type="button" data-cierra="creditos">Cerrar</button>
+        </div>
+      </div>
+    </section>
+
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>

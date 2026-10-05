@@ -1,6 +1,6 @@
 # PROGRESO — Cabanillas Drive
 
-**Fase actual:** 3 — Conducción **terminada**. **Parada obligatoria:** Rubén prueba a conducir (`npm run dev`, escritorio y móvil). Siguiente: fase 4 (HUD).
+**Fase actual:** 4 — HUD **terminada** (2026-10-05). **Parada obligatoria:** Rubén la prueba (`npm run dev`, escritorio y móvil). Siguiente: fase 5 (rendimiento móvil); R4 (splats) cuando haya capturas.
 
 **Siguiente (decidido por Rubén el 2026-10-05):** plan de realismo en `PLAN_REALISMO.md` (R1 árboles y vegetación → R2 tejados LiDAR → R3 render → R4 splats), antes de la fase 4. Pausa pedida por Rubén para recargar su uso.
 - **R1 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/08_arboles.py` (4 640 árboles del LiDAR, tipos con correcciones en `tools/arboles_tipos.json`, troncos fuera de la calzada) → `tools/texturas_arboles.py` → `npm run arboles` (9 variantes EZ-Tree/palmera, 0,9 MB) → `src/escena/arboles.js` (3D a < 90 m, impostores más lejos, viento, cilindro de colisión por tronco). `tools/08b_vegetacion_baja.py` → `src/escena/hierba.js` (césped y rastrojo en 3D a < 60 m con el color de la ortofoto). Galería de modelos: `?arboles`. Coste medido: ~1,7 ms por fotograma en la zona más cargada. R1 aprobado.
@@ -17,7 +17,7 @@
 | 1 | Pipeline de datos | Hecha y revisada |
 | 2 | Escena 3D (Blender headless) | Hecha y revisada; edificios con aspecto individual |
 | 3 | Conducción | Hecha (pendiente de revisión de Rubén) |
-| 4 | HUD | Pendiente |
+| 4 | HUD | Hecha, pendiente del OK |
 | 5 | Rendimiento móvil | Pendiente |
 | 6 | Extras (solo si Rubén lo pide) | — |
 
@@ -34,7 +34,11 @@
 
 ## Pendiente
 - [ ] Rubén: probar la conducción y decir qué ajustar (sensación del coche, cámara, controles táctiles).
-- [ ] Fase 4 (HUD) tras el OK.
+- [x] Fase 4 (HUD): `src/hud/` — velocímetro de aguja (canvas), minimapa circular precalculado desde los GeoJSON
+  (calles, caminos, agua, parques, edificios; gira con el rumbo o norte arriba con M/clic; se aleja con la velocidad),
+  brújula en franja con grados, pantalla de inicio (progreso de carga, Jugar, calidad, controles), pausa (Esc/P/☰) con
+  la cámara girando alrededor del coche y la física parada, y créditos con todas las atribuciones. Ajustes en
+  `src/config/hud.js`. Diseño adaptado a móvil (pantalla táctil: minimapa y velocímetro arriba).
 
 ### Fase 2b — Aspecto individual de los edificios (petición de Rubén, 2026-10-05)
 - [x] `03_buildings.py` lee los rótulos `CATAST_Txt_EdifAlturas`: plantas reales (1101 de 1 planta, 653 de 2, 55 de 3, 3 de 4), porches/tejavanas (168) y singulares; descarta sótanos sin nada sobre rasante. Marca 4503 lados medianeros.
