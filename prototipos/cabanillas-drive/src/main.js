@@ -59,12 +59,21 @@ const camara = new THREE.PerspectiveCamera(
 await cargaCielo(ESCENA.rutaCielo, renderer, escena, direccion);
 const render = creaRender(renderer, escena, camara, luzSol, CALIDAD);
 if (import.meta.env.DEV) window.__render = render;
-window.addEventListener('resize', () => {
-  camara.aspect = window.innerWidth / window.innerHeight;
+// Tamaño: se comprueba en cada fotograma (además del evento), porque si la página se abre en una
+// pestaña oculta o un panel sin tamaño, el primer «resize» puede no llegar nunca
+let tamanoAplicado = '';
+function ajustaTamano() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  if (!w || !h || `${w}x${h}` === tamanoAplicado) return;
+  tamanoAplicado = `${w}x${h}`;
+  camara.aspect = w / h;
   camara.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  render.redimensiona(window.innerWidth, window.innerHeight);
-});
+  renderer.setSize(w, h);
+  render.redimensiona(w, h);
+}
+window.addEventListener('resize', ajustaTamano);
+ajustaTamano();
 
 const modo = parametros.has('visor') ? iniciaVisor : parametros.has('arboles') ? iniciaVisorArboles : iniciaJuego;
 const reloj = new THREE.Clock();
@@ -101,6 +110,7 @@ ui.proporcionPixeles = () => proporcion / proporcionMax;
 renderer.setAnimationLoop(() => {
   const dtReal = reloj.getDelta();
   const dt = Math.min(dtReal, 0.1);
+  ajustaTamano();
   gobiernaResolucion(dtReal);
   actualiza(dt);
   renderer.info.reset();

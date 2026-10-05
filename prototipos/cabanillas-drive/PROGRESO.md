@@ -1,6 +1,6 @@
 # PROGRESO — Cabanillas Drive
 
-**Fase actual:** 5 — Rendimiento móvil **terminada en lo medible desde el PC** (2026-10-05). **Parada obligatoria:** Rubén la prueba en su Android (`npm run dev:red` y abrir `http://<IP del PC>:5173/?debug=1` en el móvil, misma wifi). Siguiente: R4 (splats) cuando haya capturas; fase 6 solo si Rubén la pide.
+**Fase actual:** 6 — Extras **en curso** (pedida por Rubén el 2026-10-05): tráfico por las calles OSM → bajarse del coche y caminar → carteles (lugares y nombres de calle) → ciclo día/noche.
 
 **Siguiente (decidido por Rubén el 2026-10-05):** plan de realismo en `PLAN_REALISMO.md` (R1 árboles y vegetación → R2 tejados LiDAR → R3 render → R4 splats), antes de la fase 4. Pausa pedida por Rubén para recargar su uso.
 - **R1 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/08_arboles.py` (4 640 árboles del LiDAR, tipos con correcciones en `tools/arboles_tipos.json`, troncos fuera de la calzada) → `tools/texturas_arboles.py` → `npm run arboles` (9 variantes EZ-Tree/palmera, 0,9 MB) → `src/escena/arboles.js` (3D a < 90 m, impostores más lejos, viento, cilindro de colisión por tronco). `tools/08b_vegetacion_baja.py` → `src/escena/hierba.js` (césped y rastrojo en 3D a < 60 m con el color de la ortofoto). Galería de modelos: `?arboles`. Coste medido: ~1,7 ms por fotograma en la zona más cargada. R1 aprobado.
@@ -98,6 +98,12 @@
 - [x] 2.1 `tools/build_scene.py` (Blender 5.0.1, ~15 s): 16 chunks de terreno (4,2 M triángulos, UV a su tesela), 1815 edificios en 12 chunks con fachada en color de vértice y teja oscura. `cabanillas_raw.glb` (78 MB) y `cabanillas.blend`. Ningún edificio flota > 0,5 m (máx. 0,20 m) ni tiene el tejado bajo el terreno.
 - [x] 2.2 `npm run escena` (gltf-transform optimize, meshopt + WebP, simplificación con bordes bloqueados): **12,5 MB**; terreno 657 k triángulos, edificios 26 k. `public/assets/` total ≈ 30 MB.
 - [x] 2.3 Visor en `src/`: GLB + calles OSM sobre el terreno (L / botón para ocultarlas) y comprobación GLB ↔ terrain.f32 por rayos: media 1,0 cm, p95 2,8 cm, máx. 7,1 cm. Probado en escritorio y móvil, sin errores. `npm run build` correcto (dist 30 MB).
+
+## Pendiente de Rubén (lo hará más adelante; no recordárselo en cada informe)
+- R4: capturas de Scaniverse de 3–5 edificios en `data/raw/splats/<nombre>/` (instrucciones en `PLAN_REALISMO.md`).
+- Probar en su Android: `npm run dev:red` y abrir `http://<IP del PC>:5173/?debug=1` (objetivo ≥ 30 FPS en «bajo»).
+- Ajustes cuando quiera: tipos de árbol en `tools/arboles_tipos.json`, HUD en `src/config/hud.js`, calidad en
+  `src/config/calidad.js`.
 
 ## Decisiones
 - Rubén pide usar todos sus modelos de coche aunque no traigan licencia (2026-10-05): se salta la regla de assets de CLAUDE.md para ellos. Atribuciones en `CREDITOS.md`. Los 2 de slowpoly son CC-BY-4.0.

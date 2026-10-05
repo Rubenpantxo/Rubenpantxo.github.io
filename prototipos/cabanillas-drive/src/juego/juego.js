@@ -7,11 +7,13 @@ import { VEHICULO } from '../config/vehiculo.js';
 import { creaCamaraCoche } from '../camara/camaraCoche.js';
 import { creaEntrada } from '../controles/entrada.js';
 import { nodoMasCercano, nodosDeCalles } from '../datos/calles.js';
+import { creaGrafoCalles } from '../datos/grafoCalles.js';
 import { cargaModelosArboles, colisionaArboles, creaArboles } from '../escena/arboles.js';
 import { cargaVegetacion, creaHierba } from '../escena/hierba.js';
 import { cargaModelosCoches, colisionaCochesAparcados, creaCochesAparcados } from '../escena/coches.js';
 import { creaReflejos } from '../escena/entorno.js';
 import { creaHud } from '../hud/hud.js';
+import { creaTrafico } from './trafico.js';
 import { cargaMundo } from '../escena/mundo.js';
 import { PASO_FISICA, creaFisica, creaGestorColisiones } from '../fisica/fisica.js';
 import { creaCoche } from '../vehiculo/coche.js';
@@ -53,6 +55,10 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
   const coche = creaCoche(fisica, escena, modelosCoches[VEHICULO.modelo]);
   const entrada = creaEntrada(ui.tactil);
   const camaraCoche = creaCamaraCoche(camara, fisica, mundo.terreno, coche);
+  const trafico = creaTrafico({
+    escena, fisica, modelos: modelosCoches, grafo: creaGrafoCalles(geoCalles), terreno: mundo.terreno,
+    excluirModelo: VEHICULO.modelo,
+  });
 
   // Salida: el nodo de calle más cercano al origen (centro del casco)
   function colocaEn(nodo) {
@@ -113,7 +119,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
     if (entrada.consume('reiniciar')) recolocaCerca();
     if (entrada.consume('camara')) camaraCoche.cambia();
 
-    colisiones.actualiza(coche.cuerpo.translation(), coche.cuerpo.linvel(), dt);
+    const posCoche = coche.cuerpo.translation();
+    colisiones.actualiza(posCoche, coche.cuerpo.linvel(), dt);
+    trafico.actualiza(dt, { jugador: posCoche, camara, otros: [{ x: posCoche.x, z: posCoche.z, radio: 2.5 }] });
     acumulado += Math.min(dt, PASO_FISICA * MAX_PASOS_POR_FOTOGRAMA);
     while (acumulado >= PASO_FISICA) {
       coche.aplicaEntrada(mandos, PASO_FISICA);
@@ -154,13 +162,13 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
           + `calidad ${CALIDAD.nivel} · resolución ${Math.round((ui.proporcionPixeles?.() ?? 1) * 100)} %`;
       }
     }
-    hud.actualiza(e, dt);
+    hud.actualiza(e, dt, trafico.posiciones());
     ui.estado.textContent = tiempoVolcado > VEHICULO.reinicio.segundosVolcado
       ? 'Coche volcado: pulsa R (o ↺) para recolocarlo'
       : textoDepuracion;
   }
 
-  const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones,
+  const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico,
     get fps() { return fps; },
     get pausado() { return pausado; },
     // Al volver de la pausa no se recupera el tiempo parado (la física no da un salto)

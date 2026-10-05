@@ -22,12 +22,12 @@ export async function creaHud(mundo) {
 
   return {
     mostrar(visible) { contenedor.hidden = !visible; },
-    actualiza(estado, dt) {
+    actualiza(estado, dt, otros = []) {
       if (contenedor.hidden) return;
       // Rumbo desde el norte en sentido horario (norte = −Z, este = +X)
       const rumbo = Math.atan2(estado.adelante.x, -estado.adelante.z);
       brujula.actualiza(rumbo);
-      minimapa.actualiza({ x: estado.posicion.x, z: estado.posicion.z, rumbo, kmh: estado.velocidadKmh }, dt);
+      minimapa.actualiza({ x: estado.posicion.x, z: estado.posicion.z, rumbo, kmh: estado.velocidadKmh, otros }, dt);
       velocimetro.actualiza(estado.velocidadKmh, dt);
     },
   };

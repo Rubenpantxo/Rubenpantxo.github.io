@@ -24,6 +24,7 @@ export const HUD = {
       principal: '#ffd54a',
       camino: '#b3a582',
       jugador: '#e53935',
+      trafico: '#2f80ed',
     },
   },
   brujula: {
