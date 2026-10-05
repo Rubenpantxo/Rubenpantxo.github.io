@@ -91,8 +91,17 @@
     - Muros y vallas (`tools/13_muros.py`, `src/escena/muros.js`): 18 barreras de OSM y 754 tapias que el
       nDSM mide en los linderos del Catastro (5,1 km), con acabados procedurales, malla metálica y colisión.
     - Inventario de OSM (`tools/04b_osm_inventario.py`, API oficial; Overpass estaba caído): en
-      `data/processed/osm_inventario.md`. Quedan por usar: 53 bancos, 10 STOP y 2 ceda el paso, la línea
-      eléctrica con 5 torres, 48 piscinas, la marquesina, fuentes y 831 números de portal.
+      `data/processed/osm_inventario.md`.
+    - Resto de OSM (`tools/15_osm_elementos.py` → `assets/osm/elementos.json` → `src/escena/elementos.js`):
+      53 bancos y 2 mesas de pícnic (mirando a la vía más cercana), fuente y bebedero, aparcabicis, 3 paneles
+      con el plano real del pueblo, poste de parada de autobús (OSM no tiene marquesina), 2 hitos de la NA-126
+      (km 7 y 8), 10 STOP y 2 ceda el paso a la derecha del carril al que afectan, puerta de la valla,
+      48 piscinas (agua y borde), porterías del campo de fútbol (107×66 m, reglamentarias), canastas, gradas
+      escalonadas mirando al campo, columpio y tobogán genéricos en los 2 parques infantiles y 827 placas de
+      número de portal en la pared del Catastro más próxima a su calle. Con colisión.
+      No se dibuja la línea de 66 kV: OSM solo tiene sus torres a kilómetros de la zona y por donde la recta
+      cruza el término el LiDAR no ve nada alto (trazado real desconocido). La torre suelta de dentro de la
+      zona va con la altura del LiDAR (5,7 m), sin cables (no hay ninguno mapeado).
     - Carteles de lugares a ~55 %; portada a pantalla completa (en vertical, a lo ancho sobre la imagen
       desenfocada para no cortar el título).
     - Peatones realistas: 12 personas de MakeHuman (`tools/personas.json` → `tools/14_personas.py` →
