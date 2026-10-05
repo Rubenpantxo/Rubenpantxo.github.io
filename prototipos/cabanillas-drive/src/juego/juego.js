@@ -13,6 +13,7 @@ import { cargaVegetacion, creaHierba } from '../escena/hierba.js';
 import { cargaModelosCoches, colisionaCochesAparcados, creaCochesAparcados } from '../escena/coches.js';
 import { creaReflejos } from '../escena/entorno.js';
 import { creaHud } from '../hud/hud.js';
+import { creaCarteles } from '../escena/carteles.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
 import { PEATON } from '../config/peaton.js';
@@ -29,7 +30,7 @@ const DISTANCIAS_COCHES = {
 export async function iniciaJuego({ renderer, escena, camara, ui }) {
   ui.estado.textContent = 'Cargando Cabanillas…';
   creaReflejos(renderer, escena);
-  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion] = await Promise.all([
+  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi] = await Promise.all([
     cargaMundo(renderer, ESCENA, {
       alProgresar: (f) => { ui.estado.textContent = `Cargando escena… ${Math.round(f * 100)} %`; },
     }),
@@ -39,6 +40,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
     cargaModelosArboles(ESCENA.rutaModelosArboles),
     cargaGeoJSON(ESCENA.rutaArboles),
     cargaVegetacion(ESCENA.rutaVegetacion),
+    cargaGeoJSON(ESCENA.rutaPoi).catch(() => null),
   ]);
   escena.add(mundo.raiz);
   const cochesAparcados = creaCochesAparcados(modelosCoches, aparcados, mundo.terreno, { excluir: [VEHICULO.modelo] });
@@ -106,6 +108,25 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
     document.exitPointerLock?.();
   }
 
+  // Ir a un lugar (menú de pausa): el coche aparece en la calle más cercana, a lo largo de la
+  // calle y en el sentido que más se acerca al sitio
+  function irA(nombre) {
+    const lugar = carteles.lugares.find((l) => l.nombre === nombre);
+    if (!lugar) return;
+    if (aPie) subirseYa();
+    const n = nodoMasCercano(nodos, lugar.x, lugar.z, { excluirServicio: true });
+    const haciaX = lugar.x - n.x;
+    const haciaZ = lugar.z - n.z;
+    const signo = n.dx * haciaX + n.dz * haciaZ >= 0 ? 1 : -1;
+    colocaEn({ ...n, dx: n.dx * signo, dz: n.dz * signo });
+    avisa(`${lugar.icono} ${lugar.nombre}`, 3);
+  }
+  function subirseYa() {
+    peaton.desactiva();
+    aPie = false;
+    botonBajar.textContent = '🚶';
+  }
+
   // Con ratón: clic sobre la escena para capturar el puntero y mirar alrededor andando
   renderer.domElement.addEventListener('click', (ev) => {
     if (aPie && !pausado && ev.pointerType !== 'touch' && document.pointerLockElement !== renderer.domElement) {
@@ -122,7 +143,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
   const salida = nodoMasCercano(nodos, 0, 0, { excluirServicio: true });
   colocaEn(salida);
   mundo.edificios.actualiza({ x: salida.x, z: salida.z }, { todo: true });
-  const hud = await creaHud(mundo);
+  const carteles = creaCarteles({ poi: geoPoi, calles: geoCalles, edificios: mundo.geoEdificios, terreno: mundo.terreno });
+  escena.add(carteles.raiz);
+  const hud = await creaHud(mundo, { lugares: carteles.lugares });
   ui.estado.textContent = '';
 
   let acumulado = 0;
@@ -164,6 +187,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
         cochesAparcados.actualiza(camara.position, DISTANCIAS_COCHES);
         arboles.actualiza(camara.position, CALIDAD.distanciaArbolesDetalle);
         mundo.edificios.actualiza(camara.position);
+        carteles.actualiza(camara.position);
         tiempoReparto = ESCENA.segundosRepartoCoches;
       }
       return;
@@ -213,6 +237,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
       cochesAparcados.actualiza(camara.position, DISTANCIAS_COCHES);
       arboles.actualiza(camara.position, CALIDAD.distanciaArbolesDetalle);
       mundo.edificios.actualiza(camara.position);
+      carteles.actualiza(camara.position);
       tiempoReparto = ESCENA.segundosRepartoCoches;
     }
 
@@ -238,7 +263,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
   }
 
   const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico, peaton,
-    get aPie() { return aPie; }, bajarse, subirse,
+    get aPie() { return aPie; }, bajarse, subirse, irA, carteles,
+    lugares: carteles.lugares.map(({ nombre, icono }) => ({ nombre, icono })),
     get fps() { return fps; },
     get pausado() { return pausado; },
     // Al volver de la pausa no se recupera el tiempo parado (la física no da un salto)

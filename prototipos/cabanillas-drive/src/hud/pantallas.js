@@ -53,7 +53,26 @@ export function creaPantallas({ alCambiar }) {
     else if (estado === 'pausa') cambia('jugando');
   });
 
+  // «Ir a…»: lista de lugares; al elegir uno se cierra la pausa
+  function ponLugares(lugares, alElegir) {
+    const sel = $('ir-a');
+    for (const l of lugares) {
+      const o = document.createElement('option');
+      o.value = l.nombre;
+      o.textContent = `${l.icono} ${l.nombre}`;
+      sel.append(o);
+    }
+    sel.closest('label').hidden = !lugares.length;
+    sel.addEventListener('change', () => {
+      if (!sel.value) return;
+      alElegir(sel.value);
+      sel.value = '';
+      cambia('jugando');
+    });
+  }
+
   return {
+    ponLugares,
     get estado() { return estado; },
     textoCarga,
     listo() {

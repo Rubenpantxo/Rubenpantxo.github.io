@@ -47,6 +47,16 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.info.autoReset = false;   // se pone a cero una vez por fotograma (cuenta todas las pasadas)
 renderer.toneMappingExposure = 0.75;
+// Si la GPU se queda sin memoria (varias pestañas con el juego, calidad alta en una gráfica
+// justa), el navegador retira el contexto: se avisa en vez de dejar la pantalla congelada
+renderer.domElement.addEventListener('webglcontextlost', (ev) => {
+  ev.preventDefault();
+  const aviso = 'La gráfica se ha quedado sin memoria: cierra otras pestañas con el juego o baja la calidad, y recarga';
+  ui.estado.textContent = aviso;
+  document.getElementById('estado-carga').textContent = aviso;
+  console.warn('[render] contexto WebGL perdido');
+});
+renderer.domElement.addEventListener('webglcontextrestored', () => location.reload());
 
 // Sol del día de la ortofoto (tools/10_sol.py); sin él, el de config/escena.js
 const sol = await fetch(ESCENA.rutaSol).then((r) => (r.ok ? r.json() : null)).catch(() => null);
@@ -112,6 +122,7 @@ renderer.setAnimationLoop(() => {
   const dtReal = reloj.getDelta();
   const dt = Math.min(dtReal, 0.1);
   ajustaTamano();
+  if (!tamanoAplicado) return;          // aún sin tamaño (panel oculto): no se dibuja
   gobiernaResolucion(dtReal);
   actualiza(dt);
   renderer.info.reset();
@@ -130,6 +141,7 @@ modo({ renderer, escena, camara, ui })
         tactilVisible = tactilVisible || !ui.tactil.hidden;
         ui.tactil.hidden = true;
       }
+      pantallas.ponLugares(api.lugares ?? [], (nombre) => api.irA(nombre));
       pantallas.listo();
     }
   })
