@@ -73,7 +73,16 @@
     estrellas y cielo calculado fundido con el fotográfico; la ortofoto se oscurece y recibe la luz de la luna y los
     faros; faros reales en el coche y puntos de faros y pilotos en el tráfico. Selector «Hora» en inicio y pausa
     (hora de la foto, ciclo de 24 min, mañana, atardecer, noche; se recuerda) y T para adelantar una hora.
-    Sin ventanas iluminadas ni farolas: no hay datos de farolas y las fachadas no tienen ventanas modeladas.
+  - Extras pedidos por Rubén tras el OK de la fase 6 (2026-10-05):
+    - Noche más viva: de noche se enciende una parte de las ventanas del shader de fachadas (más al anochecer,
+      se van apagando de madrugada; tonos cálidos y alguna azulada), fluorescentes en las naves, y un resplandor
+      cálido en la niebla y en la luz rebotada del suelo. Decorativo: no hay datos reales de ventanas con luz ni
+      de farolas.
+    - Peatones (`src/juego/peatones.js`, `src/config/peatones.js`): figuras genéricas por las aceras (a media
+      calzada + 0,9 m de cada calle OSM del casco urbano, como el suelo de `11_suelo.py`) y por las sendas
+      peatonales; un lado de calle no se usa si atraviesa un edificio del Catastro. Eligen calle en los cruces,
+      a veces cruzan o se paran; los coches del tráfico les ceden el paso y se apartan del coche del jugador
+      (a 29 y 50 km/h quedan a 1,6–1,7 m de su eje). 60/40/16 según calidad, un 30 % de noche; 0,05 ms por fotograma.
   - Calidad alta más robusta: el AO no se crea a 0×0 si la página se abre en un panel oculto y se avisa si la GPU
     retira el contexto WebGL (pasaba con varias pestañas del juego abiertas a la vez en calidad alta).
 
