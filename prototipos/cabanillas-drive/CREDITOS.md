@@ -20,5 +20,8 @@ condiciones de cada web antes de publicar el juego.
 - Cortezas: Poly Haven (CC0) y TextureCan (CC0), incluidas en EZ-Tree.
 - Palmeras, racimos de hojas y mechones de hierba: dibujados por los scripts del proyecto.
 
+## Render
+- N8AO (oclusión ambiental), de N8python, licencia ISC; postprocessing (pmndrs), licencia Zlib.
+
 ## Herramientas del pipeline (no se distribuyen con el juego)
 - Detector de coches YOLO11-OBB de Ultralytics (AGPL-3.0), entrenado con el conjunto DOTA.

@@ -1,7 +1,7 @@
 // Carga el GLB generado por tools/build_scene.py + gltf-transform (meshopt + WebP).
-import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { materialSuelo } from './suelo.js';
 
 // Nombre del nodo con prefijo terreno_ / edificios_ (el propio mesh o su grupo padre)
 function grupoDe(objeto) {
@@ -30,9 +30,10 @@ export async function cargaEscena(renderer, ruta, { terrenoSinLuz, alProgresar }
       if (mapa) mapa.anisotropy = anisotropia; // nitidez de la ortofoto en vistas rasantes
       if (terrenoSinLuz) {
         const original = o.material;
-        o.material = new THREE.MeshBasicMaterial({ map: mapa, name: original.name });
+        o.material = materialSuelo(mapa, original.name);
         original.dispose();
       }
+      o.userData.esTerreno = true;
       terreno.push(o);
     } else if (grupo === 'edificios') {
       edificios.push(o);

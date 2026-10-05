@@ -1,5 +1,6 @@
 // Fase 3: conducir por Cabanillas. Física a paso fijo (1/60 s) y render a lo que dé la pantalla.
 import * as THREE from 'three';
+import { CALIDAD } from '../config/calidad.js';
 import { ESCENA } from '../config/escena.js';
 import { VEHICULO } from '../config/vehiculo.js';
 import { creaCamaraCoche } from '../camara/camaraCoche.js';
@@ -35,7 +36,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
   escena.add(cochesAparcados.raiz);
   const arboles = creaArboles(renderer, modelosArboles, datosArboles, mundo.terreno, { entorno: escena });
   escena.add(arboles.raiz);
-  const hierba = creaHierba(vegetacion, mundo.terreno, { radio: ESCENA.radioHierba });
+  const hierba = creaHierba(vegetacion, mundo.terreno, { radio: CALIDAD.radioHierba });
   escena.add(hierba.raiz);
 
   ui.estado.textContent = 'Preparando la física…';
@@ -96,7 +97,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui }) {
     tiempoReparto -= dt;
     if (tiempoReparto <= 0) {
       cochesAparcados.actualiza(camara.position, ESCENA.distanciaCochesDetalle);
-      arboles.actualiza(camara.position, ESCENA.distanciaArbolesDetalle);
+      arboles.actualiza(camara.position, CALIDAD.distanciaArbolesDetalle);
       tiempoReparto = ESCENA.segundosRepartoCoches;
     }
 

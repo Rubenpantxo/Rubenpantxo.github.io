@@ -2,7 +2,9 @@
 import * as THREE from 'three';
 import { cargaTerreno } from '../datos/terreno.js';
 import { cargaEscena } from './cargaEscena.js';
+import { CALIDAD } from '../config/calidad.js';
 import { creaEdificios } from './edificios.js';
+import { aplicaDetalleSuelo, cargaDetalleSuelo } from './suelo.js';
 
 // Tejados del LiDAR (tools/09_tejados.py): índice JSON + binario con vértices e índices
 async function cargaTejados(ruta) {
@@ -26,7 +28,7 @@ async function json(ruta) {
 
 export async function cargaMundo(renderer, ajustes, { alProgresar } = {}) {
   const cargadorTexturas = new THREE.TextureLoader();
-  const [terreno, modelo, orto, geoEdificios, aspecto, atlas, tejados] = await Promise.all([
+  const [terreno, modelo, orto, geoEdificios, aspecto, atlas, tejados, detalleSuelo] = await Promise.all([
     cargaTerreno(ajustes.rutaTerreno),
     cargaEscena(renderer, ajustes.rutaGlb, { terrenoSinLuz: ajustes.terrenoSinLuz, alProgresar }),
     json(ajustes.rutaOrto),
@@ -34,7 +36,9 @@ export async function cargaMundo(renderer, ajustes, { alProgresar } = {}) {
     json(ajustes.rutaAspecto),
     cargadorTexturas.loadAsync(ajustes.rutaAtlasTejados),
     cargaTejados(ajustes.rutaTejados),
+    CALIDAD.detalleSuelo ? cargaDetalleSuelo(ajustes.rutaSuelo, renderer) : null,
   ]);
+  aplicaDetalleSuelo(modelo.terreno, detalleSuelo);
   atlas.colorSpace = THREE.SRGBColorSpace;
   atlas.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
