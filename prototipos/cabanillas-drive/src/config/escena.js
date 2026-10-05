@@ -7,6 +7,11 @@ export const ESCENA = {
   rutaEdificios: 'assets/buildings.geojson',
   rutaAspecto: 'assets/edificios_aspecto.json',
   rutaAtlasTejados: 'assets/tejados.jpg',
+  rutaCoches: 'assets/coches/',
+  rutaCochesAparcados: 'assets/coches_aparcados.json',
+  // Coches aparcados: a menos de esta distancia de la cámara se dibuja el modelo detallado
+  distanciaCochesDetalle: 70,
+  segundosRepartoCoches: 0.25,
 
   // La ortofoto ya trae la luz del día en que se tomó: sin iluminación se ve como la foto
   terrenoSinLuz: true,

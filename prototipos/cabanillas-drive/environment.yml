@@ -14,3 +14,8 @@ dependencies:
   - numpy
   - pillow
   - requests
+  - scipy
+  - pip
+  - pip:
+      # Detector de coches de la ortofoto (07_coches_orto.py); solo se usa en el pipeline
+      - ultralytics

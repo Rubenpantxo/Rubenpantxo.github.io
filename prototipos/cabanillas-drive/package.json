@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "coches": "node tools/optimiza_coches.mjs",
     "escena": "gltf-transform optimize data/processed/cabanillas_raw.glb public/assets/cabanillas.glb --compress meshopt --texture-compress webp --join false --palette false --instance false --simplify-lock-border true"
   },
   "dependencies": {
