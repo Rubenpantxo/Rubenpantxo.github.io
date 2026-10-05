@@ -7,6 +7,7 @@ export const ESCENA = {
   rutaEdificios: 'assets/buildings.geojson',
   rutaAspecto: 'assets/edificios_aspecto.json',
   rutaAtlasTejados: 'assets/tejados.jpg',
+  rutaTejados: 'assets/',
   rutaCoches: 'assets/coches/',
   rutaCochesAparcados: 'assets/coches_aparcados.json',
   rutaArboles: 'assets/arboles.json',

@@ -4,6 +4,20 @@ import { cargaTerreno } from '../datos/terreno.js';
 import { cargaEscena } from './cargaEscena.js';
 import { creaEdificios } from './edificios.js';
 
+// Tejados del LiDAR (tools/09_tejados.py): índice JSON + binario con vértices e índices
+async function cargaTejados(ruta) {
+  const indice = await json(`${ruta}tejados.json`);
+  const respuesta = await fetch(`${ruta}${indice.binario.archivo}`);
+  if (!respuesta.ok) throw new Error(`No se pudo leer ${indice.binario.archivo}`);
+  const datos = await respuesta.arrayBuffer();
+  const { vertices, indices } = indice.binario;
+  return {
+    edificios: indice.edificios,
+    vertices: new Int16Array(datos, 0, vertices * 3),
+    indices: new Uint16Array(datos, vertices * 6, indices),
+  };
+}
+
 async function json(ruta) {
   const respuesta = await fetch(ruta);
   if (!respuesta.ok) throw new Error(`No se pudo leer ${ruta}`);
@@ -12,13 +26,14 @@ async function json(ruta) {
 
 export async function cargaMundo(renderer, ajustes, { alProgresar } = {}) {
   const cargadorTexturas = new THREE.TextureLoader();
-  const [terreno, modelo, orto, geoEdificios, aspecto, atlas] = await Promise.all([
+  const [terreno, modelo, orto, geoEdificios, aspecto, atlas, tejados] = await Promise.all([
     cargaTerreno(ajustes.rutaTerreno),
     cargaEscena(renderer, ajustes.rutaGlb, { terrenoSinLuz: ajustes.terrenoSinLuz, alProgresar }),
     json(ajustes.rutaOrto),
     json(ajustes.rutaEdificios),
     json(ajustes.rutaAspecto),
     cargadorTexturas.loadAsync(ajustes.rutaAtlasTejados),
+    cargaTejados(ajustes.rutaTejados),
   ]);
   atlas.colorSpace = THREE.SRGBColorSpace;
   atlas.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -31,7 +46,7 @@ export async function cargaMundo(renderer, ajustes, { alProgresar } = {}) {
     ancho: terreno.meta['tamaño_x_m'],
     alto: terreno.meta['tamaño_z_m'],
   };
-  const edificios = creaEdificios(geoEdificios, aspecto, atlas, rejilla, { tejadosSinLuz: ajustes.tejadosSinLuz });
+  const edificios = creaEdificios(geoEdificios, aspecto, atlas, rejilla, { tejadosSinLuz: ajustes.tejadosSinLuz, tejados });
 
   const raiz = new THREE.Group();
   raiz.name = 'mundo';
