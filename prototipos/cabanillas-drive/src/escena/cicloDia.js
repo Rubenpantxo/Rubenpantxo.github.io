@@ -9,6 +9,7 @@
 import * as THREE from 'three';
 import { DIA } from '../config/dia.js';
 import { LUZ_SUELO } from './suelo.js';
+import { LUCES_FACHADA } from './fachadas.glsl.js';
 
 const GRADO = Math.PI / 180;
 const suave = THREE.MathUtils.smoothstep;
@@ -27,6 +28,19 @@ function ejes(latitud) {
 // Hora local ↔ ángulo horario (sin la ecuación del tiempo: minutos de error)
 const horaAAngulo = (hora) => ((hora - DIA.husoHoras + DIA.longitudGrados / 15) - 12) * 15 * GRADO;
 const anguloAHora = (h) => (((h / GRADO / 15 + 12 + DIA.husoHoras - DIA.longitudGrados / 15) % 24) + 24) % 24;
+
+// Fracción de ventanas encendidas según la hora (interpolada; DIA.ventanas)
+function ventanasA(hora) {
+  const t = DIA.ventanas.porHora;
+  for (let i = 0; i < t.length; i++) {
+    const [h0, f0] = t[i];
+    const [h1, f1] = t[(i + 1) % t.length];
+    const largo = ((h1 - h0) + 24) % 24 || 24;
+    const d = ((hora - h0) + 24) % 24;
+    if (d <= largo) return mezcla(f0, f1, d / largo);
+  }
+  return t[0][1];
+}
 
 export function textoHora(hora) {
   const m = Math.round(hora * 60) % (24 * 60);
@@ -182,6 +196,9 @@ export function creaCicloDia({ escena, camara, luzSol, direccionRender, intensid
       escena.fog.color.setRGB(...DIA.nieblaNoche).lerp(nieblaDia, dia)
         .lerp(tmp.setRGB(...DIA.nieblaDorada), dorado * 0.7);
     }
+
+    LUCES_FACHADA.encendidas.value = ventanasA(hora);
+    LUCES_FACHADA.intensidad.value = DIA.ventanas.intensidad * (1 - suave(s, -0.05, 0.06));
 
     estado.hora = hora;
     estado.elevacion = Math.asin(s) / GRADO;

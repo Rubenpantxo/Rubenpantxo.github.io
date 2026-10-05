@@ -7,11 +7,23 @@
 //   aMuro   = (altura del edificio, plantas, largo del muro, semilla del edificio)
 //   aMuro2  = (da a la calle, medianera, estilo, índice del lado)
 // Estilos: 0 enfoscado · 1 ladrillo · 2 piedra · 3 nave · 4 hormigón · 5 porche/tejavana
+//
+// De noche (cicloDia.js) una parte de las ventanas se enciende: cada ventana tiene su número
+// al azar y luce si está por debajo de «encendidas»; al bajar esa fracción de madrugada se
+// van apagando una a una. Son decorativas: no hay datos reales de qué casas tienen luz.
+export const LUCES_FACHADA = {
+  encendidas: { value: 0 },   // fracción de ventanas con luz
+  intensidad: { value: 0 },   // 0 de día
+};
+
 
 export const GLSL_FACHADA = /* glsl */ `
 varying vec2 vUvMuro;
 varying vec4 vMuro;
 varying vec4 vMuro2;
+uniform float uVentanasEncendidas;
+float luzFachada = 0.0;               // cuánto luce este píxel (ventana encendida)
+vec3 colorLuzFachada = vec3(0.0);
 
 float azar1(float n) { return fract(sin(n) * 43758.5453123); }
 float azar2(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123); }
@@ -31,6 +43,7 @@ vec3 colorPersiana(float s) {
 
 vec3 fachada(vec3 base, out float vidrio) {
   vidrio = 0.0;
+  luzFachada = 0.0;
   vec2 p = vUvMuro;
   float alto = vMuro.x;
   float plantas = max(vMuro.y, 1.0);
@@ -70,6 +83,8 @@ vec3 fachada(vec3 base, out float vidrio) {
     float banda = caja(p, vec2(0.6, alto - 1.6), vec2(largo - 0.6, alto - 0.9), aa) * step(0.5, azar1(semilla * 3.3));
     c = mix(c, vec3(0.12, 0.15, 0.17), banda * 0.9);
     vidrio = banda;
+    luzFachada = banda * step(azar1(semilla * 5.9), uVentanasEncendidas * 0.5);   // fluorescentes
+    colorLuzFachada = vec3(0.8, 0.9, 1.0);
     if (aCalle > 0.5 && medianera < 0.5 && largo > 6.0) {
       float x = p.x - largo * 0.5;
       float porton = caja(vec2(x, p.y), vec2(-2.2, 0.0), vec2(2.2, min(4.5, alto - 1.0)), aa);
@@ -161,6 +176,11 @@ vec3 fachada(vec3 base, out float vidrio) {
     c = mix(c, vec3(0.05, 0.05, 0.05), hierro);
     vidrio *= 1.0 - hierro;
   }
+  // Luz de dentro: por el vidrio y, poca, entre las lamas de la persiana
+  float suerteLuz = azar2(vec2(vano * 3.7 + semillaMuro * 0.11, planta * 5.3 + semilla));
+  luzFachada = step(suerteLuz, uVentanasEncendidas) * (vidrio + 0.12 * persiana);
+  float tono = azar1(suerteLuz * 91.7);
+  colorLuzFachada = tono < 0.75 ? vec3(1.0, 0.66, 0.34) : (tono < 0.92 ? vec3(1.0, 0.84, 0.6) : vec3(0.55, 0.7, 1.0));
   return c;
 }
 `;

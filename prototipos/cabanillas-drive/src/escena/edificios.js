@@ -4,7 +4,7 @@
 // - fachadas procedurales individuales (fachadas.glsl.js) según plantas, estilo y calle
 // Se agrupan en los mismos chunks que el terreno (orto.json) para la carga por distancia.
 import * as THREE from 'three';
-import { GLSL_FACHADA } from './fachadas.glsl.js';
+import { GLSL_FACHADA, LUCES_FACHADA } from './fachadas.glsl.js';
 
 const PALETAS = {
   enfoscado: ['#ece5d4', '#e7d9b9', '#ddc69c', '#f0eadf', '#e9d0b0', '#d8c2a2', '#f2ede3', '#e5caa9', '#e0d6c4'],
@@ -224,6 +224,8 @@ class Chunk {
 function materialFachada() {
   const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92, metalness: 0 });
   material.onBeforeCompile = (shader) => {
+    shader.uniforms.uVentanasEncendidas = LUCES_FACHADA.encendidas;
+    shader.uniforms.uIntensidadVentanas = LUCES_FACHADA.intensidad;
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', `#include <common>
 attribute vec2 aUvMuro;
@@ -243,9 +245,13 @@ ${GLSL_FACHADA}`)
 float vidrioFachada = 0.0;
 diffuseColor.rgb = fachada(diffuseColor.rgb, vidrioFachada);`)
       .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
-roughnessFactor = mix(roughnessFactor, 0.12, vidrioFachada);`);
+roughnessFactor = mix(roughnessFactor, 0.12, vidrioFachada);`)
+      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+totalEmissiveRadiance += colorLuzFachada * luzFachada * uIntensidadVentanas;`)
+      .replace('#include <common>', `#include <common>
+uniform float uIntensidadVentanas;`);
   };
-  material.customProgramCacheKey = () => 'fachada-v1';
+  material.customProgramCacheKey = () => 'fachada-v2';
   return material;
 }
 
