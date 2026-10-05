@@ -7,20 +7,38 @@ import { CAMARA } from './config/camara.js';
 import { ESCENA } from './config/escena.js';
 import { cargaCielo, creaEntorno } from './escena/entorno.js';
 import { configuraSombras, creaRender } from './escena/render.js';
+import { creaPantallas } from './hud/pantallas.js';
 import { iniciaJuego } from './juego/juego.js';
 import { iniciaVisor } from './visor/visor.js';
 import { iniciaVisorArboles } from './visor/visorArboles.js';
 
 const parametros = new URLSearchParams(location.search);
 if (parametros.has('debug')) console.info(`[calidad] nivel ${CALIDAD.nivel}`, CALIDAD);
+const esJuego = !parametros.has('visor') && !parametros.has('arboles');
 const ui = {
   panel: document.getElementById('panel'),
   estado: document.getElementById('estado'),
-  velocidad: document.getElementById('velocidad'),
-  ayuda: document.getElementById('ayuda'),
   tactil: document.getElementById('tactil'),
   mostrarFps: parametros.has('debug'),
 };
+const estadoJuego = ui.estado;
+let api = null;
+let tactilVisible = false;
+const pantallas = creaPantallas({
+  alCambiar(estado) {
+    const jugando = estado === 'jugando';
+    api?.ponPausa(!jugando);
+    // Los mandos táctiles solo con el juego en marcha (vuelven si ya se estaban usando)
+    if (!jugando) {
+      tactilVisible = tactilVisible || !ui.tactil.hidden;
+      ui.tactil.hidden = true;
+    } else if (tactilVisible) {
+      ui.tactil.hidden = false;
+    }
+  },
+});
+if (esJuego) ui.estado = pantallas.textoCarga;   // durante la carga, el progreso va a la pantalla de inicio
+else pantallas.omite();
 
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('escena'), antialias: CALIDAD.antialias });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, CALIDAD.pixelRatioMax));
@@ -59,6 +77,16 @@ modo({ renderer, escena, camara, ui })
   .then((m) => {
     configuraSombras(escena);
     actualiza = m.actualiza;
+    if (esJuego) {
+      api = m.api;
+      ui.estado = estadoJuego;
+      api.ponPausa(pantallas.estado !== 'jugando');
+      if (pantallas.estado !== 'jugando') {          // la entrada táctil se acaba de mostrar: oculta hasta Jugar
+        tactilVisible = tactilVisible || !ui.tactil.hidden;
+        ui.tactil.hidden = true;
+      }
+      pantallas.listo();
+    }
   })
   .catch((error) => {
     ui.estado.textContent = `Error: ${error.message}`;
