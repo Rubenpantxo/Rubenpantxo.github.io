@@ -17,6 +17,7 @@ import { creaCarteles } from '../escena/carteles.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
 import { creaLuces } from './luces.js';
+import { creaPeatones } from './peatones.js';
 import { textoHora } from '../escena/cicloDia.js';
 import { PEATON } from '../config/peaton.js';
 import { cargaMundo } from '../escena/mundo.js';
@@ -32,7 +33,7 @@ const DISTANCIAS_COCHES = {
 export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   ui.estado.textContent = 'Cargando Cabanillas…';
   creaReflejos(renderer, escena);
-  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi] = await Promise.all([
+  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos] = await Promise.all([
     cargaMundo(renderer, ESCENA, {
       alProgresar: (f) => { ui.estado.textContent = `Cargando escena… ${Math.round(f * 100)} %`; },
     }),
@@ -43,6 +44,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     cargaGeoJSON(ESCENA.rutaArboles),
     cargaVegetacion(ESCENA.rutaVegetacion),
     cargaGeoJSON(ESCENA.rutaPoi).catch(() => null),
+    cargaGeoJSON(ESCENA.rutaCaminos).catch(() => null),
   ]);
   escena.add(mundo.raiz);
   const cochesAparcados = creaCochesAparcados(modelosCoches, aparcados, mundo.terreno, { excluir: [VEHICULO.modelo] });
@@ -66,6 +68,10 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     excluirModelo: VEHICULO.modelo,
   });
   const peaton = creaPeaton(fisica, mundo.terreno);
+  const peatones = creaPeatones({ calles: geoCalles, caminos: geoCaminos, edificios: mundo.geoEdificios, terreno: mundo.terreno });
+  escena.add(peatones.raiz);
+  const infoCoche = modelosCoches[VEHICULO.modelo].info;
+  let obstaculosPeatones = [];
   const luces = creaLuces({
     escena, cocheJugador: coche.modelo.grupo, infoJugador: modelosCoches[VEHICULO.modelo].info, agentes: trafico.agentes,
   });
@@ -216,6 +222,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     colisiones.actualiza(centro, aPie ? { x: 0, z: 0 } : coche.cuerpo.linvel(), dt);
     const otros = [{ x: posCoche.x, z: posCoche.z, radio: 2.5 }];
     if (aPie) otros.push({ x: centro.x, z: centro.z, radio: 0.6 });
+    otros.push(...obstaculosPeatones);
     trafico.actualiza(dt, { jugador: centro, camara, otros });
     acumulado += Math.min(dt, PASO_FISICA * MAX_PASOS_POR_FOTOGRAMA);
     while (acumulado >= PASO_FISICA) {
@@ -228,6 +235,14 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     coche.sincroniza();
 
     const e = coche.estado();
+    const fCoche = e.adelante.clone().setY(0).normalize();
+    peatones.actualiza(dt, {
+      jugador: centro, camara, oscuridad: ciclo ? ciclo.estado.oscuridad : 0,
+      coche: { x: e.posicion.x, z: e.posicion.z, fx: fCoche.x, fz: fCoche.z, velocidad: e.velocidadKmh / 3.6,
+        largo: infoCoche.largo, ancho: infoCoche.ancho },
+      aPie: aPie ? { x: centro.x, z: centro.z } : null,
+    });
+    obstaculosPeatones = peatones.obstaculos();
     const suelo = mundo.terreno.alturaEn(e.posicion.x, e.posicion.z);
     if (!aPie && e.posicion.y < suelo - VEHICULO.reinicio.caidaMaxima) recolocaCerca();
     tiempoVolcado = !aPie && e.volcado ? tiempoVolcado + dt : 0;
@@ -273,7 +288,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   }
 
   const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico, peaton,
-    get aPie() { return aPie; }, bajarse, subirse, irA, avisa, carteles, luces, ciclo,
+    get aPie() { return aPie; }, bajarse, subirse, irA, avisa, carteles, luces, ciclo, peatones,
     lugares: carteles.lugares.map(({ nombre, icono }) => ({ nombre, icono })),
     get fps() { return fps; },
     get pausado() { return pausado; },
