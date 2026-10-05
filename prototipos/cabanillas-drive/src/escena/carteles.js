@@ -54,7 +54,7 @@ function rotulo(nombre, tipo) {
   textura.anisotropy = 4;
   const material = new THREE.SpriteMaterial({ map: textura, transparent: true, depthWrite: false, fog: true });
   const sprite = new THREE.Sprite(material);
-  const escala = 0.05;                       // m por px: unos 3–6 m de ancho según el nombre
+  const escala = 0.028;                      // m por px: unos 2–3,5 m de ancho según el nombre
   sprite.scale.set(lienzo.width * escala, lienzo.height * escala, 1);
   sprite.center.set(0.5, 0);
   return sprite;

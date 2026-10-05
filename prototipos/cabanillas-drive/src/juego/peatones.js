@@ -297,7 +297,8 @@ export function creaPeatones({ calles, caminos, edificios, terreno, azar = Math.
     aristas,
     get activos() { return activos; },
     actualiza(dt, { jugador, camara, coche = null, aPie = null, oscuridad = 0 }) {
-      if (!aristas.length) return;
+      if (!aristas.length || !PEATONES.activo) { raiz.visible = false; return; }
+      raiz.visible = true;
       const objetivo = Math.round(total * THREE.MathUtils.lerp(1, PEATONES.fraccionNoche, oscuridad));
       let n = 0;
       let colorCambiado = false;
