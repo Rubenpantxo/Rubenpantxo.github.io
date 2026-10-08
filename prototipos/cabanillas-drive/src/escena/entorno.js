@@ -23,12 +23,14 @@ function ajustaCielo(cielo, direccion) {
 // Cielo fotográfico (tools/12_cielo.py, HDRI CC0 de Poly Haven): fondo, reflejos y luz
 // ambiente. Se gira para que su sol quede en el acimut del sol de la ortofoto. Sin él, se
 // queda el cielo calculado (Sky).
-export async function cargaCielo(ruta, renderer, escena, direccion) {
+// anchoFondo y anchoReflejos limitan la resolución (src/config/calidad.js): el HDRI mide
+// 4096 px y sus reflejos a tamaño completo ocupan ~200 MB de la gráfica (dos texturas de
+// 3072 × 4096 en coma flotante), lo que en el móvil hace perder el contexto WebGL (pantalla en blanco).
+export async function cargaCielo(ruta, renderer, escena, direccion, { anchoFondo = Infinity, anchoReflejos = Infinity } = {}) {
   const info = await fetch(`${ruta}cielo.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   if (!info) return false;
-  const textura = await new THREE.TextureLoader().loadAsync(`${ruta}cielo.jpg`);
-  textura.mapping = THREE.EquirectangularReflectionMapping;
-  textura.colorSpace = THREE.SRGBColorSpace;
+  const original = await new THREE.TextureLoader().loadAsync(`${ruta}cielo.jpg`);
+  const textura = reduceEquirect(original, anchoFondo);
   // En la textura, el ángulo horizontal es atan(z, x); el giro lleva el sol de la foto al del
   // juego (comprobado mirando hacia el sol: el giro se aplica a la dirección de consulta)
   const anguloFoto = (info.u_sol - 0.5) * Math.PI * 2;
@@ -36,7 +38,9 @@ export async function cargaCielo(ruta, renderer, escena, direccion) {
   escena.background = textura;
   escena.backgroundRotation.set(0, giro, 0);
   const pmrem = new THREE.PMREMGenerator(renderer);
-  escena.environment = pmrem.fromEquirectangular(textura).texture;
+  const fuenteReflejos = reduceEquirect(original, anchoReflejos);
+  escena.environment = pmrem.fromEquirectangular(fuenteReflejos).texture;
+  if (fuenteReflejos !== textura) fuenteReflejos.dispose();
   escena.environmentRotation.set(0, giro, 0);
   escena.environmentIntensity = 0.75;
   pmrem.dispose();
@@ -47,6 +51,22 @@ export async function cargaCielo(ruta, renderer, escena, direccion) {
   escena.userData.cieloFoto = true;
   escena.userData.giroCieloBase = anguloFoto;
   return true;
+}
+
+// Textura equirectangular de como mucho «ancho» px (se reduce en un lienzo si hace falta)
+function reduceEquirect(textura, ancho) {
+  const imagen = textura.image;
+  let resultado = textura;
+  if (imagen.width > ancho) {
+    const lienzo = document.createElement('canvas');
+    lienzo.width = ancho;
+    lienzo.height = Math.round(imagen.height * ancho / imagen.width);
+    lienzo.getContext('2d').drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
+    resultado = new THREE.CanvasTexture(lienzo);
+  }
+  resultado.mapping = THREE.EquirectangularReflectionMapping;
+  resultado.colorSpace = THREE.SRGBColorSpace;
+  return resultado;
 }
 
 // Reflejos (y luz ambiente de los materiales PBR) sacados del cielo calculado, con un suelo
