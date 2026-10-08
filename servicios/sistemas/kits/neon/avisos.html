@@ -1,0 +1,139 @@
+<div class="sd-kit">
+<div class="sd-pila">
+  <div class="sd-aviso sd-aviso--ok" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div><strong>Guardado</strong><p>Los cambios ya están a salvo.</p></div></div>
+  <div class="sd-aviso sd-aviso--peligro" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><strong>No se pudo enviar</strong><p>Revisa la conexión e inténtalo otra vez.</p></div></div>
+</div>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=VT323&display=swap");
+/* Neón — Avisos. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/neon.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #0d0f14;
+  --sd-surface: #161a22;
+  --sd-surface-2: #1e2430;
+  --sd-ink: #f2f4f8;
+  --sd-muted: #8b93a3;
+  --sd-accent: #c8f04c;
+  --sd-accent-strong: #a8d42c;
+  --sd-accent-solid: #c8f04c;
+  --sd-accent-text: #c8f04c;
+  --sd-on-accent: #0d0f14;
+  --sd-accent-2: #38e1d4;
+  --sd-line: #262d3a;
+  --sd-ok: #c8f04c;
+  --sd-warn: #ffb84d;
+  --sd-danger: #ff5e82;
+  --sd-display: "Press Start 2P", "Pixelify Sans", ui-monospace, monospace;
+  --sd-font: "Pixelify Sans", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: "VT323", ui-monospace, monospace;
+  --sd-display-peso: 400;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0;
+  --sd-display-caja: uppercase;
+  --sd-cifras: tabular-nums;
+  --sd-radius: 0px;
+  --sd-radius-btn: 0px;
+  --sd-radius-activo: 0px;
+  --sd-border: 4px;
+  --sd-densidad: 1;
+  --sd-icon-stroke: 2.5;
+  --sd-boton: solido;
+  --sd-shadow-sm: 2px 2px 0 var(--sd-ink);
+  --sd-shadow-md: 4px 4px 0 var(--sd-ink);
+  --sd-shadow-lg: 6px 6px 0 var(--sd-ink);
+  --sd-space-1: 4px;
+  --sd-space-2: 8px;
+  --sd-space-3: 12px;
+  --sd-space-4: 16px;
+  --sd-space-6: 24px;
+  --sd-space-8: 32px;
+  color-scheme: dark;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-pila {
+  display: grid;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-aviso {
+  --tono: var(--sd-accent);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.9rem 1rem;
+  border: var(--sd-border, 1px) solid color-mix(in srgb, var(--tono) 45%, var(--sd-line));
+  border-radius: var(--sd-radius);
+  background: color-mix(in srgb, var(--tono) 10%, var(--sd-surface));
+  color: var(--sd-ink);
+}
+
+.sd-kit .sd-aviso--ok {
+  --tono: var(--sd-ok);
+}
+
+.sd-kit .sd-aviso--peligro {
+  --tono: var(--sd-danger);
+}
+
+.sd-kit .sd-aviso svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 0.1rem;
+  color: var(--tono);
+  stroke-width: var(--sd-icon-stroke, 2);
+}
+
+.sd-kit .sd-aviso strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.sd-kit .sd-aviso p {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit {
+  --pix: 4px;
+  --pix-c: var(--sd-ink);
+}
+
+.sd-kit {
+  -webkit-font-smoothing: none;
+  background-image: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.028) 0 1px, transparent 1px 3px);
+}
+
+.sd-kit .sd-aviso {
+  border: 0;
+  border-radius: 0;
+  box-shadow:
+    0 calc(var(--pix) * -1) 0 0 var(--pix-c),
+    0 var(--pix) 0 0 var(--pix-c),
+    calc(var(--pix) * -1) 0 0 0 var(--pix-c),
+    var(--pix) 0 0 0 var(--pix-c);
+}
+
+.sd-kit .sd-aviso {
+  --pix-c: var(--tono);
+}
+</style>

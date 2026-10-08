@@ -369,179 +369,179 @@ window.SD_UIVERSE = {
   },
   {
    "cat": "tarjetas",
-   "archivo": "0xnihilism_average-mole-62.html",
-   "autor": "0xnihilism",
-   "tags": "3d, card, clean, Brutalism",
-   "colores": 3,
+   "archivo": "imPradhyumn_nice-rattlesnake-46.html",
+   "autor": "imPradhyumn",
+   "tags": "card, transition, hover slide, card hover, 3d card",
+   "colores": 0,
    "animado": true
   },
   {
    "cat": "tarjetas",
-   "archivo": "0xnihilism_moody-moth-91.html",
-   "autor": "0xnihilism",
-   "tags": "simple, card, light",
-   "colores": 5,
+   "archivo": "joe-watson-sbf_little-goat-24.html",
+   "autor": "joe-watson-sbf",
+   "tags": "card, flip",
+   "colores": 0,
    "animado": true
   },
   {
    "cat": "tarjetas",
-   "archivo": "0xnihilism_nasty-husky-13.html",
-   "autor": "0xnihilism",
-   "tags": "newsletter, card, light, box-shadow, hover button, cool card, brutalism",
-   "colores": 4,
+   "archivo": "SujitAdroja_big-treefrog-20.html",
+   "autor": "SujitAdroja",
+   "tags": "card, cardgift, cool card, card animation, card hover",
+   "colores": 0,
    "animado": true
   },
   {
    "cat": "tarjetas",
-   "archivo": "1osm_afraid-mouse-29.html",
-   "autor": "1osm",
+   "archivo": "alexreyes091_hard-firefox-84.html",
+   "autor": "alexreyes091",
    "tags": "card",
+   "colores": 0,
+   "animado": true
+  },
+  {
+   "cat": "tarjetas",
+   "archivo": "alexmaracinaru_purple-zebra-61.html",
+   "autor": "alexmaracinaru",
+   "tags": "card",
+   "colores": 0,
+   "animado": false
+  },
+  {
+   "cat": "tarjetas",
+   "archivo": "JesusRafaelNavaCruz_soft-cat-28.html",
+   "autor": "JesusRafaelNavaCruz",
+   "tags": "slider, sliding, slide",
+   "colores": 0,
+   "animado": false
+  },
+  {
+   "cat": "tarjetas",
+   "archivo": "joe-watson-sbf_swift-frog-15.html",
+   "autor": "joe-watson-sbf",
+   "tags": "card, scroll snap",
+   "colores": 0,
+   "animado": false
+  },
+  {
+   "cat": "tarjetas",
+   "archivo": "zakareaaljundi_great-snail-48.html",
+   "autor": "zakareaaljundi",
+   "tags": "card, flip",
+   "colores": 0,
+   "animado": true
+  },
+  {
+   "cat": "tarjetas",
+   "archivo": "gharsh11032000_heavy-dog-45.html",
+   "autor": "gharsh11032000",
+   "tags": "card, hover, hover effect, hoverme, cardhover , card hover",
    "colores": 1,
-   "animado": false
-  },
-  {
-   "cat": "tarjetas",
-   "archivo": "1osm_light-chipmunk-10.html",
-   "autor": "1osm",
-   "tags": "card",
-   "colores": 4,
    "animado": true
   },
   {
    "cat": "tarjetas",
-   "archivo": "aadium_mighty-dog-12.html",
-   "autor": "aadium",
-   "tags": "card, code, syntax",
-   "colores": 14,
-   "animado": true
-  },
-  {
-   "cat": "tarjetas",
-   "archivo": "aadium_weak-goose-59.html",
-   "autor": "aadium",
-   "tags": "card",
-   "colores": 21,
-   "animado": true
-  },
-  {
-   "cat": "tarjetas",
-   "archivo": "AbanoubMagdy1_hard-zebra-100.html",
-   "autor": "AbanoubMagdy1",
-   "tags": "card",
+   "archivo": "JoseIsra_white-pug-89.html",
+   "autor": "JoseIsra",
+   "tags": "card, flip",
    "colores": 1,
    "animado": true
   },
   {
    "cat": "tarjetas",
-   "archivo": "abhusha08_happy-cougar-51.html",
-   "autor": "abhusha08",
-   "tags": "flashy, gradient, button, card, hover, hover effect, buttons",
-   "colores": 0,
-   "animado": true
-  },
-  {
-   "cat": "tarjetas",
-   "archivo": "absoluteSTrange_cowardly-sloth-96.html",
-   "autor": "absoluteSTrange",
-   "tags": "card",
-   "colores": 0,
-   "animado": true
-  },
-  {
-   "cat": "tarjetas",
-   "archivo": "adamgiebl_blue-mole-92.html",
-   "autor": "adamgiebl",
-   "tags": "gradient, card",
-   "colores": 5,
-   "animado": false
-  },
-  {
-   "cat": "tarjetas",
-   "archivo": "adamgiebl_horrible-rabbit-39.html",
-   "autor": "adamgiebl",
-   "tags": "skeuomorphism, glassmorphism, card, claymorphism",
+   "archivo": "Rodrypaladin_itchy-sloth-9.html",
+   "autor": "Rodrypaladin",
+   "tags": "minimalist, black, card, dark, product, custom, creative",
    "colores": 0,
    "animado": false
   },
   {
    "cat": "tarjetas",
-   "archivo": "adamgiebl_new-crab-79.html",
-   "autor": "adamgiebl",
+   "archivo": "srinivasaiml_lucky-cat-7.html",
+   "autor": "srinivasaiml",
    "tags": "card",
    "colores": 0,
    "animado": false
   },
   {
    "cat": "tarjetas",
-   "archivo": "Admin12121_average-parrot-89.html",
-   "autor": "Admin12121",
-   "tags": "card, cardhover , card animation",
-   "colores": 3,
+   "archivo": "mohamedkhire_dull-octopus-41.html",
+   "autor": "mohamedkhire",
+   "tags": "glassmorphism, card, box, transition, card template, cool card",
+   "colores": 1,
    "animado": true
   },
   {
    "cat": "tarjetas",
-   "archivo": "Admin12121_ugly-sheep-18.html",
-   "autor": "Admin12121",
-   "tags": "cardgift, card template, cardhover , card animation",
-   "colores": 3,
+   "archivo": "NouvelleTechno_fast-dragon-71.html",
+   "autor": "NouvelleTechno",
+   "tags": "card",
+   "colores": 0,
+   "animado": false
+  },
+  {
+   "cat": "tarjetas",
+   "archivo": "vinodjangid07_bad-deer-17.html",
+   "autor": "vinodjangid07",
+   "tags": "notification, card, popup",
+   "colores": 0,
+   "animado": false
+  },
+  {
+   "cat": "tarjetas",
+   "archivo": "Yaya12085_hard-mole-83.html",
+   "autor": "Yaya12085",
+   "tags": "card",
+   "colores": 0,
+   "animado": false
+  },
+  {
+   "cat": "tarjetas",
+   "archivo": "MuhammadHasann_heavy-skunk-16.html",
+   "autor": "MuhammadHasann",
+   "tags": "subscription, purple, minimalist, card, rounded, smooth",
+   "colores": 0,
    "animado": true
   },
   {
    "cat": "tarjetas",
-   "archivo": "Admin12121_witty-treefrog-58.html",
-   "autor": "Admin12121",
-   "tags": "card, accept, card design",
-   "colores": 3,
+   "archivo": "NouvelleTechno_bright-cow-83.html",
+   "autor": "NouvelleTechno",
+   "tags": "card, claymorphism, shadow",
+   "colores": 0,
+   "animado": false
+  },
+  {
+   "cat": "tarjetas",
+   "archivo": "Yaya12085_silly-skunk-16.html",
+   "autor": "Yaya12085",
+   "tags": "card, cookies",
+   "colores": 1,
    "animado": true
   },
   {
    "cat": "tarjetas",
-   "archivo": "Adrwaan_dry-bullfrog-78.html",
-   "autor": "Adrwaan",
-   "tags": "icon, animation, card, hover, glow, svg, border, color",
+   "archivo": "david-mohseni_witty-kangaroo-75.html",
+   "autor": "david-mohseni",
+   "tags": "card",
    "colores": 2,
    "animado": true
   },
   {
    "cat": "tarjetas",
-   "archivo": "ahmed150up_afraid-octopus-75.html",
-   "autor": "ahmed150up",
-   "tags": "card",
-   "colores": 4,
+   "archivo": "reshades_evil-robin-7.html",
+   "autor": "reshades",
+   "tags": "gradient, card, clean",
+   "colores": 1,
    "animado": false
   },
   {
    "cat": "tarjetas",
-   "archivo": "ahmed150up_clever-fly-79.html",
-   "autor": "ahmed150up",
-   "tags": "card, chat, chatgpt",
-   "colores": 6,
-   "animado": true
-  },
-  {
-   "cat": "tarjetas",
-   "archivo": "ahmed150up_dry-monkey-74.html",
-   "autor": "ahmed150up",
+   "archivo": "Yaya12085_pink-mouse-40.html",
+   "autor": "Yaya12085",
    "tags": "card",
-   "colores": 3,
+   "colores": 1,
    "animado": false
-  },
-  {
-   "cat": "tarjetas",
-   "archivo": "ahmedgamal-hub_popular-starfish-56.html",
-   "autor": "ahmedgamal-hub",
-   "tags": "card, about me, blur filter, animated, circle loader, border, advanced, box-shadow",
-   "colores": 4,
-   "animado": true
-  },
-  {
-   "cat": "tarjetas",
-   "archivo": "ahmedyasserdev_cuddly-gecko-77.html",
-   "autor": "ahmedyasserdev",
-   "tags": "card, hover effect, cardhover , card hover, 3d card",
-   "colores": 3,
-   "animado": true
   },
   {
    "cat": "tarjetas",
@@ -553,11 +553,11 @@ window.SD_UIVERSE = {
   },
   {
    "cat": "tarjetas",
-   "archivo": "alexmaracinaru_purple-zebra-61.html",
-   "autor": "alexmaracinaru",
+   "archivo": "Satwinder04_sour-panda-50.html",
+   "autor": "Satwinder04",
    "tags": "card",
-   "colores": 0,
-   "animado": false
+   "colores": 2,
+   "animado": true
   },
   {
    "cat": "casillas",

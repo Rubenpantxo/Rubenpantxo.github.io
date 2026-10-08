@@ -1,0 +1,147 @@
+<div class="sd-kit">
+<div class="sd-fila">
+  <button class="sd-btn" type="button">Continuar</button>
+  <button class="sd-btn sd-btn--linea" type="button">Ver más</button>
+  <button class="sd-btn sd-btn--suave" type="button">Guardar</button>
+  <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
+</div>
+</div>
+<style>
+/* Savia — Botones. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/savia.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #f4f7f4;
+  --sd-surface: #ffffff;
+  --sd-surface-2: #fbfdfb;
+  --sd-ink: #1c2b21;
+  --sd-muted: #67736a;
+  --sd-accent: #1f9d55;
+  --sd-accent-strong: #157040;
+  --sd-accent-solid: #157040;
+  --sd-accent-text: #157040;
+  --sd-on-accent: #ffffff;
+  --sd-accent-2: #e67e22;
+  --sd-line: #dde6de;
+  --sd-ok: #1f9d55;
+  --sd-warn: #e67e22;
+  --sd-danger: #e74c3c;
+  --sd-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 700;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+  --sd-radius: 22px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 999px;
+  --sd-border: 1px;
+  --sd-densidad: 1.05;
+  --sd-icon-stroke: 1.6;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 8%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  --sd-shadow-md: 0 8px 24px color-mix(in srgb, var(--sd-ink) 12%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.45);
+  --sd-shadow-lg: 0 20px 50px color-mix(in srgb, var(--sd-ink) 18%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.5);
+  --sd-space-1: 4.2px;
+  --sd-space-2: 8.4px;
+  --sd-space-3: 12.6px;
+  --sd-space-4: 16.8px;
+  --sd-space-6: 25.2px;
+  --sd-space-8: 33.6px;
+  color-scheme: light;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.72rem 1.35rem;
+  border: var(--sd-border, 1px) solid transparent;
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: var(--sd-accent-solid, var(--sd-accent));
+  color: var(--sd-on-accent, var(--sd-bg));
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-radius 0.22s ease, filter 0.12s ease;
+}
+
+.sd-kit .sd-btn:hover {
+  filter: brightness(1.08);
+}
+
+.sd-kit .sd-btn--linea {
+  background: transparent;
+  border-color: var(--sd-accent);
+  color: var(--sd-accent-text, var(--sd-accent));
+}
+
+.sd-kit .sd-btn--suave {
+  background: color-mix(in srgb, var(--sd-accent) 14%, transparent);
+  color: color-mix(in srgb, var(--sd-accent-text, var(--sd-accent)) 80%, var(--sd-ink));
+}
+
+.sd-kit .sd-btn--fantasma {
+  background: transparent;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-btn--fantasma:hover {
+  color: var(--sd-ink);
+}
+
+.sd-kit .sd-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.sd-kit {
+  background:
+    radial-gradient(38rem 28rem at 8% 6%, color-mix(in srgb, var(--sd-accent) 42%, transparent), transparent 70%),
+    radial-gradient(34rem 26rem at 92% 18%, color-mix(in srgb, var(--sd-accent-2) 40%, transparent), transparent 70%),
+    radial-gradient(40rem 30rem at 50% 104%, color-mix(in srgb, var(--sd-accent) 30%, transparent), transparent 70%),
+    var(--sd-bg);
+  background-attachment: fixed;
+}
+
+.sd-kit .sd-btn:not([class*="sd-btn--"]) {
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--sd-accent-solid) 35%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+.sd-kit .sd-btn--linea,
+.sd-kit .sd-btn--suave {
+  border-color: color-mix(in srgb, #fff 60%, transparent);
+  background: color-mix(in srgb, var(--sd-surface) 45%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--sd-shadow-sm);
+}
+</style>

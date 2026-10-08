@@ -1,0 +1,205 @@
+<div class="sd-kit">
+<div class="sd-ficha">
+  <label class="sd-interruptor"><input type="checkbox" role="switch" checked> Avisos</label>
+  <label class="sd-interruptor"><input type="checkbox" role="switch"> Modo compacto</label>
+  <label class="sd-check"><input type="checkbox" checked> Opción marcada</label>
+  <label class="sd-check"><input type="checkbox"> Opción sin marcar</label>
+  <label class="sd-check"><input type="radio" name="sd-organico-r" checked> Primera</label>
+  <label class="sd-check"><input type="radio" name="sd-organico-r"> Segunda</label>
+</div>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;600;700&display=swap");
+/* Orgánico — Selección. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/organico.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #f5ead8;
+  --sd-surface: #ebddc5;
+  --sd-surface-2: #f9f4ed;
+  --sd-ink: #201e1d;
+  --sd-muted: #645c50;
+  --sd-accent: #c67139;
+  --sd-accent-strong: #8c491a;
+  --sd-accent-solid: #8c491a;
+  --sd-accent-text: #8c491a;
+  --sd-on-accent: #f5ead8;
+  --sd-accent-2: #7a8a5e;
+  --sd-line: #dcd3c4;
+  --sd-ok: #56633f;
+  --sd-warn: #b2622d;
+  --sd-danger: #9c3a1e;
+  --sd-display: "Caprasimo", Georgia, serif;
+  --sd-font: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 400;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+  --sd-radius: 28px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 999px;
+  --sd-border: 0px;
+  --sd-densidad: 1.1;
+  --sd-icon-stroke: 2.2;
+  --sd-boton: solido;
+  --sd-shadow-sm: 4px 4px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent), -3px -3px 8px rgb(255 255 255 / 0.7);
+  --sd-shadow-md: 10px 10px 24px color-mix(in srgb, var(--sd-ink) 16%, transparent), -8px -8px 20px rgb(255 255 255 / 0.75), inset 3px 3px 6px rgb(255 255 255 / 0.55), inset -4px -4px 8px color-mix(in srgb, var(--sd-ink) 7%, transparent);
+  --sd-shadow-lg: 16px 16px 36px color-mix(in srgb, var(--sd-ink) 20%, transparent), -10px -10px 28px rgb(255 255 255 / 0.8), inset 4px 4px 8px rgb(255 255 255 / 0.6), inset -6px -6px 12px color-mix(in srgb, var(--sd-ink) 8%, transparent);
+  --sd-space-1: 4.4px;
+  --sd-space-2: 8.8px;
+  --sd-space-3: 13.2px;
+  --sd-space-4: 17.6px;
+  --sd-space-6: 26.4px;
+  --sd-space-8: 35.2px;
+  color-scheme: light;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+
+.sd-kit .sd-check input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  border: max(1.5px, var(--sd-border, 1px)) solid color-mix(in srgb, var(--sd-ink) 40%, transparent);
+  border-radius: min(var(--sd-radius), 6px);
+  background: var(--sd-surface-2, var(--sd-surface));
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.sd-kit .sd-check input[type="radio"] {
+  border-radius: 50%;
+}
+
+.sd-kit .sd-check input:checked {
+  border-color: var(--sd-accent-solid, var(--sd-accent));
+  background: var(--sd-accent-solid, var(--sd-accent));
+  box-shadow: inset 0 0 0 3px var(--sd-surface-2, var(--sd-surface));
+}
+
+.sd-kit .sd-interruptor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  cursor: pointer;
+}
+
+.sd-kit .sd-interruptor input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex: none;
+  width: 2.75rem;
+  height: 1.5rem;
+  margin: 0;
+  border: 0;
+  border-radius: var(--sd-radius-btn, 999px);
+  background: color-mix(in srgb, var(--sd-ink) 22%, transparent);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sd-kit .sd-interruptor input::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(1.5rem - 6px);
+  height: calc(1.5rem - 6px);
+  border-radius: inherit;
+  background: var(--sd-surface, #fff);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
+  transition: transform 0.2s ease;
+}
+
+.sd-kit .sd-interruptor input:checked {
+  background: var(--sd-accent-solid, var(--sd-accent));
+}
+
+.sd-kit .sd-interruptor input:checked::before {
+  transform: translateX(1.25rem);
+}
+
+.sd-kit .sd-ficha {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+  max-width: 22rem;
+  padding: 1.2rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface-2, var(--sd-surface));
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-kit .sd-ficha h4 {
+  margin: 0;
+  font-family: var(--sd-display, var(--sd-font));
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  letter-spacing: var(--sd-display-tracking, 0);
+  text-transform: var(--sd-display-caja, none);
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.sd-kit .sd-ficha p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-ficha {
+  border: 0;
+  background: var(--sd-surface);
+  box-shadow: var(--sd-shadow-md);
+}
+
+.sd-kit .sd-check input,
+.sd-kit .sd-interruptor input {
+  border: 0;
+  background: var(--sd-bg);
+  box-shadow: inset 4px 4px 8px color-mix(in srgb, var(--sd-ink) 13%, transparent), inset -4px -4px 8px rgb(255 255 255 / 0.75);
+}
+
+.sd-kit .sd-check input:checked {
+  background: var(--sd-accent-solid);
+  box-shadow: inset 0 0 0 4px var(--sd-bg), inset 3px 3px 6px rgb(0 0 0 / 0.2);
+}
+
+.sd-kit .sd-interruptor input:checked {
+  background: var(--sd-accent-solid);
+  box-shadow: inset 3px 3px 6px rgb(0 0 0 / 0.22);
+}
+
+.sd-kit .sd-interruptor input::before {
+  background: var(--sd-surface);
+  box-shadow: 2px 2px 5px color-mix(in srgb, var(--sd-ink) 25%, transparent), inset 1px 1px 2px rgb(255 255 255 / 0.8);
+}
+</style>

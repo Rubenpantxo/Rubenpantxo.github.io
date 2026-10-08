@@ -1,0 +1,122 @@
+<div class="sd-kit">
+<div class="sd-dato">
+  <span class="sd-dato__etiqueta">Visitas este mes</span>
+  <strong class="sd-dato__valor">2.480</strong>
+  <span class="sd-dato__delta">▲ 12 % frente al mes anterior</span>
+  <div class="sd-progreso" role="progressbar" aria-label="Objetivo" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><span style="--v:72%"></span></div>
+</div>
+</div>
+<style>
+/* Terracota — Dato. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/terracota.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #fdf6ec;
+  --sd-surface: #ffffff;
+  --sd-surface-2: #fffdf9;
+  --sd-ink: #2b1d12;
+  --sd-muted: #7c6e60;
+  --sd-accent: #b34a1f;
+  --sd-accent-strong: #8a3514;
+  --sd-accent-solid: #b34a1f;
+  --sd-accent-text: #963d18;
+  --sd-on-accent: #fdf6ec;
+  --sd-accent-2: #2e9e5b;
+  --sd-line: #e8dcc9;
+  --sd-ok: #2e9e5b;
+  --sd-warn: #c98a1e;
+  --sd-danger: #c0392b;
+  --sd-display: Georgia, "Iowan Old Style", serif;
+  --sd-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 700;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+  --sd-radius: 12px;
+  --sd-radius-btn: 12px;
+  --sd-radius-activo: 12px;
+  --sd-border: 1px;
+  --sd-densidad: 1.05;
+  --sd-icon-stroke: 1.8;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 12%, transparent);
+  --sd-shadow-md: 0 3px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  --sd-shadow-lg: 0 12px 32px color-mix(in srgb, var(--sd-ink) 20%, transparent);
+  --sd-space-1: 4.2px;
+  --sd-space-2: 8.4px;
+  --sd-space-3: 12.6px;
+  --sd-space-4: 16.8px;
+  --sd-space-6: 25.2px;
+  --sd-space-8: 33.6px;
+  color-scheme: light;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-progreso {
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: var(--sd-radius-btn, 999px);
+  background: color-mix(in srgb, var(--sd-ink) 12%, transparent);
+}
+
+.sd-kit .sd-progreso > span {
+  display: block;
+  width: var(--v, 50%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sd-accent);
+}
+
+.sd-kit .sd-dato {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1.1rem 1.2rem;
+  border: var(--sd-border, 1px) solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  background: var(--sd-surface-2, var(--sd-surface));
+  box-shadow: var(--sd-shadow-sm, none);
+}
+
+.sd-kit .sd-dato__etiqueta {
+  font-size: 0.8rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-dato__valor {
+  font-family: var(--sd-display, var(--sd-font));
+  font-weight: var(--sd-display-peso, 700);
+  font-style: var(--sd-display-estilo, normal);
+  letter-spacing: var(--sd-display-tracking, 0);
+  font-size: 2.4rem;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.sd-kit .sd-dato__delta {
+  margin-bottom: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--sd-ok) 70%, var(--sd-ink));
+}
+
+.sd-kit .sd-dato {
+  box-shadow: none;
+}
+</style>
