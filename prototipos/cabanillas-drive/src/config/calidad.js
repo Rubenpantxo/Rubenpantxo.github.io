@@ -48,7 +48,9 @@ export const NIVELES = {
     distanciaEdificiosDetalle: 160, sombrasEdificios: false, unirMaterialesCoche: true,
     terreno: 'assets/cabanillas_bajo.glb', atlasTejados: 'assets/tejados_bajo.jpg',
     // Sin esto el móvil se queda sin memoria gráfica y la vista 3D sale en blanco
-    cielo: { anchoFondo: 2048, anchoReflejos: 512 },
+    cielo: { anchoFondo: 1024, anchoReflejos: 512 },
+    // Texturas de coches, personas y árboles reducidas a este lado máximo (px)
+    texturaMax: 512,
     niebla: { cerca: 450, lejos: 1300 }, camaraLejos: 1400, descargaEstimadaMB: 13,
     resolucionDinamica: { objetivoFps: 30, minimo: 0.6 },
   },
