@@ -1,0 +1,17 @@
+{
+ "paso_m": 0.5,
+ "columnas": 3000,
+ "filas": 2800,
+ "x0": -750.0,
+ "z0": -700.0,
+ "metros_textura": {
+  "asfalto": 2.0,
+  "baldosa": 1.6,
+  "tierra": 2.5
+ },
+ "canales": {
+  "R": "calzada",
+  "G": "acera",
+  "B": "tierra"
+ }
+}

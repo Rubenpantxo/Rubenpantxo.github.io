@@ -1,0 +1,17 @@
+# Datos brutos: los prepara Rubén y no se suben nunca
+data/raw/
+
+# Intermedios del pipeline: solo se versiona el origen local
+data/processed/*
+!data/processed/origin.json
+
+# Dependencias y compilación
+node_modules/
+dist/
+dist-muestra/
+
+# Datos generados por tools/ (se regeneran; el juego publicado los lleva en dist/)
+public/assets/
+
+# Caché de Python (también la crea Blender al importar tools/comun.py)
+__pycache__/
