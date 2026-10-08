@@ -41,8 +41,9 @@ if command -v gitleaks >/dev/null 2>&1; then
         fallos=1
     fi
 else
-    # Red minima mientras no este gitleaks instalado.
-    if git diff --cached -U0 | grep -qE '^\+.*(-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|xox[baprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35})'; then
+    # Red minima mientras no este gitleaks instalado. AKIA con limites de palabra,
+    # como gitleaks: sin ellos salta dentro de texto base64 (WebAssembly de Rapier).
+    if git diff --cached -U0 | grep -qE '^\+.*(-----BEGIN [A-Z ]*PRIVATE KEY-----|\bAKIA[0-9A-Z]{16}\b|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|xox[baprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35})'; then
         rojo "[pre-commit] Parece haber una credencial en el cambio."
         fallos=1
     fi

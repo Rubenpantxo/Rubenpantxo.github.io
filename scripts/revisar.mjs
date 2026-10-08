@@ -141,7 +141,9 @@ for (const f of archivos) {
 const HASH_FILTRADO = '07aec214ed14010f3b309e4f70f01cbc13693d5b94f29417be473bd' + 'beb620e5f';
 const PATRONES_CREDENCIAL = [
     { nombre: 'una clave privada PEM', re: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
-    { nombre: 'una clave de acceso de AWS', re: /AKIA[0-9A-Z]{16}/ },
+    // Con límites de palabra, como la regla de gitleaks: sin ellos salta dentro de
+    // texto base64 (p. ej. el WebAssembly de Rapier en juegos/cabanillas-drive/).
+    { nombre: 'una clave de acceso de AWS', re: /\bAKIA[0-9A-Z]{16}\b/ },
     { nombre: 'un token de GitHub', re: /(ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,})/ },
     { nombre: 'un token de Slack', re: /xox[baprs]-[A-Za-z0-9-]{10,}/ },
     { nombre: 'una clave de Google API', re: /AIza[0-9A-Za-z_-]{35}/ },
