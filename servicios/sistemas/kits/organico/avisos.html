@@ -1,0 +1,125 @@
+<div class="sd-kit">
+<div class="sd-pila">
+  <div class="sd-aviso sd-aviso--ok" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div><strong>Guardado</strong><p>Los cambios ya están a salvo.</p></div></div>
+  <div class="sd-aviso sd-aviso--peligro" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><strong>No se pudo enviar</strong><p>Revisa la conexión e inténtalo otra vez.</p></div></div>
+</div>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;600;700&display=swap");
+/* Orgánico — Avisos. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/organico.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #f5ead8;
+  --sd-surface: #ebddc5;
+  --sd-surface-2: #f9f4ed;
+  --sd-ink: #201e1d;
+  --sd-muted: #645c50;
+  --sd-accent: #c67139;
+  --sd-accent-strong: #8c491a;
+  --sd-accent-solid: #8c491a;
+  --sd-accent-text: #8c491a;
+  --sd-on-accent: #f5ead8;
+  --sd-accent-2: #7a8a5e;
+  --sd-line: #dcd3c4;
+  --sd-ok: #56633f;
+  --sd-warn: #b2622d;
+  --sd-danger: #9c3a1e;
+  --sd-display: "Caprasimo", Georgia, serif;
+  --sd-font: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 400;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+  --sd-radius: 28px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 999px;
+  --sd-border: 0px;
+  --sd-densidad: 1.1;
+  --sd-icon-stroke: 2.2;
+  --sd-boton: solido;
+  --sd-shadow-sm: 4px 4px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent), -3px -3px 8px rgb(255 255 255 / 0.7);
+  --sd-shadow-md: 10px 10px 24px color-mix(in srgb, var(--sd-ink) 16%, transparent), -8px -8px 20px rgb(255 255 255 / 0.75), inset 3px 3px 6px rgb(255 255 255 / 0.55), inset -4px -4px 8px color-mix(in srgb, var(--sd-ink) 7%, transparent);
+  --sd-shadow-lg: 16px 16px 36px color-mix(in srgb, var(--sd-ink) 20%, transparent), -10px -10px 28px rgb(255 255 255 / 0.8), inset 4px 4px 8px rgb(255 255 255 / 0.6), inset -6px -6px 12px color-mix(in srgb, var(--sd-ink) 8%, transparent);
+  --sd-space-1: 4.4px;
+  --sd-space-2: 8.8px;
+  --sd-space-3: 13.2px;
+  --sd-space-4: 17.6px;
+  --sd-space-6: 26.4px;
+  --sd-space-8: 35.2px;
+  color-scheme: light;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-pila {
+  display: grid;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-aviso {
+  --tono: var(--sd-accent);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.9rem 1rem;
+  border: var(--sd-border, 1px) solid color-mix(in srgb, var(--tono) 45%, var(--sd-line));
+  border-radius: var(--sd-radius);
+  background: color-mix(in srgb, var(--tono) 10%, var(--sd-surface));
+  color: var(--sd-ink);
+}
+
+.sd-kit .sd-aviso--ok {
+  --tono: var(--sd-ok);
+}
+
+.sd-kit .sd-aviso--peligro {
+  --tono: var(--sd-danger);
+}
+
+.sd-kit .sd-aviso svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 0.1rem;
+  color: var(--tono);
+  stroke-width: var(--sd-icon-stroke, 2);
+}
+
+.sd-kit .sd-aviso strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.sd-kit .sd-aviso p {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-aviso {
+  border: 0;
+  background: var(--sd-surface);
+  box-shadow: var(--sd-shadow-md);
+}
+
+.sd-kit .sd-aviso {
+  background: color-mix(in srgb, var(--tono) 14%, var(--sd-surface));
+}
+</style>

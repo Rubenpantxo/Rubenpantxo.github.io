@@ -1,0 +1,122 @@
+<div class="sd-kit">
+<div class="sd-pila">
+  <div class="sd-aviso sd-aviso--ok" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div><strong>Guardado</strong><p>Los cambios ya están a salvo.</p></div></div>
+  <div class="sd-aviso sd-aviso--peligro" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><strong>No se pudo enviar</strong><p>Revisa la conexión e inténtalo otra vez.</p></div></div>
+</div>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500;1,600&family=Lora:wght@400;600&display=swap");
+/* Clásico — Avisos. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/clasico.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #14110d;
+  --sd-surface: #1c1813;
+  --sd-surface-2: #241e17;
+  --sd-ink: #f1e8d8;
+  --sd-muted: #a89a84;
+  --sd-accent: #c9a255;
+  --sd-accent-strong: #a8823a;
+  --sd-accent-solid: #c9a255;
+  --sd-accent-text: #d4b26e;
+  --sd-on-accent: #14110d;
+  --sd-accent-2: #9c7b4a;
+  --sd-line: #3a3126;
+  --sd-ok: #9fbf7a;
+  --sd-warn: #e0b04c;
+  --sd-danger: #e0806a;
+  --sd-display: "Cormorant Garamond", Georgia, serif;
+  --sd-font: "Lora", Georgia, serif;
+  --sd-mono: ui-monospace, monospace;
+  --sd-display-peso: 500;
+  --sd-display-estilo: italic;
+  --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+  --sd-radius: 4px;
+  --sd-radius-btn: 4px;
+  --sd-radius-activo: 4px;
+  --sd-border: 1px;
+  --sd-densidad: 1.15;
+  --sd-icon-stroke: 1.4;
+  --sd-boton: contorno;
+  --sd-shadow-sm: none;
+  --sd-shadow-md: none;
+  --sd-shadow-lg: none;
+  --sd-space-1: 4.6px;
+  --sd-space-2: 9.2px;
+  --sd-space-3: 13.8px;
+  --sd-space-4: 18.4px;
+  --sd-space-6: 27.6px;
+  --sd-space-8: 36.8px;
+  color-scheme: dark;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-pila {
+  display: grid;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-aviso {
+  --tono: var(--sd-accent);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.9rem 1rem;
+  border: var(--sd-border, 1px) solid color-mix(in srgb, var(--tono) 45%, var(--sd-line));
+  border-radius: var(--sd-radius);
+  background: color-mix(in srgb, var(--tono) 10%, var(--sd-surface));
+  color: var(--sd-ink);
+}
+
+.sd-kit .sd-aviso--ok {
+  --tono: var(--sd-ok);
+}
+
+.sd-kit .sd-aviso--peligro {
+  --tono: var(--sd-danger);
+}
+
+.sd-kit .sd-aviso svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 0.1rem;
+  color: var(--tono);
+  stroke-width: var(--sd-icon-stroke, 2);
+}
+
+.sd-kit .sd-aviso strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.sd-kit .sd-aviso p {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-aviso {
+  border-color: color-mix(in srgb, var(--sd-accent) 50%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--sd-accent) 22%, transparent);
+  outline-offset: 4px;
+  box-shadow: none;
+}
+</style>

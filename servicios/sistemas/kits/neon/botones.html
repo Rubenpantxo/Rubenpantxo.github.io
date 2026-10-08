@@ -1,0 +1,179 @@
+<div class="sd-kit">
+<div class="sd-fila">
+  <button class="sd-btn" type="button">Continuar</button>
+  <button class="sd-btn sd-btn--linea" type="button">Ver más</button>
+  <button class="sd-btn sd-btn--suave" type="button">Guardar</button>
+  <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
+</div>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=VT323&display=swap");
+/* Neón — Botones. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/neon.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #0d0f14;
+  --sd-surface: #161a22;
+  --sd-surface-2: #1e2430;
+  --sd-ink: #f2f4f8;
+  --sd-muted: #8b93a3;
+  --sd-accent: #c8f04c;
+  --sd-accent-strong: #a8d42c;
+  --sd-accent-solid: #c8f04c;
+  --sd-accent-text: #c8f04c;
+  --sd-on-accent: #0d0f14;
+  --sd-accent-2: #38e1d4;
+  --sd-line: #262d3a;
+  --sd-ok: #c8f04c;
+  --sd-warn: #ffb84d;
+  --sd-danger: #ff5e82;
+  --sd-display: "Press Start 2P", "Pixelify Sans", ui-monospace, monospace;
+  --sd-font: "Pixelify Sans", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: "VT323", ui-monospace, monospace;
+  --sd-display-peso: 400;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: 0;
+  --sd-display-caja: uppercase;
+  --sd-cifras: tabular-nums;
+  --sd-radius: 0px;
+  --sd-radius-btn: 0px;
+  --sd-radius-activo: 0px;
+  --sd-border: 4px;
+  --sd-densidad: 1;
+  --sd-icon-stroke: 2.5;
+  --sd-boton: solido;
+  --sd-shadow-sm: 2px 2px 0 var(--sd-ink);
+  --sd-shadow-md: 4px 4px 0 var(--sd-ink);
+  --sd-shadow-lg: 6px 6px 0 var(--sd-ink);
+  --sd-space-1: 4px;
+  --sd-space-2: 8px;
+  --sd-space-3: 12px;
+  --sd-space-4: 16px;
+  --sd-space-6: 24px;
+  --sd-space-8: 32px;
+  color-scheme: dark;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.72rem 1.35rem;
+  border: var(--sd-border, 1px) solid transparent;
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: var(--sd-accent-solid, var(--sd-accent));
+  color: var(--sd-on-accent, var(--sd-bg));
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-radius 0.22s ease, filter 0.12s ease;
+}
+
+.sd-kit .sd-btn:hover {
+  filter: brightness(1.08);
+}
+
+.sd-kit .sd-btn--linea {
+  background: transparent;
+  border-color: var(--sd-accent);
+  color: var(--sd-accent-text, var(--sd-accent));
+}
+
+.sd-kit .sd-btn--suave {
+  background: color-mix(in srgb, var(--sd-accent) 14%, transparent);
+  color: color-mix(in srgb, var(--sd-accent-text, var(--sd-accent)) 80%, var(--sd-ink));
+}
+
+.sd-kit .sd-btn--fantasma {
+  background: transparent;
+  color: var(--sd-muted);
+}
+
+.sd-kit .sd-btn--fantasma:hover {
+  color: var(--sd-ink);
+}
+
+.sd-kit .sd-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.sd-kit {
+  --pix: 4px;
+  --pix-c: var(--sd-ink);
+}
+
+.sd-kit {
+  -webkit-font-smoothing: none;
+  background-image: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.028) 0 1px, transparent 1px 3px);
+}
+
+.sd-kit .sd-btn {
+  border: 0;
+  border-radius: 0;
+  font-family: var(--sd-display);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  line-height: 1.6;
+  box-shadow:
+    0 calc(var(--pix) * -1) 0 0 var(--pix-c),
+    0 var(--pix) 0 0 var(--pix-c),
+    calc(var(--pix) * -1) 0 0 0 var(--pix-c),
+    var(--pix) 0 0 0 var(--pix-c),
+    inset 0 calc(var(--pix) * -1) 0 0 rgb(0 0 0 / 0.28),
+    inset 0 var(--pix) 0 0 rgb(255 255 255 / 0.25);
+}
+
+.sd-kit .sd-btn:hover {
+  filter: none;
+  transform: translateY(-2px);
+}
+
+.sd-kit .sd-btn:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 calc(var(--pix) * -1) 0 0 var(--pix-c),
+    0 var(--pix) 0 0 var(--pix-c),
+    calc(var(--pix) * -1) 0 0 0 var(--pix-c),
+    var(--pix) 0 0 0 var(--pix-c),
+    inset 0 var(--pix) 0 0 rgb(0 0 0 / 0.28);
+}
+
+.sd-kit .sd-btn--linea {
+  --pix-c: var(--sd-accent);
+}
+
+.sd-kit .sd-btn--suave {
+  --pix-c: color-mix(in srgb, var(--sd-accent) 40%, transparent);
+}
+
+.sd-kit .sd-btn--fantasma {
+  box-shadow: none;
+}
+</style>
