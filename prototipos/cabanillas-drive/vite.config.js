@@ -24,8 +24,21 @@ function quitaSoloPipeline() {
 
 // Rutas relativas para poder copiar dist/ a cualquier subcarpeta de GitHub Pages.
 // «npm run dev -- --host» publica el servidor en la red local para probar en el móvil.
+// Rapier (1,9 MB de WebAssembly en base64) y las librerías van en archivos aparte: no cambian al
+// volver a publicar, así que el navegador los reaprovecha y el repo del sitio no los duplica.
 export default defineConfig({
   base: './',
   server: { port: 5173 },
   plugins: [quitaSoloPipeline()],
+  build: {
+    chunkSizeWarningLimit: 2500,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('@dimforge/rapier3d')) return 'rapier';
+          if (id.includes('node_modules')) return 'librerias';
+        },
+      },
+    },
+  },
 });
