@@ -321,6 +321,17 @@
       </div>
     </section>
 
+    <!-- Si la gráfica retira el contexto WebGL (falta de memoria): sin esto solo se ve blanco -->
+    <section id="fallo" class="pantalla" hidden aria-labelledby="titulo-fallo" style="z-index: 20">
+      <div class="tarjeta pila">
+        <h2 id="titulo-fallo">Se ha perdido la imagen 3D</h2>
+        <p id="fallo-texto" style="margin: 0"></p>
+        <button class="boton" type="button" data-recarga-fallo>Recargar</button>
+        <button class="boton secundario" type="button" data-recarga-fallo="bajo">Recargar en calidad baja</button>
+        <p id="fallo-detalle" class="extra"></p>
+      </div>
+    </section>
+
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
