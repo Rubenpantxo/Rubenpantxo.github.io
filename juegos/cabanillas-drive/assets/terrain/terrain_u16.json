@@ -1,0 +1,8 @@
+{
+ "archivo": "terrain.u16",
+ "formato": "Uint16 little-endian, mismo orden que terrain.f32; altura = minimo + valor × escala",
+ "minimo": 0.03759765625,
+ "escala": 0.0008260698843085995,
+ "filas": 1401,
+ "columnas": 1501
+}

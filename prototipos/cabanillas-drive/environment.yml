@@ -1,0 +1,21 @@
+# Entorno conda del pipeline de datos de Cabanillas Drive.
+# Crear con:   conda env create -f environment.yml
+# Actualizar:  conda env update -f environment.yml --prune
+name: cabdrive
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - gdal
+  - rasterio
+  - geopandas
+  - shapely
+  - pyproj
+  - numpy
+  - pillow
+  - requests
+  - scipy
+  - pip
+  - pip:
+      # Detector de coches de la ortofoto (07_coches_orto.py); solo se usa en el pipeline
+      - ultralytics

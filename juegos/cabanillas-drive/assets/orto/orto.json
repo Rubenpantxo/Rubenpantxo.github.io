@@ -1,0 +1,166 @@
+{
+  "filas": 4,
+  "columnas": 4,
+  "px_por_m": 4.0,
+  "tesela_px": [
+    1500,
+    1400
+  ],
+  "tesela_m": [
+    375.0,
+    350.0
+  ],
+  "imagen_px": [
+    6000,
+    5600
+  ],
+  "orden": "fila 0 = norte (z mínima), columna 0 = oeste (x mínima)",
+  "fuente": "PNOA máxima actualidad (IGN), coches borrados",
+  "atribucion": "PNOA cedido por © Instituto Geográfico Nacional",
+  "teselas": [
+    {
+      "archivo": "orto_0_0.jpg",
+      "fila": 0,
+      "col": 0,
+      "x_min": -750.0,
+      "x_max": -375.0,
+      "z_min": -700.0,
+      "z_max": -350.0
+    },
+    {
+      "archivo": "orto_0_1.jpg",
+      "fila": 0,
+      "col": 1,
+      "x_min": -375.0,
+      "x_max": 0.0,
+      "z_min": -700.0,
+      "z_max": -350.0
+    },
+    {
+      "archivo": "orto_0_2.jpg",
+      "fila": 0,
+      "col": 2,
+      "x_min": 0.0,
+      "x_max": 375.0,
+      "z_min": -700.0,
+      "z_max": -350.0
+    },
+    {
+      "archivo": "orto_0_3.jpg",
+      "fila": 0,
+      "col": 3,
+      "x_min": 375.0,
+      "x_max": 750.0,
+      "z_min": -700.0,
+      "z_max": -350.0
+    },
+    {
+      "archivo": "orto_1_0.jpg",
+      "fila": 1,
+      "col": 0,
+      "x_min": -750.0,
+      "x_max": -375.0,
+      "z_min": -350.0,
+      "z_max": 0.0
+    },
+    {
+      "archivo": "orto_1_1.jpg",
+      "fila": 1,
+      "col": 1,
+      "x_min": -375.0,
+      "x_max": 0.0,
+      "z_min": -350.0,
+      "z_max": 0.0
+    },
+    {
+      "archivo": "orto_1_2.jpg",
+      "fila": 1,
+      "col": 2,
+      "x_min": 0.0,
+      "x_max": 375.0,
+      "z_min": -350.0,
+      "z_max": 0.0
+    },
+    {
+      "archivo": "orto_1_3.jpg",
+      "fila": 1,
+      "col": 3,
+      "x_min": 375.0,
+      "x_max": 750.0,
+      "z_min": -350.0,
+      "z_max": 0.0
+    },
+    {
+      "archivo": "orto_2_0.jpg",
+      "fila": 2,
+      "col": 0,
+      "x_min": -750.0,
+      "x_max": -375.0,
+      "z_min": 0.0,
+      "z_max": 350.0
+    },
+    {
+      "archivo": "orto_2_1.jpg",
+      "fila": 2,
+      "col": 1,
+      "x_min": -375.0,
+      "x_max": 0.0,
+      "z_min": 0.0,
+      "z_max": 350.0
+    },
+    {
+      "archivo": "orto_2_2.jpg",
+      "fila": 2,
+      "col": 2,
+      "x_min": 0.0,
+      "x_max": 375.0,
+      "z_min": 0.0,
+      "z_max": 350.0
+    },
+    {
+      "archivo": "orto_2_3.jpg",
+      "fila": 2,
+      "col": 3,
+      "x_min": 375.0,
+      "x_max": 750.0,
+      "z_min": 0.0,
+      "z_max": 350.0
+    },
+    {
+      "archivo": "orto_3_0.jpg",
+      "fila": 3,
+      "col": 0,
+      "x_min": -750.0,
+      "x_max": -375.0,
+      "z_min": 350.0,
+      "z_max": 700.0
+    },
+    {
+      "archivo": "orto_3_1.jpg",
+      "fila": 3,
+      "col": 1,
+      "x_min": -375.0,
+      "x_max": 0.0,
+      "z_min": 350.0,
+      "z_max": 700.0
+    },
+    {
+      "archivo": "orto_3_2.jpg",
+      "fila": 3,
+      "col": 2,
+      "x_min": 0.0,
+      "x_max": 375.0,
+      "z_min": 350.0,
+      "z_max": 700.0
+    },
+    {
+      "archivo": "orto_3_3.jpg",
+      "fila": 3,
+      "col": 3,
+      "x_min": 375.0,
+      "x_max": 750.0,
+      "z_min": 350.0,
+      "z_max": 700.0
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+ "fuente": "MakeHuman / MPFB2 (recursos CC0 de la comunidad MakeHuman); animaciones propias",
+ "fps": 30,
+ "fotogramas_paso": 32,
+ "velocidad_diseno_ms": 1.3,
+ "metros_por_ciclo": 1.387,
+ "personas": [
+  {
+   "id": "h_joven",
+   "sexo": "hombre",
+   "edad": 27,
+   "triangulos": 10995,
+   "alto_m": 1.814,
+   "huesos": 53,
+   "archivo": "h_joven.glb"
+  },
+  {
+   "id": "h_polo",
+   "sexo": "hombre",
+   "edad": 46,
+   "triangulos": 12424,
+   "alto_m": 1.742,
+   "huesos": 53,
+   "archivo": "h_polo.glb"
+  },
+  {
+   "id": "h_mayor",
+   "sexo": "hombre",
+   "edad": 72,
+   "triangulos": 12239,
+   "alto_m": 1.694,
+   "huesos": 53,
+   "archivo": "h_mayor.glb"
+  },
+  {
+   "id": "h_trabajo",
+   "sexo": "hombre",
+   "edad": 36,
+   "triangulos": 11082,
+   "alto_m": 1.872,
+   "huesos": 53,
+   "archivo": "h_trabajo.glb"
+  },
+  {
+   "id": "h_camiseta",
+   "sexo": "hombre",
+   "edad": 21,
+   "triangulos": 9436,
+   "alto_m": 1.83,
+   "huesos": 53,
+   "archivo": "h_camiseta.glb"
+  },
+  {
+   "id": "h_maduro",
+   "sexo": "hombre",
+   "edad": 58,
+   "triangulos": 11089,
+   "alto_m": 1.724,
+   "huesos": 53,
+   "archivo": "h_maduro.glb"
+  },
+  {
+   "id": "m_joven",
+   "sexo": "mujer",
+   "edad": 25,
+   "triangulos": 13127,
+   "alto_m": 1.614,
+   "huesos": 53,
+   "archivo": "m_joven.glb"
+  },
+  {
+   "id": "m_media",
+   "sexo": "mujer",
+   "edad": 42,
+   "triangulos": 11258,
+   "alto_m": 1.598,
+   "huesos": 53,
+   "archivo": "m_media.glb"
+  },
+  {
+   "id": "m_mayor",
+   "sexo": "mujer",
+   "edad": 70,
+   "triangulos": 14096,
+   "alto_m": 1.515,
+   "huesos": 53,
+   "archivo": "m_mayor.glb"
+  },
+  {
+   "id": "m_verano",
+   "sexo": "mujer",
+   "edad": 31,
+   "triangulos": 14314,
+   "alto_m": 1.649,
+   "huesos": 53,
+   "archivo": "m_verano.glb"
+  },
+  {
+   "id": "m_elegante",
+   "sexo": "mujer",
+   "edad": 52,
+   "triangulos": 11065,
+   "alto_m": 1.607,
+   "huesos": 53,
+   "archivo": "m_elegante.glb"
+  },
+  {
+   "id": "m_deporte",
+   "sexo": "mujer",
+   "edad": 19,
+   "triangulos": 11943,
+   "alto_m": 1.582,
+   "huesos": 53,
+   "archivo": "m_deporte.glb"
+  }
+ ]
+}
