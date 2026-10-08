@@ -1,0 +1,88 @@
+{
+ "variantes": {
+  "frondosa_a": {
+   "tipo": "frondosa",
+   "radio": 0.3847,
+   "radioTronco": 0.0186,
+   "copaBase": 0.1479,
+   "triangulos": 2760
+  },
+  "frondosa_b": {
+   "tipo": "frondosa",
+   "radio": 0.3864,
+   "radioTronco": 0.0232,
+   "copaBase": 0.0648,
+   "triangulos": 3192
+  },
+  "frondosa_baja": {
+   "tipo": "frondosa",
+   "radio": 0.386,
+   "radioTronco": 0.0195,
+   "copaBase": 0.0293,
+   "triangulos": 2286
+  },
+  "pino_a": {
+   "tipo": "conifera",
+   "radio": 0.393,
+   "radioTronco": 0.0249,
+   "copaBase": 0.3123,
+   "triangulos": 3192
+  },
+  "pino_b": {
+   "tipo": "conifera",
+   "radio": 0.4173,
+   "radioTronco": 0.0204,
+   "copaBase": 0.2354,
+   "triangulos": 2760
+  },
+  "cipres": {
+   "tipo": "cipres",
+   "radio": 0.1488,
+   "radioTronco": 0.0192,
+   "copaBase": 0.055,
+   "triangulos": 1216
+  },
+  "chopo": {
+   "tipo": "chopo",
+   "radio": 0.1833,
+   "radioTronco": 0.0104,
+   "copaBase": 0.4284,
+   "triangulos": 3144
+  },
+  "palmera_a": {
+   "tipo": "palmera",
+   "radio": 0.4496,
+   "radioTronco": 0.0451,
+   "copaBase": 0.3229,
+   "triangulos": 920
+  },
+  "palmera_b": {
+   "tipo": "palmera",
+   "radio": 0.5263,
+   "radioTronco": 0.0471,
+   "copaBase": 0.2452,
+   "triangulos": 792
+  }
+ },
+ "porTipo": {
+  "frondosa": [
+   "frondosa_a",
+   "frondosa_b",
+   "frondosa_baja"
+  ],
+  "conifera": [
+   "pino_a",
+   "pino_b"
+  ],
+  "cipres": [
+   "cipres"
+  ],
+  "chopo": [
+   "chopo"
+  ],
+  "palmera": [
+   "palmera_a",
+   "palmera_b"
+  ]
+ }
+}

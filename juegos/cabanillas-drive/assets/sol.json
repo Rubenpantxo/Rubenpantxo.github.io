@@ -1,0 +1,6 @@
+{
+ "acimut_grados": 201.0,
+ "elevacion_grados": 65.0,
+ "correlacion": 0.404,
+ "metodo": "sombras del nDSM proyectadas frente a zonas oscuras de la ortofoto PNOA"
+}

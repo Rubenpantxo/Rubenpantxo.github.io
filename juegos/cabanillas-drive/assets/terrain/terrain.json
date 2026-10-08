@@ -1,0 +1,17 @@
+{
+  "filas": 1401,
+  "columnas": 1501,
+  "paso_m": 1.0,
+  "tamaño_x_m": 1500.0,
+  "tamaño_z_m": 1400.0,
+  "altura_min": 0.038,
+  "altura_max": 54.174,
+  "formato": "Float32 little-endian; filas de norte a sur, cada fila de oeste a este",
+  "vertice_0": {
+    "x": -750.0,
+    "z": -700.0,
+    "nota": "esquina noroeste en coordenadas locales"
+  },
+  "H_base": 243.842,
+  "rejilla": "paso exacto 1 m (1501×1401 vértices). No se usa 2^n + 1: con una zona de 1500 × 1400 m daría celdas de 0.732 × 1.367 m (no cuadradas o lejos de 1 m)"
+}

@@ -1,0 +1,11 @@
+{
+ "paso_m": 1.0,
+ "columnas": 1500,
+ "filas": 1400,
+ "x0": -750.0,
+ "z0": -700.0,
+ "canales": {
+  "R": "césped / hierba verde",
+  "G": "cereal, rastrojo o hierba seca"
+ }
+}

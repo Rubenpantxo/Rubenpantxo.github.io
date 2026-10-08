@@ -1,0 +1,256 @@
+{
+ "landcruiser": {
+  "archivo": "landcruiser.glb",
+  "archivo_lejos": null,
+  "jugador": true,
+  "largo": 4.95,
+  "ancho": 2.296,
+  "alto": 1.904,
+  "pintura": true,
+  "color_original": [
+   0.043,
+   0.248,
+   0.64
+  ],
+  "triangulos": 44986,
+  "ruedas": [
+   {
+    "objeto": "rueda_di",
+    "centro": [
+     0.7753,
+     0.3905,
+     1.5291
+    ],
+    "radio": 0.3896,
+    "ancho": 0.3159
+   },
+   {
+    "objeto": "rueda_dd",
+    "centro": [
+     -0.7735,
+     0.3905,
+     1.5291
+    ],
+    "radio": 0.3896,
+    "ancho": 0.3159
+   },
+   {
+    "objeto": "rueda_ti",
+    "centro": [
+     0.7753,
+     0.3896,
+     -1.2861
+    ],
+    "radio": 0.3896,
+    "ancho": 0.3159
+   },
+   {
+    "objeto": "rueda_td",
+    "centro": [
+     -0.7735,
+     0.3896,
+     -1.2861
+    ],
+    "radio": 0.3896,
+    "ancho": 0.3159
+   }
+  ],
+  "fuente": "3DExport (Toyota Land Cruiser)"
+ },
+ "tesla": {
+  "archivo": "tesla.glb",
+  "archivo_lejos": "tesla_lejos.glb",
+  "jugador": false,
+  "largo": 5.02,
+  "ancho": 2.211,
+  "alto": 1.438,
+  "pintura": false,
+  "color_original": null,
+  "triangulos": 1500,
+  "ruedas": [],
+  "fuente": "«Tesla model S Plaid 2023» de slowpoly (Sketchfab), CC-BY-4.0"
+ },
+ "gclass": {
+  "archivo": "gclass.glb",
+  "archivo_lejos": "gclass_lejos.glb",
+  "jugador": false,
+  "largo": 4.87,
+  "ancho": 2.144,
+  "alto": 2.033,
+  "pintura": false,
+  "color_original": null,
+  "triangulos": 1524,
+  "ruedas": [],
+  "fuente": "«Mercedes-Benz G-Class Free Download» de slowpoly (Sketchfab), CC-BY-4.0"
+ },
+ "maxus": {
+  "archivo": "maxus.glb",
+  "archivo_lejos": "maxus_lejos.glb",
+  "jugador": false,
+  "largo": 5.37,
+  "ancho": 2.057,
+  "alto": 1.758,
+  "pintura": true,
+  "color_original": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "triangulos": 22290,
+  "ruedas": [],
+  "fuente": "3DExport (Maxus T60)"
+ },
+ "byd": {
+  "archivo": "byd.glb",
+  "archivo_lejos": "byd_lejos.glb",
+  "jugador": false,
+  "largo": 4.78,
+  "ancho": 2.183,
+  "alto": 1.711,
+  "pintura": true,
+  "color_original": [
+   0.294,
+   0.337,
+   0.388
+  ],
+  "triangulos": 10985,
+  "ruedas": [],
+  "fuente": "3DExport (BYD Song Plus EV)"
+ },
+ "civil05": {
+  "archivo": "civil05.glb",
+  "archivo_lejos": "civil05_lejos.glb",
+  "jugador": false,
+  "largo": 4.62,
+  "ancho": 2.016,
+  "alto": 1.44,
+  "pintura": true,
+  "color_original": [
+   0.659,
+   0.659,
+   0.659
+  ],
+  "triangulos": 9274,
+  "ruedas": [],
+  "fuente": "3DExport (Civilian Vehicle 05)"
+ },
+ "gris": {
+  "archivo": "gris.glb",
+  "archivo_lejos": "gris_lejos.glb",
+  "jugador": false,
+  "largo": 4.68,
+  "ancho": 1.945,
+  "alto": 1.469,
+  "pintura": true,
+  "color_original": [
+   0.106,
+   0.106,
+   0.106
+  ],
+  "triangulos": 10648,
+  "ruedas": [],
+  "fuente": "3DExport (Grey car)"
+ },
+ "kuga": {
+  "archivo": "kuga.glb",
+  "archivo_lejos": "kuga_lejos.glb",
+  "jugador": false,
+  "largo": 4.52,
+  "ancho": 2.186,
+  "alto": 1.686,
+  "pintura": true,
+  "color_original": [
+   0.0,
+   1.0,
+   1.0
+  ],
+  "triangulos": 8993,
+  "ruedas": [],
+  "fuente": "3DExport (Ford Kuga 2017)"
+ },
+ "coche14": {
+  "archivo": "coche14.glb",
+  "archivo_lejos": "coche14_lejos.glb",
+  "jugador": false,
+  "largo": 4.74,
+  "ancho": 2.154,
+  "alto": 1.396,
+  "pintura": true,
+  "color_original": [
+   0.969,
+   0.914,
+   1.0
+  ],
+  "triangulos": 9144,
+  "ruedas": [],
+  "fuente": "Car (14-car.zip)"
+ },
+ "coche43": {
+  "archivo": "coche43.glb",
+  "archivo_lejos": "coche43_lejos.glb",
+  "jugador": false,
+  "largo": 4.26,
+  "ancho": 1.974,
+  "alto": 1.425,
+  "pintura": true,
+  "color_original": [
+   0.912,
+   0.96,
+   1.0
+  ],
+  "triangulos": 10476,
+  "ruedas": [],
+  "fuente": "Car (43-202009122216-2.zip)"
+ },
+ "challenger": {
+  "archivo": "challenger.glb",
+  "archivo_lejos": "challenger_lejos.glb",
+  "jugador": false,
+  "largo": 5.02,
+  "ancho": 2.055,
+  "alto": 1.516,
+  "pintura": true,
+  "color_original": [
+   0.077,
+   0.005,
+   0.0
+  ],
+  "triangulos": 9378,
+  "ruedas": [],
+  "fuente": "Dodge Challenger (89-challenger.zip)"
+ },
+ "bmw": {
+  "archivo": "bmw.glb",
+  "archivo_lejos": "bmw_lejos.glb",
+  "jugador": false,
+  "largo": 4.86,
+  "ancho": 2.299,
+  "alto": 1.61,
+  "pintura": true,
+  "color_original": [
+   0.267,
+   0.267,
+   0.267
+  ],
+  "triangulos": 9132,
+  "ruedas": [],
+  "fuente": "Car (3vhh1v51xvk0-Car.rar)"
+ },
+ "cls": {
+  "archivo": "cls.glb",
+  "archivo_lejos": "cls_lejos.glb",
+  "jugador": false,
+  "largo": 4.94,
+  "ancho": 2.109,
+  "alto": 1.398,
+  "pintura": true,
+  "color_original": [
+   0.086,
+   0.102,
+   0.137
+  ],
+  "triangulos": 11297,
+  "ruedas": [],
+  "fuente": "3DExport (Mercedes CLS500 2021)"
+ }
+}
