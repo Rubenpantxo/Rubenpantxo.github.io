@@ -14,6 +14,7 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import { clone as clonaConEsqueleto } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { CALIDAD } from '../config/calidad.js';
 import { PEATONES } from '../config/peatones.js';
+import { limitaTexturas } from '../escena/texturas.js';
 
 const CELDA = 10;
 const clave = (x, z) => `${Math.round(x * 10)},${Math.round(z * 10)}`;
@@ -174,6 +175,7 @@ export async function cargaPersonas(ruta) {
   const lista = manifiesto.personas.slice(0, PEATONES.variantes[CALIDAD.nivel] ?? manifiesto.personas.length);
   const modelos = await Promise.all(lista.map(async (p) => {
     const gltf = await cargador.loadAsync(`${ruta}${p.archivo}`);
+    limitaTexturas(gltf.scene, CALIDAD.texturaMax);
     gltf.scene.traverse((o) => {
       if (!o.isMesh) return;
       o.material.alphaTest = 0.5;          // pelo, cejas y pestañas recortados

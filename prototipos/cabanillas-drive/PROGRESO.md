@@ -197,6 +197,8 @@
 - `00_inspect_raw.py` carga las librerías geográficas solo cuando hay datos que leer. Sale con código 1 si hay bloqueantes.
 - La escena usa el `Sky` de `three/examples/jsm` (viene en el paquete npm de three, no es un asset externo).
 - Cielo fotográfico limitado por calidad (`CALIDAD.cielo`): los reflejos (PMREM) del HDRI de 4096 px ocupaban ~200 MB de memoria gráfica (dos texturas de 3072 × 4096 en coma flotante más seis caras de 2048²) y en el móvil se perdía el contexto WebGL (vista 3D en blanco con el HUD visible). Ahora: alto 4096/2048, medio 4096/1024, bajo 2048/512 (fondo/reflejos). En «bajo», la memoria de texturas pasa de ~320 MB a ~125 MB.
+- Segundo ajuste para móvil (seguía en blanco en un Android con Chrome): en «bajo» el fondo del cielo baja a 1024 px (three lo convierte en un cubo de 6 caras de 1024² si mide 2048) y las texturas de coches, personas y árboles se reducen a 512 px al cargar (`src/escena/texturas.js`, `CALIDAD.texturaMax`). Texturas en «bajo»: ~118 MB.
+- Pérdida del contexto WebGL: el aviso iba a `#estado`, que el juego sobrescribe en cada fotograma, así que nunca se veía (solo blanco con el HUD encima). Ahora sale una pantalla fija (`#fallo`) con el motivo, la gráfica, la calidad, la fase y la memoria del dispositivo, y botones de recarga. Ya no se recarga sola al recuperar el contexto (en un móvil sin memoria sería un bucle).
 
 ## Problemas abiertos
 - Resuelto en la fase 5: `vite.config.js` quita de `dist/` las teselas de `assets/orto/` y `terrain.f32` (solo los usa el pipeline).

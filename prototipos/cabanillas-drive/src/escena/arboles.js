@@ -7,6 +7,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { registraEstatico } from '../fisica/fisica.js';
 import { geometriaFlotante } from './geometria.js';
+import { limitaTexturas } from './texturas.js';
+import { CALIDAD } from '../config/calidad.js';
 
 const LADO_CASILLA = 256;         // px de cada impostor en el atlas
 const ESCALA_COPA = [0.65, 1.5];  // límites del estiramiento horizontal respecto al modelo
@@ -30,6 +32,7 @@ export async function cargaModelosArboles(ruta) {
   cargador.setMeshoptDecoder(MeshoptDecoder);
   const gltf = await cargador.loadAsync(`${ruta}arboles.glb`);
   gltf.scene.updateMatrixWorld(true);
+  limitaTexturas(gltf.scene, CALIDAD.texturaMax);
   const modelos = {};
   for (const [id, info] of Object.entries(manifiesto.variantes)) {
     const nodo = gltf.scene.getObjectByName(id);

@@ -7,6 +7,7 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import { registraEstatico } from '../fisica/fisica.js';
 import { CALIDAD } from '../config/calidad.js';
 import { uneCochePorClase, unePorMaterial } from './geometria.js';
+import { limitaTexturas } from './texturas.js';
 
 const CANDIDATOS_POR_LARGO = 3; // modelos de largo más parecido entre los que se sortea
 
@@ -19,6 +20,7 @@ export async function cargaModelosCoches(ruta) {
   const carga = async (archivo) => {
     const gltf = await cargador.loadAsync(`${ruta}${archivo}`);
     gltf.scene.updateMatrixWorld(true);
+    limitaTexturas(gltf.scene, CALIDAD.texturaMax);
     return gltf.scene;
   };
   const entradas = await Promise.all(Object.entries(manifiesto).map(async ([id, info]) => {
