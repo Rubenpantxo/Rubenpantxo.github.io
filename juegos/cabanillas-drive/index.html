@@ -150,7 +150,7 @@
       .botones-superiores { position: fixed; right: max(12px, env(safe-area-inset-right)); top: max(12px, env(safe-area-inset-top));
         display: flex; gap: 10px; }
     </style>
-    <script type="module" crossorigin src="./assets/index-Bq2iPX3o.js"></script>
+    <script type="module" crossorigin src="./assets/index-Bdumhxer.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/librerias-kxfYe83g.js">
     <link rel="modulepreload" crossorigin href="./assets/rapier-DpxwuBBO.js">
   </head>
@@ -321,6 +321,17 @@
         <div class="fila" style="margin-top: 18px">
           <button class="boton" type="button" data-cierra="creditos">Cerrar</button>
         </div>
+      </div>
+    </section>
+
+    <!-- Si la gráfica retira el contexto WebGL (falta de memoria): sin esto solo se ve blanco -->
+    <section id="fallo" class="pantalla" hidden aria-labelledby="titulo-fallo" style="z-index: 20">
+      <div class="tarjeta pila">
+        <h2 id="titulo-fallo">Se ha perdido la imagen 3D</h2>
+        <p id="fallo-texto" style="margin: 0"></p>
+        <button class="boton" type="button" data-recarga-fallo>Recargar</button>
+        <button class="boton secundario" type="button" data-recarga-fallo="bajo">Recargar en calidad baja</button>
+        <p id="fallo-detalle" class="extra"></p>
       </div>
     </section>
 

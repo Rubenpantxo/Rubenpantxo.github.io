@@ -59,15 +59,36 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.info.autoReset = false;   // se pone a cero una vez por fotograma (cuenta todas las pasadas)
 renderer.toneMappingExposure = 0.75;
 // Si la GPU se queda sin memoria (varias pestañas con el juego, calidad alta en una gráfica
-// justa), el navegador retira el contexto: se avisa en vez de dejar la pantalla congelada
+// justa, móviles), el navegador retira el contexto y el lienzo queda en blanco: se muestra una
+// pantalla fija con el motivo, la gráfica y la fase (para diagnosticar) y botones de recarga.
+// No se recarga sola al recuperar el contexto: en un móvil sin memoria sería un bucle.
+let fase = 'cargando';
+function nombreGpu() {
+  try {
+    const gl = renderer.getContext();
+    const ext = gl.getExtension('WEBGL_debug_renderer_info');
+    return gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER);
+  } catch { return 'desconocida'; }
+}
+const gpu = nombreGpu();
+const fallo = document.getElementById('fallo');
+fallo.querySelectorAll('[data-recarga-fallo]').forEach((b) => b.addEventListener('click', () => {
+  const p = new URLSearchParams(location.search);
+  if (b.dataset.recargaFallo) p.set('calidad', b.dataset.recargaFallo);
+  location.search = p.toString();
+}));
 renderer.domElement.addEventListener('webglcontextlost', (ev) => {
   ev.preventDefault();
-  const aviso = 'La gráfica se ha quedado sin memoria: cierra otras pestañas con el juego o baja la calidad, y recarga';
-  ui.estado.textContent = aviso;
-  pantallas.textoCarga.textContent = aviso;
-  console.warn('[render] contexto WebGL perdido');
+  document.getElementById('fallo-texto').textContent = 'La gráfica se ha quedado sin memoria y el navegador ha '
+    + 'retirado la imagen. Cierra otras pestañas o aplicaciones y recarga.';
+  document.getElementById('fallo-detalle').textContent = `Gráfica: ${gpu} · calidad ${CALIDAD.nivel} · `
+    + `al ${fase === 'cargando' ? 'cargar' : 'jugar'} · ${window.innerWidth}×${window.innerHeight} px × ${window.devicePixelRatio}`
+    + (navigator.deviceMemory ? ` · ${navigator.deviceMemory} GB` : '');
+  fallo.querySelector('[data-recarga-fallo="bajo"]').hidden = CALIDAD.nivel === 'bajo';
+  fallo.hidden = false;
+  api?.ponPausa(true);
+  console.warn('[render] contexto WebGL perdido', gpu);
 });
-renderer.domElement.addEventListener('webglcontextrestored', () => location.reload());
 
 // Sol del día de la ortofoto (tools/10_sol.py); sin él, el de config/escena.js
 const sol = await fetch(ESCENA.rutaSol).then((r) => (r.ok ? r.json() : null)).catch(() => null);
@@ -147,6 +168,7 @@ renderer.setAnimationLoop(() => {
 modo({ renderer, escena, camara, ui, ciclo })
   .then((m) => {
     configuraSombras(escena);
+    fase = 'jugando';
     actualiza = m.actualiza;
     if (esJuego) {
       api = m.api;
