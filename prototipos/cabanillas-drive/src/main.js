@@ -78,7 +78,7 @@ const camara = new THREE.PerspectiveCamera(
   CAMARA.persecucion.fov, window.innerWidth / window.innerHeight, CALIDAD.camaraCerca, CALIDAD.camaraLejos,
 );
 
-await cargaCielo(ESCENA.rutaCielo, renderer, escena, direccion);
+await cargaCielo(ESCENA.rutaCielo, renderer, escena, direccion, CALIDAD.cielo);
 const render = creaRender(renderer, escena, camara, luzSol, CALIDAD);
 if (import.meta.env.DEV) window.__render = render;
 const ciclo = creaCicloDia({ escena, camara, luzSol, direccionRender: render.direccion, intensidadSol: ESCENA.sol.intensidad });
