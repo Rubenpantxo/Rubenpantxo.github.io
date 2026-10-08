@@ -52,17 +52,37 @@ function muestraPista() {
 if (esJuego) ui.estado = pantallas.textoCarga;   // durante la carga, el progreso va a la pantalla de inicio
 else pantallas.omite();
 
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('escena'), antialias: CALIDAD.antialias });
+const fallo = document.getElementById('fallo');
+fallo.querySelectorAll('[data-recarga-fallo]').forEach((b) => b.addEventListener('click', () => {
+  const p = new URLSearchParams(location.search);
+  if (b.dataset.recargaFallo) p.set('calidad', b.dataset.recargaFallo);
+  location.search = p.toString();
+}));
+function muestraFallo(titulo, texto, detalle = '') {
+  document.getElementById('titulo-fallo').textContent = titulo;
+  document.getElementById('fallo-texto').textContent = texto;
+  document.getElementById('fallo-detalle').textContent = detalle;
+  fallo.querySelector('[data-recarga-fallo="bajo"]').hidden = CALIDAD.nivel === 'bajo';
+  fallo.hidden = false;
+}
+
+// Sin WebGL (o bloqueado: tras varios fallos de la gráfica, Chrome lo desactiva para la web
+// hasta que se reinicia) no hay juego: se avisa en vez de dejar la carga parada en 0 MB
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('escena'), antialias: CALIDAD.antialias });
+} catch (error) {
+  muestraFallo('No se pueden mostrar gráficos 3D',
+    'El navegador no deja usar WebGL. Si antes salió «Se ha perdido la imagen 3D», Chrome lo bloquea un tiempo '
+    + 'para esta web: cierra Chrome del todo (también de las aplicaciones recientes) y vuelve a abrirlo.',
+    String(error?.message ?? error));
+  throw error;
+}
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, CALIDAD.pixelRatioMax));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.info.autoReset = false;   // se pone a cero una vez por fotograma (cuenta todas las pasadas)
 renderer.toneMappingExposure = 0.75;
-// Si la GPU se queda sin memoria (varias pestañas con el juego, calidad alta en una gráfica
-// justa, móviles), el navegador retira el contexto y el lienzo queda en blanco: se muestra una
-// pantalla fija con el motivo, la gráfica y la fase (para diagnosticar) y botones de recarga.
-// No se recarga sola al recuperar el contexto: en un móvil sin memoria sería un bucle.
-let fase = 'cargando';
 function nombreGpu() {
   try {
     const gl = renderer.getContext();
@@ -71,21 +91,29 @@ function nombreGpu() {
   } catch { return 'desconocida'; }
 }
 const gpu = nombreGpu();
-const fallo = document.getElementById('fallo');
-fallo.querySelectorAll('[data-recarga-fallo]').forEach((b) => b.addEventListener('click', () => {
-  const p = new URLSearchParams(location.search);
-  if (b.dataset.recargaFallo) p.set('calidad', b.dataset.recargaFallo);
-  location.search = p.toString();
-}));
+// Las gráficas PowerVR (Pixel 10 y otros) pierden el contexto WebGL al dibujar con el mapa de
+// sombras (fallo del controlador; three.js #34311): ahí se juega sin sombras 3D, que la
+// ortofoto ya trae pintadas. ?sombras=0 o ?sombras=1 lo fuerza en cualquier gráfica.
+const sombrasPedidas = parametros.get('sombras');
+if (sombrasPedidas === '0' || (sombrasPedidas !== '1' && /PowerVR/i.test(gpu))) {
+  CALIDAD.sombras = false;
+  CALIDAD.sombrasEdificios = false;
+}
+if (parametros.has('debug')) console.info(`[render] gráfica ${gpu} · sombras ${CALIDAD.sombras ? 'sí' : 'no'}`);
+
+// Si la GPU se queda sin memoria (varias pestañas con el juego, calidad alta en una gráfica
+// justa, móviles) o falla su controlador, el navegador retira el contexto y el lienzo queda en
+// blanco: se muestra una pantalla fija con el motivo, la gráfica y la fase (para diagnosticar)
+// y botones de recarga. No se recarga sola al recuperar el contexto: sería un bucle.
+let fase = 'cargando';
 renderer.domElement.addEventListener('webglcontextlost', (ev) => {
   ev.preventDefault();
-  document.getElementById('fallo-texto').textContent = 'La gráfica se ha quedado sin memoria y el navegador ha '
-    + 'retirado la imagen. Cierra otras pestañas o aplicaciones y recarga.';
-  document.getElementById('fallo-detalle').textContent = `Gráfica: ${gpu} · calidad ${CALIDAD.nivel} · `
-    + `al ${fase === 'cargando' ? 'cargar' : 'jugar'} · ${window.innerWidth}×${window.innerHeight} px × ${window.devicePixelRatio}`
-    + (navigator.deviceMemory ? ` · ${navigator.deviceMemory} GB` : '');
-  fallo.querySelector('[data-recarga-fallo="bajo"]').hidden = CALIDAD.nivel === 'bajo';
-  fallo.hidden = false;
+  muestraFallo('Se ha perdido la imagen 3D',
+    'La gráfica o su controlador han fallado y el navegador ha retirado la imagen. Cierra otras pestañas '
+    + 'o aplicaciones y recarga.',
+    `Gráfica: ${gpu} · calidad ${CALIDAD.nivel} · sombras ${CALIDAD.sombras ? 'sí' : 'no'} · `
+    + `al ${fase === 'cargando' ? 'cargar' : 'jugar'} · ${window.innerWidth}×${window.innerHeight} px × `
+    + `${Math.round(window.devicePixelRatio * 100) / 100}` + (navigator.deviceMemory ? ` · ${navigator.deviceMemory} GB` : ''));
   api?.ponPausa(true);
   console.warn('[render] contexto WebGL perdido', gpu);
 });
