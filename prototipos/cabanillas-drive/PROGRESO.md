@@ -1,6 +1,6 @@
 # PROGRESO — Cabanillas Drive
 
-**Fase actual:** 6 — Extras **aprobada por Rubén (2026-10-06)**: tráfico, a pie, carteles, día/noche, peatones de MakeHuman, fachadas variadas, muros y vallas, y el resto de OpenStreetMap. Siguiente según el PLAN: publicación (sección 8).
+**Fase actual:** 6 — Extras **aprobada por Rubén (2026-10-06)**: tráfico, a pie, carteles, día/noche, peatones de MakeHuman, fachadas variadas, muros y vallas, y el resto de OpenStreetMap. Publicación (sección 8) hecha el 2026-10-08: el juego está en `juegos/cabanillas-drive/` y en la sección Juegos de la portada del sitio; sale en la web al fusionar esta rama en `main` y subirla.
 
 **Siguiente (decidido por Rubén el 2026-10-05):** plan de realismo en `PLAN_REALISMO.md` (R1 árboles y vegetación → R2 tejados LiDAR → R3 render → R4 splats), antes de la fase 4. Pausa pedida por Rubén para recargar su uso.
 - **R1 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/08_arboles.py` (4 640 árboles del LiDAR, tipos con correcciones en `tools/arboles_tipos.json`, troncos fuera de la calzada) → `tools/texturas_arboles.py` → `npm run arboles` (9 variantes EZ-Tree/palmera, 0,9 MB) → `src/escena/arboles.js` (3D a < 90 m, impostores más lejos, viento, cilindro de colisión por tronco). `tools/08b_vegetacion_baja.py` → `src/escena/hierba.js` (césped y rastrojo en 3D a < 60 m con el color de la ortofoto). Galería de modelos: `?arboles`. Coste medido: ~1,7 ms por fotograma en la zona más cargada. R1 aprobado.
@@ -20,6 +20,7 @@
 | 4 | HUD | Hecha, pendiente del OK |
 | 5 | Rendimiento móvil | Hecha, falta medir en un Android real |
 | 6 | Extras (tráfico, a pie, carteles, día/noche, peatones, muros, OSM) | Hecha y aprobada |
+| 7 | Publicación (`npm run publica` → `juegos/cabanillas-drive/`, 36,6 MB en 80 archivos) | Hecha, falta fusionar en `main` y subir |
 
 ## Hecho
 
