@@ -31,6 +31,7 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
 │   └── resource-hub/       # (privada)
 └── juegos/                 # Juegos
     ├── Chess3D/
+    ├── cabanillas-drive/   # Compilado de prototipos/cabanillas-drive (npm run publica)
     ├── circle.html
     ├── cesta-punta/
     ├── granja/             # (privada)
