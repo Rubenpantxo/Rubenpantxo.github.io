@@ -197,5 +197,6 @@ Bajarse del coche y caminar; tráfico simple siguiendo `calles.geojson`; puntos 
 ## 8. Publicación
 
 - `npm run build` → `dist/` con rutas relativas (`base: './'`).
-- Rubén copia `dist/` a `juegos/cabanillas-drive/` del repo `Rubenpantxo.github.io`.
+- `npm run publica` compila y copia `dist/` a `juegos/cabanillas-drive/` del repo `Rubenpantxo.github.io`
+  (Rubén pidió el 2026-10-08 que lo hiciera yo); `npm run web` sirve el sitio entero en el puerto 3100 para probarlo.
 - Ningún archivo de `public/assets/` > 50 MB (límite práctico de GitHub).
