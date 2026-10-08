@@ -12,6 +12,9 @@ export const NIVELES = {
     // Edificios con tejado del LiDAR hasta esta distancia (más lejos, techo plano)
     distanciaEdificiosDetalle: 700, sombrasEdificios: true, unirMaterialesCoche: false,
     terreno: 'assets/cabanillas.glb', atlasTejados: 'assets/tejados.jpg',
+    // Cielo fotográfico: ancho máximo del fondo y de la imagen de la que salen los reflejos
+    // (con 4096 px los reflejos ocupan ~200 MB de memoria gráfica; con 2048, ~50 MB)
+    cielo: { anchoFondo: 4096, anchoReflejos: 2048 },
     niebla: null, camaraLejos: 6000,
     // Descarga aproximada (MB): la barra de carga no baja de aquí hasta conocer los tamaños reales
     descargaEstimadaMB: 22,
@@ -27,6 +30,7 @@ export const NIVELES = {
     distanciaCochesDetalle: 55, distanciaCochesLejos: 120, distanciaCochesMax: 600,
     distanciaEdificiosDetalle: 400, sombrasEdificios: true, unirMaterialesCoche: false,
     terreno: 'assets/cabanillas.glb', atlasTejados: 'assets/tejados.jpg',
+    cielo: { anchoFondo: 4096, anchoReflejos: 1024 },
     niebla: null, camaraLejos: 6000, descargaEstimadaMB: 22,
     resolucionDinamica: { objetivoFps: 35, minimo: 0.7 },
   },
@@ -43,6 +47,8 @@ export const NIVELES = {
     // calculan; y el coche del jugador agrupa sus materiales (menos llamadas de dibujo)
     distanciaEdificiosDetalle: 160, sombrasEdificios: false, unirMaterialesCoche: true,
     terreno: 'assets/cabanillas_bajo.glb', atlasTejados: 'assets/tejados_bajo.jpg',
+    // Sin esto el móvil se queda sin memoria gráfica y la vista 3D sale en blanco
+    cielo: { anchoFondo: 2048, anchoReflejos: 512 },
     niebla: { cerca: 450, lejos: 1300 }, camaraLejos: 1400, descargaEstimadaMB: 13,
     resolucionDinamica: { objetivoFps: 30, minimo: 0.6 },
   },
