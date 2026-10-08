@@ -20,7 +20,7 @@
 | 4 | HUD | Hecha, pendiente del OK |
 | 5 | Rendimiento móvil | Hecha, falta medir en un Android real |
 | 6 | Extras (tráfico, a pie, carteles, día/noche, peatones, muros, OSM) | Hecha y aprobada |
-| 7 | Publicación (`npm run publica` → `juegos/cabanillas-drive/`, 36,6 MB en 80 archivos) | Hecha, falta fusionar en `main` y subir |
+| 7 | Publicación (`npm run publica` → `juegos/cabanillas-drive/`, 36,6 MB en 82 archivos) | Hecha, falta fusionar en `main` y subir |
 
 ## Hecho
 
