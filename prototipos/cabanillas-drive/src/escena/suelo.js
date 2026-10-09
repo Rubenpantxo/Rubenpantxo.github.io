@@ -8,6 +8,8 @@ import * as THREE from 'three';
 const FUERZA_SOMBRA = 0.55;                 // cuánto oscurece una sombra 3D el suelo soleado
 const LUZ_SOMBRA_PINTADA = [0.035, 0.12];   // luminancia lineal: por debajo, ya es sombra en la foto
 const DETALLE_HASTA_M = 45;
+const ACERA_ACLARA = 0.45;                 // aceras hacia un gris claro de baldosa
+const CALZADA_OSCURECE = 0.12;             // asfalto un poco más oscuro
 
 // Luz del terreno, común a todas sus mallas (la mueve el ciclo de día, cicloDia.js): la foto
 // como emisivo multiplicado por «emisivo», y de noche además como color difuso que recibe la
@@ -69,10 +71,14 @@ export function materialSuelo(mapa, nombre, detalle = null) {
           uniform vec3 uMetros;`)
         .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
           {
+            vec2 uvTipos = vec2((vMundo.x - uZona.x) / uZona.z, 1.0 - (vMundo.z - uZona.y) / uZona.w);
+            vec3 tipo = texture2D(uTipos, uvTipos).rgb;
+            // Aceras más claras (baldosa) y calzada algo más oscura: que se distingan desde lejos
+            float luzT = dot(totalEmissiveRadiance, vec3(0.2126, 0.7152, 0.0722));
+            totalEmissiveRadiance = mix(totalEmissiveRadiance, vec3(luzT) * vec3(1.32, 1.28, 1.2), ${ACERA_ACLARA.toFixed(2)} * tipo.g);
+            totalEmissiveRadiance *= 1.0 - ${CALZADA_OSCURECE.toFixed(2)} * tipo.r;
             float cerca = 1.0 - smoothstep(${(DETALLE_HASTA_M * 0.45).toFixed(1)}, ${DETALLE_HASTA_M.toFixed(1)}, distance(vMundo, cameraPosition));
             if (cerca > 0.0) {
-              vec2 uvTipos = vec2((vMundo.x - uZona.x) / uZona.z, 1.0 - (vMundo.z - uZona.y) / uZona.w);
-              vec3 tipo = texture2D(uTipos, uvTipos).rgb;
               float d = 1.0;
               d = mix(d, texture2D(uAsfalto, vMundo.xz / uMetros.x).r * 2.0, tipo.r);
               d = mix(d, texture2D(uBaldosa, vMundo.xz / uMetros.y).r * 2.0, tipo.g);
