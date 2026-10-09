@@ -1,0 +1,273 @@
+/* ============================================================
+   FICHA DE SISTEMA — estructura de la página
+   Misma línea que la portada: mucho aire, titular enorme y el objeto 3D
+   del sistema arriba. Ni un color ni una fuente propios: todo sale de los
+   tokens --sd-*, así que la ficha se pinta con el sistema que documenta.
+   Los componentes (botones, kit, muestras de color) siguen en sistema.css.
+   ============================================================ */
+
+:root {
+  --fx-curva: cubic-bezier(.2, .8, .2, 1);
+  --fx-rebote: cubic-bezier(.34, 1.56, .64, 1);
+  --fx-ancho: 76rem;
+  --fx-lateral: clamp(18px, 5vw, 56px);
+  --fx-linea: color-mix(in srgb, var(--sd-ink) 12%, transparent);
+}
+
+html { scroll-behavior: smooth; }
+body { overflow-x: hidden; }
+:focus-visible { outline: 2px solid var(--sd-accent); outline-offset: 3px; }
+
+.fx-disp {
+  font-family: var(--sd-display);
+  font-weight: var(--sd-display-peso);
+  font-style: var(--sd-display-estilo);
+  letter-spacing: var(--sd-display-tracking);
+  text-transform: var(--sd-display-caja);
+}
+.fx-mono {
+  font-family: var(--sd-mono);
+  font-size: .74rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--sd-muted);
+}
+
+/* ---------- cabecera ---------- */
+.fx-hero {
+  position: relative;
+  min-height: min(100svh, 980px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 0 var(--fx-lateral);
+  isolation: isolate;
+  overflow: hidden;
+}
+/* Halo del acento detrás del objeto */
+.fx-hero::before {
+  content: ""; position: absolute; z-index: -1;
+  right: -10%; top: 12%; width: min(90vw, 760px); aspect-ratio: 1;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--sd-accent) 26%, transparent), transparent 72%);
+  pointer-events: none;
+}
+.fx-barra {
+  display: flex; align-items: center; gap: 16px;
+  max-width: var(--fx-ancho); width: 100%; margin: 0 auto;
+  padding: calc(18px + env(safe-area-inset-top)) 58px 18px 0;
+}
+.fx-volver {
+  margin-right: auto; text-decoration: none; color: var(--sd-ink); white-space: nowrap;
+  font-weight: 700; font-size: .92rem;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.fx-volver span { transition: transform .3s var(--fx-rebote); }
+.fx-volver:hover span { transform: translateX(-4px); }
+.fx-vecinos { display: flex; gap: 6px; }
+.fx-vecinos a {
+  width: 40px; height: 40px; display: grid; place-items: center;
+  border-radius: var(--sd-radius-btn, 999px);
+  border: var(--sd-border, 1px) solid var(--fx-linea);
+  color: var(--sd-ink); text-decoration: none;
+  transition: background .2s, transform .25s var(--fx-rebote);
+}
+.fx-vecinos a:hover { background: color-mix(in srgb, var(--sd-ink) 8%, transparent); }
+.fx-vecinos a:active { transform: scale(.9); }
+
+.fx-hero-cuerpo {
+  max-width: var(--fx-ancho); width: 100%; margin: 0 auto;
+  display: grid; align-items: center; gap: 12px 40px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+.fx-etiqueta { margin: 0 0 14px; }
+.fx-hero-texto { container-type: inline-size; min-width: 0; }
+/* El nombre nunca se parte: el tamaño sale del ancho de su columna, así
+   caben igual «Halógeno» en Inter Tight que «Orgánico» en Caprasimo. */
+.fx-nombre {
+  margin: 0;
+  font-size: min(clamp(3rem, 17vh, 9rem), 17cqi);
+  line-height: .9;
+}
+.fx-nombre > span { white-space: nowrap; }
+/* Las letras entran una a una */
+.fx-nombre > span > span {
+  display: inline-block;
+  opacity: 0; transform: translateY(.35em) rotate(4deg);
+  animation: fx-letra .8s var(--fx-curva) forwards;
+  animation-delay: calc(var(--i) * 45ms + 120ms);
+}
+@keyframes fx-letra { to { opacity: 1; transform: none; } }
+.fx-bajada {
+  margin: 22px 0 0; max-width: 40ch;
+  font-size: clamp(1rem, 1.6vw, 1.2rem); line-height: 1.55; color: var(--sd-muted);
+}
+.fx-acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.fx-acciones .sd-btn { text-decoration: none; }
+.fx-copiado { transition: transform .3s var(--fx-rebote); }
+.fx-copiado.is-hecho { transform: scale(1.05); }
+
+.fx-objeto {
+  position: relative; margin: 0;
+  height: clamp(280px, 52vh, 560px);
+  cursor: grab; touch-action: pan-y;
+}
+.fx-objeto:active { cursor: grabbing; }
+.fx-objeto canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .9s var(--fx-curva);
+  /* el resplandor de algunos objetos es más grande que el lienzo: se funde en el borde */
+  -webkit-mask: radial-gradient(closest-side, #000 72%, transparent);
+  mask: radial-gradient(closest-side, #000 72%, transparent);
+}
+.fx-objeto.is-listo canvas { opacity: 1; }
+.fx-reserva {
+  position: absolute; inset: 18% 22%;
+  border-radius: calc(var(--sd-radius) * 2);
+  background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent-2, var(--sd-accent)));
+  box-shadow: var(--sd-shadow-lg);
+  transition: opacity .6s;
+}
+.fx-objeto.is-listo .fx-reserva { opacity: 0; }
+.fx-pista {
+  position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%);
+  white-space: nowrap; pointer-events: none;
+}
+
+/* Los tres ejes del sistema, como pestañas que bajan a su sección */
+.fx-ejes {
+  list-style: none; margin: 28px auto 0; padding: 0 0 calc(28px + env(safe-area-inset-bottom));
+  max-width: var(--fx-ancho); width: 100%;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+.fx-ejes a {
+  height: 100%;
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 14px;
+  padding: 16px 18px; text-decoration: none; color: var(--sd-ink);
+  border-radius: calc(var(--sd-radius) + 4px);
+  border: var(--sd-border, 1px) solid var(--fx-linea);
+  background: color-mix(in srgb, var(--sd-surface) 70%, transparent);
+  transition: transform .35s var(--fx-curva), border-color .25s;
+}
+.fx-ejes a:hover { transform: translateY(-3px); border-color: var(--sd-accent); }
+.fx-ejes small { grid-column: 1; }
+.fx-ejes b { grid-column: 1; font-size: 1rem; line-height: 1.25; }
+.fx-ejes .fx-eje-muestra { grid-column: 2; grid-row: 1 / span 2; }
+.fx-bolas { display: flex; }
+.fx-bolas i { width: 24px; height: 24px; border-radius: 50%; margin-left: -7px; box-shadow: 0 0 0 2px var(--sd-surface); }
+.fx-bolas i:first-child { margin-left: 0; }
+.fx-aa { font-size: 2.2rem; line-height: 1; color: var(--sd-accent-text, var(--sd-accent)); }
+.fx-forma {
+  width: 46px; height: 30px; display: block;
+  border-radius: var(--sd-radius-btn, var(--sd-radius));
+  background: var(--sd-accent-solid, var(--sd-accent));
+  box-shadow: var(--sd-shadow-sm);
+  transition: border-radius .35s var(--fx-curva);
+}
+.fx-ejes a:hover .fx-forma { border-radius: var(--sd-radius-activo, var(--sd-radius)); }
+
+/* ---------- secciones ---------- */
+.fx-main { padding: 0 var(--fx-lateral); }
+.fx-seccion {
+  max-width: var(--fx-ancho); margin: 0 auto;
+  padding: clamp(64px, 10vw, 120px) 0 0;
+  scroll-margin-top: 20px;
+}
+.fx-seccion > * { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--fx-curva), transform .8s var(--fx-curva); }
+.fx-seccion.is-visto > * { opacity: 1; transform: none; }
+.fx-seccion.is-visto > :nth-child(2) { transition-delay: .08s; }
+.fx-seccion.is-visto > :nth-child(3) { transition-delay: .16s; }
+.fx-sec-cab {
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 22px; align-items: baseline;
+  padding-bottom: 22px; margin-bottom: clamp(24px, 4vw, 40px);
+  border-bottom: var(--sd-border, 1px) solid var(--fx-linea);
+}
+.fx-sec-num { font-size: clamp(2.6rem, 6vw, 4.4rem); line-height: .9; color: var(--sd-accent-text, var(--sd-accent)); }
+.fx-sec-cab h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1; }
+.fx-sec-cab p { grid-column: 2; margin: 6px 0 0; max-width: 56ch; color: var(--sd-muted); font-size: 1.02rem; }
+.fx-seccion h3 { font-size: 1rem; margin: 34px 0 12px; }
+
+/* Probador de tipografía */
+.fx-probar {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 18px;
+  padding: 6px 6px 6px 16px;
+  border-radius: var(--sd-radius-btn, 999px);
+  border: var(--sd-border, 1px) solid var(--fx-linea);
+  background: var(--sd-surface);
+}
+.fx-probar svg { width: 18px; height: 18px; flex: none; color: var(--sd-muted); }
+.fx-probar input {
+  flex: 1; min-width: 0; border: 0; background: none; color: var(--sd-ink);
+  font: inherit; font-size: 1rem; padding: 10px 0; outline: none;
+}
+.fx-probar input::placeholder { color: var(--sd-muted); }
+.fx-tamano { display: flex; align-items: center; gap: 8px; }
+.fx-tamano input { width: 110px; accent-color: var(--sd-accent); }
+.fx-seccion .sd-tipo { --fx-escala: 1; }
+.fx-seccion .sd-muestra-display { font-size: calc(clamp(2.4rem, 6vw, 4.6rem) * var(--fx-escala)); transition: font-size .2s; }
+
+/* Pruébalo en una app */
+.fx-demos { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); }
+.fx-demos a {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 18px; text-decoration: none; color: var(--sd-ink);
+  border-radius: calc(var(--sd-radius) + 2px);
+  border: var(--sd-border, 1px) solid var(--fx-linea);
+  background: var(--sd-surface);
+  transition: transform .3s var(--fx-curva), background .2s, color .2s;
+}
+.fx-demos a:hover { transform: translateY(-3px); background: var(--sd-accent-solid, var(--sd-accent)); color: var(--sd-on-accent); }
+.fx-demos a span:last-child { transition: transform .3s var(--fx-rebote); }
+.fx-demos a:hover span:last-child { transform: translate(3px, -3px); }
+.fx-demos small { display: block; color: inherit; opacity: .7; font-size: .8rem; margin-top: 2px; }
+.fx-demos .es-suya { border-color: var(--sd-accent); }
+
+/* ---------- pie: el sistema anterior y el siguiente ---------- */
+.fx-pie { max-width: var(--fx-ancho); margin: clamp(80px, 12vw, 140px) auto 0; padding: 0 var(--fx-lateral) 48px; }
+.fx-siguientes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fx-siguientes a {
+  display: grid; gap: 6px; padding: clamp(20px, 4vw, 34px); text-decoration: none; color: var(--sd-ink);
+  border-radius: calc(var(--sd-radius) + 6px);
+  border: var(--sd-border, 1px) solid var(--fx-linea);
+  background: var(--sd-surface);
+  transition: transform .35s var(--fx-curva), border-color .25s;
+}
+.fx-siguientes a:hover { transform: translateY(-4px); border-color: var(--sd-accent); }
+.fx-siguientes a:last-child { text-align: right; }
+.fx-siguientes b { font-size: clamp(1.8rem, 5vw, 3.4rem); line-height: 1; }
+.fx-enlaces { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--fx-linea); }
+.fx-enlaces a { color: var(--sd-muted); text-decoration: none; font-weight: 600; font-size: .92rem; }
+.fx-enlaces a:hover { color: var(--sd-ink); }
+
+/* ---------- móvil ---------- */
+@media (max-width: 860px) {
+  .fx-hero { min-height: 0; }
+  .fx-hero-cuerpo { grid-template-columns: 1fr; }
+  .fx-objeto { order: -1; height: clamp(240px, 38vh, 360px); margin: 0 calc(var(--fx-lateral) * -1); }
+  .fx-ejes { grid-template-columns: 1fr; }
+  .fx-sec-cab { grid-template-columns: 1fr; }
+  .fx-sec-cab p { grid-column: 1; }
+  .fx-hero::before { top: 0; right: -30%; }
+}
+@media (max-width: 520px) {
+  .fx-barra > .fx-mono { display: none; }
+  .fx-siguientes { grid-template-columns: 1fr; }
+  .fx-siguientes a:last-child { text-align: left; }
+  .fx-tamano { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .fx-nombre > span > span { animation: none; opacity: 1; transform: none; }
+  .fx-seccion > * { opacity: 1; transform: none; transition: none; }
+}
+
+/* ---------- botón del selector de sistema ----------
+   De serie va abajo a la derecha y tapa los ejes; sube a la barra de
+   arriba, en el hueco que deja .fx-barra, como en las demos. */
+html body .sdx-abrir {
+  top: calc(16px + env(safe-area-inset-top, 0px)); bottom: auto; right: var(--fx-lateral);
+  width: 40px; height: 40px; padding: 0; gap: 0; justify-content: center; font-size: 0;
+}
+html body .sdx-abrir i { width: 16px; height: 16px; }
+
+/* Press Start 2P no tiene vocales acentuadas en mayúscula: el nombre de
+   Neón va en caja mixta para que la «ó» no salga de otra fuente. */
+[data-preset="neon"] .fx-nombre { text-transform: none; }
