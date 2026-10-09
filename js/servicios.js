@@ -22,14 +22,14 @@
 
     // Lo justo para el visor: el resto de cada negocio se ve probándolo.
     const DEMOS = {
-        bar:       { nombre: 'Bar & Restaurante', inspira: 'Inspirado en Glovo · Just Eat · cartas QR', rasgos: ['Carta por categorías', 'Carrito flotante', 'Reserva en 3 toques'], negocio: 'Bar / Restaurante' },
-        ropa:      { nombre: 'Tienda de ropa', inspira: 'Inspirado en Zara · ASOS · Instagram Shopping', rasgos: ['Favoritos', 'Tallas y colores', 'Compra exprés'], negocio: 'Tienda de ropa' },
-        carne:     { nombre: 'Carnicería', inspira: 'Inspirado en WhatsApp y el encargo de siempre', rasgos: ['Pedido al peso', 'Franja de recogida', 'Confirmación por chat'], negocio: 'Carnicería / Alimentación' },
-        gym:       { nombre: 'Gimnasio & Entrenador', inspira: 'Inspirado en Apple Fitness · Strava · ClassPass', rasgos: ['Anillos de actividad', 'Aforo en vivo', 'Planes a medida'], negocio: 'Gimnasio / Entrenador personal' },
-        super:     { nombre: 'Supermercado', inspira: 'Inspirado en Mercadona online · apps de inventario', rasgos: ['Recogida sin colas', 'Almacén con PIN 1234', 'Stock en tiempo real'], negocio: 'Supermercado / Comercio local' },
-        granja:    { nombre: 'Granja', inspira: 'Inspirado en las cestas de temporada y la agricultura de precisión', rasgos: ['Cesta semanal', 'Visitas con reserva', 'Sensores de la nave'], negocio: 'Granja / Explotación agraria' },
-        industria: { nombre: 'Industria', inspira: 'Inspirado en configuradores B2B y paneles OEE', rasgos: ['Presupuesto al instante', 'Pedidos por fases', 'Planta en directo'], negocio: 'Industria / Fábrica' },
-        logistica: { nombre: 'Logística', inspira: 'Inspirado en SEUR · Amazon · Uber Freight', rasgos: ['Seguimiento en mapa', 'Tarifa al momento', 'Firma de entrega'], negocio: 'Logística / Transporte' }
+        bar:       { nombre: 'Bar & Restaurante', inspira: 'Inspirado en las cartas de imprenta de toda la vida', rasgos: ['Mesa en 3D', 'Cuenta dividida', 'Reserva en el plano'], negocio: 'Bar / Restaurante' },
+        ropa:      { nombre: 'Tienda de ropa', inspira: 'Inspirado en las revistas de moda', rasgos: ['Prenda que se mueve', 'Probador por zonas', 'Revista que se compra'], negocio: 'Tienda de ropa' },
+        carne:     { nombre: 'Carnicería', inspira: 'Inspirado en los mostradores del mercado de abastos', rasgos: ['Báscula en 3D', 'Papel que se pliega', 'Turno en directo'], negocio: 'Carnicería / Alimentación' },
+        gym:       { nombre: 'Gimnasio & Entrenador', inspira: 'Inspirado en el marcador de una retransmisión deportiva', rasgos: ['Cuerpo en 3D', 'Series con récord', 'Clases sin colas'], negocio: 'Gimnasio / Entrenador personal' },
+        super:     { nombre: 'Supermercado', inspira: 'Inspirado en el lineal del súper de barrio y su cesta roja', rasgos: ['Cesta en 3D', 'Escanea y paga', 'Recoge a tu hora'], negocio: 'Supermercado / Comercio local' },
+        granja:    { nombre: 'Granja', inspira: 'Inspirado en las cestas de huerta, las granjas escuela y la agricultura de precisión', rasgos: ['Finca en 3D', 'Cesta de temporada', 'Sensores en la maqueta'], negocio: 'Granja / Explotación agraria' },
+        industria: { nombre: 'Industria', inspira: 'Inspirado en configuradores CAD, planos técnicos y gemelos digitales', rasgos: ['Pieza paramétrica 3D', 'Cotas que se estiran', 'Planta en gemelo'], negocio: 'Industria / Fábrica' },
+        logistica: { nombre: 'Logística', inspira: 'Inspirado en los cuadros de mando de flota y las etiquetas de envío', rasgos: ['Mapa en relieve 3D', 'Caja que se mide', 'Firma en ruta'], negocio: 'Logística / Transporte' }
     };
 
     const cards = Array.from(section.querySelectorAll('.sv-card[data-demo]'));

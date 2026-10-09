@@ -1,527 +1,2049 @@
 <!DOCTYPE html>
-<html lang="es" data-paleta="barro-crema" data-tipo="serif-titulares" data-elem="redondeado">
+<html lang="es" data-paleta="barro-crema" data-tipo="cormorant-cursiva" data-elem="filete">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taberna El Rincón — Demo carta digital y reservas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Taberna El Rincón — Demo carta en la mesa, cuenta dividida y reservas</title>
+<meta name="description" content="Demo: pide desde la mesa y mira cómo llegan los platos en 3D, divide la cuenta arrastrando cada plato y reserva sobre el plano del local.">
 <link rel="stylesheet" href="sistemas/tema.css">
+<link rel="stylesheet" href="kit/app.css">
 <style>
-    :root {
-        /* Los nombres son los de siempre; lo que cambia es a donde apuntan.
-           Ahora salen del tema, asi que esta demo se puede vestir con
-           cualquiera de los nueve sistemas. */
-        --brand: var(--sd-accent);
-        --brand-dark: var(--sd-accent-strong);
-        --brand-text: var(--sd-accent-text);
-        --cream: var(--sd-bg);
-        --ink: var(--sd-ink);
-        --muted: var(--sd-muted);
-        --ok: var(--sd-ok);
-        --card: var(--sd-surface);
-        --line: var(--sd-line);
-        --radius: var(--sd-radius);
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; }
-    body {
-        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        background: var(--cream);
-        color: var(--ink);
-        overscroll-behavior: contain;
-        max-width: 480px;
-        margin: 0 auto;
-    }
-    .demo-badge {
-        position: fixed; top: 42px; left: -34px; z-index: 90;
-        background: color-mix(in srgb, var(--sd-ink) 85%, transparent); color: var(--sd-bg); font-size: 10px; font-weight: 700;
-        letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
-    }
-    .view { display: none; min-height: 100dvh; padding-bottom: 130px; }
-    .view.active { display: block; }
+/* ============================================================
+   TABERNA EL RINCÓN — "La mesa"
+   Dirección de arte: carta de imprenta. Papel, filetes finos, puntos
+   guía entre plato y precio, un sello de tinta para la mesa. Sin fotos:
+   la comida se ve servida en la mesa 3D, no en miniaturas.
+   ============================================================ */
+:root {
+  --papel-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  --tinta-sello: var(--sd-accent);
+  --cabecera: 58px;
+  --barra: 64px;
+}
 
-    /* ---------- HERO ---------- */
-    .hero {
-        position: relative; padding: 46px 18px 18px;
-        background:
-            radial-gradient(120% 90% at 80% 0%, rgba(255,205,120,.35), transparent 60%),
-            linear-gradient(160deg, color-mix(in srgb, var(--sd-accent-strong) 65%, var(--sd-ink)) 0%, var(--sd-accent-strong) 45%, var(--sd-accent) 100%);
-        color: var(--sd-on-accent); border-radius: 0 0 28px 28px;
-    }
-    .hero-art { font-size: 54px; line-height: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,.35)); }
-    .hero h1 { font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin-top: 8px; }
-    .hero .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; font-size: 12px; }
-    .pill {
-        background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.25);
-        padding: 4px 10px; border-radius: 999px; backdrop-filter: blur(4px);
-    }
-    .pill.open { background: color-mix(in srgb, var(--sd-ok) 62%, var(--sd-ink)); border-color: transparent; font-weight: 700; }
+body {
+  min-height: 100dvh;
+  font-size: 15px;
+  line-height: 1.45;
+}
+/* El grano del papel va encima de todo, muy flojo: se nota, no se ve */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100;
+  background-image: var(--papel-grano); opacity: .07; mix-blend-mode: multiply;
+}
 
-    /* ---------- CATEGORÍAS ---------- */
-    .cats {
-        position: sticky; top: 0; z-index: 20; display: flex; gap: 8px;
-        padding: 12px 16px; overflow-x: auto; scrollbar-width: none;
-        background: linear-gradient(var(--cream) 75%, transparent);
-    }
-    .cats::-webkit-scrollbar { display: none; }
-    .cat-chip {
-        flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--card); color: var(--ink);
-        font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px;
-        cursor: pointer; transition: all .25s ease;
-    }
-    .cat-chip.active { background: var(--ink); color: var(--sd-bg); border-color: var(--ink); transform: scale(1.04); }
+.disp {
+  font-family: var(--sd-display);
+  font-weight: var(--sd-display-peso);
+  font-style: var(--sd-display-estilo);
+  letter-spacing: var(--sd-display-tracking);
+  text-transform: var(--sd-display-caja);
+}
+.num { font-variant-numeric: tabular-nums lining-nums; }
 
-    /* ---------- PLATOS ---------- */
-    .menu { padding: 4px 16px 0; display: grid; gap: 12px; }
-    .dish {
-        display: flex; gap: 12px; align-items: center; background: var(--card);
-        border-radius: var(--radius); padding: 12px;
-        box-shadow: 0 2px 10px rgba(60,35,10,.08); animation: dish-in .35s ease both;
-    }
-    @keyframes dish-in { from { opacity: 0; transform: translateY(14px); } }
-    .dish-img {
-        flex: 0 0 64px; height: 64px; border-radius: 14px; display: grid; place-items: center;
-        font-size: 32px; background: linear-gradient(145deg, color-mix(in srgb, var(--sd-accent) 14%, var(--sd-bg)), color-mix(in srgb, var(--sd-accent) 28%, var(--sd-bg)));
-    }
-    .dish-body { flex: 1; min-width: 0; }
-    .dish-body h3 { font-size: 15px; font-weight: 700; }
-    .dish-body p { font-size: 12px; color: var(--muted); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .dish-price { font-size: 14px; font-weight: 800; margin-top: 4px; color: var(--brand-dark); }
-    .dish-add {
-        flex: 0 0 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
-        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-size: 20px; font-weight: 700; line-height: 1;
-        box-shadow: 0 4px 10px rgba(179,74,31,.4); transition: transform .15s ease;
-    }
-    .dish-add:active { transform: scale(.85); }
+/* ---------- cabecera ---------- */
+.cab {
+  position: sticky; top: 0; z-index: 40;
+  height: var(--cabecera);
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 58px 0 18px;
+  background: color-mix(in srgb, var(--sd-bg) 88%, transparent);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border-bottom: 1px solid color-mix(in srgb, var(--sd-ink) 10%, transparent);
+}
+.marca { display: grid; line-height: 1; margin-right: auto; }
+.marca b { font-size: 23px; }
+.marca small {
+  font-size: 9.5px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--sd-muted); margin-top: 3px; font-family: var(--sd-font);
+}
+.estado-pedido {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 11px; border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+  background: color-mix(in srgb, var(--sd-ink) 7%, transparent);
+  border: 0; color: var(--sd-ink); white-space: nowrap;
+}
+@media (max-width: 440px) { .cab:has(#estado:not([hidden])) .marca small { display: none; } }
+.estado-pedido i {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--sd-warn);
+  box-shadow: 0 0 0 0 currentColor; animation: latido 1.6s infinite;
+  color: color-mix(in srgb, var(--sd-warn) 50%, transparent);
+}
+.estado-pedido[data-e="listo"] i { background: var(--sd-ok); color: color-mix(in srgb, var(--sd-ok) 50%, transparent); }
+@keyframes latido { 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
 
-    /* ---------- BARRA CARRITO ---------- */
-    #cartbar {
-        position: fixed; left: 50%; bottom: 76px; transform: translate(-50%, 140%);
-        width: calc(100% - 32px); max-width: 448px; border: none; cursor: pointer;
-        background: var(--ink); color: var(--sd-bg); border-radius: 16px; padding: 14px 18px;
-        display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700;
-        box-shadow: 0 10px 30px rgba(43,29,18,.4); transition: transform .35s cubic-bezier(.2,.9,.3,1.2); z-index: 40;
-    }
-    #cartbar.show { transform: translate(-50%, 0); }
-    #cartbar .count {
-        background: var(--sd-accent-solid); color: var(--sd-on-accent); border-radius: 8px; padding: 2px 8px; margin-right: 8px; font-size: 12px;
-    }
+/* El sello de la mesa: tinta, ligeramente torcido, con borde gastado */
+.sello {
+  --g: -7deg;
+  position: relative;
+  display: grid; place-items: center;
+  width: 50px; height: 50px; border-radius: 50%;
+  border: 2px solid var(--tinta-sello);
+  color: var(--tinta-sello);
+  transform: rotate(var(--g));
+  font-family: var(--sd-font);
+  line-height: 1;
+  text-align: center;
+  background: none;
+  padding: 0;
+  -webkit-mask: var(--papel-grano), linear-gradient(#000 0 0);
+  -webkit-mask-composite: source-over;
+}
+.sello::before {
+  content: ""; position: absolute; inset: 3px; border-radius: 50%;
+  border: 1px dashed currentColor; opacity: .6;
+}
+.sello span { font-size: 7.5px; letter-spacing: .18em; font-weight: 700; text-transform: uppercase; }
+.sello b { font-size: 19px; font-family: var(--sd-display); font-style: var(--sd-display-estilo); display: block; margin-top: 1px; }
+.sello.is-pum { animation: pum .5s var(--k-rebote); }
+@keyframes pum { 0% { transform: rotate(var(--g)) scale(1.6); opacity: 0; } 60% { transform: rotate(var(--g)) scale(.92); opacity: 1; } }
 
-    /* ---------- TAB BAR ---------- */
-    .tabbar {
-        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-        width: 100%; max-width: 480px; display: flex; z-index: 50;
-        background: color-mix(in srgb, var(--sd-surface) 92%, transparent); backdrop-filter: blur(12px);
-        border-top: 1px solid var(--line); padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
-    }
-    .tab {
-        flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
-        border: none; background: none; cursor: pointer; font-size: 11px; font-weight: 600;
-        color: var(--muted); padding: 6px 0; border-radius: 12px; transition: color .2s;
-    }
-    .tab .ico { font-size: 20px; }
-    .tab.active { color: var(--brand-dark); }
-    .tab.active .ico { transform: translateY(-2px); }
+/* ---------- composición ---------- */
+.app { padding-bottom: calc(var(--barra) + 24px + var(--k-seguro-abajo)); }
 
-    /* ---------- SHEET CARRITO ---------- */
-    .sheet-backdrop {
-        position: fixed; inset: 0; background: rgba(30,18,8,.45); opacity: 0;
-        pointer-events: none; transition: opacity .3s; z-index: 60;
-    }
-    .sheet-backdrop.show { opacity: 1; pointer-events: auto; }
-    .sheet {
-        position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 105%);
-        width: 100%; max-width: 480px; background: var(--card); border-radius: 24px 24px 0 0;
-        padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); z-index: 61;
-        transition: transform .38s cubic-bezier(.2,.9,.3,1.05); max-height: 80dvh; overflow-y: auto;
-    }
-    .sheet.show { transform: translate(-50%, 0); }
-    .sheet h2 { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
-    .sheet-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
-    .sheet-row .nm { flex: 1; font-size: 14px; font-weight: 600; }
-    .stepper { display: flex; align-items: center; gap: 10px; }
-    .stepper button {
-        width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid var(--line);
-        background: var(--card); font-size: 16px; font-weight: 700; cursor: pointer; color: var(--ink);
-    }
-    .stepper span { font-size: 14px; font-weight: 700; min-width: 16px; text-align: center; }
-    .sheet-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; padding: 14px 0 6px; }
-    .btn-primary {
-        width: 100%; border: none; cursor: pointer; margin-top: 10px;
-        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-size: 15px; font-weight: 800;
-        padding: 14px; border-radius: 14px; box-shadow: 0 8px 20px rgba(179,74,31,.35);
-        transition: transform .15s ease;
-    }
-    .btn-primary:active { transform: scale(.97); }
-    .btn-primary:disabled { opacity: .4; box-shadow: none; }
+/* Escenario 3D: la mesa. Cambia de alto según la vista. */
+.escenario {
+  height: clamp(220px, 36dvh, 340px);
+  transition: height .55s var(--k-curva);
+  margin: 0;
+  overflow: hidden;
+}
+.app[data-vista="mesa"] .escenario { height: clamp(300px, 52dvh, 520px); }
+.app[data-vista="reservar"] .escenario,
+.app[data-vista="cocina"] .escenario { height: 0; }
+.escenario .k-reserva { color: var(--sd-muted); font-size: 13px; text-align: center; padding: 20px; }
+.escenario .k-reserva svg { width: min(70%, 300px); margin: 0 auto 6px; opacity: .8; }
 
-    /* ---------- CONFIRMACIÓN ---------- */
-    .confirm {
-        position: fixed; inset: 0; z-index: 70; display: none; place-items: center;
-        background: linear-gradient(160deg, color-mix(in srgb, var(--sd-accent-strong) 65%, var(--sd-ink)), var(--sd-accent)); color: var(--sd-on-accent); text-align: center; padding: 24px;
-    }
-    .confirm.show { display: grid; }
-    .confirm .check {
-        width: 84px; height: 84px; border-radius: 50%; background: var(--ok);
-        display: grid; place-items: center; font-size: 42px; margin: 0 auto 18px;
-        animation: pop .5s cubic-bezier(.2,1.4,.4,1) both;
-    }
-    @keyframes pop { from { transform: scale(0); } }
-    .confirm h2 { font-size: 24px; font-weight: 800; }
-    .confirm p { margin-top: 8px; font-size: 14px; opacity: .9; }
-    .confirm .ticket {
-        margin: 18px auto 0; background: rgba(255,255,255,.12); border: 1px dashed rgba(255,255,255,.4);
-        border-radius: 14px; padding: 12px 20px; font-size: 13px; max-width: 260px;
-    }
-    .confirm button {
-        margin-top: 22px; background: var(--card); color: var(--brand-dark); border: none;
-        font-weight: 800; font-size: 14px; padding: 12px 26px; border-radius: 999px; cursor: pointer;
-    }
+/* Etiquetas HTML pegadas a la escena (comensales) */
+.etiquetas { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.comensal {
+  position: absolute; left: 0; top: 0;
+  transform: translate(calc(var(--x) * 1px - 50%), calc(var(--y) * 1px - 50%));
+  pointer-events: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px 4px 4px; border-radius: 999px;
+  background: var(--sd-surface); color: var(--sd-ink);
+  border: 1px solid color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  box-shadow: 0 6px 18px rgb(0 0 0 / .12);
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+  transition: opacity .3s ease, scale .3s var(--k-rebote), background .2s;
+}
+.comensal i {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center; font-style: normal; font-size: 11px;
+  background: var(--c); color: #fff;
+}
+.comensal .num { color: var(--sd-muted); font-weight: 500; }
+.comensal.is-diana { scale: 1.12; background: var(--c); color: #fff; }
+.comensal.is-diana .num { color: #fff; }
+.app:not([data-vista="mesa"]) .comensal { opacity: 0; pointer-events: none; }
 
-    /* ---------- RESERVA ---------- */
-    .panel { padding: 50px 18px 0; }
-    .panel h1 { font-size: 24px; font-weight: 800; }
-    .panel .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
-    .field { margin-top: 18px; }
-    .field label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-    .chip {
-        border: 1.5px solid var(--line); background: var(--card); padding: 9px 14px; border-radius: 12px;
-        font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s;
-    }
-    .chip.active { background: var(--ink); color: var(--sd-bg); border-color: var(--ink); }
-    .people { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
-    .people button {
-        width: 40px; height: 40px; border-radius: 12px; border: 1.5px solid var(--line);
-        background: var(--card); font-size: 20px; font-weight: 700; cursor: pointer;
-    }
-    .people strong { font-size: 20px; min-width: 60px; text-align: center; }
-    .field input[type="text"] {
-        width: 100%; margin-top: 8px; padding: 13px 14px; font-size: 14px;
-        border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); outline: none;
-    }
-    .field input[type="text"]:focus { border-color: var(--brand); }
+.pista {
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+  z-index: 2; font-size: 12px; color: var(--sd-muted);
+  background: color-mix(in srgb, var(--sd-bg) 80%, transparent);
+  padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+  transition: opacity .3s;
+}
+.pista b { color: var(--sd-ink); }
+.pista:empty { display: none; }
 
-    /* ---------- INFO ---------- */
-    .info-card {
-        background: var(--card); border-radius: var(--radius); padding: 16px; margin-top: 14px;
-        box-shadow: 0 2px 10px rgba(60,35,10,.08); display: flex; gap: 12px; align-items: flex-start;
-    }
-    .info-card .ico { font-size: 22px; }
-    .info-card h3 { font-size: 14px; font-weight: 700; }
-    .info-card p { font-size: 13px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
-    .map {
-        margin-top: 14px; height: 130px; border-radius: var(--radius); display: grid; place-items: center;
-        background:
-            linear-gradient(rgba(179,74,31,.12) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(179,74,31,.12) 1px, transparent 1px),
-            color-mix(in srgb, var(--sd-accent) 10%, var(--sd-bg));
-        background-size: 22px 22px; font-size: 34px;
-    }
-    .toast {
-        position: fixed; bottom: 140px; left: 50%; transform: translateX(-50%) translateY(16px);
-        background: var(--ink); color: var(--sd-bg); font-size: 13px; font-weight: 600;
-        padding: 9px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80; pointer-events: none;
-        white-space: nowrap;
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* ---------- vistas ---------- */
+.vista { padding: 0 18px; max-width: 640px; margin: 0 auto; }
+
+/* Cabecera de sección: titular grande y filete */
+.titular { margin: 22px 0 6px; font-size: clamp(34px, 9vw, 46px); line-height: .95; }
+.titular em { color: var(--sd-accent); }
+.subt { margin: 0 0 16px; color: var(--sd-muted); font-size: 14px; }
+
+/* ---------- carta ---------- */
+.cats {
+  position: sticky; top: var(--cabecera); z-index: 20;
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none;
+  margin: 0 -18px; padding: 10px 18px;
+  background: color-mix(in srgb, var(--sd-bg) 92%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.cats::-webkit-scrollbar { display: none; }
+.cat {
+  flex: none; border: 0; background: none; padding: 6px 12px;
+  font-size: 18px; color: var(--sd-muted); position: relative;
+  transition: color .25s;
+}
+.cat[aria-current="true"] { color: var(--sd-ink); }
+.cat::after {
+  content: ""; position: absolute; left: 12px; right: 12px; bottom: 2px; height: 2px;
+  background: var(--sd-accent); transform: scaleX(0); transform-origin: left;
+  transition: transform .35s var(--k-curva);
+}
+.cat[aria-current="true"]::after { transform: scaleX(1); }
+
+.seccion { scroll-margin-top: calc(var(--cabecera) + 56px); padding-top: 8px; }
+/* Ornamento de imprenta: —— ❦ Tapas ❦ —— */
+.seccion h3 {
+  display: flex; align-items: center; gap: 12px;
+  margin: 18px 0 6px; font-size: 26px; font-weight: var(--sd-display-peso);
+}
+.seccion h3::before, .seccion h3::after {
+  content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--sd-ink) 25%, transparent);
+}
+.seccion h3 span::before, .seccion h3 span::after { content: "❦"; font-size: 13px; color: var(--sd-accent); margin: 0 8px; vertical-align: 3px; font-style: normal; }
+.seccion h3 span::before { display: inline-block; transform: scaleX(-1); }
+
+.plato {
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 12px;
+  padding: 12px 0; align-items: center;
+  border-bottom: 1px dotted color-mix(in srgb, var(--sd-ink) 18%, transparent);
+}
+.plato-linea { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.plato-nombre { font-size: 21px; line-height: 1.1; }
+/* Los puntos guía de toda la vida, entre nombre y precio */
+.plato-linea .guia {
+  flex: 1; min-width: 14px; height: 1em; transform: translateY(-3px);
+  background: radial-gradient(circle, color-mix(in srgb, var(--sd-ink) 45%, transparent) 1px, transparent 1.4px) 0 100% / 7px 4px repeat-x;
+}
+.plato-precio { font-size: 16px; font-weight: 600; }
+.plato p { grid-column: 1; margin: 0; color: var(--sd-muted); font-size: 13.5px; }
+.marcas { display: inline-flex; gap: 5px; margin-left: 6px; vertical-align: 2px; }
+.marcas abbr {
+  text-decoration: none; font-size: 9.5px; font-weight: 700; letter-spacing: .06em;
+  border: 1px solid currentColor; border-radius: 4px; padding: 1px 4px;
+  color: var(--sd-muted); font-family: var(--sd-font); font-style: normal;
+}
+.marcas abbr[data-m="pic"] { color: var(--sd-danger); }
+.marcas abbr[data-m="veg"] { color: var(--sd-ok); }
+
+.mas {
+  grid-column: 2; grid-row: 1 / span 2;
+  display: inline-flex; align-items: center; border-radius: 999px;
+  border: 1.5px solid var(--sd-ink); height: 38px; min-width: 38px;
+  overflow: hidden; transition: background .25s, border-color .25s;
+}
+.mas button {
+  width: 36px; height: 36px; border: 0; background: none; display: grid; place-items: center;
+  font-size: 20px; line-height: 1; padding: 0;
+}
+.mas button:active { transform: scale(.85); }
+.mas .cuantos { width: 0; overflow: hidden; text-align: center; font-weight: 700; font-size: 15px; transition: width .3s var(--k-curva); }
+.mas .menos { width: 0; transition: width .3s var(--k-curva); overflow: hidden; }
+.mas.tiene { background: var(--sd-ink); color: var(--sd-bg); }
+.mas.tiene .cuantos { width: 22px; }
+.mas.tiene .menos { width: 36px; }
+.plato.agotado { opacity: .55; }
+.plato.agotado .mas { visibility: hidden; }
+.plato.agotado .plato-nombre { text-decoration: line-through; text-decoration-thickness: 1px; }
+.agotado-sello {
+  grid-column: 2; grid-row: 1 / span 2; align-self: center;
+  border: 1.5px solid var(--sd-danger); color: var(--sd-danger); border-radius: 4px;
+  font-size: 10px; letter-spacing: .14em; font-weight: 700; text-transform: uppercase;
+  padding: 3px 6px; transform: rotate(-8deg);
+}
+
+/* Barra de pedido flotante */
+.barra-pedido {
+  position: fixed; left: 50%; bottom: calc(var(--barra) + 12px + var(--k-seguro-abajo));
+  z-index: 45; width: min(calc(100% - 24px), 560px);
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 8px 8px 18px; border-radius: 999px;
+  background: var(--sd-ink); color: var(--sd-bg);
+  box-shadow: 0 14px 40px rgb(0 0 0 / .28);
+  transform: translate(-50%, 140%); opacity: 0;
+  transition: transform .5s var(--k-rebote), opacity .3s;
+}
+.barra-pedido.is-on { transform: translate(-50%, 0); opacity: 1; }
+.barra-pedido .info { display: grid; line-height: 1.15; margin-right: auto; }
+.barra-pedido .info small { font-size: 11px; opacity: .7; }
+.barra-pedido .info b { font-size: 17px; }
+.btn {
+  border: 0; border-radius: var(--sd-radius-btn, 999px); padding: 12px 18px;
+  font-weight: 700; font-size: 14.5px; display: inline-flex; align-items: center; gap: 8px;
+  background: var(--sd-accent-solid, var(--sd-accent)); color: var(--sd-on-accent);
+  transition: transform .2s var(--k-rebote), filter .2s;
+}
+.btn:active { transform: scale(.95); }
+.btn:disabled { opacity: .45; }
+.btn--linea { background: none; color: var(--sd-ink); box-shadow: inset 0 0 0 1.5px currentColor; }
+.btn--ancho { width: 100%; justify-content: center; padding: 15px; font-size: 15.5px; }
+.app:not([data-vista="carta"]) .barra-pedido { transform: translate(-50%, 140%); opacity: 0; pointer-events: none; }
+
+/* ---------- mesa ---------- */
+.fila-ctrl { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 12px; }
+.paso {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid color-mix(in srgb, var(--sd-ink) 20%, transparent); border-radius: 999px; padding: 3px;
+}
+.paso button { width: 32px; height: 32px; border-radius: 50%; border: 0; background: color-mix(in srgb, var(--sd-ink) 7%, transparent); font-size: 18px; line-height: 1; }
+.paso output { min-width: 24px; text-align: center; font-weight: 700; }
+.segm {
+  position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px;
+  border-radius: 999px; background: color-mix(in srgb, var(--sd-ink) 7%, transparent);
+}
+.segm button { position: relative; z-index: 1; border: 0; background: none; padding: 9px 8px; font-size: 13px; font-weight: 600; color: var(--sd-muted); transition: color .25s; }
+.segm button[aria-pressed="true"] { color: var(--sd-ink); }
+.segm::before {
+  content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
+  border-radius: 999px; background: var(--sd-surface); box-shadow: 0 2px 8px rgb(0 0 0 / .1);
+  transition: transform .4s var(--k-rebote);
+}
+.segm[data-v="cada"]::before { transform: translateX(100%); }
+
+.reparto { list-style: none; margin: 8px 0 0; padding: 0; }
+.reparto > li { padding: 12px 0; border-bottom: 1px solid color-mix(in srgb, var(--sd-ink) 10%, transparent); }
+.reparto-cab { display: flex; align-items: center; gap: 10px; }
+.reparto-cab i { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: #fff; font-style: normal; font-size: 12px; font-weight: 700; }
+.reparto-cab b { font-size: 19px; margin-right: auto; }
+.reparto-cab .num { font-weight: 700; font-size: 16px; }
+.reparto ul { list-style: none; padding: 0 0 0 36px; margin: 6px 0 0; display: grid; gap: 4px; }
+.reparto ul li { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--sd-muted); }
+.reparto ul li span { margin-right: auto; }
+.reparto select {
+  border: 1px solid color-mix(in srgb, var(--sd-ink) 18%, transparent); border-radius: 8px;
+  background: var(--sd-surface); padding: 3px 6px; font-size: 12px;
+}
+.vacio { text-align: center; padding: 34px 16px; color: var(--sd-muted); }
+.vacio .disp { font-size: 26px; color: var(--sd-ink); display: block; margin-bottom: 6px; }
+
+.progreso { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 16px 0; }
+.progreso li { list-style: none; font-size: 11px; color: var(--sd-muted); text-align: center; }
+.progreso li::before {
+  content: ""; display: block; height: 4px; border-radius: 2px; margin-bottom: 6px;
+  background: color-mix(in srgb, var(--sd-ink) 12%, transparent);
+  background-image: linear-gradient(var(--sd-accent), var(--sd-accent));
+  background-size: 0% 100%; background-repeat: no-repeat;
+  transition: background-size .8s var(--k-curva);
+}
+.progreso li.hecho::before { background-size: 100% 100%; }
+.progreso li.hecho { color: var(--sd-ink); font-weight: 600; }
+
+/* ---------- ticket de la cuenta ---------- */
+.ticket {
+  background: color-mix(in srgb, var(--sd-surface) 70%, #fff);
+  color: #2a211b;
+  font-family: var(--sd-mono);
+  font-size: 13px;
+  padding: 22px 18px 30px;
+  margin: 6px 0 4px;
+  position: relative;
+  box-shadow: 0 1px 0 rgb(0 0 0 / .06), 0 12px 30px rgb(0 0 0 / .12);
+  /* borde de sierra abajo, como el papel térmico arrancado */
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - 9px) no-repeat,
+    conic-gradient(from -45deg at 50% 9px, #000 90deg, transparent 0) bottom / 14px 9px repeat-x;
+  mask: linear-gradient(#000 0 0) top / 100% calc(100% - 9px) no-repeat,
+    conic-gradient(from -45deg at 50% 9px, #000 90deg, transparent 0) bottom / 14px 9px repeat-x;
+}
+.ticket h4 { margin: 0 0 2px; text-align: center; font-family: var(--sd-display); font-style: var(--sd-display-estilo); font-size: 24px; font-weight: var(--sd-display-peso); }
+.ticket .centro { text-align: center; font-size: 11px; opacity: .7; margin: 0 0 12px; }
+.ticket .ln { display: flex; gap: 8px; }
+.ticket .ln span:first-child { margin-right: auto; }
+.ticket hr { border: 0; border-top: 1px dashed currentColor; opacity: .4; margin: 10px 0; }
+.ticket .total { font-size: 17px; font-weight: 700; }
+.propinas { display: flex; gap: 6px; margin: 12px 0 4px; }
+.propinas button {
+  flex: 1; border: 1px solid color-mix(in srgb, var(--sd-ink) 20%, transparent); background: none;
+  border-radius: 10px; padding: 8px 4px; font-size: 13px; font-weight: 600;
+  transition: background .2s, color .2s;
+}
+.propinas button[aria-pressed="true"] { background: var(--sd-ink); color: var(--sd-bg); border-color: var(--sd-ink); }
+.pagos { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+.pagos li {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; position: relative;
+  border-radius: 12px; background: color-mix(in srgb, var(--sd-ink) 5%, transparent);
+}
+.pagos li i { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: #fff; font-style: normal; font-size: 12px; font-weight: 700; }
+.pagos li b { margin-right: auto; }
+.pagos .btn { padding: 8px 14px; font-size: 13px; }
+.pagos li.pagado .btn { visibility: hidden; }
+.pagos li.pagado::after {
+  content: "PAGADO"; position: absolute; right: 14px; top: 50%;
+  border: 2px solid var(--sd-ok); color: var(--sd-ok); border-radius: 5px;
+  font: 700 12px/1 var(--sd-font); letter-spacing: .16em; padding: 5px 7px;
+  transform: translateY(-50%) rotate(-9deg);
+  animation: estampar .45s var(--k-rebote);
+}
+@keyframes estampar { from { transform: translateY(-50%) rotate(-9deg) scale(2.2); opacity: 0; } }
+
+/* ---------- reservar ---------- */
+.dias { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -18px; padding: 4px 18px 10px; scroll-snap-type: x mandatory; }
+.dias::-webkit-scrollbar { display: none; }
+.dia {
+  flex: none; width: 58px; scroll-snap-align: start;
+  display: grid; justify-items: center; gap: 2px; padding: 10px 0 9px;
+  border-radius: 14px; border: 1px solid color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  background: var(--sd-surface);
+  transition: background .25s, color .25s, transform .25s var(--k-rebote);
+}
+.dia small { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--sd-muted); }
+.dia b { font-size: 22px; font-family: var(--sd-display); font-style: var(--sd-display-estilo); line-height: 1; }
+.dia[aria-pressed="true"] { background: var(--sd-ink); color: var(--sd-bg); border-color: var(--sd-ink); transform: translateY(-2px); }
+.dia[aria-pressed="true"] small { color: inherit; opacity: .7; }
+.dia:disabled { opacity: .4; text-decoration: line-through; }
+.horas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 6px 0 4px; }
+.hora {
+  border: 1px solid color-mix(in srgb, var(--sd-ink) 14%, transparent); background: none; border-radius: 10px;
+  padding: 9px 0; font-weight: 600; font-size: 13.5px; transition: background .2s, color .2s;
+}
+.hora[aria-pressed="true"] { background: var(--sd-accent-solid, var(--sd-accent)); color: var(--sd-on-accent); border-color: transparent; }
+.hora:disabled { opacity: .35; text-decoration: line-through; }
+.etq { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--sd-muted); font-weight: 700; margin: 18px 0 8px; display: flex; justify-content: space-between; align-items: center; }
+.plano {
+  height: clamp(260px, 44dvh, 420px); margin: 6px -18px 0;
+  background: radial-gradient(120% 80% at 50% 30%, color-mix(in srgb, var(--sd-surface) 80%, transparent), transparent 70%);
+  cursor: grab;
+}
+.plano:active { cursor: grabbing; }
+.plano .k-reserva { color: var(--sd-muted); font-size: 13px; }
+.leyenda { display: flex; gap: 14px; font-size: 11.5px; color: var(--sd-muted); justify-content: center; margin: 6px 0 0; }
+.leyenda span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; background: var(--c); vertical-align: -1px; }
+.mesas-lista { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.mesas-lista button {
+  border: 1px solid color-mix(in srgb, var(--sd-ink) 14%, transparent); background: none; border-radius: 999px;
+  padding: 6px 11px; font-size: 12.5px;
+}
+.mesas-lista button[aria-pressed="true"] { background: var(--sd-ink); color: var(--sd-bg); }
+.mesas-lista button:disabled { opacity: .35; }
+.campo { display: grid; gap: 5px; margin: 0 0 12px; font-size: 13px; color: var(--sd-muted); }
+.campo input, .campo textarea {
+  border: 1px solid color-mix(in srgb, var(--sd-ink) 18%, transparent); border-radius: 12px;
+  background: var(--sd-bg); padding: 12px 14px; font-size: 16px; color: var(--sd-ink);
+}
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { border: 1px solid color-mix(in srgb, var(--sd-ink) 16%, transparent); background: none; border-radius: 999px; padding: 6px 11px; font-size: 12.5px; }
+.chips button[aria-pressed="true"] { background: color-mix(in srgb, var(--sd-accent) 18%, transparent); border-color: var(--sd-accent); }
+.res-tarjeta {
+  border-radius: calc(var(--sd-radius, 14px) + 4px); padding: 18px;
+  background: var(--sd-surface); margin: 12px 0; position: relative; overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--sd-ink) 12%, transparent);
+}
+.res-tarjeta .codigo { font-family: var(--sd-mono); font-size: 13px; letter-spacing: .12em; color: var(--sd-accent); }
+.res-tarjeta .disp { font-size: 28px; line-height: 1; margin: 4px 0 6px; }
+.res-tarjeta .acciones { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.res-tarjeta .acciones .btn { padding: 9px 14px; font-size: 13px; }
+
+/* ---------- cocina ---------- */
+.cocina {
+  --c-fondo: #17120f; --c-tarj: #241c17; --c-tinta: #f6ede3; --c-apag: #a8998c;
+  background: var(--c-fondo); color: var(--c-tinta);
+  min-height: calc(100dvh - var(--cabecera));
+  margin: 0; max-width: none; padding: 16px 14px 30px;
+}
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.kpi { background: var(--c-tarj); border-radius: 14px; padding: 10px 12px; }
+.kpi small { display: block; font-size: 10.5px; color: var(--c-apag); text-transform: uppercase; letter-spacing: .08em; }
+.kpi b { font-size: 26px; font-family: var(--sd-mono); }
+.comandas { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.comanda {
+  background: var(--c-tarj); border-radius: 14px; overflow: hidden;
+  border-top: 5px solid var(--t, #4caf50);
+}
+.comanda header { display: flex; align-items: baseline; gap: 8px; padding: 10px 12px 6px; }
+.comanda header b { font-size: 18px; margin-right: auto; }
+.comanda header .reloj { font-family: var(--sd-mono); font-size: 15px; color: var(--t); }
+.comanda header small { color: var(--c-apag); font-size: 11px; }
+.comanda ul { list-style: none; margin: 0; padding: 0 6px; }
+.comanda li button {
+  width: 100%; text-align: left; border: 0; background: none; color: inherit;
+  display: flex; gap: 10px; padding: 7px 6px; font-size: 14px; border-radius: 8px;
+}
+.comanda li button b { font-family: var(--sd-mono); color: var(--c-apag); }
+.comanda li button[aria-pressed="true"] { text-decoration: line-through; opacity: .45; }
+.comanda footer { padding: 8px 10px 10px; }
+.comanda footer button {
+  width: 100%; border: 0; border-radius: 10px; padding: 11px; font-weight: 700; font-size: 14px;
+  background: #f6ede3; color: #17120f;
+}
+.comanda[data-e="marcha"] footer button { background: #6ad08f; }
+.comanda.es-tuya { box-shadow: 0 0 0 2px var(--sd-accent); }
+.agotados { margin-top: 18px; }
+.agotados h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--c-apag); margin: 0 0 8px; }
+.agotados .chips button { color: var(--c-tinta); border-color: #4a3c33; }
+.agotados .chips button[aria-pressed="true"] { background: #e2553f; border-color: #e2553f; color: #fff; text-decoration: line-through; }
+
+/* ---------- pestañas ---------- */
+.tabs-pie {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  padding: 4px 10px var(--k-seguro-abajo);
+  background: color-mix(in srgb, var(--sd-bg) 92%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid color-mix(in srgb, var(--sd-ink) 10%, transparent);
+}
+.tabs-pie .k-tabs { max-width: 560px; margin: 0 auto; height: var(--barra); }
+.tabs-pie [data-vista] { position: relative; }
+.insignia {
+  position: absolute; top: 4px; left: calc(50% + 6px); min-width: 17px; height: 17px; border-radius: 9px;
+  background: var(--sd-accent); color: var(--sd-on-accent); font-size: 10px; font-weight: 700;
+  display: grid; place-items: center; padding: 0 4px;
+}
+.insignia:empty { display: none; }
+
+/* ---------- escritorio: la mesa a la izquierda, la carta a la derecha ---------- */
+@media (min-width: 960px) {
+  .app { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
+  .escenario, .app[data-vista="mesa"] .escenario {
+    position: sticky; top: var(--cabecera); height: calc(100dvh - var(--cabecera) - var(--barra));
+  }
+  .app[data-vista="reservar"] .escenario, .app[data-vista="cocina"] .escenario { height: 0; }
+  .app[data-vista="reservar"], .app[data-vista="cocina"] { display: block; }
+  .vista { padding: 0 32px; }
+  .app[data-vista="reservar"] .vista { max-width: 1040px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 0 40px; }
+  .app[data-vista="reservar"] .vista > .titular, .app[data-vista="reservar"] .vista > .subt { grid-column: 1 / -1; }
+  .plano { margin: 6px 0 0; border-radius: 20px; }
+  .cats { margin: 0 -32px; padding: 10px 32px; }
+}
 </style>
 <script src="sistemas/tema-datos.js"></script>
 <script src="../js/selector-sistema.js" defer></script>
 </head>
 <body>
-<div class="demo-badge">DEMO</div>
 
-<!-- VISTA: CARTA -->
-<main id="view-carta" class="view active">
-    <header class="hero">
-        <div class="hero-art">🍻🥘</div>
-        <h1>Taberna El Rincón</h1>
-        <div class="meta">
-            <span class="pill open">● Abierto</span>
-            <span class="pill">★ 4,7 (214)</span>
-            <span class="pill">Cocina 12:30 – 23:00</span>
-        </div>
-    </header>
-    <nav class="cats" id="cats" aria-label="Categorías de la carta"></nav>
-    <section class="menu" id="menu" aria-live="polite"></section>
-</main>
+<header class="cab">
+  <div class="marca">
+    <b class="disp">El Rincón</b>
+    <small>Taberna · desde 1987</small>
+  </div>
+  <button class="estado-pedido" id="estado" hidden type="button"><i aria-hidden="true"></i><span></span></button>
+  <button class="sello" id="sello" type="button" aria-label="Estás en la mesa 7"><span>Mesa</span><b>7</b></button>
+</header>
 
-<!-- VISTA: RESERVAR -->
-<main id="view-reserva" class="view">
-    <div class="panel">
-        <h1>Reservar mesa</h1>
-        <p class="sub">Sin llamadas: elige día, hora y listo.</p>
-        <div class="field">
-            <label>Personas</label>
-            <div class="people">
-                <button type="button" id="pers-minus" aria-label="Menos personas">−</button>
-                <strong id="pers-num">2</strong>
-                <button type="button" id="pers-plus" aria-label="Más personas">+</button>
-            </div>
-        </div>
-        <div class="field">
-            <label>Día</label>
-            <div class="chips" id="res-days"></div>
-        </div>
-        <div class="field">
-            <label>Hora</label>
-            <div class="chips" id="res-hours"></div>
-        </div>
-        <div class="field">
-            <label>A nombre de</label>
-            <input type="text" id="res-name" placeholder="Tu nombre" autocomplete="off">
-        </div>
-        <button class="btn-primary" id="res-btn" style="margin-top:22px">Confirmar reserva</button>
+<div class="app" id="app" data-vista="carta">
+
+  <!-- La mesa en 3D: la misma escena para la carta y para la cuenta -->
+  <figure class="escenario k-3d" id="escenario" aria-label="Vista de la mesa con los platos pedidos">
+    <canvas id="lienzo-mesa"></canvas>
+    <div class="k-reserva" aria-hidden="true">
+      <div>
+        <svg viewBox="0 0 300 160" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="20" y="30" width="260" height="100" rx="10"/><circle cx="90" cy="80" r="22"/><circle cx="90" cy="80" r="13"/><circle cx="210" cy="80" r="22"/><circle cx="210" cy="80" r="13"/><circle cx="150" cy="80" r="16" stroke-dasharray="3 4"/></svg>
+        Tu mesa, sin 3D en este dispositivo
+      </div>
     </div>
-</main>
+    <div class="etiquetas" id="etiquetas"></div>
+    <figcaption class="pista" id="pista"></figcaption>
+  </figure>
 
-<!-- VISTA: INFO -->
-<main id="view-info" class="view">
-    <div class="panel">
-        <h1>Taberna El Rincón</h1>
-        <p class="sub">Cocina tradicional y tapas desde 1987.</p>
-        <div class="map" role="img" aria-label="Mapa de situación">📍</div>
-        <div class="info-card"><span class="ico">🕐</span><div><h3>Horario</h3><p>Mar – Dom · 12:30 – 23:00<br>Lunes cerrado</p></div></div>
-        <div class="info-card"><span class="ico">📞</span><div><h3>Teléfono</h3><p>948 000 000</p></div></div>
-        <div class="info-card"><span class="ico">🏠</span><div><h3>Dirección</h3><p>Plaza Mayor 4, bajo<br>Junto a la iglesia del pueblo</p></div></div>
+  <!-- ================= CARTA ================= -->
+  <section class="vista" data-panel="carta" aria-labelledby="t-carta">
+    <h1 class="titular disp" id="t-carta">Pide desde <em>la mesa</em></h1>
+    <p class="subt">Lo que pidas aparece en la mesa, y cuando sale de cocina, lo ves llegar.</p>
+    <nav class="cats" id="cats" aria-label="Secciones de la carta"></nav>
+    <div id="carta"></div>
+  </section>
+
+  <!-- ================= MESA / CUENTA ================= -->
+  <section class="vista" data-panel="mesa" hidden aria-labelledby="t-mesa">
+    <h2 class="titular disp" id="t-mesa">La <em>cuenta</em>, sin líos</h2>
+    <div class="fila-ctrl">
+      <span>Somos</span>
+      <div class="paso" role="group" aria-label="Comensales">
+        <button type="button" id="com-menos" aria-label="Uno menos">−</button>
+        <output id="com-n" class="num" aria-live="polite">2</output>
+        <button type="button" id="com-mas" aria-label="Uno más">+</button>
+      </div>
     </div>
-</main>
+    <div class="segm" id="modo" data-v="iguales" role="group" aria-label="Cómo pagar">
+      <button type="button" data-modo="iguales" aria-pressed="true">A partes iguales</button>
+      <button type="button" data-modo="cada" aria-pressed="false">Cada uno lo suyo</button>
+    </div>
+    <ol class="progreso" id="progreso" aria-label="Estado de la comanda" hidden>
+      <li>Enviada</li><li>En cocina</li><li>Saliendo</li><li>En la mesa</li>
+    </ol>
+    <ul class="reparto" id="reparto"></ul>
+    <p style="margin:18px 0 0"><button class="btn btn--ancho" id="pedir-cuenta" type="button">Pedir la cuenta</button></p>
+  </section>
 
-<button id="cartbar" aria-label="Ver pedido">
-    <span><span class="count" id="cart-count">0</span> Ver mi pedido</span>
-    <span id="cart-total">0,00 €</span>
-</button>
-
-<nav class="tabbar" aria-label="Navegación">
-    <button class="tab active" data-view="carta"><span class="ico">🍽️</span>Carta</button>
-    <button class="tab" data-view="reserva"><span class="ico">📅</span>Reservar</button>
-    <button class="tab" data-view="info"><span class="ico">ℹ️</span>Info</button>
-</nav>
-
-<div class="sheet-backdrop" id="sheet-backdrop"></div>
-<aside class="sheet" id="sheet" aria-label="Tu pedido">
-    <h2>Tu pedido 🧾</h2>
-    <div id="sheet-items"></div>
-    <div class="sheet-total"><span>Total</span><span id="sheet-total">0,00 €</span></div>
-    <button class="btn-primary" id="order-btn">Pedir a cocina</button>
-</aside>
-
-<div class="confirm" id="confirm" role="dialog" aria-modal="true">
+  <!-- ================= RESERVAR ================= -->
+  <section class="vista" data-panel="reservar" hidden aria-labelledby="t-res">
+    <h2 class="titular disp" id="t-res">Tu mesa, <em>elegida</em> por ti</h2>
+    <p class="subt">Escoge día, hora y la mesa exacta en el plano del local.</p>
     <div>
-        <div class="check">✓</div>
-        <h2 id="confirm-title">¡Pedido en marcha!</h2>
-        <p id="confirm-sub">La cocina ya está con ello.</p>
-        <div class="ticket" id="confirm-ticket"></div>
-        <button id="confirm-close">Volver a la carta</button>
+      <div class="etq"><span>Día</span><span id="res-mes"></span></div>
+      <div class="dias" id="dias" role="group" aria-label="Día"></div>
+      <div class="etq"><span>Personas</span>
+        <div class="paso" role="group" aria-label="Personas">
+          <button type="button" id="per-menos" aria-label="Una persona menos">−</button>
+          <output id="per-n" class="num" aria-live="polite">2</output>
+          <button type="button" id="per-mas" aria-label="Una persona más">+</button>
+        </div>
+      </div>
+      <div class="etq"><span>Hora</span><span id="turno"></span></div>
+      <div class="horas" id="horas" role="group" aria-label="Hora"></div>
+      <div id="mis-reservas"></div>
     </div>
+    <div>
+      <div class="etq"><span>Mesa</span><span id="mesa-elegida">Toca una mesa libre</span></div>
+      <div class="plano k-3d" id="plano">
+        <canvas id="lienzo-plano" aria-hidden="true"></canvas>
+        <div class="k-reserva">Elige la mesa en la lista de abajo</div>
+      </div>
+      <div class="leyenda" aria-hidden="true">
+        <span style="--c:var(--sd-accent)">Libre</span>
+        <span style="--c:color-mix(in srgb, var(--sd-ink) 25%, transparent)">Ocupada</span>
+        <span style="--c:var(--sd-ok)">Tu mesa</span>
+      </div>
+      <div class="mesas-lista" id="mesas-lista" role="group" aria-label="Mesas libres"></div>
+      <button class="btn btn--ancho" id="res-seguir" type="button" disabled>Elige una mesa</button>
+    </div>
+  </section>
+
+  <!-- ================= COCINA (vista del dueño) ================= -->
+  <section class="vista cocina" data-panel="cocina" hidden aria-labelledby="t-coc">
+    <h2 class="k-sr" id="t-coc">Cocina: comandas abiertas</h2>
+    <div class="kpis">
+      <div class="kpi"><small>Abiertas</small><b id="k-abiertas">0</b></div>
+      <div class="kpi"><small>Espera media</small><b id="k-media">0:00</b></div>
+      <div class="kpi"><small>Servidas hoy</small><b id="k-hoy">0</b></div>
+    </div>
+    <div class="comandas" id="comandas" aria-live="polite"></div>
+    <div class="agotados">
+      <h4>Se ha acabado… (se tacha en la carta al momento)</h4>
+      <div class="chips" id="agotados"></div>
+    </div>
+  </section>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- Barra de pedido -->
+<div class="barra-pedido" id="barra-pedido" aria-live="polite">
+  <div class="info"><small id="bp-n">0 platos</small><b class="num" id="bp-total">0,00 €</b></div>
+  <button class="btn" id="enviar" type="button">Enviar a cocina →</button>
+</div>
 
-<script>
-(() => {
-    'use strict';
-    const CATS = ['Tapas', 'Raciones', 'Bocadillos', 'Bebidas', 'Postres'];
-    const DISHES = [
-        { id: 1,  cat: 'Tapas',      emoji: '🥟', name: 'Croquetas caseras',    desc: 'De jamón, cremosas por dentro.',               price: 2.5 },
-        { id: 2,  cat: 'Tapas',      emoji: '🥚', name: 'Huevo roto con jamón', desc: 'Sobre pan de hogaza tostado.',                 price: 3.2 },
-        { id: 3,  cat: 'Tapas',      emoji: '🍄', name: 'Champi a la plancha',  desc: 'Con ajito y perejil, en brocheta.',            price: 2.8 },
-        { id: 4,  cat: 'Raciones',   emoji: '🦑', name: 'Calamares bravos',     desc: 'Fritura ligera con alioli suave.',             price: 11.5 },
-        { id: 5,  cat: 'Raciones',   emoji: '🥔', name: 'Patatas bravas',       desc: 'Con nuestra salsa brava secreta.',            price: 6.9 },
-        { id: 6,  cat: 'Raciones',   emoji: '🥩', name: 'Chuletón a la brasa',  desc: '400 g de chuletón madurado, para compartir.',   price: 24.0 },
-        { id: 7,  cat: 'Bocadillos', emoji: '🥖', name: 'Bocata de lomo',       desc: 'Con queso fundido y pimientos.',               price: 5.5 },
-        { id: 8,  cat: 'Bocadillos', emoji: '🦑', name: 'Bocata de calamares', desc: 'El clásico de toda la vida, recién frito.',    price: 5.0 },
-        { id: 9,  cat: 'Bebidas',    emoji: '🍺', name: 'Caña bien tirada',     desc: 'Cerveza de barril, espuma perfecta.',          price: 2.2 },
-        { id: 10, cat: 'Bebidas',    emoji: '🍷', name: 'Crianza D.O. Rioja',   desc: 'Copa de tinto crianza.',                       price: 2.8 },
-        { id: 11, cat: 'Bebidas',    emoji: '🥤', name: 'Refresco / agua',      desc: 'Pregunta por nuestras variedades.',            price: 2.0 },
-        { id: 12, cat: 'Postres',    emoji: '🍮', name: 'Flan de la abuela',    desc: 'De huevo, con nata y caramelo.',              price: 4.5 },
-        { id: 13, cat: 'Postres',    emoji: '🧀', name: 'Tarta de queso',       desc: 'Horneada, cremosa por dentro.',                price: 4.8 }
-    ];
+<nav class="tabs-pie" aria-label="Secciones">
+  <div class="k-tabs" id="tabs" role="tablist">
+    <span class="k-tabs-marca" aria-hidden="true"></span>
+    <button type="button" role="tab" data-vista="carta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18M5 3h11a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Carta</button>
+    <button type="button" role="tab" data-vista="mesa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="9" rx="9" ry="4"/><path d="M5 11.5V20M19 11.5V20M12 13v7"/></svg>Mesa<span class="insignia" id="ins-mesa"></span></button>
+    <button type="button" role="tab" data-vista="reservar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m9 15 2 2 4-4"/></svg>Reservar</button>
+    <button type="button" role="tab" data-vista="cocina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.9A4 4 0 0 1 7.6 6a5 5 0 0 1 8.8 0A4 4 0 0 1 18 13.9V20H6z"/><path d="M6 17h12"/></svg>Cocina<span class="insignia" id="ins-cocina"></span></button>
+  </div>
+</nav>
 
-    const cart = new Map();
-    let activeCat = CATS[0];
+<!-- Hoja: la cuenta -->
+<div class="k-hoja" id="hoja-cuenta" hidden>
+  <div class="k-hoja-panel" role="dialog" aria-modal="true" aria-labelledby="t-cuenta" tabindex="-1">
+    <div class="k-hoja-asa"></div>
+    <h3 class="k-sr" id="t-cuenta">La cuenta</h3>
+    <div class="ticket" id="ticket"></div>
+    <div class="propinas" id="propinas" role="group" aria-label="Propina">
+      <button type="button" data-p="0" aria-pressed="false">Sin propina</button>
+      <button type="button" data-p="0.05" aria-pressed="true">5 %</button>
+      <button type="button" data-p="0.1" aria-pressed="false">10 %</button>
+      <button type="button" data-p="r" aria-pressed="false">Redondear</button>
+    </div>
+    <ul class="pagos" id="pagos"></ul>
+  </div>
+</div>
 
-    const $ = id => document.getElementById(id);
-    const fmt = n => n.toFixed(2).replace('.', ',') + ' €';
-    const transition = fn => (document.startViewTransition ? document.startViewTransition(fn) : fn());
+<!-- Hoja: datos de la reserva -->
+<div class="k-hoja" id="hoja-reserva" hidden>
+  <div class="k-hoja-panel" role="dialog" aria-modal="true" aria-labelledby="t-hres" tabindex="-1">
+    <div class="k-hoja-asa"></div>
+    <h3 class="disp" id="t-hres" style="font-size:28px;margin:4px 0 2px">Casi está</h3>
+    <p class="subt" id="hres-resumen"></p>
+    <form id="form-reserva" novalidate>
+      <label class="campo">Nombre<input id="r-nombre" autocomplete="name" required></label>
+      <label class="campo">Teléfono<input id="r-tel" type="tel" inputmode="tel" autocomplete="tel" required></label>
+      <div class="campo"><span>¿Algo que debamos saber?</span>
+        <div class="chips" id="r-notas">
+          <button type="button" aria-pressed="false">Celíaco</button>
+          <button type="button" aria-pressed="false">Trona</button>
+          <button type="button" aria-pressed="false">Cumpleaños 🎂</button>
+          <button type="button" aria-pressed="false">Silla de ruedas</button>
+          <button type="button" aria-pressed="false">Vegetariano</button>
+        </div>
+      </div>
+      <button class="btn btn--ancho" type="submit">Confirmar reserva</button>
+    </form>
+  </div>
+</div>
 
-    function toast(msg) {
-        const t = $('toast');
-        t.textContent = msg;
-        t.classList.add('show');
-        clearTimeout(t._h);
-        t._h = setTimeout(() => t.classList.remove('show'), 1800);
+<script type="module">
+import { crearEscena, THREE, material, sombraContacto, texturaTexto } from './kit/escena.js';
+import { RoundedBoxGeometry } from '../js/vendor/three/addons/RoundedBoxGeometry.js';
+import { muelle, arrastre, contar, flip, avisar, hoja, pestanas, ondas, confeti, leer, guardar, vibrar, euros, dosCifras, reducido } from './kit/gestos.js';
+
+/* =========================================================
+   DATOS
+   ========================================================= */
+const CATS = [
+  { id: 'tapas', nombre: 'Tapas' },
+  { id: 'raciones', nombre: 'Raciones' },
+  { id: 'bocadillos', nombre: 'Bocadillos' },
+  { id: 'bebidas', nombre: 'Bebidas' },
+  { id: 'postres', nombre: 'Postres' }
+];
+const PLATOS = [
+  { id: 1, cat: 'tapas', nombre: 'Croquetas caseras', desc: 'De jamón, cremosas por dentro. Cuatro unidades.', precio: 2.5 },
+  { id: 2, cat: 'tapas', nombre: 'Huevo roto con jamón', desc: 'Sobre pan de hogaza tostado.', precio: 3.2 },
+  { id: 3, cat: 'tapas', nombre: 'Champi a la plancha', desc: 'Con ajito y perejil, en brocheta.', precio: 2.8, m: ['veg'] },
+  { id: 4, cat: 'raciones', nombre: 'Calamares a la romana', desc: 'Fritura ligera, limón y alioli suave.', precio: 11.5 },
+  { id: 5, cat: 'raciones', nombre: 'Patatas bravas', desc: 'En cazuela de barro, con nuestra brava.', precio: 6.9, m: ['veg', 'pic'] },
+  { id: 6, cat: 'raciones', nombre: 'Chuletón a la brasa', desc: '400 g madurado, en tabla. Para compartir.', precio: 24, m: ['sg'] },
+  { id: 7, cat: 'bocadillos', nombre: 'Bocata de lomo', desc: 'Con queso fundido y pimientos.', precio: 5.5 },
+  { id: 8, cat: 'bocadillos', nombre: 'Bocata de calamares', desc: 'El clásico, recién frito.', precio: 5 },
+  { id: 9, cat: 'bebidas', nombre: 'Caña bien tirada', desc: 'Cerveza de barril, dos dedos de espuma.', precio: 2.2, m: ['sg'] },
+  { id: 10, cat: 'bebidas', nombre: 'Crianza D.O. Rioja', desc: 'Copa de tinto crianza.', precio: 2.8, m: ['sg'] },
+  { id: 11, cat: 'bebidas', nombre: 'Refresco con hielo', desc: 'Cola, naranja o limón, con su rodaja.', precio: 2, m: ['sg'] },
+  { id: 12, cat: 'postres', nombre: 'Flan de la abuela', desc: 'De huevo, con nata y caramelo.', precio: 4.5, m: ['veg', 'sg'] },
+  { id: 13, cat: 'postres', nombre: 'Tarta de queso', desc: 'Horneada, el centro todavía tembloroso.', precio: 4.8, m: ['veg'] }
+];
+const MARCAS = { veg: ['V', 'Vegetariano'], pic: ['PIC', 'Picante'], sg: ['SG', 'Sin gluten'] };
+const NOMBRES = ['Tú', 'Ana', 'Luis', 'Marta', 'Javi', 'Sara'];
+const COLORES = ['#b34a1f', '#2f7d6d', '#7a4fb3', '#c28a12', '#2f5fa8', '#b8326a'];
+const plato = id => PLATOS.find(p => p.id === id);
+
+const CLAVE = 'rincon-v2';
+const est = Object.assign({
+  comensales: 2,
+  unidades: [],       // { uid, plato, dueno: null|índice, fase: 'pedido'|'cocina'|'servido' }
+  comanda: null,      // { id, t, fase }
+  modo: 'iguales',
+  propina: 0.05,
+  pagados: [],
+  agotados: [],
+  reservas: [],
+  servidasHoy: 14,
+  uid: 1
+}, leer(CLAVE, {}));
+const salvar = () => guardar(CLAVE, est);
+
+const $ = id => document.getElementById(id);
+const app = $('app');
+
+/* =========================================================
+   CARTA
+   ========================================================= */
+function pintarCarta() {
+  $('cats').replaceChildren(...CATS.map((c, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'cat disp'; b.textContent = c.nombre; b.dataset.cat = c.id;
+    if (i === 0) b.setAttribute('aria-current', 'true');
+    return b;
+  }));
+  $('carta').replaceChildren(...CATS.map(c => {
+    const s = document.createElement('section');
+    s.className = 'seccion'; s.id = 'sec-' + c.id;
+    s.innerHTML = `<h3 class="disp"><span>${c.nombre}</span></h3>`;
+    for (const p of PLATOS.filter(p => p.cat === c.id)) {
+      const d = document.createElement('div');
+      d.className = 'plato'; d.dataset.plato = p.id;
+      const marcas = (p.m || []).map(m => `<abbr data-m="${m}" title="${MARCAS[m][1]}">${MARCAS[m][0]}</abbr>`).join('');
+      d.innerHTML = `
+        <div class="plato-linea"><span class="plato-nombre disp">${p.nombre}</span><span class="guia" aria-hidden="true"></span><span class="plato-precio num">${euros(p.precio)}</span></div>
+        <p>${p.desc}${marcas ? `<span class="marcas">${marcas}</span>` : ''}</p>
+        <div class="mas" role="group" aria-label="${p.nombre}">
+          <button type="button" class="menos" data-menos="${p.id}" aria-label="Quitar ${p.nombre}" tabindex="-1">−</button>
+          <span class="cuantos num" aria-live="polite"></span>
+          <button type="button" data-mas="${p.id}" aria-label="Añadir ${p.nombre}">+</button>
+        </div>`;
+      s.appendChild(d);
     }
+    return s;
+  }));
+  repintarCarta();
+}
 
-    /* ----- Categorías y carta ----- */
-    function renderCats() {
-        $('cats').innerHTML = CATS.map(c =>
-            `<button class="cat-chip ${c === activeCat ? 'active' : ''}" data-cat="${c}">${c}</button>`
-        ).join('');
-    }
-    function renderMenu() {
-        $('menu').innerHTML = DISHES.filter(d => d.cat === activeCat).map((d, i) => `
-            <article class="dish" style="animation-delay:${i * 45}ms">
-                <div class="dish-img">${d.emoji}</div>
-                <div class="dish-body">
-                    <h3>${d.name}</h3>
-                    <p>${d.desc}</p>
-                    <div class="dish-price">${fmt(d.price)}</div>
-                </div>
-                <button class="dish-add" data-add="${d.id}" aria-label="Añadir ${d.name}">+</button>
-            </article>`
-        ).join('');
-    }
+function pendientes() { return est.unidades.filter(u => u.fase === 'pedido'); }
 
-    document.addEventListener('click', e => {
-        const chip = e.target.closest('[data-cat]');
-        if (chip) {
-            activeCat = chip.dataset.cat;
-            transition(() => { renderCats(); renderMenu(); });
-            return;
-        }
-        const add = e.target.closest('[data-add]');
-        if (add) {
-            const id = +add.dataset.add;
-            cart.set(id, (cart.get(id) || 0) + 1);
-            updateCartUI();
-            toast('Añadido al pedido 🍽️');
-        }
+function repintarCarta() {
+  document.querySelectorAll('.plato').forEach(fila => {
+    const id = +fila.dataset.plato;
+    const agotado = est.agotados.includes(id);
+    fila.classList.toggle('agotado', agotado);
+    let sello = fila.querySelector('.agotado-sello');
+    if (agotado && !sello) {
+      sello = document.createElement('span'); sello.className = 'agotado-sello'; sello.textContent = 'Agotado';
+      fila.appendChild(sello);
+    } else if (!agotado && sello) sello.remove();
+    const n = pendientes().filter(u => u.plato === id).length;
+    const caja = fila.querySelector('.mas');
+    caja.classList.toggle('tiene', n > 0);
+    caja.querySelector('.cuantos').textContent = n || '';
+    caja.querySelector('.menos').tabIndex = n ? 0 : -1;
+  });
+  const pend = pendientes();
+  const total = pend.reduce((s, u) => s + plato(u.plato).precio, 0);
+  $('barra-pedido').classList.toggle('is-on', pend.length > 0);
+  $('bp-n').textContent = `${pend.length} ${pend.length === 1 ? 'plato' : 'platos'} sin enviar`;
+  contar($('bp-total'), total, { decimales: 2, sufijo: ' €' });
+  const enMesa = est.unidades.filter(u => u.fase !== 'pedido').length;
+  $('ins-mesa').textContent = enMesa || '';
+}
+
+$('carta').addEventListener('click', e => {
+  const mas = e.target.closest('[data-mas]');
+  const menos = e.target.closest('[data-menos]');
+  if (mas) {
+    const id = +mas.dataset.mas;
+    const u = { uid: est.uid++, plato: id, dueno: null, fase: 'pedido' };
+    est.unidades.push(u);
+    vibrar(10);
+    mesa?.poner(u, { desde: mas });
+    salvar(); repintarCarta(); pintarReparto();
+  } else if (menos) {
+    const id = +menos.dataset.menos;
+    const i = est.unidades.findLastIndex(u => u.plato === id && u.fase === 'pedido');
+    if (i >= 0) {
+      const [u] = est.unidades.splice(i, 1);
+      mesa?.quitar(u.uid);
+      vibrar(6);
+      salvar(); repintarCarta(); pintarReparto();
+    }
+  }
+});
+
+// Las categorías siguen al scroll y llevan a su sección
+$('cats').addEventListener('click', e => {
+  const b = e.target.closest('[data-cat]');
+  if (!b) return;
+  $('sec-' + b.dataset.cat).scrollIntoView({ behavior: reducido() ? 'auto' : 'smooth', block: 'start' });
+});
+// Arriba del todo manda siempre la primera sección
+addEventListener('scroll', () => {
+  if (scrollY > 120 || app.dataset.vista !== 'carta') return;
+  document.querySelectorAll('.cat').forEach((c, i) => c.toggleAttribute('aria-current', i === 0));
+  $('cats').scrollTo({ left: 0 });
+}, { passive: true });
+const vigia = new IntersectionObserver(ents => {
+  for (const en of ents) {
+    if (!en.isIntersecting) continue;
+    const id = en.target.id.slice(4);
+    document.querySelectorAll('.cat').forEach(c => {
+      const si = c.dataset.cat === id;
+      c.toggleAttribute('aria-current', si);
+      if (si) { const t = $('cats'); t.scrollTo({ left: c.offsetLeft - t.clientWidth / 2 + c.offsetWidth / 2, behavior: reducido() ? 'auto' : 'smooth' }); }
     });
+  }
+}, { rootMargin: '-45% 0px -50% 0px' });
 
-    /* ----- Carrito ----- */
-    function cartTotals() {
-        let count = 0, total = 0;
-        cart.forEach((qty, id) => {
-            const d = DISHES.find(x => x.id === id);
-            count += qty;
-            total += d.price * qty;
-        });
-        return { count, total };
+/* =========================================================
+   COMANDA: enviar, cocina simulada, servir
+   ========================================================= */
+const FASES = ['enviada', 'cocina', 'saliendo', 'servido'];
+let relojComanda = 0;
+
+function enviar() {
+  const pend = pendientes();
+  if (!pend.length) return;
+  pend.forEach(u => { u.fase = 'cocina'; });
+  const id = 100 + Math.floor((Date.now() / 1000) % 900);
+  est.comanda = { id, t: Date.now(), fase: 'enviada', uids: pend.map(u => u.uid) };
+  pedidosCocina.unshift({ id, mesa: 'Mesa 7', t: Date.now(), e: 'nuevo', tuya: true, lineas: agrupar(pend), hechas: [] });
+  salvar(); repintarCarta(); pintarReparto(); pintarCocina();
+  mesa?.marcarCocina();
+  $('sello').classList.remove('is-pum'); void $('sello').offsetWidth; $('sello').classList.add('is-pum');
+  avisar(`Comanda #${id} enviada a cocina`, { tipo: 'ok', icono: '✓' });
+  vibrar([10, 40, 10]);
+  avanzarSola();
+}
+$('enviar').addEventListener('click', enviar);
+
+function agrupar(unidades) {
+  const m = new Map();
+  unidades.forEach(u => m.set(u.plato, (m.get(u.plato) || 0) + 1));
+  return [...m].map(([plato, n]) => ({ plato, n }));
+}
+
+// Si nadie toca la cocina, la comanda avanza sola: así la demo se ve entera
+function avanzarSola() {
+  clearTimeout(relojComanda);
+  const c = est.comanda;
+  if (!c || c.fase === 'servido') return;
+  const espera = { enviada: 3500, cocina: 6500, saliendo: 2500 }[c.fase];
+  relojComanda = setTimeout(() => {
+    const ped = pedidosCocina.find(p => p.id === c.id);
+    if (c.fase === 'enviada') { if (ped) ped.e = 'marcha'; ponerFase('cocina'); }
+    else if (c.fase === 'cocina') { ponerFase('saliendo'); }
+    else if (c.fase === 'saliendo') { if (ped) retirarComanda(ped, false); servir(); }
+    pintarCocina();
+    avanzarSola();
+  }, espera);
+}
+
+function ponerFase(f) {
+  if (!est.comanda) return;
+  est.comanda.fase = f;
+  salvar(); pintarEstado();
+}
+
+function servir() {
+  if (!est.comanda) return;
+  est.unidades.forEach(u => { if (u.fase === 'cocina') u.fase = 'servido'; });
+  ponerFase('servido');
+  mesa?.servir();
+  avisar('¡Marchando! Los platos llegan a la mesa', { icono: '🛎' });
+  vibrar([12, 60, 12, 60, 12]);
+  repintarCarta(); pintarReparto();
+}
+
+function pintarEstado() {
+  const c = est.comanda;
+  const b = $('estado');
+  if (!c) { b.hidden = true; $('progreso').hidden = true; return; }
+  b.hidden = false;
+  const txt = { enviada: 'Enviada', cocina: 'En cocina', saliendo: 'Saliendo', servido: 'En la mesa' }[c.fase];
+  b.dataset.e = c.fase === 'servido' ? 'listo' : 'curso';
+  b.querySelector('span').textContent = `#${c.id} · ${txt}`;
+  $('progreso').hidden = false;
+  const k = FASES.indexOf(c.fase);
+  [...$('progreso').children].forEach((li, i) => li.classList.toggle('hecho', i <= k));
+}
+$('estado').addEventListener('click', () => tabs.ir('mesa'));
+
+/* =========================================================
+   REPARTO DE LA CUENTA
+   ========================================================= */
+function cuentas() {
+  const n = est.comensales;
+  const enMesa = est.unidades.filter(u => u.fase !== 'pedido');
+  const total = enMesa.reduce((s, u) => s + plato(u.plato).precio, 0);
+  const porPersona = Array.from({ length: n }, () => 0);
+  if (est.modo === 'iguales') porPersona.fill(total / n);
+  else enMesa.forEach(u => {
+    const p = plato(u.plato).precio;
+    if (u.dueno === null || u.dueno >= n) porPersona.forEach((_, i) => { porPersona[i] += p / n; });
+    else porPersona[u.dueno] += p;
+  });
+  return { total, porPersona, enMesa };
+}
+
+function pintarReparto() {
+  const { total, porPersona, enMesa } = cuentas();
+  $('com-n').textContent = est.comensales;
+  const lista = $('reparto');
+  if (!enMesa.length) {
+    lista.innerHTML = `<li class="vacio"><span class="disp">La mesa está vacía</span>Pide algo en la carta y aparecerá aquí.</li>`;
+    $('pedir-cuenta').disabled = true;
+    $('pista').textContent = '';
+    return;
+  }
+  $('pedir-cuenta').disabled = false;
+  $('pedir-cuenta').textContent = `Pedir la cuenta · ${euros(total)}`;
+  const opciones = sel => ['<option value="">Para compartir</option>',
+    ...Array.from({ length: est.comensales }, (_, i) => `<option value="${i}"${sel === i ? ' selected' : ''}>${NOMBRES[i]}</option>`)].join('');
+  const filas = [];
+  for (let i = 0; i < est.comensales; i++) {
+    const suyos = est.modo === 'cada' ? enMesa.filter(u => u.dueno === i) : [];
+    filas.push(`<li><div class="reparto-cab"><i style="--c:${COLORES[i]}">${NOMBRES[i][0]}</i><b class="disp">${NOMBRES[i]}</b><span class="num" data-cuenta="${i}">${euros(porPersona[i])}</span></div>
+      ${suyos.length ? `<ul>${suyos.map(u => `<li><span>${plato(u.plato).nombre}</span><select data-uid="${u.uid}" aria-label="¿De quién es ${plato(u.plato).nombre}?">${opciones(u.dueno)}</select></li>`).join('')}</ul>` : ''}</li>`);
+  }
+  if (est.modo === 'cada') {
+    const comp = enMesa.filter(u => u.dueno === null || u.dueno >= est.comensales);
+    if (comp.length) filas.push(`<li><div class="reparto-cab"><i style="--c:var(--sd-muted)">∗</i><b class="disp">Para compartir</b><span class="num">${euros(comp.reduce((s, u) => s + plato(u.plato).precio, 0))}</span></div>
+      <ul>${comp.map(u => `<li><span>${plato(u.plato).nombre}</span><select data-uid="${u.uid}" aria-label="¿De quién es ${plato(u.plato).nombre}?">${opciones(null)}</select></li>`).join('')}</ul></li>`);
+  }
+  lista.innerHTML = filas.join('');
+  $('pista').innerHTML = est.modo === 'cada' ? '<b>Arrastra</b> cada plato hasta quien se lo ha comido' : '';
+  mesa?.etiquetas(porPersona);
+}
+
+$('reparto').addEventListener('change', e => {
+  const s = e.target.closest('select[data-uid]');
+  if (!s) return;
+  const u = est.unidades.find(x => x.uid === +s.dataset.uid);
+  u.dueno = s.value === '' ? null : +s.value;
+  mesa?.recolocar();
+  salvar(); pintarReparto();
+});
+
+function cambiarComensales(d) {
+  const n = Math.max(1, Math.min(6, est.comensales + d));
+  if (n === est.comensales) return;
+  est.comensales = n;
+  est.unidades.forEach(u => { if (u.dueno !== null && u.dueno >= n) u.dueno = null; });
+  vibrar(6);
+  salvar(); mesa?.comensales(); pintarReparto();
+}
+$('com-mas').addEventListener('click', () => cambiarComensales(1));
+$('com-menos').addEventListener('click', () => cambiarComensales(-1));
+
+$('modo').addEventListener('click', e => {
+  const b = e.target.closest('[data-modo]');
+  if (!b) return;
+  est.modo = b.dataset.modo;
+  $('modo').dataset.v = est.modo;
+  $('modo').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  salvar(); pintarReparto();
+});
+
+/* ---------- la cuenta ---------- */
+const hojaCuenta = hoja($('hoja-cuenta'));
+function pintarTicket() {
+  const { total, porPersona, enMesa } = cuentas();
+  const lineas = agrupar(enMesa);
+  let prop = est.propina === 'r' ? Math.ceil(total / 5) * 5 - total : total * est.propina;
+  if (est.propina === 'r' && prop < 0.5) prop += 5;
+  const final = total + prop;
+  const ahora = new Date();
+  $('ticket').innerHTML = `
+    <h4>El Rincón</h4>
+    <p class="centro">Mesa 7 · ${dosCifras(ahora.getDate())}/${dosCifras(ahora.getMonth() + 1)} · ${dosCifras(ahora.getHours())}:${dosCifras(ahora.getMinutes())}</p>
+    ${lineas.map(l => `<div class="ln"><span>${l.n} × ${plato(l.plato).nombre}</span><span>${euros(l.n * plato(l.plato).precio)}</span></div>`).join('')}
+    <hr>
+    <div class="ln"><span>Base imponible</span><span>${euros(total / 1.1)}</span></div>
+    <div class="ln"><span>IVA 10 %</span><span>${euros(total - total / 1.1)}</span></div>
+    <div class="ln"><span>Propina</span><span>${euros(prop)}</span></div>
+    <hr>
+    <div class="ln total"><span>TOTAL</span><span>${euros(final)}</span></div>`;
+  const factor = total ? final / total : 1;
+  $('pagos').innerHTML = porPersona.map((v, i) => `<li class="${est.pagados.includes(i) ? 'pagado' : ''}"><i style="--c:${COLORES[i]}">${NOMBRES[i][0]}</i><b>${NOMBRES[i]}</b><span class="num">${euros(v * factor)}</span><button class="btn" type="button" data-pagar="${i}">Pagar</button></li>`).join('');
+}
+$('pedir-cuenta').addEventListener('click', () => {
+  if (pendientes().length) avisar('Tienes platos sin enviar: no entran en la cuenta', { icono: '!' });
+  est.pagados = [];
+  pintarTicket(); hojaCuenta.abrir();
+});
+$('propinas').addEventListener('click', e => {
+  const b = e.target.closest('[data-p]');
+  if (!b) return;
+  est.propina = b.dataset.p === 'r' ? 'r' : +b.dataset.p;
+  $('propinas').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  salvar(); pintarTicket();
+});
+$('pagos').addEventListener('click', e => {
+  const b = e.target.closest('[data-pagar]');
+  if (!b) return;
+  b.textContent = '…'; b.disabled = true;
+  setTimeout(() => {
+    est.pagados.push(+b.dataset.pagar);
+    vibrar([8, 30, 16]);
+    pintarTicket();
+    if (est.pagados.length >= est.comensales) {
+      setTimeout(() => {
+        confeti($('ticket'));
+        avisar('¡Gracias! Os esperamos pronto', { tipo: 'ok', icono: '♥' });
+        setTimeout(() => {
+          hojaCuenta.cerrar();
+          est.unidades = est.unidades.filter(u => u.fase === 'pedido');
+          est.comanda = null; est.pagados = [];
+          mesa?.recoger();
+          salvar(); pintarEstado(); repintarCarta(); pintarReparto();
+        }, 1300);
+      }, 500);
     }
-    function updateCartUI() {
-        const { count, total } = cartTotals();
-        $('cart-count').textContent = count;
-        $('cart-total').textContent = fmt(total);
-        $('cartbar').classList.toggle('show', count > 0);
-        renderSheet();
+  }, 700);
+});
+
+/* =========================================================
+   LA MESA EN 3D
+   ========================================================= */
+let mesa = null;
+
+function crearMesa() {
+  const lienzo = $('lienzo-mesa');
+  const caja = $('escenario');
+  const e = crearEscena(lienzo, {
+    camara: { fov: 30, fovVertical: 33, pos: [0, 7.4, 4.4], mira: [0, 0, 0.2] },
+    sombras: true, sombraTam: 3, solPos: [2.5, 7, 3.5], luz: 1.7, ambiente: 0.55, exposicion: 1.05,
+    alTema: t => tema(t),
+    cuadro: (t, dt) => paso(t, dt)
+  });
+  if (!e) return null;
+
+  const { scene, camera } = e;
+  const raiz = new THREE.Group();
+  scene.add(raiz);
+
+  /* ---------- la mesa de madera ---------- */
+  const tex = (() => {
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
+    const g = c.getContext('2d');
+    g.fillStyle = '#9a6a43'; g.fillRect(0, 0, 1024, 512);
+    // tablones
+    for (let i = 0; i < 6; i++) {
+      const y = i * 86;
+      g.fillStyle = `hsl(${24 + (i % 3) * 3} ${38 + (i % 2) * 6}% ${36 + (i * 7) % 9}%)`;
+      g.fillRect(0, y, 1024, 84);
+      // vetas
+      for (let k = 0; k < 26; k++) {
+        g.strokeStyle = `rgba(60,30,10,${0.06 + Math.random() * 0.1})`;
+        g.lineWidth = 1 + Math.random() * 2;
+        g.beginPath();
+        const yy = y + Math.random() * 84;
+        g.moveTo(0, yy);
+        for (let x = 0; x <= 1024; x += 64) g.lineTo(x, yy + Math.sin(x / 90 + k) * 4 + (Math.random() - 0.5) * 2);
+        g.stroke();
+      }
+      g.fillStyle = 'rgba(30,15,5,.45)'; g.fillRect(0, y + 84, 1024, 2);
     }
-    function renderSheet() {
-        const box = $('sheet-items');
-        if (!cart.size) {
-            box.innerHTML = '<p style="font-size:13px;color:var(--muted);padding:8px 0">Tu pedido está vacío.</p>';
-        } else {
-            box.innerHTML = [...cart.entries()].map(([id, qty]) => {
-                const d = DISHES.find(x => x.id === id);
-                return `<div class="sheet-row">
-                    <span>${d.emoji}</span><span class="nm">${d.name}</span>
-                    <div class="stepper">
-                        <button data-dec="${id}" aria-label="Quitar uno">−</button>
-                        <span>${qty}</span>
-                        <button data-inc="${id}" aria-label="Añadir uno">+</button>
-                    </div>
-                    <strong style="font-size:13px;min-width:58px;text-align:right">${fmt(d.price * qty)}</strong>
-                </div>`;
-            }).join('');
-        }
-        $('sheet-total').textContent = fmt(cartTotals().total);
-        $('order-btn').disabled = !cart.size;
+    // nudos
+    for (let k = 0; k < 5; k++) {
+      const x = Math.random() * 1024, y = Math.random() * 512;
+      const r = g.createRadialGradient(x, y, 1, x, y, 16);
+      r.addColorStop(0, 'rgba(50,25,8,.55)'); r.addColorStop(1, 'rgba(50,25,8,0)');
+      g.fillStyle = r; g.beginPath(); g.ellipse(x, y, 22, 10, 0, 0, Math.PI * 2); g.fill();
     }
-    document.addEventListener('click', e => {
-        const inc = e.target.closest('[data-inc]');
-        const dec = e.target.closest('[data-dec]');
-        if (inc) { const id = +inc.dataset.inc; cart.set(id, cart.get(id) + 1); updateCartUI(); }
-        if (dec) {
-            const id = +dec.dataset.dec;
-            const q = cart.get(id) - 1;
-            q <= 0 ? cart.delete(id) : cart.set(id, q);
-            updateCartUI();
-            if (!cart.size) closeSheet();
-        }
-    });
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+    return t;
+  })();
+  const ANCHO = 3.6, FONDO = 2.3;
+  const tablero = new THREE.Mesh(new RoundedBoxGeometry(ANCHO, 0.14, FONDO, 4, 0.05),
+    new THREE.MeshStandardMaterial({ map: tex, roughness: 0.55, metalness: 0 }));
+  tablero.position.y = -0.07; tablero.receiveShadow = true;
+  raiz.add(tablero);
+  const sombraMesa = sombraContacto(2.6, 0.32);
+  sombraMesa.scale.set(1.5, 1, 1.05); sombraMesa.position.y = -0.6;
+  raiz.add(sombraMesa);
 
-    const openSheet  = () => { $('sheet').classList.add('show'); $('sheet-backdrop').classList.add('show'); };
-    const closeSheet = () => { $('sheet').classList.remove('show'); $('sheet-backdrop').classList.remove('show'); };
-    $('cartbar').addEventListener('click', openSheet);
-    $('sheet-backdrop').addEventListener('click', closeSheet);
+  /* ---------- servicio de cada comensal: mantel individual, servilleta, cubiertos ---------- */
+  const texMantel = texturaTexto('El Rincón', { ancho: 512, alto: 320, fuente: 'italic 600 54px Georgia, serif', color: 'rgba(120,60,30,.35)', fondo: '#efe3cc' });
+  const matMantel = new THREE.MeshStandardMaterial({ map: texMantel, roughness: 0.95 });
+  const matServ = new THREE.MeshStandardMaterial({ color: '#f7f1e6', roughness: 0.9 });
+  const matCubierto = material('metal', '#d8d8d8', { roughness: 0.25 });
+  const geoMantel = new RoundedBoxGeometry(0.86, 0.006, 0.56, 2, 0.003);
+  const geoServ = new RoundedBoxGeometry(0.14, 0.012, 0.36, 2, 0.006);
+  const geoCub = new THREE.BoxGeometry(0.018, 0.008, 0.3);
+  const servicios = [];
 
-    $('order-btn').addEventListener('click', () => {
-        if (!cart.size) return;
-        const { count, total } = cartTotals();
-        $('confirm-title').textContent = '¡Pedido en marcha!';
-        $('confirm-sub').textContent = 'La cocina ya está con ello. Te avisamos en mesa.';
-        $('confirm-ticket').innerHTML =
-            `Pedido <strong>#${100 + Math.floor(Math.random() * 900)}</strong><br>` +
-            `${count} artículo${count > 1 ? 's' : ''} · ${fmt(total)}<br>⏱️ Listo en 10–15 min`;
-        cart.clear();
-        updateCartUI();
-        closeSheet();
-        $('confirm').classList.add('show');
-    });
-    $('confirm-close').addEventListener('click', () => {
-        transition(() => {
-            $('confirm').classList.remove('show');
-            switchView('carta');
-        });
-    });
-
-    /* ----- Reserva ----- */
-    let persons = 2;
-    const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-    const days = [0, 1, 2].map(off => {
-        const d = new Date();
-        d.setDate(d.getDate() + off);
-        return off === 0 ? 'Hoy' : off === 1 ? 'Mañana' : `${dayNames[d.getDay()]} ${d.getDate()}`;
-    });
-    const hours = ['13:00', '13:30', '14:00', '20:30', '21:00', '21:30'];
-    let resDay = days[0], resHour = hours[3];
-
-    function renderChips(elId, items, sel, attr) {
-        $(elId).innerHTML = items.map(v =>
-            `<button class="chip ${v === sel ? 'active' : ''}" data-${attr}="${v}">${v}</button>`
-        ).join('');
-    }
-    const renderRes = () => {
-        renderChips('res-days', days, resDay, 'day');
-        renderChips('res-hours', hours, resHour, 'hour');
+  function asientos(n) {
+    const P = {
+      1: [[0, 0.78, 0]],
+      2: [[0, 0.78, 0], [0, -0.78, Math.PI]],
+      3: [[-0.8, 0.78, 0], [0.8, 0.78, 0], [0, -0.78, Math.PI]],
+      4: [[-0.8, 0.78, 0], [0.8, 0.78, 0], [0.8, -0.78, Math.PI], [-0.8, -0.78, Math.PI]],
+      5: [[-0.8, 0.78, 0], [0.8, 0.78, 0], [0.8, -0.78, Math.PI], [-0.8, -0.78, Math.PI], [-1.42, 0, -Math.PI / 2]],
+      6: [[-0.8, 0.78, 0], [0.8, 0.78, 0], [0.8, -0.78, Math.PI], [-0.8, -0.78, Math.PI], [-1.42, 0, -Math.PI / 2], [1.42, 0, Math.PI / 2]]
     };
-    document.addEventListener('click', e => {
-        const d = e.target.closest('[data-day]');
-        const h = e.target.closest('[data-hour]');
-        if (d) { resDay = d.dataset.day; renderRes(); }
-        if (h) { resHour = h.dataset.hour; renderRes(); }
-    });
-    $('pers-minus').addEventListener('click', () => { persons = Math.max(1, persons - 1); $('pers-num').textContent = persons; });
-    $('pers-plus').addEventListener('click', () => { persons = Math.min(12, persons + 1); $('pers-num').textContent = persons; });
-    $('res-btn').addEventListener('click', () => {
-        const name = $('res-name').value.trim();
-        if (!name) { toast('Dinos tu nombre para la reserva ✍️'); $('res-name').focus(); return; }
-        $('confirm-title').textContent = '¡Mesa reservada!';
-        $('confirm-sub').textContent = `Te esperamos, ${name}.`;
-        $('confirm-ticket').innerHTML =
-            `<strong>${persons} persona${persons > 1 ? 's' : ''}</strong> · ${resDay} · ${resHour}<br>` +
-            `Reserva a nombre de <strong>${name}</strong>`;
-        $('confirm').classList.add('show');
-        $('res-name').value = '';
-    });
+    return P[n].map(([x, z, r]) => ({ x, z, r }));
+  }
+  let puestos = asientos(est.comensales);
 
-    /* ----- Tabs ----- */
-    function switchView(view) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        $('view-' + view).classList.add('active');
-        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
-        window.scrollTo({ top: 0 });
+  function montarServicios(animar) {
+    servicios.forEach(s => raiz.remove(s.g));
+    servicios.length = 0;
+    puestos = asientos(est.comensales);
+    puestos.forEach((p, i) => {
+      const g = new THREE.Group();
+      const m = new THREE.Mesh(geoMantel, matMantel); m.receiveShadow = true; m.position.y = 0.003;
+      const s = new THREE.Mesh(geoServ, matServ); s.position.set(-0.5, 0.008, 0); s.castShadow = true;
+      const t1 = new THREE.Mesh(geoCub, matCubierto); t1.position.set(-0.5, 0.02, 0.01);
+      const t2 = new THREE.Mesh(geoCub, matCubierto); t2.position.set(0.5, 0.01, 0);
+      // inicial del comensal, bordada en la servilleta
+      g.add(m, s, t1, t2);
+      g.position.set(p.x, 0, p.z); g.rotation.y = p.r;
+      const ver = { g, m: muelle(animar ? 0 : 1, { rigidez: 210, amortiguacion: 16 }).a(1) };
+      if (animar) ver.m.vel = 0;
+      raiz.add(g);
+      servicios.push(ver);
+    });
+    pintarEtiquetas();
+    e.animarDurante(900);
+  }
+
+  /* ---------- la comida ---------- */
+  const M = {
+    ceramica: material('ceramica', '#fbf8f2'),
+    barro: material('default', '#a2502a', { roughness: 0.75 }),
+    tabla: material('madera', '#6d4426'),
+    cristal: new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.05, metalness: 0, transparent: true, opacity: 0.28, clearcoat: 1, side: THREE.DoubleSide, depthWrite: false }),
+    frito: material('default', '#c98a3a', { roughness: 0.85 }),
+    frito2: material('default', '#e0b25c', { roughness: 0.8 }),
+    clara: material('ceramica', '#fffdf6', { roughness: 0.35 }),
+    yema: material('ceramica', '#f2a516', { roughness: 0.2 }),
+    jamon: material('default', '#b13c44', { roughness: 0.5 }),
+    pan: material('default', '#d29a52', { roughness: 0.9 }),
+    champi: material('default', '#c7b393', { roughness: 0.75 }),
+    palillo: material('madera', '#d9b98c'),
+    patata: material('default', '#e7b14b', { roughness: 0.8 }),
+    brava: material('ceramica', '#c8321c', { roughness: 0.3 }),
+    alioli: material('ceramica', '#f5ecd2', { roughness: 0.3 }),
+    carne: material('default', '#6a2a1d', { roughness: 0.55 }),
+    carneIn: material('default', '#b2423c', { roughness: 0.5 }),
+    hueso: material('ceramica', '#efe6d5', { roughness: 0.6 }),
+    cerveza: new THREE.MeshPhysicalMaterial({ color: '#e6a128', roughness: 0.1, transparent: true, opacity: 0.88 }),
+    espuma: material('default', '#fffaf0', { roughness: 1 }),
+    vino: new THREE.MeshPhysicalMaterial({ color: '#5a0c18', roughness: 0.1, transparent: true, opacity: 0.92 }),
+    cola: new THREE.MeshPhysicalMaterial({ color: '#2b120a', roughness: 0.1, transparent: true, opacity: 0.9 }),
+    limon: material('default', '#f3d23a', { roughness: 0.6 }),
+    hielo: new THREE.MeshPhysicalMaterial({ color: '#eaf6ff', roughness: 0.1, transparent: true, opacity: 0.6 }),
+    flan: material('ceramica', '#e9b347', { roughness: 0.25 }),
+    caramelo: material('ceramica', '#7c3410', { roughness: 0.15 }),
+    nata: material('default', '#fffdf8', { roughness: 0.9 }),
+    tarta: material('default', '#f0d79f', { roughness: 0.8 }),
+    tostado: material('default', '#6e3f18', { roughness: 0.8 }),
+    pimiento: material('default', '#2f7d32', { roughness: 0.5 })
+  };
+
+  const cache = {};
+  const geo = (k, f) => cache[k] || (cache[k] = f());
+  const platoGeo = r => geo('plato' + r, () => {
+    const p = [[0, 0], [r * .6, 0], [r * .66, .012], [r * .9, .03], [r, .055], [r * .985, .062], [r * .89, .042], [r * .6, .02], [0, .02]];
+    return new THREE.LatheGeometry(p.map(([x, y]) => new THREE.Vector2(x, y)), 48);
+  });
+  const mallas = (padre, ...ms) => { ms.forEach(m => { m.castShadow = true; padre.add(m); }); return padre; };
+  const malla = (g, m, x = 0, y = 0, z = 0) => { const o = new THREE.Mesh(g, m); o.position.set(x, y, z); return o; };
+
+  function modelo(id) {
+    const g = new THREE.Group();
+    const conPlato = r => { mallas(g, malla(platoGeo(r), M.ceramica)); return r; };
+    switch (id) {
+      case 1: { // croquetas
+        conPlato(0.25);
+        const c = geo('croq', () => new THREE.CapsuleGeometry(0.038, 0.07, 6, 12));
+        [[-.07, -.05, .3], [.06, -.06, -.4], [-.05, .07, -.2], [.08, .05, .5]].forEach(([x, z, r]) => {
+          const m = malla(c, M.frito, x, 0.058, z); m.rotation.set(Math.PI / 2, 0, r); mallas(g, m);
+        });
+        break;
+      }
+      case 2: { // huevo roto
+        conPlato(0.26);
+        const pan = malla(geo('tost', () => new RoundedBoxGeometry(0.3, 0.035, 0.19, 2, 0.015)), M.pan, 0, 0.04, 0);
+        const clara = malla(geo('clara', () => new THREE.SphereGeometry(0.11, 24, 12)), M.clara, -0.01, 0.06, 0.01); clara.scale.set(1.1, 0.18, 0.75);
+        const yema = malla(geo('yema', () => new THREE.SphereGeometry(0.035, 20, 12)), M.yema, 0.02, 0.07, 0); yema.scale.y = 0.7;
+        mallas(g, pan, clara, yema);
+        for (let i = 0; i < 4; i++) {
+          const j = malla(geo('jam', () => new THREE.BoxGeometry(0.11, 0.008, 0.035)), M.jamon, -0.06 + i * 0.04, 0.085, -0.05 + (i % 2) * 0.08);
+          j.rotation.y = i * 0.7; mallas(g, j);
+        }
+        break;
+      }
+      case 3: { // champis en brocheta
+        conPlato(0.24);
+        for (let k = 0; k < 2; k++) {
+          const z = k ? 0.06 : -0.06;
+          const palo = malla(geo('palo', () => new THREE.CylinderGeometry(0.006, 0.006, 0.36, 6)), M.palillo, 0, 0.07, z); palo.rotation.z = Math.PI / 2;
+          mallas(g, palo);
+          for (let i = 0; i < 3; i++) {
+            const s = malla(geo('setas', () => new THREE.SphereGeometry(0.045, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2)), M.champi, -0.09 + i * 0.09, 0.05, z);
+            s.rotation.z = -Math.PI / 2; s.scale.set(1, 0.8, 1); mallas(g, s);
+          }
+        }
+        break;
+      }
+      case 4: { // calamares
+        conPlato(0.33);
+        const ani = geo('anillo', () => new THREE.TorusGeometry(0.045, 0.016, 8, 20));
+        for (let i = 0; i < 9; i++) {
+          const a = i * 2.4, r = 0.05 + (i % 3) * 0.06;
+          const m = malla(ani, i % 2 ? M.frito2 : M.frito, Math.cos(a) * r, 0.05 + (i % 3) * 0.012, Math.sin(a) * r);
+          m.rotation.set(Math.PI / 2 + (i % 2) * 0.4, 0, a); mallas(g, m);
+        }
+        const l = malla(geo('limon', () => new THREE.SphereGeometry(0.05, 16, 10, 0, Math.PI)), M.limon, 0.2, 0.05, 0.08); l.rotation.set(0, 0.6, Math.PI / 2);
+        const al = malla(geo('salsa', () => new THREE.SphereGeometry(0.04, 16, 10)), M.alioli, -0.2, 0.04, -0.08); al.scale.y = 0.5;
+        mallas(g, l, al);
+        break;
+      }
+      case 5: { // bravas en cazuela
+        const caz = geo('cazuela', () => new THREE.LatheGeometry([[0, 0], [.2, 0], [.25, .02], [.29, .09], [.28, .095], [.22, .03], [0, .03]].map(([x, y]) => new THREE.Vector2(x, y)), 40));
+        mallas(g, malla(caz, M.barro));
+        const cubo = geo('dado', () => new RoundedBoxGeometry(0.07, 0.07, 0.07, 2, 0.015));
+        for (let i = 0; i < 11; i++) {
+          const a = i * 2.1, r = (i % 4) * 0.05;
+          const m = malla(cubo, M.patata, Math.cos(a) * r, 0.07 + (i % 3) * 0.02, Math.sin(a) * r);
+          m.rotation.set(i, i * 2, 0); mallas(g, m);
+        }
+        const gota = geo('gota', () => new THREE.SphereGeometry(0.025, 12, 8));
+        for (let i = 0; i < 7; i++) { const m = malla(gota, i % 3 ? M.brava : M.alioli, Math.cos(i * 1.7) * 0.09, 0.12, Math.sin(i * 1.7) * 0.09); m.scale.y = 0.45; mallas(g, m); }
+        break;
+      }
+      case 6: { // chuletón en tabla
+        mallas(g, malla(geo('tabla', () => new RoundedBoxGeometry(0.72, 0.045, 0.44, 3, 0.02)), M.tabla, 0, 0.022, 0));
+        const c = malla(geo('chuleton', () => new RoundedBoxGeometry(0.42, 0.07, 0.27, 4, 0.03)), M.carne, -0.02, 0.08, 0);
+        c.rotation.y = 0.15;
+        const hueso = malla(geo('hueso', () => new THREE.CapsuleGeometry(0.025, 0.24, 4, 10)), M.hueso, 0.2, 0.08, 0.02); hueso.rotation.z = Math.PI / 2; hueso.rotation.y = 0.15;
+        mallas(g, c, hueso);
+        // lonchas cortadas, rosadas por dentro
+        for (let i = 0; i < 3; i++) {
+          const l = malla(geo('loncha', () => new RoundedBoxGeometry(0.06, 0.065, 0.24, 2, 0.01)), M.carneIn, -0.27 + i * 0.07, 0.07, 0.02);
+          l.rotation.z = 0.4; mallas(g, l);
+        }
+        break;
+      }
+      case 7: case 8: { // bocatas
+        conPlato(0.28);
+        const pan = malla(geo('barra', () => new THREE.CapsuleGeometry(0.065, 0.32, 6, 16)), M.pan, 0, 0.09, 0);
+        pan.rotation.z = Math.PI / 2; pan.scale.set(1, 1, 0.82);
+        mallas(g, pan);
+        if (id === 7) { const r = malla(geo('relleno', () => new THREE.BoxGeometry(0.34, 0.025, 0.1)), M.carneIn, 0, 0.085, 0.045); mallas(g, r, malla(geo('pim', () => new THREE.BoxGeometry(0.3, 0.012, 0.09)), M.pimiento, 0, 0.1, 0.05)); }
+        else for (let i = 0; i < 4; i++) { const a = malla(geo('anillo', () => new THREE.TorusGeometry(0.045, 0.016, 8, 20)), M.frito2, -0.12 + i * 0.08, 0.09, 0.05); a.rotation.x = 0.3; mallas(g, a); }
+        break;
+      }
+      case 9: { // caña
+        const vaso = geo('vasoCana', () => new THREE.LatheGeometry([[0, 0], [.06, 0], [.07, .2], [.072, .22]].map(([x, y]) => new THREE.Vector2(x, y)), 32));
+        const liq = malla(geo('liqCana', () => new THREE.CylinderGeometry(0.066, 0.058, 0.16, 32)), M.cerveza, 0, 0.085, 0);
+        const esp = malla(geo('espCana', () => new THREE.CylinderGeometry(0.069, 0.066, 0.045, 32)), M.espuma, 0, 0.185, 0);
+        mallas(g, liq, esp); g.add(malla(vaso, M.cristal));
+        break;
+      }
+      case 10: { // copa de vino
+        const copa = geo('copa', () => new THREE.LatheGeometry([[0, 0], [.07, 0], [.07, .006], [.008, .012], [.007, .13], [.03, .15], [.075, .21], [.07, .29], [.066, .3]].map(([x, y]) => new THREE.Vector2(x, y)), 32));
+        const vino = malla(geo('liqVino', () => new THREE.SphereGeometry(0.068, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2)), M.vino, 0, 0.215, 0);
+        vino.rotation.x = Math.PI; vino.scale.y = 0.9;
+        mallas(g, vino); g.add(malla(copa, M.cristal));
+        break;
+      }
+      case 11: { // refresco
+        const vaso = geo('vasoRef', () => new THREE.LatheGeometry([[0, 0], [.065, 0], [.068, .17], [.07, .175]].map(([x, y]) => new THREE.Vector2(x, y)), 32));
+        mallas(g, malla(geo('liqRef', () => new THREE.CylinderGeometry(0.063, 0.061, 0.14, 32)), M.cola, 0, 0.075, 0));
+        for (let i = 0; i < 3; i++) { const h = malla(geo('hielo', () => new RoundedBoxGeometry(0.045, 0.045, 0.045, 2, 0.01)), M.hielo, -0.02 + i * 0.02, 0.15, (i - 1) * 0.02); h.rotation.set(i, i * 2, 0); g.add(h); }
+        const rod = malla(geo('rodaja', () => new THREE.CylinderGeometry(0.045, 0.045, 0.01, 20)), M.limon, 0.05, 0.17, 0.02); rod.rotation.x = 1.2;
+        g.add(rod); g.add(malla(vaso, M.cristal));
+        break;
+      }
+      case 12: { // flan
+        conPlato(0.22);
+        mallas(g, malla(geo('flan', () => new THREE.CylinderGeometry(0.085, 0.105, 0.1, 32)), M.flan, 0, 0.07, 0),
+          malla(geo('caram', () => new THREE.CylinderGeometry(0.087, 0.087, 0.012, 32)), M.caramelo, 0, 0.123, 0));
+        const n = malla(geo('nata', () => new THREE.ConeGeometry(0.05, 0.08, 16)), M.nata, 0.13, 0.06, 0.03); mallas(g, n);
+        break;
+      }
+      case 13: { // tarta de queso
+        conPlato(0.22);
+        const p = malla(geo('trozo', () => new THREE.CylinderGeometry(0.2, 0.2, 0.09, 24, 1, false, 0, 0.85)), M.tarta, -0.08, 0.065, -0.03);
+        const top = malla(geo('trozoTop', () => new THREE.CylinderGeometry(0.2, 0.2, 0.012, 24, 1, false, 0, 0.85)), M.tostado, -0.08, 0.115, -0.03);
+        mallas(g, p, top);
+        break;
+      }
     }
-    document.querySelectorAll('.tab').forEach(t =>
-        t.addEventListener('click', () => transition(() => switchView(t.dataset.view)))
-    );
+    return g;
+  }
 
-    /* ----- Init ----- */
-    renderCats();
-    renderMenu();
-    renderRes();
-    renderSheet();
-})();
+  /* ---------- fantasma: el hueco reservado para un plato que viene ---------- */
+  const matFantasma = new THREE.MeshBasicMaterial({ color: '#b34a1f', transparent: true, opacity: 0.18, depthWrite: false });
+  const matAro = new THREE.MeshBasicMaterial({ color: '#b34a1f', transparent: true, opacity: 0.7, depthWrite: false });
+  const radioDe = id => ({ 6: 0.36, 4: 0.33, 5: 0.29, 7: 0.28, 8: 0.28, 9: 0.08, 10: 0.08, 11: 0.08 })[id] || 0.25;
+  function fantasma(id) {
+    const r = radioDe(id);
+    const g = new THREE.Group();
+    const disco = new THREE.Mesh(geo('fd' + r, () => new THREE.CircleGeometry(r, 40)), matFantasma);
+    disco.rotation.x = -Math.PI / 2; disco.position.y = 0.004;
+    // aro discontinuo
+    const segs = new THREE.Group();
+    const n = Math.max(10, Math.round(r * 60));
+    const arco = geo('arco' + r, () => new THREE.RingGeometry(r - 0.012, r, 6, 1, 0, (Math.PI * 2 / n) * 0.55));
+    for (let i = 0; i < n; i++) {
+      const s = new THREE.Mesh(arco, matAro);
+      s.rotation.set(-Math.PI / 2, 0, (i / n) * Math.PI * 2); s.position.y = 0.006; segs.add(s);
+    }
+    g.add(disco, segs);
+    g.userData.giro = segs;
+    return g;
+  }
+
+  /* ---------- cada unidad en la mesa ---------- */
+  const piezas = new Map(); // uid → { u, g, real, fant, x, z, y, s }
+  const mueve = () => ({ x: muelle(0, { rigidez: 120, amortiguacion: 15 }), z: muelle(0, { rigidez: 120, amortiguacion: 15 }), y: muelle(2.4, { rigidez: 140, amortiguacion: 11 }), s: muelle(0, { rigidez: 260, amortiguacion: 18 }) });
+
+  function crearPieza(u, { caer = true } = {}) {
+    const g = new THREE.Group();
+    const real = modelo(u.plato);
+    const fant = fantasma(u.plato);
+    g.add(real, fant);
+    g.userData.uid = u.uid;
+    real.traverse(o => { o.userData.uid = u.uid; });
+    fant.traverse(o => { o.userData.uid = u.uid; });
+    const p = { u, g, real, fant, ...mueve(), giro: Math.random() * Math.PI * 2, rot: 0 };
+    p.rot = (Math.random() - 0.5) * 0.8;
+    actualizarAspecto(p, false);
+    if (!caer || e.reducido) { p.y.fijar(0); p.s.fijar(1); }
+    raiz.add(g);
+    piezas.set(u.uid, p);
+    return p;
+  }
+
+  function actualizarAspecto(p, caer = true) {
+    const servido = p.u.fase === 'servido';
+    p.real.visible = servido;
+    p.fant.visible = !servido;
+    if (servido && caer && !e.reducido) { p.y.fijar(1.6); p.y.a(0); p.s.fijar(0.6); p.s.a(1); }
+    if (!servido) { p.y.a(0); p.s.a(1); }
+  }
+
+  /* ---------- colocación: centro para compartir, o delante de cada comensal ---------- */
+  function colocar() {
+    const grupos = new Map(); // clave → piezas
+    for (const p of piezas.values()) {
+      if (p.saliendo) continue;
+      const k = est.modo === 'cada' && p.u.dueno !== null && p.u.dueno < est.comensales ? p.u.dueno : 'c';
+      if (!grupos.has(k)) grupos.set(k, []);
+      grupos.get(k).push(p);
+    }
+    for (const [k, lista] of grupos) {
+      lista.sort((a, b) => a.u.uid - b.u.uid);
+      if (k === 'c') {
+        // rejilla central: raciones grandes en medio, el resto alrededor
+        const cols = 5, dx = 0.56, dz = 0.5;
+        lista.forEach((p, i) => {
+          const fila = Math.floor(i / cols) % 2, col = i % cols;
+          const capa = Math.floor(i / (cols * 2));
+          const x = (col - (Math.min(cols, lista.length) - 1) / 2) * dx + capa * 0.08;
+          const z = (fila - (lista.length > cols ? 0.5 : 0)) * dz + capa * 0.06;
+          destino(p, x, z);
+        });
+      } else {
+        const ps = puestos[k];
+        const huecos = [[0, 0], [-0.32, -0.04], [0.32, -0.04], [0.33, 0.18], [-0.33, 0.18], [0, -0.3]];
+        lista.forEach((p, i) => {
+          const [hx, hz] = huecos[i % huecos.length];
+          const c = Math.cos(ps.r), s = Math.sin(ps.r);
+          const lx = hx + Math.floor(i / huecos.length) * 0.06, lz = hz - 0.04;
+          destino(p, ps.x + lx * c + lz * s, ps.z - lx * s + lz * c);
+        });
+      }
+    }
+    e.animarDurante(1400);
+  }
+  function destino(p, x, z) {
+    if (p.arrastrando) return;
+    if (!p.colocada) { p.x.fijar(x); p.z.fijar(z); p.colocada = true; }
+    else { p.x.a(x); p.z.a(z); }
+  }
+
+  /* ---------- arrastrar un plato hasta un comensal ---------- */
+  const plano = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.05);
+  const punto = new THREE.Vector3();
+  const rayo = new THREE.Raycaster();
+  let agarrado = null, diana = -1;
+  function enMesa(ev) {
+    rayo.setFromCamera(e.puntero(ev), camera);
+    return rayo.ray.intersectPlane(plano, punto) ? punto : null;
+  }
+  function piezaBajo(ev) {
+    const hit = e.tocar(ev, [...piezas.values()].filter(p => !p.saliendo).map(p => p.g));
+    return hit ? piezas.get(hit.object.userData.uid) : null;
+  }
+  function puestoCerca(x, z) {
+    let mejor = -1, d = 0.7;
+    puestos.forEach((p, i) => { const k = Math.hypot(p.x - x, p.z - z); if (k < d) { d = k; mejor = i; } });
+    return mejor;
+  }
+  lienzo.addEventListener('pointerdown', ev => {
+    if (app.dataset.vista !== 'mesa' || est.modo !== 'cada') return;
+    const p = piezaBajo(ev);
+    if (!p || p.u.fase === 'pedido') return;
+    ev.preventDefault();
+    agarrado = p; p.arrastrando = true;
+    p.y.a(0.35); p.s.a(1.08);
+    lienzo.setPointerCapture(ev.pointerId);
+    lienzo.style.cursor = 'grabbing';
+    vibrar(8);
+    e.animarDurante(10000);
+  });
+  lienzo.addEventListener('pointermove', ev => {
+    if (!agarrado) {
+      if (app.dataset.vista === 'mesa' && est.modo === 'cada' && ev.pointerType === 'mouse') {
+        const p = piezaBajo(ev);
+        lienzo.style.cursor = p && p.u.fase !== 'pedido' ? 'grab' : '';
+      }
+      return;
+    }
+    const q = enMesa(ev);
+    if (!q) return;
+    agarrado.x.a(Math.max(-1.9, Math.min(1.9, q.x)));
+    agarrado.z.a(Math.max(-1.3, Math.min(1.3, q.z)));
+    const d = puestoCerca(q.x, q.z);
+    if (d !== diana) { diana = d; if (d >= 0) vibrar(5); pintarEtiquetas(); }
+  });
+  const soltar = () => {
+    if (!agarrado) return;
+    const p = agarrado; agarrado = null; p.arrastrando = false;
+    p.u.dueno = diana >= 0 ? diana : null;
+    diana = -1;
+    p.y.a(0); p.s.a(1);
+    lienzo.style.cursor = '';
+    vibrar([6, 30, 6]);
+    salvar(); colocar(); pintarReparto();
+    e.animarDurante(1500);
+  };
+  lienzo.addEventListener('pointerup', soltar);
+  lienzo.addEventListener('pointercancel', soltar);
+
+  /* ---------- etiquetas de comensal ---------- */
+  const capa = $('etiquetas');
+  let porPersona = [];
+  function pintarEtiquetas() {
+    while (capa.children.length > est.comensales) capa.lastChild.remove();
+    while (capa.children.length < est.comensales) {
+      const i = capa.children.length;
+      const b = document.createElement('span');
+      b.className = 'comensal';
+      b.style.setProperty('--c', COLORES[i]);
+      b.innerHTML = `<i>${NOMBRES[i][0]}</i>${NOMBRES[i]} <span class="num"></span>`;
+      capa.appendChild(b);
+    }
+    [...capa.children].forEach((b, i) => {
+      b.classList.toggle('is-diana', i === diana);
+      b.querySelector('.num').textContent = porPersona[i] !== undefined ? euros(porPersona[i]) : '';
+    });
+    situarEtiquetas();
+  }
+  const v3 = new THREE.Vector3();
+  function situarEtiquetas() {
+    [...capa.children].forEach((b, i) => {
+      const p = puestos[i];
+      if (!p) return;
+      // hacia fuera del borde de la mesa
+      const fx = p.x + Math.sin(p.r) * -0.05 + (Math.abs(p.x) > 1.3 ? Math.sign(p.x) * 0.25 : 0);
+      const fz = p.z + (Math.abs(p.z) > 0.5 ? Math.sign(p.z) * 0.42 : 0);
+      v3.set(fx, 0.02, fz).applyMatrix4(raiz.matrixWorld);
+      const s = e.aPantalla(v3);
+      b.style.setProperty('--x', s.x.toFixed(1));
+      b.style.setProperty('--y', s.y.toFixed(1));
+    });
+  }
+
+  /* ---------- tema: el fantasma y el aro llevan el acento del sistema ---------- */
+  function tema(t) {
+    matFantasma.color.copy(t.acento);
+    matAro.color.copy(t.acento);
+    e.renderer.toneMappingExposure = t.oscuro ? 1.2 : 1.05;
+  }
+
+  /* ---------- paralaje suave con el puntero / inclinación ---------- */
+  const inc = { x: muelle(0, { rigidez: 40, amortiguacion: 10 }), y: muelle(0, { rigidez: 40, amortiguacion: 10 }) };
+  caja.addEventListener('pointermove', ev => {
+    if (agarrado || e.reducido) return;
+    const r = caja.getBoundingClientRect();
+    inc.x.a(((ev.clientX - r.left) / r.width - 0.5) * 0.12);
+    inc.y.a(((ev.clientY - r.top) / r.height - 0.5) * 0.08);
+    e.animarDurante(1200);
+  });
+  caja.addEventListener('pointerleave', () => { inc.x.a(0); inc.y.a(0); e.animarDurante(1200); });
+
+  /* ---------- cámara según la vista ---------- */
+  const cam = { d: muelle(0.8, { rigidez: 60, amortiguacion: 14 }) };
+  function vista(v) {
+    cam.d.a(v === 'mesa' ? 0.86 : 0.8);
+    e.animarDurante(1500);
+  }
+
+  /* ---------- fotograma ---------- */
+  function paso(t, dt) {
+    let vivo = false;
+    const k = cam.d.paso(dt);
+    inc.x.paso(dt); inc.y.paso(dt);
+    camera.position.set(inc.x.valor * 4, 7.4 * k, 4.4 * k + inc.y.valor * 3);
+    camera.lookAt(0, 0, 0.2);
+    raiz.rotation.y = inc.x.valor * 0.6;
+    vivo = vivo || !cam.d.quieto || !inc.x.quieto || !inc.y.quieto;
+
+    servicios.forEach(s => {
+      const v = s.m.paso(dt);
+      s.g.scale.setScalar(Math.max(0.001, v));
+      if (!s.m.quieto) vivo = true;
+    });
+
+    for (const [uid, p] of piezas) {
+      const x = p.x.paso(dt), z = p.z.paso(dt), y = p.y.paso(dt), sc = p.s.paso(dt);
+      p.g.position.set(x, Math.max(0, y), z);
+      p.g.scale.setScalar(Math.max(0.001, sc));
+      p.g.rotation.y = p.rot + (p.arrastrando ? Math.sin(t * 6) * 0.06 : 0);
+      if (p.fant.visible && !e.reducido) {
+        p.fant.userData.giro.rotation.y = t * 0.6;
+        const latido = p.u.fase === 'cocina' ? 0.16 + Math.sin(t * 4) * 0.08 : 0.18;
+        p.fant.children[0].material.opacity = latido;
+        vivo = true;
+      }
+      if (p.saliendo && sc < 0.02) { raiz.remove(p.g); piezas.delete(uid); continue; }
+      if (!(p.x.quieto && p.z.quieto && p.y.quieto && p.s.quieto)) vivo = true;
+    }
+    situarEtiquetas();
+    return vivo;
+  }
+
+  /* ---------- API para el resto de la app ---------- */
+  montarServicios(false);
+  est.unidades.forEach(u => crearPieza(u, { caer: false }));
+  colocar();
+  caja.classList.add('is-listo');
+
+  return {
+    poner(u) { crearPieza(u); colocar(); },
+    quitar(uid) { const p = piezas.get(uid); if (p) { p.saliendo = true; p.s.a(0); p.y.a(0.4); e.animarDurante(800); colocar(); } },
+    marcarCocina() { for (const p of piezas.values()) actualizarAspecto(p, false); e.animarDurante(500); },
+    servir() {
+      let i = 0;
+      for (const p of piezas.values()) {
+        if (p.u.fase === 'servido' && !p.real.visible) {
+          setTimeout(() => { actualizarAspecto(p, true); vibrar(5); e.animarDurante(1600); }, i++ * 140);
+        }
+      }
+    },
+    recoger() {
+      let i = 0;
+      for (const p of piezas.values()) {
+        if (p.u.fase === 'servido' || p.u.fase === 'cocina') {
+          setTimeout(() => { p.saliendo = true; p.y.a(1.2); p.s.a(0); e.animarDurante(1200); }, i++ * 70);
+        }
+      }
+      setTimeout(colocar, i * 70 + 400);
+    },
+    recolocar: colocar,
+    comensales() { montarServicios(true); colocar(); },
+    etiquetas(pp) { porPersona = pp; pintarEtiquetas(); colocar(); },
+    vista
+  };
+}
+
+/* =========================================================
+   RESERVAR: días, horas y plano 3D del local
+   ========================================================= */
+const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const HORAS = ['13:00', '13:30', '14:00', '14:30', '15:00', '20:30', '21:00', '21:30', '22:00', '22:30'];
+// El local: salón, barra alta y terraza. x/z en metros de maqueta.
+const MESAS = [
+  { id: 1, zona: 'Salón', plazas: 2, x: -3.2, z: -1.6, forma: 'r' },
+  { id: 2, zona: 'Salón', plazas: 2, x: -1.9, z: -1.6, forma: 'r' },
+  { id: 3, zona: 'Salón', plazas: 4, x: -3.0, z: 0.2, forma: 'c' },
+  { id: 4, zona: 'Salón', plazas: 4, x: -1.3, z: 0.2, forma: 'c' },
+  { id: 5, zona: 'Salón', plazas: 6, x: -2.2, z: 2.0, forma: 'l' },
+  { id: 6, zona: 'Barra', plazas: 2, x: 0.6, z: -2.2, forma: 'a' },
+  { id: 7, zona: 'Barra', plazas: 2, x: 1.6, z: -2.2, forma: 'a' },
+  { id: 8, zona: 'Salón', plazas: 4, x: 0.7, z: 0.6, forma: 'c' },
+  { id: 9, zona: 'Terraza', plazas: 2, x: 3.4, z: -0.8, forma: 'r' },
+  { id: 10, zona: 'Terraza', plazas: 4, x: 3.4, z: 0.9, forma: 'c' },
+  { id: 11, zona: 'Terraza', plazas: 6, x: 3.4, z: 2.6, forma: 'l' }
+];
+const res = { dia: null, hora: null, personas: 2, mesa: null };
+
+function hoyMas(n) { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + n); return d; }
+const claveDia = d => `${d.getFullYear()}-${dosCifras(d.getMonth() + 1)}-${dosCifras(d.getDate())}`;
+// Ocupación determinista: la misma para el mismo día, hora y mesa
+function ocupada(mesaId, dia, hora) {
+  if (est.reservas.some(r => r.dia === dia && r.hora === hora && r.mesa === mesaId)) return true;
+  // FNV-1a y una mezcla final: reparte bien aunque solo cambie un carácter
+  let h = 2166136261;
+  for (const ch of `${dia}|${hora}|${mesaId}`) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  h ^= h >>> 15; h = Math.imul(h, 2246822507); h ^= h >>> 13;
+  const finde = [5, 6].includes(new Date(dia + 'T12:00').getDay());
+  return ((h >>> 0) % 100) < (finde ? 50 : 28);
+}
+
+function pintarDias() {
+  const frag = [];
+  for (let i = 0; i < 14; i++) {
+    const d = hoyMas(i), k = claveDia(d);
+    const cerrado = d.getDay() === 1; // lunes, descanso
+    frag.push(`<button type="button" class="dia" data-dia="${k}" aria-pressed="${res.dia === k}" ${cerrado ? 'disabled aria-label="Lunes, cerrado"' : ''}><small>${i === 0 ? 'hoy' : DIAS[d.getDay()]}</small><b>${d.getDate()}</b></button>`);
+  }
+  $('dias').innerHTML = frag.join('');
+  if (!res.dia) { const b = $('dias').querySelector('.dia:not(:disabled)'); res.dia = b.dataset.dia; b.setAttribute('aria-pressed', 'true'); }
+  const d = new Date(res.dia + 'T12:00');
+  $('res-mes').textContent = MESES[d.getMonth()];
+}
+function pintarHoras() {
+  const ahora = new Date();
+  const esHoy = res.dia === claveDia(ahora);
+  $('horas').innerHTML = HORAS.map(h => {
+    const [hh, mm] = h.split(':').map(Number);
+    const pasada = esHoy && (hh * 60 + mm) < ahora.getHours() * 60 + ahora.getMinutes() + 30;
+    const libres = MESAS.filter(m => m.plazas >= res.personas && !ocupada(m.id, res.dia, h)).length;
+    return `<button type="button" class="hora num" data-hora="${h}" aria-pressed="${res.hora === h}" ${pasada || !libres ? 'disabled' : ''}>${h}</button>`;
+  }).join('');
+  if (res.hora && $('horas').querySelector(`[data-hora="${res.hora}"]:disabled`)) res.hora = null;
+  if (!res.hora) { const b = $('horas').querySelector('.hora:not(:disabled)'); if (b) { res.hora = b.dataset.hora; b.setAttribute('aria-pressed', 'true'); } }
+  $('turno').textContent = res.hora ? (parseInt(res.hora) < 17 ? 'Comida' : 'Cena') : 'Sin hueco este día';
+  pintarMesas();
+}
+function estadoMesa(m) {
+  if (!res.hora) return 'ocupada';
+  if (ocupada(m.id, res.dia, res.hora)) return 'ocupada';
+  if (m.plazas < res.personas || m.plazas > res.personas + 3) return 'pequena';
+  return 'libre';
+}
+function pintarMesas() {
+  if (res.mesa && estadoMesa(MESAS.find(m => m.id === res.mesa)) !== 'libre') res.mesa = null;
+  $('mesas-lista').innerHTML = MESAS.map(m => {
+    const e = estadoMesa(m);
+    return `<button type="button" data-mesa="${m.id}" aria-pressed="${res.mesa === m.id}" ${e !== 'libre' ? 'disabled' : ''}>Mesa ${m.id} · ${m.zona} · ${m.plazas} pax</button>`;
+  }).join('');
+  const m = MESAS.find(x => x.id === res.mesa);
+  $('mesa-elegida').textContent = m ? `Mesa ${m.id} · ${m.zona}` : 'Toca una mesa libre';
+  $('res-seguir').disabled = !m;
+  $('res-seguir').textContent = m ? `Reservar la mesa ${m.id} →` : 'Elige una mesa';
+  planoLocal?.pintar();
+}
+function elegirMesa(id) {
+  const m = MESAS.find(x => x.id === id);
+  if (!m || estadoMesa(m) !== 'libre') { vibrar([20, 40, 20]); return; }
+  res.mesa = res.mesa === id ? null : id;
+  vibrar(10);
+  pintarMesas();
+}
+$('dias').addEventListener('click', e => {
+  const b = e.target.closest('[data-dia]'); if (!b || b.disabled) return;
+  res.dia = b.dataset.dia; vibrar(6);
+  $('dias').querySelectorAll('.dia').forEach(x => x.setAttribute('aria-pressed', x === b));
+  $('res-mes').textContent = MESES[new Date(res.dia + 'T12:00').getMonth()];
+  pintarHoras();
+});
+$('horas').addEventListener('click', e => {
+  const b = e.target.closest('[data-hora]'); if (!b) return;
+  res.hora = b.dataset.hora; vibrar(6);
+  $('horas').querySelectorAll('.hora').forEach(x => x.setAttribute('aria-pressed', x === b));
+  $('turno').textContent = parseInt(res.hora) < 17 ? 'Comida' : 'Cena';
+  pintarMesas();
+});
+$('mesas-lista').addEventListener('click', e => { const b = e.target.closest('[data-mesa]'); if (b) elegirMesa(+b.dataset.mesa); });
+const cambiarPersonas = d => {
+  const n = Math.max(1, Math.min(8, res.personas + d));
+  if (n === res.personas) { if (d > 0) avisar('Para más de 8, llámanos al 948 000 000', { icono: '☎' }); return; }
+  res.personas = n; $('per-n').textContent = n; vibrar(6); pintarHoras();
+};
+$('per-mas').addEventListener('click', () => cambiarPersonas(1));
+$('per-menos').addEventListener('click', () => cambiarPersonas(-1));
+
+const hojaReserva = hoja($('hoja-reserva'));
+$('res-seguir').addEventListener('click', () => {
+  const m = MESAS.find(x => x.id === res.mesa);
+  const d = new Date(res.dia + 'T12:00');
+  $('hres-resumen').textContent = `${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${res.hora} · ${res.personas} ${res.personas === 1 ? 'persona' : 'personas'} · mesa ${m.id} (${m.zona.toLowerCase()})`;
+  hojaReserva.abrir();
+});
+$('r-notas').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true');
+});
+$('form-reserva').addEventListener('submit', e => {
+  e.preventDefault();
+  const nombre = $('r-nombre').value.trim(), tel = $('r-tel').value.trim();
+  if (!nombre) { $('r-nombre').focus(); avisar('Falta tu nombre', { tipo: 'error' }); return; }
+  if (tel.replace(/\D/g, '').length < 9) { $('r-tel').focus(); avisar('Ese teléfono no parece completo', { tipo: 'error' }); return; }
+  const notas = [...$('r-notas').querySelectorAll('[aria-pressed="true"]')].map(b => b.textContent);
+  const codigo = 'R-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+  est.reservas.push({ codigo, dia: res.dia, hora: res.hora, personas: res.personas, mesa: res.mesa, nombre, notas });
+  salvar();
+  hojaReserva.cerrar();
+  confeti($('res-seguir'));
+  avisar(`Reserva ${codigo} confirmada`, { tipo: 'ok', icono: '✓' });
+  res.mesa = null;
+  pintarHoras(); pintarMisReservas();
+});
+function pintarMisReservas() {
+  const hoy = claveDia(new Date());
+  const lista = est.reservas.filter(r => r.dia >= hoy);
+  $('mis-reservas').innerHTML = lista.map(r => {
+    const d = new Date(r.dia + 'T12:00');
+    return `<article class="res-tarjeta"><span class="codigo">${r.codigo}</span>
+      <div class="disp">${DIAS[d.getDay()]} ${d.getDate()} · ${r.hora}</div>
+      <div style="color:var(--sd-muted);font-size:13.5px">${r.personas} pax · mesa ${r.mesa}${r.notas.length ? ' · ' + r.notas.join(', ') : ''}</div>
+      <div class="acciones"><button class="btn" type="button" data-ics="${r.codigo}">Añadir al calendario</button><button class="btn btn--linea" type="button" data-anular="${r.codigo}">Anular</button></div></article>`;
+  }).join('');
+}
+$('mis-reservas').addEventListener('click', e => {
+  const ics = e.target.closest('[data-ics]'), anu = e.target.closest('[data-anular]');
+  if (ics) {
+    const r = est.reservas.find(x => x.codigo === ics.dataset.ics);
+    const [hh, mm] = r.hora.split(':');
+    const ini = r.dia.replace(/-/g, '') + `T${hh}${mm}00`;
+    const fin = r.dia.replace(/-/g, '') + `T${dosCifras(+hh + 2)}${mm}00`;
+    const txt = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//El Rincon//Reservas//ES', 'BEGIN:VEVENT', `UID:${r.codigo}@elrincon.demo`,
+      `DTSTART:${ini}`, `DTEND:${fin}`, `SUMMARY:Cena en El Rincón (${r.personas} pax)`, `DESCRIPTION:Reserva ${r.codigo}. Mesa ${r.mesa}.`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([txt], { type: 'text/calendar' }));
+    a.download = `reserva-${r.codigo}.ics`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  } else if (anu) {
+    est.reservas = est.reservas.filter(x => x.codigo !== anu.dataset.anular);
+    salvar(); pintarMisReservas(); pintarHoras();
+    avisar('Reserva anulada');
+  }
+});
+
+/* ---------- el plano del local en 3D ---------- */
+let planoLocal = null;
+function crearPlano() {
+  const lienzo = $('lienzo-plano');
+  const caja = $('plano');
+  const e = crearEscena(lienzo, {
+    camara: { fov: 34, fovVertical: 52, pos: [0.6, 12, 10.5], mira: [-0.2, 0, 0.2] },
+    sombras: true, sombraTam: 6, solPos: [4, 9, 5], luz: 1.5, ambiente: 0.6,
+    alTema: t => tema(t),
+    cuadro: (t, dt) => paso(t, dt)
+  });
+  if (!e) return null;
+  const { scene, camera } = e;
+  const raiz = new THREE.Group(); scene.add(raiz);
+
+  // Suelo hidráulico del salón (textura de baldosa) y tarima en la terraza
+  const baldosa = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d');
+    g.fillStyle = '#e9dcc4'; g.fillRect(0, 0, 256, 256);
+    g.fillStyle = '#b8643a';
+    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) {
+      g.save(); g.translate(i * 128 + 64, j * 128 + 64);
+      g.beginPath(); g.moveTo(0, -46); g.lineTo(46, 0); g.lineTo(0, 46); g.lineTo(-46, 0); g.closePath(); g.fill();
+      g.fillStyle = '#e9dcc4'; g.beginPath(); g.arc(0, 0, 16, 0, Math.PI * 2); g.fill(); g.fillStyle = '#b8643a';
+      g.restore();
+    }
+    g.strokeStyle = 'rgba(0,0,0,.12)'; g.lineWidth = 2;
+    for (let k = 0; k <= 256; k += 128) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k, 256); g.moveTo(0, k); g.lineTo(256, k); g.stroke(); }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(4, 4); t.anisotropy = 8;
+    return t;
+  })();
+  const suelo = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.12, 6.4), new THREE.MeshStandardMaterial({ map: baldosa, roughness: 0.6 }));
+  suelo.position.set(-1.1, -0.06, 0.2); suelo.receiveShadow = true; raiz.add(suelo);
+  const tarima = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.16, 6.4), material('madera', '#a77b52'));
+  tarima.position.set(3.3, -0.08, 0.2); tarima.receiveShadow = true; raiz.add(tarima);
+  for (let i = 0; i < 9; i++) { const l = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.005, 0.012), material('default', '#6e4c30')); l.position.set(3.3, 0.002, -2.9 + i * 0.7); raiz.add(l); }
+
+  // Paredes bajas (corte de maqueta) y barra
+  const matPared = material('default', '#f3ead9', { roughness: 0.9 });
+  const pared = (w, d, x, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.9, d), matPared); m.position.set(x, 0.45, z); m.castShadow = m.receiveShadow = true; raiz.add(m); return m; };
+  pared(6.4, 0.14, -1.1, -3.05); pared(0.14, 6.4, -4.25, 0.2);
+  const barra = new THREE.Mesh(new RoundedBoxGeometry(3.2, 0.7, 0.55, 3, 0.05), material('madera', '#5b3a22'));
+  barra.position.set(1.0, 0.35, -2.75); barra.castShadow = true; raiz.add(barra);
+  const encimera = new THREE.Mesh(new RoundedBoxGeometry(3.3, 0.06, 0.65, 3, 0.02), material('default', '#2b2b2b', { roughness: 0.3 }));
+  encimera.position.set(1.0, 0.73, -2.75); raiz.add(encimera);
+  // Jardineras que separan la terraza
+  const matMaceta = material('default', '#8f4a2a'), matPlanta = material('default', '#4f7f3a', { roughness: 0.9 });
+  [-2.4, -0.6, 1.2, 3.0].forEach(z => {
+    const j = new THREE.Mesh(new RoundedBoxGeometry(0.34, 0.34, 1.2, 2, 0.04), matMaceta); j.position.set(2.05, 0.17, z); j.castShadow = true; raiz.add(j);
+    for (let k = 0; k < 4; k++) { const b = new THREE.Mesh(new THREE.IcosahedronGeometry(0.17, 1), matPlanta); b.position.set(2.05, 0.42, z - 0.42 + k * 0.28); b.scale.y = 1.2; b.castShadow = true; raiz.add(b); }
+  });
+
+  // Mesas y sillas
+  const matMesa = material('madera', '#7a4e2d'), matSilla = material('madera', '#4a2f1b');
+  const matLibre = new THREE.MeshBasicMaterial({ color: '#b34a1f', transparent: true, opacity: 0.85, depthWrite: false });
+  const matTuya = new THREE.MeshBasicMaterial({ color: '#2e9e5b', transparent: true, opacity: 0.95, depthWrite: false });
+  const matOcupada = material('default', '#9a948c', { roughness: 0.9 });
+  const objetos = [];
+  for (const m of MESAS) {
+    const g = new THREE.Group(); g.position.set(m.x, 0, m.z);
+    const alta = m.forma === 'a';
+    const h = alta ? 1.05 : 0.72;
+    let top;
+    if (m.forma === 'r' || alta) top = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.05, 32), matMesa);
+    else if (m.forma === 'c') top = new THREE.Mesh(new RoundedBoxGeometry(0.85, 0.05, 0.85, 2, 0.02), matMesa);
+    else top = new THREE.Mesh(new RoundedBoxGeometry(1.5, 0.05, 0.8, 2, 0.02), matMesa);
+    top.position.y = h; top.castShadow = true;
+    const pata = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.06, h, 10), matSilla);
+    pata.position.y = h / 2; pata.castShadow = true;
+    g.add(top, pata);
+    // sillas alrededor
+    const n = m.plazas, sillas = [];
+    for (let i = 0; i < n; i++) {
+      let sx, sz;
+      if (m.forma === 'l') { sx = (i % 3 - 1) * 0.5; sz = i < 3 ? -0.62 : 0.62; }
+      else if (m.forma === 'c') { const a = i / n * Math.PI * 2 + Math.PI / 4; sx = Math.cos(a) * 0.68; sz = Math.sin(a) * 0.68; }
+      else { const a = i / n * Math.PI * 2 + Math.PI / 2; sx = Math.cos(a) * 0.55; sz = Math.sin(a) * 0.55; }
+      const s = new THREE.Mesh(alta ? new THREE.CylinderGeometry(0.15, 0.15, 0.06, 16) : new RoundedBoxGeometry(0.34, 0.06, 0.34, 2, 0.02), matSilla);
+      s.position.set(sx, alta ? 0.78 : 0.45, sz); s.castShadow = true;
+      const pie = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, alta ? 0.78 : 0.45, 6), matSilla);
+      pie.position.set(sx, (alta ? 0.78 : 0.45) / 2, sz);
+      g.add(s, pie); sillas.push(s);
+    }
+    // aro de disponibilidad en el suelo
+    const r = m.forma === 'l' ? 1.15 : m.forma === 'c' ? 0.95 : 0.78;
+    const aro = new THREE.Mesh(new THREE.RingGeometry(r - 0.06, r, 48), matLibre);
+    aro.rotation.x = -Math.PI / 2; aro.position.y = 0.012;
+    g.add(aro);
+    const etq = new THREE.Sprite(new THREE.SpriteMaterial({ map: texturaTexto(String(m.id), { ancho: 128, alto: 128, fuente: '700 70px system-ui', color: '#fff' }), depthTest: false, transparent: true }));
+    etq.scale.setScalar(0.42); etq.position.y = h + 0.45;
+    g.add(etq);
+    g.userData.mesa = m.id;
+    g.traverse(o => { o.userData.mesa = m.id; });
+    raiz.add(g);
+    objetos.push({ m, g, top, sillas, aro, etq, sube: muelle(0, { rigidez: 180, amortiguacion: 14 }) });
+  }
+
+  function tema(t) {
+    matLibre.color.copy(t.acento);
+    matTuya.color.copy(t.ok);
+  }
+
+  function pintar() {
+    for (const o of objetos) {
+      const st = estadoMesa(o.m), tuya = res.mesa === o.m.id;
+      o.aro.visible = st === 'libre';
+      o.aro.material = tuya ? matTuya : matLibre;
+      o.top.material = st === 'ocupada' ? matOcupada : matMesa;
+      o.sillas.forEach(s => { s.material = st === 'ocupada' ? matOcupada : matSilla; });
+      o.etq.material.opacity = st === 'libre' ? 1 : 0.25;
+      o.sube.a(tuya ? 0.25 : 0);
+    }
+    e.animarDurante(1200);
+  }
+
+  // Girar la maqueta arrastrando, con inercia y vuelta suave
+  const giro = muelle(0, { rigidez: 18, amortiguacion: 7 });
+  let vGiro = 0, arrastrando = false;
+  arrastre(lienzo, {
+    alEmpezar: () => { arrastrando = true; },
+    alMover: dx => { giro.fijar(Math.max(-0.9, Math.min(0.9, giro.valor + dx * 0.006))); e.animarDurante(1500); },
+    alSoltar: vx => { arrastrando = false; vGiro = vx * 0.12; e.animarDurante(2500); },
+    alTocar: ev => {
+      arrastrando = false;
+      const hit = e.tocar(ev, objetos.map(o => o.g));
+      if (hit) elegirMesa(hit.object.userData.mesa);
+    }
+  });
+  lienzo.addEventListener('pointermove', ev => {
+    if (ev.pointerType !== 'mouse') return;
+    const hit = e.tocar(ev, objetos.map(o => o.g));
+    lienzo.style.cursor = hit && estadoMesa(MESAS.find(m => m.id === hit.object.userData.mesa)) === 'libre' ? 'pointer' : '';
+  });
+
+  function paso(t, dt) {
+    let vivo = false;
+    if (!arrastrando && Math.abs(vGiro) > 0.0005) { giro.fijar(Math.max(-0.9, Math.min(0.9, giro.valor + vGiro))); vGiro *= 0.9; vivo = true; }
+    raiz.rotation.y = giro.valor;
+    for (const o of objetos) {
+      const y = o.sube.paso(dt);
+      o.top.position.y = (o.m.forma === 'a' ? 1.05 : 0.72) + y;
+      if (o.aro.visible && !e.reducido) {
+        const k = 1 + Math.sin(t * 3 + o.m.id) * 0.03;
+        o.aro.scale.set(k, k, k);
+        vivo = true;
+      }
+      if (!o.sube.quieto) vivo = true;
+    }
+    return vivo;
+  }
+
+  caja.classList.add('is-listo');
+  pintar();
+  return { pintar };
+}
+
+/* =========================================================
+   COCINA (vista del dueño)
+   ========================================================= */
+const ahora = Date.now();
+const pedidosCocina = [
+  { id: 141, mesa: 'Mesa 3', t: ahora - 7.5 * 60000, e: 'marcha', lineas: [{ plato: 4, n: 1 }, { plato: 5, n: 2 }, { plato: 9, n: 3 }], hechas: [9] },
+  { id: 142, mesa: 'Terraza 10', t: ahora - 3.2 * 60000, e: 'nuevo', lineas: [{ plato: 6, n: 1 }, { plato: 10, n: 2 }], hechas: [] },
+  { id: 143, mesa: 'Barra 6', t: ahora - 1.1 * 60000, e: 'nuevo', lineas: [{ plato: 1, n: 2 }, { plato: 3, n: 1 }, { plato: 11, n: 1 }], hechas: [] }
+];
+const servidos = [];
+
+function pintarCocina() {
+  const ahora = Date.now();
+  const caja = $('comandas');
+  const html = pedidosCocina.map(p => {
+    const seg = Math.floor((ahora - p.t) / 1000);
+    const col = seg > 600 ? '#e2553f' : seg > 300 ? '#e8b339' : '#6ad08f';
+    return `<article class="comanda${p.tuya ? ' es-tuya' : ''}" data-id="${p.id}" data-e="${p.e}" style="--t:${col}">
+      <header><b>${p.mesa}</b><small>#${p.id}</small><span class="reloj" data-t="${p.t}">${Math.floor(seg / 60)}:${dosCifras(seg % 60)}</span></header>
+      <ul>${p.lineas.map(l => `<li><button type="button" data-linea="${l.plato}" aria-pressed="${p.hechas.includes(l.plato)}"><b>${l.n}×</b>${plato(l.plato).nombre}</button></li>`).join('')}</ul>
+      <footer><button type="button" data-bump="${p.id}">${p.e === 'nuevo' ? 'Marchar' : 'Listo, sale ✓'}</button></footer>
+    </article>`;
+  }).join('') || '<p class="vacio" style="color:var(--c-apag)">Cocina al día. Ni una comanda pendiente.</p>';
+  caja.innerHTML = html;
+  $('k-abiertas').textContent = pedidosCocina.length;
+  $('ins-cocina').textContent = pedidosCocina.filter(p => p.e === 'nuevo').length || '';
+  const media = pedidosCocina.length ? pedidosCocina.reduce((s, p) => s + (ahora - p.t), 0) / pedidosCocina.length / 1000 : 0;
+  $('k-media').textContent = `${Math.floor(media / 60)}:${dosCifras(Math.floor(media % 60))}`;
+  $('k-hoy').textContent = est.servidasHoy;
+}
+setInterval(() => {
+  const ahora = Date.now();
+  document.querySelectorAll('.comanda .reloj').forEach(r => {
+    const seg = Math.floor((ahora - +r.dataset.t) / 1000);
+    r.textContent = `${Math.floor(seg / 60)}:${dosCifras(seg % 60)}`;
+    const col = seg > 600 ? '#e2553f' : seg > 300 ? '#e8b339' : '#6ad08f';
+    r.closest('.comanda').style.setProperty('--t', col);
+  });
+}, 1000);
+
+function retirarComanda(p, conAnimacion = true) {
+  const i = pedidosCocina.indexOf(p);
+  if (i < 0) return;
+  const el = document.querySelector(`.comanda[data-id="${p.id}"]`);
+  est.servidasHoy++;
+  salvar();
+  const quitar = () => { flip($('comandas'), () => { pedidosCocina.splice(pedidosCocina.indexOf(p), 1); pintarCocina(); }); };
+  if (el && conAnimacion && !reducido()) {
+    el.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(60%) rotate(6deg)', opacity: 0 }], { duration: 380, easing: 'cubic-bezier(.4,0,.6,1)' }).onfinish = quitar;
+  } else quitar();
+}
+
+$('comandas').addEventListener('click', e => {
+  const l = e.target.closest('[data-linea]');
+  const b = e.target.closest('[data-bump]');
+  if (l) {
+    const p = pedidosCocina.find(x => x.id === +l.closest('.comanda').dataset.id);
+    const id = +l.dataset.linea;
+    p.hechas = p.hechas.includes(id) ? p.hechas.filter(x => x !== id) : [...p.hechas, id];
+    l.setAttribute('aria-pressed', p.hechas.includes(id));
+    vibrar(5);
+  } else if (b) {
+    const p = pedidosCocina.find(x => x.id === +b.dataset.bump);
+    vibrar(10);
+    if (p.e === 'nuevo') {
+      p.e = 'marcha';
+      if (p.tuya && est.comanda?.id === p.id) { clearTimeout(relojComanda); ponerFase('cocina'); }
+      pintarCocina();
+    } else {
+      retirarComanda(p);
+      if (p.tuya && est.comanda?.id === p.id) { clearTimeout(relojComanda); ponerFase('saliendo'); setTimeout(servir, 900); }
+    }
+  }
+});
+
+function pintarAgotados() {
+  $('agotados').innerHTML = PLATOS.map(p => `<button type="button" data-ag="${p.id}" aria-pressed="${est.agotados.includes(p.id)}">${p.nombre}</button>`).join('');
+}
+$('agotados').addEventListener('click', e => {
+  const b = e.target.closest('[data-ag]'); if (!b) return;
+  const id = +b.dataset.ag;
+  est.agotados = est.agotados.includes(id) ? est.agotados.filter(x => x !== id) : [...est.agotados, id];
+  b.setAttribute('aria-pressed', est.agotados.includes(id));
+  vibrar(8); salvar(); repintarCarta();
+  avisar(est.agotados.includes(id) ? `${plato(id).nombre}: tachado en la carta` : `${plato(id).nombre}: vuelve a la carta`);
+});
+
+// Comandas que entran solas mientras miras la cocina
+let entrada = 0;
+function llegaComanda() {
+  clearTimeout(entrada);
+  entrada = setTimeout(() => {
+    if (app.dataset.vista === 'cocina' && pedidosCocina.length < 6) {
+      const mesas = ['Mesa 2', 'Mesa 5', 'Terraza 9', 'Barra 7', 'Mesa 8', 'Terraza 11'];
+      const disp = PLATOS.filter(p => !est.agotados.includes(p.id));
+      const lineas = [];
+      for (let i = 0; i < 2 + (Date.now() % 3); i++) {
+        const p = disp[(Date.now() / 7 + i * 5 | 0) % disp.length];
+        if (!lineas.some(l => l.plato === p.id)) lineas.push({ plato: p.id, n: 1 + (i % 2) });
+      }
+      flip($('comandas'), () => {
+        pedidosCocina.push({ id: 150 + pedidosCocina.length + est.servidasHoy, mesa: mesas[(Date.now() / 1000 | 0) % mesas.length], t: Date.now(), e: 'nuevo', lineas, hechas: [] });
+        pintarCocina();
+      });
+      avisar('Nueva comanda', { icono: '🔔' });
+      vibrar([10, 50, 10]);
+    }
+    llegaComanda();
+  }, 22000);
+}
+
+/* =========================================================
+   ARRANQUE
+   ========================================================= */
+pintarCarta();
+document.querySelectorAll('.seccion').forEach(s => vigia.observe(s));
+$('modo').dataset.v = est.modo;
+$('modo').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.modo === est.modo));
+$('propinas').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === String(est.propina))));
+pintarDias(); pintarHoras(); pintarMisReservas();
+pintarCocina(); pintarAgotados(); pintarEstado();
+ondas();
+
+mesa = crearMesa();
+pintarReparto();
+// Una comanda a medias de una visita anterior sigue su curso
+if (est.comanda && est.comanda.fase !== 'servido') {
+  if (!pedidosCocina.some(p => p.id === est.comanda.id)) {
+    const enCurso = est.unidades.filter(u => u.fase === 'cocina');
+    pedidosCocina.unshift({ id: est.comanda.id, mesa: 'Mesa 7', t: est.comanda.t, e: est.comanda.fase === 'enviada' ? 'nuevo' : 'marcha', tuya: true, lineas: agrupar(enCurso), hechas: [] });
+  }
+  pintarCocina();
+  avanzarSola();
+}
+
+const tabs = pestanas($('tabs'), {
+  clave: 'rincon-vista',
+  alCambiar(v) {
+    app.dataset.vista = v;
+    mesa?.vista(v);
+    if (v === 'reservar' && !planoLocal) requestAnimationFrame(() => { planoLocal = crearPlano(); });
+    if (v === 'cocina') { pintarCocina(); llegaComanda(); }
+    if (v === 'mesa') pintarReparto();
+    window.scrollTo({ top: 0, behavior: reducido() ? 'auto' : 'smooth' });
+  }
+});
 </script>
 </body>
 </html>

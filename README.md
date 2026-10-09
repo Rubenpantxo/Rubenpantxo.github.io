@@ -18,10 +18,16 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
 ├── img/                    # Logos e iconos del sitio
 ├── docs/                   # Notas internas (guías, recursos)
 ├── servicios/              # Demos de negocio que abre la sección Servicios (visor con móvil)
-│   ├── bar-restaurante.html · tienda-ropa.html · carniceria.html · gimnasio.html · supermercado.html
-│   ├── granja.html         # Cesta de temporada, visitas con reserva y sensores de la nave
-│   ├── industria.html      # Presupuesto B2B con pieza en 3D, pedidos por fases y planta en directo
-│   ├── logistica.html      # Seguimiento en mapa, tarifa al momento y firma de entrega
+│   ├── kit/                # Base común: escena Three.js, gestos y estructura (app.css)
+│   ├── bar-restaurante.html  # La mesa en 3D: platos que llegan, cuenta dividida, reserva en el plano
+│   ├── tienda-ropa.html    # Revista de moda con la prenda colgada en 3D y probador por zonas
+│   ├── carniceria.html     # Vitrina y báscula en 3D, papel que se pliega y turnos
+│   ├── gimnasio.html       # Mapa muscular 3D, clases y reproductor de entreno
+│   ├── supermercado.html   # Cesta 3D con física, Scan & Go y almacén (PIN 1234)
+│   ├── granja.html         # La finca como maqueta 3D: tienda de temporada, visitas y sensores
+│   ├── industria.html      # Pieza paramétrica, vista de plano y planta en gemelo digital
+│   ├── logistica.html      # Mapa en relieve, caja que se mide, reparto y almacén
+│   ├── sistemas-de-diseno.html  # Vitrina 3D, catálogo y mezclador de los sistemas
 │   └── sistemas/           # Sistemas de diseño (tema.css + selector que usan todas las demos)
 ├── mapas/                  # Mapas embebidos
 │   ├── cabanillas.html     # Plano urbano interactivo de Cabanillas (vector + ortofoto IDENA)
@@ -55,6 +61,7 @@ Las apps y juegos marcados con la clase `private-app` se muestran siempre en sus
 
 - HTML / CSS / JavaScript vanilla
 - Tailwind CSS y Font Awesome vía CDN
+- Three.js r170 servido desde el repo (`js/vendor/three/`) para las escenas 3D de Servicios
 - Sin build step: cualquier servidor estático sirve el sitio
 - GitHub Pages como hosting
 
