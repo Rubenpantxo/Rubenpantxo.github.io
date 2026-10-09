@@ -5,6 +5,7 @@ export const ESCENA = {
   rutaCalles: 'assets/osm/calles.geojson',
   rutaCaminos: 'assets/osm/caminos.geojson',
   rutaAgua: 'assets/osm/agua.geojson',
+  rutaMarcas: 'assets/osm/marcas.json',
   rutaUsos: 'assets/osm/usos.geojson',
   rutaPoi: 'assets/osm/poi.geojson',
   rutaMuros: 'assets/muros.json',

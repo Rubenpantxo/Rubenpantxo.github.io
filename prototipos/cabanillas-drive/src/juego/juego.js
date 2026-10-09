@@ -17,6 +17,7 @@ import { creaCarteles } from '../escena/carteles.js';
 import { cargaMuros, creaMuros } from '../escena/muros.js';
 import { cargaElementos, creaElementos } from '../escena/elementos.js';
 import { avanzaAgua, creaCanal } from '../escena/agua.js';
+import { cargaMarcas, creaMarcas } from '../escena/marcas.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
 import { creaLuces } from './luces.js';
@@ -73,6 +74,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   const canal = creaCanal(await cargaGeoJSON(ESCENA.rutaAgua).catch(() => null), mundo.terreno);
   escena.add(canal);
   hierba.ponExclusion(canal.userData.bajoAgua);
+  const marcas = creaMarcas(await cargaMarcas(ESCENA.rutaMarcas), mundo.terreno);
+  escena.add(marcas.raiz);
   const colisiones = creaGestorColisiones(fisica, { radio: CALIDAD.radioColisiones });
   const nodos = nodosDeCalles(geoCalles);
   const coche = creaCoche(fisica, escena, modelosCoches[VEHICULO.modelo]);
