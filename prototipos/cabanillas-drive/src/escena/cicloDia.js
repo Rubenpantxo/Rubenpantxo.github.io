@@ -216,7 +216,7 @@ export function creaCicloDia({ escena, camara, luzSol, direccionRender, intensid
     const p = new URLSearchParams(location.search).get('hora') ?? localStorage.getItem('cabanillas.hora');
     if (p && DIA.modos[p]) modo = p;
     hora = horaDelModo();
-    if (p && !DIA.modos[p] && !Number.isNaN(Number(p))) { modo = 'ciclo'; hora = ((Number(p) % 24) + 24) % 24; }
+    if (p && !DIA.modos[p] && p.trim() !== '' && !Number.isNaN(Number(p))) hora = ((Number(p) % 24) + 24) % 24;
   } catch { /* sin almacenamiento */ }
   recogeMateriales();
   aplica();
@@ -228,19 +228,17 @@ export function creaCicloDia({ escena, camara, luzSol, direccionRender, intensid
     get modo() { return modo; },
     ponModo(nuevo) {
       if (!DIA.modos[nuevo]) return;
-      if (nuevo !== 'ciclo') hora = DIA.modos[nuevo].hora ?? horaFoto;
       modo = nuevo;
+      hora = horaDelModo();
       try { localStorage.setItem('cabanillas.hora', nuevo); } catch { /* nada */ }
       aplica();
     },
-    // Adelanta la hora (tecla T); en modo fijo, pasa a ciclo desde ahí
+    // Adelanta la hora (tecla T); la hora queda fija donde se deje
     adelanta(horas) {
       hora = (hora + horas + 24) % 24;
-      if (modo !== 'ciclo') modo = 'ciclo';
       aplica();
     },
-    actualiza(dt, { avanza = true } = {}) {
-      if (modo === 'ciclo' && avanza) hora = (hora + (dt * 24) / (DIA.minutosPorDia * 60)) % 24;
+    actualiza(dt) {
       // Materiales creados después (carga por partes): se recogen de vez en cuando
       recogerEn -= dt;
       if (recogerEn <= 0) { recogeMateriales(); recogerEn = 3; }

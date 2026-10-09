@@ -1,7 +1,9 @@
 // Pantallas de inicio, pausa, controles y créditos (marcado en index.html).
-// Estados: «inicio» (cargando o esperando a Jugar) → «jugando» ⇄ «pausa». Esc o P pausan.
+// Estados: «inicio» (cargando o esperando a Jugar) → «jugando» ⇄ «pausa» o «mapa» (minimapa
+// ampliado, también en pausa). Esc o P pausan; Esc o el minimapa cierran el mapa.
 import { CALIDAD } from '../config/calidad.js';
 import { DIA } from '../config/dia.js';
+import { creaAjustes } from './ajustes.js';
 import { estadoDescargas, marcaAvance } from './progresoCarga.js';
 
 // Sin noticias de la carga durante este tiempo, se ofrece recargar o bajar la calidad
@@ -13,6 +15,7 @@ export function creaPantallas({ alCambiar }) {
   const pausa = $('pausa');
   const controles = $('controles');
   const creditos = $('creditos');
+  const mapa = $('mapa');
   const jugar = $('jugar');
   const barra = $('barra-carga');
   const textoCarga = $('estado-carga');
@@ -27,6 +30,7 @@ export function creaPantallas({ alCambiar }) {
     estado = nuevo;
     inicio.hidden = nuevo !== 'inicio';
     pausa.hidden = nuevo !== 'pausa';
+    mapa.hidden = nuevo !== 'mapa';
     if (nuevo !== 'pausa') controles.hidden = true;
     alCambiar(nuevo);
   };
@@ -70,6 +74,8 @@ export function creaPantallas({ alCambiar }) {
     else $(b.dataset.cierra).hidden = true;
   }));
   $('boton-menu').addEventListener('click', () => { if (estado === 'jugando') cambia('pausa'); });
+  window.addEventListener('cabanillas:mapa', () => { if (estado === 'jugando') cambia('mapa'); });
+  $('mapa-cerrar').addEventListener('click', () => cambia('jugando'));
 
   // Controles: pestañas teclado / táctil (empieza por la del aparato)
   const pestanas = controles.querySelectorAll('[role="tab"]');
@@ -79,6 +85,14 @@ export function creaPantallas({ alCambiar }) {
   };
   pestanas.forEach((p) => p.addEventListener('click', () => muestraVista(p.dataset.vista)));
   muestraVista(matchMedia('(pointer: coarse)').matches ? 'tactil' : 'teclado');
+
+  // Ajustes: al mover los botones táctiles se apartan la pausa y los controles
+  creaAjustes({
+    alEditar(si) {
+      controles.hidden = si;
+      pausa.hidden = si || estado !== 'pausa';
+    },
+  });
 
   // Calidad: se aplica recargando con ?calidad= (mantiene el resto de parámetros)
   document.querySelectorAll('[data-calidad]').forEach((sel) => {
@@ -94,6 +108,7 @@ export function creaPantallas({ alCambiar }) {
     if (e.code !== 'Escape' && e.code !== 'KeyP') return;
     if (!creditos.hidden) { creditos.hidden = true; return; }
     if (!controles.hidden) { controles.hidden = true; return; }
+    if (estado === 'mapa') { cambia('jugando'); return; }
     if (estado === 'jugando') cambia('pausa');
     else if (estado === 'pausa') cambia('jugando');
   });
@@ -122,7 +137,7 @@ export function creaPantallas({ alCambiar }) {
     ciclo = c;
     if (horaPendiente) ciclo.ponModo(horaPendiente);
     selectoresHora.forEach((s) => { s.value = ciclo.modo; });
-    // Al abrir la pausa, el selector refleja el modo (T pasa a ciclo)
+    // Al abrir la pausa, el selector refleja el modo
     new MutationObserver(() => selectoresHora.forEach((s) => { s.value = ciclo.modo; }))
       .observe(pausa, { attributes: true, attributeFilter: ['hidden'] });
   }
@@ -171,7 +186,5 @@ export function creaPantallas({ alCambiar }) {
 function modoGuardado() {
   let p = new URLSearchParams(location.search).get('hora');
   try { p ??= localStorage.getItem('cabanillas.hora'); } catch { /* nada */ }
-  if (p && DIA.modos[p]) return p;
-  if (p && !Number.isNaN(Number(p))) return 'ciclo';
-  return DIA.modoInicial;
+  return p && DIA.modos[p] ? p : DIA.modoInicial;
 }

@@ -29,8 +29,6 @@
 
       /* HUD */
       #hud[hidden] { display: none; }
-      #brujula { position: fixed; top: max(12px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
-        width: 300px; height: 44px; pointer-events: none; }
       #minimapa { position: fixed; left: max(16px, env(safe-area-inset-left)); bottom: max(16px, env(safe-area-inset-bottom));
         width: 200px; height: 200px; cursor: pointer; }
       #velocimetro { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom));
@@ -39,13 +37,40 @@
         width: 44px; height: 44px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .3); background: var(--fondo-ui);
         color: #fff; font-size: 20px; cursor: pointer; }
       @media (pointer: coarse) {
-        /* entre el botón de menú (izquierda) y los de cámara/recolocar (derecha) */
-        #brujula { left: calc(max(12px, env(safe-area-inset-left)) + 54px); transform: none;
-          width: min(220px, calc(100% - 258px)); height: 40px; }
         #minimapa { top: calc(max(12px, env(safe-area-inset-top)) + 54px); bottom: auto; width: 118px; height: 118px; }
         #velocimetro { top: calc(max(12px, env(safe-area-inset-top)) + 70px); bottom: auto; width: 116px; height: 116px; }
         #panel { top: calc(max(12px, env(safe-area-inset-top)) + 44px); }
       }
+      /* Esquina del minimapa (Ajustes). Si ocupa la del velocímetro, este pasa al otro lado */
+      @media (pointer: fine) {
+        [data-minimapa="si"] #minimapa { top: calc(max(12px, env(safe-area-inset-top)) + 56px); bottom: auto; }
+        [data-minimapa="sd"] #minimapa { top: max(16px, env(safe-area-inset-top)); bottom: auto; left: auto;
+          right: max(16px, env(safe-area-inset-right)); }
+        [data-minimapa="id"] #minimapa { left: auto; right: max(16px, env(safe-area-inset-right)); }
+        [data-minimapa="id"] #velocimetro { right: auto; left: max(16px, env(safe-area-inset-left)); }
+      }
+      @media (pointer: coarse) {
+        [data-minimapa="sd"] #minimapa { left: auto; right: max(12px, env(safe-area-inset-right));
+          top: calc(max(12px, env(safe-area-inset-top)) + 70px); }
+        [data-minimapa="sd"] #velocimetro { right: auto; left: max(16px, env(safe-area-inset-left));
+          top: calc(max(12px, env(safe-area-inset-top)) + 54px); }
+        [data-minimapa="ii"] #minimapa { top: auto; bottom: max(16px, env(safe-area-inset-bottom)); }
+        [data-minimapa="id"] #minimapa { top: auto; left: auto; right: max(16px, env(safe-area-inset-right));
+          bottom: calc(max(20px, env(safe-area-inset-bottom)) + 196px); }
+      }
+
+      /* Mapa ampliado */
+      #mapa { padding: 0; place-items: stretch; background: #10161e; touch-action: none; }
+      #mapa-lienzo { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+      #mapa-lienzo:active { cursor: grabbing; }
+      .mapa-botones { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right));
+        display: flex; gap: 8px; }
+      .mapa-botones button, .barra-edicion button { padding: 9px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .3);
+        background: var(--fondo-ui); color: #fff; font: 600 14px system-ui, sans-serif; cursor: pointer; }
+      .mapa-botones button.principal, .barra-edicion button.principal { background: var(--acento); color: #1b2430; border-color: var(--acento); }
+      .mapa-ayuda { position: absolute; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%);
+        margin: 0; padding: 5px 12px; border-radius: 8px; background: var(--fondo-ui); color: var(--tenue); font-size: 12px;
+        pointer-events: none; white-space: nowrap; }
 
       /* Pantallas: inicio, pausa, controles y créditos */
       .pantalla { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; box-sizing: border-box;
@@ -147,6 +172,30 @@
       .boton-tactil.grande { width: 96px; height: 96px; }
       .boton-tactil.pulsado { background: rgba(255, 224, 0, .55); }
       .boton-tactil.pequeno { width: 52px; height: 52px; font-size: 18px; }
+      /* Joystick fijo (Ajustes): siempre visible en su sitio; solo responde al tocarlo */
+      [data-joystick="fijo"] .zona-joystick { pointer-events: none; }
+      [data-joystick="fijo"] .joystick-base, [data-joystick="fijo"] .joystick-base[hidden] { display: block; pointer-events: auto;
+        top: auto; left: calc(max(16px, env(safe-area-inset-left)) + 40px); bottom: max(40px, env(safe-area-inset-bottom));
+        touch-action: none; }
+      /* Mover botones (Ajustes) */
+      #tactil.editando { position: fixed; inset: 0; z-index: 12; background: rgba(10, 14, 20, .35); }
+      #tactil.editando .zona-joystick { pointer-events: none; }
+      #tactil.editando [data-mantener], #tactil.editando [data-pulsar],
+      [data-joystick="fijo"] #tactil.editando .joystick-base { outline: 2px dashed var(--acento); outline-offset: 4px;
+        cursor: move; pointer-events: auto; }
+      .barra-edicion { position: fixed; z-index: 13; left: 50%; top: max(12px, env(safe-area-inset-top)); transform: translateX(-50%);
+        display: flex; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 12px; background: rgba(18, 25, 34, .94);
+        border: 1px solid rgba(255, 255, 255, .15); max-width: calc(100% - 24px); box-sizing: border-box; flex-wrap: wrap; justify-content: center; }
+      .barra-edicion[hidden] { display: none; }
+      .barra-edicion p { margin: 0; color: var(--tenue); font-size: 13px; }
+      .ajustes { display: grid; gap: 14px; }
+      .ajustes[hidden] { display: none; }
+      .ajustes .opcion { display: flex; gap: 10px; align-items: center; color: #fff; font-size: 15px; cursor: pointer; }
+      .ajustes .opcion input { width: 20px; height: 20px; accent-color: var(--acento); flex: none; }
+      .ajustes small { display: block; color: var(--tenue); font-size: 12px; }
+      .ajustes h3 { margin: 4px 0 0; }
+      .ajustes .acciones { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+      .ajustes .acciones .boton { width: auto; flex: 1; min-width: 160px; }
       .botones-superiores { position: fixed; right: max(12px, env(safe-area-inset-right)); top: max(12px, env(safe-area-inset-top));
         display: flex; gap: 10px; }
     </style>
@@ -157,8 +206,7 @@
     <div id="panel"><p id="estado"></p></div>
 
     <div id="hud" hidden>
-      <canvas id="brujula" aria-hidden="true"></canvas>
-      <canvas id="minimapa" title="Minimapa (M: girar con el coche o norte arriba)" aria-label="Minimapa"></canvas>
+      <canvas id="minimapa" title="Minimapa: clic para ampliarlo (M: girar con el coche o norte arriba)" aria-label="Minimapa"></canvas>
       <canvas id="velocimetro" aria-hidden="true"></canvas>
       <button id="boton-menu" type="button" aria-label="Menú">☰</button>
     </div>
@@ -179,6 +227,22 @@
         <button class="boton-tactil pequeno" type="button" data-pulsar="reiniciar" aria-label="Recolocar el coche">↺</button>
       </div>
     </div>
+
+    <div id="editar-botones" class="barra-edicion" hidden>
+      <p>Arrastra los botones a donde quieras</p>
+      <button type="button" data-restablecer-botones>Restablecer</button>
+      <button type="button" class="principal" data-listo>Listo</button>
+    </div>
+
+    <section id="mapa" class="pantalla" hidden aria-label="Mapa de Cabanillas">
+      <canvas id="mapa-lienzo"></canvas>
+      <div class="mapa-botones">
+        <button type="button" id="mapa-todo">Todo</button>
+        <button type="button" id="mapa-centrar">Dónde estoy</button>
+        <button type="button" class="principal" id="mapa-cerrar">Volver</button>
+      </div>
+      <p class="mapa-ayuda">Arrastra para moverte · rueda o pellizca para acercar</p>
+    </section>
 
     <section id="inicio" class="pantalla" aria-labelledby="titulo-inicio">
       <div class="portada">
@@ -205,7 +269,7 @@
       <div class="tarjeta pila">
         <h2 id="titulo-pausa">Pausa</h2>
         <button class="boton" type="button" data-cierra="pausa">Continuar</button>
-        <button class="boton secundario" type="button" data-abre="controles">Controles</button>
+        <button class="boton secundario" type="button" data-abre="controles">Controles y ajustes</button>
         <label class="calidad ir-a" hidden>Ir a <select id="ir-a"><option value="">Elige un lugar…</option></select></label>
         <div class="fila">
           <label class="calidad">Calidad <select data-calidad>
@@ -223,25 +287,24 @@
         <div class="pestanas" role="tablist">
           <button type="button" role="tab" data-vista="teclado" aria-selected="true">Teclado y ratón</button>
           <button type="button" role="tab" data-vista="tactil" aria-selected="false">Pantalla táctil</button>
+          <button type="button" role="tab" data-vista="ajustes" aria-selected="false">Ajustes</button>
         </div>
 
         <div class="vista" data-vista="teclado">
           <figure class="captura" style="--proporcion: 1.778">
             <img src="ui/controles_teclado.webp" alt="Pantalla de juego en el ordenador" width="1280" height="720" loading="lazy" />
             <span class="marca" style="left: 6.5%; top: 6%">1</span>
-            <span class="marca" style="left: 50%; top: 13%">2</span>
-            <span class="marca" style="left: 50%; top: 54%">3</span>
-            <span class="marca" style="left: 16.5%; top: 72%">4</span>
-            <span class="marca" style="left: 84%; top: 74%">5</span>
-            <span class="marca" style="left: 91%; top: 33%">6</span>
+            <span class="marca" style="left: 50%; top: 54%">2</span>
+            <span class="marca" style="left: 16.5%; top: 72%">3</span>
+            <span class="marca" style="left: 84%; top: 74%">4</span>
+            <span class="marca" style="left: 91%; top: 33%">5</span>
           </figure>
           <ol class="leyenda">
             <li><span class="num">1</span><span><b>Pausa y menú:</b> <kbd>Esc</kbd> o <kbd>P</kbd></span></li>
-            <li><span class="num">2</span><span><b>Brújula:</b> rumbo del coche</span></li>
-            <li><span class="num">3</span><span><b>Conducir:</b> <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> o flechas · <kbd>Espacio</kbd> freno de mano</span></li>
-            <li><span class="num">4</span><span><b>Minimapa:</b> <kbd>M</kbd> o clic para girarlo con el coche o norte arriba</span></li>
-            <li><span class="num">5</span><span><b>Velocímetro:</b> km/h; «R» indica marcha atrás</span></li>
-            <li><span class="num">6</span><span><b>Lugares:</b> carteles; «Ir a…» en la pausa te lleva</span></li>
+            <li><span class="num">2</span><span><b>Conducir:</b> <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> o flechas · <kbd>Espacio</kbd> freno de mano</span></li>
+            <li><span class="num">3</span><span><b>Minimapa:</b> clic para ver el pueblo entero · <kbd>M</kbd> girarlo con el coche o norte arriba</span></li>
+            <li><span class="num">4</span><span><b>Velocímetro:</b> km/h; «R» indica marcha atrás</span></li>
+            <li><span class="num">5</span><span><b>Lugares:</b> carteles; «Ir a…» en la pausa te lleva</span></li>
           </ol>
           <p class="extra"><kbd>R</kbd> recolocar el coche · <kbd>C</kbd> cambiar cámara · <kbd>T</kbd> adelantar una hora ·
             <kbd>E</kbd> bajarse o subir</p>
@@ -267,7 +330,7 @@
           </figure>
           <ol class="leyenda">
             <li><span class="num">1</span><span><b>☰</b> pausa y menú</span></li>
-            <li><span class="num">2</span><span><b>Minimapa:</b> tócalo para girarlo o norte arriba</span></li>
+            <li><span class="num">2</span><span><b>Minimapa:</b> tócalo para ver el pueblo entero</span></li>
             <li><span class="num">3</span><span><b>Mitad izquierda:</b> arrastra para girar</span></li>
             <li><span class="num">4</span><span><b>🚶</b> bajarse o subir al coche</span></li>
             <li><span class="num">5</span><span><b>👁</b> cambiar cámara</span></li>
@@ -280,6 +343,23 @@
             <summary>A pie</summary>
             <p>Joystick (mitad izquierda) para andar · arrastra a la derecha para mirar · ▲ correr · 🚗 subir al coche</p>
           </details>
+        </div>
+
+        <div class="vista ajustes" data-vista="ajustes" hidden>
+          <label class="calidad">Esquina del minimapa <select data-ajuste="esquinaMinimapa">
+            <option value="auto">La de siempre</option>
+            <option value="si">Arriba a la izquierda</option><option value="sd">Arriba a la derecha</option>
+            <option value="ii">Abajo a la izquierda</option><option value="id">Abajo a la derecha</option>
+          </select></label>
+          <label class="opcion"><input type="checkbox" data-ajuste="minimapaGira" />
+            <span>El minimapa gira con el coche<small>Si no, el norte siempre arriba (también con la tecla M)</small></span></label>
+          <h3>Pantalla táctil</h3>
+          <label class="opcion"><input type="checkbox" data-ajuste="joystickFijo" />
+            <span>Joystick fijo y siempre visible<small>Si no, aparece donde toques en la mitad izquierda</small></span></label>
+          <div class="acciones">
+            <button class="boton secundario" type="button" data-mover-botones>Mover botones (freno de mano, pedales…)</button>
+            <button class="boton discreto" type="button" data-restablecer>Restablecer ajustes</button>
+          </div>
         </div>
 
         <div class="fila" style="margin-top: 16px">

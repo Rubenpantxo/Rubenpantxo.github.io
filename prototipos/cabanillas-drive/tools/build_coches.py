@@ -159,6 +159,20 @@ def limpia(cfg):
         if nombres and all(INTERIOR.search(n) for n in nombres):
             quitar.append(o)
     borra(set(quitar))
+    # Caras de materiales excluidos (p. ej. el habitáculo del kuga, que va en el mismo objeto
+    # que el capó y parte del techo: quitar el objeto entero dejaba el motor a la vista)
+    excluir_mat = [re.compile(e, re.I) for e in cfg.get("excluir_materiales", [])]
+    if excluir_mat:
+        for o in mallas():
+            fuera = {i for i, m in enumerate(o.data.materials) if m and any(e.search(m.name) for e in excluir_mat)}
+            if not fuera:
+                continue
+            bm = bmesh.new()
+            bm.from_mesh(o.data)
+            bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.material_index in fuera], context="FACES")
+            bm.to_mesh(o.data)
+            bm.free()
+        borra([o for o in mallas() if not o.data.polygons])
 
     # Suelos y fondos: objetos planos casi tan grandes como toda la escena
     mn, mx = caja(mallas())
