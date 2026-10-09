@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es" data-paleta="carbon-lima" data-tipo="space-grotesk" data-elem="redondeado">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ebro Express — Demo seguimiento en mapa, tarifas y firma de entrega</title>
+<link rel="stylesheet" href="sistemas/tema.css">
+<style>
+    :root {
+        --radius: var(--sd-radius);
+        --line: var(--sd-line);
+        --muted: var(--sd-muted);
+        --card: var(--sd-surface);
+        --card-2: var(--sd-surface-2);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+        font-family: var(--sd-font, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
+        background: var(--sd-bg); color: var(--sd-ink);
+        max-width: 480px; margin: 0 auto; overscroll-behavior: contain;
+        padding-bottom: calc(92px + env(safe-area-inset-bottom));
+    }
+    h1, h2, .disp {
+        font-family: var(--sd-display);
+        font-weight: var(--sd-display-peso);
+        font-style: var(--sd-display-estilo);
+        letter-spacing: var(--sd-display-tracking);
+        text-transform: var(--sd-display-caja);
+    }
+    button, input, select { font: inherit; color: inherit; }
+    .mono { font-family: var(--sd-mono, ui-monospace, monospace); font-variant-numeric: tabular-nums; }
+    .demo-badge {
+        position: fixed; top: 42px; left: -34px; z-index: 90;
+        background: color-mix(in srgb, var(--sd-ink) 85%, transparent); color: var(--sd-bg); font-size: 10px; font-weight: 700;
+        letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
+    }
+    html body .sdx-abrir { top: calc(10px + env(safe-area-inset-top)); bottom: auto; right: 10px; padding: 8px 12px; font-size: 12px; }
+
+    .view { display: none; }
+    .view.active { display: block; animation: view-in .3s ease both; }
+    @keyframes view-in { from { opacity: 0; transform: translateY(8px); } }
+
+    .head { padding: 64px 16px 6px; }
+    .head small { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+    .head h1 { font-size: 29px; line-height: 1.05; margin-top: 4px; }
+
+    .card { margin: 10px 14px 0; padding: 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--sd-shadow-sm); }
+    .lbl { display: flex; justify-content: space-between; align-items: baseline; font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .lbl b { color: var(--sd-ink); letter-spacing: 0; text-transform: none; font-size: 13px; }
+
+    /* ---------- BUSCADOR ---------- */
+    .search { display: flex; gap: 8px; margin: 12px 14px 0; }
+    .search input {
+        flex: 1; min-width: 0; height: 50px; padding: 0 16px; border-radius: var(--sd-radius-btn);
+        border: 1.5px solid var(--line); background: var(--card); outline: none;
+        font-family: var(--sd-mono, ui-monospace, monospace); font-size: 16px; font-weight: 700; letter-spacing: .06em;
+    }
+    .search input:focus { border-color: var(--sd-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--sd-accent) 20%, transparent); }
+    .btn {
+        border: 0; cursor: pointer; height: 50px; padding: 0 18px; border-radius: var(--sd-radius-btn);
+        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-weight: 800; font-size: 15px;
+        transition: transform .15s, filter .2s;
+    }
+    .btn:active { transform: scale(.96); }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+    .btn.ghost { background: var(--card-2); color: var(--sd-ink); border: 1px solid var(--line); }
+    .btn.block { width: 100%; }
+
+    /* ---------- MAPA ---------- */
+    .map { position: relative; margin: 12px 14px 0; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: #0c110c; }
+    .map svg { display: block; width: 100%; height: auto; }
+    .map .grid { fill: none; stroke: rgba(255,255,255,.05); stroke-width: 1; }
+    .map .river { fill: none; stroke: #1f5f7a; stroke-width: 5; stroke-linecap: round; opacity: .8; }
+    .map .road { fill: none; stroke: rgba(255,255,255,.12); stroke-width: 2; stroke-dasharray: 1 0; }
+    .map .route { fill: none; stroke: rgba(163,230,53,.25); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2 7; }
+    .map .done { fill: none; stroke: var(--sd-accent); stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(163,230,53,.6)); }
+    .map .city circle { fill: #2a312a; stroke: rgba(255,255,255,.5); stroke-width: 1.5; }
+    .map .city text { fill: rgba(242,245,240,.7); font: 600 10px var(--sd-font, sans-serif); }
+    .map .city.end circle { fill: var(--sd-accent); stroke: none; }
+    .map .pulse { fill: none; stroke: var(--sd-accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: ring 1.8s ease-out infinite; }
+    @keyframes ring { from { transform: scale(.6); opacity: 1; } to { transform: scale(2.6); opacity: 0; } }
+    .map .truck { transition: transform .9s linear; }
+    .map .truck rect.body { fill: var(--sd-accent); }
+    .map .eta {
+        position: absolute; left: 10px; top: 10px; display: flex; gap: 8px; align-items: center;
+        padding: 7px 12px; border-radius: 999px; background: rgba(10,13,10,.78); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+        font-size: 13px; font-weight: 700; color: #f2f5f0; border: 1px solid rgba(255,255,255,.1);
+    }
+    .map .eta::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--sd-accent); animation: blink 1.2s ease-in-out infinite; }
+    @keyframes blink { 50% { opacity: .25; } }
+    .map .km { position: absolute; right: 12px; top: 17px; font-size: 11px; font-weight: 700; color: rgba(242,245,240,.6); }
+
+    .status { display: flex; align-items: center; gap: 12px; }
+    .status .ico { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 24px; background: color-mix(in srgb, var(--sd-accent) 16%, var(--card)); flex: 0 0 auto; }
+    .status div { flex: 1; min-width: 0; }
+    .status b { display: block; font-size: 17px; }
+    .status small { font-size: 12.5px; color: var(--muted); }
+    .status .call { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--card-2); cursor: pointer; font-size: 18px; }
+
+    .steps { list-style: none; margin-top: 4px; }
+    .steps li { position: relative; display: flex; gap: 12px; padding: 8px 0 8px; }
+    .steps li::before { content: ''; position: absolute; left: 9px; top: 28px; bottom: -8px; width: 2px; background: var(--line); }
+    .steps li:last-child::before { display: none; }
+    .steps .dot { width: 20px; height: 20px; border-radius: 50%; flex: 0 0 auto; border: 2px solid var(--line); background: var(--sd-bg); margin-top: 1px; display: grid; place-items: center; font-size: 11px; color: var(--sd-on-accent); font-weight: 900; }
+    .steps li.ok .dot { background: var(--sd-accent); border-color: var(--sd-accent); }
+    .steps li.ok::before { background: var(--sd-accent); }
+    .steps li.now .dot { border-color: var(--sd-accent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--sd-accent) 18%, transparent); animation: nowp 1.6s ease-in-out infinite; }
+    @keyframes nowp { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--sd-accent) 6%, transparent); } }
+    .steps b { display: block; font-size: 14px; }
+    .steps small { font-size: 12px; color: var(--muted); }
+    .steps li.wait { opacity: .45; }
+    .note { margin-top: 10px; padding: 10px 12px; border-radius: 12px; font-size: 13px; background: color-mix(in srgb, var(--sd-accent) 12%, var(--card)); border: 1px dashed color-mix(in srgb, var(--sd-accent) 50%, transparent); animation: view-in .3s ease; }
+    .note[hidden] { display: none; }
+
+    /* ---------- ENVIAR ---------- */
+    .route-pick { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end; }
+    .route-pick label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+    .route-pick select {
+        width: 100%; height: 46px; padding: 0 12px; border-radius: var(--sd-radius-btn); border: 1.5px solid var(--line);
+        background: var(--card-2); font-weight: 700; font-size: 14px; outline: none; appearance: none; cursor: pointer;
+    }
+    .route-pick select:focus { border-color: var(--sd-accent); }
+    .swap { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: var(--card-2); cursor: pointer; font-size: 18px; transition: transform .45s cubic-bezier(.34,1.56,.64,1); }
+    .swap.turn { transform: rotate(180deg); }
+    .dist { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+    .sizes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .size {
+        display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px;
+        height: 104px; padding: 10px 4px; border-radius: var(--radius); cursor: pointer;
+        border: 1.5px solid var(--line); background: var(--card-2); font-size: 12px; font-weight: 700;
+        transition: border-color .2s, transform .15s;
+    }
+    .size:active { transform: scale(.96); }
+    .size small { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+    .size .box {
+        position: relative; width: var(--w); height: var(--h); border-radius: 3px;
+        background: linear-gradient(160deg, #c99a62, #9c7240); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18);
+        transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .size .box::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 22%; margin-left: -11%; background: rgba(255,255,255,.28); }
+    .size.pale .box { background: repeating-linear-gradient(90deg, #8a6a3e 0 6px, #6e5230 6px 8px); }
+    .size.pale .box::after { display: none; }
+    .size.active { border-color: var(--sd-accent); }
+    .size.active .box { transform: translateY(-4px) rotate(-4deg); }
+    input[type="range"] { width: 100%; accent-color: var(--sd-accent); height: 28px; }
+    .seg { display: flex; padding: 3px; gap: 3px; border-radius: var(--sd-radius-btn); background: var(--card-2); border: 1px solid var(--line); }
+    .seg button {
+        flex: 1; padding: 9px 4px; border: 0; cursor: pointer; border-radius: calc(var(--sd-radius-btn) - 3px);
+        background: none; font-size: 12.5px; font-weight: 700; color: var(--muted); line-height: 1.15;
+        transition: background .2s, color .2s;
+    }
+    .seg button small { display: block; font-size: 10.5px; font-weight: 600; opacity: .8; }
+    .seg button.active { background: var(--sd-accent-solid); color: var(--sd-on-accent); }
+    .seg button:disabled { opacity: .3; cursor: not-allowed; }
+    .price { margin: 10px 14px 0; padding: 16px; border-radius: var(--radius); background: linear-gradient(150deg, color-mix(in srgb, var(--sd-accent) 22%, var(--card)), var(--card)); border: 1px solid color-mix(in srgb, var(--sd-accent) 35%, var(--line)); }
+    .price .row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); padding: 3px 0; }
+    .price .big { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; padding-top: 10px; border-top: 1px dashed var(--line); }
+    .price .big span { font-size: 14px; font-weight: 700; }
+    .price .big b { font-size: 34px; letter-spacing: -.02em; }
+    .price .big b.flash { animation: flash .45s ease; }
+    @keyframes flash { 40% { color: var(--sd-accent); transform: scale(1.06); } }
+    .price .when { margin-top: 6px; font-size: 13px; }
+    .pad { padding: 12px 14px 0; }
+
+    /* ---------- REPARTO ---------- */
+    .progress { display: flex; align-items: center; gap: 14px; }
+    .ring { width: 74px; height: 74px; flex: 0 0 auto; }
+    .ring .bg { fill: none; stroke: var(--line); stroke-width: 8; }
+    .ring .fg { fill: none; stroke: var(--sd-accent); stroke-width: 8; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dasharray .7s cubic-bezier(.2,.9,.3,1.2); }
+    .ring text { fill: var(--sd-ink); font: 700 17px var(--sd-display); }
+    .progress b { display: block; font-size: 18px; }
+    .progress small { font-size: 12.5px; color: var(--muted); }
+    .next { border-color: color-mix(in srgb, var(--sd-accent) 55%, var(--line)); background: linear-gradient(160deg, color-mix(in srgb, var(--sd-accent) 14%, var(--card)), var(--card)); }
+    .next .tag { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: var(--sd-accent-solid); color: var(--sd-on-accent); }
+    .next h2 { font-size: 21px; margin-top: 8px; }
+    .next p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .next .btns { display: grid; grid-template-columns: 1fr 1.6fr; gap: 8px; margin-top: 12px; }
+    .stops { list-style: none; margin: 0 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 2px 12px; }
+    .stops li { display: flex; gap: 10px; align-items: center; padding: 11px 0; font-size: 13.5px; }
+    .stops li + li { border-top: 1px dashed var(--line); }
+    .stops .n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; background: var(--card-2); border: 1px solid var(--line); flex: 0 0 auto; }
+    .stops li.ok .n { background: var(--sd-accent); color: var(--sd-on-accent); border-color: var(--sd-accent); }
+    .stops li.ok .t { text-decoration: line-through; opacity: .5; }
+    .stops li.ok.just { animation: okflash 1.2s ease; }
+    @keyframes okflash { 0%, 30% { background: color-mix(in srgb, var(--sd-accent) 16%, transparent); } }
+    .stops .t { flex: 1; min-width: 0; }
+    .stops .t small { display: block; color: var(--muted); font-size: 12px; }
+    .stops .h { font-size: 12px; color: var(--muted); }
+    .fleet { display: grid; gap: 8px; }
+    .veh { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; font-size: 13px; }
+    .veh .bar { grid-column: 1 / -1; height: 6px; border-radius: 9px; background: var(--card-2); overflow: hidden; }
+    .veh .bar i { display: block; height: 100%; background: var(--sd-accent); border-radius: inherit; transition: width 1s linear; }
+    .sect { padding: 18px 16px 4px; display: flex; justify-content: space-between; align-items: baseline; }
+    .sect h2 { font-size: 18px; }
+    .sect small { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+    /* ---------- HOJAS ---------- */
+    .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.6); opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 60; }
+    .backdrop.show { opacity: 1; pointer-events: auto; }
+    .sheet {
+        position: fixed; left: 50%; bottom: 0; z-index: 61; transform: translate(-50%, 105%);
+        width: 100%; max-width: 480px; max-height: 90dvh; overflow-y: auto;
+        background: var(--sd-bg); border-top: 1px solid var(--line); border-radius: 24px 24px 0 0;
+        padding: 10px 18px calc(22px + env(safe-area-inset-bottom));
+        transition: transform .4s cubic-bezier(.2,.9,.3,1.05);
+    }
+    .sheet.show { transform: translate(-50%, 0); }
+    .grip { width: 42px; height: 5px; border-radius: 9px; background: var(--line); margin: 0 auto 12px; }
+    .sheet h2 { font-size: 21px; }
+    .sheet p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .opts { display: grid; gap: 8px; margin-top: 14px; }
+    .opt { display: flex; gap: 12px; align-items: center; text-align: left; padding: 13px; border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--card); cursor: pointer; }
+    .opt .ico { font-size: 22px; }
+    .opt b { display: block; font-size: 14px; }
+    .opt small { font-size: 12px; color: var(--muted); }
+    .opt:active { border-color: var(--sd-accent); }
+    .pad-sign {
+        display: block; width: 100%; height: 190px; margin-top: 14px; border-radius: var(--radius);
+        background:
+            linear-gradient(transparent calc(100% - 46px), var(--line) calc(100% - 46px) calc(100% - 45px), transparent calc(100% - 45px)),
+            var(--card);
+        border: 1.5px dashed var(--line); touch-action: none; cursor: crosshair;
+    }
+    .sign-btns { display: grid; grid-template-columns: 1fr 1.6fr; gap: 8px; margin-top: 12px; }
+
+    .label-card {
+        margin-top: 14px; padding: 14px; border-radius: 10px; background: #fafaf5; color: #111;
+        box-shadow: 0 12px 30px rgba(0,0,0,.4); animation: drop .6s cubic-bezier(.34,1.56,.64,1) both;
+        font-family: var(--sd-mono, ui-monospace, monospace);
+    }
+    @keyframes drop { from { transform: translateY(-30px) rotate(-6deg); opacity: 0; } }
+    .label-card .l-top { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; border-bottom: 2px solid #111; padding-bottom: 6px; }
+    .label-card .l-route { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin: 12px 0; font-size: 18px; font-weight: 800; text-align: center; }
+    .label-card .l-meta { display: flex; justify-content: space-between; font-size: 11px; }
+    .label-card svg { display: block; width: 100%; height: 56px; margin-top: 10px; }
+    .label-card .l-code { text-align: center; font-size: 14px; font-weight: 800; letter-spacing: .2em; margin-top: 4px; }
+    .label-btns { display: grid; gap: 8px; margin-top: 14px; }
+
+    /* ---------- PESTAÑAS ---------- */
+    .tabbar {
+        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 50;
+        width: 100%; max-width: 480px; display: flex;
+        padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
+        background: color-mix(in srgb, var(--sd-bg) 86%, transparent);
+        -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+        border-top: 1px solid var(--line);
+    }
+    .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: none; cursor: pointer; padding: 5px 0; font-size: 11px; font-weight: 700; color: var(--muted); }
+    .tab .ico { font-size: 20px; filter: grayscale(1) opacity(.6); transition: filter .2s, transform .3s cubic-bezier(.34,1.56,.64,1); }
+    .tab.active { color: var(--sd-accent-text); }
+    .tab.active .ico { filter: none; transform: translateY(-2px) scale(1.1); }
+    .toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 80; transform: translate(-50%, 16px); opacity: 0; pointer-events: none; background: var(--sd-ink); color: var(--sd-bg); font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 999px; white-space: nowrap; transition: all .3s; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+</style>
+<script src="sistemas/tema-datos.js"></script>
+<script src="../js/selector-sistema.js" defer></script>
+</head>
+<body>
+<div class="demo-badge">DEMO</div>
+
+<!-- VISTA: SEGUIR -->
+<main id="view-seguir" class="view active">
+    <header class="head">
+        <small>Ebro Express</small>
+        <h1>¿Dónde está mi paquete?</h1>
+    </header>
+    <form class="search" id="search">
+        <input id="code" class="mono" value="EBX-482131" aria-label="Número de seguimiento" autocomplete="off" spellcheck="false">
+        <button class="btn" type="submit">Seguir</button>
+    </form>
+
+    <div class="map" id="map">
+        <svg viewBox="0 0 340 230" aria-label="Mapa de la ruta del envío">
+            <defs>
+                <pattern id="cuadricula" width="20" height="20" patternUnits="userSpaceOnUse"><path class="grid" d="M20 0H0V20"/></pattern>
+            </defs>
+            <rect width="340" height="230" fill="url(#cuadricula)"/>
+            <path class="river" d="M-10 92C40 98 70 118 110 116S170 96 205 128 260 186 350 196"/>
+            <path class="road" d="M30 30L120 70M120 70L200 200M180 30L120 70M60 210L200 200M200 200L330 150"/>
+            <path class="route" id="route" d="M290 192C250 186 228 160 200 138S150 108 128 92 96 52 74 40"/>
+            <path class="done" id="done-path" d="M290 192C250 186 228 160 200 138S150 108 128 92 96 52 74 40"/>
+            <g class="city" transform="translate(290 192)"><circle r="5"/><text x="-12" y="22">Zaragoza</text></g>
+            <g class="city" transform="translate(150 108)"><circle r="4"/><text x="10" y="4">Tudela</text></g>
+            <g class="city end" transform="translate(74 40)"><circle r="6"/><circle class="pulse" r="6"/><text x="12" y="-8">Pamplona</text></g>
+            <g class="truck" id="truck">
+                <circle r="14" fill="rgba(163,230,53,.18)"/>
+                <rect class="body" x="-9" y="-6" width="12" height="11" rx="2"/>
+                <rect x="3" y="-3" width="7" height="8" rx="2" fill="#e8f7c9"/>
+                <circle cx="-5" cy="6" r="2.4" fill="#0a0d0a"/><circle cx="6" cy="6" r="2.4" fill="#0a0d0a"/>
+            </g>
+        </svg>
+        <span class="eta" id="eta">Llega en 34 min</span>
+        <span class="km mono" id="km">quedan 41 km</span>
+    </div>
+
+    <div class="card">
+        <div class="status">
+            <span class="ico" aria-hidden="true">🚚</span>
+            <div><b id="st-title">En reparto</b><small id="st-sub">Iñaki · furgoneta 12 · 2 paradas antes que tú</small></div>
+            <button class="call" id="call" aria-label="Llamar al repartidor">📞</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="lbl">Historial <b class="mono" id="code-out">EBX-482131</b></div>
+        <ol class="steps" id="steps"></ol>
+        <div class="note" id="change-note" hidden></div>
+        <button class="btn ghost block" id="change" style="margin-top:12px">Cambiar la entrega</button>
+    </div>
+</main>
+
+<!-- VISTA: ENVIAR -->
+<main id="view-enviar" class="view">
+    <header class="head">
+        <small>Tarifa al momento</small>
+        <h1>Envía en un minuto</h1>
+    </header>
+    <div class="card">
+        <div class="route-pick">
+            <div><label for="from">Desde</label><select id="from"></select></div>
+            <button class="swap" id="swap" aria-label="Intercambiar origen y destino">⇄</button>
+            <div><label for="to">Hasta</label><select id="to"></select></div>
+        </div>
+        <p class="dist" id="dist">—</p>
+    </div>
+    <div class="card">
+        <div class="lbl">Tamaño</div>
+        <div class="sizes" id="sizes">
+            <button class="size" data-size="S" style="--w:26px;--h:14px"><span class="box"></span>Sobre<small>hasta 2 kg</small></button>
+            <button class="size active" data-size="M" style="--w:34px;--h:26px"><span class="box"></span>Caja<small>hasta 10 kg</small></button>
+            <button class="size" data-size="L" style="--w:44px;--h:36px"><span class="box"></span>Grande<small>hasta 30 kg</small></button>
+            <button class="size pale" data-size="P" style="--w:48px;--h:22px"><span class="box"></span>Palé<small>hasta 800 kg</small></button>
+        </div>
+        <div class="lbl" style="margin-top:14px">Peso <b class="mono" id="w-out">4 kg</b></div>
+        <input type="range" id="weight" min="0.5" max="10" step="0.5" value="4" aria-label="Peso del envío">
+    </div>
+    <div class="card">
+        <div class="lbl">Servicio</div>
+        <div class="seg" id="services">
+            <button data-srv="std">Estándar<small>48 h</small></button>
+            <button class="active" data-srv="exp">Exprés<small>24 h</small></button>
+            <button data-srv="hoy">Mismo día<small>&lt; 220 km</small></button>
+        </div>
+    </div>
+    <section class="price" aria-live="polite">
+        <div class="row"><span>Base</span><span class="mono" id="p-base">—</span></div>
+        <div class="row"><span>Distancia</span><span class="mono" id="p-dist">—</span></div>
+        <div class="row"><span>Servicio</span><span class="mono" id="p-srv">—</span></div>
+        <div class="big"><span>Total con IVA</span><b class="mono" id="p-total">—</b></div>
+        <div class="when">🕒 <span id="p-when">—</span></div>
+    </section>
+    <div class="pad"><button class="btn block" id="hire">Contratar envío</button></div>
+</main>
+
+<!-- VISTA: REPARTO (conductor) -->
+<main id="view-reparto" class="view">
+    <header class="head">
+        <small>Furgoneta 12 · Iñaki</small>
+        <h1>Ruta de hoy</h1>
+    </header>
+    <div class="card">
+        <div class="progress">
+            <svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle class="bg" cx="40" cy="40" r="32"/><circle class="fg" id="ring" cx="40" cy="40" r="32" stroke-dasharray="0 201"/><text x="40" y="46" text-anchor="middle" id="ring-txt">0</text></svg>
+            <div><b id="prog-title">7 de 12 entregas</b><small id="prog-sub">Vas 9 min por delante del plan</small></div>
+        </div>
+    </div>
+    <div class="card next" id="next"></div>
+    <div class="sect"><h2>Paradas</h2><small>Ordenadas por la ruta más corta</small></div>
+    <ol class="stops" id="stops"></ol>
+    <div class="sect"><h2>Flota</h2><small>en directo</small></div>
+    <div class="card"><div class="fleet" id="fleet"></div></div>
+    <div style="height:14px"></div>
+</main>
+
+<div class="backdrop" id="backdrop"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="grip" aria-hidden="true"></div>
+    <div id="sheet-body"></div>
+</section>
+
+<nav class="tabbar" aria-label="Secciones">
+    <button class="tab active" data-view="seguir"><span class="ico">📍</span>Seguir</button>
+    <button class="tab" data-view="enviar"><span class="ico">📦</span>Enviar</button>
+    <button class="tab" data-view="reparto"><span class="ico">🚚</span>Reparto</button>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const eur = n => n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const hora = (d = new Date()) => d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    function toast(msg) {
+        const t = $('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toast.h);
+        toast.h = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    /* ---------- HOJA INFERIOR ---------- */
+    function abrirHoja(html) {
+        $('sheet-body').innerHTML = html;
+        $('backdrop').classList.add('show');
+        $('sheet').classList.add('show');
+    }
+    function cerrarHoja() {
+        $('backdrop').classList.remove('show');
+        $('sheet').classList.remove('show');
+    }
+    $('backdrop').addEventListener('click', cerrarHoja);
+
+    /* ---------- SEGUIR ---------- */
+    const ruta = $('route');
+    const hecho = $('done-path');
+    const largo = ruta.getTotalLength();
+    hecho.style.strokeDasharray = largo + ' ' + largo;
+    const KM_TOTAL = 175;
+    const envio = {
+        code: 'EBX-482131', progreso: .76,
+        pasos: [
+            { t: 'Recogido', s: 'Zaragoza · ayer 18:20', st: 'ok' },
+            { t: 'En el almacén', s: 'Plataforma Zaragoza · ayer 21:05', st: 'ok' },
+            { t: 'En camino', s: 'Tudela · hoy 07:40', st: 'ok' },
+            { t: 'En reparto', s: 'Pamplona · desde las 09:15', st: 'now' },
+            { t: 'Entregado', s: 'Te avisamos al llegar', st: 'wait' }
+        ]
+    };
+    // El envío de ejemplo sigue avanzando aunque se consulte otro: se guarda aparte
+    const ejemplo = { progreso: envio.progreso, pasos: envio.pasos, titulo: 'En reparto', sub: 'Iñaki · furgoneta 12 · 2 paradas antes que tú' };
+    function pintarPasos() {
+        $('steps').innerHTML = envio.pasos.map(p => `
+            <li class="${p.st}"><span class="dot" aria-hidden="true">${p.st === 'ok' ? '✓' : ''}</span><div><b>${esc(p.t)}</b><small>${esc(p.s)}</small></div></li>`).join('');
+        $('code-out').textContent = envio.code;
+    }
+    function moverCamion() {
+        const p = Math.max(0, Math.min(1, envio.progreso));
+        const punto = ruta.getPointAtLength(largo * p);
+        const antes = ruta.getPointAtLength(Math.max(0, largo * p - 2));
+        const ang = Math.atan2(punto.y - antes.y, punto.x - antes.x) * 180 / Math.PI;
+        // El camión siempre de pie: si va hacia la izquierda, se voltea
+        const voltear = Math.abs(ang) > 90 ? ' scale(-1 1)' : '';
+        const giro = Math.abs(ang) > 90 ? ang + 180 : ang;
+        $('truck').setAttribute('transform', `translate(${punto.x.toFixed(1)} ${punto.y.toFixed(1)}) rotate(${(giro * .35).toFixed(1)})${voltear}`);
+        hecho.style.strokeDashoffset = (largo * (1 - p)).toFixed(1);
+        const km = Math.round(KM_TOTAL * (1 - p));
+        const min = Math.max(0, Math.round(km * .82));
+        $('km').textContent = km > 0 ? 'quedan ' + km + ' km' : 'en destino';
+        $('eta').textContent = p >= 1 ? 'Entregado' : min <= 1 ? 'Llegando…' : 'Llega en ' + min + ' min';
+    }
+    $('search').addEventListener('submit', e => {
+        e.preventDefault();
+        const c = $('code').value.trim().toUpperCase();
+        if (!/^EBX-\d{6}$/.test(c)) { toast('Formato: EBX-123456'); return; }
+        envio.code = c;
+        if (c === 'EBX-482131') {
+            envio.progreso = ejemplo.progreso;
+            envio.pasos = ejemplo.pasos;
+            $('st-title').textContent = ejemplo.titulo;
+            $('st-sub').textContent = ejemplo.sub;
+        } else {
+            envio.progreso = .02;
+            envio.pasos = [
+                { t: 'Etiqueta creada', s: 'Hoy ' + hora(), st: 'ok' },
+                { t: 'Recogida', s: 'El repartidor va de camino', st: 'now' },
+                { t: 'En camino', s: '—', st: 'wait' },
+                { t: 'En reparto', s: '—', st: 'wait' },
+                { t: 'Entregado', s: '—', st: 'wait' }
+            ];
+            $('st-title').textContent = 'Pendiente de recogida';
+            $('st-sub').textContent = 'Pasaremos hoy entre las 16 y las 18 h';
+        }
+        pintarPasos();
+        moverCamion();
+        $('map').animate([{ transform: 'scale(.98)', opacity: .5 }, { transform: 'none', opacity: 1 }], { duration: 400, easing: 'ease-out' });
+    });
+    setInterval(() => {
+        if (ejemplo.progreso >= 1) return;
+        ejemplo.progreso = Math.min(1, ejemplo.progreso + .0035);
+        const llega = ejemplo.progreso >= .995;
+        if (llega) {
+            ejemplo.progreso = 1;
+            ejemplo.pasos[3].st = 'ok';
+            ejemplo.pasos[4] = { t: 'Entregado', s: 'Hoy ' + hora(), st: 'ok' };
+            ejemplo.titulo = 'Entregado';
+            ejemplo.sub = 'Firmado por M. Etxeberria';
+        }
+        if (envio.code !== 'EBX-482131') return;
+        envio.progreso = ejemplo.progreso;
+        if (llega) {
+            $('st-title').textContent = ejemplo.titulo;
+            $('st-sub').textContent = ejemplo.sub;
+            pintarPasos();
+            toast('📦 ¡Tu paquete ha llegado!');
+        }
+        moverCamion();
+    }, 900);
+    $('call').addEventListener('click', () => toast('📞 Llamando a Iñaki… (es una demo)'));
+    $('change').addEventListener('click', () => {
+        abrirHoja(`
+            <h2 id="sheet-title">Cambiar la entrega</h2>
+            <p>Sin llamadas: el repartidor lo ve al momento.</p>
+            <div class="opts" id="change-opts">
+                <button class="opt" data-c="🕒 Entrega a partir de las 18:00"><span class="ico">🕒</span><span><b>Otra hora</b><small>Hoy a partir de las 18:00</small></span></button>
+                <button class="opt" data-c="🏪 Se deja en el punto Ebro de la calle Mayor, 12"><span class="ico">🏪</span><span><b>Punto de recogida</b><small>Calle Mayor, 12 · abierto hasta las 21 h</small></span></button>
+                <button class="opt" data-c="🚪 Se deja al vecino del 2.º B"><span class="ico">🚪</span><span><b>Dejar a un vecino</b><small>Indica el piso y la puerta</small></span></button>
+            </div>`);
+        $('change-opts').addEventListener('click', e => {
+            const b = e.target.closest('.opt');
+            if (!b) return;
+            const n = $('change-note');
+            n.textContent = b.dataset.c;
+            n.hidden = false;
+            cerrarHoja();
+            toast('✅ Cambio enviado al repartidor');
+        });
+    });
+
+    /* ---------- ENVIAR ---------- */
+    const CIUDADES = {
+        'Zaragoza': [0, 0], 'Pamplona': [-95, 140], 'Tudela': [-75, 65], 'Logroño': [-165, 95],
+        'Huesca': [30, 60], 'Bilbao': [-215, 195], 'Madrid': [-260, -170], 'Barcelona': [255, 40]
+    };
+    const TAMANOS = {
+        S: { base: 4.5, km: .012, max: 2, name: 'Sobre' },
+        M: { base: 6.9, km: .02, max: 10, name: 'Caja' },
+        L: { base: 9.9, km: .03, max: 30, name: 'Caja grande' },
+        P: { base: 49, km: .25, max: 800, name: 'Palé' }
+    };
+    const SERVICIOS = { std: { k: 1, name: 'Estándar 48 h' }, exp: { k: 1.35, name: 'Exprés 24 h' }, hoy: { k: 1.9, name: 'Mismo día' } };
+    const nueva = { from: 'Zaragoza', to: 'Pamplona', size: 'M', kg: 4, srv: 'exp' };
+    const opciones = Object.keys(CIUDADES).map(c => `<option>${c}</option>`).join('');
+    $('from').innerHTML = opciones;
+    $('to').innerHTML = opciones;
+    $('from').value = nueva.from;
+    $('to').value = nueva.to;
+    const distancia = () => {
+        const a = CIUDADES[nueva.from], b = CIUDADES[nueva.to];
+        return Math.round(Math.hypot(a[0] - b[0], a[1] - b[1]) * 1.04);
+    };
+    let totalPrevio = 0;
+    function cotizar() {
+        const km = distancia();
+        const t = TAMANOS[nueva.size];
+        const hoyOk = km <= 220 && nueva.size !== 'P';
+        const hoyBtn = document.querySelector('#services [data-srv="hoy"]');
+        hoyBtn.disabled = !hoyOk;
+        if (!hoyOk && nueva.srv === 'hoy') elegirServicio('exp');
+        const mismo = nueva.from === nueva.to;
+        $('dist').textContent = mismo ? 'Reparto dentro de ' + nueva.from + ' · última milla' : nueva.from + ' → ' + nueva.to + ' · ' + km + ' km por carretera';
+        const base = t.base + Math.max(0, nueva.kg - t.max / 2) * (nueva.size === 'P' ? .04 : .35);
+        const porKm = (mismo ? 8 : km) * t.km;
+        const srv = (base + porKm) * (SERVICIOS[nueva.srv].k - 1);
+        const total = (base + porKm + srv) * 1.21;
+        $('p-base').textContent = eur(base);
+        $('p-dist').textContent = eur(porKm);
+        $('p-srv').textContent = srv ? '+ ' + eur(srv) : 'incluido';
+        $('p-total').textContent = eur(total);
+        if (Math.abs(total - totalPrevio) > .005) {
+            const b = $('p-total');
+            b.classList.remove('flash'); void b.offsetWidth; b.classList.add('flash');
+        }
+        totalPrevio = total;
+        const cuando = { std: 'Llega pasado mañana', exp: 'Llega mañana antes de las 14:00', hoy: 'Llega hoy antes de las 21:00' };
+        $('p-when').textContent = cuando[nueva.srv];
+        return { total, km };
+    }
+    function elegirServicio(s) {
+        nueva.srv = s;
+        document.querySelectorAll('#services button').forEach(b => b.classList.toggle('active', b.dataset.srv === s));
+    }
+    $('from').addEventListener('change', e => { nueva.from = e.target.value; cotizar(); });
+    $('to').addEventListener('change', e => { nueva.to = e.target.value; cotizar(); });
+    $('swap').addEventListener('click', () => {
+        [nueva.from, nueva.to] = [nueva.to, nueva.from];
+        $('from').value = nueva.from;
+        $('to').value = nueva.to;
+        $('swap').classList.toggle('turn');
+        cotizar();
+    });
+    $('sizes').addEventListener('click', e => {
+        const b = e.target.closest('.size');
+        if (!b) return;
+        nueva.size = b.dataset.size;
+        document.querySelectorAll('.size').forEach(x => x.classList.toggle('active', x === b));
+        const t = TAMANOS[nueva.size];
+        const w = $('weight');
+        w.max = t.max;
+        w.step = t.max > 100 ? 10 : .5;
+        w.min = t.max > 100 ? 10 : .5;
+        nueva.kg = Math.min(Math.max(nueva.kg, +w.min), t.max);
+        w.value = nueva.kg;
+        $('w-out').textContent = String(nueva.kg).replace('.', ',') + ' kg';
+        cotizar();
+    });
+    $('weight').addEventListener('input', e => {
+        nueva.kg = +e.target.value;
+        $('w-out').textContent = String(nueva.kg).replace('.', ',') + ' kg';
+        cotizar();
+    });
+    $('services').addEventListener('click', e => {
+        const b = e.target.closest('button');
+        if (!b || b.disabled) return;
+        elegirServicio(b.dataset.srv);
+        cotizar();
+    });
+    function codigoBarras() {
+        let x = 4, s = '';
+        while (x < 296) {
+            const w = 1 + Math.floor(Math.random() * 3);
+            if (Math.random() > .35) s += `<rect x="${x}" y="0" width="${w}" height="56" fill="#111"/>`;
+            x += w + 1;
+        }
+        return `<svg viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true">${s}</svg>`;
+    }
+    $('hire').addEventListener('click', () => {
+        const { total } = cotizar();
+        const code = 'EBX-' + Math.floor(100000 + Math.random() * 900000);
+        abrirHoja(`
+            <h2 id="sheet-title">¡Envío contratado!</h2>
+            <p>Imprime la etiqueta o enséñala en el móvil al repartidor.</p>
+            <div class="label-card">
+                <div class="l-top"><span>EBRO EXPRESS</span><span>${esc(SERVICIOS[nueva.srv].name.toUpperCase())}</span></div>
+                <div class="l-route"><span>${esc(nueva.from.toUpperCase())}</span><span>→</span><span>${esc(nueva.to.toUpperCase())}</span></div>
+                <div class="l-meta"><span>${esc(TAMANOS[nueva.size].name)} · ${String(nueva.kg).replace('.', ',')} kg</span><span>${eur(total)}</span></div>
+                ${codigoBarras()}
+                <div class="l-code">${code}</div>
+            </div>
+            <div class="label-btns">
+                <button class="btn block" id="track-new">Seguir este envío</button>
+                <button class="btn ghost block" id="dl">Descargar etiqueta (PDF)</button>
+            </div>`);
+        $('dl').addEventListener('click', () => toast('🧾 En la versión real se descarga el PDF'));
+        $('track-new').addEventListener('click', () => {
+            cerrarHoja();
+            $('code').value = code;
+            irA('seguir');
+            $('search').requestSubmit();
+        });
+    });
+
+    /* ---------- REPARTO ---------- */
+    const PARADAS = [
+        { n: 'Panadería Ezkurra', d: 'C/ Estafeta, 21', p: '2 cajas', h: '09:20', ok: true },
+        { n: 'Lucía Goñi', d: 'Av. Baja Navarra, 14 · 3.º A', p: '1 paquete', h: '09:34', ok: true },
+        { n: 'Farmacia Iturrama', d: 'C/ Iturrama, 37', p: '3 cajas · frío', h: '09:51', ok: true },
+        { n: 'Taller Arga', d: 'Pol. Landaben, nave 6', p: '1 palé', h: '10:12', ok: true },
+        { n: 'Imanol Sarasa', d: 'C/ Monasterio de Urdax, 8', p: '1 paquete', h: '10:30', ok: true },
+        { n: 'Librería Chundarata', d: 'C/ San Nicolás, 3', p: '2 cajas', h: '10:47', ok: true },
+        { n: 'Ane Larraya', d: 'C/ Mayor, 44 · 1.º', p: '1 sobre', h: '11:02', ok: true },
+        { n: 'M. Etxeberria', d: 'Av. Pío XII, 30 · 5.º C', p: '1 caja · EBX-482131', h: '11:20' },
+        { n: 'Bar Txoko', d: 'Pza. del Castillo, 2', p: '4 barriles', h: '11:41' },
+        { n: 'Clínica Ubarmin', d: 'Ctra. de Elcano, s/n', p: '2 cajas · urgente', h: '12:05' },
+        { n: 'Ferretería Zabala', d: 'C/ Jarauta, 61', p: '1 caja', h: '12:26' },
+        { n: 'Oihana Ruiz', d: 'C/ Tafalla, 9 · 2.º B', p: '1 paquete', h: '12:40' }
+    ];
+    let recienEntregada = -1;
+    function pintarReparto() {
+        const hechas = PARADAS.filter(p => p.ok).length;
+        const len = 2 * Math.PI * 32;
+        $('ring').setAttribute('stroke-dasharray', (hechas / PARADAS.length * len).toFixed(1) + ' ' + len.toFixed(1));
+        $('ring-txt').textContent = Math.round(hechas / PARADAS.length * 100) + '%';
+        $('prog-title').textContent = hechas + ' de ' + PARADAS.length + ' entregas';
+        const sig = PARADAS.findIndex(p => !p.ok);
+        $('prog-sub').textContent = sig === -1 ? '¡Ruta terminada! Vuelta al almacén' : 'Vas 9 min por delante del plan';
+        if (sig === -1) {
+            $('next').innerHTML = '<span class="tag">Terminado</span><h2>Ruta completada 🎉</h2><p>12 entregas, 0 incidencias.</p>';
+        } else {
+            const p = PARADAS[sig];
+            $('next').innerHTML = `
+                <span class="tag">Siguiente · ${p.h}</span>
+                <h2>${esc(p.n)}</h2>
+                <p>${esc(p.d)} · ${esc(p.p)}</p>
+                <div class="btns">
+                    <button class="btn ghost" id="nav">🧭 Ruta</button>
+                    <button class="btn" id="deliver" data-i="${sig}">✍️ Entregar</button>
+                </div>`;
+            $('nav').addEventListener('click', () => toast('🧭 Abriendo la navegación… (demo)'));
+            $('deliver').addEventListener('click', () => firmar(sig));
+        }
+        $('stops').innerHTML = PARADAS.map((p, i) => `
+            <li class="${p.ok ? 'ok' : ''} ${i === recienEntregada ? 'just' : ''}"><span class="n">${p.ok ? '✓' : i + 1}</span><span class="t">${esc(p.n)}<small>${esc(p.d)}</small></span><span class="h mono">${p.ok && p.hora ? p.hora : p.h}</span></li>`).join('');
+    }
+    function firmar(i) {
+        const p = PARADAS[i];
+        abrirHoja(`
+            <h2 id="sheet-title">Firma de ${esc(p.n)}</h2>
+            <p>${esc(p.p)} · ${esc(p.d)}</p>
+            <canvas class="pad-sign" id="pad" aria-label="Zona para firmar con el dedo"></canvas>
+            <div class="sign-btns">
+                <button class="btn ghost" id="clear">Borrar</button>
+                <button class="btn" id="ok" disabled>Confirmar entrega</button>
+            </div>`);
+        const cv = $('pad');
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const r = cv.getBoundingClientRect();
+        cv.width = r.width * dpr;
+        cv.height = r.height * dpr;
+        const ctx = cv.getContext('2d');
+        ctx.scale(dpr, dpr);
+        ctx.lineWidth = 2.6;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = getComputedStyle(document.body).color;
+        let dibujando = false, trazo = 0, ant = null;
+        const pos = e => { const b = cv.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
+        cv.addEventListener('pointerdown', e => { dibujando = true; ant = pos(e); cv.setPointerCapture(e.pointerId); });
+        cv.addEventListener('pointermove', e => {
+            if (!dibujando) return;
+            const q = pos(e);
+            ctx.beginPath();
+            ctx.moveTo(ant.x, ant.y);
+            // Curva suave entre muestras: la firma no sale a trozos
+            ctx.quadraticCurveTo(ant.x, ant.y, (ant.x + q.x) / 2, (ant.y + q.y) / 2);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+            trazo += Math.hypot(q.x - ant.x, q.y - ant.y);
+            ant = q;
+            if (trazo > 40) $('ok').disabled = false;
+        });
+        const fin = () => { dibujando = false; };
+        cv.addEventListener('pointerup', fin);
+        cv.addEventListener('pointercancel', fin);
+        $('clear').addEventListener('click', () => { ctx.clearRect(0, 0, cv.width, cv.height); trazo = 0; $('ok').disabled = true; });
+        $('ok').addEventListener('click', () => {
+            p.ok = true;
+            p.hora = hora();
+            recienEntregada = i;
+            cerrarHoja();
+            pintarReparto();
+            toast('✅ Entrega firmada · el cliente recibe la prueba');
+        });
+    }
+    const FLOTA = [
+        { n: 'Furgoneta 12 · Pamplona', v: 0 },
+        { n: 'Camión 3 · Zaragoza → Bilbao', v: .44 },
+        { n: 'Furgoneta 7 · Tudela', v: .71 }
+    ];
+    function pintarFlota() {
+        FLOTA[0].v = PARADAS.filter(p => p.ok).length / PARADAS.length;
+        $('fleet').innerHTML = FLOTA.map(f => `
+            <div class="veh"><span>🚚</span><span>${esc(f.n)}</span><span class="mono">${Math.round(f.v * 100)} %</span><div class="bar"><i style="width:${f.v * 100}%"></i></div></div>`).join('');
+    }
+    setInterval(() => {
+        FLOTA[1].v = Math.min(1, FLOTA[1].v + .004);
+        FLOTA[2].v = Math.min(1, FLOTA[2].v + .006);
+        if ($('view-reparto').classList.contains('active')) pintarFlota();
+    }, 1000);
+
+    /* ---------- NAVEGACIÓN ---------- */
+    function irA(vista) {
+        document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + vista));
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === vista));
+        if (vista === 'reparto') { pintarReparto(); pintarFlota(); }
+        window.scrollTo(0, 0);
+    }
+    document.querySelector('.tabbar').addEventListener('click', e => {
+        const t = e.target.closest('.tab');
+        if (t) irA(t.dataset.view);
+    });
+
+    pintarPasos();
+    moverCamion();
+    cotizar();
+    pintarReparto();
+    pintarFlota();
+})();
+</script>
+</body>
+</html>
