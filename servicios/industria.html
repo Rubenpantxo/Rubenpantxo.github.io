@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es" data-paleta="acero-plano" data-tipo="barlow" data-elem="plano-tecnico">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metalúrgica Ribera — Demo presupuesto B2B, pedidos y planta en directo</title>
+<link rel="stylesheet" href="sistemas/tema.css">
+<style>
+    :root {
+        --radius: var(--sd-radius);
+        --line: var(--sd-line);
+        --muted: var(--sd-muted);
+        --card: var(--sd-surface-2);
+        --run: #2f9e5b;
+        --stop: #d4a017;
+        --alarm: #d64545;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+        font-family: var(--sd-font, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
+        background-color: var(--sd-bg); color: var(--sd-ink);
+        max-width: 480px; margin: 0 auto; overscroll-behavior: contain;
+        padding-bottom: calc(92px + env(safe-area-inset-bottom));
+    }
+    h1, h2, .disp {
+        font-family: var(--sd-display);
+        font-weight: var(--sd-display-peso);
+        font-style: var(--sd-display-estilo);
+        letter-spacing: var(--sd-display-tracking);
+        text-transform: var(--sd-display-caja);
+    }
+    button, input { font: inherit; color: inherit; }
+    .mono { font-family: var(--sd-mono, ui-monospace, monospace); font-variant-numeric: tabular-nums; }
+    .demo-badge {
+        position: fixed; top: 42px; left: -34px; z-index: 90;
+        background: color-mix(in srgb, var(--sd-ink) 85%, transparent); color: var(--sd-bg); font-size: 10px; font-weight: 700;
+        letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
+    }
+    html body .sdx-abrir { top: calc(10px + env(safe-area-inset-top)); bottom: auto; right: 10px; padding: 8px 12px; font-size: 12px; }
+
+    .view { display: none; }
+    .view.active { display: block; animation: view-in .3s ease both; }
+    @keyframes view-in { from { opacity: 0; transform: translateY(8px); } }
+
+    .head { padding: 66px 16px 8px; }
+    .head small { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+    .head h1 { font-size: 30px; line-height: 1; margin-top: 4px; }
+    .head p { font-size: 13.5px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+
+    .card {
+        margin: 10px 14px 0; padding: 14px;
+        background: var(--card); border: var(--sd-border) solid var(--line); border-radius: var(--radius);
+        box-shadow: var(--sd-shadow-sm);
+    }
+    .lbl { display: flex; justify-content: space-between; align-items: baseline; font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .lbl b { color: var(--sd-ink); letter-spacing: 0; text-transform: none; font-size: 13px; }
+
+    /* ---------- VISOR 3D (CSS 3D, se gira arrastrando) ---------- */
+    .v3d {
+        position: relative; height: 230px; margin: 4px 14px 0; overflow: hidden;
+        border: var(--sd-border) solid var(--line); border-radius: var(--radius);
+        background:
+            radial-gradient(70% 60% at 50% 45%, color-mix(in srgb, var(--sd-accent) 16%, var(--card)), var(--card)),
+            var(--card);
+        perspective: 900px; touch-action: none; cursor: grab; user-select: none;
+    }
+    .v3d:active { cursor: grabbing; }
+    .v3d::after {
+        /* sombra en el suelo */
+        content: ''; position: absolute; left: 50%; top: 72%; width: 230px; height: 40px; margin-left: -115px;
+        background: radial-gradient(closest-side, rgba(0,0,0,.22), transparent); pointer-events: none;
+    }
+    .scene {
+        position: absolute; left: 50%; top: 48%; width: 0; height: 0;
+        transform-style: preserve-3d;
+        transform: rotateX(var(--rx, -24deg)) rotateY(var(--ry, -34deg));
+    }
+    .cub { position: absolute; transform-style: preserve-3d; }
+    .face {
+        position: absolute; left: 0; top: 0;
+        background:
+            linear-gradient(var(--sh, transparent), var(--sh, transparent)),
+            var(--mat, #8d939a);
+        backface-visibility: hidden;
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+        transition: background .35s ease;
+    }
+    .face.top { --sh: rgba(255,255,255,.2); }
+    .face.bot { --sh: rgba(0,0,0,.35); }
+    .face.lef { --sh: rgba(0,0,0,.12); }
+    .face.rig { --sh: rgba(0,0,0,.26); }
+    .face.bac { --sh: rgba(0,0,0,.3); }
+    .face.hole { background: radial-gradient(circle at 50% 50%, rgba(0,0,0,.55) 0 var(--hr, 14px), transparent calc(var(--hr, 14px) + 1px)), linear-gradient(var(--sh, transparent), var(--sh, transparent)), var(--mat, #8d939a); }
+    .face.tube { background: linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)) center / calc(100% - 10px) calc(100% - 10px) no-repeat, linear-gradient(var(--sh, transparent), var(--sh, transparent)), var(--mat, #8d939a); }
+    .v3d .hint {
+        position: absolute; left: 12px; bottom: 10px; font-size: 11px; font-weight: 700; color: var(--muted);
+        display: flex; gap: 6px; align-items: center;
+    }
+    .v3d .hint i { font-style: normal; display: inline-block; animation: nudge 2.4s ease-in-out infinite; }
+    @keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+    .v3d .dims {
+        position: absolute; right: 12px; bottom: 10px; font-size: 12px; font-weight: 700;
+        padding: 4px 8px; border-radius: var(--sd-radius-btn); background: var(--sd-bg); border: 1px solid var(--line);
+    }
+    .v3d .badge3d {
+        position: absolute; left: 12px; top: 10px; font-size: 10.5px; font-weight: 800; letter-spacing: .12em;
+        padding: 3px 8px; border-radius: var(--sd-radius-btn); background: var(--sd-ink); color: var(--sd-bg);
+    }
+
+    /* ---------- CONTROLES ---------- */
+    .types { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .type {
+        padding: 10px 4px 8px; text-align: center; cursor: pointer;
+        border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--sd-bg);
+        font-size: 11.5px; font-weight: 700; line-height: 1.15;
+        transition: border-color .2s, background .2s, transform .15s;
+    }
+    .type:active { transform: scale(.96); }
+    .type svg { width: 34px; height: 34px; display: block; margin: 0 auto 5px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+    .type.active { border-color: var(--sd-accent-solid); background: color-mix(in srgb, var(--sd-accent) 14%, var(--sd-bg)); color: var(--sd-accent-text); }
+    .seg { display: flex; padding: 3px; gap: 3px; border-radius: var(--sd-radius-btn); background: color-mix(in srgb, var(--sd-ink) 7%, var(--sd-bg)); }
+    .seg button {
+        flex: 1; padding: 9px 4px; border: 0; cursor: pointer; border-radius: calc(var(--sd-radius-btn) - 2px);
+        background: none; font-size: 12.5px; font-weight: 700; color: var(--muted);
+        transition: background .2s, color .2s, box-shadow .2s;
+    }
+    .seg button.active { background: var(--sd-bg); color: var(--sd-ink); box-shadow: 0 1px 3px rgba(0,0,0,.14); }
+    .seg button:disabled { opacity: .35; cursor: not-allowed; }
+    input[type="range"] { width: 100%; accent-color: var(--sd-accent-solid); height: 28px; }
+    .ticks { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); font-weight: 700; margin-top: -2px; }
+    .qty { display: flex; align-items: center; gap: 8px; }
+    .qty button.pm {
+        width: 40px; height: 40px; border-radius: var(--sd-radius-btn); border: 1.5px solid var(--line); background: var(--sd-bg);
+        font-size: 18px; font-weight: 800; cursor: pointer;
+    }
+    .qty input {
+        flex: 1; height: 40px; text-align: center; font-size: 18px; font-weight: 800;
+        border: 1.5px solid var(--line); border-radius: var(--sd-radius-btn); background: var(--sd-bg); outline: none;
+    }
+    .qty input:focus { border-color: var(--sd-accent-solid); }
+    .quick { display: flex; gap: 6px; margin-top: 8px; }
+    .quick button {
+        flex: 1; padding: 7px 0; border-radius: var(--sd-radius-btn); border: 1px dashed var(--line); background: none;
+        font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer;
+    }
+    .quick button.active { border-style: solid; border-color: var(--sd-accent-solid); color: var(--sd-accent-text); }
+    .rals { display: flex; gap: 8px; margin-top: 10px; }
+    .rals[hidden] { display: none; }
+    .ral {
+        width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--sd-bg); cursor: pointer;
+        box-shadow: 0 0 0 1.5px var(--line); transition: transform .2s, box-shadow .2s;
+    }
+    .ral.active { box-shadow: 0 0 0 2.5px var(--sd-accent-solid); transform: scale(1.08); }
+    .ral-name { font-size: 11.5px; color: var(--muted); font-weight: 700; align-self: center; margin-left: 4px; }
+
+    /* ---------- RESULTADO ---------- */
+    .quote {
+        margin: 10px 14px 0; padding: 16px; border-radius: var(--radius);
+        background: var(--sd-ink); color: var(--sd-bg);
+        box-shadow: var(--sd-shadow-md);
+    }
+    .quote .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+    .quote small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: .6; }
+    .quote .unit { font-size: 34px; font-weight: 800; line-height: 1; margin-top: 4px; }
+    .quote .tot { text-align: right; font-size: 18px; font-weight: 800; }
+    .quote .tot.flash { animation: qflash .5s ease; }
+    @keyframes qflash { 40% { color: var(--sd-accent-2); transform: scale(1.06); } }
+    .vol { margin-top: 14px; }
+    .vol .track { position: relative; height: 6px; border-radius: 9px; background: rgba(255,255,255,.14); }
+    .vol .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: inherit; background: var(--sd-accent-2); transition: width .5s cubic-bezier(.2,.9,.3,1); }
+    .vol .steps { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10.5px; font-weight: 700; opacity: .65; }
+    .vol .steps span.on { opacity: 1; color: var(--sd-accent-2); }
+    .quote .lead { display: flex; gap: 8px; align-items: center; margin-top: 14px; font-size: 13px; }
+    .quote .lead b { font-weight: 800; }
+    .cta {
+        width: calc(100% - 28px); margin: 12px 14px 0; border: 0; cursor: pointer;
+        padding: 15px; border-radius: var(--sd-radius-btn);
+        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-weight: 800; font-size: 15px; letter-spacing: .02em;
+        transition: transform .15s;
+    }
+    .cta:active { transform: scale(.98); }
+
+    /* ---------- PEDIDOS ---------- */
+    .order { margin: 10px 14px 0; padding: 14px; background: var(--card); border: var(--sd-border) solid var(--line); border-radius: var(--radius); box-shadow: var(--sd-shadow-sm); cursor: pointer; }
+    .order.is-new { animation: neworder .9s cubic-bezier(.2,.9,.3,1.2); }
+    @keyframes neworder { from { transform: translateY(-20px) scale(.96); opacity: 0; } }
+    .order .o-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+    .order .o-top b { font-size: 15px; }
+    .order .o-top .mono { font-size: 12px; color: var(--muted); }
+    .order .o-sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+    .phases { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 12px; }
+    .ph { text-align: center; font-size: 9.5px; font-weight: 700; color: var(--muted); }
+    .ph i { display: block; height: 6px; border-radius: 9px; background: color-mix(in srgb, var(--sd-ink) 10%, transparent); margin-bottom: 5px; position: relative; overflow: hidden; }
+    .ph.done i { background: var(--sd-accent-solid); }
+    .ph.now i { background: color-mix(in srgb, var(--sd-accent) 35%, transparent); }
+    .ph.now i::after { content: ''; position: absolute; inset: 0; background: var(--sd-accent-solid); animation: progress 1.6s ease-in-out infinite; transform-origin: 0 50%; }
+    @keyframes progress { from { transform: scaleX(0); } to { transform: scaleX(1); opacity: .2; } }
+    .ph.now { color: var(--sd-accent-text); }
+    .ph.done { color: var(--sd-ink); }
+    .timeline { display: none; margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+    .order.open .timeline { display: block; animation: view-in .25s ease; }
+    .tl { display: flex; gap: 10px; font-size: 12.5px; padding: 5px 0; }
+    .tl .mono { width: 46px; color: var(--muted); flex: 0 0 auto; }
+    .tl.pending { opacity: .45; }
+    .live-pill { display: inline-flex; gap: 6px; align-items: center; font-size: 11px; font-weight: 800; color: var(--run); }
+    .live-pill::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--run); animation: blink 1.2s ease-in-out infinite; }
+    @keyframes blink { 50% { opacity: .25; } }
+
+    /* ---------- PLANTA ---------- */
+    .kpis { display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px; margin: 10px 14px 0; }
+    .kpi { background: var(--card); border: var(--sd-border) solid var(--line); border-radius: var(--radius); padding: 12px; box-shadow: var(--sd-shadow-sm); }
+    .kpi small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .kpi .big { font-size: 26px; font-weight: 800; margin-top: 2px; }
+    .kpi .big small { display: inline; font-size: 12px; letter-spacing: 0; text-transform: none; }
+    .oee { display: flex; align-items: center; gap: 10px; grid-row: span 2; }
+    .oee svg { width: 96px; height: 96px; flex: 0 0 auto; }
+    .oee .bg { fill: none; stroke: color-mix(in srgb, var(--sd-ink) 10%, transparent); stroke-width: 9; }
+    .oee .fg { fill: none; stroke: var(--sd-accent-solid); stroke-width: 9; stroke-linecap: round; transition: stroke-dasharray .8s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
+    .oee text { font-family: var(--sd-display); font-weight: 700; font-size: 22px; fill: var(--sd-ink); }
+    .machines { display: grid; gap: 10px; margin: 0 14px; }
+    .mach { background: var(--card); border: var(--sd-border) solid var(--line); border-radius: var(--radius); padding: 12px; box-shadow: var(--sd-shadow-sm); }
+    .mach .m-top { display: flex; align-items: center; gap: 10px; }
+    .led { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; background: var(--run); box-shadow: 0 0 0 4px color-mix(in srgb, var(--run) 20%, transparent); }
+    .mach.stop .led { background: var(--stop); box-shadow: 0 0 0 4px color-mix(in srgb, var(--stop) 22%, transparent); }
+    .mach.alarm .led { background: var(--alarm); box-shadow: 0 0 0 4px color-mix(in srgb, var(--alarm) 22%, transparent); animation: blink .8s ease-in-out infinite; }
+    .mach .m-top div { flex: 1; min-width: 0; }
+    .mach b { display: block; font-size: 14.5px; }
+    .mach small { display: block; font-size: 12px; color: var(--muted); }
+    .mach .pct { font-size: 18px; font-weight: 800; }
+    .mach .m-bar { height: 6px; border-radius: 9px; background: color-mix(in srgb, var(--sd-ink) 9%, transparent); margin-top: 10px; overflow: hidden; }
+    .mach .m-bar i { display: block; height: 100%; background: var(--run); border-radius: inherit; transition: width .8s ease; }
+    .mach.stop .m-bar i { background: var(--stop); }
+    .mach.alarm .m-bar i { background: var(--alarm); }
+    .mach .spark { width: 100%; height: 30px; margin-top: 8px; display: block; }
+    .mach .spark polyline { fill: none; stroke: var(--sd-accent); stroke-width: 1.8; stroke-linejoin: round; }
+    .mach .ack {
+        margin-top: 10px; width: 100%; padding: 10px; border: 0; cursor: pointer; border-radius: var(--sd-radius-btn);
+        background: var(--alarm); color: #fff; font-weight: 800; font-size: 13px;
+    }
+    .mach .ack.working { background: color-mix(in srgb, var(--alarm) 30%, var(--card)); color: var(--sd-ink); cursor: progress; }
+
+    .sect { padding: 18px 16px 4px; display: flex; justify-content: space-between; align-items: baseline; }
+    .sect h2 { font-size: 19px; }
+    .sect small { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+    /* ---------- CONFIRMACIÓN ---------- */
+    .modal { position: fixed; inset: 0; z-index: 70; display: none; place-items: center; padding: 22px; background: rgba(15,20,25,.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+    .modal.show { display: grid; animation: view-in .25s ease; }
+    .sheetq {
+        width: 100%; max-width: 360px; background: var(--sd-bg); border-radius: calc(var(--radius) + 4px); padding: 20px;
+        box-shadow: 0 30px 70px rgba(0,0,0,.35); animation: pop .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes pop { from { transform: scale(.85); opacity: 0; } }
+    .sheetq .ok { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-size: 26px; color: #fff; background: var(--run); }
+    .sheetq h2 { font-size: 24px; margin-top: 12px; }
+    .sheetq p { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+    .sheetq dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin-top: 14px; font-size: 13px; }
+    .sheetq dt { color: var(--muted); }
+    .sheetq dd { font-weight: 700; text-align: right; }
+    .sheetq button { width: 100%; margin-top: 16px; padding: 13px; border: 0; cursor: pointer; border-radius: var(--sd-radius-btn); background: var(--sd-accent-solid); color: var(--sd-on-accent); font-weight: 800; }
+
+    /* ---------- PESTAÑAS ---------- */
+    .tabbar {
+        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 50;
+        width: 100%; max-width: 480px; display: flex;
+        padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
+        background: color-mix(in srgb, var(--sd-bg) 90%, transparent);
+        -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+        border-top: 1px solid var(--line);
+    }
+    .tab { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: none; cursor: pointer; padding: 5px 0; font-size: 11px; font-weight: 800; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+    .tab .ico { font-size: 20px; filter: grayscale(1) opacity(.6); transition: filter .2s, transform .3s cubic-bezier(.34,1.56,.64,1); }
+    .tab.active { color: var(--sd-accent-text); }
+    .tab.active .ico { filter: none; transform: translateY(-2px) scale(1.1); }
+    .tab .dot { position: absolute; top: 0; left: 50%; margin-left: 10px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 9px; background: var(--alarm); color: #fff; font-size: 10px; line-height: 16px; display: none; }
+    .tab .dot.show { display: block; }
+
+    .toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 80; transform: translate(-50%, 16px); opacity: 0; pointer-events: none; background: var(--sd-ink); color: var(--sd-bg); font-size: 13px; font-weight: 700; padding: 9px 18px; border-radius: 999px; white-space: nowrap; transition: all .3s; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+</style>
+<script src="sistemas/tema-datos.js"></script>
+<script src="../js/selector-sistema.js" defer></script>
+</head>
+<body>
+<div class="demo-badge">DEMO</div>
+
+<!-- VISTA: PRESUPUESTO -->
+<main id="view-presu" class="view active">
+    <header class="head">
+        <small>Metalúrgica Ribera · Tudela</small>
+        <h1>Presupuesto al instante</h1>
+        <p>Corte láser, plegado y soldadura. Configura tu pieza y mira el precio en directo.</p>
+    </header>
+
+    <div class="v3d" id="v3d" aria-label="Vista 3D de la pieza: arrastra para girarla">
+        <span class="badge3d">3D</span>
+        <div class="scene" id="scene"></div>
+        <span class="hint" aria-hidden="true"><i>↔</i> Arrastra para girar</span>
+        <span class="dims mono" id="dims">300 × 200 × 3 mm</span>
+    </div>
+
+    <div class="card">
+        <div class="lbl">Pieza</div>
+        <div class="types" id="types">
+            <button class="type active" data-type="chapa"><svg viewBox="0 0 34 34"><path d="M4 20l14-7 12 6-14 7z"/><path d="M4 20v2l12 6v-2M16 26v2l14-7v-2"/><circle cx="17" cy="19.5" r="2.2"/></svg>Chapa láser</button>
+            <button class="type" data-type="plegada"><svg viewBox="0 0 34 34"><path d="M5 24l12 6 12-6-12-6z"/><path d="M17 18V6l12-6v12"/><path d="M17 6l-12 6v12"/></svg>Plegada</button>
+            <button class="type" data-type="perfil"><svg viewBox="0 0 34 34"><path d="M3 20l20-10 8 4-20 10z"/><path d="M3 20v5l8 4v-5M11 29l20-10v-5"/><path d="M5 21.2l4 2v2.4l-4-2z"/></svg>Perfil soldado</button>
+            <button class="type" data-type="cnc"><svg viewBox="0 0 34 34"><path d="M5 12l12-6 12 6-12 6z"/><path d="M5 12v12l12 6 12-6V12M17 18v12"/><ellipse cx="17" cy="12" rx="4" ry="2"/></svg>Mecanizado CNC</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="lbl">Material</div>
+        <div class="seg" id="mats">
+            <button class="active" data-mat="s275">Acero S275</button>
+            <button data-mat="inox">Inox 304</button>
+            <button data-mat="alu">Aluminio</button>
+        </div>
+        <div class="lbl" style="margin-top:14px">Espesor <b class="mono" id="t-out">3 mm</b></div>
+        <input type="range" id="thick" min="1" max="20" step="1" value="3" aria-label="Espesor en milímetros">
+        <div class="ticks"><span>1</span><span>5</span><span>10</span><span>15</span><span>20 mm</span></div>
+    </div>
+
+    <div class="card">
+        <div class="lbl">Cantidad</div>
+        <div class="qty">
+            <button class="pm" data-q="-1" aria-label="Menos">−</button>
+            <input id="qty" class="mono" type="number" min="1" max="5000" value="50" inputmode="numeric" aria-label="Cantidad de piezas">
+            <button class="pm" data-q="1" aria-label="Más">+</button>
+        </div>
+        <div class="quick" id="quick"><button data-v="1">1</button><button data-v="10">10</button><button data-v="50">50</button><button data-v="100">100</button><button data-v="500">500</button></div>
+    </div>
+
+    <div class="card">
+        <div class="lbl">Acabado</div>
+        <div class="seg" id="fins">
+            <button class="active" data-fin="bruto">Bruto</button>
+            <button data-fin="galva">Galvanizado</button>
+            <button data-fin="lacado">Lacado</button>
+            <button data-fin="pulido">Pulido</button>
+        </div>
+        <div class="rals" id="rals" hidden></div>
+    </div>
+
+    <section class="quote" aria-live="polite">
+        <div class="top">
+            <div><small>Precio por pieza</small><div class="unit mono" id="unit">0,00 €</div></div>
+            <div class="tot"><small>Total sin IVA</small><span class="mono" id="total">0 €</span></div>
+        </div>
+        <div class="vol">
+            <div class="track"><div class="fill" id="vol-fill"></div></div>
+            <div class="steps" id="vol-steps"><span>10 · −5 %</span><span>50 · −10 %</span><span>100 · −15 %</span><span>500 · −22 %</span></div>
+        </div>
+        <div class="lead">🚚 <span>Entrega estimada <b id="lead">—</b></span></div>
+    </section>
+    <button class="cta" id="order">Pedir estas piezas</button>
+</main>
+
+<!-- VISTA: PEDIDOS -->
+<main id="view-pedidos" class="view">
+    <header class="head">
+        <small>Tus pedidos</small>
+        <h1>Así va tu fabricación</h1>
+        <p><span class="live-pill">En directo desde la planta</span></p>
+    </header>
+    <div id="orders"></div>
+</main>
+
+<!-- VISTA: PLANTA -->
+<main id="view-planta" class="view">
+    <header class="head">
+        <small>Planta · turno de mañana · 14 operarios</small>
+        <h1>Planta en directo</h1>
+    </header>
+    <div class="kpis">
+        <div class="kpi oee">
+            <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="bg" cx="50" cy="50" r="40"/><circle class="fg" id="oee-arc" cx="50" cy="50" r="40" stroke-dasharray="0 252"/><text x="50" y="58" text-anchor="middle" id="oee-txt">0</text></svg>
+            <div><small>OEE</small><div class="big">Eficiencia</div><small style="letter-spacing:0;text-transform:none;margin-top:4px">Disponibilidad × rendimiento × calidad</small></div>
+        </div>
+        <div class="kpi"><small>Piezas hoy</small><div class="big mono" id="k-parts">1.284</div></div>
+        <div class="kpi"><small>Energía</small><div class="big mono" id="k-kwh">412<small> kWh</small></div></div>
+    </div>
+    <div class="sect"><h2>Máquinas</h2><small class="live-pill">en directo</small></div>
+    <div class="machines" id="machines"></div>
+    <div style="height:14px"></div>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <div class="sheetq">
+        <div class="ok" aria-hidden="true">✓</div>
+        <h2 id="m-title">Pedido lanzado</h2>
+        <p>Ya está en la cola de la planta. Síguelo fase a fase en <b>Pedidos</b>.</p>
+        <dl id="m-dl"></dl>
+        <button id="m-go">Ver mi pedido</button>
+    </div>
+</div>
+
+<nav class="tabbar" aria-label="Secciones">
+    <button class="tab active" data-view="presu"><span class="ico">🧮</span>Presupuesto</button>
+    <button class="tab" data-view="pedidos"><span class="ico">📦</span>Pedidos<span class="dot" id="dot-ped">1</span></button>
+    <button class="tab" data-view="planta"><span class="ico">🏭</span>Planta<span class="dot show" id="dot-plant">!</span></button>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const eur = (n, dec = 2) => n.toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + ' €';
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    function toast(msg) {
+        const t = $('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toast.h);
+        toast.h = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    /* ---------- DATOS ---------- */
+    const TIPOS = {
+        chapa:   { name: 'Chapa cortada láser', base: 4, dias: 0 },
+        plegada: { name: 'Pieza plegada', base: 9, dias: 1 },
+        perfil:  { name: 'Perfil soldado', base: 16, dias: 2 },
+        cnc:     { name: 'Mecanizado CNC', base: 28, dias: 3 }
+    };
+    const MATS = {
+        s275: { name: 'Acero S275', k: 1, look: 'linear-gradient(135deg, #5d6670, #8a939c 45%, #4f5760)' },
+        inox: { name: 'Inox 304', k: 2.3, look: 'repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 1px, transparent 1px 3px), linear-gradient(135deg, #b9c0c7, #eef1f4 45%, #9ea6ae)' },
+        alu:  { name: 'Aluminio 5754', k: 1.7, look: 'repeating-linear-gradient(90deg, rgba(255,255,255,.12) 0 1px, transparent 1px 4px), linear-gradient(135deg, #c6ced8, #e9eef4 50%, #b3bdc9)' }
+    };
+    const FINS = {
+        bruto:  { name: 'Bruto', k: 1, dias: 0 },
+        galva:  { name: 'Galvanizado en caliente', k: 1.15, dias: 2, look: 'radial-gradient(circle at 30% 40%, rgba(255,255,255,.25) 0 6px, transparent 7px) 0 0 / 22px 22px, radial-gradient(circle at 70% 70%, rgba(0,0,0,.08) 0 5px, transparent 6px) 0 0 / 18px 18px, linear-gradient(135deg, #a9b1b6, #d5dade 50%, #9aa3a9)' },
+        lacado: { name: 'Lacado RAL', k: 1.22, dias: 2 },
+        pulido: { name: 'Pulido espejo', k: 1.3, dias: 1, look: 'linear-gradient(115deg, #d8dee4 0%, #ffffff 30%, #9aa4ae 48%, #f4f7f9 64%, #b7c0c8 100%)' }
+    };
+    const RALS = [
+        { id: '3020', name: 'RAL 3020 · rojo tráfico', c: '#c1121c' },
+        { id: '5015', name: 'RAL 5015 · azul cielo', c: '#2271b3' },
+        { id: '6018', name: 'RAL 6018 · verde amarillo', c: '#57a639' },
+        { id: '9005', name: 'RAL 9005 · negro intenso', c: '#151618' },
+        { id: '1023', name: 'RAL 1023 · amarillo tráfico', c: '#f0ca00' }
+    ];
+    const cfg = { type: 'chapa', mat: 's275', t: 3, q: 50, fin: 'bruto', ral: RALS[0] };
+
+    /* ---------- VISOR 3D ---------- */
+    const scene = $('scene');
+    let rx = -24, ry = -34, vrx = 0, vry = 0, arrastrando = false, ultimo = null, inercia = 0;
+    function cara(clase, w, h, transform) {
+        return `<div class="face ${clase}" style="width:${w}px;height:${h}px;margin:${-h / 2}px 0 0 ${-w / 2}px;transform:${transform}"></div>`;
+    }
+    // Un prisma de w × h × d centrado en (x, y, z)
+    function prisma(w, h, d, x, y, z, extra = {}) {
+        return `<div class="cub" style="transform:translate3d(${x}px,${y}px,${z}px)">
+            ${cara('fro ' + (extra.fro || ''), w, h, `translateZ(${d / 2}px)`)}
+            ${cara('bac ' + (extra.bac || ''), w, h, `rotateY(180deg) translateZ(${d / 2}px)`)}
+            ${cara('rig ' + (extra.rig || ''), d, h, `rotateY(90deg) translateZ(${w / 2}px)`)}
+            ${cara('lef ' + (extra.lef || ''), d, h, `rotateY(-90deg) translateZ(${w / 2}px)`)}
+            ${cara('top ' + (extra.top || ''), w, d, `rotateX(90deg) translateZ(${h / 2}px)`)}
+            ${cara('bot', w, d, `rotateX(-90deg) translateZ(${h / 2}px)`)}
+        </div>`;
+    }
+    function aspecto() {
+        if (cfg.fin === 'lacado') return `linear-gradient(160deg, rgba(255,255,255,.18), transparent 50%), ${cfg.ral.c}`;
+        if (FINS[cfg.fin].look) return FINS[cfg.fin].look;
+        return MATS[cfg.mat].look;
+    }
+    function pintar3d() {
+        const t = Math.max(2, cfg.t * 1.6);
+        let html = '', dims = '';
+        if (cfg.type === 'chapa') {
+            html = prisma(190, t, 120, 0, 0, 0, { top: 'hole' });
+            dims = `300 × 200 × ${cfg.t} mm`;
+        } else if (cfg.type === 'plegada') {
+            html = prisma(170, t, 110, 0, 40, 0) + prisma(170, 90, t, 0, -5 + t / 2, -55 + t / 2, { fro: 'hole' });
+            dims = `250 × 150 × 120 · e ${cfg.t} mm`;
+        } else if (cfg.type === 'perfil') {
+            html = prisma(230, 56, 56, 0, 0, 0, { rig: 'tube', lef: 'tube' });
+            dims = `1200 × 80 × 80 · e ${cfg.t} mm`;
+        } else {
+            html = prisma(130, 70, 100, 0, 0, 0, { top: 'hole', fro: 'hole' });
+            dims = `120 × 90 × 60 mm`;
+        }
+        scene.innerHTML = html;
+        scene.style.setProperty('--mat', aspecto());
+        scene.style.setProperty('--hr', cfg.type === 'cnc' ? '22px' : '13px');
+        $('dims').textContent = dims;
+    }
+    function girar() {
+        rx = Math.max(-75, Math.min(10, rx));
+        scene.style.setProperty('--rx', rx + 'deg');
+        scene.style.setProperty('--ry', ry + 'deg');
+    }
+    const v3d = $('v3d');
+    v3d.addEventListener('pointerdown', e => {
+        arrastrando = true; ultimo = { x: e.clientX, y: e.clientY };
+        v3d.setPointerCapture(e.pointerId);
+        cancelAnimationFrame(inercia);
+    });
+    v3d.addEventListener('pointermove', e => {
+        if (!arrastrando) return;
+        vry = (e.clientX - ultimo.x) * .5;
+        vrx = -(e.clientY - ultimo.y) * .4;
+        ry += vry; rx += vrx;
+        ultimo = { x: e.clientX, y: e.clientY };
+        girar();
+    });
+    const soltar = () => {
+        if (!arrastrando) return;
+        arrastrando = false;
+        // Inercia: sigue girando y frena solo
+        const paso = () => {
+            vry *= .93; vrx *= .9;
+            ry += vry; rx += vrx;
+            girar();
+            if (Math.abs(vry) + Math.abs(vrx) > .05) inercia = requestAnimationFrame(paso);
+        };
+        inercia = requestAnimationFrame(paso);
+    };
+    v3d.addEventListener('pointerup', soltar);
+    v3d.addEventListener('pointercancel', soltar);
+    // Balanceo suave mientras nadie lo toca
+    let tiempo = 0;
+    (function vaiven() {
+        if (!arrastrando && Math.abs(vry) < .05 && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            tiempo += .016;
+            ry += Math.sin(tiempo * .9) * .18;
+            girar();
+        }
+        requestAnimationFrame(vaiven);
+    })();
+
+    /* ---------- PRESUPUESTO ---------- */
+    function calcular() {
+        const tipo = TIPOS[cfg.type], mat = MATS[cfg.mat], fin = FINS[cfg.fin];
+        const q = cfg.q;
+        const dto = q >= 500 ? .22 : q >= 100 ? .15 : q >= 50 ? .10 : q >= 10 ? .05 : 0;
+        const espesor = .6 + cfg.t / 7.5;
+        const unidad = (tipo.base * mat.k * espesor * fin.k + 45 / q) * (1 - dto);
+        const dias = 3 + tipo.dias + fin.dias + Math.ceil(q / 250);
+        return { unidad, total: unidad * q, dto, dias };
+    }
+    function diasLaborables(n) {
+        const d = new Date();
+        while (n > 0) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) n--; }
+        return d;
+    }
+    let totalPrevio = 0;
+    function pintarPrecio() {
+        const r = calcular();
+        $('unit').textContent = eur(r.unidad);
+        $('total').textContent = eur(r.total, 0);
+        if (Math.round(r.total) !== Math.round(totalPrevio)) {
+            const t = $('total').parentElement;
+            t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash');
+        }
+        totalPrevio = r.total;
+        const tramos = [10, 50, 100, 500];
+        const nivel = tramos.filter(x => cfg.q >= x).length;
+        $('vol-fill').style.width = Math.min(100, (Math.log10(Math.max(1, cfg.q)) / Math.log10(500)) * 100) + '%';
+        Array.from($('vol-steps').children).forEach((s, i) => s.classList.toggle('on', i < nivel));
+        $('lead').textContent = diasLaborables(r.dias).toLocaleString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' }) + ' · ' + r.dias + ' días hábiles';
+        $('t-out').textContent = cfg.t + ' mm';
+        document.querySelectorAll('#quick button').forEach(b => b.classList.toggle('active', +b.dataset.v === cfg.q));
+        // El pulido solo tiene sentido en inoxidable
+        const pulido = document.querySelector('#fins [data-fin="pulido"]');
+        pulido.disabled = cfg.mat !== 'inox';
+        if (pulido.disabled && cfg.fin === 'pulido') elegir('#fins', 'fin', 'bruto');
+    }
+    function elegir(sel, clave, valor) {
+        cfg[clave] = valor;
+        document.querySelectorAll(sel + ' button').forEach(b => b.classList.toggle('active', b.dataset[clave] === valor));
+        if (clave === 'fin') $('rals').hidden = valor !== 'lacado';
+        pintar3d();
+        pintarPrecio();
+    }
+    $('types').addEventListener('click', e => { const b = e.target.closest('.type'); if (b) elegir('#types', 'type', b.dataset.type); });
+    $('mats').addEventListener('click', e => { const b = e.target.closest('button'); if (b) elegir('#mats', 'mat', b.dataset.mat); });
+    $('fins').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) elegir('#fins', 'fin', b.dataset.fin); });
+    $('thick').addEventListener('input', e => { cfg.t = +e.target.value; pintar3d(); pintarPrecio(); });
+    function ponerCantidad(v) {
+        cfg.q = Math.max(1, Math.min(5000, Math.round(v) || 1));
+        $('qty').value = cfg.q;
+        pintarPrecio();
+    }
+    document.querySelectorAll('.qty .pm').forEach(b => b.addEventListener('click', () => ponerCantidad(cfg.q + +b.dataset.q * (cfg.q >= 100 ? 10 : 1))));
+    $('qty').addEventListener('input', e => { cfg.q = Math.max(1, Math.min(5000, +e.target.value || 1)); pintarPrecio(); });
+    $('qty').addEventListener('blur', () => ponerCantidad(cfg.q));
+    $('quick').addEventListener('click', e => { const b = e.target.closest('button'); if (b) ponerCantidad(+b.dataset.v); });
+    $('rals').innerHTML = RALS.map((r, i) => `<button class="ral ${i === 0 ? 'active' : ''}" data-ral="${r.id}" style="background:${r.c}" aria-label="${esc(r.name)}"></button>`).join('') + `<span class="ral-name" id="ral-name">${esc(RALS[0].name)}</span>`;
+    $('rals').addEventListener('click', e => {
+        const b = e.target.closest('.ral');
+        if (!b) return;
+        cfg.ral = RALS.find(r => r.id === b.dataset.ral);
+        document.querySelectorAll('.ral').forEach(x => x.classList.toggle('active', x === b));
+        $('ral-name').textContent = cfg.ral.name;
+        pintar3d();
+    });
+
+    /* ---------- PEDIDOS ---------- */
+    const FASES = ['Recibido', 'Corte', 'Plegado', 'Soldadura', 'Calidad', 'Enviado'];
+    const ahora = () => new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    const pedidos = [
+        { id: 'PR-2026-0398', name: 'Perfil soldado · Acero S275', q: 120, fase: 3, horas: ['08:02', '08:40', '10:15', '12:30'] },
+        { id: 'PR-2026-0391', name: 'Chapa cortada láser · Inox 304', q: 400, fase: 5, horas: ['ayer', 'ayer', 'ayer', '—', '07:50', '09:10'] }
+    ];
+    function pintarPedidos(nuevoId) {
+        $('orders').innerHTML = pedidos.map(p => `
+            <article class="order ${p.id === nuevoId ? 'is-new open' : ''}" data-id="${p.id}">
+                <div class="o-top"><b>${esc(p.name)}</b><span class="mono">${p.id}</span></div>
+                <div class="o-sub">${p.q} piezas · ${p.fase >= 5 ? 'Enviado: llega mañana' : 'Fase actual: ' + FASES[p.fase]}</div>
+                <div class="phases">${FASES.map((f, i) => `<div class="ph ${i < p.fase || p.fase === 5 ? 'done' : i === p.fase ? 'now' : ''}"><i></i>${f}</div>`).join('')}</div>
+                <div class="timeline">${FASES.map((f, i) => `<div class="tl ${i > p.fase ? 'pending' : ''}"><span class="mono">${p.horas[i] || '—'}</span><span>${f}${i === p.fase && p.fase < 5 ? ' · en curso' : ''}</span></div>`).join('')}</div>
+            </article>`).join('');
+    }
+    $('orders').addEventListener('click', e => {
+        const o = e.target.closest('.order');
+        if (o) o.classList.toggle('open');
+    });
+    let seq = 412;
+    $('order').addEventListener('click', () => {
+        const r = calcular();
+        const id = 'PR-2026-0' + (seq++);
+        pedidos.unshift({ id, name: TIPOS[cfg.type].name + ' · ' + MATS[cfg.mat].name, q: cfg.q, fase: 0, horas: [ahora()] });
+        pintarPedidos();
+        $('dot-ped').classList.add('show');
+        $('m-dl').innerHTML = `<dt>Pedido</dt><dd class="mono">${id}</dd><dt>Pieza</dt><dd>${esc(TIPOS[cfg.type].name)}</dd><dt>Cantidad</dt><dd>${cfg.q} ud.</dd><dt>Acabado</dt><dd>${esc(cfg.fin === 'lacado' ? cfg.ral.name.split(' · ')[0] : FINS[cfg.fin].name)}</dd><dt>Total</dt><dd>${eur(r.total, 0)}</dd>`;
+        $('modal').classList.add('show');
+        $('modal').dataset.id = id;
+    });
+    $('m-go').addEventListener('click', () => {
+        $('modal').classList.remove('show');
+        irA('pedidos');
+        pintarPedidos($('modal').dataset.id);
+    });
+    $('modal').addEventListener('click', e => { if (e.target === $('modal')) $('modal').classList.remove('show'); });
+    // La planta avanza los pedidos nuevos para que se vea el seguimiento en vivo
+    setInterval(() => {
+        const p = pedidos.find(x => x.fase < 5 && x.horas.length <= x.fase + 1 && x.id !== 'PR-2026-0398');
+        if (!p) return;
+        p.fase += 1;
+        p.horas[p.fase] = ahora();
+        if ($('view-pedidos').classList.contains('active')) {
+            const abiertos = Array.from(document.querySelectorAll('.order.open')).map(o => o.dataset.id);
+            pintarPedidos();
+            abiertos.forEach(id => { const o = document.querySelector(`.order[data-id="${id}"]`); if (o) o.classList.add('open'); });
+            toast('🏭 ' + p.id + ': ' + FASES[p.fase]);
+        }
+    }, 5000);
+
+    /* ---------- PLANTA ---------- */
+    const MAQUINAS = [
+        { id: 'laser', name: 'Láser fibra 6 kW', st: 'run', pct: 92, info: 'Cortando PR-2026-0391', hist: [] },
+        { id: 'plega', name: 'Plegadora 160 t', st: 'stop', pct: 0, info: 'Cambio de útil · vuelve en 12 min', hist: [] },
+        { id: 'cnc', name: 'Centro CNC 5 ejes', st: 'run', pct: 78, info: 'Ciclo 14 de 40', hist: [] },
+        { id: 'robot', name: 'Robot de soldadura', st: 'alarm', pct: 0, info: 'Falta hilo de soldar', hist: [] }
+    ];
+    MAQUINAS.forEach(m => { for (let i = 0; i < 30; i++) m.hist.push(m.st === 'run' ? m.pct - 6 + Math.random() * 10 : 2 + Math.random() * 4); });
+    const etiqueta = { run: 'En marcha', stop: 'Parada planificada', alarm: 'Alarma' };
+    function linea(hist) {
+        return hist.map((v, i) => (i * 100 / (hist.length - 1)).toFixed(1) + ',' + (29 - v / 100 * 27).toFixed(1)).join(' ');
+    }
+    function pintarMaquinas() {
+        $('machines').innerHTML = MAQUINAS.map(m => `
+            <article class="mach ${m.st}" data-m="${m.id}">
+                <div class="m-top"><span class="led" aria-hidden="true"></span>
+                    <div><b>${esc(m.name)}</b><small>${etiqueta[m.st]} · ${esc(m.info)}</small></div>
+                    <span class="pct mono">${Math.round(m.pct)} %</span></div>
+                <div class="m-bar"><i style="width:${m.pct}%"></i></div>
+                <svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><polyline points="${linea(m.hist)}"/></svg>
+                ${m.st === 'alarm' ? `<button class="ack ${m.arreglando ? 'working' : ''}" data-ack="${m.id}">${m.arreglando ? 'Cambiando bobina…' : 'Reconocer y avisar a mantenimiento'}</button>` : ''}
+            </article>`).join('');
+    }
+    $('machines').addEventListener('click', e => {
+        const b = e.target.closest('[data-ack]');
+        if (!b) return;
+        const m = MAQUINAS.find(x => x.id === b.dataset.ack);
+        if (m.arreglando) return;
+        m.arreglando = true;
+        pintarMaquinas();
+        toast('🔧 Aviso enviado a mantenimiento');
+        setTimeout(() => {
+            m.st = 'run'; m.pct = 64; m.info = 'Soldando PR-2026-0398'; m.arreglando = false;
+            $('dot-plant').classList.remove('show');
+            pintarMaquinas();
+            toast('✅ Robot de soldadura en marcha');
+        }, 2600);
+    });
+    let piezas = 1284, kwh = 412, oee = 78;
+    function pintarKpis() {
+        const marcha = MAQUINAS.filter(m => m.st === 'run').length;
+        oee += ((52 + marcha * 9) - oee) * .2 + (Math.random() - .5) * 1.2;
+        const len = 2 * Math.PI * 40;
+        $('oee-arc').setAttribute('stroke-dasharray', (oee / 100 * len).toFixed(1) + ' ' + len.toFixed(1));
+        $('oee-txt').textContent = Math.round(oee) + '%';
+        $('k-parts').textContent = piezas.toLocaleString('es-ES');
+        $('k-kwh').innerHTML = Math.round(kwh) + '<small> kWh</small>';
+    }
+    setInterval(() => {
+        MAQUINAS.forEach(m => {
+            if (m.st === 'run') m.pct = Math.max(55, Math.min(99, m.pct + (Math.random() - .5) * 6));
+            m.hist.shift();
+            m.hist.push(m.st === 'run' ? m.pct : 1 + Math.random() * 3);
+        });
+        piezas += MAQUINAS.filter(m => m.st === 'run').length;
+        kwh += .6 + Math.random() * .5;
+        pintarKpis();
+        if ($('view-planta').classList.contains('active')) {
+            MAQUINAS.forEach(m => {
+                const el = document.querySelector(`.mach[data-m="${m.id}"]`);
+                if (!el) return;
+                el.querySelector('.pct').textContent = Math.round(m.pct) + ' %';
+                el.querySelector('.m-bar i').style.width = m.pct + '%';
+                el.querySelector('polyline').setAttribute('points', linea(m.hist));
+            });
+        }
+    }, 1000);
+
+    /* ---------- NAVEGACIÓN ---------- */
+    function irA(vista) {
+        document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + vista));
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === vista));
+        if (vista === 'pedidos') { $('dot-ped').classList.remove('show'); pintarPedidos(); }
+        if (vista === 'planta') pintarMaquinas();
+        window.scrollTo(0, 0);
+    }
+    document.querySelector('.tabbar').addEventListener('click', e => {
+        const t = e.target.closest('.tab');
+        if (t) irA(t.dataset.view);
+    });
+
+    pintar3d();
+    girar();
+    pintarPrecio();
+    pintarPedidos();
+    pintarMaquinas();
+    pintarKpis();
+})();
+</script>
+</body>
+</html>
