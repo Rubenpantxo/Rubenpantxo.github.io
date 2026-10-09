@@ -1,7 +1,7 @@
 /**
  * Genera, a partir de sistemas-datos.mjs:
- *   - los tres carruseles de servicios/sistemas-de-diseno.html
- *     (paletas y tipografias, componentes, y el catalogo final)
+ *   - las tarjetas del catalogo de servicios/sistemas-de-diseno.html
+ *     (la vitrina 3D y el mezclador leen el catalogo en vivo de tema-datos.js)
  *   - el numero de sistemas escrito en la prosa de esa pagina
  *   - una redireccion por cada URL de ficha antigua
  *
@@ -47,64 +47,31 @@ function numerar(html) {
       `<!--@N-->${palabra[0].toUpperCase()}${palabra.slice(1)}<!--/@N-->`);
 }
 
-/* ---------- carrusel A: paleta y tipografia ---------- */
-const railA = s => `        <li>
-          <a class="sd-mini" href="sistemas/${s.ficha}" style="--m-fondo:${s.tipo.fondo};--m-tinta:${s.tipo.tinta};--m-acento:${s.tipo.acento}" aria-label="${esc(s.nombre)}: paleta y tipografía">
-            <span class="sd-mini-nombre">${esc(s.nombre)}</span>
-            <span class="sd-mini-colores" aria-hidden="true">${s.acentos.map(c => `<span style="background:${c}"></span>`).join('')}</span>
-            <span><span class="sd-mini-display" style="${s.tipo.estilo}">${esc(s.tipo.muestra)}</span><span class="sd-mini-pie">${esc(s.tipo.pie)}</span></span>
-          </a>
-        </li>`;
-
-/* ---------- carrusel B: componentes ----------
-   Las piezas de dentro son muestras, no controles: van aria-hidden y lo
-   pulsable es la tarjeta entera. */
-function railB(s) {
-  const p = s.piezas;
-  // El boton de linea hereda --m-acento; solo se escribe color cuando difiere.
-  const lineaEstilo = p.linea.color === s.tipo.acento
-    ? ''
-    : ` style="border-color:${p.linea.color};color:${p.linea.color}"`;
-  const radioCheck = p.check.radio ? `;border-radius:${p.check.radio}` : '';
-  const radioVacio = p.check.radio ? ` style="border-radius:${p.check.radio}"` : '';
-  // El grosor lo pone el eje de elementos: es lo que la muestra ensena.
-  const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${p.grosor}">${d}</svg>`;
-
-  return `        <li>
-          <a class="sd-mini" href="sistemas/${s.ficha}" style="--m-fondo:${s.tipo.fondo};--m-tinta:${s.tipo.tinta};--m-acento:${s.tipo.acento};--m-radio:${p.radio}" aria-label="${esc(s.nombre)}: botones, casillas e iconos">
-            <span class="sd-mini-nombre">${esc(s.nombre)}</span>
-            <span class="sd-m-fila" aria-hidden="true">
-              <span class="sd-m-btn" style="background:${p.solido.fondo};color:${p.solido.tinta}">${esc(p.solido.texto)}</span>
-              <span class="sd-m-btn sd-m-btn--linea"${lineaEstilo}>${esc(p.linea.texto)}</span>
-            </span>
-            <span class="sd-m-fila" aria-hidden="true">
-              <span class="sd-m-check" style="background:${p.check.fondo};color:${p.check.tinta}${radioCheck}">&#10003;</span>
-              <span class="sd-m-check sd-m-check--vacio"${radioVacio}></span>
-              <span class="sd-m-toggle" style="background:${p.toggle}"><i></i></span>
-              <span class="sd-m-iconos">
-                ${p.iconos.map(svg).join('\n                ')}
-              </span>
-            </span>
-          </a>
-        </li>`;
-}
-
-/* ---------- catalogo final ---------- */
-const tarjeta = s => `        <li>
-          <a class="cine-tarjeta sd-tarjeta" href="sistemas/${s.ficha}" style="--acento:${s.tokens.acento}">
-            <span class="sd-muestras" aria-hidden="true">
-              ${s.acentos.map(c => `<span style="background:${c}"></span>`).join('')}
-            </span>
-            <h3>${esc(s.nombre)}</h3>
-            <p>${esc(s.titular)}</p>
-            <span class="sd-rasgo">${esc(s.rasgo)}</span>
-          </a>
+/* ---------- catalogo: cada tarjeta ES su sistema ----------
+   El <li> lleva los tres ejes como atributos, asi que tema.css pone dentro
+   los tokens de ese sistema y la tarjeta se pinta con ellos. La firma de cada
+   uno (filamento, relieve, sombra dura...) va en la portada, por data-sistema.
+   Las piezas de muestra son controles de verdad: se pueden pulsar. */
+const dos = n => String(n).padStart(2, '0');
+const tarjeta = (s, i) => `        <li data-sistema="${s.id}" data-paleta="${s.paleta.id}" data-tipo="${s.tipografia.id}" data-elem="${s.elementos.id}" style="--i:${i}">
+          <article class="esp" aria-labelledby="esp-${s.id}">
+            <span class="esp-deco" aria-hidden="true"></span>${s.id === 'industrial' ? '\n            <span class="esp-cota" aria-hidden="true"><span data-cota>—</span></span>' : ''}
+            <div class="esp-cab"><span>${dos(i + 1)} / ${dos(sistemas.length)}</span><span>${s.paleta.banda === 'oscura' ? 'Oscuro' : 'Claro'}</span></div>
+            <h3 class="esp-nombre" id="esp-${s.id}">${esc(s.nombre)}</h3>
+            <p class="esp-titular">${esc(s.titular)}</p>
+            <div class="esp-ui">
+              <button class="sd-btn" type="button">Aceptar</button>
+              <button class="sd-btn sd-btn--linea" type="button">Ver</button>
+              <label class="sd-interruptor"><input type="checkbox" checked><span class="sr">Interruptor de ${esc(s.nombre)}</span></label>
+              <label class="sd-check"><input type="checkbox" checked><span class="sr">Casilla de ${esc(s.nombre)}</span></label>
+            </div>
+            <div class="esp-colores" aria-hidden="true">${s.acentos.map(c => `<span style="background:${c}"></span>`).join('')}</div>
+            <div class="esp-pie"><span>${esc(s.rasgo)}</span><a class="esp-ir" href="sistemas/${s.ficha}">Ficha<span class="sr"> de ${esc(s.nombre)}</span> ↗</a></div>
+          </article>
         </li>`;
 
 /* ---------- escribir la portada ---------- */
 let html = readFileSync(PORTADA, 'utf8');
-html = reemplazar(html, 'railA', sistemas.map(railA).join('\n'));
-html = reemplazar(html, 'railB', sistemas.map(railB).join('\n'));
 html = reemplazar(html, 'catalogo', sistemas.map(tarjeta).join('\n'));
 
 html = numerar(html);
