@@ -206,8 +206,69 @@ export function creaMinimapa(lienzo, datos, zona, lugares = []) {
     ctx.fillText('N', nx, ny + 0.5);
   }
 
+  // Mapa ampliado: todo el pueblo con el norte arriba; vista = { zoom, cx, cz } (centro en metros).
+  // Con zoom 1 cabe la zona entera en el lienzo.
+  function dibujaGrande(destino, { x, z, rumbo, otros = [] }, vista) {
+    const r = Math.min(window.devicePixelRatio, 2);
+    const w = Math.round(destino.clientWidth * r);
+    const h = Math.round(destino.clientHeight * r);
+    if (destino.width !== w || destino.height !== h) { destino.width = w; destino.height = h; }
+    const g = destino.getContext('2d');
+    const base = Math.min(w / zona.ancho, h / zona.alto);
+    const escala = base * vista.zoom;                      // px por metro
+    const aPx = (mx, mz) => [w / 2 + (mx - vista.cx) * escala, h / 2 + (mz - vista.cz) * escala];
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.fillStyle = '#10161e';
+    g.fillRect(0, 0, w, h);
+    const [x0, y0] = aPx(zona.x0, zona.z0);
+    g.imageSmoothingEnabled = true;
+    g.drawImage(mapa, x0, y0, zona.ancho * escala, zona.alto * escala);
+    const f = r * Math.min(1.6, Math.max(1, Math.sqrt(vista.zoom)));
+    for (const o of otros) {
+      const [ox, oy] = aPx(o.x, o.z);
+      g.beginPath();
+      g.arc(ox, oy, 4 * f, 0, Math.PI * 2);
+      g.fillStyle = cfg.colores.trafico;
+      g.fill();
+      g.lineWidth = 1.5 * f;
+      g.strokeStyle = '#1b2430';
+      g.stroke();
+    }
+    g.font = `${Math.round(18 * f)}px system-ui, "Segoe UI Emoji", sans-serif`;
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    for (const l of lugares) g.fillText(l.icono, ...aPx(l.x, l.z));
+    if (vista.zoom >= 2.5) {
+      g.font = `600 ${Math.round(12 * r)}px system-ui, sans-serif`;
+      g.fillStyle = '#1b2430';
+      for (const l of lugares) {
+        const [lx, ly] = aPx(l.x, l.z);
+        g.fillText(l.nombre, lx, ly + 18 * f);
+      }
+    }
+    const [jx, jy] = aPx(x, z);
+    g.save();
+    g.translate(jx, jy);
+    g.rotate(rumbo);
+    g.beginPath();
+    g.moveTo(0, -13 * f);
+    g.lineTo(9 * f, 9.5 * f);
+    g.lineTo(0, 5 * f);
+    g.lineTo(-9 * f, 9.5 * f);
+    g.closePath();
+    g.fillStyle = cfg.colores.jugador;
+    g.strokeStyle = '#ffffff';
+    g.lineWidth = 2.5 * f;
+    g.fill();
+    g.stroke();
+    g.restore();
+    return { escala };
+  }
+
   return {
     actualiza,
+    dibujaGrande,
     alternaGiro() { giraConRumbo = !giraConRumbo; return giraConRumbo; },
+    ponGiro(valor) { giraConRumbo = valor; },
   };
 }

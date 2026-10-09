@@ -1,4 +1,4 @@
-// Parámetros del HUD (velocímetro, minimapa, brújula). Ajustar aquí.
+// Parámetros del HUD (velocímetro y minimapa). Ajustar aquí.
 export const HUD = {
   velocimetro: {
     maxKmh: 140,
@@ -12,6 +12,7 @@ export const HUD = {
     radioVisibleM: 130,     // metros del centro al borde a poca velocidad…
     radioVisibleRapidoM: 230, // …y a 90 km/h o más (se aleja con la velocidad)
     giraConRumbo: true,     // true: el coche apunta siempre arriba; false: norte arriba (tecla M)
+    zoomMaxGrande: 8,       // mapa ampliado: cuánto se puede acercar sobre la vista de todo el pueblo
     colores: {
       fondo: '#d9cfb3',
       campo: '#cfc6a6',
@@ -26,8 +27,5 @@ export const HUD = {
       jugador: '#e53935',
       trafico: '#2f80ed',
     },
-  },
-  brujula: {
-    anchoGrados: 120,       // grados visibles en la franja
   },
 };

@@ -1,5 +1,5 @@
 {
-  "_descripcion": "Modelos de coche descargados por Rubén (data/raw/coches/<id>/). largo_m = largo real; girar = grados alrededor de la vertical tras alinear el largo con el eje del coche (0 o 180 según hacia dónde mire el frontal); excluir = expresiones regulares de nombres de objeto que se quitan; pintura = expresiones de los materiales de carrocería (false = no se tiñe); rotar_objetos = correcciones de ejes por objeto; tris = presupuesto de triángulos propio.",
+  "_descripcion": "Modelos de coche descargados por Rubén (data/raw/coches/<id>/). largo_m = largo real; girar = grados alrededor de la vertical tras alinear el largo con el eje del coche (0 o 180 según hacia dónde mire el frontal); excluir = expresiones regulares de nombres de objeto que se quitan; excluir_materiales = las de materiales cuyas caras se quitan; pintura = expresiones de los materiales de carrocería (false = no se tiñe); rotar_objetos = correcciones de ejes por objeto; tris = presupuesto de triángulos propio.",
   "tris_aparcado": 9000,
   "tris_lejos": 1500,
   "tris_jugador": 45000,
@@ -23,7 +23,7 @@
      ],
      "pintura": ["^Paint$"], "fuente": "3DExport (Civilian Vehicle 05)"},
     {"id": "gris", "archivo": "grey car fbx.FBX", "largo_m": 4.68, "girar": 0, "pintura": ["^asdasd$"], "fuente": "3DExport (Grey car)"},
-    {"id": "kuga", "archivo": "Kuga2017_FBX.fbx", "largo_m": 4.52, "girar": 180, "excluir": ["INTERIOR"],
+    {"id": "kuga", "archivo": "Kuga2017_FBX.fbx", "largo_m": 4.52, "girar": 180, "excluir_materiales": ["^INTERIOR_SKIN", "^BRAKELIGHT_INTERIOR$", "^DULLPLASTIC_$"],
      "pintura": ["CARSKIN"], "fuente": "3DExport (Ford Kuga 2017)"},
     {"id": "coche14", "archivo": "car.obj", "largo_m": 4.74, "girar": 0, "excluir": ["^Plane"], "fuente": "Car (14-car.zip)"},
     {"id": "coche43", "archivo": "202009122216-2.blend", "largo_m": 4.26, "girar": 180, "excluir": ["^Plane", "^Cube"],
