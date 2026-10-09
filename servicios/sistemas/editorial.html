@@ -3,7 +3,7 @@
 <html lang="es" data-paleta="tinta-fucsia" data-tipo="anton-archivo" data-elem="cartel" data-preset="editorial" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Editorial — Sistema de diseño</title>
 <meta name="description" content="Editorial: un sistema de cartel. Reglas gruesas, titulares condensados enormes y un fucsia que corta el blanco y negro.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,23 +11,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
+<link rel="stylesheet" href="ficha.css">
 <script src="copiar-color.js" defer></script>
 <script src="tema-datos.js"></script>
 <script src="../../js/selector-sistema.js" defer></script>
+<script type="module" src="../../js/sistemas-ficha.js"></script>
 </head>
 <body>
-<div class="sd-contenedor">
 
-  <header class="sd-cabecera">
-    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-    <span class="sd-etiqueta">Claro · cartel · reglas gruesas</span>
-    <h1 class="sd-titulo">Editorial</h1>
-    <p class="sd-bajada">Un cartel pegado en la calle. Titulares condensados que ocupan el ancho entero, reglas de tinta de tres y ocho píxeles, y un fucsia que solo aparece cuando hay algo que decidir.</p>
-  </header>
+<header class="fx-hero">
+  <nav class="fx-barra" aria-label="Sistemas">
+    <a class="fx-volver" href="../sistemas-de-diseno.html"><span aria-hidden="true">&#8592;</span> Todos los sistemas</a>
+    <span class="fx-mono">03 / 09</span>
+    <div class="fx-vecinos">
+      <a href="terracota.html" aria-label="Sistema anterior: Terracota">&#8592;</a>
+      <a href="carmin.html" aria-label="Sistema siguiente: Carmín">&#8594;</a>
+    </div>
+  </nav>
 
-  <section class="sd-seccion">
-    <h2>Paleta</h2>
-    <p>Tres neutros y un fucsia. El negro no es gris oscuro: es tinta, y hace de regla, de fondo invertido y de texto a la vez.</p>
+  <div class="fx-hero-cuerpo">
+    <div class="fx-hero-texto">
+      <p class="fx-etiqueta fx-mono">Claro · cartel · reglas gruesas</p>
+      <h1 class="fx-nombre fx-disp" aria-label="Editorial"><span aria-hidden="true"><span style="--i:0">E</span><span style="--i:1">d</span><span style="--i:2">i</span><span style="--i:3">t</span><span style="--i:4">o</span><span style="--i:5">r</span><span style="--i:6">i</span><span style="--i:7">a</span><span style="--i:8">l</span></span></h1>
+      <p class="fx-bajada">Un cartel pegado en la calle. Titulares condensados que ocupan el ancho entero, reglas de tinta de tres y ocho píxeles, y un fucsia que solo aparece cuando hay algo que decidir.</p>
+      <div class="fx-acciones">
+        <a class="sd-btn" href="../tienda-ropa.html?paleta=tinta-fucsia&amp;tipo=anton-archivo&amp;elem=cartel">Pruébalo en una app &#8599;</a>
+        <button class="sd-btn sd-btn--linea fx-copiado" type="button" data-copiar-tokens>Copiar los tokens</button>
+      </div>
+    </div>
+    <figure class="fx-objeto" id="fx-objeto" aria-hidden="true">
+      <div class="fx-reserva"></div>
+      <canvas id="fx-lienzo"></canvas>
+      <figcaption class="fx-pista fx-mono">Arrastra para girarlo</figcaption>
+    </figure>
+  </div>
+
+  <ul class="fx-ejes">
+    <li><a href="#paleta"><small class="fx-mono">Paleta</small><b>Tinta y fucsia</b><span class="fx-eje-muestra fx-bolas" aria-hidden="true"><i style="background:#e7335a"></i><i style="background:#fafafa"></i><i style="background:#111114"></i><i style="background:#111114"></i></span></a></li>
+    <li><a href="#tipografia"><small class="fx-mono">Tipografía</small><b>Anton + Archivo</b><span class="fx-eje-muestra fx-aa fx-disp" aria-hidden="true">Aa</span></a></li>
+    <li><a href="#componentes"><small class="fx-mono">Elementos</small><b>Cartel</b><span class="fx-eje-muestra fx-forma" aria-hidden="true"></span></a></li>
+  </ul>
+</header>
+
+<main class="fx-main">
+
+  <section class="fx-seccion" id="paleta">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">01</span><h2 class="fx-disp">Paleta</h2><p>Tres neutros y un fucsia. El negro no es gris oscuro: es tinta, y hace de regla, de fondo invertido y de texto a la vez. Toca un color para copiarlo.</p></header>
     <ul class="pl-rejilla">
       <li>
         <button class="pl-color" type="button" data-hex="#111114" style="--c:#111114;--t:#ffffff"
@@ -80,9 +109,13 @@
     </ul>
   </section>
 
-  <section class="sd-seccion">
-    <h2>Tipografía</h2>
-    <p>Anton, una condensada de cartel, siempre en mayúsculas y siempre grande. Debajo, Archivo: una grotesca sobria que no compite.</p>
+  <section class="fx-seccion" id="tipografia">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">02</span><h2 class="fx-disp">Tipografía</h2><p>Anton, una condensada de cartel, siempre en mayúsculas y siempre grande. Debajo, Archivo: una grotesca sobria que no compite.</p></header>
+    <div class="fx-probar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+      <input type="text" id="fx-texto" placeholder="Escribe aquí el nombre de tu negocio" aria-label="Texto de prueba para la tipografía" maxlength="60">
+      <label class="fx-tamano fx-mono">Tamaño <input type="range" id="fx-escala" min="0.6" max="1.6" step="0.05" value="1"></label>
+    </div>
     <ul class="sd-tipo">
       <li><span class="sd-tipo-meta">Display · Anton</span><span class="sd-muestra-display">Cartel</span></li>
       <li><span class="sd-tipo-meta">Título · Anton</span><span class="sd-muestra-titulo">Un segundo nivel, igual de alto</span></li>
@@ -91,9 +124,8 @@
     </ul>
   </section>
 
-  <section class="sd-seccion" id="componentes">
-    <h2>Componentes</h2>
-    <p>Sin radio y sin sombra. Todo se separa con reglas de tinta: tres píxeles en los contenedores y doce arriba de cada tarjeta, como la cabecera de una columna.</p>
+  <section class="fx-seccion" id="componentes">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">03</span><h2 class="fx-disp">Componentes</h2><p>Sin radio y sin sombra. Todo se separa con reglas de tinta: tres píxeles en los contenedores y doce arriba de cada tarjeta, como la cabecera de una columna.</p></header>
     <ul class="sd-kit-rejilla">
       <li class="sd-kit-pieza">
         <h3>Botones</h3>
@@ -211,15 +243,35 @@
     </div>
   </section>
 
-  <nav class="sd-pie" aria-label="Enlaces relacionados">
-    <a class="sd-enlace" href="../tienda-ropa.html">Ver la paleta en una web &#8599;</a>
-    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
-    <a class="sd-enlace" href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
-    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
-    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-  </nav>
+  <section class="fx-seccion" id="apps">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">04</span><h2 class="fx-disp">Pruébalo en una app</h2><p>Las ocho demos se abren vestidas con Editorial. El selector de abajo a la derecha deja cambiarlo en vivo.</p></header>
+    <ul class="fx-demos">
+      <li><a href="../bar-restaurante.html?paleta=tinta-fucsia&amp;tipo=anton-archivo&amp;elem=cartel"><span><b>Bar &amp; Restaurante</b><small>La mesa en 3D</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../tienda-ropa.html?paleta=tinta-fucsia&amp;tipo=anton-archivo&amp;elem=cartel" class="es-suya"><span><b>Tienda de ropa</b><small>La prenda colgada · la que mejor le va</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../carniceria.html?paleta=tinta-fucsia&amp;tipo=anton-archivo&amp;elem=cartel"><span><b>Carnicería</b><small>La báscula</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../gimnasio.html?paleta=tinta-fucsia&amp;tipo=anton-archivo&amp;elem=cartel"><span><b>Gimnasio</b><small>El cuerpo</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../supermercado.html?paleta=tinta-fucsia&amp;tipo=anton-archivo&amp;elem=cartel"><span><b>Supermercado</b><small>La cesta</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../granja.html?paleta=tinta-fucsia&amp;tipo=anton-archivo&amp;elem=cartel"><span><b>Granja</b><small>La finca</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../industria.html?paleta=tinta-fucsia&amp;tipo=anton-archivo&amp;elem=cartel"><span><b>Industria</b><small>La pieza</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../logistica.html?paleta=tinta-fucsia&amp;tipo=anton-archivo&amp;elem=cartel"><span><b>Logística</b><small>El mapa y la caja</small></span><span aria-hidden="true">&#8599;</span></a></li>
+    </ul>
+  </section>
 
-</div>
+</main>
+
+<footer class="fx-pie">
+  <nav class="fx-siguientes" aria-label="Otros sistemas">
+    <a href="terracota.html"><small class="fx-mono">&#8592; Anterior</small><b class="fx-disp">Terracota</b></a>
+    <a href="carmin.html"><small class="fx-mono">Siguiente &#8594;</small><b class="fx-disp">Carmín</b></a>
+  </nav>
+  <nav class="fx-enlaces" aria-label="Enlaces relacionados">
+    <a href="configurador.html?paleta=tinta-fucsia&amp;tipo=anton-archivo&amp;elem=cartel">Montar el tuyo &#8599;</a>
+    <a href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
+    <a href="paletas.html">Muestrario de color completo</a>
+    <a href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+</footer>
+
 <p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>

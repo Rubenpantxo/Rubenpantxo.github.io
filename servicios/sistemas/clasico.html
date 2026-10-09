@@ -3,7 +3,7 @@
 <html lang="es" data-paleta="tinta-oro" data-tipo="cormorant-cursiva" data-elem="filete" data-preset="clasico" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Clásico — Sistema de diseño</title>
 <meta name="description" content="Clásico: tinta profunda, filetes de oro y serif en cursiva. Un sistema oscuro y sereno, de estuche.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,23 +11,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500;1,600&family=Lora:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
+<link rel="stylesheet" href="ficha.css">
 <script src="copiar-color.js" defer></script>
 <script src="tema-datos.js"></script>
 <script src="../../js/selector-sistema.js" defer></script>
+<script type="module" src="../../js/sistemas-ficha.js"></script>
 </head>
 <body>
-<div class="sd-contenedor">
 
-  <header class="sd-cabecera">
-    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-    <span class="sd-etiqueta">Oscuro · oro · serif en cursiva</span>
-    <h1 class="sd-titulo">Clásico</h1>
-    <p class="sd-bajada">Tinta casi negra, marfil para leer y oro para enmarcar. Los titulares van en cursiva, como grabados, y los contenedores no se rellenan: se delimitan con un filete doble.</p>
-  </header>
+<header class="fx-hero">
+  <nav class="fx-barra" aria-label="Sistemas">
+    <a class="fx-volver" href="../sistemas-de-diseno.html"><span aria-hidden="true">&#8592;</span> Todos los sistemas</a>
+    <span class="fx-mono">08 / 09</span>
+    <div class="fx-vecinos">
+      <a href="organico.html" aria-label="Sistema anterior: Orgánico">&#8592;</a>
+      <a href="industrial.html" aria-label="Sistema siguiente: Industrial">&#8594;</a>
+    </div>
+  </nav>
 
-  <section class="sd-seccion">
-    <h2>Paleta</h2>
-    <p>Una tinta cálida en tres profundidades, marfil para el texto y un oro que se usa en líneas, casi nunca en rellenos. Si el oro ocupa mucho, deja de ser oro.</p>
+  <div class="fx-hero-cuerpo">
+    <div class="fx-hero-texto">
+      <p class="fx-etiqueta fx-mono">Oscuro · oro · serif en cursiva</p>
+      <h1 class="fx-nombre fx-disp" aria-label="Clásico"><span aria-hidden="true"><span style="--i:0">C</span><span style="--i:1">l</span><span style="--i:2">á</span><span style="--i:3">s</span><span style="--i:4">i</span><span style="--i:5">c</span><span style="--i:6">o</span></span></h1>
+      <p class="fx-bajada">Tinta casi negra, marfil para leer y oro para enmarcar. Los titulares van en cursiva, como grabados, y los contenedores no se rellenan: se delimitan con un filete doble.</p>
+      <div class="fx-acciones">
+        <a class="sd-btn" href="../bar-restaurante.html?paleta=tinta-oro&amp;tipo=cormorant-cursiva&amp;elem=filete">Pruébalo en una app &#8599;</a>
+        <button class="sd-btn sd-btn--linea fx-copiado" type="button" data-copiar-tokens>Copiar los tokens</button>
+      </div>
+    </div>
+    <figure class="fx-objeto" id="fx-objeto" aria-hidden="true">
+      <div class="fx-reserva"></div>
+      <canvas id="fx-lienzo"></canvas>
+      <figcaption class="fx-pista fx-mono">Arrastra para girarlo</figcaption>
+    </figure>
+  </div>
+
+  <ul class="fx-ejes">
+    <li><a href="#paleta"><small class="fx-mono">Paleta</small><b>Tinta y oro</b><span class="fx-eje-muestra fx-bolas" aria-hidden="true"><i style="background:#c9a255"></i><i style="background:#14110d"></i><i style="background:#f1e8d8"></i><i style="background:#9c7b4a"></i></span></a></li>
+    <li><a href="#tipografia"><small class="fx-mono">Tipografía</small><b>Cormorant en cursiva + Lora</b><span class="fx-eje-muestra fx-aa fx-disp" aria-hidden="true">Aa</span></a></li>
+    <li><a href="#componentes"><small class="fx-mono">Elementos</small><b>Filete</b><span class="fx-eje-muestra fx-forma" aria-hidden="true"></span></a></li>
+  </ul>
+</header>
+
+<main class="fx-main">
+
+  <section class="fx-seccion" id="paleta">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">01</span><h2 class="fx-disp">Paleta</h2><p>Una tinta cálida en tres profundidades, marfil para el texto y un oro que se usa en líneas, casi nunca en rellenos. Si el oro ocupa mucho, deja de ser oro. Toca un color para copiarlo.</p></header>
     <ul class="pl-rejilla">
       <li>
         <button class="pl-color" type="button" data-hex="#14110D" style="--c:#14110d;--t:#ffffff"
@@ -96,9 +125,13 @@
     </ul>
   </section>
 
-  <section class="sd-seccion">
-    <h2>Tipografía</h2>
-    <p>Cormorant Garamond en cursiva para los titulares: mucho contraste y trazo fino. Lora para leer, una serif pensada para pantalla.</p>
+  <section class="fx-seccion" id="tipografia">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">02</span><h2 class="fx-disp">Tipografía</h2><p>Cormorant Garamond en cursiva para los titulares: mucho contraste y trazo fino. Lora para leer, una serif pensada para pantalla.</p></header>
+    <div class="fx-probar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+      <input type="text" id="fx-texto" placeholder="Escribe aquí el nombre de tu negocio" aria-label="Texto de prueba para la tipografía" maxlength="60">
+      <label class="fx-tamano fx-mono">Tamaño <input type="range" id="fx-escala" min="0.6" max="1.6" step="0.05" value="1"></label>
+    </div>
     <ul class="sd-tipo">
       <li><span class="sd-tipo-meta">Display · Cormorant cursiva</span><span class="sd-muestra-display">Oro y cursiva</span></li>
       <li><span class="sd-tipo-meta">Título · Cormorant cursiva</span><span class="sd-muestra-titulo">Un segundo nivel</span></li>
@@ -107,9 +140,8 @@
     </ul>
   </section>
 
-  <section class="sd-seccion" id="componentes">
-    <h2>Componentes</h2>
-    <p>Filete de oro al 50 % y un segundo filete, más tenue, a cuatro píxeles: el marco doble de una lámina. Botones en contorno y versalitas espaciadas.</p>
+  <section class="fx-seccion" id="componentes">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">03</span><h2 class="fx-disp">Componentes</h2><p>Filete de oro al 50 % y un segundo filete, más tenue, a cuatro píxeles: el marco doble de una lámina. Botones en contorno y versalitas espaciadas.</p></header>
     <ul class="sd-kit-rejilla">
       <li class="sd-kit-pieza">
         <h3>Botones</h3>
@@ -227,14 +259,35 @@
     </div>
   </section>
 
-  <nav class="sd-pie" aria-label="Enlaces relacionados">
-    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
-    <a class="sd-enlace" href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
-    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
-    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-  </nav>
+  <section class="fx-seccion" id="apps">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">04</span><h2 class="fx-disp">Pruébalo en una app</h2><p>Las ocho demos se abren vestidas con Clásico. El selector de abajo a la derecha deja cambiarlo en vivo.</p></header>
+    <ul class="fx-demos">
+      <li><a href="../bar-restaurante.html?paleta=tinta-oro&amp;tipo=cormorant-cursiva&amp;elem=filete" class="es-suya"><span><b>Bar &amp; Restaurante</b><small>La mesa en 3D · la que mejor le va</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../tienda-ropa.html?paleta=tinta-oro&amp;tipo=cormorant-cursiva&amp;elem=filete"><span><b>Tienda de ropa</b><small>La prenda colgada</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../carniceria.html?paleta=tinta-oro&amp;tipo=cormorant-cursiva&amp;elem=filete"><span><b>Carnicería</b><small>La báscula</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../gimnasio.html?paleta=tinta-oro&amp;tipo=cormorant-cursiva&amp;elem=filete"><span><b>Gimnasio</b><small>El cuerpo</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../supermercado.html?paleta=tinta-oro&amp;tipo=cormorant-cursiva&amp;elem=filete"><span><b>Supermercado</b><small>La cesta</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../granja.html?paleta=tinta-oro&amp;tipo=cormorant-cursiva&amp;elem=filete"><span><b>Granja</b><small>La finca</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../industria.html?paleta=tinta-oro&amp;tipo=cormorant-cursiva&amp;elem=filete"><span><b>Industria</b><small>La pieza</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../logistica.html?paleta=tinta-oro&amp;tipo=cormorant-cursiva&amp;elem=filete"><span><b>Logística</b><small>El mapa y la caja</small></span><span aria-hidden="true">&#8599;</span></a></li>
+    </ul>
+  </section>
 
-</div>
+</main>
+
+<footer class="fx-pie">
+  <nav class="fx-siguientes" aria-label="Otros sistemas">
+    <a href="organico.html"><small class="fx-mono">&#8592; Anterior</small><b class="fx-disp">Orgánico</b></a>
+    <a href="industrial.html"><small class="fx-mono">Siguiente &#8594;</small><b class="fx-disp">Industrial</b></a>
+  </nav>
+  <nav class="fx-enlaces" aria-label="Enlaces relacionados">
+    <a href="configurador.html?paleta=tinta-oro&amp;tipo=cormorant-cursiva&amp;elem=filete">Montar el tuyo &#8599;</a>
+    <a href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
+    <a href="paletas.html">Muestrario de color completo</a>
+    <a href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+</footer>
+
 <p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>

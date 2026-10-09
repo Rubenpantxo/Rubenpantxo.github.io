@@ -1,20 +1,20 @@
 <!DOCTYPE html>
+<!-- Generado por generar-fichas.mjs desde sistemas-datos.mjs y fichas-datos.mjs. No editar a mano. -->
 <html lang="es" data-paleta="carbon-lima" data-tipo="inter-mono" data-elem="pastilla-mutante" data-preset="halogeno" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Halógeno — Sistema de diseño</title>
 <meta name="description" content="Halógeno: oscuro, cinético y de un solo acento. Sistema de diseño con radios que mutan y profundidad por anillos de luz.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<!-- Esta ficha no imita los componentes: carga el mismo CSS que esta en
-     produccion, asi que lo que se ve aqui son las piezas de verdad. -->
 <link rel="stylesheet" href="../../apps/escenas/halogen.css">
 <link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
+<link rel="stylesheet" href="ficha.css">
 <style>
-  /* Puente entre los tokens del kit y la estructura compartida de las fichas. */
+/* Puente entre los tokens del kit y la estructura compartida de las fichas. */
   /* Al reves que antes: ahora el kit sigue al tema, no lo impone. Asi los
      componentes hk- cambian con la paleta que elijas. */
   :root {
@@ -49,20 +49,48 @@
 <script src="copiar-color.js" defer></script>
 <script src="tema-datos.js"></script>
 <script src="../../js/selector-sistema.js" defer></script>
+<script type="module" src="../../js/sistemas-ficha.js"></script>
 </head>
 <body>
-<div class="sd-contenedor">
 
-  <header class="sd-cabecera">
-    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-    <span class="hk-eyebrow">Oscuro · un acento · radio mutante</span>
-    <h1 class="sd-titulo">Halógeno</h1>
-    <p class="sd-bajada">Oscuro, cinético y de un solo acento. Profundidad por anillos de luz en vez de sombras, y radios que mutan: lo que está en reposo es una pastilla y al activarse se cuadra.</p>
-  </header>
+<header class="fx-hero">
+  <nav class="fx-barra" aria-label="Sistemas">
+    <a class="fx-volver" href="../sistemas-de-diseno.html"><span aria-hidden="true">&#8592;</span> Todos los sistemas</a>
+    <span class="fx-mono">01 / 09</span>
+    <div class="fx-vecinos">
+      <a href="industrial.html" aria-label="Sistema anterior: Industrial">&#8592;</a>
+      <a href="terracota.html" aria-label="Sistema siguiente: Terracota">&#8594;</a>
+    </div>
+  </nav>
 
-  <section class="sd-seccion">
-    <h2>Paleta</h2>
-    <p>Cuatro negros verdosos que se apilan por profundidad y un único acento de alto voltaje. No hay color secundario: si algo necesita destacar, o es lima o no destaca.</p>
+  <div class="fx-hero-cuerpo">
+    <div class="fx-hero-texto">
+      <p class="fx-etiqueta fx-mono">Oscuro · un acento · radio mutante</p>
+      <h1 class="fx-nombre fx-disp" aria-label="Halógeno"><span aria-hidden="true"><span style="--i:0">H</span><span style="--i:1">a</span><span style="--i:2">l</span><span style="--i:3">ó</span><span style="--i:4">g</span><span style="--i:5">e</span><span style="--i:6">n</span><span style="--i:7">o</span></span></h1>
+      <p class="fx-bajada">Oscuro, cinético y de un solo acento. Profundidad por anillos de luz en vez de sombras, y radios que mutan: lo que está en reposo es una pastilla y al activarse se cuadra.</p>
+      <div class="fx-acciones">
+        <a class="sd-btn" href="../logistica.html?paleta=carbon-lima&amp;tipo=inter-mono&amp;elem=pastilla-mutante">Pruébalo en una app &#8599;</a>
+        <button class="sd-btn sd-btn--linea fx-copiado" type="button" data-copiar-tokens>Copiar los tokens</button>
+      </div>
+    </div>
+    <figure class="fx-objeto" id="fx-objeto" aria-hidden="true">
+      <div class="fx-reserva"></div>
+      <canvas id="fx-lienzo"></canvas>
+      <figcaption class="fx-pista fx-mono">Arrastra para girarlo</figcaption>
+    </figure>
+  </div>
+
+  <ul class="fx-ejes">
+    <li><a href="#paleta"><small class="fx-mono">Paleta</small><b>Carbón y lima</b><span class="fx-eje-muestra fx-bolas" aria-hidden="true"><i style="background:#a3e635"></i><i style="background:#0a0d0a"></i><i style="background:#f2f5f0"></i><i style="background:#8ecc1f"></i></span></a></li>
+    <li><a href="#tipografia"><small class="fx-mono">Tipografía</small><b>Inter Tight + JetBrains Mono</b><span class="fx-eje-muestra fx-aa fx-disp" aria-hidden="true">Aa</span></a></li>
+    <li><a href="#componentes"><small class="fx-mono">Elementos</small><b>Pastilla mutante</b><span class="fx-eje-muestra fx-forma" aria-hidden="true"></span></a></li>
+  </ul>
+</header>
+
+<main class="fx-main">
+
+  <section class="fx-seccion" id="paleta">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">01</span><h2 class="fx-disp">Paleta</h2><p>Cuatro negros verdosos que se apilan por profundidad y un único acento de alto voltaje. No hay color secundario: si algo necesita destacar, o es lima o no destaca. Toca un color para copiarlo.</p></header>
     <ul class="pl-rejilla">
       <li>
         <button class="pl-color" type="button" data-hex="#0A0D0A" style="--c:#0a0d0a;--t:#ffffff"
@@ -129,95 +157,25 @@
         </button>
       </li>
     </ul>
-    <p class="sd-mono">Además: halogen-soft rgba(163,230,53,.14) para fondos tenues y halogen-glow rgba(163,230,53,.35) para el resplandor.</p>
   </section>
 
-  <section class="sd-seccion">
-    <h2>Tipografía</h2>
-    <p>Inter Tight para todo lo que se lee y JetBrains Mono para lo que se mide. El monoespaciado no es decoración: marca lo que es un dato, un estado o una etiqueta técnica.</p>
+  <section class="fx-seccion" id="tipografia">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">02</span><h2 class="fx-disp">Tipografía</h2><p>Inter Tight para todo lo que se lee y JetBrains Mono para lo que se mide. El monoespaciado no es decoración: marca lo que es un dato, un estado o una etiqueta técnica.</p></header>
+    <div class="fx-probar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+      <input type="text" id="fx-texto" placeholder="Escribe aquí el nombre de tu negocio" aria-label="Texto de prueba para la tipografía" maxlength="60">
+      <label class="fx-tamano fx-mono">Tamaño <input type="range" id="fx-escala" min="0.6" max="1.6" step="0.05" value="1"></label>
+    </div>
     <ul class="sd-tipo">
-      <li><span class="sd-tipo-meta">Display · Inter Tight 900</span><span class="sd-muestra-display hk-display">Alto voltaje</span></li>
-      <li><span class="sd-tipo-meta">Título · Inter Tight 700</span><span class="sd-muestra-titulo" style="font-weight:700">Un solo acento de alto voltaje</span></li>
+      <li><span class="sd-tipo-meta">Display · Inter Tight 900</span><span class="sd-muestra-display">Alto voltaje</span></li>
+      <li><span class="sd-tipo-meta">Título · Inter Tight 700</span><span class="sd-muestra-titulo">Un solo acento de alto voltaje</span></li>
       <li><span class="sd-tipo-meta">Cuerpo · Inter Tight 400</span><span class="sd-muestra-cuerpo">La interfaz desaparece y deja mandar al contenido. Sobre negro verdoso, un texto claro descansa la vista incluso después de un rato largo.</span></li>
-      <li><span class="sd-tipo-meta">Dato · JetBrains Mono</span><span class="sd-muestra-pie" style="font-family:var(--font-mono);letter-spacing:.18em;text-transform:uppercase">dato · etiqueta técnica</span></li>
+      <li><span class="sd-tipo-meta">Dato · JetBrains Mono</span><span class="sd-muestra-pie sd-muestra-dato">dato · etiqueta técnica</span></li>
     </ul>
   </section>
 
-  <section class="sd-seccion">
-    <h2>Componentes</h2>
-    <p>Estos no son una imitación: esta página carga el mismo <span class="sd-mono">halogen.css</span> que está en producción, así que son las piezas de verdad. Pasa el ratón por encima y fíjate en cómo cambian de forma.</p>
-
-    <h3>Botones</h3>
-    <div class="sd-lienzo">
-      <button class="hk-btn hk-btn--primary" type="button">Aceptar <span class="hk-btn__arrow">&#8594;</span></button>
-      <button class="hk-btn" type="button">Restablecer</button>
-      <button class="hk-btn" type="button" disabled>No disponible</button>
-    </div>
-
-    <h3>Chip y baldosa de icono</h3>
-    <div class="sd-lienzo">
-      <span class="hk-chip">Activo</span>
-      <span class="hk-chip hk-chip--mute">Sin definir</span>
-      <span class="hk-tile" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7Z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-      </span>
-      <span class="hk-tile hk-tile--soft" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      </span>
-    </div>
-
-    <h3>Casillas</h3>
-    <div class="sd-lienzo" style="flex-direction:column;align-items:stretch;gap:0">
-      <label class="hk-check">
-        <input type="checkbox" checked>
-        <span class="hk-check__dot"></span>
-        <span class="hk-check__label">Mostrar rejilla</span>
-        <span class="hk-check__state">ON</span>
-      </label>
-      <label class="hk-check">
-        <input type="checkbox">
-        <span class="hk-check__dot"></span>
-        <span class="hk-check__label">Sombras suaves</span>
-        <span class="hk-check__state">OFF</span>
-      </label>
-      <label class="hk-check">
-        <input type="checkbox" checked>
-        <span class="hk-check__dot"></span>
-        <span class="hk-check__label">Bloquear proporción</span>
-        <span class="hk-check__state">ON</span>
-      </label>
-    </div>
-
-    <h3>Campo y dato</h3>
-    <div class="sd-lienzo">
-      <span class="hk-field">
-        <input type="text" value="Sin título" aria-label="Nombre del documento">
-      </span>
-      <span class="hk-stat">
-        <span class="hk-stat__value hk-num">128</span>
-        <span class="sd-mono">elementos</span>
-      </span>
-      <span class="hk-stat">
-        <span class="hk-stat__value hk-num">24 px</span>
-        <span class="sd-mono">retícula</span>
-      </span>
-    </div>
-
-    <h3>Tarjeta</h3>
-    <div class="sd-lienzo">
-      <article class="hk-card" style="max-width:22rem">
-        <span class="hk-eyebrow">Ejemplo</span>
-        <h4 style="margin:.5rem 0 .35rem;font-weight:700">Tarjeta de contenido</h4>
-        <p style="margin:0 0 1rem;color:var(--ink-dim);font-size:.9rem">Una línea de apoyo en texto secundario, del largo que suele tener de verdad.</p>
-        <button class="hk-btn hk-btn--primary hk-btn--block" type="button">Abrir <span class="hk-btn__arrow">&#8594;</span></button>
-      </article>
-    </div>
-  </section>
-
-  <section class="sd-seccion" id="componentes">
-    <h2>El kit</h2>
-    <p>Los ocho componentes que tienen todos los sistemas, con la piel de Halógeno: radios que se cuadran al tocarlos y anillos de luz en vez de sombras. Son los mismos que puedes copiar sueltos en la Biblioteca de elementos.</p>
-    <!--@bloque kit-->
+  <section class="fx-seccion" id="componentes">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">03</span><h2 class="fx-disp">Componentes</h2><p>Los ocho componentes que tienen todos los sistemas, con la piel de Halógeno: radios que se cuadran al tocarlos y anillos de luz en vez de sombras. Son los mismos que puedes copiar sueltos en la Biblioteca de elementos.</p></header>
     <ul class="sd-kit-rejilla">
       <li class="sd-kit-pieza">
         <h3>Botones</h3>
@@ -324,17 +282,116 @@
         </div>
       </li>
     </ul>
-    <!--/@bloque kit-->
+
+    <h3>Iconos</h3>
+    <div class="sd-lienzo sd-iconos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Inicio"><path d="M3 10 12 4l9 6v10H3V10Z"/><path d="M9 20v-6h6v6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Buscar"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.3-4.3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Ajustes"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Aviso"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Progreso"><path d="M3 17l5-6 4 4 5-8 4 5"/></svg>
+    </div>
   </section>
 
-  <nav class="sd-pie" aria-label="Enlaces relacionados">
-    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
-    <a class="sd-enlace" href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
-    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
-    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-  </nav>
+  <section class="fx-seccion" id="produccion">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">+</span><h2 class="fx-disp">Las piezas de producción</h2></header>
 
-</div>
+    <h3>Botones</h3>
+    <div class="sd-lienzo">
+      <button class="hk-btn hk-btn--primary" type="button">Aceptar <span class="hk-btn__arrow">&#8594;</span></button>
+      <button class="hk-btn" type="button">Restablecer</button>
+      <button class="hk-btn" type="button" disabled>No disponible</button>
+    </div>
+
+    <h3>Chip y baldosa de icono</h3>
+    <div class="sd-lienzo">
+      <span class="hk-chip">Activo</span>
+      <span class="hk-chip hk-chip--mute">Sin definir</span>
+      <span class="hk-tile" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7Z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      </span>
+      <span class="hk-tile hk-tile--soft" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      </span>
+    </div>
+
+    <h3>Casillas</h3>
+    <div class="sd-lienzo" style="flex-direction:column;align-items:stretch;gap:0">
+      <label class="hk-check">
+        <input type="checkbox" checked>
+        <span class="hk-check__dot"></span>
+        <span class="hk-check__label">Mostrar rejilla</span>
+        <span class="hk-check__state">ON</span>
+      </label>
+      <label class="hk-check">
+        <input type="checkbox">
+        <span class="hk-check__dot"></span>
+        <span class="hk-check__label">Sombras suaves</span>
+        <span class="hk-check__state">OFF</span>
+      </label>
+      <label class="hk-check">
+        <input type="checkbox" checked>
+        <span class="hk-check__dot"></span>
+        <span class="hk-check__label">Bloquear proporción</span>
+        <span class="hk-check__state">ON</span>
+      </label>
+    </div>
+
+    <h3>Campo y dato</h3>
+    <div class="sd-lienzo">
+      <span class="hk-field">
+        <input type="text" value="Sin título" aria-label="Nombre del documento">
+      </span>
+      <span class="hk-stat">
+        <span class="hk-stat__value hk-num">128</span>
+        <span class="sd-mono">elementos</span>
+      </span>
+      <span class="hk-stat">
+        <span class="hk-stat__value hk-num">24 px</span>
+        <span class="sd-mono">retícula</span>
+      </span>
+    </div>
+
+    <h3>Tarjeta</h3>
+    <div class="sd-lienzo">
+      <article class="hk-card" style="max-width:22rem">
+        <span class="hk-eyebrow">Ejemplo</span>
+        <h4 style="margin:.5rem 0 .35rem;font-weight:700">Tarjeta de contenido</h4>
+        <p style="margin:0 0 1rem;color:var(--ink-dim);font-size:.9rem">Una línea de apoyo en texto secundario, del largo que suele tener de verdad.</p>
+        <button class="hk-btn hk-btn--primary hk-btn--block" type="button">Abrir <span class="hk-btn__arrow">&#8594;</span></button>
+      </article>
+    </div>
+  </section>
+
+  <section class="fx-seccion" id="apps">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">04</span><h2 class="fx-disp">Pruébalo en una app</h2><p>Las ocho demos se abren vestidas con Halógeno. El selector de abajo a la derecha deja cambiarlo en vivo.</p></header>
+    <ul class="fx-demos">
+      <li><a href="../bar-restaurante.html?paleta=carbon-lima&amp;tipo=inter-mono&amp;elem=pastilla-mutante"><span><b>Bar &amp; Restaurante</b><small>La mesa en 3D</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../tienda-ropa.html?paleta=carbon-lima&amp;tipo=inter-mono&amp;elem=pastilla-mutante"><span><b>Tienda de ropa</b><small>La prenda colgada</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../carniceria.html?paleta=carbon-lima&amp;tipo=inter-mono&amp;elem=pastilla-mutante"><span><b>Carnicería</b><small>La báscula</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../gimnasio.html?paleta=carbon-lima&amp;tipo=inter-mono&amp;elem=pastilla-mutante"><span><b>Gimnasio</b><small>El cuerpo</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../supermercado.html?paleta=carbon-lima&amp;tipo=inter-mono&amp;elem=pastilla-mutante"><span><b>Supermercado</b><small>La cesta</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../granja.html?paleta=carbon-lima&amp;tipo=inter-mono&amp;elem=pastilla-mutante"><span><b>Granja</b><small>La finca</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../industria.html?paleta=carbon-lima&amp;tipo=inter-mono&amp;elem=pastilla-mutante"><span><b>Industria</b><small>La pieza</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../logistica.html?paleta=carbon-lima&amp;tipo=inter-mono&amp;elem=pastilla-mutante" class="es-suya"><span><b>Logística</b><small>El mapa y la caja · la que mejor le va</small></span><span aria-hidden="true">&#8599;</span></a></li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="fx-pie">
+  <nav class="fx-siguientes" aria-label="Otros sistemas">
+    <a href="industrial.html"><small class="fx-mono">&#8592; Anterior</small><b class="fx-disp">Industrial</b></a>
+    <a href="terracota.html"><small class="fx-mono">Siguiente &#8594;</small><b class="fx-disp">Terracota</b></a>
+  </nav>
+  <nav class="fx-enlaces" aria-label="Enlaces relacionados">
+    <a href="configurador.html?paleta=carbon-lima&amp;tipo=inter-mono&amp;elem=pastilla-mutante">Montar el tuyo &#8599;</a>
+    <a href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
+    <a href="paletas.html">Muestrario de color completo</a>
+    <a href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+</footer>
+
 <p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>
