@@ -3,28 +3,57 @@
 <html lang="es" data-paleta="savia-naranja" data-tipo="neutra" data-elem="vidrio" data-preset="savia" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Savia — Sistema de diseño</title>
 <meta name="description" content="Savia: glassmorphism. Vidrio esmerilado sobre luz verde y naranja, pastillas translúcidas y un reverso oscuro.">
 <link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
+<link rel="stylesheet" href="ficha.css">
 <script src="copiar-color.js" defer></script>
 <script src="tema-datos.js"></script>
 <script src="../../js/selector-sistema.js" defer></script>
+<script type="module" src="../../js/sistemas-ficha.js"></script>
 </head>
 <body>
-<div class="sd-contenedor">
 
-  <header class="sd-cabecera">
-    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-    <span class="sd-etiqueta">Claro · vidrio esmerilado · doble tema</span>
-    <h1 class="sd-titulo">Savia</h1>
-    <p class="sd-bajada">Vidrio esmerilado sobre luz de color. El fondo es un resplandor verde y naranja hecho con los dos acentos, y las superficies lo dejan pasar difuminado: se ve que hay algo detrás, pero no distrae.</p>
-  </header>
+<header class="fx-hero">
+  <nav class="fx-barra" aria-label="Sistemas">
+    <a class="fx-volver" href="../sistemas-de-diseno.html"><span aria-hidden="true">&#8592;</span> Todos los sistemas</a>
+    <span class="fx-mono">06 / 09</span>
+    <div class="fx-vecinos">
+      <a href="neon.html" aria-label="Sistema anterior: Neón">&#8592;</a>
+      <a href="organico.html" aria-label="Sistema siguiente: Orgánico">&#8594;</a>
+    </div>
+  </nav>
 
-  <section class="sd-seccion">
-    <h2>Paleta</h2>
-    <p>Verde fresco de marca, naranja que avisa y rojo que corrige, nunca al revés. Los dos primeros son también la luz del fondo.</p>
+  <div class="fx-hero-cuerpo">
+    <div class="fx-hero-texto">
+      <p class="fx-etiqueta fx-mono">Claro · vidrio esmerilado · doble tema</p>
+      <h1 class="fx-nombre fx-disp" aria-label="Savia"><span aria-hidden="true"><span style="--i:0">S</span><span style="--i:1">a</span><span style="--i:2">v</span><span style="--i:3">i</span><span style="--i:4">a</span></span></h1>
+      <p class="fx-bajada">Vidrio esmerilado sobre luz de color. El fondo es un resplandor verde y naranja hecho con los dos acentos, y las superficies lo dejan pasar difuminado: se ve que hay algo detrás, pero no distrae.</p>
+      <div class="fx-acciones">
+        <a class="sd-btn" href="../supermercado.html?paleta=savia-naranja&amp;tipo=neutra&amp;elem=vidrio">Pruébalo en una app &#8599;</a>
+        <button class="sd-btn sd-btn--linea fx-copiado" type="button" data-copiar-tokens>Copiar los tokens</button>
+      </div>
+    </div>
+    <figure class="fx-objeto" id="fx-objeto" aria-hidden="true">
+      <div class="fx-reserva"></div>
+      <canvas id="fx-lienzo"></canvas>
+      <figcaption class="fx-pista fx-mono">Arrastra para girarlo</figcaption>
+    </figure>
+  </div>
+
+  <ul class="fx-ejes">
+    <li><a href="#paleta"><small class="fx-mono">Paleta</small><b>Savia y naranja</b><span class="fx-eje-muestra fx-bolas" aria-hidden="true"><i style="background:#1f9d55"></i><i style="background:#f4f7f4"></i><i style="background:#1c2b21"></i><i style="background:#e67e22"></i></span></a></li>
+    <li><a href="#tipografia"><small class="fx-mono">Tipografía</small><b>Pila del sistema</b><span class="fx-eje-muestra fx-aa fx-disp" aria-hidden="true">Aa</span></a></li>
+    <li><a href="#componentes"><small class="fx-mono">Elementos</small><b>Vidrio esmerilado</b><span class="fx-eje-muestra fx-forma" aria-hidden="true"></span></a></li>
+  </ul>
+</header>
+
+<main class="fx-main">
+
+  <section class="fx-seccion" id="paleta">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">01</span><h2 class="fx-disp">Paleta</h2><p>Verde fresco de marca, naranja que avisa y rojo que corrige, nunca al revés. Los dos primeros son también la luz del fondo. Toca un color para copiarlo.</p></header>
     <ul class="pl-rejilla">
       <li>
         <button class="pl-color" type="button" data-hex="#1F9D55" style="--c:#1f9d55;--t:#101010"
@@ -101,9 +130,13 @@
     </ul>
   </section>
 
-  <section class="sd-seccion">
-    <h2>Tipografía</h2>
-    <p>La pila del sistema: sobre vidrio, la letra nativa de cada dispositivo es la que mejor se lee. La densidad cambia entre temas; la escala no.</p>
+  <section class="fx-seccion" id="tipografia">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">02</span><h2 class="fx-disp">Tipografía</h2><p>La pila del sistema: sobre vidrio, la letra nativa de cada dispositivo es la que mejor se lee. La densidad cambia entre temas; la escala no.</p></header>
+    <div class="fx-probar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+      <input type="text" id="fx-texto" placeholder="Escribe aquí el nombre de tu negocio" aria-label="Texto de prueba para la tipografía" maxlength="60">
+      <label class="fx-tamano fx-mono">Tamaño <input type="range" id="fx-escala" min="0.6" max="1.6" step="0.05" value="1"></label>
+    </div>
     <ul class="sd-tipo">
       <li><span class="sd-tipo-meta">Display · 700</span><span class="sd-muestra-display">Dos temas</span></li>
       <li><span class="sd-tipo-meta">Subtítulo · 600</span><span class="sd-muestra-titulo">Un segundo nivel</span></li>
@@ -112,9 +145,8 @@
     </ul>
   </section>
 
-  <section class="sd-seccion" id="componentes">
-    <h2>Componentes</h2>
-    <p>Superficies al 48 % de opacidad con desenfoque de 22 píxeles, un canto de luz arriba y controles en pastilla. El botón principal es el único opaco.</p>
+  <section class="fx-seccion" id="componentes">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">03</span><h2 class="fx-disp">Componentes</h2><p>Superficies al 48 % de opacidad con desenfoque de 22 píxeles, un canto de luz arriba y controles en pastilla. El botón principal es el único opaco.</p></header>
     <ul class="sd-kit-rejilla">
       <li class="sd-kit-pieza">
         <h3>Botones</h3>
@@ -232,9 +264,9 @@
     </div>
   </section>
 
-  <section class="sd-seccion">
-    <h2>El segundo tema: el reverso</h2>
-    <p>La misma estructura y la misma piel sobre fondo oscuro. Cambian los tokens, no el marcado: eso es lo que hace que esto sea un sistema y no dos diseños parecidos.</p>
+  <section class="fx-seccion" id="reverso">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">↺</span><h2 class="fx-disp">El reverso</h2>
+      <p>La misma estructura y la misma piel sobre fondo oscuro. Cambian los tokens, no el marcado: eso es lo que hace que esto sea un sistema y no dos diseños parecidos.</p></header>
     <div class="sd-reverso">
       <ul class="sd-kit-rejilla">
         <li class="sd-kit-pieza">
@@ -277,15 +309,35 @@
     </div>
   </section>
 
-  <nav class="sd-pie" aria-label="Enlaces relacionados">
-    <a class="sd-enlace" href="../supermercado.html">Ver la paleta en una web &#8599;</a>
-    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
-    <a class="sd-enlace" href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
-    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
-    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-  </nav>
+  <section class="fx-seccion" id="apps">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">04</span><h2 class="fx-disp">Pruébalo en una app</h2><p>Las ocho demos se abren vestidas con Savia. El selector de abajo a la derecha deja cambiarlo en vivo.</p></header>
+    <ul class="fx-demos">
+      <li><a href="../bar-restaurante.html?paleta=savia-naranja&amp;tipo=neutra&amp;elem=vidrio"><span><b>Bar &amp; Restaurante</b><small>La mesa en 3D</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../tienda-ropa.html?paleta=savia-naranja&amp;tipo=neutra&amp;elem=vidrio"><span><b>Tienda de ropa</b><small>La prenda colgada</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../carniceria.html?paleta=savia-naranja&amp;tipo=neutra&amp;elem=vidrio"><span><b>Carnicería</b><small>La báscula</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../gimnasio.html?paleta=savia-naranja&amp;tipo=neutra&amp;elem=vidrio"><span><b>Gimnasio</b><small>El cuerpo</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../supermercado.html?paleta=savia-naranja&amp;tipo=neutra&amp;elem=vidrio" class="es-suya"><span><b>Supermercado</b><small>La cesta · la que mejor le va</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../granja.html?paleta=savia-naranja&amp;tipo=neutra&amp;elem=vidrio"><span><b>Granja</b><small>La finca</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../industria.html?paleta=savia-naranja&amp;tipo=neutra&amp;elem=vidrio"><span><b>Industria</b><small>La pieza</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../logistica.html?paleta=savia-naranja&amp;tipo=neutra&amp;elem=vidrio"><span><b>Logística</b><small>El mapa y la caja</small></span><span aria-hidden="true">&#8599;</span></a></li>
+    </ul>
+  </section>
 
-</div>
+</main>
+
+<footer class="fx-pie">
+  <nav class="fx-siguientes" aria-label="Otros sistemas">
+    <a href="neon.html"><small class="fx-mono">&#8592; Anterior</small><b class="fx-disp">Neón</b></a>
+    <a href="organico.html"><small class="fx-mono">Siguiente &#8594;</small><b class="fx-disp">Orgánico</b></a>
+  </nav>
+  <nav class="fx-enlaces" aria-label="Enlaces relacionados">
+    <a href="configurador.html?paleta=savia-naranja&amp;tipo=neutra&amp;elem=vidrio">Montar el tuyo &#8599;</a>
+    <a href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
+    <a href="paletas.html">Muestrario de color completo</a>
+    <a href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+</footer>
+
 <p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>

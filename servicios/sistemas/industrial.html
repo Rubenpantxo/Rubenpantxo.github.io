@@ -3,7 +3,7 @@
 <html lang="es" data-paleta="acero-plano" data-tipo="barlow" data-elem="plano-tecnico" data-preset="industrial" data-tema-memoria="no">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Industrial — Sistema de diseño</title>
 <meta name="description" content="Industrial: plano técnico. Gris frío, azul de plano, rejilla de 24 píxeles a la vista y marcas de corte en cada esquina.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,23 +11,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600&family=Barlow:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
+<link rel="stylesheet" href="ficha.css">
 <script src="copiar-color.js" defer></script>
 <script src="tema-datos.js"></script>
 <script src="../../js/selector-sistema.js" defer></script>
+<script type="module" src="../../js/sistemas-ficha.js"></script>
 </head>
 <body>
-<div class="sd-contenedor">
 
-  <header class="sd-cabecera">
-    <a class="sd-migas" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-    <span class="sd-etiqueta">Claro · plano técnico · rejilla y cotas</span>
-    <h1 class="sd-titulo">Industrial</h1>
-    <p class="sd-bajada">Un plano técnico. Gris frío y un azul de saturación baja, la rejilla de 24 píxeles a la vista en el fondo y marcas de corte en las esquinas de cada superficie, como las cotas de un plano.</p>
-  </header>
+<header class="fx-hero">
+  <nav class="fx-barra" aria-label="Sistemas">
+    <a class="fx-volver" href="../sistemas-de-diseno.html"><span aria-hidden="true">&#8592;</span> Todos los sistemas</a>
+    <span class="fx-mono">09 / 09</span>
+    <div class="fx-vecinos">
+      <a href="clasico.html" aria-label="Sistema anterior: Clásico">&#8592;</a>
+      <a href="halogeno.html" aria-label="Sistema siguiente: Halógeno">&#8594;</a>
+    </div>
+  </nav>
 
-  <section class="sd-seccion">
-    <h2>Paleta</h2>
-    <p>Neutros fríos y un solo acento de saturación baja: el color marca lo interactivo y las cotas, y poco más.</p>
+  <div class="fx-hero-cuerpo">
+    <div class="fx-hero-texto">
+      <p class="fx-etiqueta fx-mono">Claro · plano técnico · rejilla y cotas</p>
+      <h1 class="fx-nombre fx-disp" aria-label="Industrial"><span aria-hidden="true"><span style="--i:0">I</span><span style="--i:1">n</span><span style="--i:2">d</span><span style="--i:3">u</span><span style="--i:4">s</span><span style="--i:5">t</span><span style="--i:6">r</span><span style="--i:7">i</span><span style="--i:8">a</span><span style="--i:9">l</span></span></h1>
+      <p class="fx-bajada">Un plano técnico. Gris frío y un azul de saturación baja, la rejilla de 24 píxeles a la vista en el fondo y marcas de corte en las esquinas de cada superficie, como las cotas de un plano.</p>
+      <div class="fx-acciones">
+        <a class="sd-btn" href="../industria.html?paleta=acero-plano&amp;tipo=barlow&amp;elem=plano-tecnico">Pruébalo en una app &#8599;</a>
+        <button class="sd-btn sd-btn--linea fx-copiado" type="button" data-copiar-tokens>Copiar los tokens</button>
+      </div>
+    </div>
+    <figure class="fx-objeto" id="fx-objeto" aria-hidden="true">
+      <div class="fx-reserva"></div>
+      <canvas id="fx-lienzo"></canvas>
+      <figcaption class="fx-pista fx-mono">Arrastra para girarlo</figcaption>
+    </figure>
+  </div>
+
+  <ul class="fx-ejes">
+    <li><a href="#paleta"><small class="fx-mono">Paleta</small><b>Acero y azul de plano</b><span class="fx-eje-muestra fx-bolas" aria-hidden="true"><i style="background:#5980a6"></i><i style="background:#f2f2f3"></i><i style="background:#1d1f20"></i><i style="background:#728fab"></i></span></a></li>
+    <li><a href="#tipografia"><small class="fx-mono">Tipografía</small><b>Barlow Condensed + Barlow</b><span class="fx-eje-muestra fx-aa fx-disp" aria-hidden="true">Aa</span></a></li>
+    <li><a href="#componentes"><small class="fx-mono">Elementos</small><b>Plano técnico</b><span class="fx-eje-muestra fx-forma" aria-hidden="true"></span></a></li>
+  </ul>
+</header>
+
+<main class="fx-main">
+
+  <section class="fx-seccion" id="paleta">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">01</span><h2 class="fx-disp">Paleta</h2><p>Neutros fríos y un solo acento de saturación baja: el color marca lo interactivo y las cotas, y poco más. Toca un color para copiarlo.</p></header>
     <ul class="pl-rejilla">
       <li>
         <button class="pl-color" type="button" data-hex="#F2F2F3" style="--c:#f2f2f3;--t:#101010"
@@ -96,9 +125,13 @@
     </ul>
   </section>
 
-  <section class="sd-seccion">
-    <h2>Tipografía</h2>
-    <p>Barlow en dos anchos: condensada y en mayúsculas para los titulares, normal para leer. Las cifras y etiquetas, en monoespaciada.</p>
+  <section class="fx-seccion" id="tipografia">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">02</span><h2 class="fx-disp">Tipografía</h2><p>Barlow en dos anchos: condensada y en mayúsculas para los titulares, normal para leer. Las cifras y etiquetas, en monoespaciada.</p></header>
+    <div class="fx-probar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+      <input type="text" id="fx-texto" placeholder="Escribe aquí el nombre de tu negocio" aria-label="Texto de prueba para la tipografía" maxlength="60">
+      <label class="fx-tamano fx-mono">Tamaño <input type="range" id="fx-escala" min="0.6" max="1.6" step="0.05" value="1"></label>
+    </div>
     <ul class="sd-tipo">
       <li><span class="sd-tipo-meta">Display · Barlow Condensed</span><span class="sd-muestra-display">Condensada</span></li>
       <li><span class="sd-tipo-meta">Título · Barlow Condensed</span><span class="sd-muestra-titulo">Un segundo nivel</span></li>
@@ -107,9 +140,8 @@
     </ul>
   </section>
 
-  <section class="sd-seccion" id="componentes">
-    <h2>Componentes</h2>
-    <p>Radio de 4, sin sombras y con escuadras de acento en las cuatro esquinas. Las barras de progreso llevan marcas cada 10 %, como una regla.</p>
+  <section class="fx-seccion" id="componentes">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">03</span><h2 class="fx-disp">Componentes</h2><p>Radio de 4, sin sombras y con escuadras de acento en las cuatro esquinas. Las barras de progreso llevan marcas cada 10 %, como una regla.</p></header>
     <ul class="sd-kit-rejilla">
       <li class="sd-kit-pieza">
         <h3>Botones</h3>
@@ -227,14 +259,35 @@
     </div>
   </section>
 
-  <nav class="sd-pie" aria-label="Enlaces relacionados">
-    <a class="sd-enlace" href="configurador.html">Montar el tuyo &#8599;</a>
-    <a class="sd-enlace" href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
-    <a class="sd-enlace" href="paletas.html">Muestrario de color completo</a>
-    <a class="sd-enlace" href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
-  </nav>
+  <section class="fx-seccion" id="apps">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">04</span><h2 class="fx-disp">Pruébalo en una app</h2><p>Las ocho demos se abren vestidas con Industrial. El selector de abajo a la derecha deja cambiarlo en vivo.</p></header>
+    <ul class="fx-demos">
+      <li><a href="../bar-restaurante.html?paleta=acero-plano&amp;tipo=barlow&amp;elem=plano-tecnico"><span><b>Bar &amp; Restaurante</b><small>La mesa en 3D</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../tienda-ropa.html?paleta=acero-plano&amp;tipo=barlow&amp;elem=plano-tecnico"><span><b>Tienda de ropa</b><small>La prenda colgada</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../carniceria.html?paleta=acero-plano&amp;tipo=barlow&amp;elem=plano-tecnico"><span><b>Carnicería</b><small>La báscula</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../gimnasio.html?paleta=acero-plano&amp;tipo=barlow&amp;elem=plano-tecnico"><span><b>Gimnasio</b><small>El cuerpo</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../supermercado.html?paleta=acero-plano&amp;tipo=barlow&amp;elem=plano-tecnico"><span><b>Supermercado</b><small>La cesta</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../granja.html?paleta=acero-plano&amp;tipo=barlow&amp;elem=plano-tecnico"><span><b>Granja</b><small>La finca</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../industria.html?paleta=acero-plano&amp;tipo=barlow&amp;elem=plano-tecnico" class="es-suya"><span><b>Industria</b><small>La pieza · la que mejor le va</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../logistica.html?paleta=acero-plano&amp;tipo=barlow&amp;elem=plano-tecnico"><span><b>Logística</b><small>El mapa y la caja</small></span><span aria-hidden="true">&#8599;</span></a></li>
+    </ul>
+  </section>
 
-</div>
+</main>
+
+<footer class="fx-pie">
+  <nav class="fx-siguientes" aria-label="Otros sistemas">
+    <a href="clasico.html"><small class="fx-mono">&#8592; Anterior</small><b class="fx-disp">Clásico</b></a>
+    <a href="halogeno.html"><small class="fx-mono">Siguiente &#8594;</small><b class="fx-disp">Halógeno</b></a>
+  </nav>
+  <nav class="fx-enlaces" aria-label="Enlaces relacionados">
+    <a href="configurador.html?paleta=acero-plano&amp;tipo=barlow&amp;elem=plano-tecnico">Montar el tuyo &#8599;</a>
+    <a href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
+    <a href="paletas.html">Muestrario de color completo</a>
+    <a href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+</footer>
+
 <p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
 </body>
 </html>
