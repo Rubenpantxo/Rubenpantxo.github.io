@@ -1,418 +1,2123 @@
 <!DOCTYPE html>
-<html lang="es" data-paleta="grana-mensajeria" data-tipo="peso-alto" data-elem="generoso">
+<html lang="es" data-paleta="grana-mensajeria" data-tipo="caprasimo-figtree" data-elem="redondeado">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carnicería Manolo — Demo encargos sin colas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Carnicería Manolo — Demo vitrina y báscula en 3D, encargos y turno</title>
+<meta name="description" content="Demo: elige la pieza en la vitrina 3D, pésala en la báscula de esfera girando el dial, elige el corte y encarga por WhatsApp. Con turno en directo y recetas por pieza.">
 <link rel="stylesheet" href="sistemas/tema.css">
+<link rel="stylesheet" href="kit/app.css">
 <style>
-    :root {
-        --meat: var(--sd-accent);
-        --meat-dark: var(--sd-accent-strong);
-        --meat-text: var(--sd-accent-text);
-        --cream: var(--sd-bg);
-        --ink: var(--sd-ink);
-        --muted: var(--sd-muted);
-        --line: var(--sd-line);
-        --radius: var(--sd-radius);
-        /* El verde de mensajeria NO sigue al tema: es el color de una marca
-           ajena y su valor esta justo en que ya significa algo. */
-        --wa: #25d366;
-        --wa-dark: #075e54;
-        --wa-bg: #e5ddd5;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        background: var(--cream); color: var(--ink);
-        max-width: 480px; margin: 0 auto; overscroll-behavior: contain;
-    }
-    .demo-badge {
-        position: fixed; top: 42px; left: -34px; z-index: 90;
-        background: color-mix(in srgb, var(--sd-ink) 85%, transparent); color: var(--sd-bg); font-size: 10px; font-weight: 700;
-        letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
-    }
-    .screen { display: none; min-height: 100dvh; }
-    .screen.active { display: block; }
+/* ============================================================
+   CARNICERÍA MANOLO — "La báscula y la vitrina"
+   Dirección de arte: mostrador de mercado de toda la vida. Azulejo blanco
+   biselado, rótulo pintado a mano, precios en pizarra con tiza, papel de
+   estraza, etiquetas pinchadas y tinta roja.
+   ============================================================ */
+:root {
+  --cab: 60px;
+  --barra: 64px;
+  --tinta-roja: #a8231d;
+  --estraza: #c9a274;
+  --estraza-tinta: #3b2817;
+  --pizarra: #222b27;
+  --tiza: rgb(247 245 236 / .93);
+  --azulejo-op: 1;
+  --acento-t: var(--sd-accent-text, var(--sd-accent));
+  --linea: color-mix(in srgb, var(--sd-ink) 16%, transparent);
+  --alfiler: radial-gradient(circle at 35% 35%, #ff8a80, #c62828 55%, #6d0000);
+  --grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  --fibras: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .5' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .3  0 0 0 0 .2  0 0 0 0 .1  0 0 0 .5 -.05'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)'/%3E%3C/svg%3E");
+  --azulejo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cdefs%3E%3ClinearGradient id='g' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='.95'/%3E%3Cstop offset='.2' stop-color='%23fff' stop-opacity='0'/%3E%3Cstop offset='.78' stop-color='%23000' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%23000' stop-opacity='.07'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='url(%23g)'%3E%3Crect x='1' y='1' width='54' height='26' rx='3'/%3E%3Crect x='-27' y='29' width='54' height='26' rx='3'/%3E%3Crect x='29' y='29' width='54' height='26' rx='3'/%3E%3C/g%3E%3Cpath d='M0 .5H56M0 28.5H56M.5 0V28M28.5 28V56' stroke='%23000' stroke-opacity='.08'/%3E%3C/svg%3E");
+  --rasgado: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='12' viewBox='0 0 120 12'%3E%3Cpath d='M0 12V6l6-3 5 4 7-5 6 4 4-3 8 5 5-4 7 2 6-5 5 6 8-3 4 2 7-4 6 5 5-3 8 4 6-5 5 3 8-2v10z'/%3E%3C/svg%3E");
+}
+html.oscuro { --azulejo-op: .3; }
 
-    /* ---------- PANTALLA 1: PRODUCTOS ---------- */
-    .hero {
-        padding: 46px 18px 20px; color: var(--sd-on-accent); border-radius: 0 0 26px 26px;
-        background:
-            radial-gradient(100% 80% at 90% 0%, rgba(255,180,160,.3), transparent 55%),
-            linear-gradient(155deg, color-mix(in srgb, var(--sd-accent-strong) 70%, var(--sd-ink)) 0%, var(--sd-accent) 70%, color-mix(in srgb, var(--sd-accent) 78%, var(--sd-bg)) 100%);
-    }
-    .hero .art { font-size: 46px; }
-    .hero h1 { font-size: 26px; font-weight: 800; margin-top: 6px; }
-    .hero p { font-size: 13px; opacity: .85; margin-top: 4px; }
-    .hero .badges { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-    .hero .badge {
-        font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
-        background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
-    }
-    .prods { padding: 16px 16px 120px; display: grid; gap: 12px; }
-    .prod {
-        background: var(--sd-surface); border-radius: var(--radius); padding: 14px;
-        box-shadow: 0 2px 10px rgba(90,40,20,.08); animation: rise .35s ease both;
-    }
-    @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
-    .prod-top { display: flex; gap: 12px; align-items: center; }
-    .prod-img {
-        flex: 0 0 56px; height: 56px; border-radius: 14px; display: grid; place-items: center;
-        font-size: 28px; background: linear-gradient(145deg, color-mix(in srgb, var(--sd-accent) 12%, var(--sd-bg)), color-mix(in srgb, var(--sd-accent) 26%, var(--sd-bg)));
-    }
-    .prod-top h3 { font-size: 15px; font-weight: 700; }
-    .prod-top .unit { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .prod-top .ppk { margin-left: auto; font-size: 14px; font-weight: 800; color: var(--meat-dark); white-space: nowrap; }
-    .prod-ctrl { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
-    .wbtn {
-        width: 38px; height: 38px; border-radius: 12px; border: 1.5px solid var(--line);
-        background: var(--sd-surface); font-size: 18px; font-weight: 800; cursor: pointer; color: var(--ink);
-        transition: all .15s;
-    }
-    .wbtn:active { transform: scale(.9); background: color-mix(in srgb, var(--sd-accent) 10%, var(--sd-bg)); }
-    .wval { flex: 1; text-align: center; }
-    .wval strong { font-size: 16px; }
-    .wval small { display: block; font-size: 11px; color: var(--muted); }
-    .wsub { font-size: 13px; font-weight: 800; min-width: 64px; text-align: right; color: var(--meat-dark); }
+body { min-height: 100dvh; font-size: 15px; line-height: 1.45; }
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--azulejo); background-size: 56px 56px; opacity: var(--azulejo-op);
+}
+.disp {
+  font-family: var(--sd-display); font-weight: var(--sd-display-peso); font-style: var(--sd-display-estilo);
+  letter-spacing: var(--sd-display-tracking); text-transform: var(--sd-display-caja);
+}
+.num { font-variant-numeric: tabular-nums lining-nums; }
+.tiza { filter: url(#tiza); color: var(--tiza); }
+svg.ico { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: var(--sd-icon-stroke, 1.8); stroke-linecap: round; stroke-linejoin: round; }
 
-    #orderbar {
-        position: fixed; left: 50%; bottom: 16px; transform: translate(-50%, 150%);
-        width: calc(100% - 32px); max-width: 448px; border: none; cursor: pointer; z-index: 40;
-        background: var(--meat-dark); color: var(--sd-on-accent); border-radius: 16px; padding: 15px 18px;
-        display: flex; justify-content: space-between; font-size: 14px; font-weight: 800;
-        box-shadow: 0 10px 30px rgba(124,24,29,.45); transition: transform .35s cubic-bezier(.2,.9,.3,1.2);
-    }
-    #orderbar.show { transform: translate(-50%, 0); }
+/* ---------- cabecera: el rótulo pintado ---------- */
+.cab {
+  position: sticky; top: 0; z-index: 40; height: var(--cab);
+  display: flex; align-items: center; gap: 10px; padding: 0 58px 0 14px;
+  background: color-mix(in srgb, var(--sd-bg) 90%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 3px double color-mix(in srgb, var(--sd-ink) 18%, transparent);
+}
+.rotulo {
+  margin-right: auto; display: grid; justify-items: start; line-height: .9;
+  padding: 4px 10px 5px; border: 2px solid var(--sd-accent); border-radius: 7px;
+  outline: 1px solid var(--sd-accent); outline-offset: 2px; background: var(--sd-surface);
+  color: var(--acento-t); transform: rotate(-1.2deg);
+}
+.rotulo small { font-size: 8.5px; letter-spacing: .28em; text-transform: uppercase; font-weight: 800; color: var(--sd-ink); }
+.rotulo b { font-size: 24px; filter: url(#pincel); }
+.chip-turno {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 5px 11px 5px 6px;
+  border: 0; border-radius: 999px; background: var(--sd-ink); color: var(--sd-bg); font-size: 12.5px; font-weight: 700; white-space: nowrap;
+}
+.chip-turno b { display: grid; place-items: center; min-width: 26px; height: 26px; border-radius: 13px; background: #140b0a; color: #ff5245; font: 700 13px/1 var(--sd-mono); text-shadow: 0 0 6px rgb(255 60 40 / .7); padding: 0 4px; }
+.chip-turno.te-toca { background: var(--sd-ok); color: #fff; animation: latido 1s infinite; }
+@keyframes latido { 50% { transform: scale(1.06); } }
 
-    /* ---------- PANTALLA 2: RESUMEN ---------- */
-    .head2 {
-        padding: 50px 18px 16px; display: flex; align-items: center; gap: 12px;
-    }
-    .back {
-        width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line);
-        background: var(--sd-surface); font-size: 16px; cursor: pointer;
-    }
-    .head2 h1 { font-size: 20px; font-weight: 800; }
-    .review { padding: 0 18px 40px; }
-    .rev-card { background: var(--sd-surface); border-radius: var(--radius); padding: 6px 16px; box-shadow: 0 2px 10px rgba(90,40,20,.08); }
-    .rev-row { display: flex; justify-content: space-between; gap: 10px; padding: 11px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
-    .rev-row:last-child { border-bottom: none; }
-    .rev-row .q { color: var(--muted); font-size: 12px; }
-    .rev-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 15px; padding: 14px 2px 4px; }
-    .rev-total small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); }
-    .sect-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 22px 0 10px; }
-    .slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .slot {
-        border: 1.5px solid var(--line); background: var(--sd-surface); border-radius: 12px; padding: 12px 8px;
-        font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; transition: all .2s;
-    }
-    .slot small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .slot.active { background: var(--meat-dark); color: var(--sd-on-accent); border-color: var(--meat-dark); }
-    .slot.active small { color: rgba(255,255,255,.7); }
-    .review input[type="text"] {
-        width: 100%; padding: 13px 14px; font-size: 14px; border: 1.5px solid var(--line);
-        border-radius: 12px; background: var(--sd-surface); outline: none;
-    }
-    .review input[type="text"]:focus { border-color: var(--meat); }
-    .btn-wa {
-        width: 100%; border: none; cursor: pointer; margin-top: 22px;
-        background: var(--wa); color: #062e1c; font-size: 15px; font-weight: 800;
-        padding: 15px; border-radius: 14px; box-shadow: 0 8px 22px rgba(37,211,102,.4);
-        display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform .15s;
-    }
-    .btn-wa:active { transform: scale(.97); }
+/* ---------- composición ---------- */
+.app { padding-bottom: calc(var(--barra) + 26px + var(--k-seguro-abajo)); }
+.vista { padding: 0 16px; max-width: 640px; margin: 0 auto; }
+.titular { margin: 20px 0 4px; font-size: clamp(30px, 8.6vw, 42px); line-height: .98; }
+.titular em { font-style: inherit; color: var(--acento-t); }
+.etq { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 16px 0 8px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 800; color: var(--sd-muted); }
+.btn {
+  border: 0; border-radius: var(--sd-radius-btn, 14px); padding: 13px 18px; min-height: 46px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-weight: 800; font-size: 15px; background: var(--sd-accent-solid, var(--sd-accent)); color: var(--sd-on-accent);
+  transition: transform .2s var(--k-rebote), opacity .2s;
+}
+.btn:active { transform: scale(.96); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .45; }
+.btn--linea { background: transparent; color: var(--sd-ink); box-shadow: inset 0 0 0 2px currentColor; }
+.btn--ancho { width: 100%; }
+.btn .ico { width: 20px; height: 20px; }
 
-    /* ---------- PANTALLA 3: CHAT ---------- */
-    #screen-chat { display: none; flex-direction: column; height: 100dvh; background: var(--wa-bg); }
-    #screen-chat.active { display: flex; }
-    .chat-head {
-        background: var(--wa-dark); color: #ffffff; padding: 44px 14px 12px;
-        display: flex; align-items: center; gap: 12px; flex-shrink: 0;
-    }
-    .chat-avatar {
-        width: 40px; height: 40px; border-radius: 50%; background: var(--sd-surface);
-        display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
-    }
-    .chat-head h2 { font-size: 16px; font-weight: 700; }
-    .chat-head p { font-size: 12px; opacity: .8; }
-    .chat-body {
-        flex: 1; overflow-y: auto; padding: 16px 12px;
-        background-image: radial-gradient(rgba(124,24,29,.04) 1.5px, transparent 1.5px);
-        background-size: 26px 26px;
-    }
-    .bubble {
-        max-width: 84%; border-radius: 12px; padding: 9px 12px; font-size: 13.5px; line-height: 1.5;
-        margin-bottom: 10px; box-shadow: 0 1px 1px rgba(0,0,0,.08); white-space: pre-line;
-        animation: bubble-in .3s ease both; position: relative;
-    }
-    @keyframes bubble-in { from { opacity: 0; transform: translateY(10px) scale(.96); } }
-    .bubble.out { background: #dcf8c6; margin-left: auto; border-top-right-radius: 4px; }
-    .bubble.in  { background: var(--sd-surface); margin-right: auto; border-top-left-radius: 4px; }
-    .bubble .time { display: block; text-align: right; font-size: 10px; color: rgba(0,0,0,.4); margin-top: 4px; }
-    .bubble .ticks { color: #4fc3f7; font-size: 11px; }
-    .typing { display: inline-flex; gap: 4px; padding: 4px 2px; }
-    .typing i { width: 7px; height: 7px; border-radius: 50%; background: #b5aca2; animation: blink 1.2s infinite; }
-    .typing i:nth-child(2) { animation-delay: .2s; }
-    .typing i:nth-child(3) { animation-delay: .4s; }
-    @keyframes blink { 0%, 60%, 100% { opacity: .3; } 30% { opacity: 1; } }
-    .chat-foot { padding: 12px 14px calc(16px + env(safe-area-inset-bottom)); flex-shrink: 0; }
-    .btn-again {
-        width: 100%; border: none; cursor: pointer; background: var(--wa-dark); color: #ffffff;
-        font-size: 14px; font-weight: 800; padding: 14px; border-radius: 14px;
-    }
-    .toast {
-        position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(16px);
-        background: var(--ink); color: var(--sd-bg); font-size: 13px; font-weight: 600;
-        padding: 9px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80;
-        pointer-events: none; white-space: nowrap;
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* ---------- escena: la vitrina ---------- */
+.escena { height: clamp(300px, 47dvh, 440px); margin: 0; overflow: hidden; outline: none; }
+.app:not([data-vista="mostrador"]) .escena { height: 0; }
+.escena:focus-visible { box-shadow: inset 0 0 0 3px var(--sd-accent); }
+.escena .k-reserva { color: var(--sd-muted); font-size: 13px; text-align: center; }
+.escena .k-reserva svg { width: min(64%, 260px); margin: 0 auto 6px; }
+#aguja-r { transform-origin: 100px 92px; transition: none; }
+.flecha {
+  position: absolute; top: 58%; z-index: 3; width: 42px; height: 42px; border-radius: 50%;
+  border: 0; display: grid; place-items: center; transform: translateY(-50%);
+  background: color-mix(in srgb, var(--sd-surface) 88%, transparent); color: var(--sd-ink);
+  box-shadow: 0 4px 14px rgb(0 0 0 / .18);
+}
+.flecha:disabled { opacity: 0; pointer-events: none; }
+.flecha.izq { left: 8px; } .flecha.der { right: 8px; }
+.pista {
+  position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 3;
+  font-size: 12px; color: var(--sd-ink); white-space: nowrap; padding: 4px 11px; border-radius: 999px;
+  background: color-mix(in srgb, var(--sd-surface) 85%, transparent);
+}
+.pista b { color: var(--acento-t); }
+.sin-3d .pista { display: none; }
+
+/* ---------- lineal de etiquetas (alternativa HTML a la vitrina) ---------- */
+.lineal {
+  display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 14px 16px 10px;
+  scroll-snap-type: x proximity; position: relative;
+  background: linear-gradient(color-mix(in srgb, var(--sd-ink) 30%, transparent), color-mix(in srgb, var(--sd-ink) 30%, transparent)) 0 7px / 100% 2px no-repeat;
+}
+.lineal::-webkit-scrollbar { display: none; }
+.tag {
+  flex: none; scroll-snap-align: center; position: relative; border: 0; text-align: left;
+  display: grid; gap: 1px; padding: 9px 10px 7px; min-width: 86px; border-radius: 4px 4px 9px 9px;
+  background: #fffdf6; color: #2a1d14; box-shadow: 0 2px 5px rgb(0 0 0 / .16);
+  transform: rotate(var(--r, -2deg)); transform-origin: 50% -6px; transition: transform .35s var(--k-rebote);
+}
+.tag::before {
+  content: ""; position: absolute; top: -6px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%;
+  background: var(--alfiler); box-shadow: 0 1px 2px rgb(0 0 0 / .4);
+}
+.tag span { font-size: 11.5px; font-weight: 700; line-height: 1.15; white-space: nowrap; }
+.tag b { font: 400 15px/1 var(--sd-display); color: var(--tinta-roja); }
+.tag b small { font: 600 10px var(--sd-font); color: #6d5a4a; }
+.tag[aria-pressed="true"] { --r: 0deg; outline: 2px solid var(--sd-accent); outline-offset: 2px; animation: columpio 1.2s var(--k-curva); }
+.tag.agotado { opacity: .55; }
+.tag.agotado b { text-decoration: line-through; }
+@keyframes columpio { 0% { transform: rotate(14deg); } 30% { transform: rotate(-9deg); } 55% { transform: rotate(5deg); } 78% { transform: rotate(-2deg); } }
+
+/* ---------- pizarra con tiza ---------- */
+.pizarra {
+  position: relative; margin: 8px 0 0; padding: 12px 16px 13px;
+  background: radial-gradient(70% 60% at 25% 30%, rgb(255 255 255 / .07), transparent 70%), radial-gradient(50% 50% at 80% 80%, rgb(255 255 255 / .05), transparent), var(--pizarra);
+  border: 8px solid #7b4f2c; border-image: linear-gradient(135deg, #9d6b3d, #6a4222 40%, #a7743f 70%, #5d391d) 1;
+  box-shadow: inset 0 0 26px rgb(0 0 0 / .55), 0 6px 14px rgb(0 0 0 / .2);
+  display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2px 12px; min-height: 92px;
+}
+.pz-nombre { font-size: 22px; line-height: 1.05; grid-column: 1 / -1; }
+.pz-nota { margin: 0; font-size: 13px; opacity: .85; }
+.pz-precio { font-size: 30px; line-height: 1; white-space: nowrap; }
+.pz-precio small { font-size: 15px; }
+.pizarra .escribe { animation: escribir .7s steps(12) backwards; }
+@keyframes escribir { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.pizarra .sello-agotado {
+  position: absolute; right: 8px; top: -14px; background: var(--pizarra); transform: rotate(-8deg); border: 2px solid #ff6b5e; color: #ff6b5e;
+  padding: 2px 8px; font: 800 12px var(--sd-font); letter-spacing: .16em; border-radius: 4px;
+}
+
+/* ---------- la pesada: dial y lectura ---------- */
+.pesada { display: grid; grid-template-columns: 172px 1fr; gap: 12px; align-items: center; margin-top: 14px; }
+.dial { position: relative; width: 172px; aspect-ratio: 1; touch-action: none; cursor: grab; border-radius: 50%; outline: none; user-select: none; -webkit-user-select: none; }
+.dial:active { cursor: grabbing; }
+.dial:focus-visible { box-shadow: 0 0 0 3px var(--sd-accent); }
+.dial svg { width: 100%; height: 100%; overflow: visible; }
+.dial .aro { fill: color-mix(in srgb, var(--sd-surface) 70%, #d9dde0); stroke: color-mix(in srgb, var(--sd-ink) 22%, transparent); stroke-width: 1; }
+.dial .moleteado { fill: none; stroke: var(--linea); stroke-width: 6; stroke-dasharray: 1.2 2.6; }
+.dial .pista-d { fill: none; stroke: color-mix(in srgb, var(--sd-ink) 12%, transparent); stroke-width: 11; stroke-linecap: round; }
+.dial .lleno { fill: none; stroke: var(--sd-accent); stroke-width: 11; stroke-linecap: round; }
+.dial line { stroke: var(--sd-ink); stroke-width: 1; opacity: .5; }
+.dial line.m { stroke-width: 2; opacity: .9; }
+.dial text { font: 700 11px var(--sd-font); fill: var(--sd-ink); text-anchor: middle; dominant-baseline: central; }
+.dial .asa { fill: var(--sd-surface); stroke: var(--sd-accent); stroke-width: 3; filter: drop-shadow(0 2px 2px rgb(0 0 0 / .3)); }
+.dial .asa-g { stroke: var(--sd-accent); stroke-width: 1.5; }
+.dial-centro { position: absolute; inset: 31%; display: grid; place-content: center; text-align: center; pointer-events: none; line-height: 1; }
+.dial-centro b { font-size: 26px; }
+.dial-centro small { font-size: 10.5px; color: var(--sd-muted); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-top: 3px; }
+.dial.is-mal { animation: no 0.45s; }
+@keyframes no { 20%, 60% { transform: translateX(-7px); } 40%, 80% { transform: translateX(7px); } }
+.lectura { display: grid; gap: 4px; min-width: 0; }
+.importe { font-size: 34px; line-height: 1; color: var(--acento-t); }
+.lectura-det { font-size: 12.5px; color: var(--sd-muted); }
+.atajos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.atajos button { border: 1.5px solid color-mix(in srgb, var(--sd-ink) 20%, transparent); background: var(--sd-surface); border-radius: 999px; padding: 6px 10px; font-size: 12.5px; font-weight: 700; min-height: 34px; }
+.atajos button[aria-pressed="true"] { background: var(--sd-ink); color: var(--sd-bg); border-color: var(--sd-ink); }
+
+/* ---------- cortes con icono animado ---------- */
+.cortes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.corte {
+  border: 1.5px solid var(--linea); background: var(--sd-surface); border-radius: var(--sd-radius, 14px);
+  display: grid; justify-items: center; gap: 4px; padding: 9px 2px 7px; font-size: 11px; font-weight: 700; line-height: 1.1; text-align: center; min-height: 64px;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.corte svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.corte[aria-pressed="true"] { background: var(--sd-ink); color: var(--sd-bg); border-color: var(--sd-ink); }
+.corte:disabled { opacity: .32; }
+.corte .cu, .corte .lo, .corte .aspa, .corte .hilos, .corte .cubo, .corte .cuerda { transform-box: fill-box; }
+.corte.is-anim .cu { animation: tajo .8s var(--k-curva); }
+.corte.is-anim .lo { animation: separa .8s var(--k-curva); }
+.corte.is-anim .aspa { transform-origin: center; animation: gira .9s var(--k-curva); }
+.corte.is-anim .hilos { stroke-dasharray: 8; animation: sale .9s linear; }
+.corte.is-anim .cubo { transform-origin: 50% 100%; animation: rueda .7s var(--k-rebote); }
+.corte.is-anim .cuerda { stroke-dasharray: 16; animation: ata .8s var(--k-curva); }
+@keyframes tajo { 0%, 100% { transform: none; } 30% { transform: translateY(7px); } 50% { transform: translateY(1px); } 70% { transform: translateY(7px); } }
+@keyframes separa { 30%, 100% { transform: none; } 45% { transform: translateX(1.5px); } }
+@keyframes gira { to { transform: rotate(360deg); } }
+@keyframes sale { from { stroke-dashoffset: 16; } to { stroke-dashoffset: 0; } }
+@keyframes rueda { 0% { transform: rotate(-90deg) translateY(-4px); } 100% { transform: none; } }
+@keyframes ata { from { stroke-dashoffset: 16; } to { stroke-dashoffset: 0; } }
+
+.acciones { display: grid; grid-template-columns: auto 1fr; gap: 8px; margin: 16px 0 8px; }
+.acciones .btn--linea { padding: 12px 14px; font-size: 13.5px; }
+.nota-agotado { margin: 14px 0 0; padding: 12px 14px; border: 2px dashed color-mix(in srgb, var(--sd-danger) 60%, transparent); border-radius: var(--sd-radius); color: var(--sd-danger); font-weight: 700; font-size: 14px; }
+
+/* El papel que se pliega cuando no hay 3D */
+.paquete-css { position: fixed; z-index: 70; width: 96px; height: 96px; pointer-events: none; perspective: 400px; }
+.paquete-css i { position: absolute; inset: 24px; background: var(--estraza) var(--fibras); box-shadow: inset 0 0 0 1px rgb(0 0 0 / .1); }
+.paquete-css i:nth-child(2) { transform-origin: 50% 0; top: 72px; bottom: -24px; animation: dobla-x .4s .1s both; }
+.paquete-css i:nth-child(3) { transform-origin: 50% 100%; top: -24px; bottom: 72px; animation: dobla-x2 .4s .25s both; }
+.paquete-css i:nth-child(4) { transform-origin: 0 50%; left: 72px; right: -24px; animation: dobla-y .4s .4s both; }
+.paquete-css i:nth-child(5) { transform-origin: 100% 50%; left: -24px; right: 72px; animation: dobla-y2 .4s .55s both; }
+.paquete-css b { position: absolute; left: 34px; top: 40px; width: 28px; height: 16px; background: #fff; border: 1.5px solid var(--tinta-roja); opacity: 0; animation: pega .3s .9s both; }
+@keyframes dobla-x { to { transform: rotateX(178deg); } }
+@keyframes dobla-x2 { to { transform: rotateX(-178deg); } }
+@keyframes dobla-y { to { transform: rotateY(-178deg); } }
+@keyframes dobla-y2 { to { transform: rotateY(178deg); } }
+@keyframes pega { from { opacity: 0; transform: scale(2); } to { opacity: 1; transform: rotate(-6deg); } }
+
+/* Barra del papel (encargo en curso) */
+.papelito {
+  position: fixed; left: 50%; bottom: calc(var(--barra) + 10px + var(--k-seguro-abajo)); z-index: 45;
+  width: min(calc(100% - 24px), 520px); display: flex; align-items: center; gap: 12px; border: 0; text-align: left;
+  padding: 9px 16px 9px 10px; border-radius: 10px; color: var(--estraza-tinta);
+  background: var(--fibras), linear-gradient(#d3ad7d, #c39a66); box-shadow: 0 12px 30px rgb(0 0 0 / .28);
+  transform: translate(-50%, 150%); opacity: 0; visibility: hidden; pointer-events: none; transition: transform .5s var(--k-rebote), opacity .3s, visibility 0s .5s;
+}
+.papelito.is-on { transform: translate(-50%, 0); opacity: 1; visibility: visible; pointer-events: auto; transition: transform .5s var(--k-rebote), opacity .3s; }
+.app:not([data-vista="mostrador"]) ~ .papelito { transform: translate(-50%, 150%); opacity: 0; visibility: hidden; pointer-events: none; }
+.papelito .info { display: grid; line-height: 1.1; margin-right: auto; }
+.papelito small { font-size: 11.5px; font-weight: 700; opacity: .8; }
+.papelito b { font: 400 19px var(--sd-display); color: var(--tinta-roja); }
+.papelito .ver { font-weight: 800; font-size: 13.5px; }
+.papelito .ico { width: 30px; height: 30px; }
+.papelito.is-pum { animation: pum .5s var(--k-rebote); }
+@keyframes pum { 40% { transform: translate(-50%, -8px) scale(1.04); } }
+
+/* ---------- ENCARGO: papel de estraza ---------- */
+.estraza {
+  position: relative; margin: 14px 0 6px; padding: 26px 18px 22px; color: var(--estraza-tinta);
+  background: var(--fibras), var(--grano), linear-gradient(170deg, #d4b082, var(--estraza) 60%, #bd9462);
+  background-blend-mode: multiply, multiply, normal;
+  mask: var(--rasgado) top left / 120px 12px repeat-x, linear-gradient(#000 0 0) 0 11px / 100% calc(100% - 11px) no-repeat;
+  filter: drop-shadow(0 8px 12px rgb(0 0 0 / .16));
+}
+.estraza h3 { margin: 0 0 4px; font-size: 25px; line-height: 1; }
+.estraza .para { font-size: 13px; opacity: .8; margin: 0 0 10px; }
+.lineas { list-style: none; margin: 0; padding: 0; }
+.linea { display: grid; grid-template-columns: 1fr auto auto; gap: 2px 10px; align-items: center; padding: 11px 0; border-bottom: 1px dashed rgb(59 40 23 / .35); }
+.linea b { font-size: 15.5px; }
+.linea small { grid-column: 1; font-size: 12.5px; opacity: .8; }
+.linea .tag { grid-row: 1 / span 2; grid-column: 2; min-width: 0; padding: 8px 9px 6px; }
+.linea .tag b { font-size: 16px; }
+.linea .quitar { grid-row: 1 / span 2; grid-column: 3; width: 34px; height: 34px; border: 0; background: none; color: var(--estraza-tinta); border-radius: 50%; display: grid; place-items: center; }
+.linea .quitar:hover { background: rgb(0 0 0 / .07); }
+.linea.is-nueva .tag { animation: columpio 1.3s var(--k-curva); }
+.total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 12px; }
+.total span { font-weight: 800; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; }
+.total b { font: 400 30px var(--sd-display); color: var(--tinta-roja); border-bottom: 4px double var(--tinta-roja); line-height: 1.05; }
+.estraza .aviso-peso { margin: 8px 0 0; font-size: 12px; opacity: .75; }
+.vacio { text-align: center; padding: 16px 6px 6px; }
+.vacio svg { width: 92px; height: 92px; margin: 0 auto 6px; stroke: currentColor; fill: none; stroke-width: 1.4; opacity: .75; }
+.vacio .disp { font-size: 24px; display: block; margin-bottom: 4px; }
+.vacio p { margin: 0 0 14px; font-size: 13.5px; opacity: .8; }
+
+.segm { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: calc(var(--sd-radius-btn, 14px) + 4px); background: color-mix(in srgb, var(--sd-ink) 8%, var(--sd-surface)); }
+.segm button { position: relative; z-index: 1; border: 0; background: none; padding: 10px 6px; font-weight: 800; font-size: 13.5px; color: var(--sd-muted); transition: color .25s; min-height: 42px; }
+.segm button[aria-pressed="true"] { color: var(--sd-ink); }
+.segm::before { content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: var(--sd-radius-btn, 12px); background: var(--sd-surface); box-shadow: 0 2px 8px rgb(0 0 0 / .12); transition: transform .4s var(--k-rebote); }
+.segm[data-v="1"]::before { transform: translateX(100%); }
+.franjas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+.franjas .sub { grid-column: 1 / -1; font-size: 11.5px; font-weight: 700; color: var(--sd-muted); margin: 4px 0 -2px; }
+.franja { position: relative; border: 1.5px solid var(--linea); background: var(--sd-surface); border-radius: 10px; padding: 8px 0 7px; font-weight: 800; font-size: 13.5px; display: grid; gap: 1px; min-height: 46px; }
+.franja small { font-size: 10px; font-weight: 600; color: var(--sd-muted); }
+.franja[aria-pressed="true"] { background: var(--sd-accent-solid, var(--sd-accent)); color: var(--sd-on-accent); border-color: transparent; }
+.franja[aria-pressed="true"] small { color: inherit; opacity: .85; }
+.franja:disabled { opacity: .38; text-decoration: line-through; }
+.franjas.is-mal { animation: no .45s; }
+.franjas-vacio { grid-column: 1 / -1; padding: 12px; text-align: center; color: var(--sd-muted); font-size: 13.5px; }
+.campo { display: grid; gap: 5px; margin: 12px 0 0; font-size: 13px; font-weight: 700; color: var(--sd-muted); }
+.campo input { border: 1.5px solid color-mix(in srgb, var(--sd-ink) 20%, transparent); border-radius: var(--sd-radius, 12px); background: var(--sd-surface); padding: 12px 14px; font-size: 16px; color: var(--sd-ink); font-weight: 500; }
+.campo input[aria-invalid="true"] { border-color: var(--sd-danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sd-danger) 18%, transparent); }
+.error { color: var(--sd-danger); font-size: 12.5px; font-weight: 700; min-height: 0; }
+.error:empty { display: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { border: 1.5px solid var(--linea); background: var(--sd-surface); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 600; min-height: 36px; }
+.chips button[aria-pressed="true"] { background: color-mix(in srgb, var(--sd-accent) 16%, var(--sd-surface)); border-color: var(--sd-accent); }
+.btn-wa { background: #1fa855; color: #fff; margin-top: 16px; }
+.btn-wa .ico { stroke-width: 2; }
+.btn-wa.is-cargando { pointer-events: none; }
+.btn-wa.is-cargando .ico { animation: gira 1s linear infinite; }
+
+/* chat de WhatsApp (colores ajenos a propósito) */
+.wa { margin: 14px -16px 0; background: #e9e1d7; color: #111b21; border-radius: 0; overflow: hidden; }
+.wa-cab { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: #0b5c4f; color: #fff; }
+.wa-cab .avatar { width: 38px; height: 38px; border-radius: 50%; background: #f4ece1; color: var(--tinta-roja); display: grid; place-items: center; font: 400 17px var(--sd-display); flex: none; }
+.wa-cab b { display: block; font-size: 15px; }
+.wa-cab small { font-size: 12px; opacity: .85; }
+.wa-cuerpo { padding: 14px 12px 10px; display: grid; gap: 7px; min-height: 280px; align-content: start;
+  background-image: radial-gradient(circle at 10px 10px, rgb(0 0 0 / .045) 2px, transparent 2.5px); background-size: 26px 26px; }
+.burbuja { max-width: 84%; padding: 7px 9px 5px; border-radius: 9px; font-size: 14px; white-space: pre-line; position: relative; box-shadow: 0 1px .5px rgb(0 0 0 / .13); animation: entra .3s var(--k-rebote); }
+@keyframes entra { from { transform: translateY(8px) scale(.96); opacity: 0; } }
+.burbuja.sale { justify-self: end; background: #d9fdd3; border-top-right-radius: 2px; }
+.burbuja.entra { justify-self: start; background: #fff; border-top-left-radius: 2px; }
+.burbuja .hora { display: block; text-align: right; font-size: 10.5px; color: #667781; margin-top: 2px; }
+.burbuja .vistos { display: inline-block; width: 16px; height: 11px; vertical-align: -1px; margin-left: 3px; color: #8696a0; transition: color .3s; }
+.burbuja .vistos.leido { color: #2b9ae6; }
+.burbuja .vistos path:last-child { opacity: 0; transition: opacity .2s; }
+.burbuja .vistos.doble path:last-child { opacity: 1; }
+.escribiendo { justify-self: start; background: #fff; border-radius: 9px; padding: 9px 12px; font-size: 12.5px; color: #667781; font-style: italic; display: flex; align-items: center; gap: 8px; }
+.escribiendo i { width: 6px; height: 6px; border-radius: 50%; background: #8696a0; display: inline-block; animation: puntos 1s infinite; }
+.escribiendo i:nth-child(2) { animation-delay: .15s; } .escribiendo i:nth-child(3) { animation-delay: .3s; }
+@keyframes puntos { 30% { transform: translateY(-4px); opacity: .5; } }
+.wa-pie { display: flex; gap: 8px; padding: 10px 12px 14px; flex-wrap: wrap; }
+.wa-pie .btn { flex: 1; font-size: 13.5px; padding: 11px 12px; }
+
+/* mis encargos */
+.mis { display: grid; gap: 10px; margin-top: 10px; }
+.mio { position: relative; padding: 14px; border-radius: var(--sd-radius, 14px); background: var(--sd-surface); border: 1px solid color-mix(in srgb, var(--sd-ink) 12%, transparent); }
+.mio header { display: flex; align-items: baseline; gap: 8px; }
+.mio header b { font-size: 18px; margin-right: auto; }
+.mio code { font: 700 12.5px var(--sd-mono); color: var(--acento-t); letter-spacing: .08em; }
+.mio p { margin: 3px 0 0; font-size: 13px; color: var(--sd-muted); }
+.pasos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin: 10px 0 6px; padding: 0; list-style: none; }
+.pasos li { font-size: 11px; font-weight: 700; color: var(--sd-muted); }
+.pasos li::before { content: ""; display: block; height: 4px; border-radius: 2px; margin-bottom: 5px; background: color-mix(in srgb, var(--sd-ink) 12%, transparent); transition: background .5s; }
+.pasos li.hecho { color: var(--sd-ink); }
+.pasos li.hecho::before { background: var(--sd-ok); }
+.mio .acc { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.mio .acc .btn { min-height: 38px; padding: 8px 12px; font-size: 13px; }
+.mio.listo::after {
+  content: "LISTO"; position: absolute; right: 14px; top: 38px; border: 2.5px solid var(--sd-ok); color: var(--sd-ok);
+  font: 800 13px/1 var(--sd-font); letter-spacing: .18em; padding: 5px 8px; border-radius: 5px; transform: rotate(-10deg); animation: estampa .45s var(--k-rebote);
+}
+@keyframes estampa { from { transform: rotate(-10deg) scale(2.3); opacity: 0; } }
+
+/* ---------- TURNO ---------- */
+.marcador {
+  margin-top: 14px; padding: 14px 16px 16px; border-radius: 16px; background: #160d0b; color: #f6ddd6;
+  box-shadow: inset 0 0 0 3px #2c1b17, inset 0 0 40px #000, 0 10px 24px rgb(0 0 0 / .2);
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 14px;
+}
+.marcador small { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; font-weight: 800; opacity: .75; grid-column: 1 / -1; }
+.marcador p { margin: 0; font-size: 13px; opacity: .8; }
+.led { position: relative; font: 700 84px/0.95 var(--sd-mono); color: #ff3b2f; text-shadow: 0 0 10px rgb(255 50 30 / .75), 0 0 28px rgb(255 50 30 / .35); letter-spacing: .02em; overflow: hidden; height: 1em; min-width: 2.3ch; text-align: right; }
+.led::before { content: "88"; position: absolute; right: 0; color: rgb(255 59 47 / .08); text-shadow: none; }
+.led span { display: block; }
+.led.rueda span { animation: rueda-led .5s var(--k-curva); }
+@keyframes rueda-led { from { transform: translateY(100%); opacity: 0; } }
+.turno-cuerpo { display: grid; grid-template-columns: 140px 1fr; gap: 16px; margin-top: 18px; align-items: start; }
+.maquina { position: relative; width: 140px; height: 300px; }
+.maq {
+  position: relative; z-index: 2; width: 140px; height: 168px; border-radius: 70px 70px 18px 18px;
+  background: radial-gradient(80% 60% at 35% 25%, #ff6a5c, #d32a1f 55%, #8f1510); color: #fff;
+  box-shadow: inset 0 -8px 0 rgb(0 0 0 / .2), 0 12px 22px rgb(0 0 0 / .25); display: grid; justify-items: center; align-content: start; padding-top: 22px;
+}
+.maq .disco { width: 64px; height: 64px; border-radius: 50%; background: #fff; color: #c62a20; display: grid; place-items: center; font: 400 15px/1 var(--sd-display); box-shadow: inset 0 0 0 4px #f2d4cf; }
+.maq small { margin-top: 10px; font-size: 9.5px; letter-spacing: .2em; font-weight: 800; text-align: center; line-height: 1.3; }
+.maq::after { content: ""; position: absolute; left: 26px; right: 26px; bottom: 16px; height: 6px; border-radius: 3px; background: #2a0c09; box-shadow: inset 0 2px 2px #000; }
+.papel-turno {
+  position: absolute; z-index: 1; left: 32px; top: 150px; width: 76px; height: 64px; touch-action: none; cursor: grab;
+  background: #fbfaf5; color: #2b2b2b; border: 0; padding: 22px 0 0; font: 700 13px var(--sd-mono); text-align: center;
+  box-shadow: 0 3px 6px rgb(0 0 0 / .18);
+  mask: conic-gradient(from -45deg at 50% 6px, #000 90deg, transparent 0) bottom / 10px 6px repeat-x, linear-gradient(#000 0 0) top / 100% calc(100% - 6px) no-repeat;
+  transform: translateY(var(--dy, 0px)); transition: transform .4s var(--k-rebote);
+}
+.papel-turno.arrastrando { transition: none; cursor: grabbing; }
+.papel-turno.imprime { transition: transform .9s steps(9); }
+.papel-turno.rasgado { animation: cae .7s cubic-bezier(.5, 0, .8, .4) forwards; }
+@keyframes cae { 0% { transform: translateY(var(--dy)); } 15% { transform: translateY(calc(var(--dy) + 6px)) rotate(4deg); } 100% { transform: translateY(240px) rotate(14deg); opacity: 0; } }
+.papel-turno[hidden] { display: none; }
+.lado-turno { display: grid; gap: 10px; align-content: start; }
+.lado-turno .ayuda { margin: 0; font-size: 14px; }
+.ticket {
+  position: relative; padding: 20px 16px 22px; background: #fbfaf5; color: #232323; font-family: var(--sd-mono); text-align: center;
+  box-shadow: 0 10px 24px rgb(0 0 0 / .16);
+  mask: conic-gradient(from 135deg at 50% 8px, #000 90deg, transparent 0) top / 12px 8px repeat-x, conic-gradient(from -45deg at 50% 8px, #000 90deg, transparent 0) bottom / 12px 8px repeat-x, linear-gradient(#000 0 0) center / 100% calc(100% - 16px) no-repeat;
+  animation: llega-ticket .6s var(--k-rebote);
+}
+@keyframes llega-ticket { from { transform: translateY(-40px) rotate(-6deg); opacity: 0; } }
+.ticket small { display: block; font-size: 10.5px; letter-spacing: .14em; }
+.ticket .grande { font: 400 74px/1 var(--sd-display); color: #c62a20; margin: 6px 0 2px; }
+.ticket hr { border: 0; border-top: 1px dashed #999; margin: 10px 0; }
+.ticket .fila { display: flex; justify-content: space-between; font-size: 12.5px; }
+.ticket.te-toca::after, .ticket.pasado::after {
+  content: "¡TE TOCA!"; position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%) rotate(-12deg);
+  border: 3px solid #1f8a4c; color: #1f8a4c; padding: 6px 12px; font: 800 20px/1 var(--sd-font); letter-spacing: .1em; background: rgb(251 250 245 / .8); animation: estampa2 .5s var(--k-rebote);
+}
+.ticket.pasado::after { content: "PASADO"; border-color: #b3261e; color: #b3261e; }
+@keyframes estampa2 { from { transform: translate(-50%, -50%) rotate(-12deg) scale(2.4); opacity: 0; } }
+.cola { display: flex; flex-wrap: wrap; gap: 5px; margin: 4px 0 0; padding: 0; list-style: none; }
+.cola li { width: 26px; height: 30px; display: grid; place-items: center; font: 700 10.5px var(--sd-mono); background: var(--sd-surface); border: 1px solid var(--linea); border-radius: 3px 3px 0 0; }
+.cola li.tu { background: var(--sd-accent-solid, var(--sd-accent)); color: var(--sd-on-accent); border-color: transparent; }
+.interruptor { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 1.5px solid color-mix(in srgb, var(--sd-ink) 15%, transparent); background: var(--sd-surface); border-radius: var(--sd-radius, 14px); text-align: left; font-weight: 700; font-size: 14px; min-height: 52px; }
+.interruptor i { flex: none; width: 44px; height: 26px; border-radius: 13px; background: color-mix(in srgb, var(--sd-ink) 22%, transparent); position: relative; transition: background .25s; }
+.interruptor i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / .3); transition: transform .35s var(--k-rebote); }
+.interruptor[aria-pressed="true"] i { background: var(--sd-ok); }
+.interruptor[aria-pressed="true"] i::after { transform: translateX(18px); }
+.interruptor span { flex: 1; }
+.interruptor small { display: block; font-weight: 500; color: var(--sd-muted); font-size: 12px; }
+
+/* ---------- RECETAS: fichas de cartulina ---------- */
+.filtros { margin: 10px 0 4px; }
+.recetas { display: grid; gap: 18px; margin-top: 14px; }
+.ficha {
+  position: relative; padding: 18px 16px 14px 30px; color: #2a2420; transform: rotate(var(--r, -.5deg));
+  background: linear-gradient(90deg, transparent 21px, rgb(200 40 40 / .45) 21px 22.5px, transparent 22.5px),
+    repeating-linear-gradient(transparent 0 25px, rgb(70 120 190 / .22) 25px 26px), #fdfbf4;
+  background-position: 0 0, 0 12px, 0 0;
+  box-shadow: 0 1px 2px rgb(0 0 0 / .12), 0 10px 20px rgb(0 0 0 / .1); border-radius: 2px;
+}
+.ficha:nth-child(even) { --r: .6deg; }
+.ficha::before { content: ""; position: absolute; top: -6px; left: 50%; width: 12px; height: 12px; border-radius: 50%; background: var(--alfiler); box-shadow: 0 2px 2px rgb(0 0 0 / .35); }
+.ficha h3 { margin: 0; font-size: 22px; line-height: 1.05; }
+.ficha .meta { font-size: 12.5px; color: #6c6158; margin: 4px 0 8px; display: flex; gap: 10px; flex-wrap: wrap; }
+.ficha .ing { margin: 0 0 8px; font-size: 13.5px; line-height: 26px; }
+.ficha details { font-size: 13.5px; line-height: 1.5; }
+.ficha summary { cursor: pointer; font-weight: 800; color: #8a2a20; padding: 4px 0; }
+.ficha ol { margin: 4px 0 6px; padding-left: 18px; }
+.ficha .pedir { margin-top: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ficha .pedir .btn { flex: 1; min-height: 44px; font-size: 13.5px; }
+.ficha .tag { transform: rotate(-3deg); }
+.ficha.esqueleto { min-height: 170px; }
+.ficha.esqueleto > i { display: block; height: 16px; margin: 10px 0; border-radius: 4px; }
+
+/* ---------- MANOLO (vista del dueño) ---------- */
+.dueno {
+  --o-fondo: #171311; --o-tarj: #241d19; --o-tinta: #f5ece2; --o-apag: #a9998b;
+  background: var(--o-fondo); color: var(--o-tinta); max-width: none; margin: 0; padding: 16px 14px 30px;
+  min-height: calc(100dvh - var(--cab));
+}
+.dueno .etq { color: var(--o-apag); }
+.pantalla { background: #0e0807; border-radius: 18px; padding: 14px 16px 16px; box-shadow: inset 0 0 0 3px #2b1a16; display: grid; gap: 8px; }
+.pantalla .fila-led { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pantalla .led { font-size: 110px; }
+.pantalla .datos { display: grid; gap: 6px; font-size: 13px; color: var(--o-apag); }
+.pantalla .datos b { color: var(--o-tinta); font: 700 18px var(--sd-mono); margin-left: 6px; }
+.siguiente {
+  border: 0; border-radius: 16px; min-height: 76px; font: 400 30px var(--sd-display); color: #fff;
+  background: linear-gradient(#e2433a, #b52219); box-shadow: 0 6px 0 #6f120c, 0 14px 24px rgb(0 0 0 / .4); transition: transform .12s, box-shadow .12s;
+}
+.siguiente:active { transform: translateY(5px); box-shadow: 0 1px 0 #6f120c, 0 6px 12px rgb(0 0 0 / .4); }
+.pantalla .mini { display: flex; gap: 8px; }
+.pantalla .mini button { flex: 1; min-height: 40px; border: 1px solid #3b2a24; background: none; color: var(--o-tinta); border-radius: 10px; font-size: 13px; font-weight: 700; }
+.pantalla.dong { animation: dong .6s; }
+@keyframes dong { 25%, 75% { box-shadow: inset 0 0 0 3px #ff3b2f, 0 0 30px rgb(255 59 47 / .5); } }
+.tablero { display: grid; gap: 14px; margin-top: 16px; }
+.d-col h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--o-apag); }
+.d-col h3 span { background: #3a2b25; color: var(--o-tinta); border-radius: 999px; padding: 1px 8px; font-size: 12px; letter-spacing: 0; }
+.d-lista { display: grid; gap: 10px; }
+.comanda { position: relative; color: var(--estraza-tinta); padding: 12px 12px 10px; background: var(--fibras), linear-gradient(#d6b383, #c49b67); border-radius: 3px; box-shadow: 0 6px 14px rgb(0 0 0 / .35); }
+.comanda::before { content: ""; position: absolute; top: -4px; left: 50%; width: 3px; height: 16px; margin-left: -1.5px; background: linear-gradient(#ddd, #888); border-radius: 2px; }
+.comanda header { display: flex; align-items: baseline; gap: 8px; }
+.comanda header b { font-size: 17px; margin-right: auto; }
+.comanda header code { font: 700 12px var(--sd-mono); }
+.comanda .cuando { font-size: 12.5px; font-weight: 700; color: #7c1712; }
+.comanda ul { list-style: none; margin: 6px 0 8px; padding: 0; }
+.comanda li button { width: 100%; text-align: left; border: 0; background: none; color: inherit; display: flex; gap: 8px; align-items: center; padding: 6px 2px; font-size: 13.5px; border-radius: 6px; min-height: 36px; }
+.comanda li button i { flex: none; width: 18px; height: 18px; border: 2px solid currentColor; border-radius: 4px; display: grid; place-items: center; }
+.comanda li button[aria-pressed="true"] { text-decoration: line-through; opacity: .55; }
+.comanda li button[aria-pressed="true"] i::after { content: ""; width: 9px; height: 5px; border: solid currentColor; border-width: 0 0 2px 2px; transform: rotate(-45deg) translate(1px, -1px); }
+.comanda .btn { width: 100%; min-height: 42px; font-size: 14px; background: #2b1d14; color: #f6e9d6; }
+.comanda.es-tuyo { box-shadow: 0 0 0 3px var(--sd-accent), 0 6px 14px rgb(0 0 0 / .35); }
+.comanda.estampa::after { content: "LISTO"; position: absolute; right: 12px; top: 30px; border: 3px solid #1f7a3f; color: #1f7a3f; font: 800 16px/1 var(--sd-font); letter-spacing: .16em; padding: 4px 8px; transform: rotate(-12deg); animation: estampa .45s var(--k-rebote); }
+.d-vacio { color: var(--o-apag); font-size: 13.5px; padding: 18px; border: 1px dashed #3b2a24; border-radius: 12px; text-align: center; }
+.d-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.d-chips button { border: 1px solid #4a372f; background: none; color: var(--o-tinta); border-radius: 999px; padding: 7px 12px; font-size: 13px; min-height: 36px; }
+.d-chips button[aria-pressed="true"] { background: #c62a20; border-color: #c62a20; color: #fff; text-decoration: line-through; }
+
+/* ---------- pestañas ---------- */
+.tabs-pie {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; padding: 4px 8px var(--k-seguro-abajo);
+  background: color-mix(in srgb, var(--sd-bg) 94%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-top: 3px double var(--linea);
+}
+.tabs-pie .k-tabs { max-width: 600px; margin: 0 auto; height: var(--barra); }
+.tabs-pie [data-vista] { position: relative; font-size: 10.5px; }
+.insignia { position: absolute; top: 3px; left: calc(50% + 5px); min-width: 17px; height: 17px; border-radius: 9px; padding: 0 4px; background: var(--sd-accent); color: var(--sd-on-accent); font-size: 10px; font-weight: 800; display: grid; place-items: center; }
+.insignia:empty { display: none; }
+.insignia.is-pum { animation: pum2 .5s var(--k-rebote); }
+@keyframes pum2 { 40% { transform: scale(1.6); } }
+
+/* ---------- escritorio ---------- */
+@media (min-width: 960px) {
+  .vista { padding: 0 34px; }
+  .app[data-vista="mostrador"] { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(400px, 1fr); align-items: start; }
+  .app[data-vista="mostrador"] .escena { position: sticky; top: var(--cab); height: calc(100dvh - var(--cab) - var(--barra) - 6px); }
+  .app[data-vista="mostrador"] .vista { max-width: 560px; margin: 0; padding-top: 6px; }
+  .lineal { margin: 0 -34px; padding: 14px 34px 10px; }
+  .pesada { grid-template-columns: 200px 1fr; }
+  .dial { width: 200px; }
+  .vista-encargo { max-width: 1080px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 0 44px; align-items: start; }
+  .vista-encargo > .titular { grid-column: 1 / -1; }
+  .vista-turno { max-width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; }
+  .vista-turno > .titular { grid-column: 1 / -1; }
+  .turno-cuerpo { grid-template-columns: 190px 1fr; margin-top: 0; }
+  .maquina { transform: scale(1.3); transform-origin: 0 0; }
+  .vista-recetas { max-width: 1120px; }
+  .recetas { grid-template-columns: repeat(3, 1fr); align-items: start; }
+  .dueno { padding: 22px 30px 30px; }
+  .dueno-grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; max-width: 1240px; margin: 0 auto; }
+  .tablero { grid-template-columns: 1fr 1fr; margin-top: 0; }
+  .d-agot { grid-column: 1 / -1; }
+  .wa { margin: 14px 0 0; border-radius: 14px; }
+}
+@media (max-width: 370px) { .pesada { grid-template-columns: 150px 1fr; } .dial { width: 150px; } .importe { font-size: 28px; } .turno-cuerpo { grid-template-columns: 120px 1fr; } }
 </style>
 <script src="sistemas/tema-datos.js"></script>
 <script src="../js/selector-sistema.js" defer></script>
 </head>
 <body>
-<div class="demo-badge">DEMO</div>
 
-<!-- PANTALLA 1: PRODUCTOS -->
-<main id="screen-prods" class="screen active">
-    <header class="hero">
-        <div class="art">🥩</div>
-        <h1>Carnicería Manolo</h1>
-        <p>Encarga hoy, recoge mañana sin hacer cola.</p>
-        <div class="badges">
-            <span class="badge">🐄 Ternera del valle</span>
-            <span class="badge">🏠 Elaboración propia</span>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="tiza" x="-4%" y="-12%" width="108%" height="124%">
+    <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" seed="7" result="r"/>
+    <feColorMatrix in="r" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 1.75" result="m"/>
+    <feComposite in="SourceGraphic" in2="m" operator="in" result="t"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="2" seed="2" result="w"/>
+    <feDisplacementMap in="t" in2="w" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="pincel" x="-3%" y="-10%" width="106%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".035 .09" numOctaves="2" seed="5" result="w"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<header class="cab">
+  <div class="rotulo"><small>Carnicería</small><b class="disp">Manolo</b></div>
+  <button class="chip-turno" id="chip-turno" type="button" aria-label="Ver el turno"><b class="num" id="chip-num">--</b><span id="chip-txt">Atendemos</span></button>
+</header>
+
+<div class="app" id="app" data-vista="mostrador">
+
+  <!-- La vitrina y la báscula, en 3D -->
+  <figure class="escena k-3d" id="escena" tabindex="0" role="group" aria-label="Vitrina y báscula. Flechas izquierda y derecha para recorrerla, Intro para pesar la pieza.">
+    <canvas id="lienzo"></canvas>
+    <div class="k-reserva" aria-hidden="true">
+      <div>
+        <svg viewBox="0 0 200 170" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M40 30h120" stroke-width="5"/><path d="M100 30v14"/>
+          <rect x="44" y="44" width="112" height="100" rx="14"/>
+          <circle cx="100" cy="92" r="36"/>
+          <g stroke-width="1.5"><path d="M74 108l5-4M70 92h6M74 76l5 4M100 62v6M126 76l-5 4M130 92h-6M126 108l-5-4"/></g>
+          <g id="aguja-r"><path d="M100 92 V62" stroke-width="3" stroke="var(--sd-accent)"/><circle cx="100" cy="92" r="4" fill="currentColor"/></g>
+          <path d="M20 160h160"/>
+        </svg>
+        La báscula, sin 3D en este dispositivo
+      </div>
+    </div>
+    <button class="flecha izq" id="ant" type="button" aria-label="Pieza anterior"><svg class="ico" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button>
+    <button class="flecha der" id="sig" type="button" aria-label="Pieza siguiente"><svg class="ico" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+    <figcaption class="pista" id="pista"><b>Desliza</b> la vitrina · <b>toca</b> una pieza</figcaption>
+  </figure>
+
+  <!-- ================= MOSTRADOR ================= -->
+  <section class="vista vista-mostrador" data-panel="mostrador" aria-labelledby="t-mos">
+    <h1 class="k-sr" id="t-mos">Mostrador: elige pieza, peso y corte</h1>
+    <div class="lineal" id="lineal" role="group" aria-label="Piezas de la vitrina"></div>
+    <div class="pizarra" id="pizarra">
+      <div class="pz-nombre disp tiza" id="pz-nombre"></div>
+      <p class="pz-nota tiza" id="pz-nota"></p>
+      <div class="pz-precio disp tiza num" id="pz-precio"></div>
+    </div>
+    <div id="pesar-zona">
+      <div class="pesada">
+        <div class="dial" id="dial" role="slider" tabindex="0" aria-label="Peso">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="aro" cx="100" cy="100" r="98"/>
+            <circle class="moleteado" cx="100" cy="100" r="94"/>
+            <path class="pista-d" d="M41.3 133.9 A68 68 0 1 1 158.7 133.9" transform="scale(1)"/>
+            <path class="lleno" id="dial-lleno" pathLength="300" stroke-dasharray="0 300" d="M41.3 133.9 A68 68 0 1 1 158.7 133.9"/>
+            <g id="dial-marcas"></g>
+            <g id="dial-asa"><circle class="asa" cx="100" cy="32" r="11"/><path class="asa-g" d="M96 28v8M100 27v10M104 28v8"/></g>
+          </svg>
+          <div class="dial-centro"><b class="disp num" id="dial-valor">0</b><small id="dial-unidad">gramos</small></div>
         </div>
-    </header>
-    <section class="prods" id="prods" aria-label="Productos"></section>
-</main>
+        <div class="lectura">
+          <span class="etq" style="margin:0">Importe</span>
+          <output class="importe disp num" id="importe">0,00 €</output>
+          <span class="lectura-det" id="lectura-det"></span>
+          <div class="atajos" id="atajos" role="group" aria-label="Pesos rápidos"></div>
+        </div>
+      </div>
+      <div class="etq">Corte <span id="corte-nombre" style="letter-spacing:0;text-transform:none;font-size:12.5px;color:var(--sd-ink)"></span></div>
+      <div class="cortes" id="cortes" role="group" aria-label="Corte"></div>
+      <div class="acciones">
+        <button class="btn btn--linea" id="pesar" type="button">A la báscula</button>
+        <button class="btn" id="anadir" type="button" data-onda>Añadir al encargo</button>
+      </div>
+    </div>
+    <p class="nota-agotado" id="nota-agotado" hidden>Hoy se ha acabado. Mañana a primera hora vuelve a estar.</p>
+  </section>
 
-<button id="orderbar">
-    <span id="orderbar-items">Tu encargo (0)</span>
-    <span id="orderbar-total">≈ 0,00 €</span>
+  <!-- ================= ENCARGO ================= -->
+  <section class="vista vista-encargo" data-panel="encargo" hidden aria-labelledby="t-enc">
+    <h2 class="titular disp" id="t-enc">Tu <em>encargo</em></h2>
+    <div id="enc-papel">
+      <div class="estraza" id="estraza"></div>
+    </div>
+    <div id="enc-datos">
+      <form id="form" novalidate>
+        <div class="etq"><span>Recogida</span><span id="rec-resumen" style="letter-spacing:0;text-transform:none;color:var(--sd-ink)"></span></div>
+        <div class="segm" id="dias-rec" role="group" aria-label="Día de recogida"></div>
+        <div class="franjas" id="franjas" role="group" aria-label="Hora de recogida"></div>
+        <span class="error" id="e-franja"></span>
+        <label class="campo">Tu nombre<input id="f-nombre" autocomplete="given-name" aria-describedby="e-nombre"></label>
+        <span class="error" id="e-nombre"></span>
+        <label class="campo">Teléfono<input id="f-tel" type="tel" inputmode="tel" autocomplete="tel" aria-describedby="e-tel"></label>
+        <span class="error" id="e-tel"></span>
+        <div class="etq">Para Manolo</div>
+        <div class="chips" id="notas" role="group" aria-label="Indicaciones">
+          <button type="button" aria-pressed="false">Sin grasa</button>
+          <button type="button" aria-pressed="false">Bien limpio</button>
+          <button type="button" aria-pressed="false">Huesos para caldo</button>
+          <button type="button" aria-pressed="false">Envasado al vacío</button>
+        </div>
+        <button class="btn btn--ancho btn-wa" id="enviar" type="submit"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20l1.3-4A8 8 0 1 1 8.6 19z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8c-1-.4-1.9-1.3-2.3-2.3l.8-1-1-2z"/></svg><span>Enviar por WhatsApp</span></button>
+      </form>
+      <div id="chat" hidden></div>
+      <div class="etq" id="mis-etq" hidden>Mis encargos</div>
+      <div class="mis" id="mis"></div>
+    </div>
+  </section>
+
+  <!-- ================= TURNO ================= -->
+  <section class="vista vista-turno" data-panel="turno" hidden aria-labelledby="t-tur">
+    <h2 class="titular disp" id="t-tur">Tu <em>turno</em>, sin hacer cola</h2>
+    <div>
+      <div class="marcador">
+        <small>Ahora atendemos</small>
+        <div><p id="cola-txt"></p><p id="espera-txt"></p></div>
+        <div class="led num" id="led" aria-live="polite" aria-atomic="true"><span>--</span></div>
+      </div>
+      <button class="interruptor" id="avisame" type="button" aria-pressed="true" style="margin-top:12px">
+        <i aria-hidden="true"></i><span>Avísame cuando falten 2<small>Para que te acerques sin estar de pie</small></span>
+      </button>
+    </div>
+    <div class="turno-cuerpo">
+      <div class="maquina" id="maquina">
+        <div class="maq" aria-hidden="true"><div class="disco">Turno</div><small>TOME<br>SU NÚMERO</small></div>
+        <button class="papel-turno" id="papel-turno" type="button" aria-label="Tira del papel para sacar número"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="margin:auto"><path d="M12 4v14M6 12l6 6 6-6"/></svg></button>
+      </div>
+      <div class="lado-turno" id="lado-turno" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ================= RECETAS ================= -->
+  <section class="vista vista-recetas" data-panel="recetas" hidden aria-labelledby="t-rec">
+    <h2 class="titular disp" id="t-rec">Recetas <em>de la casa</em></h2>
+    <div class="chips filtros" id="filtros" role="group" aria-label="Filtrar por carne"></div>
+    <div class="recetas" id="recetas" aria-busy="true"></div>
+  </section>
+
+  <!-- ================= MANOLO (vista del dueño) ================= -->
+  <section class="vista dueno" data-panel="manolo" hidden aria-labelledby="t-due">
+    <h2 class="k-sr" id="t-due">Manolo: turnos y encargos</h2>
+    <div class="dueno-grid">
+      <div>
+        <div class="pantalla" id="pantalla">
+          <div class="fila-led">
+            <div class="datos">
+              <span>En cola<b id="d-cola">0</b></span>
+              <span>Último<b id="d-ultimo">0</b></span>
+              <span>Atendidos<b id="d-hoy">0</b></span>
+            </div>
+            <div class="led num" id="d-led"><span>--</span></div>
+          </div>
+          <button class="siguiente" id="siguiente" type="button">Siguiente</button>
+          <div class="mini">
+            <button type="button" id="anterior">Volver al anterior</button>
+            <button type="button" id="repetir">Repetir aviso</button>
+          </div>
+        </div>
+      </div>
+      <div class="tablero">
+        <div class="d-col"><h3>Por preparar <span id="n-prep">0</span></h3><div class="d-lista" id="d-prep" aria-live="polite"></div></div>
+        <div class="d-col"><h3>Listos <span id="n-listos">0</span></h3><div class="d-lista" id="d-listos"></div></div>
+        <div class="d-agot">
+          <div class="etq">Marcar agotado</div>
+          <div class="d-chips" id="d-agotados" role="group" aria-label="Piezas agotadas"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<button class="papelito" id="papelito" type="button">
+  <svg class="ico" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 11l11-5 11 5v11l-11 5-11-5z"/><path d="M5 11l11 5 11-5M16 16v11"/><path d="M10.5 8.5l11 5" stroke-dasharray="2 2"/></svg>
+  <span class="info"><small id="pp-n">0 piezas</small><b class="num" id="pp-total">0,00 €</b></span>
+  <span class="ver">Ver encargo →</span>
 </button>
 
-<!-- PANTALLA 2: RESUMEN -->
-<main id="screen-review" class="screen">
-    <div class="head2">
-        <button class="back" id="back-to-prods" aria-label="Volver">←</button>
-        <h1>Tu encargo</h1>
-    </div>
-    <div class="review">
-        <div class="rev-card" id="rev-items"></div>
-        <div class="rev-total">
-            <span>Total estimado<small>El importe final se ajusta al peso real</small></span>
-            <span id="rev-total">0,00 €</span>
-        </div>
-        <div class="sect-label">¿Cuándo lo recoges? (mañana)</div>
-        <div class="slots" id="slots"></div>
-        <div class="sect-label">Tu nombre</div>
-        <input type="text" id="cust-name" placeholder="Ej.: María" autocomplete="off">
-        <button class="btn-wa" id="send-wa">📲 Enviar encargo por WhatsApp</button>
-    </div>
-</main>
+<p class="k-sr" id="vivo" aria-live="polite"></p>
 
-<!-- PANTALLA 3: CHAT WHATSAPP -->
-<main id="screen-chat" class="screen">
-    <header class="chat-head">
-        <div class="chat-avatar">🔪</div>
-        <div>
-            <h2>Carnicería Manolo</h2>
-            <p id="chat-status">en línea</p>
-        </div>
-    </header>
-    <div class="chat-body" id="chat-body"></div>
-    <div class="chat-foot">
-        <button class="btn-again" id="again">Hacer otro encargo</button>
-    </div>
-</main>
+<nav class="tabs-pie" aria-label="Secciones">
+  <div class="k-tabs" id="tabs" role="tablist">
+    <span class="k-tabs-marca" aria-hidden="true"></span>
+    <button type="button" role="tab" data-vista="mostrador"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14"/><path d="M12 6v3"/><rect x="5" y="9" width="14" height="11" rx="2"/><circle cx="12" cy="14.5" r="3"/><path d="M12 14.5l1.5-1.5"/></svg>Mostrador</button>
+    <button type="button" role="tab" data-vista="encargo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></svg>Encargo<span class="insignia" id="ins-enc"></span></button>
+    <button type="button" role="tab" data-vista="turno"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v16l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 19z"/><path d="M9 8h6M9 12h4"/></svg>Turno<span class="insignia" id="ins-tur"></span></button>
+    <button type="button" role="tab" data-vista="recetas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16v2a6 6 0 0 1-6 6h-4a6 6 0 0 1-6-6z"/><path d="M2 11h20M9 7c0-1 1-1.5 1-2.5M13 7c0-1 1-1.5 1-2.5"/></svg>Recetas</button>
+    <button type="button" role="tab" data-vista="manolo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11v8H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="7" r="1"/><path d="M15 9h3l3 11h-3z"/></svg>Manolo<span class="insignia" id="ins-due"></span></button>
+  </div>
+</nav>
 
-<div class="toast" id="toast"></div>
+<script type="module">
+import { crearEscena, THREE, material, sombraContacto, leerTokens } from './kit/escena.js';
+import { RoundedBoxGeometry } from '../js/vendor/three/addons/RoundedBoxGeometry.js';
+import { toCreasedNormals, mergeGeometries } from '../js/vendor/three/addons/BufferGeometryUtils.js';
+import { muelle, arrastre, contar, flip, avisar, pestanas, ondas, confeti, leer, guardar, vibrar, euros, dosCifras, reducido } from './kit/gestos.js';
 
-<script>
+/* =========================================================
+   DATOS
+   ========================================================= */
+const CORTES = {
+  finos: 'Filetes finos', gruesos: 'Filetes gruesos', picada: 'Picada', dados: 'En dados', entera: 'Entera'
+};
+const ICONOS = {
+  finos: '<path class="lo" d="M3 17h16a3 3 0 0 1 0 6H3z" transform="translate(0 -3)"/><path class="lo" d="M7 14v6M10 14v6M13 14v6M16 14v6"/><g class="cu"><path d="M9 2h12v6H9z"/><path d="M5 4h4"/></g>',
+  gruesos: '<path class="lo" d="M3 14h16a3 3 0 0 1 0 6H3z"/><path class="lo" d="M9 14v6M15 14v6"/><g class="cu"><path d="M9 2h12v6H9z"/><path d="M5 4h4"/></g>',
+  picada: '<circle cx="12" cy="10" r="7"/><g class="aspa"><path d="M12 5v10M7 10h10"/><circle cx="12" cy="10" r="1.5"/></g><path class="hilos" d="M8 17c0 2 1 3 0 5M12 17c0 2 1 3 0 5M16 17c0 2 1 3 0 5"/>',
+  dados: '<g class="cubo"><path d="M12 5l7 4v8l-7 4-7-4V9z"/><path d="M5 9l7 4 7-4M12 13v8"/></g>',
+  entera: '<path d="M3 13c0-4 4-7 9-7s9 3 9 7-4 7-9 7-9-3-9-7z"/><path class="cuerda" d="M9 6.5v13M15 6.5v13"/>'
+};
+const PIEZAS = [
+  { id: 'entrecot', nombre: 'Entrecot de ternera', corto: 'Entrecot', fam: 'Ternera', nota: 'Del valle · madurado 21 días', precio: 24.9, u: 'kg', def: 600, cortes: ['gruesos', 'finos', 'dados', 'entera'] },
+  { id: 'filetes', nombre: 'Filetes de ternera 1ª', corto: 'Filetes 1ª', fam: 'Ternera', nota: 'Tapa y babilla, tiernos', precio: 16.4, u: 'kg', def: 500, cortes: ['finos', 'gruesos', 'dados', 'picada'] },
+  { id: 'picada', nombre: 'Carne picada mixta', corto: 'Picada', fam: 'Ternera', nota: 'Vacuno y cerdo, picada al momento', precio: 9.9, u: 'kg', def: 500, cortes: ['picada'] },
+  { id: 'chuletillas', nombre: 'Chuletillas de cordero', corto: 'Chuletillas', fam: 'Cordero', nota: 'Lechal, de riñonada', precio: 18.9, u: 'kg', def: 750, cortes: ['entera'] },
+  { id: 'costilla', nombre: 'Costilla para asar', corto: 'Costilla', fam: 'Cerdo', nota: 'De cerdo, con su carne', precio: 10.9, u: 'kg', def: 1000, cortes: ['entera', 'dados'] },
+  { id: 'panceta', nombre: 'Panceta adobada', corto: 'Panceta', fam: 'Cerdo', nota: 'Adobo de la casa, pimentón de la Vera', precio: 9.5, u: 'kg', def: 500, cortes: ['gruesos', 'finos', 'dados', 'entera'] },
+  { id: 'chorizo', nombre: 'Chorizo fresco casero', corto: 'Chorizo', fam: 'Cerdo', nota: 'Elaboración propia, para la brasa', precio: 12.8, u: 'kg', def: 500, cortes: ['entera', 'dados'] },
+  { id: 'morcilla', nombre: 'Morcilla de Burgos', corto: 'Morcilla', fam: 'Cerdo', nota: 'De arroz, unos 250 g', precio: 2.8, u: 'ud', pesoUd: 250, max: 10, def: 2, cortes: ['entera', 'gruesos'] },
+  { id: 'hamburguesas', nombre: 'Hamburguesas caseras', corto: 'Hamburguesas', fam: 'Ternera', nota: 'Ternera y un punto de cerdo, 125 g', precio: 1.95, u: 'ud', pesoUd: 125, max: 16, def: 4, cortes: ['entera'] },
+  { id: 'pechuga', nombre: 'Pechuga de pollo', corto: 'Pechuga', fam: 'Pollo', nota: 'De corral, limpia', precio: 8.9, u: 'kg', def: 500, cortes: ['finos', 'gruesos', 'dados', 'picada', 'entera'] },
+  { id: 'muslos', nombre: 'Muslos de pollo', corto: 'Muslos', fam: 'Pollo', nota: 'De corral, con su piel', precio: 5.9, u: 'kg', def: 1000, cortes: ['entera', 'dados'] },
+  { id: 'pollo', nombre: 'Pollo de corral entero', corto: 'Pollo entero', fam: 'Pollo', nota: 'Unos 1,6 kg, limpio y atado', precio: 11, u: 'ud', pesoUd: 1600, max: 4, def: 1, cortes: ['entera', 'dados'] }
+];
+const RECETAS = [
+  { titulo: 'Entrecot a la piedra', pieza: 'entrecot', cant: 600, corte: 'gruesos', min: 15, rac: 2, ing: ['Sal en escamas', 'Aceite de oliva', 'Pimientos de Padrón'], pasos: ['Saca la carne media hora antes.', 'Piedra muy caliente: un minuto por cara.', 'La sal, al final y en escamas.'] },
+  { titulo: 'Albóndigas de la abuela', pieza: 'picada', cant: 500, corte: 'picada', min: 50, rac: 4, ing: ['1 huevo', 'Pan mojado en leche', 'Ajo y perejil', 'Cebolla, zanahoria y vino blanco'], pasos: ['Mezcla la carne con huevo, pan, ajo y perejil.', 'Forma bolas, enharínalas y dóralas.', 'Sofríe la verdura, moja con vino y 25 minutos a fuego lento.'] },
+  { titulo: 'Chuletillas al sarmiento', pieza: 'chuletillas', cant: 750, corte: 'entera', min: 20, rac: 3, ing: ['Sarmientos o brasa', 'Sal gorda'], pasos: ['Brasa sin llama, a un palmo de la parrilla.', 'Dos minutos por cada lado.', 'Sal gorda y a la mesa. Con la mano.'] },
+  { titulo: 'Pollo al ajillo', pieza: 'muslos', cant: 1000, corte: 'dados', min: 40, rac: 4, ing: ['Una cabeza de ajos', 'Vino blanco', 'Guindilla', 'Perejil'], pasos: ['Dora el pollo salpimentado en aceite generoso.', 'Añade los ajos laminados y la guindilla.', 'Moja con vino y deja reducir 20 minutos.'] },
+  { titulo: 'Chorizo a la sidra', pieza: 'chorizo', cant: 500, corte: 'entera', min: 25, rac: 4, ing: ['Una botella de sidra natural', 'Una hoja de laurel'], pasos: ['Pincha los chorizos para que no revienten.', 'Cúbrelos de sidra con el laurel.', 'Hierve hasta que la sidra espese. Pan al lado.'] },
+  { titulo: 'Morcilla con pimientos', pieza: 'morcilla', cant: 2, corte: 'gruesos', min: 15, rac: 4, ing: ['Pimientos del piquillo', 'Pan tostado'], pasos: ['Rodajas gruesas a la plancha, sin aceite.', 'Vuelta y vuelta, que quede crujiente.', 'Sobre pan, con su pimiento encima.'] },
+  { titulo: 'Costillas al horno con miel', pieza: 'costilla', cant: 1500, corte: 'entera', min: 90, rac: 4, ing: ['Dos cucharadas de miel', 'Pimentón de la Vera', 'Ajo y romero'], pasos: ['Unta la costilla con ajo, pimentón y aceite.', 'Horno a 160 °C tapada con papel, una hora.', 'Destapa, pinta con miel y 20 minutos más a 200 °C.'] },
+  { titulo: 'Hamburguesa de la casa', pieza: 'hamburguesas', cant: 4, corte: 'entera', min: 15, rac: 4, ing: ['Pan brioche', 'Queso curado', 'Cebolla pochada'], pasos: ['Sartén muy caliente, sin tocarla tres minutos.', 'Vuelta, queso encima y tapa un minuto.', 'Pan tostado y cebolla. Nada más.'] },
+  { titulo: 'Filetes empanados', pieza: 'filetes', cant: 600, corte: 'finos', min: 20, rac: 3, ing: ['Huevo', 'Pan rallado', 'Ajo y perejil'], pasos: ['Adoba los filetes con ajo y perejil.', 'Huevo y pan rallado, apretando bien.', 'Fríe en aceite caliente y escurre en papel.'] },
+  { titulo: 'Pollo asado de domingo', pieza: 'pollo', cant: 1, corte: 'entera', min: 80, rac: 4, ing: ['Un limón', 'Tomillo', 'Patatas', 'Manteca'], pasos: ['Limón y tomillo dentro, manteca por fuera.', 'Sobre patatas en rodajas, horno a 190 °C.', 'Una hora y cuarto, regando con su jugo.'] },
+  { titulo: 'Panceta crujiente', pieza: 'panceta', cant: 500, corte: 'gruesos', min: 30, rac: 4, ing: ['Sal gorda', 'Pimienta negra'], pasos: ['Sartén fría, la panceta dentro.', 'Fuego medio para que suelte su grasa.', 'Sube el fuego al final y escurre.'] },
+  { titulo: 'Pechuga al limón', pieza: 'pechuga', cant: 500, corte: 'finos', min: 15, rac: 2, ing: ['Un limón', 'Ajo', 'Orégano'], pasos: ['Marina los filetes con limón, ajo y orégano.', 'Plancha fuerte, dos minutos por cara.', 'Un chorro de limón al servir.'] }
+];
+const FAMILIAS = ['Todas', 'Ternera', 'Cerdo', 'Cordero', 'Pollo'];
+
+const pieza = id => PIEZAS.find(p => p.id === id);
+const indice = id => PIEZAS.findIndex(p => p.id === id);
+const gramosDe = (p, c) => p.u === 'ud' ? c * p.pesoUd : c;
+const importeDe = (p, c) => p.u === 'ud' ? p.precio * c : p.precio * c / 1000;
+const kg = g => (g / 1000).toLocaleString('es-ES', { maximumFractionDigits: 2 });
+const cantidad = (p, c) => p.u === 'ud' ? `${c} ${c === 1 ? 'unidad' : 'unidades'}` : c >= 1000 ? `${kg(c)} kg` : `${c} g`;
+const precioUnidad = p => `${euros(p.precio)}/${p.u}`;
+const MAX_G = 3000;
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+const CLAVE = 'manolo-v2';
+const est = Object.assign({
+  sel: 0, peso: {}, corte: {}, lineas: [], uid: 1,
+  dia: 0, franja: null, nombre: '', tel: '',
+  encargos: [], agotados: [], cola: null, mi: null, avisar: true, atendidos: 58
+}, leer(CLAVE, {}));
+const salvar = () => guardar(CLAVE, est);
+const $ = id => document.getElementById(id);
+const app = $('app');
+const decir = t => { $('vivo').textContent = ''; setTimeout(() => { $('vivo').textContent = t; }, 40); };
+const actual = () => PIEZAS[est.sel];
+const pesoDe = p => est.peso[p.id] ?? p.def;
+const corteDe = p => p.cortes.includes(est.corte[p.id]) ? est.corte[p.id] : p.cortes[0];
+const agotado = p => est.agotados.includes(p.id);
+const totalEncargo = () => est.lineas.reduce((s, l) => s + importeDe(pieza(l.pieza), l.cant), 0);
+
+// Banda clara u oscura: el azulejo se apaga en las paletas oscuras
+function banda() { try { document.documentElement.classList.toggle('oscuro', leerTokens().oscuro); } catch (e) { /* nada */ } }
+new MutationObserver(() => requestAnimationFrame(banda)).observe(document.documentElement, { attributes: true, attributeFilter: ['data-paleta'] });
+
+/* =========================================================
+   LA VITRINA Y LA BÁSCULA EN 3D
+   ========================================================= */
+const P = 0.96;                    // separación entre bandejas
+const KP = 0.55;                   // escala de la pieza sobre el plato
+const LECHO = -0.375;              // superficie de las bandejas
+const BZ = 0.1;                    // fondo de las bandejas
+const ESC = { y: 0.12, z: -0.56 }; // la báscula, sobre la repisa
+const SE = 1.22;                   // escala de la báscula
+const PLATO_Y = 0.63;
+const D2R = Math.PI / 180;
+const calmo = m => Math.abs(m.vel) < 0.003 && Math.abs(m.valor - m.objetivo) < 0.002;
+
+function crearMostrador(ganchos) {
+  const lienzo = $('lienzo'), caja = $('escena');
+  const CAM = { y: 1.62, z: 2.3, my: 0.2, mz: -0.25 };
+  const e = crearEscena(lienzo, {
+    camara: { fov: 44, fovVertical: 44, pos: [0, CAM.y, CAM.z], mira: [0, CAM.my, CAM.mz] },
+    solPos: [1.2, 4.6, 2.4], luz: 1.55, ambiente: 0.6, exposicion: 1.05,
+    alTema: t => tema(t), cuadro: (t, dt) => paso(t, dt)
+  });
+  if (!e) return null;
+  const { scene, camera, sol } = e;
+  scene.add(sol.target);
+  const N = PIEZAS.length, L = N * P + 0.5, XC = (N - 1) * P / 2;
+
+  /* ---------- texturas procedurales ---------- */
+  let s = 11;
+  const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  function tex(w, h, pintar, rep) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    pintar(c.getContext('2d'), w, h);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+    if (rep) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep[0], rep[1]); }
+    return t;
+  }
+  function motas(g, w, h, n, col, tam = 2) {
+    for (let i = 0; i < n; i++) { g.fillStyle = col(); g.beginPath(); g.ellipse(rnd() * w, rnd() * h, tam * (0.4 + rnd()), tam * (0.3 + rnd() * 0.6), rnd() * 3, 0, 7); g.fill(); }
+  }
+  // Carne roja con veta de grasa (infiltrada) y, si toca, la tapa de grasa en un borde
+  const carne = ({ a, b, veta = 0.5, grasa = 0 }) => (g, w, h) => {
+    const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, a); gr.addColorStop(1, b);
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    motas(g, w, h, 700, () => rnd() < 0.5 ? `rgba(60,0,8,${0.06 + rnd() * 0.1})` : `rgba(235,110,110,${0.05 + rnd() * 0.08})`, 1.6);
+    g.lineCap = 'round';
+    for (let i = 0; i < veta * 46; i++) {
+      let x = rnd() * w, y = rnd() * h;
+      g.strokeStyle = `rgba(250,236,214,${0.35 + rnd() * 0.5})`; g.lineWidth = 0.6 + rnd() * 2.6;
+      g.beginPath(); g.moveTo(x, y);
+      for (let k = 0; k < 7; k++) { x += (rnd() - 0.5) * w * 0.13; y += (rnd() - 0.5) * h * 0.13; g.lineTo(x, y); }
+      g.stroke();
+    }
+    if (grasa) {
+      g.fillStyle = '#f2e3c4'; g.beginPath(); g.moveTo(0, h);
+      for (let x = 0; x <= w; x += w / 14) g.lineTo(x, h - h * grasa * (0.6 + rnd() * 0.8));
+      g.lineTo(w, h); g.fill();
+    }
+  };
+  const T = {
+    entrecot: tex(256, 256, carne({ a: '#8c1c22', b: '#b2333a', veta: 1, grasa: 0.15 })),
+    filete: tex(256, 256, carne({ a: '#9a2127', b: '#bf3c40', veta: 0.22 })),
+    cordero: tex(128, 128, carne({ a: '#b0444a', b: '#cc6466', veta: 0.5 })),
+    costilla: tex(256, 128, carne({ a: '#c0605a', b: '#d98577', veta: 0.8 })),
+    picada: tex(256, 256, (g, w, h) => {
+      g.fillStyle = '#a5323a'; g.fillRect(0, 0, w, h);
+      g.lineCap = 'round';
+      for (let i = 0; i < 900; i++) {
+        const x = rnd() * w, y = rnd() * h, r = rnd();
+        g.strokeStyle = r < 0.12 ? 'rgba(245,220,205,.85)' : r < 0.55 ? `rgba(120,15,25,${0.4 + rnd() * 0.4})` : `rgba(215,85,90,${0.4 + rnd() * 0.4})`;
+        g.lineWidth = 2 + rnd() * 2.5; g.beginPath(); g.arc(x, y, 3 + rnd() * 4, rnd() * 6, rnd() * 6 + 2.5); g.stroke();
+      }
+    }, [3, 3]),
+    panceta: tex(256, 128, (g, w, h) => {
+      let y = 0;
+      while (y < h) {
+        const gr = rnd() < 0.5, alto = 6 + rnd() * 16;
+        g.fillStyle = gr ? '#efcfa8' : '#b5432b'; g.fillRect(0, y, w, alto);
+        y += alto;
+      }
+      g.fillStyle = 'rgba(160,30,10,.35)'; g.fillRect(0, 0, w, h);
+      motas(g, w, h, 500, () => `rgba(${120 + rnd() * 60},20,10,.55)`, 1.4);
+    }),
+    chorizo: tex(256, 128, (g, w, h) => {
+      g.fillStyle = '#a3311d'; g.fillRect(0, 0, w, h);
+      motas(g, w, h, 160, () => `rgba(248,226,200,${0.6 + rnd() * 0.3})`, 2.6);
+      motas(g, w, h, 300, () => 'rgba(70,10,5,.5)', 1.1);
+    }, [4, 1]),
+    morcilla: tex(256, 128, (g, w, h) => {
+      g.fillStyle = '#2b1012'; g.fillRect(0, 0, w, h);
+      motas(g, w, h, 420, () => `rgba(${200 + rnd() * 30},${150 + rnd() * 40},${140 + rnd() * 40},.7)`, 1.6);
+    }, [3, 1]),
+    piel: tex(128, 128, (g, w, h) => {
+      g.fillStyle = '#efd0a6'; g.fillRect(0, 0, w, h);
+      motas(g, w, h, 260, () => `rgba(200,140,110,${0.15 + rnd() * 0.2})`, 1.2);
+      motas(g, w, h, 30, () => 'rgba(230,170,140,.25)', 9);
+    }, [2, 2]),
+    pechuga: tex(128, 128, (g, w, h) => {
+      g.fillStyle = '#f0b9a8'; g.fillRect(0, 0, w, h);
+      g.strokeStyle = 'rgba(220,140,130,.35)';
+      for (let i = 0; i < 60; i++) { const y = rnd() * h; g.lineWidth = 0.5 + rnd(); g.beginPath(); g.moveTo(0, y); g.bezierCurveTo(w * 0.3, y + 8, w * 0.7, y - 8, w, y + 4); g.stroke(); }
+    }),
+    azulejo: tex(256, 256, (g, w, h) => {
+      g.fillStyle = '#cdc8c0'; g.fillRect(0, 0, w, h);
+      for (let f = 0; f < 4; f++) for (let x = (f % 2) * -64; x < w; x += 128) {
+        const y = f * 64, gr = g.createLinearGradient(0, y, 0, y + 64);
+        gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.18, '#f6f4ef'); gr.addColorStop(0.85, '#eeebe5'); gr.addColorStop(1, '#dedad3');
+        g.fillStyle = gr; g.beginPath(); g.roundRect(x + 2, y + 2, 124, 60, 7); g.fill();
+      }
+    }, [(L + 8) / 0.6, 3 / 0.6]),
+    papel: tex(256, 256, (g, w, h) => {
+      g.fillStyle = '#c69d6b'; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 520; i++) { g.strokeStyle = `rgba(${rnd() < 0.5 ? '90,60,30' : '235,210,170'},${0.08 + rnd() * 0.14})`; g.lineWidth = 0.5 + rnd(); const x = rnd() * w, y = rnd() * h; g.beginPath(); g.moveTo(x, y); g.lineTo(x + (rnd() - 0.5) * 30, y + (rnd() - 0.5) * 6); g.stroke(); }
+    })
+  };
+
+  /* ---------- materiales ---------- */
+  const carneMat = (map, extra) => new THREE.MeshPhysicalMaterial({ map, roughness: 0.55, clearcoat: 0.35, clearcoatRoughness: 0.4, ...extra });
+  const M = {
+    acero: material('metal', '#d2d7db', { roughness: 0.28 }),
+    aceroOsc: material('metal', '#8e959b', { roughness: 0.45 }),
+    esmalte: new THREE.MeshPhysicalMaterial({ color: '#a4262c', roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.12 }),
+    blanco: new THREE.MeshStandardMaterial({ color: '#f4f1ea', roughness: 0.3 }),
+    franja: new THREE.MeshStandardMaterial({ color: '#a4262c', roughness: 0.45 }),
+    marmol: new THREE.MeshStandardMaterial({ color: '#efebe4', roughness: 0.25 }),
+    pared: new THREE.MeshBasicMaterial({ map: T.azulejo, toneMapped: false }),
+    cristal: new THREE.MeshStandardMaterial({ color: '#e6f4f1', roughness: 0.04, metalness: 0.2, transparent: true, opacity: 0.14, side: THREE.DoubleSide, depthWrite: false, envMapIntensity: 1.6 }),
+    tubo: new THREE.MeshBasicMaterial({ color: '#fff1ec' }),
+    pasto: material('plastico', '#2c9a45', { roughness: 0.45 }),
+    hueso: new THREE.MeshPhysicalMaterial({ color: '#efe5d2', roughness: 0.5, clearcoat: 0.2 }),
+    grasa: new THREE.MeshPhysicalMaterial({ color: '#efdcbc', roughness: 0.5, clearcoat: 0.3 }),
+    ladoTernera: carneMat(null, { color: '#7a1a1f' }),
+    entrecot: carneMat(T.entrecot), filete: carneMat(T.filete), cordero: carneMat(T.cordero),
+    costilla: carneMat(T.costilla), picada: carneMat(T.picada, { clearcoat: 0.2, roughness: 0.7 }),
+    panceta: carneMat(T.panceta), chorizo: carneMat(T.chorizo, { clearcoat: 0.6, clearcoatRoughness: 0.25 }),
+    morcilla: carneMat(T.morcilla, { clearcoat: 0.5, roughness: 0.6 }), piel: carneMat(T.piel, { clearcoat: 0.45, roughness: 0.6 }),
+    pechuga: carneMat(T.pechuga), hamburguesa: carneMat(T.picada, { color: '#d9a0a0', clearcoat: 0.25, roughness: 0.7 }),
+    papelCera: new THREE.MeshStandardMaterial({ color: '#fbf8f1', roughness: 0.6, side: THREE.DoubleSide }),
+    papel: new THREE.MeshStandardMaterial({ map: T.papel, roughness: 0.95, side: THREE.DoubleSide }),
+    negro: new THREE.MeshStandardMaterial({ color: '#141414', roughness: 0.4 }),
+    rojo: material('ceramica', '#c62828')
+  };
+  const malla = (geo, mat, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; return m; };
+
+  /* ---------- geometrías compartidas ---------- */
+  const cache = {};
+  const geo = (k, f) => cache[k] || (cache[k] = f());
+  const FORMAS = {
+    entrecot: [[0.1, 0.3], [0.3, 0.08], [0.62, 0.06], [0.88, 0.18], [0.96, 0.48], [0.86, 0.8], [0.56, 0.94], [0.24, 0.88], [0.06, 0.62]],
+    filete: [[0.05, 0.4], [0.25, 0.12], [0.6, 0.05], [0.9, 0.2], [0.95, 0.55], [0.75, 0.88], [0.4, 0.95], [0.12, 0.75]],
+    chuleta: [[0.1, 0.5], [0.25, 0.15], [0.6, 0.05], [0.9, 0.3], [0.92, 0.7], [0.6, 0.95], [0.25, 0.88]],
+    pechuga: [[0.02, 0.5], [0.25, 0.22], [0.6, 0.08], [0.9, 0.2], [0.98, 0.5], [0.9, 0.8], [0.6, 0.92], [0.25, 0.78]]
+  };
+  // Losa extruida desde una silueta normalizada: tapa con textura, canto de otro material
+  const losa = (forma, bisel) => geo('losa' + forma + bisel, () => {
+    const pts = FORMAS[forma].map(([x, y]) => new THREE.Vector2(x, y));
+    const sh = new THREE.Shape(); sh.moveTo(pts[0].x, pts[0].y); sh.splineThru([...pts.slice(1), pts[0]]);
+    let g = new THREE.ExtrudeGeometry(sh, { depth: 1, bevelEnabled: true, bevelThickness: bisel, bevelSize: bisel * 0.45, bevelSegments: 3, curveSegments: 14 });
+    g.translate(-0.5, -0.5, bisel); g.rotateX(-Math.PI / 2); g.scale(1, 1 / (1 + 2 * bisel), 1);
+    return toCreasedNormals(g, 1.1);
+  });
+  // Tubo con estrangulamientos: la ristra de chorizo o la morcilla atada
+  function embutido(puntos, radio, eslabones, segs = 160) {
+    const curva = new THREE.CatmullRomCurve3(puntos.map(p => new THREE.Vector3(...p)));
+    const g = new THREE.TubeGeometry(curva, segs, radio, 12, false);
+    const pos = g.attributes.position, c = new THREE.Vector3(), v = new THREE.Vector3();
+    for (let i = 0; i <= segs; i++) {
+      const u = i / segs; curva.getPointAt(u, c);
+      const f = (u * eslabones) % 1;
+      const k = 0.22 + 0.78 * Math.pow(Math.sin(Math.PI * Math.min(0.999, Math.max(0.001, f))), 0.32);
+      for (let j = 0; j <= 12; j++) {
+        const idx = i * 13 + j;
+        v.fromBufferAttribute(pos, idx).sub(c).multiplyScalar(k).add(c);
+        pos.setXYZ(idx, v.x, v.y, v.z);
+      }
+    }
+    g.computeVertexNormals();
+    return g;
+  }
+  const lathe = (k, pts, segs = 28) => geo(k, () => new THREE.LatheGeometry(pts.map(([x, y]) => new THREE.Vector2(x, y)), segs));
+  const muslo = () => {
+    const g = new THREE.Group();
+    const carneM = malla(lathe('muslo', [[0, 0], [0.02, 0.005], [0.022, 0.03], [0.03, 0.06], [0.055, 0.1], [0.066, 0.15], [0.062, 0.2], [0.044, 0.235], [0.015, 0.25], [0, 0.252]], 24), M.piel);
+    carneM.rotation.z = -Math.PI / 2; carneM.position.x = -0.1;
+    const hueso = malla(geo('huesoM', () => new THREE.CylinderGeometry(0.011, 0.012, 0.07, 10)), M.hueso, -0.13, 0, 0); hueso.rotation.z = Math.PI / 2;
+    const nudo = malla(geo('nudo', () => new THREE.SphereGeometry(0.019, 12, 8)), M.hueso, -0.165, 0, 0);
+    g.add(carneM, hueso, nudo);
+    return g;
+  };
+
+  /* ---------- los modelos de cada bandeja ---------- */
+  const MODELOS = {
+    entrecot(g) {
+      [[-0.18, 0.25, 1], [0.18, -0.2, 0.94]].forEach(([x, r, k]) => {
+        const m = malla(losa('entrecot', 0.1), [M.entrecot, M.ladoTernera], x, 0, 0);
+        m.scale.set(0.34 * k, 0.07, 0.27 * k); m.rotation.y = r; g.add(m);
+      });
+    },
+    filetes(g) {
+      for (let i = 0; i < 5; i++) {
+        const m = malla(losa('filete', 0.06), [M.filete, M.ladoTernera], -0.26 + i * 0.13, 0.002 + i * 0.011, i % 2 ? 0.04 : -0.04);
+        m.scale.set(0.27, 0.016, 0.21); m.rotation.set(0, -0.45 + i * 0.07, -0.08); g.add(m);
+      }
+    },
+    picada(g) {
+      const geom = geo('monte', () => {
+        const q = new THREE.SphereGeometry(0.3, 48, 20, 0, Math.PI * 2, 0, Math.PI / 2);
+        const pos = q.attributes.position, v = new THREE.Vector3();
+        for (let i = 0; i < pos.count; i++) {
+          v.fromBufferAttribute(pos, i);
+          if (v.y > 0.002) v.multiplyScalar(1 + 0.05 * Math.sin(v.x * 41 + v.z * 13) * Math.cos(v.z * 37 - v.x * 11) + 0.035 * Math.sin(v.x * 90) * Math.sin(v.z * 83));
+          pos.setXYZ(i, v.x, v.y, v.z);
+        }
+        q.scale(1, 0.42, 0.72); q.computeVertexNormals();
+        return q;
+      });
+      g.add(malla(geom, M.picada));
+    },
+    chuletillas(g) {
+      [-1, 1].forEach(fila => {
+        for (let k = 0; k < 3; k++) {
+          const c = new THREE.Group();
+          const ojo = malla(losa('chuleta', 0.14), [M.cordero, M.grasa]); ojo.scale.set(0.14, 0.04, 0.11);
+          const hueso = malla(geo('huesoC', () => new THREE.CapsuleGeometry(0.011, 0.12, 4, 8)), M.hueso, 0, 0.022, -0.1); hueso.rotation.x = Math.PI / 2;
+          c.add(ojo, hueso);
+          c.position.set(-0.24 + k * 0.24, 0, fila * 0.1);
+          c.rotation.y = (fila > 0 ? Math.PI : 0) + (k - 1) * 0.25;
+          g.add(c);
+        }
+      });
+    },
+    costilla(g) {
+      [[-0.12, 0.08], [0.13, -0.06]].forEach(([z, r]) => {
+        const rack = new THREE.Group();
+        rack.add(malla(geo('rack', () => new RoundedBoxGeometry(0.56, 0.06, 0.2, 3, 0.025)), M.costilla, 0, 0.03, 0));
+        for (let i = 0; i < 6; i++) { const h = malla(geo('huesoR', () => new THREE.CylinderGeometry(0.013, 0.013, 0.24, 8)), M.hueso, -0.23 + i * 0.092, 0.03, 0); h.rotation.x = Math.PI / 2; rack.add(h); }
+        rack.position.z = z; rack.rotation.y = r; g.add(rack);
+      });
+    },
+    panceta(g) {
+      for (let i = 0; i < 5; i++) {
+        const m = malla(geo('tira', () => new RoundedBoxGeometry(0.5, 0.03, 0.085, 2, 0.012)), M.panceta, 0, 0.015, -0.2 + i * 0.1);
+        m.rotation.y = (i % 2 ? 0.05 : -0.04); g.add(m);
+      }
+    },
+    chorizo(g) {
+      g.add(malla(geo('ristra', () => embutido([[-0.34, 0.042, -0.15], [-0.05, 0.042, -0.2], [0.25, 0.042, -0.17], [0.34, 0.042, -0.02], [0.22, 0.042, 0.13], [-0.08, 0.042, 0.17], [-0.33, 0.042, 0.11]], 0.042, 7, 220)), M.chorizo));
+    },
+    morcilla(g) {
+      const arco = geo('morci', () => { const p = []; for (let i = 0; i <= 8; i++) { const a = Math.PI * 0.1 + (i / 8) * Math.PI * 0.8; p.push([Math.cos(a) * 0.17, 0.05, -Math.sin(a) * 0.15 + 0.07]); } return embutido(p, 0.05, 1, 80); });
+      [[-0.17, 0.4], [0.17, -0.35]].forEach(([x, r]) => { const m = malla(arco, M.morcilla, x, 0, 0); m.rotation.y = r; g.add(m); });
+    },
+    hamburguesas(g) {
+      const disco = lathe('burger', [[0, 0], [0.085, 0], [0.097, 0.01], [0.1, 0.022], [0.094, 0.034], [0.08, 0.04], [0, 0.04]]);
+      const hoja = geo('cera', () => new THREE.PlaneGeometry(0.23, 0.23));
+      for (let i = 0; i < 6; i++) {
+        const x = -0.26 + (i % 3) * 0.26, z = i < 3 ? -0.13 : 0.13;
+        const p = malla(hoja, M.papelCera, x, 0.002, z); p.rotation.set(-Math.PI / 2, 0, (rnd() - 0.5) * 0.4);
+        g.add(p, malla(disco, M.hamburguesa, x, 0.004, z));
+      }
+    },
+    pechuga(g) {
+      [[-0.11, 0], [0.11, Math.PI]].forEach(([z, r]) => { const m = malla(losa('pechuga', 0.28), [M.pechuga, M.pechuga], 0, 0, z); m.scale.set(0.36, 0.07, 0.19); m.rotation.y = r + 0.1; g.add(m); });
+    },
+    muslos(g) {
+      [-0.18, -0.06, 0.06, 0.18].forEach((z, i) => { const m = muslo(); m.position.set(i % 2 ? -0.04 : 0.04, 0.062, z); m.rotation.y = i % 2 ? Math.PI : 0; g.add(m); });
+    },
+    pollo(g) {
+      const cuerpo = malla(geo('cuerpo', () => new THREE.SphereGeometry(1, 32, 20)), M.piel, 0, 0.12, 0); cuerpo.scale.set(0.17, 0.12, 0.22);
+      g.add(cuerpo);
+      [-1, 1].forEach(l => {
+        const m = muslo(); m.scale.setScalar(0.85); m.position.set(l * 0.11, 0.1, 0.1); m.rotation.set(0, -Math.PI / 2 + l * 0.35, 0.35); g.add(m);
+        const ala = malla(geo('ala', () => new THREE.SphereGeometry(1, 16, 10)), M.piel, l * 0.16, 0.1, -0.05); ala.scale.set(0.045, 0.035, 0.1); ala.rotation.y = l * 0.3; g.add(ala);
+      });
+    }
+  };
+
+  /* ---------- la vitrina ---------- */
+  const vitrina = new THREE.Group(); scene.add(vitrina);
+  const x0 = -P / 2 - 0.25, xm = x0 + L / 2;
+  const caja3 = (w, h, d, mat, x, y, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); m.receiveShadow = true; vitrina.add(m); return m; };
+  caja3(L, 0.03, 0.8, M.aceroOsc, xm, LECHO - 0.04, BZ);
+  caja3(L, 0.9, 0.05, M.blanco, xm, LECHO - 0.475, 0.47);
+  caja3(L, 0.07, 0.056, M.franja, xm, LECHO - 0.09, 0.472);
+  caja3(L, 0.16, 0.056, M.acero, xm, LECHO - 0.84, 0.472);
+  caja3(L, 0.04, 0.96, M.marmol, xm, ESC.y - 0.02, -0.54);
+  caja3(L, ESC.y - LECHO, 0.02, M.aceroOsc, xm, (LECHO + ESC.y) / 2 - 0.02, -0.23);
+  // la pared de azulejo
+  const pared = new THREE.Mesh(new THREE.PlaneGeometry(L + 8, 3), M.pared); pared.position.set(xm, ESC.y + 1.5, -1.02); vitrina.add(pared);
+  // el cristal curvo: un cuarto de cilindro de canto bajo a canto alto
+  const RC = ESC.y - 0.02 - (LECHO - 0.025), ZC = -0.06;
+  const cristal = new THREE.PlaneGeometry(L, 1, 1, 28);
+  { const pos = cristal.attributes.position; for (let i = 0; i < pos.count; i++) { const a = (pos.getY(i) + 0.5) * Math.PI / 2; pos.setXYZ(i, pos.getX(i), LECHO - 0.025 + Math.sin(a) * RC, ZC + Math.cos(a) * RC); } cristal.computeVertexNormals(); }
+  const vidrio = new THREE.Mesh(cristal, M.cristal); vidrio.position.x = xm; vidrio.renderOrder = 2; vitrina.add(vidrio);
+  const barra = geo('barra', () => new THREE.CylinderGeometry(0.016, 0.016, L, 12).rotateZ(Math.PI / 2));
+  vitrina.add(malla(barra, M.acero, xm, LECHO - 0.025, ZC + RC), malla(barra, M.acero, xm, LECHO - 0.025 + RC, ZC));
+  const tubo = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, L, 8).rotateZ(Math.PI / 2), M.tubo); tubo.position.set(xm, ESC.y - 0.06, -0.1); vitrina.add(tubo);
+  // los extremos: cristal en cuarto de círculo
+  const lateral = new THREE.Shape(); lateral.moveTo(0, 0); lateral.lineTo(RC, 0); lateral.absarc(0, 0, RC, 0, Math.PI / 2, false); lateral.lineTo(0, 0);
+  [x0, x0 + L].forEach(x => { const m = new THREE.Mesh(new THREE.ShapeGeometry(lateral, 16), M.cristal); m.position.set(x, LECHO - 0.025, ZC); m.rotation.y = -Math.PI / 2; vitrina.add(m); caja3(0.05, 0.9, 0.8, M.acero, x, LECHO - 0.475, 0.08); });
+
+  // Bandejas, separadores de césped de plástico y la pieza de cada una
+  const geoBandeja = geo('bandeja', () => new RoundedBoxGeometry(0.86, 0.025, 0.6, 2, 0.01));
+  const geoBorde = geo('borde', () => {
+    const ext = new THREE.Shape(), r = 0.03, w = 0.43, d = 0.3;
+    ext.absarc(w - r, d - r, r, 0, Math.PI / 2); ext.absarc(-w + r, d - r, r, Math.PI / 2, Math.PI); ext.absarc(-w + r, -d + r, r, Math.PI, Math.PI * 1.5); ext.absarc(w - r, -d + r, r, Math.PI * 1.5, Math.PI * 2);
+    const hueco = new THREE.Path(), i = 0.015;
+    hueco.absarc(w - r, d - r, r - i, 0, Math.PI / 2); hueco.absarc(-w + r, d - r, r - i, Math.PI / 2, Math.PI); hueco.absarc(-w + r, -d + r, r - i, Math.PI, Math.PI * 1.5); hueco.absarc(w - r, -d + r, r - i, Math.PI * 1.5, Math.PI * 2);
+    ext.holes.push(hueco);
+    return new THREE.ExtrudeGeometry(ext, { depth: 0.04, bevelEnabled: false, curveSegments: 4 }).rotateX(-Math.PI / 2);
+  });
+  const geoPasto = geo('pasto', () => {
+    const sh = new THREE.Shape(); sh.moveTo(-0.3, 0);
+    for (let i = 0; i <= 24; i++) sh.lineTo(-0.3 + i * 0.025, i % 2 ? 0.075 : 0.055);
+    sh.lineTo(0.3, 0); sh.lineTo(-0.3, 0);
+    return new THREE.ExtrudeGeometry(sh, { depth: 0.012, bevelEnabled: false }).rotateY(Math.PI / 2);
+  });
+  // Menos llamadas de dibujo: lo que comparte material dentro de un grupo se funde en una malla
+  const M4 = new THREE.Matrix4();
+  function fundir(g, sombra = true) {
+    g.updateMatrixWorld(true);
+    const inv = new THREE.Matrix4().copy(g.matrixWorld).invert(), porMat = new Map();
+    g.traverse(o => { if (o.isMesh && !Array.isArray(o.material)) { if (!porMat.has(o.material)) porMat.set(o.material, []); porMat.get(o.material).push(o); } });
+    for (const [mat, ms] of porMat) {
+      if (ms.length < 2) continue;
+      const geos = ms.map(m => { const q = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone(); return q.applyMatrix4(M4.multiplyMatrices(inv, m.matrixWorld)); });
+      const f = mergeGeometries(geos);
+      geos.forEach(q => q.dispose());
+      if (!f) continue;
+      ms.forEach(m => m.parent.remove(m));
+      const nm = new THREE.Mesh(f, mat); nm.castShadow = sombra; nm.receiveShadow = true; g.add(nm);
+    }
+    return g;
+  }
+  const estatico = new THREE.Group();
+  const bandejas = [];
+  const geoToque = geo('toque', () => new THREE.BoxGeometry(0.9, 0.2, 0.62));
+  PIEZAS.forEach((p, i) => {
+    const b = new THREE.Group(); b.position.set(i * P, LECHO - 0.025, BZ); vitrina.add(b);
+    estatico.add(malla(geoBandeja, M.acero, i * P, LECHO - 0.0125, BZ), malla(geoBorde, M.acero, i * P, LECHO - 0.025, BZ));
+    if (i < N - 1) estatico.add(malla(geoPasto, M.pasto, i * P + P / 2, LECHO - 0.025, BZ));
+    const toque = new THREE.Mesh(geoToque); toque.visible = false; toque.position.y = 0.1; b.add(toque);
+    const mod = new THREE.Group(); mod.position.y = 0.025;
+    MODELOS[p.id](mod);
+    fundir(mod);
+    // sombra de contacto: asienta la carne en la bandeja sin pagar un mapa de sombras
+    const so = sombraContacto(1, 0.5); so.scale.set(0.42, 0.3, 1); so.position.y = 0.002; mod.add(so);
+    mod.traverse(o => { o.userData.i = i; });
+    b.add(mod);
+    // la etiqueta pinchada en la pieza
+    const et = new THREE.Group(); et.position.set(-0.3, 0.025, 0.2);
+    et.add(malla(geo('pin', () => new THREE.CylinderGeometry(0.004, 0.004, 0.14, 6)), M.acero, 0, 0.07, 0));
+    const cartel = new THREE.Mesh(geo('cartel', () => new THREE.PlaneGeometry(0.2, 0.1)), new THREE.MeshStandardMaterial({ roughness: 0.6, side: THREE.DoubleSide }));
+    cartel.position.y = 0.16; cartel.rotation.x = -0.35;
+    et.add(cartel, malla(geo('cabeza', () => new THREE.SphereGeometry(0.012, 12, 8)), M.rojo, 0, 0.215, -0.018));
+    b.add(et);
+    b.traverse(o => { o.userData.i = i; });
+    bandejas.push({ b, mod, et, cartel, sel: muelle(0, { rigidez: 200, amortiguacion: 14 }), lienzo: null });
+  });
+
+  vitrina.add(fundir(estatico, false));
+
+  // Etiquetas de precio (canvas): se repintan cuando llega la fuente de rótulo
+  function pintarEtiqueta(i) {
+    const p = PIEZAS[i], o = bandejas[i], ag = agotado(p);
+    const c = o.lienzo || (o.lienzo = document.createElement('canvas')); c.width = 256; c.height = 128;
+    const g = c.getContext('2d');
+    g.fillStyle = '#fffdf6'; g.beginPath(); g.roundRect(4, 4, 248, 120, 14); g.fill();
+    g.strokeStyle = '#a8231d'; g.lineWidth = 4; g.stroke();
+    const fam = getComputedStyle(document.documentElement).getPropertyValue('--sd-display').trim() || 'Georgia, serif';
+    g.fillStyle = '#2a1d14'; g.textAlign = 'center'; g.font = `700 26px ${getComputedStyle(document.body).fontFamily}`;
+    g.fillText(p.corto, 128, 38);
+    g.fillStyle = '#a8231d'; g.font = `400 46px ${fam}`;
+    g.fillText(ag ? 'AGOTADO' : euros(p.precio).replace(' €', '€'), 128, 92);
+    if (!ag) { g.font = `600 20px ${getComputedStyle(document.body).fontFamily}`; g.fillStyle = '#6d5a4a'; g.fillText('/' + p.u, 216, 112); }
+    if (!o.cartel.material.map) { o.cartel.material.map = new THREE.CanvasTexture(c); o.cartel.material.map.colorSpace = THREE.SRGBColorSpace; o.cartel.material.needsUpdate = true; }
+    else o.cartel.material.map.needsUpdate = true;
+    o.mod.visible = !ag;
+  }
+  PIEZAS.forEach((_, i) => pintarEtiqueta(i));
+
+  /* ---------- la báscula de esfera ---------- */
+  const escala = new THREE.Group(); escala.position.set(0, ESC.y, ESC.z); escala.scale.setScalar(SE); scene.add(escala);
+  [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => escala.add(malla(geo('pata', () => new THREE.CylinderGeometry(0.025, 0.03, 0.02, 12)), M.negro, a * 0.3, 0.01, b * 0.17)));
+  { const so = sombraContacto(1, 0.4); so.scale.set(0.5, 0.32, 1); so.position.y = 0.003; escala.add(so); }
+  escala.add(malla(geo('zocalo', () => new RoundedBoxGeometry(0.74, 0.06, 0.44, 3, 0.02)), M.esmalte, 0, 0.05, 0));
+  escala.add(malla(geo('cuerpoB', () => new RoundedBoxGeometry(0.58, 0.5, 0.32, 4, 0.06)), M.esmalte, 0, 0.33, 0));
+  const lienzoEsfera = document.createElement('canvas'); lienzoEsfera.width = lienzoEsfera.height = 512;
+  const texEsfera = new THREE.CanvasTexture(lienzoEsfera); texEsfera.colorSpace = THREE.SRGBColorSpace; texEsfera.anisotropy = 8;
+  function pintarEsfera() {
+    const g = lienzoEsfera.getContext('2d'), c = 256;
+    g.fillStyle = '#f8f4ea'; g.fillRect(0, 0, 512, 512);
+    g.strokeStyle = '#2a2420'; g.fillStyle = '#2a2420'; g.lineCap = 'round';
+    const fam = getComputedStyle(document.documentElement).getPropertyValue('--sd-display').trim() || 'Georgia, serif';
+    for (let gr = 0; gr <= MAX_G; gr += 25) {
+      const a = (150 - (gr / MAX_G) * 300) * D2R, mayor = gr % 500 === 0, medio = gr % 100 === 0;
+      const r1 = mayor ? 168 : medio ? 186 : 196, r2 = 214;
+      g.lineWidth = mayor ? 6 : medio ? 3 : 1.6;
+      g.beginPath(); g.moveTo(c - Math.sin(a) * r1, c - Math.cos(a) * r1); g.lineTo(c - Math.sin(a) * r2, c - Math.cos(a) * r2); g.stroke();
+      if (mayor) { g.font = `400 40px ${fam}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(['0', '½', '1', '1½', '2', '2½', '3'][gr / 500], c - Math.sin(a) * 134, c - Math.cos(a) * 134); }
+    }
+    g.strokeStyle = '#a8231d'; g.lineWidth = 10; g.beginPath(); g.arc(c, c, 226, (-90 - 150) * D2R, (-90 + 150) * D2R); g.stroke();
+    g.fillStyle = '#a8231d'; g.font = `400 34px ${fam}`; g.fillText('Manolo', c, c + 86);
+    g.fillStyle = '#5b514a'; g.font = '600 20px system-ui, sans-serif'; g.fillText('kg · máx. 3 kg', c, c + 120);
+    texEsfera.needsUpdate = true;
+  }
+  pintarEsfera();
+  const esfera = new THREE.Mesh(new THREE.CircleGeometry(0.2, 64), new THREE.MeshStandardMaterial({ map: texEsfera, roughness: 0.5 }));
+  esfera.position.set(0, 0.32, 0.162); escala.add(esfera);
+  const bisel = malla(new THREE.TorusGeometry(0.205, 0.016, 12, 64), M.acero, 0, 0.32, 0.163); escala.add(bisel);
+  const tapa = new THREE.Mesh(new THREE.CircleGeometry(0.205, 48), M.cristal); tapa.position.set(0, 0.32, 0.178); escala.add(tapa);
+  const agujaG = new THREE.Group(); agujaG.position.set(0, 0.32, 0.168); escala.add(agujaG);
+  const aguja3 = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.2, 0.003), M.negro); aguja3.position.y = 0.075;
+  const contrapeso = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.05, 0.003), M.rojo); contrapeso.position.y = -0.03;
+  agujaG.add(aguja3, contrapeso, malla(new THREE.CylinderGeometry(0.016, 0.016, 0.01, 16).rotateX(Math.PI / 2), M.rojo, 0, 0, 0.004));
+  escala.add(malla(new THREE.CylinderGeometry(0.03, 0.04, 0.06, 16), M.acero, 0, 0.6, 0));
+  const plato = new THREE.Group(); plato.position.y = PLATO_Y; escala.add(plato);
+  const platoM = malla(lathe('plato', [[0, 0], [0.26, 0], [0.33, 0.028], [0.35, 0.045], [0.342, 0.048], [0.326, 0.036], [0.26, 0.012], [0, 0.012]], 56), M.acero);
+  platoM.traverse(o => { o.userData.plato = true; }); plato.add(platoM);
+
+  /* ---------- tema: el esmalte y la franja llevan el acento ---------- */
+  function tema(t) {
+    M.esmalte.color.copy(t.acento).multiplyScalar(0.92);
+    M.franja.color.copy(t.acento);
+    M.pared.color.setRGB(1, 1, 1).lerp(t.fondo, t.oscuro ? 0.88 : 0.08);
+    M.blanco.color.set('#f4f1ea').lerp(t.fondo, t.oscuro ? 0.55 : 0);
+    M.marmol.color.set('#efebe4').lerp(t.fondo, t.oscuro ? 0.5 : 0);
+    e.renderer.toneMappingExposure = t.oscuro ? 0.95 : 1.05;
+    // la letra del rótulo puede haber cambiado: se repintan esfera y etiquetas cuando llega
+    document.fonts?.ready.then(() => { PIEZAS.forEach((_, i) => pintarEtiqueta(i)); pintarEsfera(); e.pedir(); });
+  }
+
+  /* ---------- estado físico ---------- */
+  const camX = muelle(est.sel * P, { rigidez: 90, amortiguacion: 17 });
+  const aguja = muelle(0, { rigidez: 62, amortiguacion: 4.2 });      // poco amortiguada: oscila antes de asentarse
+  const platoY = muelle(0, { rigidez: 240, amortiguacion: 9 });
+  let enPlato = null;         // { i, obj }
+  const vuelos = [];          // piezas en el aire
+  let paquete = null;         // el papel que se pliega
+
+  const S = new THREE.Vector3(), E = new THREE.Vector3(), C = new THREE.Vector3(), Q = new THREE.Vector3();
+  const finalPlato = v => v.set(escala.position.x, ESC.y + (plato.position.y + 0.012) * SE, ESC.z);
+
+  function pesoNorm() { return Math.min(1.035, ganchos.gramos() / MAX_G); }
+  function ir(i) { camX.a(i * P); if (e.reducido) camX.fijar(i * P); bandejas.forEach((o, k) => o.sel.a(k === i ? 1 : 0)); e.animarDurante(1600); }
+  function pesar(i) {
+    if (paquete) return;
+    if (enPlato?.i === i) { platoY.vel -= 0.06; e.animarDurante(900); return; }
+    if (enPlato) devolver(true);
+    const obj = bandejas[i].mod.clone(); obj.visible = true;
+    obj.traverse(o => { o.userData = { plato: true }; });
+    scene.add(obj);
+    const v = { obj, i, ida: true, p: muelle(0, { rigidez: 70, amortiguacion: 14 }).a(1) };
+    if (e.reducido) v.p.fijar(1);
+    vuelos.push(v); enPlato = { i, obj };
+    vibrar(8);
+    e.animarDurante(1800);
+  }
+  function aterrizar(v) {
+    vuelos.splice(vuelos.indexOf(v), 1);
+    scene.remove(v.obj); plato.add(v.obj);
+    v.obj.position.set(0, 0.012, 0); v.obj.scale.setScalar(KP); v.obj.rotation.set(0, 0, 0);
+    platoY.vel -= 0.16;
+    aguja.a(pesoNorm()); platoY.a(-0.018 * Math.min(1, pesoNorm()));
+    if (e.reducido) { aguja.fijar(pesoNorm()); platoY.fijar(platoY.objetivo); }
+    vibrar([6, 30, 4]);
+    ganchos.cambia();
+  }
+  function devolver(callado) {
+    if (!enPlato || paquete) return;
+    const { obj, i } = enPlato; enPlato = null;
+    let v = vuelos.find(x => x.obj === obj);
+    if (!v) {
+      finalPlato(E); plato.remove(obj); scene.add(obj); obj.position.copy(E); obj.scale.setScalar(KP * SE);
+      v = { obj, i, p: muelle(1, { rigidez: 70, amortiguacion: 14 }) }; vuelos.push(v);
+    }
+    v.ida = false; v.p.a(0);
+    if (e.reducido) v.p.fijar(0);
+    aguja.a(0); platoY.a(0);
+    if (!callado) vibrar(5);
+    e.animarDurante(1800);
+    ganchos.cambia();
+  }
+  function peso() {
+    if (!enPlato || paquete) return;
+    aguja.a(pesoNorm()); platoY.a(-0.018 * Math.min(1, pesoNorm()));
+    if (e.reducido) { aguja.fijar(pesoNorm()); platoY.fijar(platoY.objetivo); }
+    e.animarDurante(3500);
+  }
+
+  /* ---------- el papel de estraza que se pliega ---------- */
+  function solapa(largo, dist, alto, tapaL, capa, yaw) {
+    const r = new THREE.Group(); r.rotation.y = yaw;
+    const A = new THREE.Group(); A.position.z = dist; r.add(A);
+    const pa = new THREE.Mesh(new THREE.PlaneGeometry(largo, alto), M.papel); pa.rotation.x = -Math.PI / 2; pa.position.z = alto / 2; A.add(pa);
+    const B = new THREE.Group(); B.position.z = alto; A.add(B);
+    const tp = new THREE.Mesh(new THREE.PlaneGeometry(largo, tapaL), M.papel); tp.rotation.x = -Math.PI / 2; tp.position.set(0, -capa, tapaL / 2); B.add(tp);
+    pa.castShadow = tp.castShadow = true;
+    return { r, A, B, m: muelle(0, { rigidez: 150, amortiguacion: 15 }) };
+  }
+  const lienzoPeg = document.createElement('canvas'); lienzoPeg.width = 256; lienzoPeg.height = 128;
+  const texPeg = new THREE.CanvasTexture(lienzoPeg); texPeg.colorSpace = THREE.SRGBColorSpace;
+  function envolver(texto) {
+    return new Promise(listo => {
+      if (!enPlato || paquete) { listo(); return; }
+      const v = vuelos.find(x => x.obj === enPlato.obj);
+      if (v) aterrizar(v);
+      const obj = enPlato.obj;
+      const bb = new THREE.Box3().setFromObject(obj), tam = bb.getSize(new THREE.Vector3());
+      const W = Math.max(0.3, tam.x + 0.05), D = Math.max(0.24, tam.z + 0.05), H = tam.y + 0.014;
+      const grupo = new THREE.Group(); grupo.position.y = 0.012; plato.add(grupo);
+      const papel = new THREE.Group(); grupo.add(papel);
+      const base = new THREE.Mesh(new THREE.PlaneGeometry(W, D), M.papel); base.rotation.x = -Math.PI / 2; base.position.y = 0.001; base.receiveShadow = true; papel.add(base);
+      const sol4 = [solapa(W, D / 2, H, D / 2 + 0.015, 0.002, 0), solapa(W, D / 2, H, D / 2 + 0.015, 0.004, Math.PI), solapa(D, W / 2, H, W / 2 + 0.015, 0.006, Math.PI / 2), solapa(D, W / 2, H, W / 2 + 0.015, 0.008, -Math.PI / 2)];
+      sol4.forEach(x => papel.add(x.r));
+      plato.remove(obj); grupo.add(obj); obj.position.set(0, 0.003, 0);
+      // pegatina con el peso y el precio, en tinta roja
+      const g = lienzoPeg.getContext('2d');
+      g.fillStyle = '#fffdf6'; g.fillRect(0, 0, 256, 128); g.strokeStyle = '#a8231d'; g.lineWidth = 8; g.strokeRect(6, 6, 244, 116);
+      g.fillStyle = '#a8231d'; g.textAlign = 'center'; g.font = `400 40px ${getComputedStyle(document.documentElement).getPropertyValue('--sd-display')}`; g.fillText('Manolo', 128, 54);
+      g.fillStyle = '#2a1d14'; g.font = '700 26px system-ui, sans-serif'; g.fillText(texto, 128, 96);
+      texPeg.needsUpdate = true;
+      const peg = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.075), new THREE.MeshStandardMaterial({ map: texPeg, roughness: 0.5 }));
+      peg.rotation.set(-Math.PI / 2, 0, 0.18); peg.visible = false; grupo.add(peg);
+      paquete = { grupo, papel, sol4, peg, H, hoja: muelle(0, { rigidez: 200, amortiguacion: 18 }).a(1), cae: muelle(0.3, { rigidez: 260, amortiguacion: 14 }), sale: muelle(0, { rigidez: 60, amortiguacion: 12 }) };
+      const pq = paquete;
+      const t = e.reducido ? () => 0 : ms => ms;
+      sol4.forEach((x, k) => setTimeout(() => { x.m.a(1); vibrar(3); e.animarDurante(900); }, t(260 + k * 150)));
+      setTimeout(() => { pq.peg.visible = true; pq.cae.a(0); vibrar(10); e.animarDurante(900); }, t(1000));
+      setTimeout(() => { pq.sale.a(1); aguja.a(0); platoY.a(0); e.animarDurante(1600); }, t(1500));
+      setTimeout(() => {
+        plato.remove(pq.grupo);
+        pq.grupo.traverse(o => { if (o.isMesh && o.geometry.type === 'PlaneGeometry') o.geometry.dispose(); });
+        pq.peg.material.dispose();
+        paquete = null; enPlato = null; ganchos.cambia(); listo();
+      }, t(2200));
+      if (e.reducido) { sol4.forEach(x => x.m.fijar(1)); pq.hoja.fijar(1); }
+      e.animarDurante(2600);
+    });
+  }
+
+  /* ---------- gestos: deslizar la vitrina y tocar piezas ---------- */
+  let arrastrando = false;
+  const pxAMundo = () => { const d = 2.75; return (2 * d * Math.tan(camera.fov * D2R / 2) * camera.aspect) / Math.max(1, e.tam.ancho); };
+  function tocado(ev) {
+    const hit = e.tocar(ev, [...bandejas.map(o => o.b), plato]);
+    if (!hit) return null;
+    if (hit.object.userData.plato) return { plato: true };
+    return Number.isInteger(hit.object.userData.i) ? { i: hit.object.userData.i } : null;
+  }
+  arrastre(lienzo, {
+    alEmpezar: () => { arrastrando = true; },
+    alMover: dx => { camX.fijar(Math.max(-0.5, Math.min((N - 1) * P + 0.5, camX.valor - dx * pxAMundo()))); e.animarDurante(1200); },
+    alSoltar: vx => {
+      arrastrando = false;
+      const i = Math.max(0, Math.min(N - 1, Math.round((camX.valor - vx * 180 * pxAMundo()) / P)));
+      ganchos.elegir(i);
+    },
+    alTocar: ev => {
+      arrastrando = false;
+      const t = tocado(ev);
+      if (!t) return;
+      if (t.plato) { if (enPlato && !paquete) devolver(); return; }
+      ganchos.tocar(t.i);
+    }
+  });
+  lienzo.addEventListener('pointermove', ev => {
+    if (ev.pointerType !== 'mouse' || arrastrando) return;
+    const t = tocado(ev);
+    lienzo.style.cursor = t && (t.plato ? enPlato : !agotado(PIEZAS[t.i])) ? 'pointer' : 'grab';
+  });
+
+  /* ---------- fotograma ---------- */
+  const solapar = (x, dt) => {
+    const p = x.m.paso(dt);
+    x.A.rotation.x = -Math.min(1, Math.max(0, p * 2)) * Math.PI / 2;
+    x.B.rotation.x = -Math.min(1.02, Math.max(0, p * 2 - 1)) * Math.PI / 2;
+    return !calmo(x.m);
+  };
+  function paso(t, dt) {
+    let vivo = false;
+    const x = camX.paso(dt);
+    camera.position.set(x, CAM.y, CAM.z); camera.lookAt(x, CAM.my, CAM.mz);
+    escala.position.x = x;
+    sol.position.x = x + 1.2; sol.target.position.set(x, 0, -0.1);
+    if (!camX.quieto) vivo = true;
+    bandejas.forEach(o => {
+      const k = o.sel.paso(dt);
+      o.et.scale.setScalar(1 + 0.35 * k); o.et.position.y = 0.025 + 0.03 * k; o.et.rotation.z = Math.sin(k * Math.PI) * 0.12;
+      if (!o.sel.quieto) vivo = true;
+    });
+    // La aguja: muelle poco amortiguado y un tope a cada lado de la escala
+    aguja.paso(dt);
+    if (aguja.valor > 1.035) { aguja.valor = 1.035; aguja.vel = -Math.abs(aguja.vel) * 0.45; }
+    if (aguja.valor < -0.012) { aguja.valor = -0.012; aguja.vel = Math.abs(aguja.vel) * 0.45; }
+    agujaG.rotation.z = (150 - aguja.valor * 300) * D2R;
+    plato.position.y = PLATO_Y + platoY.paso(dt);
+    if (!calmo(aguja) || !calmo(platoY)) vivo = true;
+    // Piezas en el aire: arco de la bandeja al plato (o de vuelta)
+    for (const v of [...vuelos]) {
+      const p = v.p.paso(dt), k = Math.min(1, Math.max(0, p));
+      S.set(v.i * P, LECHO, BZ); finalPlato(E);
+      C.addVectors(S, E).multiplyScalar(0.5); C.y += 0.6; C.z += 0.35;
+      Q.copy(S).multiplyScalar((1 - k) * (1 - k)).addScaledVector(C, 2 * k * (1 - k)).addScaledVector(E, k * k);
+      v.obj.position.copy(Q); v.obj.scale.setScalar(1 + (KP * SE - 1) * k);
+      v.obj.rotation.set(Math.sin(k * Math.PI) * 0.25, Math.sin(k * Math.PI) * 0.4, 0);
+      if (v.ida && p > 0.97) aterrizar(v);
+      else if (!v.ida && p < 0.03) { scene.remove(v.obj); vuelos.splice(vuelos.indexOf(v), 1); }
+      vivo = true;
+    }
+    if (paquete) {
+      const q = paquete;
+      q.papel.scale.setScalar(Math.max(0.001, q.hoja.paso(dt)));
+      q.sol4.forEach(x => { if (solapar(x, dt)) vivo = true; });
+      q.peg.position.y = q.H + 0.012 + q.cae.paso(dt);
+      const sa = q.sale.paso(dt);
+      q.grupo.position.set(0, 0.012 - 1.7 * sa, 2.1 * sa);
+      q.grupo.scale.setScalar(Math.max(0.001, 1 - 0.7 * sa));
+      q.grupo.rotation.y = sa * 0.8;
+      vivo = true;
+    }
+    return vivo || arrastrando;
+  }
+
+  camX.fijar(est.sel * P);
+  bandejas[est.sel].sel.fijar(1);
+  caja.classList.add('is-listo');
+  e.animarDurante(600);
+
+  return {
+    ir, pesar, devolver, peso, envolver,
+    hay: i => !!enPlato && enPlato.i === i,
+    ocupada: () => !!paquete,
+    agotados() { PIEZAS.forEach((p, i) => pintarEtiqueta(i)); if (enPlato && agotado(PIEZAS[enPlato.i])) devolver(true); e.pedir(); },
+    es3d: true
+  };
+}
+
+// Sin WebGL: la báscula de reserva (SVG) sigue pesando, con el mismo muelle
+function crearReserva(ganchos) {
+  const ag = $('aguja-r'), m = muelle(0, { rigidez: 62, amortiguacion: 4.2 });
+  let pieza = null, raf = 0, t0 = 0;
+  const bucle = ahora => {
+    const dt = Math.min(0.05, t0 ? (ahora - t0) / 1000 : 0.016); t0 = ahora;
+    m.paso(dt); ag.style.transform = `rotate(${-150 + Math.min(1.035, m.valor) * 300}deg)`;
+    raf = calmo(m) ? 0 : requestAnimationFrame(bucle);
+    if (!raf) t0 = 0;
+  };
+  const mover = v => { m.a(v); if (reducido()) { m.fijar(v); bucle(performance.now()); } else if (!raf) raf = requestAnimationFrame(bucle); };
+  ag.style.transform = 'rotate(-150deg)';
+  return {
+    ir() {}, agotados() { if (pieza !== null && agotado(PIEZAS[pieza])) this.devolver(); },
+    pesar(i) { pieza = i; mover(Math.min(1.035, ganchos.gramos() / MAX_G)); ganchos.cambia(); },
+    devolver() { pieza = null; mover(0); ganchos.cambia(); },
+    peso() { if (pieza !== null) mover(Math.min(1.035, ganchos.gramos() / MAX_G)); },
+    envolver() { pieza = null; mover(0); return Promise.resolve(); },
+    hay: i => pieza === i, ocupada: () => false, es3d: false
+  };
+}
+
+/* =========================================================
+   MOSTRADOR: lineal, pizarra, dial, cortes
+   ========================================================= */
+let escena = null;
+const ganchos = {
+  gramos: () => gramosDe(actual(), pesoDe(actual())),
+  cambia: () => pintarBotones(),
+  elegir: i => seleccionar(i),
+  tocar: i => {
+    if (agotado(PIEZAS[i])) { seleccionar(i); avisar(`${PIEZAS[i].corto}: hoy se ha acabado`, { tipo: 'error' }); return; }
+    if (i !== est.sel) seleccionar(i);
+    escena.pesar(i);
+    if (!pesoDe(actual())) ponerPeso(actual().def);
+  }
+};
+
+function pintarLineal() {
+  $('lineal').innerHTML = PIEZAS.map((p, i) => `<button type="button" class="tag${agotado(p) ? ' agotado' : ''}" data-i="${i}" aria-pressed="${i === est.sel}" style="--r:${(i % 3 - 1) * 2.2}deg"><span>${p.corto}</span><b class="num">${euros(p.precio)}<small>/${p.u}</small></b></button>`).join('');
+}
+$('lineal').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) seleccionar(+b.dataset.i); });
+
+function seleccionar(i, { pesarYa = false } = {}) {
+  i = Math.max(0, Math.min(PIEZAS.length - 1, i));
+  const cambia = i !== est.sel;
+  if (cambia && escena && !escena.hay(i)) escena.devolver(true);
+  est.sel = i; salvar();
+  escena?.ir(i);
+  $('lineal').querySelectorAll('.tag').forEach(b => b.setAttribute('aria-pressed', +b.dataset.i === i));
+  const b = $('lineal').querySelector(`[data-i="${i}"]`);
+  if (b) $('lineal').scrollTo({ left: b.offsetLeft - $('lineal').clientWidth / 2 + b.offsetWidth / 2, behavior: reducido() ? 'auto' : 'smooth' });
+  pintarPieza(cambia);
+  if (cambia) { vibrar(5); decir(`${actual().nombre}, ${precioUnidad(actual())}`); }
+  if (pesarYa && escena && !agotado(actual())) escena.pesar(i);
+}
+
+function pintarPieza(animar) {
+  const p = actual(), ag = agotado(p);
+  const nom = $('pz-nombre'), pre = $('pz-precio'), nota = $('pz-nota');
+  nom.textContent = p.nombre; nota.textContent = p.nota;
+  pre.innerHTML = `${euros(p.precio)}<small>/${p.u}</small>`;
+  $('pizarra').querySelector('.sello-agotado')?.remove();
+  if (ag) $('pizarra').insertAdjacentHTML('beforeend', '<span class="sello-agotado">Agotado</span>');
+  if (animar && !reducido()) [nom, pre].forEach((el, k) => { el.classList.remove('escribe'); void el.offsetWidth; el.style.animationDelay = `${k * 0.25}s`; el.classList.add('escribe'); });
+  $('pesar-zona').hidden = ag; $('nota-agotado').hidden = !ag;
+  $('ant').disabled = est.sel === 0; $('sig').disabled = est.sel === PIEZAS.length - 1;
+  pintarMarcas(); pintarAtajos(); pintarCortes(); pintarLectura(); pintarBotones();
+}
+
+/* ---------- el dial ---------- */
+const dialMax = p => p.u === 'ud' ? p.max : MAX_G;
+const dialPaso = p => p.u === 'ud' ? 1 : 50;
+const anguloDe = (v, max) => -150 + (v / max) * 300;
+const punto = (r, a) => [100 + r * Math.sin(a * D2R), 100 - r * Math.cos(a * D2R)];
+function pintarMarcas() {
+  const p = actual(), max = dialMax(p);
+  let h = '';
+  if (p.u === 'kg') {
+    for (let g = 0; g <= max; g += 50) {
+      const m = g % 500 === 0, a = anguloDe(g, max);
+      const [x1, y1] = punto(m ? 50 : 54, a), [x2, y2] = punto(58, a);
+      h += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"${m ? ' class="m"' : ''}/>`;
+      if (m) { const [tx, ty] = punto(40, a); h += `<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}">${['0', '½', '1', '1½', '2', '2½', '3'][g / 500]}</text>`; }
+    }
+  } else {
+    const cada = max > 10 ? 2 : 1;
+    for (let n = 0; n <= max; n++) {
+      const a = anguloDe(n, max), m = n % cada === 0;
+      const [x1, y1] = punto(m ? 50 : 54, a), [x2, y2] = punto(58, a);
+      h += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"${m ? ' class="m"' : ''}/>`;
+      if (m) { const [tx, ty] = punto(40, a); h += `<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}">${n}</text>`; }
+    }
+  }
+  $('dial-marcas').innerHTML = h;
+  const d = $('dial');
+  d.setAttribute('aria-valuemin', '0'); d.setAttribute('aria-valuemax', String(max));
+  d.setAttribute('aria-label', p.u === 'ud' ? `Unidades de ${p.corto}` : `Gramos de ${p.corto}`);
+}
+function pintarAtajos() {
+  const p = actual(), v = pesoDe(p);
+  const op = p.u === 'ud' ? [1, 2, 4, 6].filter(n => n <= p.max) : [250, 500, 1000, 2000];
+  $('atajos').innerHTML = op.map(n => `<button type="button" data-v="${n}" aria-pressed="${n === v}">${p.u === 'ud' ? n + (n === 1 ? ' ud' : ' uds') : n >= 1000 ? kg(n) + ' kg' : n === 250 ? '¼ kg' : '½ kg'}</button>`).join('');
+}
+$('atajos').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) ponerPeso(+b.dataset.v, { pesarYa: true }); });
+
+let anuncio = 0, primera = true;
+function pintarLectura() {
+  const p = actual(), v = pesoDe(p), max = dialMax(p), a = anguloDe(v, max);
+  $('dial-asa').setAttribute('transform', `rotate(${a.toFixed(1)} 100 100)`);
+  $('dial-lleno').setAttribute('stroke-dasharray', `${((v / max) * 300).toFixed(1)} 300`);
+  $('dial-valor').textContent = p.u === 'ud' ? v : v >= 1000 ? kg(v) : v;
+  $('dial-unidad').textContent = p.u === 'ud' ? (v === 1 ? 'unidad' : 'unidades') : v >= 1000 ? 'kilos' : 'gramos';
+  const d = $('dial');
+  d.setAttribute('aria-valuenow', String(v));
+  d.setAttribute('aria-valuetext', `${cantidad(p, v)}, ${euros(importeDe(p, v))}`);
+  contar($('importe'), importeDe(p, v), { decimales: 2, sufijo: ' €', duracion: 380 });
+  $('lectura-det').textContent = p.u === 'ud' ? `${cantidad(p, v)} × ${euros(p.precio)} · ≈ ${kg(gramosDe(p, v))} kg` : `${cantidad(p, v)} × ${precioUnidad(p)}`;
+  $('atajos').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.v === v));
+  clearTimeout(anuncio);
+  if (!primera) anuncio = setTimeout(() => decir(`${cantidad(p, v)}: ${euros(importeDe(p, v))}`), 700);
+  primera = false;
+}
+
+function ponerPeso(v, { pesarYa = false } = {}) {
+  const p = actual();
+  v = Math.max(0, Math.min(dialMax(p), Math.round(v / dialPaso(p)) * dialPaso(p)));
+  const antes = pesoDe(p);
+  est.peso[p.id] = v;
+  if (v !== antes) { vibrar(3); pintarLectura(); salvar(); }
+  if (!escena) return;
+  if (escena.hay(est.sel)) escena.peso();
+  else if ((pesarYa || v !== antes) && v > 0 && !agotado(p) && !escena.ocupada()) escena.pesar(est.sel);
+}
+
+// Arrastrar el asa alrededor del dial. Cruza el hueco de abajo sin saltar.
 (() => {
-    'use strict';
-    /* unit: 'kg' → stepper de 250 g · 'ud' → unidades */
-    const PRODUCTS = [
-        { id: 1, emoji: '🥩', name: 'Chuletillas de cordero', unit: 'kg', price: 18.90, step: 250 },
-        { id: 2, emoji: '🥓', name: 'Panceta adobada',        unit: 'kg', price: 9.50,  step: 250 },
-        { id: 3, emoji: '🌭', name: 'Chorizo fresco casero',  unit: 'kg', price: 12.80, step: 250 },
-        { id: 4, emoji: '🍗', name: 'Pollo de corral entero', unit: 'ud', price: 11.00 },
-        { id: 5, emoji: '🥩', name: 'Filetes de ternera 1ª',  unit: 'kg', price: 16.40, step: 250 },
-        { id: 6, emoji: '🍖', name: 'Costilla para asar',     unit: 'kg', price: 10.90, step: 500 },
-        { id: 7, emoji: '🟤', name: 'Morcilla de Burgos',     unit: 'ud', price: 2.80 },
-        { id: 8, emoji: '🥟', name: 'Hamburguesas caseras',   unit: 'ud', price: 1.95 }
-    ];
-    const SLOTS = [
-        { t: '09:00 – 11:00', s: 'A primera hora' },
-        { t: '11:00 – 13:30', s: 'Media mañana' },
-        { t: '17:00 – 19:00', s: 'Por la tarde' },
-        { t: '19:00 – 20:00', s: 'Última hora' }
-    ];
-
-    /* qty: gramos si unit=kg, unidades si unit=ud */
-    const order = new Map();
-    let slot = SLOTS[0].t;
-
-    const $ = id => document.getElementById(id);
-    const fmt = n => n.toFixed(2).replace('.', ',') + ' €';
-    const transition = fn => (document.startViewTransition ? document.startViewTransition(fn) : fn());
-
-    function toast(msg) {
-        const t = $('toast');
-        t.textContent = msg;
-        t.classList.add('show');
-        clearTimeout(t._h);
-        t._h = setTimeout(() => t.classList.remove('show'), 1800);
-    }
-
-    const qtyLabel = (p, q) => p.unit === 'kg'
-        ? (q >= 1000 ? (q / 1000).toFixed(q % 1000 ? 2 : 0).replace('.', ',') + ' kg' : q + ' g')
-        : q + ' ud';
-    const lineTotal = (p, q) => p.unit === 'kg' ? p.price * q / 1000 : p.price * q;
-
-    /* ----- Productos ----- */
-    function renderProds() {
-        $('prods').innerHTML = PRODUCTS.map((p, i) => {
-            const q = order.get(p.id) || 0;
-            return `<article class="prod" style="animation-delay:${i * 40}ms">
-                <div class="prod-top">
-                    <div class="prod-img">${p.emoji}</div>
-                    <div>
-                        <h3>${p.name}</h3>
-                        <div class="unit">${p.unit === 'kg' ? 'Se vende al peso' : 'Por unidades'}</div>
-                    </div>
-                    <div class="ppk">${fmt(p.price)}<span style="font-size:10px;font-weight:600">/${p.unit}</span></div>
-                </div>
-                <div class="prod-ctrl">
-                    <button class="wbtn" data-minus="${p.id}" aria-label="Quitar">−</button>
-                    <div class="wval">
-                        <strong>${q ? qtyLabel(p, q) : '—'}</strong>
-                        <small>${p.unit === 'kg' ? 'pasos de ' + p.step + ' g' : 'unidades'}</small>
-                    </div>
-                    <button class="wbtn" data-plus="${p.id}" aria-label="Añadir">+</button>
-                    <div class="wsub">${q ? '≈ ' + fmt(lineTotal(p, q)) : ''}</div>
-                </div>
-            </article>`;
-        }).join('');
-        updateBar();
-    }
-    function updateBar() {
-        const n = order.size;
-        let total = 0;
-        order.forEach((q, id) => total += lineTotal(PRODUCTS.find(p => p.id === id), q));
-        $('orderbar-items').textContent = `Tu encargo (${n})`;
-        $('orderbar-total').textContent = '≈ ' + fmt(total);
-        $('orderbar').classList.toggle('show', n > 0);
-        return total;
-    }
-    document.addEventListener('click', e => {
-        const plus = e.target.closest('[data-plus]');
-        const minus = e.target.closest('[data-minus]');
-        if (plus) {
-            const p = PRODUCTS.find(x => x.id === +plus.dataset.plus);
-            const inc = p.unit === 'kg' ? p.step : 1;
-            order.set(p.id, (order.get(p.id) || 0) + inc);
-            renderProds();
-        }
-        if (minus) {
-            const p = PRODUCTS.find(x => x.id === +minus.dataset.minus);
-            if (!order.has(p.id)) return;
-            const dec = p.unit === 'kg' ? p.step : 1;
-            const q = order.get(p.id) - dec;
-            q <= 0 ? order.delete(p.id) : order.set(p.id, q);
-            renderProds();
-        }
-    });
-
-    /* ----- Navegación pantallas ----- */
-    function show(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        $(id).classList.add('active');
-        /* la barra de encargo solo tiene sentido en la lista de productos */
-        $('orderbar').classList.toggle('show', id === 'screen-prods' && order.size > 0);
-        window.scrollTo({ top: 0 });
-    }
-    $('orderbar').addEventListener('click', () => {
-        renderReview();
-        transition(() => show('screen-review'));
-    });
-    $('back-to-prods').addEventListener('click', () => transition(() => show('screen-prods')));
-
-    /* ----- Resumen ----- */
-    function renderReview() {
-        $('rev-items').innerHTML = [...order.entries()].map(([id, q]) => {
-            const p = PRODUCTS.find(x => x.id === id);
-            return `<div class="rev-row">
-                <span>${p.emoji} ${p.name} <span class="q">· ${qtyLabel(p, q)}</span></span>
-                <strong>≈ ${fmt(lineTotal(p, q))}</strong>
-            </div>`;
-        }).join('');
-        let total = 0;
-        order.forEach((q, id) => total += lineTotal(PRODUCTS.find(p => p.id === id), q));
-        $('rev-total').textContent = '≈ ' + fmt(total);
-        renderSlots();
-    }
-    function renderSlots() {
-        $('slots').innerHTML = SLOTS.map(s =>
-            `<button class="slot ${s.t === slot ? 'active' : ''}" data-slot="${s.t}">${s.t}<small>${s.s}</small></button>`
-        ).join('');
-    }
-    document.addEventListener('click', e => {
-        const s = e.target.closest('[data-slot]');
-        if (s) { slot = s.dataset.slot; renderSlots(); }
-    });
-
-    /* ----- Envío a WhatsApp (simulado) ----- */
-    const now = () => new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-
-    $('send-wa').addEventListener('click', () => {
-        const name = $('cust-name').value.trim();
-        if (!order.size) { toast('Añade algún producto primero 🥩'); return; }
-        if (!name) { toast('Escribe tu nombre para el encargo ✍️'); $('cust-name').focus(); return; }
-
-        const lines = [...order.entries()].map(([id, q]) => {
-            const p = PRODUCTS.find(x => x.id === id);
-            return `• ${p.name}: ${qtyLabel(p, q)}`;
-        });
-        let total = 0;
-        order.forEach((q, id) => total += lineTotal(PRODUCTS.find(p => p.id === id), q));
-
-        const msg = `¡Hola Manolo! 👋 Soy ${name}.\nQuería encargar:\n${lines.join('\n')}\n\nTotal aprox.: ${fmt(total)}\nLo recojo mañana de ${slot}. ¡Gracias!`;
-
-        $('chat-body').innerHTML =
-            `<div class="bubble out">${msg}<span class="time">${now()} <span class="ticks">✓✓</span></span></div>`;
-        transition(() => show('screen-chat'));
-
-        /* respuesta simulada del carnicero */
-        setTimeout(() => {
-            $('chat-status').textContent = 'escribiendo…';
-            $('chat-body').insertAdjacentHTML('beforeend',
-                `<div class="bubble in" id="typing"><span class="typing"><i></i><i></i><i></i></span></div>`);
-            $('chat-body').scrollTop = $('chat-body').scrollHeight;
-        }, 900);
-        setTimeout(() => {
-            const typing = $('typing');
-            if (typing) typing.remove();
-            $('chat-status').textContent = 'en línea';
-            $('chat-body').insertAdjacentHTML('beforeend',
-                `<div class="bubble in">¡Recibido, ${name}! 💪\nTe lo dejo todo preparado para mañana de ${slot}.\n¡Hasta mañana! 🥩<span class="time">${now()}</span></div>`);
-            $('chat-body').scrollTop = $('chat-body').scrollHeight;
-        }, 2600);
-    });
-
-    $('again').addEventListener('click', () => {
-        order.clear();
-        $('cust-name').value = '';
-        renderProds();
-        transition(() => show('screen-prods'));
-    });
-
-    /* ----- Init ----- */
-    renderProds();
+  const d = $('dial');
+  let activo = false, ultimo = 0;
+  const leerAngulo = ev => {
+    const r = d.getBoundingClientRect();
+    let a = Math.atan2(ev.clientX - (r.left + r.width / 2), -(ev.clientY - (r.top + r.height / 2))) / D2R;
+    if (Math.abs(a) > 150) a = ultimo >= 0 ? 150 : -150;
+    ultimo = a;
+    return a;
+  };
+  const mover = ev => { const p = actual(); ponerPeso(((leerAngulo(ev) + 150) / 300) * dialMax(p)); };
+  d.addEventListener('pointerdown', ev => { if (agotado(actual())) return; activo = true; ultimo = anguloDe(pesoDe(actual()), dialMax(actual())); d.setPointerCapture(ev.pointerId); mover(ev); });
+  d.addEventListener('pointermove', ev => { if (activo) mover(ev); });
+  const fin = () => { activo = false; };
+  d.addEventListener('pointerup', fin); d.addEventListener('pointercancel', fin);
+  d.addEventListener('keydown', ev => {
+    const p = actual(), paso = dialPaso(p), v = pesoDe(p);
+    const mapa = { ArrowRight: v + paso, ArrowUp: v + paso, ArrowLeft: v - paso, ArrowDown: v - paso, PageUp: v + paso * 5, PageDown: v - paso * 5, Home: 0, End: dialMax(p) };
+    if (!(ev.key in mapa)) return;
+    ev.preventDefault(); ponerPeso(mapa[ev.key]);
+  });
+  d.addEventListener('wheel', ev => { ev.preventDefault(); const p = actual(); ponerPeso(pesoDe(p) + (ev.deltaY < 0 ? 1 : -1) * dialPaso(p)); }, { passive: false });
 })();
+
+/* ---------- cortes ---------- */
+function pintarCortes() {
+  const p = actual(), c = corteDe(p);
+  $('cortes').innerHTML = Object.entries(CORTES).map(([k, n]) => `<button type="button" class="corte" data-c="${k}" aria-pressed="${k === c}" ${p.cortes.includes(k) ? '' : 'disabled'}><svg viewBox="0 0 24 24" aria-hidden="true">${ICONOS[k]}</svg>${n.replace('Filetes ', 'Filetes<br>')}</button>`).join('');
+  $('corte-nombre').textContent = CORTES[c];
+}
+$('cortes').addEventListener('click', e => {
+  const b = e.target.closest('[data-c]'); if (!b || b.disabled) return;
+  est.corte[actual().id] = b.dataset.c; salvar();
+  $('cortes').querySelectorAll('.corte').forEach(x => { x.setAttribute('aria-pressed', x === b); x.classList.remove('is-anim'); });
+  void b.offsetWidth; b.classList.add('is-anim');
+  $('corte-nombre').textContent = CORTES[b.dataset.c];
+  vibrar(6);
+});
+
+/* ---------- botones y navegación de la vitrina ---------- */
+function pintarBotones() {
+  const p = actual(), en = escena?.hay(est.sel), v = pesoDe(p);
+  $('pesar').textContent = en ? 'Devolver' : 'A la báscula';
+  $('pesar').setAttribute('aria-pressed', !!en);
+  $('anadir').innerHTML = `Añadir · <span class="num">${euros(importeDe(p, v))}</span>`;
+  $('anadir').setAttribute('aria-disabled', String(!v || agotado(p)));
+  $('pista').innerHTML = en ? '<b>Toca</b> la báscula para devolverla' : '<b>Desliza</b> la vitrina · <b>toca</b> una pieza';
+}
+$('pesar').addEventListener('click', () => { if (!escena) return; escena.hay(est.sel) ? escena.devolver() : ganchos.tocar(est.sel); });
+$('ant').addEventListener('click', () => seleccionar(est.sel - 1));
+$('sig').addEventListener('click', () => seleccionar(est.sel + 1));
+$('escena').addEventListener('keydown', ev => {
+  if (ev.target !== $('escena')) return;
+  if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') { ev.preventDefault(); seleccionar(est.sel + (ev.key === 'ArrowRight' ? 1 : -1)); }
+  else if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); $('pesar').click(); }
+});
+
+/* ---------- añadir al encargo: el papel se pliega ---------- */
+let envolviendo = false;
+$('anadir').addEventListener('click', async () => {
+  const p = actual(), v = pesoDe(p);
+  if (agotado(p)) return;
+  if (!v) {
+    $('dial').classList.remove('is-mal'); void $('dial').offsetWidth; $('dial').classList.add('is-mal');
+    avisar(p.u === 'ud' ? 'Dime cuántas unidades' : 'Gira el dial: ¿cuántos gramos?', { tipo: 'error' });
+    vibrar([20, 40, 20]); $('dial').focus(); return;
+  }
+  if (envolviendo) return;
+  envolviendo = true;
+  const linea = { uid: est.uid++, pieza: p.id, cant: v, corte: corteDe(p) };
+  const texto = `${cantidad(p, v).replace('unidades', 'uds')} · ${euros(importeDe(p, v))}`;
+  if (escena?.es3d && !escena.hay(est.sel)) { escena.pesar(est.sel); await new Promise(r => setTimeout(r, reducido() ? 0 : 750)); }
+  if (escena?.es3d) await escena.envolver(texto);
+  else { pliegaCSS(); await escena?.envolver(); }
+  est.lineas.push(linea); salvar();
+  envolviendo = false;
+  pintarPapelito(true); pintarEncargo(linea.uid);
+  avisar(`${p.corto}, ${cantidad(p, v)}: al papel`, { tipo: 'ok', icono: '✓' });
+  vibrar([8, 40, 12]);
+});
+function pliegaCSS() {
+  if (reducido()) return;
+  const r = $('dial').getBoundingClientRect();
+  const el = document.createElement('div');
+  el.className = 'paquete-css'; el.setAttribute('aria-hidden', 'true');
+  el.innerHTML = '<i></i><i></i><i></i><i></i><i></i><b></b>';
+  el.style.left = `${r.left + r.width / 2 - 48}px`; el.style.top = `${r.top + r.height / 2 - 48}px`;
+  document.body.appendChild(el);
+  el.animate([{ transform: 'none', opacity: 1 }, { transform: 'none', opacity: 1, offset: 0.7 }, { transform: `translateY(${innerHeight - r.top}px) scale(.3)`, opacity: 0 }], { duration: 1700, easing: 'cubic-bezier(.5,0,.8,.4)' }).onfinish = () => el.remove();
+}
+
+function pintarPapelito(pum) {
+  const n = est.lineas.length, b = $('papelito');
+  b.classList.toggle('is-on', n > 0);
+  $('pp-n').textContent = `${n} ${n === 1 ? 'pieza' : 'piezas'} en el papel`;
+  contar($('pp-total'), totalEncargo(), { decimales: 2, sufijo: ' €' });
+  $('ins-enc').textContent = n || '';
+  if (pum && !reducido()) { [b, $('ins-enc')].forEach(x => { x.classList.remove('is-pum'); void x.offsetWidth; x.classList.add('is-pum'); }); }
+}
+$('papelito').addEventListener('click', () => tabs.ir('encargo'));
+
+/* =========================================================
+   ENCARGO: estraza, recogida, WhatsApp
+   ========================================================= */
+const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const TRAMOS = { m: ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30'], t: ['17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'] };
+const hoyMas = n => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + n); return d; };
+const claveDia = d => `${d.getFullYear()}-${dosCifras(d.getMonth() + 1)}-${dosCifras(d.getDate())}`;
+function hash(t) { let h = 2166136261; for (const c of t) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } h ^= h >>> 15; return (Math.imul(h, 2246822507) >>> 0) % 100; }
+function tramosDe(n) {
+  const d = hoyMas(n), dow = d.getDay(), ahora = new Date();
+  if (dow === 0) return [];
+  const lista = [...TRAMOS.m.map(h => ({ h, t: 'm' })), ...(dow === 6 ? [] : TRAMOS.t.map(h => ({ h, t: 't' })))];
+  return lista.map(x => {
+    const [hh, mm] = x.h.split(':').map(Number);
+    const pasado = n === 0 && hh * 60 + mm < ahora.getHours() * 60 + ahora.getMinutes() + 45;
+    const r = hash(claveDia(d) + x.h), lleno = r < 18;
+    return { ...x, libre: !pasado && !lleno, quedan: 1 + (r % 4), pasado };
+  });
+}
+// Los dos próximos días con hueco (hoy y mañana, o el siguiente abierto)
+function diasRecogida() {
+  const r = [];
+  for (let n = 0; n < 7 && r.length < 2; n++) if (tramosDe(n).some(x => x.libre)) r.push(n);
+  return r;
+}
+const nombreDia = n => n === 0 ? 'Hoy' : n === 1 ? 'Mañana' : DIAS[hoyMas(n).getDay()].replace(/^./, c => c.toUpperCase()) + ' ' + hoyMas(n).getDate();
+
+function pintarEncargo(nueva) {
+  const caja = $('estraza');
+  if (!est.lineas.length) {
+    caja.innerHTML = `<div class="vacio"><svg viewBox="0 0 96 96" aria-hidden="true"><path d="M14 30l34-14 34 14v38L48 82 14 68z"/><path d="M14 30l34 14 34-14M48 44v38" stroke-dasharray="3 4"/><path d="M60 20l-6 22" stroke-width="3"/></svg><span class="disp">El papel está en blanco</span><p>Elige una pieza en la vitrina, pésala y añádela.</p><button class="btn" type="button" data-ir="mostrador">Ir al mostrador</button></div>`;
+  } else {
+    const n = est.nombre ? `para ${est.nombre}` : 'Carnicería Manolo · puesto 14';
+    caja.innerHTML = `<h3 class="disp">Encargo</h3><p class="para">${n}</p>
+      <ul class="lineas">${est.lineas.map(l => { const p = pieza(l.pieza); return `<li class="linea${l.uid === nueva ? ' is-nueva' : ''}"><b>${p.nombre}</b><small>${cantidad(p, l.cant)} · ${CORTES[l.corte].toLowerCase()}</small><span class="tag" style="--r:${l.uid % 2 ? -4 : 3}deg"><b class="num">${euros(importeDe(p, l.cant))}</b></span><button type="button" class="quitar" data-quitar="${l.uid}" aria-label="Quitar ${p.nombre}"><svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li>`; }).join('')}</ul>
+      <div class="total"><span>Total aprox.</span><b class="num" id="enc-total">${euros(totalEncargo())}</b></div>
+      <p class="aviso-peso">Lo que va al peso se ajusta en la báscula al cortar.</p>`;
+  }
+  $('enviar').disabled = !est.lineas.length;
+}
+$('estraza').addEventListener('click', e => {
+  const q = e.target.closest('[data-quitar]'), ir = e.target.closest('[data-ir]');
+  if (ir) { tabs.ir(ir.dataset.ir); return; }
+  if (!q) return;
+  const li = q.closest('.linea');
+  const quitar = () => { est.lineas = est.lineas.filter(l => l.uid !== +q.dataset.quitar); salvar(); pintarEncargo(); pintarPapelito(); decir(`Quitado. Total ${euros(totalEncargo())}`); };
+  vibrar(6);
+  if (reducido()) quitar();
+  else li.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(40%) rotate(4deg)', opacity: 0 }], { duration: 280, easing: 'ease-in' }).onfinish = quitar;
+});
+
+function pintarRecogida() {
+  const dias = diasRecogida();
+  if (!dias.includes(est.dia)) { est.dia = dias[0] ?? 0; est.franja = null; }
+  const sel = dias.indexOf(est.dia);
+  $('dias-rec').dataset.v = String(Math.max(0, sel));
+  $('dias-rec').innerHTML = dias.map(n => `<button type="button" data-dia="${n}" aria-pressed="${n === est.dia}">${nombreDia(n)}</button>`).join('');
+  const lista = tramosDe(est.dia);
+  if (est.franja && !lista.some(x => x.h === est.franja && x.libre)) est.franja = null;
+  const bloque = t => lista.filter(x => x.t === t).map(x => `<button type="button" class="franja num" data-h="${x.h}" aria-pressed="${x.h === est.franja}" ${x.libre ? '' : 'disabled'} aria-label="${x.h}${x.libre ? `, quedan ${x.quedan}` : x.pasado ? ', ya ha pasado' : ', completo'}">${x.h}<small>${x.libre ? (x.quedan < 3 ? `quedan ${x.quedan}` : 'libre') : x.pasado ? '—' : 'lleno'}</small></button>`).join('');
+  const m = bloque('m'), t = bloque('t');
+  $('franjas').innerHTML = lista.length ? `<span class="sub">Mañana · 9:00 a 14:00</span>${m}${t ? `<span class="sub">Tarde · 17:00 a 20:30</span>${t}` : ''}` : '<p class="franjas-vacio">Ese día cerramos.</p>';
+  $('rec-resumen').textContent = est.franja ? `${nombreDia(est.dia)}, ${est.franja}` : '';
+}
+$('dias-rec').addEventListener('click', e => { const b = e.target.closest('[data-dia]'); if (!b) return; est.dia = +b.dataset.dia; est.franja = null; vibrar(5); salvar(); pintarRecogida(); });
+$('franjas').addEventListener('click', e => { const b = e.target.closest('[data-h]'); if (!b || b.disabled) return; est.franja = b.dataset.h; $('e-franja').textContent = ''; vibrar(6); salvar(); pintarRecogida(); });
+$('notas').addEventListener('click', e => { const b = e.target.closest('button'); if (b) b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); });
+['f-nombre', 'f-tel'].forEach(id => $(id).addEventListener('input', ev => { ev.target.removeAttribute('aria-invalid'); $('e-' + id.slice(2)).textContent = ''; }));
+
+$('form').addEventListener('submit', ev => {
+  ev.preventDefault();
+  if (!est.lineas.length) return;
+  const nombre = $('f-nombre').value.trim(), tel = $('f-tel').value.trim();
+  let mal = null;
+  if (!est.franja) { $('e-franja').textContent = 'Elige cuándo pasas a recogerlo.'; $('franjas').classList.remove('is-mal'); void $('franjas').offsetWidth; $('franjas').classList.add('is-mal'); mal = mal || $('franjas').querySelector('.franja:not(:disabled)'); }
+  if (!nombre) { $('e-nombre').textContent = 'Pon tu nombre, que Manolo sepa de quién es.'; $('f-nombre').setAttribute('aria-invalid', 'true'); mal = mal || $('f-nombre'); }
+  if (tel.replace(/\D/g, '').length < 9) { $('e-tel').textContent = 'Ese teléfono no parece completo (9 cifras).'; $('f-tel').setAttribute('aria-invalid', 'true'); mal = mal || $('f-tel'); }
+  if (mal) { mal.focus(); avisar('Revisa lo marcado en rojo', { tipo: 'error' }); vibrar([20, 40, 20]); return; }
+  est.nombre = nombre; est.tel = tel;
+  const b = $('enviar'); b.classList.add('is-cargando'); b.querySelector('span').textContent = 'Enviando…';
+  setTimeout(() => {
+    const enc = {
+      codigo: 'M-' + (400 + Math.floor(Math.random() * 500)), nombre, tel, dia: claveDia(hoyMas(est.dia)), diaTxt: nombreDia(est.dia).toLowerCase(), franja: est.franja,
+      lineas: est.lineas.map(({ pieza, cant, corte }) => ({ pieza, cant, corte })), total: totalEncargo(), notas: [...$('notas').querySelectorAll('[aria-pressed="true"]')].map(x => x.textContent),
+      estado: 'recibido', t: Date.now(), auto: true, hechas: []
+    };
+    est.encargos.unshift(enc); est.lineas = []; est.franja = null; salvar();
+    b.classList.remove('is-cargando'); b.querySelector('span').textContent = 'Enviar por WhatsApp';
+    $('notas').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', 'false'));
+    pintarEncargo(); pintarPapelito(); pintarRecogida(); pintarDueno(); pintarMis();
+    abrirChat(enc, true);
+  }, reducido() ? 100 : 900);
+});
+
+/* ---------- el chat ---------- */
+const VISTOS = '<svg class="vistos" viewBox="0 0 18 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 6l3 3 6-7"/><path d="M7 8.5l.8.6 6-7"/></svg>';
+const horaTxt = t => new Date(t).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+function textoEncargo(enc) {
+  return `Hola Manolo, soy ${enc.nombre}. Te encargo:\n${enc.lineas.map(l => { const p = pieza(l.pieza); return `· ${p.nombre}: ${cantidad(p, l.cant)}, ${CORTES[l.corte].toLowerCase()}`; }).join('\n')}${enc.notas?.length ? `\n(${enc.notas.join(', ').toLowerCase()})` : ''}\n\nRecojo ${enc.diaTxt} a las ${enc.franja}. Total aprox. ${euros(enc.total)}.`;
+}
+let chatDe = null;
+function abrirChat(enc, animar) {
+  chatDe = enc.codigo;
+  $('form').hidden = true; $('enc-papel').hidden = true;
+  const c = $('chat'); c.hidden = false;
+  c.innerHTML = `<div class="wa" role="log" aria-label="Conversación con Carnicería Manolo">
+    <div class="wa-cab"><span class="avatar" aria-hidden="true">M</span><div><b>Carnicería Manolo</b><small id="wa-estado">en línea</small></div></div>
+    <div class="wa-cuerpo" id="wa-cuerpo"><div class="burbuja sale">${textoEncargo(enc)}<span class="hora">${horaTxt(enc.t)} ${VISTOS}</span></div></div>
+    <div class="wa-pie"><button class="btn btn--linea" type="button" data-wa="otro">Hacer otro encargo</button><button class="btn" type="button" data-wa="mostrador">Volver al mostrador</button></div></div>`;
+  const vistos = c.querySelector('.vistos'), cuerpo = $('wa-cuerpo');
+  const respuesta = () => `¡Recibido, ${enc.nombre}! Te lo dejo preparado ${enc.diaTxt} a las ${enc.franja}. Tu código es ${enc.codigo}. Te escribo cuando esté listo.`;
+  if (!animar) {
+    vistos.classList.add('doble', 'leido');
+    cuerpo.insertAdjacentHTML('beforeend', `<div class="burbuja entra">${respuesta()}<span class="hora">${horaTxt(enc.t + 4000)}</span></div>`);
+    if (enc.estado === 'listo') cuerpo.insertAdjacentHTML('beforeend', `<div class="burbuja entra">${enc.nombre}, ya lo tienes listo. Te espero en el puesto 14.<span class="hora">${horaTxt(enc.tListo || Date.now())}</span></div>`);
+    return;
+  }
+  const r = reducido() ? 0.2 : 1;
+  setTimeout(() => vistos.classList.add('doble'), 600 * r);
+  setTimeout(() => vistos.classList.add('leido'), 1300 * r);
+  setTimeout(() => { $('wa-estado').textContent = 'escribiendo…'; cuerpo.insertAdjacentHTML('beforeend', '<div class="escribiendo" id="escribe"><span>Manolo está escribiendo</span><i></i><i></i><i></i></div>'); }, 1600 * r);
+  setTimeout(() => {
+    $('escribe')?.remove(); $('wa-estado').textContent = 'en línea';
+    cuerpo.insertAdjacentHTML('beforeend', `<div class="burbuja entra">${respuesta()}<span class="hora">${horaTxt(Date.now())}</span></div>`);
+    decir(`Manolo responde: ${respuesta()}`);
+    confeti(cuerpo, ['#a8231d', '#1fa855', '#c9a274', '#f6efe2']);
+    vibrar([10, 50, 10]);
+  }, 3600 * r);
+}
+$('chat').addEventListener('click', e => {
+  const b = e.target.closest('[data-wa]'); if (!b) return;
+  cerrarChat();
+  if (b.dataset.wa === 'mostrador') tabs.ir('mostrador');
+});
+function cerrarChat() { chatDe = null; $('chat').hidden = true; $('form').hidden = false; $('enc-papel').hidden = false; }
+
+/* ---------- mis encargos (con su estado) ---------- */
+const FASES = ['recibido', 'preparando', 'listo'];
+function pintarMis() {
+  const lista = est.encargos.filter(x => x.estado !== 'entregado');
+  $('mis-etq').hidden = !lista.length;
+  $('mis').innerHTML = lista.map(x => {
+    const k = FASES.indexOf(x.estado);
+    return `<article class="mio${x.estado === 'listo' ? ' listo' : ''}"><header><b class="disp">${x.diaTxt === 'hoy' || x.diaTxt === 'mañana' ? x.diaTxt.replace(/^./, c => c.toUpperCase()) : x.diaTxt}, ${x.franja}</b><code>${x.codigo}</code></header>
+      <p>${x.lineas.length} ${x.lineas.length === 1 ? 'pieza' : 'piezas'} · ${euros(x.total)}</p>
+      <ol class="pasos">${['Recibido', 'Preparando', 'Listo'].map((n, i) => `<li class="${i <= k ? 'hecho' : ''}">${n}</li>`).join('')}</ol>
+      <div class="acc"><button class="btn btn--linea" type="button" data-chat="${x.codigo}">Ver conversación</button>${x.estado === 'listo' ? `<button class="btn" type="button" data-recogido="${x.codigo}">Ya lo he recogido</button>` : ''}</div></article>`;
+  }).join('');
+}
+$('mis').addEventListener('click', e => {
+  const c = e.target.closest('[data-chat]'), r = e.target.closest('[data-recogido]');
+  if (c) { abrirChat(est.encargos.find(x => x.codigo === c.dataset.chat), false); $('chat').scrollIntoView({ behavior: reducido() ? 'auto' : 'smooth', block: 'start' }); }
+  if (r) { const x = est.encargos.find(y => y.codigo === r.dataset.recogido); x.estado = 'entregado'; salvar(); pintarMis(); pintarDueno(); avisar('¡Que aproveche!', { tipo: 'ok', icono: '✓' }); }
+});
+function ponerEstado(x, estado, porDueno) {
+  if (x.estado === estado) return;
+  x.estado = estado;
+  if (porDueno) x.auto = false;
+  if (estado === 'listo') {
+    x.tListo = Date.now();
+    if (est.encargos.includes(x)) {
+      avisar(`Tu encargo ${x.codigo} está listo`, { tipo: 'ok', icono: '✓' });
+      vibrar([12, 60, 12, 60, 12]);
+      if (chatDe === x.codigo) $('wa-cuerpo')?.insertAdjacentHTML('beforeend', `<div class="burbuja entra">${x.nombre}, ya lo tienes listo. Te espero en el puesto 14.<span class="hora">${horaTxt(Date.now())}</span></div>`);
+    }
+  }
+  salvar(); pintarMis(); pintarDueno();
+}
+// Si Manolo no lo toca, el encargo avanza solo para que la demo se vea entera
+setInterval(() => {
+  for (const x of est.encargos) {
+    if (!x.auto) continue;
+    const s = (Date.now() - x.t) / 1000;
+    if (x.estado === 'recibido' && s > 14) ponerEstado(x, 'preparando');
+    else if (x.estado === 'preparando' && s > 34) ponerEstado(x, 'listo');
+  }
+}, 2000);
+
+/* =========================================================
+   TURNO: máquina, ticket con sierra y número en directo
+   ========================================================= */
+const RITMO = 15000;   // cada cuánto se atiende a alguien (demo)
+if (!est.cola) est.cola = { servido: 40 + (new Date().getMinutes() % 20), ultimo: 0, t: Date.now() };
+if (!est.cola.ultimo) est.cola.ultimo = est.cola.servido + 5;
+{ // al volver, la cola ha seguido su curso
+  const pasos = Math.min(Math.floor((Date.now() - est.cola.t) / RITMO), est.cola.ultimo - est.cola.servido);
+  if (pasos > 0) { est.cola.servido += pasos; est.atendidos += pasos; est.cola.t = Date.now(); }
+}
+const dos = n => dosCifras(((n % 100) + 100) % 100);
+let ultimoPintado = null;
+function ponerLed(el, n) {
+  const sp = el.querySelector('span');
+  if (sp.textContent === dos(n)) return;
+  sp.textContent = dos(n);
+  if (!reducido()) { el.classList.remove('rueda'); void el.offsetWidth; el.classList.add('rueda'); }
+}
+function pintarTurno() {
+  const c = est.cola, mi = est.mi, esperan = c.ultimo - c.servido;
+  ponerLed($('led'), c.servido); ponerLed($('d-led'), c.servido);
+  $('cola-txt').textContent = esperan ? `${esperan} ${esperan === 1 ? 'persona espera' : 'personas esperan'}` : 'Nadie en cola';
+  $('espera-txt').textContent = esperan ? `≈ ${Math.max(1, Math.round(esperan * 2.5))} min de espera` : 'Pasa directamente';
+  $('avisame').setAttribute('aria-pressed', String(est.avisar));
+  const chip = $('chip-turno');
+  const faltan = mi ? mi.num - c.servido : null;
+  chip.classList.toggle('te-toca', faltan === 0);
+  $('chip-num').textContent = mi ? dos(mi.num) : dos(c.servido);
+  $('chip-txt').textContent = !mi ? 'Atendemos' : faltan > 0 ? `Faltan ${faltan}` : faltan === 0 ? '¡Te toca!' : 'Pasado';
+  $('ins-tur').textContent = mi && faltan >= 0 ? (faltan || '!') : '';
+  // la parte del cliente
+  const lado = $('lado-turno');
+  $('papel-turno').hidden = !!mi;
+  const clave = mi ? `${mi.num}|${Math.sign(faltan)}|${faltan}` : 'nada';
+  if (clave === ultimoPintado) return;
+  ultimoPintado = clave;
+  if (!mi) {
+    lado.innerHTML = `<p class="ayuda"><b>Tira del papel</b> de la máquina o pulsa el botón.</p><button class="btn btn--ancho" id="sacar" type="button" data-onda>Sacar número</button>`;
+    return;
+  }
+  const ahora = new Date(mi.t);
+  const estado = faltan > 0 ? '' : faltan === 0 ? ' te-toca' : ' pasado';
+  lado.innerHTML = `<div class="ticket${estado}" ${ultimoPintado.startsWith(mi.num + '|') && lado.querySelector('.ticket') ? 'style="animation:none"' : ''}>
+      <small>CARNICERÍA MANOLO</small><small>Mercado de abastos · puesto 14</small>
+      <div class="grande num">${dos(mi.num)}</div>
+      <hr><div class="fila"><span>Delante</span><b>${Math.max(0, faltan - 1)}</b></div>
+      <div class="fila"><span>Espera</span><b>${faltan > 0 ? '≈ ' + Math.max(1, Math.round(faltan * 2.5)) + ' min' : '—'}</b></div>
+      <div class="fila"><span>${dosCifras(ahora.getHours())}:${dosCifras(ahora.getMinutes())}</span><span>${dosCifras(ahora.getDate())}/${dosCifras(ahora.getMonth() + 1)}</span></div></div>
+    ${faltan > 0 ? `<ul class="cola" aria-label="Números delante del tuyo">${Array.from({ length: Math.min(faltan - 1, 12) }, (_, k) => `<li>${dos(c.servido + 1 + k)}</li>`).join('')}<li class="tu">${dos(mi.num)}</li></ul>` : ''}
+    <button class="btn btn--linea btn--ancho" id="soltar" type="button">${faltan >= 0 ? (faltan === 0 ? 'Ya me han atendido' : 'Devolver el número') : 'Sacar otro número'}</button>`;
+}
+function sacarNumero() {
+  if (est.mi && est.mi.num >= est.cola.servido) { avisar(`Ya tienes el ${dos(est.mi.num)}`, { tipo: 'error' }); vibrar([20, 40, 20]); return; }
+  est.cola.ultimo++;
+  est.mi = { num: est.cola.ultimo, t: Date.now(), avisado: false };
+  salvar(); pintarTurno(); pintarDueno();
+  avisar(`Tu número: ${dos(est.mi.num)}`, { tipo: 'ok', icono: '✓' });
+  vibrar([8, 30, 8]);
+}
+// El papel se arranca con un tirón hacia abajo
+(() => {
+  const pp = $('papel-turno');
+  let y0 = null, dy = 0, imprimiendo = false;
+  const rasgar = () => {
+    pp.classList.remove('arrastrando', 'imprime');
+    if (reducido()) { sacarNumero(); pp.style.setProperty('--dy', '0px'); return; }
+    pp.classList.add('rasgado'); vibrar([4, 20, 14]);
+    setTimeout(() => { pp.classList.remove('rasgado'); pp.style.setProperty('--dy', '0px'); sacarNumero(); imprimiendo = false; }, 520);
+  };
+  pp.addEventListener('pointerdown', ev => { if (est.mi && est.mi.num >= est.cola.servido) return; y0 = ev.clientY; dy = 0; pp.setPointerCapture(ev.pointerId); pp.classList.add('arrastrando'); });
+  pp.addEventListener('pointermove', ev => { if (y0 === null) return; dy = Math.max(0, ev.clientY - y0); pp.style.setProperty('--dy', `${Math.min(110, dy * 0.8)}px`); });
+  const soltar = () => { if (y0 === null) return; y0 = null; if (dy > 70) rasgar(); else { pp.classList.remove('arrastrando'); pp.style.setProperty('--dy', '0px'); if (dy < 6) imprimir(); } };
+  pp.addEventListener('pointerup', soltar); pp.addEventListener('pointercancel', soltar);
+  pp.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); imprimir(); } });
+  function imprimir() {
+    if (imprimiendo) return;
+    imprimiendo = true;
+    if (reducido()) { rasgar(); return; }
+    pp.classList.add('imprime'); pp.style.setProperty('--dy', '80px');
+    $('lado-turno').querySelector('.ayuda')?.replaceChildren('Imprimiendo…');
+    setTimeout(rasgar, 950);
+  }
+  $('lado-turno').addEventListener('click', e => {
+    if (e.target.closest('#sacar')) imprimir();
+    if (e.target.closest('#soltar')) {
+      const pasado = est.mi && est.mi.num < est.cola.servido;
+      est.mi = null; salvar(); pintarTurno(); pintarDueno();
+      if (pasado) imprimir(); else avisar('Número devuelto');
+    }
+  });
+})();
+$('avisame').addEventListener('click', () => {
+  est.avisar = !est.avisar; salvar(); pintarTurno(); vibrar(6);
+  if (est.avisar) try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission().catch(() => {}); } catch (e) { /* nada */ }
+  decir(est.avisar ? 'Te avisaremos cuando falten 2' : 'Aviso desactivado');
+});
+$('chip-turno').addEventListener('click', () => tabs.ir('turno'));
+
+function avanzar(d = 1, porDueno = false) {
+  const c = est.cola;
+  if (d > 0 && c.servido >= c.ultimo) { if (porDueno) { avisar('No queda nadie en cola', { tipo: 'error' }); vibrar([20, 40, 20]); } return; }
+  c.servido = Math.max(1, c.servido + d); c.t = Date.now();
+  if (d > 0) est.atendidos++;
+  salvar(); pintarTurno(); pintarDueno();
+  const mi = est.mi;
+  if (!mi) return;
+  const f = mi.num - c.servido;
+  if (f === 2 && est.avisar && !mi.avisado) {
+    mi.avisado = true; salvar();
+    avisar(`¡Faltan 2! Acércate al mostrador`, { icono: '!', ms: 4200 }); vibrar([30, 80, 30]);
+    try { if (Notification.permission === 'granted') new Notification('Carnicería Manolo', { body: `Faltan 2 para tu número ${dos(mi.num)}` }); } catch (e) { /* nada */ }
+  }
+  if (f === 0) { avisar(`¡Te toca! Número ${dos(mi.num)}`, { tipo: 'ok', icono: '✓', ms: 4200 }); vibrar([40, 60, 40, 60, 40]); }
+}
+// La cola se mueve sola: se atiende y llega gente. Desde la vista de Manolo, manda él.
+setInterval(() => {
+  if (app.dataset.vista === 'manolo') return;
+  const c = est.cola;
+  if (Date.now() - c.t > RITMO) avanzar(1);
+  if (c.ultimo - c.servido < 7 && Math.random() < 0.09) { c.ultimo++; salvar(); pintarTurno(); pintarDueno(); }
+}, 1000);
+
+/* =========================================================
+   RECETAS
+   ========================================================= */
+let filtro = 'Todas', recetasListas = false;
+function pintarRecetas() {
+  $('filtros').innerHTML = FAMILIAS.map(f => `<button type="button" data-f="${f}" aria-pressed="${f === filtro}">${f}</button>`).join('');
+  const caja = $('recetas');
+  if (!recetasListas) {
+    caja.innerHTML = Array.from({ length: 3 }, () => '<div class="ficha esqueleto" aria-hidden="true"><i class="k-esqueleto" style="width:60%;height:22px"></i><i class="k-esqueleto"></i><i class="k-esqueleto" style="width:80%"></i><i class="k-esqueleto" style="width:45%;height:40px"></i></div>').join('');
+    setTimeout(() => { recetasListas = true; pintarRecetas(); }, reducido() ? 0 : 550);
+    return;
+  }
+  caja.setAttribute('aria-busy', 'false');
+  const lista = RECETAS.filter(r => filtro === 'Todas' || pieza(r.pieza).fam === filtro);
+  caja.innerHTML = lista.map(r => {
+    const p = pieza(r.pieza), ag = agotado(p);
+    return `<article class="ficha"><h3 class="disp">${r.titulo}</h3>
+      <div class="meta"><span>${r.min} min</span><span>${r.rac} ${r.rac === 1 ? 'persona' : 'personas'}</span><span>${cantidad(p, r.cant)} de ${p.corto.toLowerCase()}</span></div>
+      <p class="ing">${r.ing.join(' · ')}</p>
+      <details><summary>Cómo se hace</summary><ol>${r.pasos.map(x => `<li>${x}</li>`).join('')}</ol></details>
+      <div class="pedir"><span class="tag" aria-hidden="true"><span>${p.corto}</span><b class="num">${euros(importeDe(p, r.cant))}</b></span>
+      <button class="btn" type="button" data-receta="${RECETAS.indexOf(r)}" ${ag ? 'aria-disabled="true"' : ''}>${ag ? 'Hoy no queda' : `Pedir ${cantidad(p, r.cant).replace('unidades', 'uds')} →`}</button></div></article>`;
+  }).join('');
+}
+$('filtros').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; filtro = b.dataset.f; vibrar(5); flip($('recetas'), pintarRecetas); });
+$('recetas').addEventListener('click', e => {
+  const b = e.target.closest('[data-receta]'); if (!b) return;
+  const r = RECETAS[+b.dataset.receta], p = pieza(r.pieza);
+  if (agotado(p)) { avisar(`${p.corto}: hoy se ha acabado`, { tipo: 'error' }); return; }
+  est.peso[p.id] = r.cant; est.corte[p.id] = r.corte;
+  tabs.ir('mostrador');
+  seleccionar(indice(p.id));
+  pintarPieza(true);
+  setTimeout(() => { if (escena && !escena.hay(est.sel)) escena.pesar(est.sel); }, reducido() ? 0 : 650);
+  avisar(`${cantidad(p, r.cant)} de ${p.corto.toLowerCase()} en la báscula`, { icono: '→' });
+});
+
+/* =========================================================
+   MANOLO: pantalla de turnos, encargos y agotados
+   ========================================================= */
+const ahora0 = Date.now();
+const otros = [
+  { codigo: 'M-311', nombre: 'Carmen', diaTxt: 'hoy', franja: '10:30', lineas: [{ pieza: 'entrecot', cant: 600, corte: 'gruesos' }, { pieza: 'chorizo', cant: 500, corte: 'entera' }], estado: 'recibido', hechas: [], t: ahora0 - 4e5 },
+  { codigo: 'M-312', nombre: 'Bar Txoko', diaTxt: 'hoy', franja: '12:00', lineas: [{ pieza: 'hamburguesas', cant: 16, corte: 'entera' }, { pieza: 'picada', cant: 2000, corte: 'picada' }, { pieza: 'morcilla', cant: 6, corte: 'gruesos' }], estado: 'preparando', hechas: [0], t: ahora0 - 9e5 },
+  { codigo: 'M-309', nombre: 'Luis', diaTxt: 'hoy', franja: '09:30', lineas: [{ pieza: 'pollo', cant: 1, corte: 'dados' }], estado: 'listo', hechas: [0], t: ahora0 - 2e6 }
+];
+const todos = () => [...est.encargos, ...otros].filter(x => x.estado !== 'entregado');
+function comanda(x) {
+  const tuyo = est.encargos.includes(x);
+  return `<article class="comanda${tuyo ? ' es-tuyo' : ''}" data-cod="${x.codigo}"><header><b>${x.nombre}</b><code>${x.codigo}</code></header>
+    <div class="cuando">Recoge ${x.diaTxt} a las ${x.franja}</div>
+    <ul>${x.lineas.map((l, k) => { const p = pieza(l.pieza); return `<li><button type="button" data-hecha="${k}" aria-pressed="${(x.hechas || []).includes(k)}"><i aria-hidden="true"></i>${p.corto} · ${cantidad(p, l.cant)} · ${CORTES[l.corte].toLowerCase()}</button></li>`; }).join('')}</ul>
+    ${x.notas?.length ? `<div class="cuando" style="color:inherit;margin:-2px 0 8px">${x.notas.join(' · ')}</div>` : ''}
+    <button class="btn" type="button" data-paso="${x.codigo}">${x.estado === 'listo' ? 'Entregado' : 'Listo, a la nevera'}</button></article>`;
+}
+function pintarDueno() {
+  const t = todos(), prep = t.filter(x => x.estado !== 'listo'), listos = t.filter(x => x.estado === 'listo');
+  $('d-prep').innerHTML = prep.map(comanda).join('') || '<p class="d-vacio">Nada por preparar. A afilar cuchillos.</p>';
+  $('d-listos').innerHTML = listos.map(comanda).join('') || '<p class="d-vacio">Ningún encargo esperando.</p>';
+  $('n-prep').textContent = prep.length; $('n-listos').textContent = listos.length;
+  $('ins-due').textContent = prep.length || '';
+  const c = est.cola;
+  $('d-cola').textContent = c.ultimo - c.servido; $('d-ultimo').textContent = dos(c.ultimo); $('d-hoy').textContent = est.atendidos;
+  ponerLed($('d-led'), c.servido);
+}
+function pintarAgotados() {
+  $('d-agotados').innerHTML = PIEZAS.map(p => `<button type="button" data-ag="${p.id}" aria-pressed="${agotado(p)}">${p.corto}</button>`).join('');
+}
+$('d-agotados').addEventListener('click', e => {
+  const b = e.target.closest('[data-ag]'); if (!b) return;
+  const id = b.dataset.ag;
+  est.agotados = est.agotados.includes(id) ? est.agotados.filter(x => x !== id) : [...est.agotados, id];
+  b.setAttribute('aria-pressed', est.agotados.includes(id));
+  salvar(); vibrar(8);
+  escena?.agotados(); pintarLineal(); pintarPieza(false); if (recetasListas) pintarRecetas();
+  avisar(est.agotados.includes(id) ? `${pieza(id).corto}: fuera de la vitrina` : `${pieza(id).corto}: vuelve a la vitrina`);
+});
+document.querySelector('.tablero').addEventListener('click', e => {
+  const h = e.target.closest('[data-hecha]'), s = e.target.closest('[data-paso]');
+  const art = (h || s)?.closest('.comanda'); if (!art) return;
+  const x = todos().find(y => y.codigo === art.dataset.cod);
+  if (h) {
+    const k = +h.dataset.hecha; x.hechas = x.hechas || [];
+    x.hechas = x.hechas.includes(k) ? x.hechas.filter(y => y !== k) : [...x.hechas, k];
+    h.setAttribute('aria-pressed', x.hechas.includes(k)); vibrar(5);
+    if (x.estado === 'recibido') ponerEstado(x, 'preparando', true);
+    salvar();
+  } else if (s) {
+    vibrar(10);
+    if (x.estado === 'listo') {
+      const fin = () => { x.estado = 'entregado'; salvar(); flip($('d-listos'), pintarDueno); pintarMis(); };
+      if (reducido()) fin(); else art.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(60%) rotate(6deg)', opacity: 0 }], { duration: 360, easing: 'ease-in' }).onfinish = fin;
+    } else {
+      art.classList.add('estampa');
+      setTimeout(() => { flip($('d-listos'), () => ponerEstado(x, 'listo', true)); }, reducido() ? 0 : 650);
+    }
+  }
+});
+$('siguiente').addEventListener('click', () => {
+  avanzar(1, true);
+  if (!reducido()) { const p = $('pantalla'); p.classList.remove('dong'); void p.offsetWidth; p.classList.add('dong'); }
+});
+$('anterior').addEventListener('click', () => avanzar(-1, true));
+$('repetir').addEventListener('click', () => { const p = $('pantalla'); p.classList.remove('dong'); void p.offsetWidth; p.classList.add('dong'); avisar(`Número ${dos(est.cola.servido)}, al mostrador`); vibrar([10, 40, 10]); });
+
+// Encargos que entran mientras Manolo mira
+let entrada = 0;
+function llegaEncargo() {
+  clearTimeout(entrada);
+  entrada = setTimeout(() => {
+    if (app.dataset.vista === 'manolo' && otros.filter(x => x.estado !== 'listo' && x.estado !== 'entregado').length < 4) {
+      const nombres = ['Pili', 'Asador Goya', 'Javi', 'Maite', 'Andrés'], disp = PIEZAS.filter(p => !agotado(p));
+      const a = disp[(Date.now() / 1000 | 0) % disp.length], b = disp[(Date.now() / 7000 | 0) % disp.length];
+      flip($('d-prep'), () => {
+        otros.unshift({ codigo: 'M-' + (320 + otros.length), nombre: nombres[otros.length % nombres.length], diaTxt: 'mañana', franja: '11:00', lineas: [{ pieza: a.id, cant: a.def, corte: a.cortes[0] }, ...(a !== b ? [{ pieza: b.id, cant: b.def, corte: b.cortes[0] }] : [])], estado: 'recibido', hechas: [], t: Date.now() });
+        pintarDueno();
+      });
+      avisar('Nuevo encargo por WhatsApp', { icono: '+' });
+      vibrar([10, 50, 10]);
+    }
+    llegaEncargo();
+  }, 24000);
+}
+
+/* =========================================================
+   ARRANQUE
+   ========================================================= */
+banda();
+pintarLineal();
+escena = crearMostrador(ganchos) || crearReserva(ganchos);
+pintarPieza(false);
+pintarPapelito();
+pintarEncargo();
+pintarRecogida();
+pintarMis();
+pintarTurno();
+pintarDueno();
+pintarAgotados();
+ondas();
+$('f-nombre').value = est.nombre; $('f-tel').value = est.tel;
+setInterval(() => { if (app.dataset.vista === 'encargo') pintarRecogida(); }, 60000);
+
+const tabs = pestanas($('tabs'), {
+  clave: 'manolo-vista',
+  alCambiar(v) {
+    app.dataset.vista = v;
+    if (v === 'recetas') pintarRecetas();
+    if (v === 'encargo') { pintarRecogida(); pintarEncargo(); }
+    if (v === 'manolo') { pintarDueno(); llegaEncargo(); }
+    if (v === 'turno') { ultimoPintado = null; pintarTurno(); }
+    window.scrollTo({ top: 0, behavior: reducido() ? 'auto' : 'smooth' });
+  }
+});
 </script>
 </body>
 </html>
