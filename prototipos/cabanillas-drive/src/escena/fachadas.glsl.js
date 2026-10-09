@@ -21,6 +21,7 @@ export const GLSL_FACHADA = /* glsl */ `
 varying vec2 vUvMuro;
 varying vec4 vMuro;
 varying vec4 vMuro2;
+varying vec4 vReal;                   // fachada real (datos/fachadasReales.js): zócalo y marcas
 uniform float uVentanasEncendidas;
 float luzFachada = 0.0;               // cuánto luce este píxel (ventana encendida)
 vec3 colorLuzFachada = vec3(0.0);
@@ -177,6 +178,11 @@ vec3 fachada(vec3 base, out float vidrio) {
   float medianera = vMuro2.y;
   float estilo = vMuro2.z;
   float semillaMuro = semilla + vMuro2.w * 7.31;
+  float marcasReal = floor(vReal.w / 10.0 + 0.001);
+  bool real = marcasReal > 0.5;
+  bool balconesReal = real && mod(floor(marcasReal / 2.0), 2.0) > 0.5;
+  bool rejasReal = real && mod(floor(marcasReal / 4.0), 2.0) > 0.5;
+  float altoZocaloReal = vReal.w - marcasReal * 10.0;
   vec2 aa = max(fwidth(p) * 0.8, vec2(0.002));
   float lejos = smoothstep(0.02, 0.08, max(aa.x, aa.y)); // 1 = detalle fino invisible
 
@@ -226,7 +232,7 @@ vec3 fachada(vec3 base, out float vidrio) {
     c = enfoscado(p, c, semilla, aa, lejos, alto);
     // Planta baja de otro material en algunas casas (ladrillo o aplacado de piedra)
     float bajaDistinta = azar1(semilla * 15.3);
-    if (bajaDistinta < 0.18 && p.y < altoPlantaF) {
+    if (bajaDistinta < 0.18 && p.y < altoPlantaF && !real) {
       c = bajaDistinta < 0.09 ? ladrillos(p, vec3(0.58, 0.33, 0.22), semilla + 1.0, aa, lejos)
                               : piedras(p, vec3(0.66, 0.6, 0.5), semilla + 2.0, aa, lejos, largo);
     }
@@ -247,6 +253,11 @@ vec3 fachada(vec3 base, out float vidrio) {
     colZocalo = base * 0.62;
   } else {
     colZocalo = piedras(p, vec3(0.6, 0.55, 0.47), semilla + 5.0, aa, lejos, largo);
+  }
+  if (real && altoZocaloReal > 0.05) {
+    // Zócalo pintado del color de la foto, con algo de desgaste
+    zona = 1.0 - smoothstep(altoZocaloReal - aa.y, altoZocaloReal + aa.y, p.y);
+    colZocalo = vReal.rgb * (0.94 + 0.12 * fbmF(p * 3.0 + semilla));
   }
   c = mix(c, colZocalo, zona);
   c *= pie * cornisa;
@@ -279,13 +290,13 @@ vec3 fachada(vec3 base, out float vidrio) {
     c = mix(c, c * 0.72, marco);
     return mix(c, colHueco, hueco);
   }
-  if (suerte > 0.88) return c;  // vano ciego
+  if (suerte > 0.88 && !(real && aCalle > 0.5)) return c;  // vano ciego
 
   float anchoV = min(mix(0.9, 1.4, azar1(semilla * 7.3)), anchoReal - 0.6);
   float altoV = min(mix(1.1, 1.45, azar1(semilla * 3.7)), altoPlanta - 1.1);
   if (anchoV < 0.5 || altoV < 0.6) return c;
   float alfeizar = min(0.95, altoPlanta - altoV - 0.25);
-  bool balcon = !baja && azar1(semilla * 5.5) > 0.45 && suerte < 0.55;
+  bool balcon = !baja && (balconesReal && aCalle > 0.5 ? true : azar1(semilla * 5.5) > 0.45 && suerte < 0.55);
   float y0 = balcon ? 0.08 : alfeizar;
   float y1 = alfeizar + altoV;
   float w = balcon ? max(anchoV, 0.9) : anchoV;
@@ -315,6 +326,15 @@ vec3 fachada(vec3 base, out float vidrio) {
     c = mix(c, vec3(0.38, 0.37, 0.35), losa);
     c = mix(c, vec3(0.05, 0.05, 0.05), hierro);
     vidrio *= 1.0 - hierro;
+  }
+  if (baja && rejasReal && aCalle > 0.5) {
+    // Reja de forja sobre la ventana de la planta baja
+    float zonaR = caja(vec2(x, y), vec2(-w * 0.5 - 0.06, y0 - 0.06), vec2(w * 0.5 + 0.06, y1 + 0.06), aa);
+    float barra = 1.0 - smoothstep(0.1, 0.28, abs(fract(x / 0.13) - 0.5) * 2.0);
+    float travesano = 1.0 - smoothstep(0.0, 0.03 + aa.y, abs(fract((y - y0) / ((y1 - y0) / 3.0) + 0.5) - 0.5) * (y1 - y0) / 3.0);
+    float hierroR = zonaR * max(mix(barra, 0.3, lejos), travesano);
+    c = mix(c, vec3(0.06, 0.06, 0.06), hierroR);
+    vidrio *= 1.0 - hierroR;
   }
   // Luz de dentro: por el vidrio y, poca, entre las lamas de la persiana
   float suerteLuz = azar2(vec2(vano * 3.7 + semillaMuro * 0.11, planta * 5.3 + semilla));
