@@ -2,13 +2,37 @@
 //
 // La prosa de las fichas de sistema, separada de los datos de color y forma.
 // generar-fichas.mjs junta esto con sistemas-datos.mjs y componentes.mjs y
-// escribe la pagina entera. Halogeno no esta aqui: su ficha es a mano porque
-// ensena las piezas de produccion (halogen.css), y solo recibe el kit.
+// escribe la pagina entera. Halogeno tambien sale de aqui, aunque
+// enseña además las piezas de producción de halogen.css (campo `produccion`).
 //
 // Cada `tipo` son las cuatro lineas de la muestra tipografica:
 //   [meta, texto, rol]   rol = display | titulo | cuerpo | pie | dato (en mono)
 
 export const fichas = {
+  halogeno: {
+    descripcion: 'Halógeno: oscuro, cinético y de un solo acento. Sistema de diseño con radios que mutan y profundidad por anillos de luz.',
+    etiqueta: 'Oscuro · un acento · radio mutante',
+    bajada: 'Oscuro, cinético y de un solo acento. Profundidad por anillos de luz en vez de sombras, y radios que mutan: lo que está en reposo es una pastilla y al activarse se cuadra.',
+    paleta: 'Cuatro negros verdosos que se apilan por profundidad y un único acento de alto voltaje. No hay color secundario: si algo necesita destacar, o es lima o no destaca.',
+    tipografia: 'Inter Tight para todo lo que se lee y JetBrains Mono para lo que se mide. El monoespaciado no es decoración: marca lo que es un dato, un estado o una etiqueta técnica.',
+    tipo: [
+      ['Display · Inter Tight 900', 'Alto voltaje', 'display'],
+      ['Título · Inter Tight 700', 'Un solo acento de alto voltaje', 'titulo'],
+      ['Cuerpo · Inter Tight 400', 'La interfaz desaparece y deja mandar al contenido. Sobre negro verdoso, un texto claro descansa la vista incluso después de un rato largo.', 'cuerpo'],
+      ['Dato · JetBrains Mono', 'dato · etiqueta técnica', 'dato']
+    ],
+    componentes: 'Los ocho componentes que tienen todos los sistemas, con la piel de Halógeno: radios que se cuadran al tocarlos y anillos de luz en vez de sombras. Son los mismos que puedes copiar sueltos en la Biblioteca de elementos.',
+    ejemplo: '../logistica.html',
+    // Halógeno nació como el kit de una app (apps/escenas): su ficha enseña
+    // además las piezas de producción de halogen.css, que se cargan tal cual.
+    css: '../../apps/escenas/halogen.css',
+    estilo: "/* Puente entre los tokens del kit y la estructura compartida de las fichas. */\n  /* Al reves que antes: ahora el kit sigue al tema, no lo impone. Asi los\n     componentes hk- cambian con la paleta que elijas. */\n  :root {\n    --canvas: var(--sd-bg);\n    --surface: var(--sd-surface);\n    --raised: var(--sd-surface-2);\n    --ink: var(--sd-ink);\n    --ink-dim: var(--sd-muted);\n    --halogen: var(--sd-accent);\n    --hairline: var(--sd-line);\n    --font-sans: var(--sd-font);\n    --font-mono: var(--sd-mono);\n  }\n  .sd-titulo {\n    font-weight: 900;\n    letter-spacing: -0.04em;\n    line-height: 0.92;\n  }\n\n  .sd-mono {\n    font-family: var(--font-mono);\n    font-size: 0.78rem;\n    letter-spacing: 0.06em;\n    color: var(--ink-dim);\n  }\n\n  /* El kit pone box-sizing y tipografia globales; aqui solo se recupera el\n     ancho de la ficha, que el kit no contempla porque nacio para una app. */\n  body { line-height: 1.6; }\n  .sd-lienzo { align-items: flex-start; }",
+    produccion: {
+      titulo: 'Las piezas de producción',
+      html: "\n    <h3>Botones</h3>\n    <div class=\"sd-lienzo\">\n      <button class=\"hk-btn hk-btn--primary\" type=\"button\">Aceptar <span class=\"hk-btn__arrow\">&#8594;</span></button>\n      <button class=\"hk-btn\" type=\"button\">Restablecer</button>\n      <button class=\"hk-btn\" type=\"button\" disabled>No disponible</button>\n    </div>\n\n    <h3>Chip y baldosa de icono</h3>\n    <div class=\"sd-lienzo\">\n      <span class=\"hk-chip\">Activo</span>\n      <span class=\"hk-chip hk-chip--mute\">Sin definir</span>\n      <span class=\"hk-tile\" aria-hidden=\"true\">\n        <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M23 7l-7 5 7 5V7Z\"/><rect x=\"1\" y=\"5\" width=\"15\" height=\"14\" rx=\"2\"/></svg>\n      </span>\n      <span class=\"hk-tile hk-tile--soft\" aria-hidden=\"true\">\n        <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/></svg>\n      </span>\n    </div>\n\n    <h3>Casillas</h3>\n    <div class=\"sd-lienzo\" style=\"flex-direction:column;align-items:stretch;gap:0\">\n      <label class=\"hk-check\">\n        <input type=\"checkbox\" checked>\n        <span class=\"hk-check__dot\"></span>\n        <span class=\"hk-check__label\">Mostrar rejilla</span>\n        <span class=\"hk-check__state\">ON</span>\n      </label>\n      <label class=\"hk-check\">\n        <input type=\"checkbox\">\n        <span class=\"hk-check__dot\"></span>\n        <span class=\"hk-check__label\">Sombras suaves</span>\n        <span class=\"hk-check__state\">OFF</span>\n      </label>\n      <label class=\"hk-check\">\n        <input type=\"checkbox\" checked>\n        <span class=\"hk-check__dot\"></span>\n        <span class=\"hk-check__label\">Bloquear proporci\u00f3n</span>\n        <span class=\"hk-check__state\">ON</span>\n      </label>\n    </div>\n\n    <h3>Campo y dato</h3>\n    <div class=\"sd-lienzo\">\n      <span class=\"hk-field\">\n        <input type=\"text\" value=\"Sin t\u00edtulo\" aria-label=\"Nombre del documento\">\n      </span>\n      <span class=\"hk-stat\">\n        <span class=\"hk-stat__value hk-num\">128</span>\n        <span class=\"sd-mono\">elementos</span>\n      </span>\n      <span class=\"hk-stat\">\n        <span class=\"hk-stat__value hk-num\">24 px</span>\n        <span class=\"sd-mono\">ret\u00edcula</span>\n      </span>\n    </div>\n\n    <h3>Tarjeta</h3>\n    <div class=\"sd-lienzo\">\n      <article class=\"hk-card\" style=\"max-width:22rem\">\n        <span class=\"hk-eyebrow\">Ejemplo</span>\n        <h4 style=\"margin:.5rem 0 .35rem;font-weight:700\">Tarjeta de contenido</h4>\n        <p style=\"margin:0 0 1rem;color:var(--ink-dim);font-size:.9rem\">Una l\u00ednea de apoyo en texto secundario, del largo que suele tener de verdad.</p>\n        <button class=\"hk-btn hk-btn--primary hk-btn--block\" type=\"button\">Abrir <span class=\"hk-btn__arrow\">&#8594;</span></button>\n      </article>\n    </div>"
+    }
+  },
+
   terracota: {
     descripcion: 'Terracota: barro cocido sobre crema, superficies planas y una sola acción con relieve de verdad, que se hunde al pulsarla.',
     etiqueta: 'Claro · papel · botón con relieve',
