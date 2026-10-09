@@ -1,0 +1,195 @@
+/* ============================================================
+   KIT COMÚN DE LAS DEMOS — solo estructura
+   La identidad (tipografía de marca, composición, texturas, objeto 3D) la
+   pone cada app. Aquí va lo que se repite: pestañas, hojas, avisos,
+   esqueletos de carga, foco, lienzo 3D y su reserva sin WebGL.
+   Todo sale de los tokens --sd-* de servicios/sistemas/tema.css.
+   ============================================================ */
+
+:root {
+  --k-curva: cubic-bezier(.2, .8, .2, 1);
+  --k-rebote: cubic-bezier(.34, 1.56, .64, 1);
+  --k-seguro-abajo: env(safe-area-inset-bottom, 0px);
+  color-scheme: light dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+img, svg, canvas { display: block; max-width: 100%; }
+[hidden] { display: none !important; }
+
+:focus-visible {
+  outline: 2px solid var(--sd-accent);
+  outline-offset: 2px;
+}
+
+.k-sr {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ---------- lienzo 3D y reserva ---------- */
+.k-3d { position: relative; isolation: isolate; }
+.k-3d > canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  touch-action: pan-y;
+  opacity: 0; transition: opacity .6s var(--k-curva);
+}
+.k-3d.con-3d.is-listo > canvas { opacity: 1; }
+.k-3d > .k-reserva {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  opacity: 1; transition: opacity .5s var(--k-curva);
+  pointer-events: none;
+}
+.k-3d.con-3d.is-listo > .k-reserva { opacity: 0; }
+.k-3d.sin-3d > .k-reserva { opacity: 1; }
+
+/* ---------- barra de pestañas inferior ---------- */
+.k-tabs {
+  position: relative;
+  display: flex;
+  gap: 2px;
+}
+.k-tabs [data-vista] {
+  flex: 1;
+  border: 0;
+  background: none;
+  padding: 8px 4px 6px;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: var(--sd-muted);
+  position: relative;
+  z-index: 1;
+  transition: color .25s ease, transform .2s var(--k-rebote);
+}
+.k-tabs [data-vista]:active { transform: scale(.92); }
+.k-tabs [data-vista][aria-selected="true"] { color: var(--sd-ink); }
+.k-tabs [data-vista] svg { width: 22px; height: 22px; stroke-width: var(--sd-icon-stroke, 2); }
+.k-tabs-marca {
+  position: absolute;
+  left: 0; top: 4px; bottom: 4px;
+  width: var(--w, 0);
+  transform: translateX(var(--x, 0));
+  border-radius: var(--sd-radius-activo, 12px);
+  background: color-mix(in srgb, var(--sd-accent) 16%, transparent);
+  transition: transform .45s var(--k-rebote), width .45s var(--k-rebote);
+}
+
+/* ---------- hoja inferior ---------- */
+.k-hoja {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: rgb(0 0 0 / 0);
+  transition: background .3s ease;
+}
+.k-hoja.is-open { background: rgb(0 0 0 / .42); }
+.k-hoja-panel {
+  width: min(100%, 560px);
+  max-height: 92dvh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--sd-surface);
+  color: var(--sd-ink);
+  border-radius: calc(var(--sd-radius, 16px) + 6px) calc(var(--sd-radius, 16px) + 6px) 0 0;
+  padding: 10px 20px calc(20px + var(--k-seguro-abajo));
+  box-shadow: 0 -20px 60px rgb(0 0 0 / .25);
+  transform: translateY(105%);
+  transition: transform .42s var(--k-curva);
+  outline: none;
+}
+.k-hoja.is-open .k-hoja-panel { transform: none; }
+.k-hoja-asa {
+  width: 100%; height: 22px; display: grid; place-items: center;
+  cursor: grab; touch-action: none; margin: -4px 0 4px;
+}
+.k-hoja-asa::before {
+  content: ""; width: 40px; height: 5px; border-radius: 3px;
+  background: color-mix(in srgb, var(--sd-ink) 22%, transparent);
+}
+
+/* ---------- avisos ---------- */
+.k-avisos {
+  position: fixed; left: 50%; bottom: calc(86px + var(--k-seguro-abajo));
+  transform: translateX(-50%);
+  z-index: 80; display: grid; gap: 8px; justify-items: center;
+  pointer-events: none; width: min(92vw, 420px);
+}
+.k-aviso {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 999px;
+  background: var(--sd-ink); color: var(--sd-bg);
+  font-size: 14px; font-weight: 600;
+  box-shadow: 0 10px 30px rgb(0 0 0 / .25);
+  opacity: 0; transform: translateY(14px) scale(.96);
+  transition: opacity .3s ease, transform .4s var(--k-rebote);
+}
+.k-aviso.is-in { opacity: 1; transform: none; }
+.k-aviso--ok .k-aviso-ico { color: var(--sd-ok); }
+.k-aviso--error { background: var(--sd-danger); color: #fff; }
+
+/* ---------- esqueleto de carga ---------- */
+.k-esqueleto {
+  background: linear-gradient(100deg,
+    color-mix(in srgb, var(--sd-ink) 7%, transparent) 30%,
+    color-mix(in srgb, var(--sd-ink) 14%, transparent) 50%,
+    color-mix(in srgb, var(--sd-ink) 7%, transparent) 70%);
+  background-size: 300% 100%;
+  animation: k-brillo 1.3s linear infinite;
+  border-radius: var(--sd-radius, 12px);
+  color: transparent !important;
+}
+@keyframes k-brillo { to { background-position: -150% 0; } }
+
+/* ---------- onda ---------- */
+[data-onda] { position: relative; overflow: hidden; }
+.k-onda {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  background: currentColor; opacity: .18; transform: scale(0);
+  animation: k-onda .55s var(--k-curva) forwards;
+}
+@keyframes k-onda { to { transform: scale(1); opacity: 0; } }
+
+/* ---------- confeti ---------- */
+.k-confeti { position: fixed; inset: 0; pointer-events: none; z-index: 90; }
+.k-confeti i { position: absolute; width: 8px; height: 12px; border-radius: 2px; }
+
+/* ---------- movimiento reducido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- botón del selector de sistema ----------
+   De serie va abajo a la derecha y taparía la barra de pestañas. En las
+   demos sube a la esquina de arriba y se queda en un círculo con la rueda
+   de color; el nombre sigue ahí para lectores de pantalla. Cada app deja
+   ese hueco en su cabecera (padding-right ≈ 52px). */
+html body .sdx-abrir {
+  top: calc(var(--k-sdx-top, 12px) + env(safe-area-inset-top, 0px));
+  bottom: auto;
+  right: var(--k-sdx-right, 12px);
+  width: 34px; height: 34px; padding: 0; gap: 0;
+  justify-content: center;
+  font-size: 0;
+  box-shadow: 0 4px 14px rgb(0 0 0 / .25);
+}
+html body .sdx-abrir i { width: 16px; height: 16px; }

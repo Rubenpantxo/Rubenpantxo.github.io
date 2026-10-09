@@ -1,430 +1,2415 @@
 <!DOCTYPE html>
-<html lang="es" data-paleta="tinta-fucsia" data-tipo="caja-alta" data-elem="recto">
+<html lang="es" data-paleta="tinta-fucsia" data-tipo="anton-archivo" data-elem="recto">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ALBA — Demo tienda de moda online</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ALBA — Demo lookbook, probador y bolsa con la prenda en 3D</title>
+<meta name="description" content="Demo de tienda de moda: la prenda cuelga en 3D y se mueve de verdad. Lookbook vertical, ficha con stock por talla, probador que recomienda tu talla, bolsa con pago exprés y trastienda con mapa de calor de stock.">
 <link rel="stylesheet" href="sistemas/tema.css">
+<link rel="stylesheet" href="kit/app.css">
 <style>
-    :root {
-        --ink: var(--sd-ink);
-        --paper: var(--sd-bg);
-        --card: var(--sd-surface);
-        --muted: var(--sd-muted);
-        --accent: var(--sd-accent);
-        --accent-text: var(--sd-accent-text);
-        --line: var(--sd-line);
-        --radius: var(--sd-radius);
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        background: var(--paper); color: var(--ink);
-        max-width: 480px; margin: 0 auto; overscroll-behavior: contain;
-        padding-bottom: 40px;
-    }
-    .demo-badge {
-        position: fixed; top: 42px; left: -34px; z-index: 90;
-        background: color-mix(in srgb, var(--sd-ink) 85%, transparent); color: var(--sd-bg); font-size: 10px; font-weight: 700;
-        letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
-    }
+/* ============================================================
+   ALBA — "La prenda"
+   Dirección de arte: revista de moda. Titulares gigantes en caja alta,
+   muchísimo blanco, rejilla asimétrica, numeración de número (Nº 07 ·
+   SS26), pies de foto en versalitas y filetes finos. Sin fotos: la prenda
+   cuelga en 3D de una barra y se mueve.
+   ============================================================ */
+:root {
+  --cab: 56px;
+  --barra: 62px;
+  --g: 18px;
+  --hilo: color-mix(in srgb, var(--sd-ink) 88%, transparent);
+  --hilo-suave: color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  --velo: color-mix(in srgb, var(--sd-ink) 5%, transparent);
+}
+body { min-height: 100dvh; font-size: 15px; line-height: 1.45; }
+html.snap { scroll-snap-type: y mandatory; scroll-padding-top: var(--cab); }
 
-    /* ---------- HEADER ---------- */
-    .top {
-        position: sticky; top: 0; z-index: 30;
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 40px 16px 12px; background: color-mix(in srgb, var(--sd-bg) 92%, transparent); backdrop-filter: blur(10px);
-        border-bottom: 1px solid var(--line);
-    }
-    .logo { font-size: 22px; font-weight: 900; letter-spacing: .35em; }
-    .top-actions { display: flex; gap: 14px; align-items: center; }
-    .icon-btn { position: relative; border: none; background: none; font-size: 20px; cursor: pointer; }
-    .badge {
-        position: absolute; top: -6px; right: -8px; min-width: 16px; height: 16px;
-        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-size: 10px; font-weight: 800;
-        border-radius: 999px; display: grid; place-items: center; padding: 0 4px;
-        transform: scale(0); transition: transform .25s cubic-bezier(.2,1.4,.4,1);
-    }
-    .badge.on { transform: scale(1); }
+.disp {
+  font-family: var(--sd-display);
+  font-weight: var(--sd-display-peso);
+  font-style: var(--sd-display-estilo);
+  letter-spacing: var(--sd-display-tracking);
+  text-transform: uppercase;
+  line-height: .86;
+}
+.vers { font-variant-caps: all-small-caps; letter-spacing: .14em; font-weight: 600; font-size: 14px; }
+.num { font-variant-numeric: tabular-nums lining-nums; }
+.apag { color: var(--sd-muted); }
+del { color: var(--sd-muted); font-weight: 400; }
+.rebaja { color: var(--sd-accent-text); font-weight: 700; }
+.sil-caja { display: grid; filter: drop-shadow(0 0 .6px color-mix(in srgb, var(--sd-ink) 55%, transparent)); }
+.sil-caja > .silueta { width: 100%; height: 100%; }
+.silueta { background: var(--c, var(--sd-ink)); -webkit-mask: var(--sil) center / contain no-repeat; mask: var(--sil) center / contain no-repeat; }
 
-    /* ---------- BANNER ---------- */
-    .banner {
-        margin: 14px 16px 0; border-radius: 18px; overflow: hidden; position: relative;
-        background: linear-gradient(120deg, var(--sd-ink) 0%, color-mix(in srgb, var(--sd-ink) 78%, var(--sd-accent)) 55%, color-mix(in srgb, var(--sd-accent-strong) 70%, var(--sd-ink)) 100%);
-        color: var(--sd-bg); padding: 26px 20px;
-    }
-    .banner::after {
-        content: '👗🧥👜'; position: absolute; right: 10px; bottom: 6px; font-size: 44px; opacity: .85;
-    }
-    .banner small { font-size: 11px; letter-spacing: .25em; opacity: .75; }
-    .banner h2 { font-size: 28px; font-weight: 900; letter-spacing: -.02em; margin-top: 4px; }
-    .banner h2 span { color: var(--sd-accent); }
+/* ---------- cabecera: cabecera de revista ---------- */
+.cab {
+  position: sticky; top: 0; z-index: 40;
+  height: var(--cab);
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 58px 0 var(--g);
+  background: var(--sd-bg);
+  border-bottom: 1px solid var(--hilo);
+}
+.marca { border: 0; background: none; padding: 0; color: inherit; font-size: 25px; letter-spacing: .34em; margin-right: auto; line-height: 1; }
+.numero { font-size: 13px; color: var(--sd-muted); white-space: nowrap; }
+.cab-fav { border: 0; background: none; padding: 6px; display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 700; color: var(--sd-ink); }
+.cab-fav svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.cab-fav[data-n]:not([data-n="0"]) svg { fill: var(--sd-accent); stroke: var(--sd-accent); }
 
-    /* ---------- CATEGORÍAS ---------- */
-    .cats { display: flex; gap: 18px; padding: 18px 16px 8px; overflow-x: auto; scrollbar-width: none; }
-    .cats::-webkit-scrollbar { display: none; }
-    .cat {
-        border: none; background: none; cursor: pointer; flex: 0 0 auto;
-        font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-        color: var(--muted); padding-bottom: 6px; border-bottom: 2px solid transparent; transition: all .2s;
-    }
-    .cat.active { color: var(--ink); border-color: var(--ink); }
+/* ---------- composición ---------- */
+.app { padding-bottom: calc(var(--barra) + var(--k-seguro-abajo)); }
+.vista { padding: 0 var(--g); max-width: 680px; margin: 0 auto; }
 
-    /* ---------- GRID PRODUCTOS ---------- */
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 10px 16px; }
-    .prod { cursor: pointer; animation: fade-up .35s ease both; }
-    @keyframes fade-up { from { opacity: 0; transform: translateY(16px); } }
-    .prod-img {
-        position: relative; aspect-ratio: 3/4; border-radius: 14px; overflow: hidden;
-        display: grid; place-items: center; font-size: 56px;
-    }
-    .prod-img .sale {
-        position: absolute; top: 8px; left: 8px; background: var(--sd-accent-solid); color: var(--sd-on-accent);
-        font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
-    }
-    .fav {
-        position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border-radius: 50%;
-        border: none; cursor: pointer; background: color-mix(in srgb, var(--sd-surface) 88%, transparent); font-size: 15px;
-        display: grid; place-items: center; transition: transform .2s;
-    }
-    .fav:active { transform: scale(1.25); }
-    .prod h3 { font-size: 13px; font-weight: 600; margin-top: 8px; }
-    .price { font-size: 13px; font-weight: 800; margin-top: 2px; }
-    .price del { color: var(--muted); font-weight: 500; margin-left: 6px; }
+/* El escenario: la barra con la prenda colgada */
+.escenario { margin: 0; height: clamp(320px, 54dvh, 560px); overflow: hidden; transition: height .5s var(--k-curva); outline-offset: -4px; }
+.app[data-vista="probador"] .escenario { height: clamp(250px, 36dvh, 380px); }
+.app[data-vista="bolsa"] .escenario,
+.app[data-vista="tienda"] .escenario { height: 0; }
+/* En el lookbook la escena queda fija detrás de las historias */
+.app[data-vista="look"] .escenario {
+  position: fixed; left: 0; right: 0; top: var(--cab); bottom: calc(var(--barra) + var(--k-seguro-abajo));
+  height: auto; z-index: 2; transition: none;
+}
+.escenario .k-reserva { display: grid; place-items: center; }
+.reserva-sil { width: min(46%, 220px); height: 70%; }
+.escenario.con-3d:not(.is-listo) .reserva-sil { opacity: .25; }
+.esc-ctrl { position: absolute; right: 10px; bottom: 10px; z-index: 3; display: flex; gap: 6px; }
+.app[data-vista="look"] .esc-ctrl { display: none; }
+.esc-ctrl button {
+  border: 1px solid var(--hilo); background: var(--sd-bg); color: var(--sd-ink);
+  border-radius: var(--sd-radius-btn); padding: 6px 10px; display: inline-flex; gap: 6px; align-items: center;
+  font: 600 11px var(--sd-font); letter-spacing: .12em; text-transform: uppercase;
+}
+.esc-ctrl svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.esc-pie { position: absolute; left: var(--g); bottom: 10px; z-index: 3; font-size: 11.5px; line-height: 1.25; color: var(--sd-muted); pointer-events: none; margin: 0; }
+.app[data-vista="look"] .esc-pie { display: none; }
 
-    /* ---------- FICHA PRODUCTO ---------- */
-    .pdp {
-        position: fixed; inset: 0; z-index: 50; background: var(--paper);
-        max-width: 480px; margin: 0 auto; overflow-y: auto;
-        transform: translateY(100%); transition: transform .4s cubic-bezier(.2,.9,.25,1); padding-bottom: 110px;
-    }
-    .pdp.show { transform: translateY(0); }
-    .pdp-img { position: relative; aspect-ratio: 1/1.05; display: grid; place-items: center; font-size: 120px; }
-    .pdp-close {
-        position: absolute; top: 44px; left: 14px; width: 38px; height: 38px; border-radius: 50%;
-        border: none; background: color-mix(in srgb, var(--sd-surface) 90%, transparent); font-size: 17px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.12);
-    }
-    .pdp-body { padding: 18px 18px 0; }
-    .pdp-body h2 { font-size: 20px; font-weight: 800; }
-    .pdp-price { font-size: 18px; font-weight: 900; margin-top: 4px; }
-    .pdp-price del { color: var(--muted); font-weight: 500; font-size: 14px; margin-left: 8px; }
-    .pdp-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 10px; }
-    .opt-label { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
-    .sizes { display: flex; gap: 8px; flex-wrap: wrap; }
-    .size {
-        min-width: 44px; padding: 10px 0; text-align: center; border-radius: 10px;
-        border: 1.5px solid var(--line); background: var(--card); font-size: 13px; font-weight: 700; cursor: pointer; transition: all .15s;
-    }
-    .size.active { background: var(--ink); color: var(--sd-bg); border-color: var(--ink); }
-    .colors { display: flex; gap: 10px; }
-    .color { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid var(--card); outline: 1.5px solid var(--line); transition: outline-color .15s; }
-    .color.active { outline: 2.5px solid var(--ink); }
-    .pdp-cta {
-        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-        width: 100%; max-width: 480px; padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
-        background: color-mix(in srgb, var(--sd-bg) 95%, transparent); backdrop-filter: blur(10px); border-top: 1px solid var(--line);
-        display: none; z-index: 55;
-    }
-    .pdp.show ~ .pdp-cta { display: block; }
-    .btn-dark {
-        width: 100%; border: none; cursor: pointer; background: var(--ink); color: var(--sd-bg);
-        font-size: 14px; font-weight: 800; letter-spacing: .05em; padding: 15px; border-radius: 14px;
-        transition: transform .15s;
-    }
-    .btn-dark:active { transform: scale(.97); }
+/* ---------- botones ---------- */
+.btn {
+  border: 1px solid var(--sd-ink); border-radius: var(--sd-radius-btn);
+  background: var(--sd-ink); color: var(--sd-bg);
+  padding: 12px 18px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  font: 700 12.5px var(--sd-font); letter-spacing: .16em; text-transform: uppercase;
+  transition: transform .2s var(--k-rebote), background .2s, color .2s;
+}
+.btn:active { transform: scale(.96); }
+.btn:disabled { opacity: .4; }
+.btn--linea { background: transparent; color: var(--sd-ink); }
+.btn--ancho { width: 100%; padding: 16px; }
+.btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.enlace {
+  border: 0; background: none; padding: 0; color: var(--sd-ink);
+  font: 600 12px var(--sd-font); letter-spacing: .12em; text-transform: uppercase;
+  text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px;
+}
+.chip {
+  border: 1px solid var(--hilo); background: var(--sd-bg); color: var(--sd-ink);
+  border-radius: var(--sd-radius-btn); padding: 6px 10px;
+  font: 600 11.5px var(--sd-font); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap;
+  transition: background .2s, color .2s;
+}
+.chip[aria-pressed="true"] { background: var(--sd-ink); color: var(--sd-bg); }
 
-    /* ---------- CESTA ---------- */
-    .cart-backdrop {
-        position: fixed; inset: 0; background: rgba(17,17,20,.4); z-index: 60;
-        opacity: 0; pointer-events: none; transition: opacity .3s;
-    }
-    .cart-backdrop.show { opacity: 1; pointer-events: auto; }
-    .cart {
-        position: fixed; top: 0; right: 0; height: 100dvh; width: min(86%, 380px); z-index: 61;
-        background: var(--card); box-shadow: -10px 0 40px rgba(0,0,0,.15);
-        transform: translateX(105%); transition: transform .38s cubic-bezier(.2,.9,.25,1);
-        display: flex; flex-direction: column;
-    }
-    .cart.show { transform: translateX(0); }
-    .cart header { padding: 46px 18px 14px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
-    .cart header h2 { font-size: 16px; font-weight: 900; letter-spacing: .08em; }
-    .cart header button { border: none; background: none; font-size: 18px; cursor: pointer; }
-    .cart-items { flex: 1; overflow-y: auto; padding: 8px 18px; }
-    .cart-row { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--line); }
-    .cart-thumb { width: 54px; height: 64px; border-radius: 10px; display: grid; place-items: center; font-size: 28px; flex: 0 0 auto; }
-    .cart-row .inf { flex: 1; min-width: 0; }
-    .cart-row .inf h4 { font-size: 13px; font-weight: 700; }
-    .cart-row .inf p { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .cart-row .inf strong { font-size: 13px; }
-    .cart-row .rm { border: none; background: none; color: var(--muted); font-size: 15px; cursor: pointer; }
-    .cart-foot { padding: 14px 18px calc(18px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
-    .cart-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 900; margin-bottom: 12px; }
-    .cart-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 40px 10px; }
+/* ---------- el corazón de favoritos ---------- */
+.corazon { width: 42px; height: 42px; border: 0; background: none; padding: 0; flex: none; display: grid; place-items: center; color: var(--sd-ink); border-radius: 50%; }
+.corazon svg { width: 25px; height: 25px; overflow: visible; }
+.corazon .c-borde { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: round; }
+.corazon .c-relleno { fill: var(--sd-accent); transform-box: fill-box; transform-origin: 50% 92%; transform: scale(0); transition: transform .3s var(--k-curva); }
+.corazon .chispas { fill: none; stroke: var(--sd-accent); stroke-width: 1.5; stroke-linecap: round; opacity: 0; transform-box: view-box; transform-origin: 12px 12.5px; }
+.corazon[aria-pressed="true"] { color: var(--sd-accent); }
+.corazon[aria-pressed="true"] .c-relleno { transform: scale(1); }
+.corazon.late .c-relleno { animation: latir .6s var(--k-rebote); }
+.corazon.late .chispas { animation: chispas .55s ease-out; }
+.corazon.late .c-borde { animation: borde .5s ease-out; }
+.corazon.desinfla svg { animation: desinflar .45s var(--k-curva); }
+@keyframes latir { 0% { transform: scale(0); } 45% { transform: scale(1.4); } 70% { transform: scale(.88); } 100% { transform: scale(1); } }
+@keyframes chispas { 0% { opacity: 1; transform: scale(.55); } 100% { opacity: 0; transform: scale(1.35); } }
+@keyframes borde { 0% { stroke-width: 3; } 100% { stroke-width: 1.4; } }
+@keyframes desinflar { 35% { transform: scale(1.12, .7); } 65% { transform: scale(.94, 1.06); } }
 
-    /* ---------- CONFIRMACIÓN ---------- */
-    .done {
-        position: fixed; inset: 0; z-index: 70; display: none; place-items: center; text-align: center;
-        background: var(--ink); color: var(--sd-bg); padding: 24px;
-    }
-    .done.show { display: grid; }
-    .done .ring {
-        width: 86px; height: 86px; border-radius: 50%; margin: 0 auto 18px;
-        border: 3px solid var(--accent); display: grid; place-items: center; font-size: 38px;
-        animation: pop .5s cubic-bezier(.2,1.4,.4,1) both;
-    }
-    @keyframes pop { from { transform: scale(0); } }
-    .done h2 { font-size: 24px; font-weight: 900; }
-    .done p { font-size: 13px; opacity: .8; margin-top: 8px; line-height: 1.6; }
-    .done button {
-        margin-top: 24px; background: var(--card); color: var(--ink); border: none; cursor: pointer;
-        font-weight: 800; font-size: 13px; letter-spacing: .05em; padding: 13px 28px; border-radius: 999px;
-    }
-    .toast {
-        position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(16px);
-        background: var(--ink); color: var(--sd-bg); font-size: 13px; font-weight: 600;
-        padding: 9px 18px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 80;
-        pointer-events: none; white-space: nowrap;
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* ============================================================
+   LOOKBOOK — historias verticales
+   ============================================================ */
+.look { padding: 0; max-width: none; }
+.historia {
+  position: relative;
+  min-height: calc(100dvh - var(--cab) - var(--barra) - var(--k-seguro-abajo));
+  scroll-snap-align: start; scroll-snap-stop: always;
+  padding: 12px var(--g) 14px;
+  display: flex; flex-direction: column;
+}
+.h-cab {
+  position: relative; z-index: 3;
+  display: flex; justify-content: space-between; gap: 10px;
+  font-size: 13px; padding-bottom: 6px; border-bottom: 1px solid var(--hilo);
+}
+.h-nombre { position: absolute; z-index: 1; left: var(--g); right: var(--g); top: 15%; margin: 0; font-size: 30vw; pointer-events: none; color: var(--sd-ink); }
+.h-nombre span { display: block; width: max-content; white-space: nowrap; }
+.h-nombre span:nth-child(2) { margin-left: auto; }
+.h-nombre span:nth-child(3) { margin-left: 12%; }
+.h-nombre.contorno span:nth-child(2) { color: transparent; -webkit-text-stroke: 1.5px var(--sd-ink); }
+.h-lomo {
+  position: absolute; z-index: 3; right: 4px; top: 50%;
+  writing-mode: vertical-rl; transform: translateY(-50%) rotate(180deg);
+  font-size: 11px; color: var(--sd-muted); white-space: nowrap;
+}
+.h-pie {
+  position: relative; z-index: 3; margin-top: auto;
+  display: grid; grid-template-columns: auto 1fr; gap: 0 14px; align-items: end;
+  border-top: 1px solid var(--hilo); padding-top: 10px;
+}
+.h-num { font-size: 64px; line-height: .78; }
+.h-texto p { margin: 0; }
+.h-cat { font-size: 13px; color: var(--sd-muted); }
+.h-precio { font-size: 17px; font-weight: 700; margin: 2px 0 8px !important; }
+.h-precio del { font-size: 14px; margin-left: 6px; }
+.h-precio .rebaja { font-size: 13px; margin-left: 6px; }
+.h-acc { display: flex; gap: 8px; align-items: center; }
+.h-acc .btn { flex: 1; }
+
+/* Portada */
+.portada .masthead { position: relative; z-index: 1; margin: 6px 0 0; font-size: 40vw; text-align: center; letter-spacing: .02em; pointer-events: none; }
+.portada .masthead span { display: block; width: max-content; margin: 0 auto; }
+.portada-lineas {
+  position: relative; z-index: 3; margin-top: auto; list-style: none; padding: 0;
+  display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px 14px; align-items: end;
+}
+.portada-lineas li { border-top: 1px solid var(--hilo); padding-top: 6px; font-size: 13px; line-height: 1.25; }
+.portada-lineas b { display: block; font-family: var(--sd-display); font-weight: var(--sd-display-peso); text-transform: uppercase; font-size: 28px; line-height: .9; letter-spacing: var(--sd-display-tracking); }
+.portada-lineas li:first-child { grid-row: span 2; }
+.portada-lineas li:not(:first-child) b { font-size: 25px; white-space: nowrap; }
+.portada-lineas li:first-child b { font-size: 52px; color: var(--sd-accent-text); }
+.filtros { position: relative; z-index: 3; display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.desliza { position: relative; z-index: 3; margin: 10px 0 0; font-size: 12px; color: var(--sd-muted); display: flex; align-items: center; gap: 8px; }
+.desliza i { width: 1px; height: 18px; background: var(--sd-ink); transform-origin: top; animation: hilo-baja 1.8s ease-in-out infinite; }
+@keyframes hilo-baja { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+/* Sumario e historia vacía: tapan la escena */
+.sumario, .historia-vacia { background: var(--sd-bg); z-index: 3; }
+.sumario h2 { font-size: 22vw; margin: 18px 0 10px; }
+.sumario ol { list-style: none; padding: 0; margin: 0; }
+.sumario li button {
+  width: 100%; border: 0; background: none; color: inherit; padding: 9px 0;
+  display: flex; align-items: baseline; gap: 10px; text-align: left;
+  border-bottom: 1px solid var(--hilo-suave);
+}
+.sumario li .disp { font-size: 22px; line-height: 1; }
+.sumario li .guia { flex: 1; border-bottom: 1px dotted var(--hilo-suave); transform: translateY(-4px); min-width: 12px; }
+.sumario li small { font-size: 12px; color: var(--sd-muted); }
+.historia-vacia { justify-content: center; text-align: center; }
+.vacio-cifra { font-size: 46vw; line-height: .8; color: transparent; -webkit-text-stroke: 1.5px var(--sd-ink); }
+
+/* ============================================================
+   FICHA
+   ============================================================ */
+.paginas { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--hilo); font-size: 13px; }
+.paginas button { border: 0; background: none; padding: 6px 2px; color: var(--sd-ink); display: inline-flex; gap: 6px; align-items: center; font: 600 11.5px var(--sd-font); letter-spacing: .14em; text-transform: uppercase; }
+.paginas svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.p-cab { display: grid; grid-template-columns: auto 1fr; gap: 0 12px; margin: 16px 0 4px; align-items: start; }
+.p-num { font-size: 76px; color: transparent; -webkit-text-stroke: 1.2px var(--sd-ink); }
+.p-kicker { margin: 4px 0 2px; font-size: 13px; color: var(--sd-muted); }
+.p-nombre { margin: 0; font-size: 44px; }
+.p-nombre span { display: block; width: max-content; white-space: nowrap; }
+.p-linea { display: flex; align-items: center; gap: 10px; margin: 8px 0 0; padding: 6px 0; border-top: 1px solid var(--hilo-suave); border-bottom: 1px solid var(--hilo-suave); }
+.p-precio { font-size: 22px; font-weight: 700; margin-right: auto; }
+.p-precio del { font-size: 15px; margin-left: 8px; }
+.p-precio .rebaja { font-size: 14px; margin-left: 8px; }
+.p-desc { color: var(--sd-muted); margin: 12px 0 0; font-size: 14.5px; max-width: 46ch; }
+.etq { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 0 10px; font-size: 13px; }
+.etq b { font-weight: 600; }
+
+.colores { display: flex; gap: 14px; flex-wrap: wrap; }
+.muestra {
+  width: 44px; height: 44px; border: 0; padding: 0; position: relative;
+  background: var(--c); border-radius: var(--sd-radius);
+  box-shadow: inset 0 0 0 1px var(--hilo-suave);
+  transition: transform .25s var(--k-rebote);
+}
+.muestra::before { /* la trama del tejido en la muestra */
+  content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: .22; mix-blend-mode: soft-light;
+  background: repeating-linear-gradient(45deg, #fff 0 1px, transparent 1px 3px);
+}
+.muestra::after { /* pespunte que rodea la muestra elegida */
+  content: ""; position: absolute; inset: -6px; border: 1px dashed var(--sd-ink);
+  border-radius: calc(var(--sd-radius) + 5px);
+  opacity: 0; transform: scale(.6) rotate(-25deg); transition: transform .45s var(--k-rebote), opacity .2s;
+}
+.muestra[aria-pressed="true"]::after { opacity: 1; transform: none; }
+.muestra:active { transform: scale(.9); }
+
+.tallas { display: grid; grid-template-columns: repeat(var(--n, 5), 1fr); gap: 0; border: 1px solid var(--hilo); }
+.talla {
+  position: relative; border: 0; border-left: 1px solid var(--hilo-suave); background: none; color: var(--sd-ink);
+  padding: 12px 2px 10px; display: grid; gap: 2px; justify-items: center; min-height: 62px; overflow: hidden;
+  transition: background .2s, color .2s;
+}
+.talla:first-child { border-left: 0; }
+.talla b { font-size: 17px; font-weight: 700; }
+.talla small { font-size: 10.5px; color: var(--sd-accent-text); font-weight: 600; letter-spacing: .02em; white-space: nowrap; }
+.talla[aria-pressed="true"] { background: var(--sd-ink); color: var(--sd-bg); }
+.talla[aria-pressed="true"] small { color: inherit; opacity: .8; }
+.talla.agotada b { color: var(--sd-muted); }
+.talla.agotada small { color: var(--sd-muted); }
+.talla.agotada::after { /* el hilo que tacha la talla agotada */
+  content: ""; position: absolute; left: 14%; right: 14%; top: 50%; height: 1px; background: var(--sd-muted);
+  transform: rotate(-24deg);
+}
+.talla.es-tuya::before {
+  content: "tu talla"; position: absolute; top: 2px; left: 0; right: 0; text-align: center;
+  font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--sd-muted);
+}
+.talla[aria-pressed="true"].es-tuya::before { color: inherit; opacity: .7; }
+.tallas.sacude { animation: sacudir .42s; border-color: var(--sd-danger); }
+@keyframes sacudir { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.error { color: var(--sd-danger); font-size: 13px; font-weight: 600; margin: 8px 0 0; display: flex; gap: 6px; align-items: center; }
+.error svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; flex: none; }
+
+.comprar {
+  position: sticky; bottom: calc(var(--barra) + var(--k-seguro-abajo)); z-index: 5;
+  margin: 14px calc(var(--g) * -1) 0; padding: 14px var(--g) 10px; display: flex; gap: 8px;
+  background: linear-gradient(transparent, var(--sd-bg) 22%);
+}
+.comprar .btn { flex: 1; padding: 16px 12px; }
+.comprar .corazon { background: var(--sd-bg); border: 1px solid var(--hilo); border-radius: var(--sd-radius-btn); width: 54px; height: auto; }
+
+/* Composición y cuidados: la etiqueta cosida */
+.plegable { border-top: 1px solid var(--hilo); margin-top: 26px; }
+.plegable + .plegable { margin-top: 0; }
+.plegable summary {
+  list-style: none; cursor: pointer; padding: 14px 0; display: flex; justify-content: space-between; align-items: center;
+  font: 600 12px var(--sd-font); letter-spacing: .16em; text-transform: uppercase;
+}
+.plegable summary::-webkit-details-marker { display: none; }
+.plegable summary i { width: 14px; height: 14px; position: relative; }
+.plegable summary i::before, .plegable summary i::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; background: currentColor;
+  transition: transform .35s var(--k-rebote);
+}
+.plegable summary i::after { transform: rotate(90deg); }
+.plegable[open] summary i::after { transform: rotate(0); }
+.etiqueta {
+  position: relative; margin: 0 auto 18px; max-width: 300px; padding: 16px 18px 14px;
+  background: var(--sd-surface); border: 1px solid var(--hilo-suave);
+  transform-origin: top center;
+}
+.etiqueta::before { /* costura de la etiqueta */
+  content: ""; position: absolute; inset: 5px; border: 1px dashed var(--hilo-suave); pointer-events: none;
+}
+.plegable[open] .etiqueta { animation: etiqueta .55s var(--k-rebote); }
+@keyframes etiqueta { from { transform: perspective(500px) rotateX(-85deg); opacity: 0; } }
+.etiqueta h4 { margin: 0 0 4px; font: 700 10px var(--sd-font); letter-spacing: .2em; text-transform: uppercase; text-align: center; }
+.etiqueta p { margin: 0 0 10px; text-align: center; font-size: 13.5px; }
+.cuidados { display: flex; justify-content: center; gap: 12px; list-style: none; padding: 8px 0 0; margin: 0; border-top: 1px solid var(--hilo-suave); }
+.cuidados svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+.cuidados li { display: grid; justify-items: center; gap: 2px; font-size: 9.5px; color: var(--sd-muted); text-align: center; max-width: 52px; line-height: 1.15; }
+.plegable p.texto { margin: 0 0 16px; color: var(--sd-muted); font-size: 14px; }
+
+/* Completa el look */
+.completa h3 { font-size: 34px; margin: 30px 0 10px; }
+.completa h3 em { font-style: normal; color: transparent; -webkit-text-stroke: 1px var(--sd-ink); }
+.carril { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--g); scrollbar-width: none; margin: 0 calc(var(--g) * -1); padding: 0 var(--g) 6px; }
+.carril::-webkit-scrollbar { display: none; }
+.pieza { flex: none; width: 150px; scroll-snap-align: start; position: relative; }
+.pieza > button:first-child { width: 100%; border: 0; background: none; color: inherit; padding: 0; text-align: left; display: grid; gap: 4px; }
+.pieza figure { margin: 0; aspect-ratio: 3 / 4; background: var(--velo); display: grid; place-items: center; position: relative; }
+.pieza figure .sil-caja { width: 66%; height: 78%; }
+.pieza figure span { position: absolute; left: 8px; top: 6px; font-size: 11px; color: var(--sd-muted); }
+.pieza b { font-size: 13px; font-weight: 600; line-height: 1.2; }
+.pieza .num { font-size: 13px; color: var(--sd-muted); }
+.pieza .corazon { position: absolute; right: 0; top: 0; width: 38px; height: 38px; }
+
+/* ============================================================
+   PROBADOR
+   ============================================================ */
+.titular { font-size: 58px; margin: 18px 0 2px; }
+.titular em { font-style: normal; color: transparent; -webkit-text-stroke: 1.2px var(--sd-ink); }
+.subt { margin: 6px 0 4px; color: var(--sd-muted); font-size: 14px; }
+.fila-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 12px calc(var(--g) * -1) 0; padding: 0 var(--g) 4px; }
+.fila-chips::-webkit-scrollbar { display: none; }
+.medida { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; margin: 16px 0 0; }
+.medida label { font-size: 13px; }
+.medida .valor { display: inline-flex; align-items: baseline; gap: 4px; }
+.medida .valor input {
+  width: 66px; border: 0; border-bottom: 1px solid var(--hilo); background: none; color: var(--sd-ink);
+  font: 400 28px var(--sd-display); text-align: right; padding: 0 2px; letter-spacing: var(--sd-display-tracking);
+  -moz-appearance: textfield;
+}
+.medida .valor input::-webkit-inner-spin-button { display: none; }
+.medida .valor input[aria-invalid="true"] { border-color: var(--sd-danger); color: var(--sd-danger); }
+.medida .valor small { font-size: 12px; color: var(--sd-muted); }
+/* la regla: una cinta métrica */
+.regla { grid-column: 1 / -1; -webkit-appearance: none; appearance: none; width: 100%; height: 30px; background: none; margin: 0; }
+.regla::-webkit-slider-runnable-track {
+  height: 22px;
+  background:
+    repeating-linear-gradient(90deg, var(--sd-ink) 0 1px, transparent 1px 10%) 0 0 / 100% 12px no-repeat,
+    repeating-linear-gradient(90deg, var(--hilo-suave) 0 1px, transparent 1px 2%) 0 0 / 100% 7px no-repeat,
+    linear-gradient(var(--sd-ink), var(--sd-ink)) 0 0 / 100% 1px no-repeat;
+}
+.regla::-moz-range-track {
+  height: 22px;
+  background:
+    repeating-linear-gradient(90deg, var(--sd-ink) 0 1px, transparent 1px 10%) 0 0 / 100% 12px no-repeat,
+    linear-gradient(var(--sd-ink), var(--sd-ink)) 0 0 / 100% 1px no-repeat;
+}
+.regla::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 26px; margin-top: -2px; background: var(--sd-accent-solid);
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);
+}
+.regla::-moz-range-thumb { width: 14px; height: 26px; border: 0; border-radius: 0; background: var(--sd-accent-solid); }
+.segm { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--hilo); margin-top: 8px; }
+.segm button {
+  border: 0; border-left: 1px solid var(--hilo-suave); background: none; color: var(--sd-ink); padding: 11px 4px;
+  font: 600 11.5px var(--sd-font); letter-spacing: .12em; text-transform: uppercase; transition: background .2s, color .2s;
+}
+.segm button:first-child { border-left: 0; }
+.segm button[aria-pressed="true"] { background: var(--sd-ink); color: var(--sd-bg); }
+.segm--2 { grid-template-columns: 1fr 1fr; }
+
+.veredicto {
+  display: grid; grid-template-columns: auto 1fr; gap: 0 16px; align-items: end;
+  margin: 24px 0 6px; padding: 12px 0; border-top: 1px solid var(--hilo); border-bottom: 1px solid var(--hilo);
+}
+.veredicto .grande { font-size: 92px; line-height: .78; min-width: 1.2ch; }
+.veredicto .grande.sella { animation: sellar .5s var(--k-rebote); }
+@keyframes sellar { 0% { transform: scale(1.6) rotate(-6deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+.veredicto p { margin: 0; font-size: 14px; }
+.veredicto p.vers { font-size: 13px; color: var(--sd-muted); }
+.zonas { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 16px; }
+.zona-cab { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+.zona-cab b { font-weight: 700; }
+.pista-ajuste {
+  position: relative; height: 26px;
+  background:
+    repeating-linear-gradient(90deg, var(--hilo-suave) 0 1px, transparent 1px 3.846%) 0 100% / 100% 8px no-repeat,
+    linear-gradient(var(--hilo), var(--hilo)) 0 100% / 100% 1px no-repeat;
+}
+.pista-ajuste .ideal {
+  position: absolute; bottom: 0; height: 14px; left: var(--a); width: var(--w);
+  background: color-mix(in srgb, var(--sd-accent) 22%, transparent);
+  border-left: 1px solid var(--sd-accent); border-right: 1px solid var(--sd-accent);
+  transition: left .5s var(--k-curva), width .5s var(--k-curva);
+}
+.pista-ajuste .aguja {
+  position: absolute; bottom: 0; left: var(--x); width: 2px; height: 26px; background: var(--sd-ink); margin-left: -1px;
+  transition: left .7s var(--k-rebote);
+}
+.pista-ajuste .aguja::before { content: ""; position: absolute; top: -4px; left: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--sd-ink); }
+.pista-pie { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--sd-muted); margin-top: 4px; letter-spacing: .06em; text-transform: uppercase; }
+.zonas.cargando .zona-cab b { color: transparent; }
+.zonas.cargando .pista-ajuste > * { opacity: 0; }
+.zonas.cargando .pista-ajuste {
+  background: linear-gradient(100deg, var(--velo) 30%, color-mix(in srgb, var(--sd-ink) 14%, transparent) 50%, var(--velo) 70%) 0 0 / 300% 100%;
+  animation: k-brillo 1.3s linear infinite;
+}
+.tallas-prob { margin-top: 18px; }
+.prob-acc { display: flex; gap: 8px; margin: 16px 0 0; }
+.prob-acc .btn { flex: 1; }
+.prob-error { border: 1px solid var(--sd-danger); padding: 10px 12px; margin-top: 14px; }
+
+/* ============================================================
+   BOLSA
+   ============================================================ */
+.lineas { list-style: none; padding: 0; margin: 10px 0 0; }
+.linea {
+  display: grid; grid-template-columns: 70px 1fr auto; gap: 4px 14px; padding: 14px 0;
+  border-bottom: 1px solid var(--hilo-suave); position: relative; align-items: start;
+}
+.linea figure { grid-row: span 2; margin: 0; width: 70px; aspect-ratio: 3 / 4; background: var(--velo); display: grid; place-items: center; }
+.linea figure .sil-caja { width: 70%; height: 80%; }
+.linea h4 { margin: 0; font-size: 20px; line-height: 1; }
+.linea .det { font-size: 12.5px; color: var(--sd-muted); margin: 4px 0 0; }
+.linea .importe { font-weight: 700; text-align: right; }
+.linea .acc { grid-column: 2 / -1; display: flex; align-items: center; gap: 14px; }
+.paso { display: inline-flex; align-items: center; border: 1px solid var(--hilo); }
+.paso button { width: 34px; height: 34px; border: 0; background: none; color: var(--sd-ink); font-size: 18px; line-height: 1; padding: 0; }
+.paso button:disabled { opacity: .3; }
+.paso output { min-width: 26px; text-align: center; font-weight: 700; }
+.linea.quitando::after { /* el hilo que la tacha antes de irse */
+  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--sd-ink);
+  transform-origin: left; animation: tachar .3s ease-out forwards;
+}
+@keyframes tachar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.vacio { text-align: center; padding: 20px 0 30px; }
+.vacio .cifra { font-size: 170px; line-height: .8; color: transparent; -webkit-text-stroke: 1.2px var(--sd-ink); display: block; }
+.vacio p { margin: 10px 0 18px; color: var(--sd-muted); }
+.bloque { margin-top: 24px; }
+.tiendas { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 0; border-top: 1px solid var(--hilo-suave); }
+.tiendas button {
+  width: 100%; border: 0; border-bottom: 1px solid var(--hilo-suave); background: none; color: inherit;
+  padding: 11px 0; display: grid; grid-template-columns: 18px 1fr auto; gap: 10px; text-align: left; align-items: center;
+}
+.tiendas button i { width: 14px; height: 14px; border: 1px solid var(--sd-ink); border-radius: 50%; position: relative; }
+.tiendas button[aria-pressed="true"] i::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--sd-ink); }
+.tiendas b { font-weight: 600; }
+.tiendas small { color: var(--sd-muted); font-size: 12px; }
+.totales { margin: 22px 0 14px; padding: 12px 0 0; border-top: 1px solid var(--hilo); display: grid; gap: 6px; }
+.totales div { display: flex; justify-content: space-between; font-size: 14px; }
+.totales .total { font-size: 15px; padding-top: 10px; border-top: 1px solid var(--hilo-suave); align-items: baseline; }
+.totales .total b { font-family: var(--sd-display); font-weight: var(--sd-display-peso); font-size: 38px; line-height: 1; letter-spacing: var(--sd-display-tracking); }
+.totales .ahorro { color: var(--sd-accent-text); }
+.envio-gratis { font-size: 12px; color: var(--sd-muted); margin: 6px 0 0; }
+.envio-gratis i { display: block; height: 2px; background: var(--hilo-suave); margin-top: 6px; position: relative; overflow: hidden; }
+.envio-gratis i::after { content: ""; position: absolute; inset: 0; background: var(--sd-ink); transform-origin: left; transform: scaleX(var(--p, 0)); transition: transform .6s var(--k-curva); }
+
+/* Albarán de confirmación */
+.albaran { margin: 18px 0 0; padding: 22px 20px 18px; border: 1px solid var(--hilo); position: relative; animation: entra-albaran .6s var(--k-curva); }
+@keyframes entra-albaran { from { transform: translateY(30px); opacity: 0; } }
+.albaran h3 { font-size: 70px; margin: 4px 0 6px; }
+.albaran .codigo { font-family: var(--sd-mono); letter-spacing: .14em; font-size: 14px; }
+.albaran ul { list-style: none; padding: 0; margin: 14px 0; border-top: 1px solid var(--hilo-suave); }
+.albaran li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--hilo-suave); font-size: 13.5px; }
+.codigo-barras { height: 46px; margin: 14px 0 6px; background: var(--barras); }
+
+/* Hoja de pago exprés */
+.pago h3 { font-size: 40px; margin: 6px 0 12px; }
+.pago-fila { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--hilo-suave); font-size: 14px; gap: 10px; }
+.pago-fila span:first-child { color: var(--sd-muted); }
+.tarjeta { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; }
+.tarjeta i { width: 30px; height: 20px; border-radius: 3px; background: linear-gradient(135deg, var(--sd-ink), color-mix(in srgb, var(--sd-ink) 60%, var(--sd-accent))); }
+.campo { display: grid; gap: 4px; margin: 12px 0 0; font-size: 12px; color: var(--sd-muted); letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+.campo input {
+  border: 0; border-bottom: 1px solid var(--hilo); background: none; color: var(--sd-ink);
+  font: 400 17px var(--sd-font); padding: 8px 0; letter-spacing: 0; text-transform: none;
+}
+.campo input[aria-invalid="true"] { border-color: var(--sd-danger); }
+.mantener {
+  position: relative; overflow: hidden; width: 100%; margin-top: 18px; padding: 17px;
+  border: 1px solid var(--sd-ink); background: var(--sd-ink); color: var(--sd-bg); border-radius: var(--sd-radius-btn);
+  font: 700 12.5px var(--sd-font); letter-spacing: .16em; text-transform: uppercase; touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.mantener::before { content: ""; position: absolute; inset: 0; background: var(--sd-accent-solid); transform-origin: left; transform: scaleX(var(--p, 0)); }
+.mantener span { position: relative; }
+.procesando { text-align: center; padding: 30px 0 40px; }
+.procesando .aguja-hilo { width: 60px; height: 60px; margin: 0 auto 14px; border: 1px solid var(--hilo-suave); border-top-color: var(--sd-ink); border-radius: 50%; animation: girar 0.9s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   TIENDA (vista del dueño): la trastienda
+   ============================================================ */
+.tienda { max-width: 1100px; }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--hilo); margin-top: 12px; }
+.kpi { padding: 10px 0 12px; border-bottom: 1px solid var(--hilo-suave); }
+.kpi:nth-child(odd) { padding-right: 12px; border-right: 1px solid var(--hilo-suave); }
+.kpi:nth-child(even) { padding-left: 12px; }
+.kpi small { display: block; font-size: 12.5px; color: var(--sd-muted); }
+.kpi b { font-family: var(--sd-display); font-weight: var(--sd-display-peso); font-size: 40px; line-height: 1; letter-spacing: var(--sd-display-tracking); }
+.grafica { width: 100%; height: auto; margin-top: 14px; color: var(--sd-ink); overflow: visible; }
+.grafica .barra-h { fill: color-mix(in srgb, var(--sd-ink) 20%, transparent); transition: height .5s var(--k-curva), y .5s var(--k-curva); }
+.grafica .barra-h.ahora { fill: var(--sd-accent); }
+.grafica text { font: 9px var(--sd-font); fill: var(--sd-muted); }
+.sec-t { font-size: 34px; margin: 30px 0 8px; display: flex; justify-content: space-between; align-items: end; gap: 10px; }
+.sec-t small { font: 600 12px var(--sd-font); letter-spacing: .12em; text-transform: uppercase; color: var(--sd-muted); }
+.calor { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+.calor th { font: 600 11px var(--sd-font); letter-spacing: .1em; text-transform: uppercase; color: var(--sd-muted); padding: 4px 2px; text-align: center; }
+.calor thead th:first-child { width: 30%; }
+.calor th[scope="row"] { text-align: left; color: var(--sd-ink); text-transform: none; letter-spacing: 0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.calor th[scope="row"] i { display: inline-block; width: 9px; height: 9px; background: var(--c); margin-right: 5px; vertical-align: 0; box-shadow: inset 0 0 0 1px var(--hilo-suave); }
+.calor td { padding: 2px; }
+.celda {
+  width: 100%; height: 42px; border: 0; padding: 0; position: relative; overflow: hidden;
+  background: var(--fondo); color: var(--tinta, var(--sd-ink)); font: 700 14px var(--sd-font);
+  font-variant-numeric: tabular-nums;
+}
+.celda[data-nivel="0"] { background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--sd-danger) 30%, transparent) 0 2px, transparent 2px 6px); color: var(--sd-danger); box-shadow: inset 0 0 0 1px var(--sd-danger); }
+.celda[data-nivel="1"] { box-shadow: inset 0 0 0 1px var(--sd-warn); }
+.celda[aria-pressed="true"] { outline: 2px solid var(--sd-accent); outline-offset: -2px; }
+.celda.llena::before { content: ""; position: absolute; inset: 0; background: var(--sd-ok); opacity: .45; transform-origin: bottom; animation: llenar .9s var(--k-curva) forwards; }
+@keyframes llenar { 0% { transform: scaleY(0); } 60% { transform: scaleY(1); opacity: .45; } 100% { transform: scaleY(1); opacity: 0; } }
+.leyenda { display: flex; gap: 14px; font-size: 11px; color: var(--sd-muted); margin-top: 8px; flex-wrap: wrap; }
+.leyenda span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 5px; vertical-align: -1px; background: var(--c); box-shadow: inset 0 0 0 1px var(--b, transparent); }
+.detalle-celda { font-size: 13.5px; margin: 10px 0 0; padding: 8px 0; border-top: 1px solid var(--hilo-suave); display: flex; gap: 10px; align-items: center; justify-content: space-between; min-height: 48px; }
+.avisos { list-style: none; padding: 0; margin: 6px 0 0; }
+.aviso-rep { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--hilo-suave); }
+.aviso-rep b { font-size: 14px; font-weight: 600; }
+.aviso-rep small { font-size: 12.5px; color: var(--sd-muted); grid-column: 1; }
+.aviso-rep .btn { grid-row: span 2; grid-column: 2; padding: 10px 12px; font-size: 11px; }
+.aviso-rep.pedido .btn { background: transparent; color: var(--sd-ok); border-color: var(--sd-ok); }
+.aviso-rep small.urge { color: var(--sd-danger); }
+.ventas { list-style: none; padding: 0; margin: 6px 0 0; font-size: 13.5px; }
+.ventas li { display: grid; grid-template-columns: 46px 1fr auto; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--hilo-suave); }
+.ventas li .apag { font-variant-numeric: tabular-nums; }
+.ventas li.nueva { animation: nueva-venta 1.2s var(--k-curva); }
+@keyframes nueva-venta { from { background: color-mix(in srgb, var(--sd-accent) 18%, transparent); } }
+.etiqueta-canal { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--hilo-suave); padding: 1px 5px; margin-left: 6px; color: var(--sd-muted); }
+
+/* ---------- la prenda doblada que vuela a la bolsa ---------- */
+.vuelo {
+  position: fixed; left: 0; top: 0; z-index: 90; width: 74px; height: 58px; pointer-events: none;
+  background: var(--c);
+  box-shadow: inset 0 -18px 0 rgb(0 0 0 / .14), inset 0 1px 0 rgb(255 255 255 / .25), 0 10px 24px rgb(0 0 0 / .25);
+}
+.vuelo::after { /* la cinta de papel de seda con la marca */
+  content: "ALBA"; position: absolute; left: -2px; right: -2px; top: 40%; height: 13px;
+  background: var(--sd-bg); color: var(--sd-ink); font: 700 8px/13px var(--sd-font); letter-spacing: .3em; text-align: center;
+}
+
+/* ---------- pestañas ---------- */
+.tabs-pie {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  padding: 0 6px var(--k-seguro-abajo); background: var(--sd-bg); border-top: 1px solid var(--hilo);
+}
+.tabs-pie .k-tabs { max-width: 620px; margin: 0 auto; height: var(--barra); }
+.tabs-pie [data-vista] { font: 600 10.5px var(--sd-font); letter-spacing: .12em; text-transform: uppercase; color: var(--sd-muted); padding-top: 10px; }
+.tabs-pie [data-vista] svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.4; }
+.tabs-pie .k-tabs-marca { top: 0; bottom: auto; height: 2px; border-radius: 0; background: var(--sd-ink); }
+.insignia {
+  position: absolute; top: 5px; left: calc(50% + 6px); min-width: 17px; height: 17px; padding: 0 4px;
+  background: var(--sd-accent-solid); color: var(--sd-on-accent); font: 700 10px/17px var(--sd-font); letter-spacing: 0; text-align: center;
+  border-radius: 9px;
+}
+.insignia:empty { display: none; }
+.traga svg { animation: tragar .55s var(--k-rebote); }
+@keyframes tragar { 0% { transform: scale(1); } 30% { transform: scale(1.35, .8); } 60% { transform: scale(.9, 1.15); } 100% { transform: none; } }
+
+/* ---------- avisos con aire de revista ---------- */
+.k-aviso { border-radius: 0; font-size: 13px; letter-spacing: .02em; }
+
+/* ============================================================
+   ESCRITORIO: la barra a la izquierda, la revista a la derecha
+   ============================================================ */
+@media (min-width: 960px) {
+  :root { --g: 40px; }
+  .app { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .escenario, .app[data-vista="probador"] .escenario, .app[data-vista="look"] .escenario {
+    position: sticky; top: var(--cab); left: auto; right: auto; bottom: auto; z-index: 1;
+    height: calc(100dvh - var(--cab) - var(--barra)); grid-column: 1; grid-row: 1;
+    border-right: 1px solid var(--hilo-suave);
+  }
+  .app > .vista { grid-column: 2; grid-row: 1; width: 100%; padding: 0 var(--g); }
+  .app[data-vista="bolsa"], .app[data-vista="tienda"] { display: block; }
+  .app[data-vista="bolsa"] .escenario, .app[data-vista="tienda"] .escenario { height: 0; border: 0; }
+  .look { padding: 0; }
+  .historia { padding: 18px var(--g) 18px; }
+  .h-nombre { top: 22%; }
+  .portada .masthead { margin-top: 20px; }
+  .titular { font-size: 84px; }
+  .p-nombre { font-size: 64px; }
+  .bolsa { max-width: 1000px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 0 56px; align-items: start; }
+  .bolsa > .titular, .bolsa > .subt { grid-column: 1 / -1; }
+  .bolsa .col-dcha { position: sticky; top: calc(var(--cab) + 16px); }
+  .tienda .rejilla-tienda > div { min-width: 0; }
+  .tienda .rejilla-tienda { display: grid; grid-template-columns: 1.15fr 1fr; gap: 0 56px; align-items: start; }
+  .bolsa:has(#bolsa-pago[hidden]) .col-izq { grid-column: 1 / -1; }
+  .resumen { display: grid; grid-template-columns: 1.1fr 1fr; gap: 0 56px; align-items: end; }
+  .grafica { max-height: 230px; }
+  .pieza { width: 170px; }
+}
 </style>
 <script src="sistemas/tema-datos.js"></script>
 <script src="../js/selector-sistema.js" defer></script>
 </head>
 <body>
-<div class="demo-badge">DEMO</div>
 
-<header class="top">
-    <button class="icon-btn" aria-label="Buscar">🔍</button>
-    <div class="logo">ALBA</div>
-    <div class="top-actions">
-        <button class="icon-btn" id="fav-btn" aria-label="Favoritos">🤍<span class="badge" id="fav-badge">0</span></button>
-        <button class="icon-btn" id="bag-btn" aria-label="Cesta">🛍️<span class="badge" id="bag-badge">0</span></button>
-    </div>
+<header class="cab">
+  <button class="marca disp" id="marca" type="button" aria-label="ALBA, ir a la portada">ALBA</button>
+  <span class="numero vers" aria-label="Número 7, primavera verano 2026">Nº 07 · SS26</span>
+  <button class="cab-fav" id="cab-fav" type="button" data-n="0" aria-label="Tus guardados"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3s-7.6-4.6-7.6-10.3A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.6 2.6c0 5.7-7.6 10.3-7.6 10.3z"/></svg><span id="cab-fav-n" class="num" aria-live="polite">0</span></button>
 </header>
 
-<section class="banner">
-    <small>MID SEASON</small>
-    <h2>REBAJAS<br><span>hasta −40%</span></h2>
-</section>
+<div class="app" id="app" data-vista="look">
 
-<nav class="cats" id="cats" aria-label="Categorías"></nav>
-<main class="grid" id="grid"></main>
+  <!-- La barra con la prenda colgada: una sola escena para todas las vistas -->
+  <figure class="escenario k-3d" id="escenario" tabindex="0" role="group" aria-roledescription="prenda en 3D" aria-label="Prenda colgada en su percha. Flechas para girarla, espacio para mecerla.">
+    <canvas id="lienzo"></canvas>
+    <div class="k-reserva" aria-hidden="true"><div class="reserva-sil silueta" id="reserva-sil"></div></div>
+    <div class="esc-ctrl">
+      <button type="button" id="b-girar" aria-label="Girar la prenda para ver la espalda"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4h-4"/></svg>Girar</button>
+      <button type="button" id="b-mecer" aria-label="Mecer la prenda"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M7 9l5-3 5 3-1 11H8z"/></svg>Mecer</button>
+    </div>
+    <figcaption class="esc-pie vers" id="esc-pie">Arrastra para girar<br>Toca para mecer</figcaption>
+  </figure>
 
-<!-- FICHA DE PRODUCTO -->
-<section class="pdp" id="pdp" aria-label="Ficha de producto">
-    <div class="pdp-img" id="pdp-img">
-        <button class="pdp-close" id="pdp-close" aria-label="Cerrar">←</button>
-    </div>
-    <div class="pdp-body">
-        <h2 id="pdp-name"></h2>
-        <div class="pdp-price" id="pdp-price"></div>
-        <p class="pdp-desc" id="pdp-desc"></p>
-        <div class="opt-label">Talla</div>
-        <div class="sizes" id="pdp-sizes"></div>
-        <div class="opt-label">Color</div>
-        <div class="colors" id="pdp-colors"></div>
-    </div>
-</section>
-<div class="pdp-cta"><button class="btn-dark" id="pdp-add">Añadir a la cesta</button></div>
+  <!-- ================= LOOKBOOK ================= -->
+  <section class="vista look" data-panel="look" id="look" aria-label="Lookbook"></section>
 
-<!-- CESTA -->
-<div class="cart-backdrop" id="cart-backdrop"></div>
-<aside class="cart" id="cart" aria-label="Cesta de la compra">
-    <header><h2>TU CESTA</h2><button id="cart-close" aria-label="Cerrar cesta">✕</button></header>
-    <div class="cart-items" id="cart-items"></div>
-    <div class="cart-foot">
-        <div class="cart-total"><span>Total</span><span id="cart-total">0,00 €</span></div>
-        <button class="btn-dark" id="checkout">Tramitar pedido</button>
+  <!-- ================= PRENDA ================= -->
+  <section class="vista prenda" data-panel="prenda" hidden aria-labelledby="p-nombre">
+    <nav class="paginas" aria-label="Pasar de prenda">
+      <button type="button" id="p-ant"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Anterior</button>
+      <span class="vers num" id="p-pag">01 / 08</span>
+      <button type="button" id="p-sig">Siguiente<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </nav>
+    <div class="p-cab">
+      <span class="p-num disp num" id="p-num" aria-hidden="true">01</span>
+      <div>
+        <p class="p-kicker vers" id="p-kicker"></p>
+        <h2 class="p-nombre disp ajusta" id="p-nombre"></h2>
+      </div>
     </div>
-</aside>
+    <div class="p-linea">
+      <p class="p-precio num" id="p-precio"></p>
+      <span id="p-fav"></span>
+    </div>
+    <p class="p-desc" id="p-desc"></p>
 
-<div class="done" id="done" role="dialog" aria-modal="true">
-    <div>
-        <div class="ring">✓</div>
-        <h2>¡Pedido realizado!</h2>
-        <p id="done-sub">Recibirás un email con el seguimiento.<br>Entrega estimada: 24–48 h 📦</p>
-        <button id="done-close">Seguir comprando</button>
+    <div class="etq vers"><span>Color</span><b id="p-color-nombre"></b></div>
+    <div class="colores" id="p-colores" role="group" aria-label="Color"></div>
+
+    <div class="etq vers"><span>Talla</span><button type="button" class="enlace" id="p-a-probador">¿Cuál es la mía?</button></div>
+    <div class="tallas" id="p-tallas" role="group" aria-label="Talla"></div>
+    <p class="error" id="p-error" role="alert" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg><span>Elige una talla antes de añadirla</span></p>
+
+    <div class="comprar">
+      <button class="btn" id="p-anadir" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span id="p-anadir-txt">Añadir a la bolsa</span></button>
     </div>
+
+    <details class="plegable" id="p-comp">
+      <summary>Composición y cuidados <i aria-hidden="true"></i></summary>
+      <div class="etiqueta" id="p-etiqueta"></div>
+    </details>
+    <details class="plegable">
+      <summary>Envío y devoluciones <i aria-hidden="true"></i></summary>
+      <p class="texto">Envío en 24–48 h, gratis desde 50 €. Recogida en tienda sin coste, lista el mismo día. Tienes 30 días para devolverla.</p>
+    </details>
+
+    <section class="completa" aria-labelledby="t-completa">
+      <h3 class="disp" id="t-completa">Completa <em>el look</em></h3>
+      <div class="carril" id="p-completa"></div>
+    </section>
+    <div style="height:26px"></div>
+  </section>
+
+  <!-- ================= PROBADOR ================= -->
+  <section class="vista probador" data-panel="probador" hidden aria-labelledby="t-prob">
+    <h2 class="titular disp" id="t-prob">Pro<em>bador</em></h2>
+    <p class="subt">Tus medidas, tu talla. Sin quitarte nada.</p>
+    <div class="fila-chips" id="prob-prendas" role="group" aria-label="Prenda que te pruebas"></div>
+
+    <div class="medida">
+      <label for="m-alto" class="vers">Altura</label>
+      <span class="valor"><input id="m-alto-n" type="number" inputmode="numeric" min="140" max="210" aria-label="Altura en centímetros"><small>cm</small></span>
+      <input class="regla" id="m-alto" type="range" min="140" max="210" step="1" aria-label="Altura">
+    </div>
+    <div class="medida">
+      <label for="m-peso" class="vers">Peso</label>
+      <span class="valor"><input id="m-peso-n" type="number" inputmode="numeric" min="35" max="150" aria-label="Peso en kilos"><small>kg</small></span>
+      <input class="regla" id="m-peso" type="range" min="35" max="150" step="1" aria-label="Peso">
+    </div>
+    <p class="vers" style="margin:18px 0 0;font-size:13px">Cómo te gusta que quede</p>
+    <div class="segm" id="m-ajuste" role="group" aria-label="Cómo te gusta que quede">
+      <button type="button" data-ajuste="ajustado" aria-pressed="false">Ajustado</button>
+      <button type="button" data-ajuste="normal" aria-pressed="true">Normal</button>
+      <button type="button" data-ajuste="holgado" aria-pressed="false">Holgado</button>
+    </div>
+    <div class="prob-error error" id="prob-error" role="alert" hidden></div>
+
+    <div aria-live="polite" id="prob-res">
+      <div class="veredicto">
+        <span class="grande disp" id="prob-talla">M</span>
+        <div><p class="vers">Tu talla</p><p id="prob-frase"></p></div>
+      </div>
+      <ul class="zonas" id="prob-zonas"></ul>
+    </div>
+    <div class="tallas tallas-prob" id="prob-tallas" role="group" aria-label="Probar otra talla"></div>
+    <div class="prob-acc">
+      <button class="btn" id="prob-usar" type="button">Usar esta talla</button>
+    </div>
+    <div style="height:30px"></div>
+  </section>
+
+  <!-- ================= BOLSA ================= -->
+  <section class="vista bolsa" data-panel="bolsa" hidden aria-labelledby="t-bolsa">
+    <h2 class="titular disp" id="t-bolsa">Bol<em>sa</em></h2>
+    <div class="col-izq">
+      <ul class="lineas" id="lineas"></ul>
+      <div id="bolsa-vacia" class="vacio" hidden>
+        <span class="cifra disp" aria-hidden="true">0</span>
+        <p>Tu bolsa está vacía.<br>El número 07 tiene ocho prendas esperándote.</p>
+        <button class="btn btn--linea" type="button" data-ir="look">Abrir el lookbook</button>
+      </div>
+      <div id="confirmacion" hidden></div>
+    </div>
+    <div class="col-dcha" id="bolsa-pago">
+      <div class="bloque">
+        <p class="vers" style="margin:0;font-size:13px">Entrega</p>
+        <div class="segm segm--2" id="entrega" role="group" aria-label="Entrega">
+          <button type="button" data-entrega="casa" aria-pressed="true">Envío a casa</button>
+          <button type="button" data-entrega="tienda" aria-pressed="false">Recoger en tienda</button>
+        </div>
+        <p class="envio-gratis" id="envio-gratis"></p>
+        <ul class="tiendas" id="tiendas" hidden></ul>
+      </div>
+      <div class="totales" id="totales" aria-live="polite"></div>
+      <button class="btn btn--ancho" id="pagar" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Pago exprés</button>
+    </div>
+  </section>
+
+  <!-- ================= TIENDA (dueño) ================= -->
+  <section class="vista tienda" data-panel="tienda" hidden aria-labelledby="t-tienda">
+    <h2 class="titular disp" id="t-tienda">Trast<em>ienda</em></h2>
+    <p class="subt vers" id="t-fecha"></p>
+    <div class="resumen">
+    <div class="kpis" aria-live="polite">
+      <div class="kpi"><small class="vers">Ventas de hoy</small><b class="num" id="k-ventas">0</b></div>
+      <div class="kpi"><small class="vers">Pedidos</small><b class="num" id="k-pedidos">0</b></div>
+      <div class="kpi"><small class="vers">Unidades</small><b class="num" id="k-uds">0</b></div>
+      <div class="kpi"><small class="vers">Ticket medio</small><b class="num" id="k-ticket">0</b></div>
+    </div>
+    <svg class="grafica" id="grafica" viewBox="0 0 320 110" role="img" aria-label="Ventas por hora, últimas doce horas"></svg>
+    </div>
+    <div class="rejilla-tienda">
+      <div>
+        <h3 class="sec-t disp">Stock <small>talla × color</small></h3>
+        <div class="fila-chips" id="t-prendas" role="group" aria-label="Prenda"></div>
+        <table class="calor" id="calor" aria-label="Stock por talla y color"></table>
+        <div class="leyenda" aria-hidden="true">
+          <span style="--c:transparent;--b:var(--sd-danger)">Agotado</span>
+          <span style="--c:transparent;--b:var(--sd-warn)">Queda 1–2</span>
+          <span style="--c:color-mix(in srgb, var(--sd-ink) 55%, transparent)">Más oscuro, más stock</span>
+        </div>
+        <div class="detalle-celda" id="detalle-celda" aria-live="polite"><span class="apag">Toca una casilla para ver el detalle</span></div>
+      </div>
+      <div>
+        <h3 class="sec-t disp">Reponer <small id="n-avisos"></small></h3>
+        <ul class="avisos" id="avisos" aria-live="polite"></ul>
+        <h3 class="sec-t disp">Ventas <small>hoy</small></h3>
+        <ol class="ventas" id="ventas"></ol>
+      </div>
+    </div>
+    <div style="height:30px"></div>
+  </section>
 </div>
 
-<div class="toast" id="toast"></div>
+<nav class="tabs-pie" aria-label="Secciones">
+  <div class="k-tabs" id="tabs" role="tablist">
+    <span class="k-tabs-marca" aria-hidden="true"></span>
+    <button type="button" role="tab" data-vista="look"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4z"/><path d="M20 4h-5a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h5z"/></svg>Lookbook</button>
+    <button type="button" role="tab" data-vista="prenda"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a2 2 0 1 1 2-2c0 1.3-2 1.7-2 3.2v.6L3 15h18l-9-6.2"/></svg>Prenda</button>
+    <button type="button" role="tab" data-vista="probador"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="10" r="6"/><circle cx="9" cy="10" r="2"/><path d="M15 10v8h6v-3M18 15v3"/></svg>Probador</button>
+    <button type="button" role="tab" data-vista="bolsa" id="tab-bolsa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Bolsa<span class="insignia" id="ins-bolsa"></span></button>
+    <button type="button" role="tab" data-vista="tienda"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Tienda<span class="insignia" id="ins-tienda"></span></button>
+  </div>
+</nav>
 
-<script>
-(() => {
-    'use strict';
-    const CATS = ['Todo', 'Mujer', 'Hombre', 'Accesorios', 'Rebajas'];
-    const PRODUCTS = [
-        { id: 1,  cat: 'Mujer',      emoji: '👗', name: 'Vestido midi satinado',  price: 39.95, old: 59.95, bg: 'linear-gradient(145deg,#f6e3e8,#eccad6)', desc: 'Vestido midi de tejido satinado con caída fluida. Escote pico y tirante fino regulable.' },
-        { id: 2,  cat: 'Mujer',      emoji: '🧥', name: 'Blazer oversize lino',   price: 49.95, old: null,  bg: 'linear-gradient(145deg,#e8e6df,#d6d2c4)', desc: 'Blazer de corte oversize en mezcla de lino. Hombreras suaves y botón único.' },
-        { id: 3,  cat: 'Hombre',     emoji: '👕', name: 'Camiseta heavy cotton',  price: 15.95, old: null,  bg: 'linear-gradient(145deg,#dfe7ef,#c3d2e0)', desc: 'Camiseta de algodón compacto 220 g. Cuello reforzado y caja relajada.' },
-        { id: 4,  cat: 'Hombre',     emoji: '👖', name: 'Vaquero straight fit',   price: 35.95, old: 45.95, bg: 'linear-gradient(145deg,#d4dde8,#aebfd2)', desc: 'Denim rígido de corte recto años 90. Tiro medio, lavado stone.' },
-        { id: 5,  cat: 'Accesorios', emoji: '👜', name: 'Bolso shopper piel',     price: 59.95, old: 79.95, bg: 'linear-gradient(145deg,#efe2d2,#dcc6a8)', desc: 'Shopper de piel grabada con bolsillo interior y cierre magnético.' },
-        { id: 6,  cat: 'Accesorios', emoji: '🕶️', name: 'Gafas de sol redondas', price: 19.95, old: null,  bg: 'linear-gradient(145deg,#e7e7ea,#cfcfd6)', desc: 'Montura metálica redonda con lente degradada. Protección UV400.' },
-        { id: 7,  cat: 'Mujer',      emoji: '👟', name: 'Sneakers chunky',        price: 45.95, old: null,  bg: 'linear-gradient(145deg,#eee9f5,#d8cfe8)', desc: 'Zapatilla de suela chunky con paneles combinados y cordón grueso.' },
-        { id: 8,  cat: 'Hombre',     emoji: '🧶', name: 'Jersey cuello perkins',  price: 29.95, old: 39.95, bg: 'linear-gradient(145deg,#e3ece4,#c6d8c9)', desc: 'Punto suave con cuello perkins y acabados canalé. Lana reciclada.' }
-    ];
-    const SIZES = ['XS', 'S', 'M', 'L', 'XL'];
-    const COLORS = ['#1c1c22', '#8b9bb0', '#b85c6e', '#d8cdb8'];
+<!-- Hoja: pago exprés -->
+<div class="k-hoja" id="hoja-pago" hidden>
+  <div class="k-hoja-panel pago" role="dialog" aria-modal="true" aria-labelledby="t-pago" tabindex="-1">
+    <div class="k-hoja-asa"></div>
+    <div id="pago-form">
+      <h3 class="disp" id="t-pago">Pago exprés</h3>
+      <div class="pago-fila"><span>Pagas con</span><span class="tarjeta"><i aria-hidden="true"></i>Tarjeta de prueba ···· 4242</span></div>
+      <div class="pago-fila"><span>Entrega</span><span id="pago-entrega"></span></div>
+      <form id="form-pago" novalidate>
+        <label class="campo">Nombre<input id="f-nombre" autocomplete="name" required></label>
+        <label class="campo" id="campo-cp">Código postal<input id="f-cp" inputmode="numeric" autocomplete="postal-code" maxlength="5" required></label>
+        <p class="error" id="pago-error" role="alert" hidden></p>
+        <div class="pago-fila" style="border:0;margin-top:8px"><span>Total</span><b class="num" id="pago-total" style="font-size:20px"></b></div>
+        <button class="mantener" id="mantener" type="button"><span id="mantener-txt">Mantén para pagar</span></button>
+        <p class="apag" style="font-size:12px;text-align:center;margin:10px 0 0">Demo: no se cobra nada.</p>
+      </form>
+    </div>
+    <div class="procesando" id="pago-procesando" hidden role="status">
+      <div class="aguja-hilo" aria-hidden="true"></div>
+      <p class="vers">Autorizando el pago…</p>
+    </div>
+  </div>
+</div>
 
-    let activeCat = 'Todo';
-    let current = null, selSize = 'M', selColor = COLORS[0];
-    const favs = new Set();
-    const bag = [];
+<script type="module">
+import { crearEscena, THREE } from './kit/escena.js';
+import { RoundedBoxGeometry } from '../js/vendor/three/addons/RoundedBoxGeometry.js';
+import { muelle, arrastre, contar, flip, avisar, hoja, pestanas, confeti, leer, guardar, vibrar, euros, dosCifras, reducido } from './kit/gestos.js';
 
-    const $ = id => document.getElementById(id);
-    const fmt = n => n.toFixed(2).replace('.', ',') + ' €';
-    const transition = fn => (document.startViewTransition ? document.startViewTransition(fn) : fn());
+/* =========================================================
+   DATOS: los productos de siempre de ALBA, ahora con tejido,
+   colores con nombre, tallas con stock y su look
+   ========================================================= */
+const CATS = ['Todo', 'Mujer', 'Hombre', 'Accesorios', 'Rebajas', 'Guardados'];
+const TALLAS = ['XS', 'S', 'M', 'L', 'XL'];
+const PIES = ['36', '37', '38', '39', '40', '41'];
+const PRODUCTOS = [
+  { id: 1, cat: 'Mujer', nombre: 'Vestido midi satinado', lineas: ['Vestido', 'midi', 'satinado'], precio: 39.95, antes: 59.95, forma: 'vestido', tejido: 'Satén de viscosa', tipo: 'top',
+    desc: 'Vestido midi de tejido satinado con caída fluida. Escote pico y tirante fino regulable.',
+    colores: [['Noche', '#25262f'], ['Frambuesa', '#a8405a'], ['Champán', '#d6c19c'], ['Salvia', '#87a088']],
+    comp: '100 % viscosa · forro 100 % poliéster reciclado', cuidados: ['mano', 'nolejia', 'plancha1', 'nosecadora'], look: [5, 6, 7] },
+  { id: 2, cat: 'Mujer', nombre: 'Blazer oversize lino', lineas: ['Blazer', 'oversize', 'lino'], precio: 49.95, antes: null, forma: 'blazer', tejido: 'Lino y algodón', tipo: 'top', holgura: 6,
+    desc: 'Blazer de corte oversize en mezcla de lino. Hombreras suaves y botón único.',
+    colores: [['Crudo', '#ddd5c4'], ['Arena', '#c3a67f'], ['Tabaco', '#7b593b'], ['Marino', '#2b3954']],
+    comp: '55 % lino · 45 % algodón', cuidados: ['seco', 'nolejia', 'plancha2', 'nosecadora'], look: [3, 7, 6] },
+  { id: 3, cat: 'Hombre', nombre: 'Camiseta heavy cotton', lineas: ['Camiseta', 'heavy', 'cotton'], precio: 15.95, antes: null, forma: 'camiseta', tejido: 'Punto de algodón 220 g', tipo: 'top',
+    desc: 'Camiseta de algodón compacto 220 g. Cuello reforzado y caja relajada.',
+    colores: [['Blanco', '#f0eee8'], ['Negro', '#1e1e21'], ['Gris jaspe', '#a5a7ab'], ['Azul polvo', '#8b9db3']],
+    comp: '100 % algodón orgánico · 220 g/m²', cuidados: ['lavar30', 'nolejia', 'plancha2', 'nosecadora'], look: [4, 7, 2] },
+  { id: 4, cat: 'Hombre', nombre: 'Vaquero straight fit', lineas: ['Vaquero', 'straight', 'fit'], precio: 35.95, antes: 45.95, forma: 'vaquero', tejido: 'Denim rígido 13,5 oz', tipo: 'bottom',
+    desc: 'Denim rígido de corte recto años 90. Tiro medio, lavado stone.',
+    colores: [['Índigo', '#2e4770'], ['Stone', '#6e87a8'], ['Negro lavado', '#3a3b42']],
+    comp: '100 % algodón · denim rígido 13,5 oz', cuidados: ['lavar30', 'nolejia', 'plancha2', 'nosecadora'], look: [8, 3, 6] },
+  { id: 5, cat: 'Accesorios', nombre: 'Bolso shopper piel', lineas: ['Bolso', 'shopper', 'piel'], precio: 59.95, antes: 79.95, forma: 'bolso', tejido: 'Piel grabada', tipo: 'unica',
+    desc: 'Shopper de piel grabada con bolsillo interior y cierre magnético.',
+    colores: [['Coñac', '#8b4a2b'], ['Negro', '#211d1c'], ['Hueso', '#e4dccb']],
+    comp: '100 % piel bovina · forro de algodón', cuidados: ['nolavar', 'nolejia', 'noplancha', 'seco'], look: [1, 6, 2] },
+  { id: 6, cat: 'Accesorios', nombre: 'Gafas de sol redondas', lineas: ['Gafas', 'de sol', 'redondas'], precio: 19.95, antes: null, forma: 'gafas', tejido: 'Metal y UV400', tipo: 'unica',
+    desc: 'Montura metálica redonda con lente degradada. Protección UV400.',
+    colores: [['Oro', '#c9a65b'], ['Plata', '#c3c7cc'], ['Negro mate', '#2a2a2e']],
+    comp: 'Montura metálica · lente de policarbonato UV400', cuidados: ['nolavar', 'gamuza'], look: [1, 5, 4] },
+  { id: 7, cat: 'Mujer', nombre: 'Sneakers chunky', lineas: ['Sneakers', 'chunky'], precio: 45.95, antes: null, forma: 'zapatilla', tejido: 'Piel sintética y malla', tipo: 'pie', tallas: PIES,
+    desc: 'Zapatilla de suela chunky con paneles combinados y cordón grueso.',
+    colores: [['Blanco roto', '#ece7dc'], ['Lila', '#c9bce3'], ['Negro', '#2a2a2d']],
+    comp: 'Piel sintética y malla · suela de caucho', cuidados: ['nolavar', 'nosecadora'], look: [2, 3, 1] },
+  { id: 8, cat: 'Hombre', nombre: 'Jersey cuello perkins', lineas: ['Jersey', 'cuello', 'perkins'], precio: 29.95, antes: 39.95, forma: 'jersey', tejido: 'Punto de lana reciclada', tipo: 'top',
+    desc: 'Punto suave con cuello perkins y acabados canalé. Lana reciclada.',
+    colores: [['Musgo', '#6d7c58'], ['Crudo', '#e3dccb'], ['Granate', '#7a2b37'], ['Marengo', '#4a4c52']],
+    comp: '70 % lana reciclada · 30 % poliamida', cuidados: ['mano', 'nolejia', 'plancha1', 'nosecadora'], look: [4, 3, 5] }
+];
+const prod = id => PRODUCTOS.find(p => p.id === id);
+const tallasDe = p => p.tallas || (p.tipo === 'unica' ? ['Única'] : TALLAS);
+const rebaja = p => p.antes ? Math.round((1 - p.precio / p.antes) * 100) : 0;
+const pagina = p => 12 + (p.id - 1) * 6;
+const TIENDAS = [
+  { id: 'gv', nombre: 'ALBA Gran Vía', dir: 'Gran Vía 32 · Madrid', hora: 'Lista hoy desde las 18:00' },
+  { id: 'se', nombre: 'ALBA Serrano', dir: 'Serrano 18 · Madrid', hora: 'Lista hoy desde las 19:00' },
+  { id: 'dg', nombre: 'ALBA Diagonal', dir: 'Av. Diagonal 401 · Barcelona', hora: 'Lista mañana desde las 11:00' }
+];
+const ENVIO = 3.95, GRATIS_DESDE = 50;
 
-    function toast(msg) {
-        const t = $('toast');
-        t.textContent = msg;
-        t.classList.add('show');
-        clearTimeout(t._h);
-        t._h = setTimeout(() => t.classList.remove('show'), 1700);
-    }
+/* Iconos de cuidado: los de la etiqueta de verdad, en SVG */
+const TINA = '<path d="M2.5 8l2.2 11h14.6l2.2-11"/><path d="M2.5 8c1.6 1.5 3.2 1.5 4.8 0s3.2-1.5 4.8 0 3.2 1.5 4.8 0 3.2-1.5 4.8 0"/>';
+const CUIDADO = {
+  lavar30: ['Lavar a 30°', TINA + '<text x="12" y="17" font-size="6.5" text-anchor="middle" fill="currentColor" stroke="none">30</text>'],
+  mano: ['Lavar a mano', TINA + '<path d="M8 17v-4.5a1 1 0 0 1 2 0V15M10 12a1 1 0 0 1 2 0v3M12 12.5a1 1 0 0 1 2 0V15M14 13.5a1 1 0 0 1 2 0V17"/>'],
+  nolavar: ['No lavar', TINA + '<path d="M4 5l16 16M20 5L4 21"/>'],
+  nolejia: ['Sin lejía', '<path d="M12 4l9.5 16h-19z"/><path d="M6 8l12 12M18 8L6 20"/>'],
+  plancha1: ['Planchar suave', '<path d="M3 18h18l-1.6-6.4A4 4 0 0 0 15.5 8.5H8v3"/><circle cx="12" cy="14.6" r=".9" fill="currentColor"/>'],
+  plancha2: ['Planchar media', '<path d="M3 18h18l-1.6-6.4A4 4 0 0 0 15.5 8.5H8v3"/><circle cx="10" cy="14.6" r=".9" fill="currentColor"/><circle cx="14" cy="14.6" r=".9" fill="currentColor"/>'],
+  noplancha: ['No planchar', '<path d="M3 18h18l-1.6-6.4A4 4 0 0 0 15.5 8.5H8v3"/><path d="M5 6l14 14M19 6L5 20"/>'],
+  nosecadora: ['Sin secadora', '<rect x="3.5" y="3.5" width="17" height="17"/><circle cx="12" cy="12" r="6"/><path d="M4 4l16 16M20 4L4 20"/>'],
+  seco: ['Limpieza en seco', '<circle cx="12" cy="12" r="8.5"/><text x="12" y="15.6" font-size="9.5" text-anchor="middle" fill="currentColor" stroke="none">P</text>'],
+  gamuza: ['Con gamuza', '<path d="M4 7c4-3 12-3 16 0v10c-4 3-12 3-16 0z"/><path d="M8 10c2.5-1 5.5-1 8 0M8 14c2.5-1 5.5-1 8 0"/>']
+};
+const CORAZON = 'M12 20.3s-7.6-4.6-7.6-10.3A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.6 2.6c0 5.7-7.6 10.3-7.6 10.3z';
 
-    /* ----- Render catálogo ----- */
-    function renderCats() {
-        $('cats').innerHTML = CATS.map(c =>
-            `<button class="cat ${c === activeCat ? 'active' : ''}" data-cat="${c}">${c}</button>`
-        ).join('');
-    }
-    function visibleProducts() {
-        if (activeCat === 'Todo') return PRODUCTS;
-        if (activeCat === 'Rebajas') return PRODUCTS.filter(p => p.old);
-        return PRODUCTS.filter(p => p.cat === activeCat);
-    }
-    function renderGrid() {
-        $('grid').innerHTML = visibleProducts().map((p, i) => `
-            <article class="prod" data-open="${p.id}" style="animation-delay:${i * 40}ms">
-                <div class="prod-img" style="background:${p.bg}">
-                    ${p.old ? '<span class="sale">−' + Math.round((1 - p.price / p.old) * 100) + '%</span>' : ''}
-                    ${p.emoji}
-                    <button class="fav" data-fav="${p.id}" aria-label="Favorito">${favs.has(p.id) ? '❤️' : '🤍'}</button>
-                </div>
-                <h3>${p.name}</h3>
-                <div class="price">${fmt(p.price)}${p.old ? '<del>' + fmt(p.old) + '</del>' : ''}</div>
-            </article>`
-        ).join('');
-    }
+/* ---------- memoria ---------- */
+const CLAVE = 'alba-v2';
+const hoyClave = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+function hash(s) { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } h ^= h >>> 13; return h >>> 0; }
+function stockInicial() {
+  const s = {};
+  for (const p of PRODUCTOS) {
+    s[p.id] = p.colores.map((_, ci) => tallasDe(p).map((t, si) => {
+      const h = hash(`${p.id}-${ci}-${si}`);
+      return [0, 1, 2, 3, 4, 6, 7, 9, 12, 5, 8, 10, 3, 5, 6][h % 15] + (p.tipo === 'unica' ? 6 : 0);
+    }));
+  }
+  return s;
+}
+const est = Object.assign({
+  favs: [3],
+  bolsa: [],
+  stock: null,
+  colorSel: {},
+  tallaSel: {},
+  prod: 1,
+  filtro: 'Todo',
+  medidas: { alto: 170, peso: 65, ajuste: 'normal' },
+  entrega: 'casa',
+  tienda: 'gv',
+  nombre: '',
+  cp: '',
+  pedidos: [],
+  ventas: null,
+  dia: null,
+  repos: [],
+  avisame: []
+}, leer(CLAVE, {}));
+if (!est.stock) est.stock = stockInicial();
+if (!(est.medidas.alto >= 140 && est.medidas.alto <= 210 && est.medidas.peso >= 35 && est.medidas.peso <= 150)) est.medidas = { alto: 170, peso: 65, ajuste: 'normal' };
+const salvar = () => guardar(CLAVE, est);
 
-    /* ----- Ficha producto ----- */
-    function openPdp(p) {
-        current = p;
-        selSize = 'M';
-        selColor = COLORS[0];
-        $('pdp-img').style.background = p.bg;
-        $('pdp-img').innerHTML = `<button class="pdp-close" id="pdp-close2" aria-label="Cerrar">←</button>${p.emoji}`;
-        $('pdp-name').textContent = p.name;
-        $('pdp-price').innerHTML = fmt(p.price) + (p.old ? '<del>' + fmt(p.old) + '</del>' : '');
-        $('pdp-desc').textContent = p.desc;
-        renderOptions();
-        $('pdp').classList.add('show');
-        $('pdp').scrollTop = 0;
-    }
-    function renderOptions() {
-        $('pdp-sizes').innerHTML = SIZES.map(s =>
-            `<button class="size ${s === selSize ? 'active' : ''}" data-size="${s}">${s}</button>`
-        ).join('');
-        $('pdp-colors').innerHTML = COLORS.map(c =>
-            `<button class="color ${c === selColor ? 'active' : ''}" data-color="${c}" style="background:${c}" aria-label="Color"></button>`
-        ).join('');
-    }
-    $('pdp-add').addEventListener('click', () => {
-        if (!current) return;
-        bag.push({ ...current, size: selSize, color: selColor });
-        updateBadges();
-        renderCart();
-        toast(`Añadido · ${current.name} (${selSize})`);
-        $('pdp').classList.remove('show');
-    });
+const $ = id => document.getElementById(id);
+const app = $('app');
+const colorDe = (p, ci = est.colorSel[p.id] ?? 0) => p.colores[ci] || p.colores[0];
+const stockDe = (id, ci, si) => est.stock[id]?.[ci]?.[si] ?? 0;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
-    /* ----- Cesta ----- */
-    function updateBadges() {
-        const bb = $('bag-badge'), fb = $('fav-badge');
-        bb.textContent = bag.length;
-        bb.classList.toggle('on', bag.length > 0);
-        fb.textContent = favs.size;
-        fb.classList.toggle('on', favs.size > 0);
+/* =========================================================
+   SILUETAS: el patrón de cada prenda, en coordenadas 0..1.
+   Sirven de máscara alfa para la tela 3D y de miniatura en
+   la bolsa, el sumario y «Completa el look».
+   ========================================================= */
+const FORMAS = {
+  camiseta: { w: 1.2, h: 1.25, percha: 'hombros', medio: 0.45, bulto: 0.1, pliegue: 0.018, tejido: 'punto', rug: 0.92, brillo: 0.9,
+    poly: [[[0.40, 0], [0.45, 0.05], [0.5, 0.066], [0.55, 0.05], [0.60, 0], [0.86, 0], [0.995, 0.13], [0.93, 0.3], [0.865, 0.25], [0.865, 0.62], [0.87, 0.99, 1], [0.13, 0.99, 1], [0.135, 0.62], [0.135, 0.25], [0.07, 0.3], [0.005, 0.13], [0.14, 0]]] },
+  jersey: { w: 1.3, h: 1.32, percha: 'hombros', medio: 0.44, bulto: 0.12, pliegue: 0.02, tejido: 'punto', rug: 0.95, brillo: 1,
+    poly: [[[0.42, 0], [0.46, 0.035], [0.5, 0.045], [0.54, 0.035], [0.58, 0], [0.83, 0], [0.965, 0.1], [0.998, 0.87, 1], [0.885, 0.885, 1], [0.86, 0.27], [0.83, 0.28], [0.835, 0.965, 1], [0.165, 0.965, 1], [0.17, 0.28], [0.14, 0.27], [0.115, 0.885, 1], [0.002, 0.87, 1], [0.035, 0.1], [0.17, 0]]] },
+  blazer: { w: 1.32, h: 1.48, percha: 'hombros', medio: 0.47, bulto: 0.14, pliegue: 0.012, tejido: 'lino', rug: 0.85, brillo: 0.6,
+    poly: [[[0.41, 0], [0.5, 0.035], [0.59, 0], [0.84, 0], [0.97, 0.09], [0.996, 0.84, 1], [0.885, 0.856, 1], [0.86, 0.25], [0.835, 0.262], [0.84, 0.93], [0.80, 0.988], [0.535, 0.988], [0.5, 0.93], [0.465, 0.988], [0.20, 0.988], [0.16, 0.93], [0.165, 0.262], [0.14, 0.25], [0.115, 0.856, 1], [0.004, 0.84, 1], [0.03, 0.09], [0.16, 0]]] },
+  vestido: { w: 1.15, h: 2.1, percha: 'hombros', medio: 0.36, bulto: 0.1, pliegue: 0.05, tejido: 'saten', rug: 0.3, brillo: 0.55,
+    poly: [[[0.30, 0.12], [0.40, 0.15], [0.5, 0.215], [0.60, 0.15], [0.70, 0.12], [0.722, 0.28], [0.69, 0.40], [0.73, 0.56], [0.80, 0.80], [0.885, 0.985, 1], [0.5, 0.998], [0.115, 0.985, 1], [0.20, 0.80], [0.27, 0.56], [0.31, 0.40], [0.278, 0.28]]],
+    trazos: [[[[0.335, 0], [0.318, 0.13]], 0.02], [[[0.665, 0], [0.682, 0.13]], 0.02]] },
+  vaquero: { w: 0.9, h: 2.05, percha: 'pinzas', medio: 0.5, bulto: 0.035, pliegue: 0.012, tejido: 'denim', rug: 0.82, brillo: 0.35,
+    poly: [[[0.04, 0, 1], [0.96, 0, 1], [0.975, 0.12], [0.982, 0.27], [0.958, 0.62], [0.948, 0.995, 1], [0.552, 0.995, 1], [0.515, 0.40], [0.5, 0.335], [0.485, 0.40], [0.448, 0.995, 1], [0.052, 0.995, 1], [0.042, 0.62], [0.018, 0.27], [0.025, 0.12]]] },
+  bolso: { w: 0.86, h: 1.15, percha: 'gancho', medio: 0.5, bulto: 0.08, pliegue: 0.004, tejido: 'piel', rug: 0.55, brillo: 0.15,
+    poly: [[[0.07, 0.40, 1], [0.5, 0.398], [0.93, 0.40, 1], [0.965, 0.99, 1], [0.5, 0.995], [0.035, 0.99, 1]]],
+    trazos: [[[[0.24, 0.42], [0.37, 0.12], [0.5, 0.012], [0.63, 0.12], [0.76, 0.42]], 0.05]] },
+  gafas: { w: 0.8, h: 0.62, rigido: true },
+  zapatilla: { w: 0.8, h: 1.0, rigido: true }
+};
+
+function lienzo2d(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d')]; }
+// Polígono con las esquinas redondeadas: como un patrón cortado a tijera
+function trazar(g, pts, W, H) {
+  const n = pts.length, P = i => pts[(i + n) % n];
+  const m = (a, b) => [(a[0] + b[0]) / 2 * W, (a[1] + b[1]) / 2 * H];
+  const s = m(P(-1), P(0));
+  g.beginPath(); g.moveTo(s[0], s[1]);
+  // [u, v, 1] marca una esquina en pico: el bajo, el puño, la cinturilla
+  for (let i = 0; i < n; i++) {
+    const q = m(P(i), P(i + 1));
+    if (P(i)[2]) { g.lineTo(P(i)[0] * W, P(i)[1] * H); g.lineTo(q[0], q[1]); }
+    else g.quadraticCurveTo(P(i)[0] * W, P(i)[1] * H, q[0], q[1]);
+  }
+  g.closePath();
+}
+function linea(g, pts, W, H, { ancho = 2, color = 'rgba(0,0,0,.25)', guion = null } = {}) {
+  g.save(); g.strokeStyle = color; g.lineWidth = ancho; g.lineCap = 'round'; g.lineJoin = 'round';
+  if (guion) g.setLineDash(guion);
+  g.beginPath(); pts.forEach(([u, v], k) => k ? g.lineTo(u * W, v * H) : g.moveTo(u * W, v * H)); g.stroke(); g.restore();
+}
+function dibujarSilueta(forma, g, W, H) {
+  const F = FORMAS[forma];
+  g.fillStyle = '#fff'; g.strokeStyle = '#fff';
+  if (forma === 'gafas') {
+    g.lineWidth = W * 0.045;
+    for (const x of [0.29, 0.71]) { g.beginPath(); g.arc(x * W, 0.55 * H, W * 0.2, 0, Math.PI * 2); g.globalAlpha = 0.55; g.fill(); g.globalAlpha = 1; g.stroke(); }
+    g.beginPath(); g.moveTo(0.44 * W, 0.42 * H); g.quadraticCurveTo(0.5 * W, 0.3 * H, 0.56 * W, 0.42 * H); g.stroke();
+    return;
+  }
+  if (forma === 'zapatilla') {
+    g.beginPath();
+    g.moveTo(0.06 * W, 0.86 * H); g.lineTo(0.05 * W, 0.42 * H); g.quadraticCurveTo(0.06 * W, 0.24 * H, 0.2 * W, 0.26 * H);
+    g.quadraticCurveTo(0.33 * W, 0.4 * H, 0.45 * W, 0.32 * H); g.lineTo(0.5 * W, 0.2 * H); g.quadraticCurveTo(0.56 * W, 0.18 * H, 0.58 * W, 0.3 * H);
+    g.quadraticCurveTo(0.8 * W, 0.46 * H, 0.95 * W, 0.6 * H); g.quadraticCurveTo(1.0 * W, 0.7 * H, 0.97 * W, 0.86 * H); g.closePath(); g.fill();
+    return;
+  }
+  F.poly.forEach(p => { trazar(g, p, W, H); g.fill(); });
+  (F.trazos || []).forEach(([pts, a]) => linea(g, pts, W, H, { ancho: a * W, color: '#fff' }));
+}
+// Miniaturas (máscaras) de cada prenda
+const SIL = {};
+for (const p of PRODUCTOS) {
+  const F = FORMAS[p.forma];
+  const W = 120, H = Math.round(120 * (F.rigido ? (p.forma === 'gafas' ? 0.6 : 0.62) : F.h / F.w));
+  const [c, g] = lienzo2d(W, H);
+  dibujarSilueta(p.forma, g, W, H);
+  SIL[p.id] = c.toDataURL();
+}
+const mini = (p, ci) => `<span class="sil-caja" aria-hidden="true"><span class="silueta" style="--sil:url(${SIL[p.id]});--c:${colorDe(p, ci)[1]}"></span></span>`;
+
+/* =========================================================
+   FAVORITOS: el corazón con su propio latido
+   ========================================================= */
+const corazon = (p, extra = '') => `<button type="button" class="corazon ${extra}" data-fav="${p.id}" aria-pressed="${est.favs.includes(p.id)}" aria-label="Guardar ${esc(p.nombre)}"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="chispas"><path d="M12 3.2V1.4M18.4 5.4l1.3-1.3M5.6 5.4 4.3 4.1M21.2 11h1.6M2.8 11H1.2M18.6 16.8l1.2 1M5.4 16.8l-1.2 1"/></g><path class="c-relleno" d="${CORAZON}"/><path class="c-borde" d="${CORAZON}"/></svg></button>`;
+function pintarFavCab() {
+  $('cab-fav').dataset.n = est.favs.length;
+  $('cab-fav-n').textContent = est.favs.length;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-fav]');
+  if (!b) return;
+  e.stopPropagation();
+  const id = +b.dataset.fav;
+  const on = !est.favs.includes(id);
+  est.favs = on ? [...est.favs, id] : est.favs.filter(x => x !== id);
+  document.querySelectorAll(`[data-fav="${id}"]`).forEach(x => x.setAttribute('aria-pressed', on));
+  b.classList.remove('late', 'desinfla'); void b.offsetWidth;
+  b.classList.add(on ? 'late' : 'desinfla');
+  setTimeout(() => b.classList.remove('late', 'desinfla'), 700);
+  vibrar(on ? [8, 40, 14] : 6);
+  salvar(); pintarFavCab();
+  avisar(on ? `Guardado: ${prod(id).nombre}` : `Quitado de guardados`, { icono: on ? '♥' : '' });
+  const chip = document.querySelector('[data-filtro="Guardados"]');
+  if (chip) chip.textContent = `♥ ${est.favs.length}`;
+  if (est.filtro === 'Guardados') setTimeout(() => { pintarLook(); }, 520);
+}, true);
+
+/* =========================================================
+   LOOKBOOK: una historia a pantalla completa por look
+   ========================================================= */
+function visibles() {
+  const f = est.filtro;
+  if (f === 'Todo') return PRODUCTOS;
+  if (f === 'Rebajas') return PRODUCTOS.filter(p => p.antes);
+  if (f === 'Guardados') return PRODUCTOS.filter(p => est.favs.includes(p.id));
+  return PRODUCTOS.filter(p => p.cat === f);
+}
+let historiaActiva = null;
+function pintarLook() {
+  const vis = visibles();
+  const total = PRODUCTOS.length;
+  const portada = `
+    <article class="historia portada" data-prod="${vis[0]?.id || ''}" aria-label="Portada del número 07">
+      <div class="h-cab vers"><span>Nº 07</span><span>Primavera–verano 2026</span><span>Mid season</span></div>
+      <h1 class="masthead disp ajusta"><span>ALBA</span></h1>
+      <ul class="portada-lineas">
+        <li><b>Rebajas</b>hasta −40 % en ${PRODUCTOS.filter(p => p.antes).length} prendas</li>
+        <li><b>${dosCifras(total)} prendas</b>que se mueven</li>
+        <li><b>Tu talla</b>el probador que te conoce</li>
+      </ul>
+      <div class="filtros" role="group" aria-label="Secciones del número">
+        ${CATS.map(c => `<button type="button" class="chip" data-filtro="${c}" aria-pressed="${est.filtro === c}">${c === 'Guardados' ? `♥ ${est.favs.length}` : c}</button>`).join('')}
+      </div>
+      <p class="desliza vers"><i aria-hidden="true"></i>${vis.length ? `Desliza · ${vis.length} ${vis.length === 1 ? 'look' : 'looks'}` : 'Nada en esta sección'}</p>
+    </article>`;
+  const historias = vis.map((p, i) => {
+    const [cn] = colorDe(p);
+    return `
+    <article class="historia" data-prod="${p.id}" aria-labelledby="h-${p.id}">
+      <div class="h-cab vers"><span>Look ${dosCifras(i + 1)}</span><span>${p.cat} · ${esc(p.tejido)}</span></div>
+      <h2 class="h-nombre disp ajusta${i % 2 ? ' contorno' : ''}" id="h-${p.id}" aria-label="${esc(p.nombre)}">${p.lineas.map(l => `<span>${l}</span>`).join('')}</h2>
+      <p class="h-lomo vers" aria-hidden="true">ALBA · Nº 07 · SS26 · p. ${pagina(p)}</p>
+      <div class="h-pie">
+        <span class="h-num disp num" aria-hidden="true">${dosCifras(p.id)}</span>
+        <div class="h-texto">
+          <p class="h-cat vers">${esc(cn)} · ${tallasDe(p).length > 1 ? `${tallasDe(p)[0]}–${tallasDe(p).at(-1)}` : 'Talla única'}</p>
+          <p class="h-precio num">${euros(p.precio)}${p.antes ? `<del>${euros(p.antes)}</del><span class="rebaja">−${rebaja(p)} %</span>` : ''}</p>
+          <div class="h-acc">${corazon(p)}<button class="btn" type="button" data-ficha="${p.id}">Ver la prenda</button></div>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  const vacia = vis.length ? '' : `
+    <article class="historia historia-vacia" aria-label="Sección vacía">
+      <span class="vacio-cifra disp" aria-hidden="true">0</span>
+      <p class="vers" style="font-size:15px;margin:14px 0 4px">${est.filtro === 'Guardados' ? 'Aún no guardas nada' : 'Nada por aquí'}</p>
+      <p class="apag" style="margin:0 0 18px">${est.filtro === 'Guardados' ? 'Toca el corazón de una prenda y vendrá aquí.' : 'Prueba otra sección del número.'}</p>
+      <p><button class="btn btn--linea" type="button" data-filtro="Todo">Ver todo el número</button></p>
+    </article>`;
+  const sumario = `
+    <article class="historia sumario" aria-labelledby="t-sumario">
+      <div class="h-cab vers"><span>Sumario</span><span>Nº 07 · SS26</span></div>
+      <h2 class="disp" id="t-sumario">Sumario</h2>
+      <ol>${PRODUCTOS.map(p => `<li><button type="button" data-ficha="${p.id}"><small class="num">p. ${pagina(p)}</small><span class="disp">${esc(p.nombre)}</span><span class="guia" aria-hidden="true"></span><span class="num">${euros(p.precio)}</span></button></li>`).join('')}</ol>
+      <p class="apag" style="font-size:12px;margin:14px 0 0">ALBA · Moda de temporada. Envío 24–48 h · Recogida en tienda gratis.</p>
+    </article>`;
+  $('look').innerHTML = portada + historias + vacia + sumario;
+  observarHistorias();
+  requestAnimationFrame(ajustarTitulares);
+}
+$('look').addEventListener('click', e => {
+  const f = e.target.closest('[data-filtro]');
+  const fi = e.target.closest('[data-ficha]');
+  if (f) {
+    est.filtro = f.dataset.filtro; salvar(); vibrar(6);
+    pintarLook();
+    historiaActiva = null;
+    const pri = visibles()[0];
+    escena?.mostrar(pri ? pri.id : null);
+    actualizarReserva(pri || null);
+  } else if (fi) abrirFicha(+fi.dataset.ficha);
+});
+
+let vigia = null;
+function observarHistorias() {
+  vigia?.disconnect();
+  vigia = new IntersectionObserver(ents => {
+    for (const en of ents) {
+      if (!en.isIntersecting || app.dataset.vista !== 'look') continue;
+      const h = en.target;
+      historiaActiva = h;
+      if (h.classList.contains('sumario')) continue;
+      const id = +h.dataset.prod || null;
+      escena?.mostrar(id);
+      actualizarReserva(id ? prod(id) : null);
     }
-    function renderCart() {
-        const box = $('cart-items');
-        if (!bag.length) {
-            box.innerHTML = '<div class="cart-empty">Tu cesta está vacía 🛍️<br>¡Las rebajas te esperan!</div>';
-        } else {
-            box.innerHTML = bag.map((it, i) => `
-                <div class="cart-row">
-                    <div class="cart-thumb" style="background:${it.bg}">${it.emoji}</div>
-                    <div class="inf">
-                        <h4>${it.name}</h4>
-                        <p>Talla ${it.size}</p>
-                        <strong>${fmt(it.price)}</strong>
-                    </div>
-                    <button class="rm" data-rm="${i}" aria-label="Quitar">🗑️</button>
-                </div>`
-            ).join('');
+  }, { threshold: 0.55 });
+  document.querySelectorAll('.historia').forEach(h => vigia.observe(h));
+}
+
+/* Titulares gigantes: cada línea tan grande como quepa en su caja */
+function ajustarTitulares() {
+  document.querySelectorAll('.ajusta').forEach(el => {
+    if (!el.offsetParent) return;
+    el.style.fontSize = '';
+    const base = parseFloat(getComputedStyle(el).fontSize);
+    const disp = el.clientWidth;
+    let ancho = 0;
+    el.querySelectorAll(':scope > span').forEach((s, i) => { ancho = Math.max(ancho, s.getBoundingClientRect().width / (i === 2 && el.classList.contains('h-nombre') ? 0.88 : 1)); });
+    if (!ancho || !disp) return;
+    const max = el.classList.contains('masthead') ? 260 : el.classList.contains('p-nombre') ? 72 : 210;
+    el.style.fontSize = Math.min(max, base * disp / ancho * 0.97) + 'px';
+  });
+}
+addEventListener('resize', () => requestAnimationFrame(ajustarTitulares));
+document.fonts?.ready.then(ajustarTitulares);
+new MutationObserver(() => setTimeout(ajustarTitulares, 120)).observe(document.documentElement, { attributes: true, attributeFilter: ['data-tipo'] });
+
+/* =========================================================
+   FICHA DE PRENDA
+   ========================================================= */
+function abrirFicha(id) {
+  est.prod = id; salvar();
+  pintarFicha();
+  if (app.dataset.vista === 'prenda') { escena?.mostrar(id); window.scrollTo({ top: 0, behavior: reducido() ? 'auto' : 'smooth' }); }
+  else tabs.ir('prenda');
+}
+function pintarFicha() {
+  const p = prod(est.prod);
+  const ci = est.colorSel[p.id] ?? 0;
+  const [cn] = colorDe(p, ci);
+  const i = PRODUCTOS.indexOf(p);
+  $('p-pag').textContent = `${dosCifras(i + 1)} / ${dosCifras(PRODUCTOS.length)}`;
+  $('p-num').textContent = dosCifras(p.id);
+  $('p-kicker').textContent = `${p.cat} · ${p.tejido}`;
+  $('p-nombre').innerHTML = p.lineas.map(l => `<span>${l}</span>`).join('');
+  $('p-nombre').setAttribute('aria-label', p.nombre);
+  $('p-precio').innerHTML = `${euros(p.precio)}${p.antes ? `<del>${euros(p.antes)}</del><span class="rebaja">−${rebaja(p)} %</span>` : ''}`;
+  $('p-fav').innerHTML = corazon(p);
+  $('p-desc').textContent = p.desc;
+  $('p-color-nombre').textContent = cn;
+  $('p-colores').innerHTML = p.colores.map(([n, c], k) => `<button type="button" class="muestra" style="--c:${c}" data-color="${k}" aria-pressed="${k === ci}" aria-label="${n}"></button>`).join('');
+  pintarTallas();
+  $('p-a-probador').hidden = !['top', 'bottom'].includes(p.tipo);
+  $('p-etiqueta').innerHTML = `<h4>ALBA · Hecho con cuidado</h4><p>${esc(p.comp)}</p><ul class="cuidados">${p.cuidados.map(k => `<li><svg viewBox="0 0 24 24" aria-hidden="true">${CUIDADO[k][1]}</svg>${CUIDADO[k][0]}</li>`).join('')}</ul>`;
+  $('p-completa').innerHTML = p.look.map(id => {
+    const q = prod(id);
+    return `<div class="pieza"><button type="button" data-ficha="${q.id}"><figure><span class="num">Nº ${dosCifras(q.id)}</span>${mini(q)}</figure><b>${esc(q.nombre)}</b><span class="num">${euros(q.precio)}</span></button>${corazon(q)}</div>`;
+  }).join('');
+  $('p-error').hidden = true;
+  requestAnimationFrame(ajustarTitulares);
+}
+function pintarTallas() {
+  const p = prod(est.prod);
+  const ci = est.colorSel[p.id] ?? 0;
+  const ts = tallasDe(p);
+  const sel = est.tallaSel[p.id];
+  const tuya = recomendada(p);
+  const caja = $('p-tallas');
+  caja.style.setProperty('--n', ts.length);
+  caja.innerHTML = ts.map((t, si) => {
+    const n = stockDe(p.id, ci, si);
+    const nota = n === 0 ? 'agotada' : n <= 3 ? `quedan ${n}` : '';
+    return `<button type="button" class="talla${n === 0 ? ' agotada' : ''}${tuya === t ? ' es-tuya' : ''}" data-talla="${t}" aria-pressed="${sel === t}" aria-label="Talla ${t}${nota ? ', ' + nota : ''}"><b>${t}</b><small>${nota || '&nbsp;'}</small></button>`;
+  }).join('');
+  const ok = sel && stockDe(p.id, ci, ts.indexOf(sel)) > 0;
+  $('p-anadir-txt').textContent = ok ? `Añadir ${sel === 'Única' ? '' : sel + ' '}· ${euros(p.precio)}` : `Añadir a la bolsa · ${euros(p.precio)}`;
+}
+$('p-colores').addEventListener('click', e => {
+  const b = e.target.closest('[data-color]'); if (!b) return;
+  const p = prod(est.prod), k = +b.dataset.color;
+  est.colorSel[p.id] = k; salvar(); vibrar(6);
+  $('p-colores').querySelectorAll('.muestra').forEach(x => x.setAttribute('aria-pressed', x === b));
+  $('p-color-nombre').textContent = p.colores[k][0];
+  escena?.color(p.colores[k][1]);
+  actualizarReserva(p);
+  pintarTallas();
+});
+$('p-tallas').addEventListener('click', e => {
+  const b = e.target.closest('[data-talla]'); if (!b) return;
+  const p = prod(est.prod), t = b.dataset.talla;
+  if (b.classList.contains('agotada')) {
+    const k = `${p.id}-${est.colorSel[p.id] ?? 0}-${t}`;
+    if (!est.avisame.includes(k)) est.avisame.push(k);
+    salvar(); vibrar([10, 30, 10]);
+    avisar(`Agotada. Te avisamos cuando vuelva la ${t}`, { icono: '✉' });
+    return;
+  }
+  est.tallaSel[p.id] = t; salvar(); vibrar(6);
+  $('p-error').hidden = true;
+  pintarTallas();
+  escena?.talla(t, p);
+});
+$('p-ant').addEventListener('click', () => { const i = PRODUCTOS.findIndex(p => p.id === est.prod); abrirFicha(PRODUCTOS[(i + PRODUCTOS.length - 1) % PRODUCTOS.length].id); });
+$('p-sig').addEventListener('click', () => { const i = PRODUCTOS.findIndex(p => p.id === est.prod); abrirFicha(PRODUCTOS[(i + 1) % PRODUCTOS.length].id); });
+$('p-completa').addEventListener('click', e => { const b = e.target.closest('[data-ficha]'); if (b) abrirFicha(+b.dataset.ficha); });
+$('p-a-probador').addEventListener('click', () => { est.probar = est.prod; tabs.ir('probador'); });
+
+/* ---------- añadir a la bolsa: la prenda se dobla y vuela ---------- */
+let volando = false;
+$('p-anadir').addEventListener('click', async () => {
+  if (volando) return;
+  const p = prod(est.prod);
+  const ci = est.colorSel[p.id] ?? 0;
+  const ts = tallasDe(p);
+  let t = est.tallaSel[p.id];
+  if (ts.length === 1) t = ts[0];
+  if (!t) {
+    const caja = $('p-tallas');
+    caja.classList.remove('sacude'); void caja.offsetWidth; caja.classList.add('sacude');
+    $('p-error').hidden = false;
+    vibrar([20, 40, 20]);
+    caja.querySelector('.talla:not(.agotada)')?.focus();
+    return;
+  }
+  const si = ts.indexOf(t);
+  const enBolsa = est.bolsa.filter(l => l.id === p.id && l.ci === ci && l.talla === t).reduce((s, l) => s + l.n, 0);
+  if (stockDe(p.id, ci, si) - enBolsa <= 0) { avisar('No quedan más en esa talla', { tipo: 'error' }); return; }
+  volando = true;
+  vibrar(10);
+  const desde = escena ? await escena.doblar() : null;
+  volar(p, ci, desde);
+  const l = est.bolsa.find(x => x.id === p.id && x.ci === ci && x.talla === t);
+  if (l) l.n++; else est.bolsa.push({ id: p.id, ci, talla: t, n: 1 });
+  salvar();
+  setTimeout(() => { pintarInsignia(); volando = false; }, reducido() ? 0 : 700);
+  avisar(`${p.nombre} · ${p.colores[ci][0]}${t !== 'Única' ? ' · ' + t : ''} en la bolsa`, { tipo: 'ok', icono: '✓' });
+});
+function volar(p, ci, desde) {
+  const tab = $('tab-bolsa');
+  const destino = tab.getBoundingClientRect();
+  const r = $('escenario').getBoundingClientRect();
+  const o = desde || { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  const fin = () => { tab.classList.remove('traga'); void tab.offsetWidth; tab.classList.add('traga'); vibrar([6, 20, 12]); };
+  if (reducido()) { fin(); return; }
+  const v = document.createElement('div');
+  v.className = 'vuelo'; v.style.setProperty('--c', p.colores[ci][1]); v.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(v);
+  const x0 = o.x - 37, y0 = o.y - 29;
+  const x1 = destino.left + destino.width / 2 - 37, y1 = destino.top + 12 - 29;
+  v.animate([
+    { transform: `translate(${x0}px, ${y0}px) scale(.4) rotate(0)`, opacity: 0 },
+    { transform: `translate(${x0}px, ${y0}px) scale(1) rotate(-4deg)`, opacity: 1, offset: 0.18 },
+    { transform: `translate(${(x0 + x1) / 2}px, ${Math.min(y0, y1) - 90}px) scale(.75) rotate(-14deg)`, offset: 0.55 },
+    { transform: `translate(${x1}px, ${y1}px) scale(.18) rotate(10deg)`, opacity: 0.6 }
+  ], { duration: 820, easing: 'cubic-bezier(.45,0,.55,1)' }).onfinish = () => { v.remove(); fin(); };
+}
+
+/* =========================================================
+   PROBADOR: medidas → talla, con ajuste por zonas
+   ========================================================= */
+const AJUSTE = { ajustado: 4, normal: 8, holgado: 14 };
+function cuerpo(m) {
+  const imc = m.peso / (m.alto / 100) ** 2;
+  return {
+    pecho: 0.48 * m.alto + 2.1 * (imc - 21) + 8,
+    cintura: 0.40 * m.alto + 2.6 * (imc - 21) + 3,
+    cadera: 0.52 * m.alto + 2.2 * (imc - 21) + 5,
+    largoTop: 0.39 * m.alto, largoVestido: 0.66 * m.alto, tiro: 0.45 * m.alto
+  };
+}
+// Medidas de cada talla de la prenda (cm)
+function prendaMide(p, t) {
+  const k = TALLAS.indexOf(t);
+  const extra = p.holgura || 0;
+  if (p.tipo === 'bottom') return { cintura: 72 + k * 6, cadera: 94 + k * 6, largo: 77 + k * 1.5 };
+  const pecho = 90 + k * 6 + extra;
+  return { pecho, cintura: pecho - (p.forma === 'vestido' ? 12 : 4), largo: p.forma === 'vestido' ? 110 + k * 2 : 64 + k * 2 + (p.forma === 'blazer' ? 6 : 0) };
+}
+function zonasDe(p, t, m) {
+  const c = cuerpo(m), g = prendaMide(p, t), aj = AJUSTE[m.ajuste];
+  const ideal = p.tipo === 'bottom' ? c.tiro : p.forma === 'vestido' ? c.largoVestido : c.largoTop + (p.forma === 'blazer' ? 6 : 0);
+  if (p.tipo === 'bottom') return [
+    { nombre: 'Cintura', holg: g.cintura - c.cintura, aj: Math.max(1, aj - 6) },
+    { nombre: 'Cadera', holg: g.cadera - c.cadera, aj },
+    { nombre: 'Largo', holg: g.largo - ideal, aj: 0, largo: true }
+  ];
+  return [
+    { nombre: 'Pecho', holg: g.pecho - c.pecho, aj },
+    { nombre: 'Cintura', holg: g.cintura - c.cintura, aj: aj + 2 },
+    { nombre: 'Largo', holg: g.largo - ideal, aj: 0, largo: true }
+  ];
+}
+function recomendada(p, m = est.medidas) {
+  if (!['top', 'bottom'].includes(p.tipo) || !medidasOk(m)) return null;
+  let mejor = null, d = 1e9;
+  for (const t of TALLAS) {
+    const z = zonasDe(p, t, m)[0];
+    const e = z.holg - z.aj;
+    const coste = e < -2 ? 100 + Math.abs(e) : Math.abs(e);
+    if (coste < d) { d = coste; mejor = t; }
+  }
+  return mejor;
+}
+const medidasOk = m => m.alto >= 140 && m.alto <= 210 && m.peso >= 35 && m.peso <= 150;
+const prendasProbables = PRODUCTOS.filter(p => ['top', 'bottom'].includes(p.tipo));
+let tallaProbando = null, cargoProbador = false;
+function probarProd() {
+  let id = est.probar;
+  if (!prendasProbables.some(p => p.id === id)) id = prendasProbables.some(p => p.id === est.prod) ? est.prod : 1;
+  est.probar = id;
+  return prod(id);
+}
+function pintarProbador({ cargar = false } = {}) {
+  const p = probarProd();
+  $('prob-prendas').innerHTML = prendasProbables.map(q => `<button type="button" class="chip" data-probar="${q.id}" aria-pressed="${q.id === p.id}">${esc(q.nombre)}</button>`).join('');
+  const m = est.medidas;
+  $('m-alto').value = m.alto; $('m-peso').value = m.peso;
+  if (document.activeElement !== $('m-alto-n')) $('m-alto-n').value = m.alto;
+  if (document.activeElement !== $('m-peso-n')) $('m-peso-n').value = m.peso;
+  $('m-ajuste').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.ajuste === m.ajuste));
+  const ok = medidasOk(m);
+  const rec = recomendada(p);
+  if (!tallaProbando || !TALLAS.includes(tallaProbando)) tallaProbando = rec || 'M';
+  $('prob-tallas').style.setProperty('--n', 5);
+  $('prob-tallas').innerHTML = TALLAS.map(t => `<button type="button" class="talla${t === rec ? ' es-tuya' : ''}" data-ptalla="${t}" aria-pressed="${t === tallaProbando}"><b>${t}</b><small>&nbsp;</small></button>`).join('');
+  $('prob-res').style.opacity = ok ? '' : '.35';
+  const grande = $('prob-talla');
+  const nueva = ok ? tallaProbando : '—';
+  if (grande.textContent !== nueva) { grande.textContent = nueva; grande.classList.remove('sella'); void grande.offsetWidth; grande.classList.add('sella'); }
+  const zs = ok ? zonasDe(p, tallaProbando, m) : [];
+  const frase = !ok ? 'Revisa tus medidas' : tallaProbando === rec ? `Es la tuya en ${esc(p.nombre.toLowerCase())}` : TALLAS.indexOf(tallaProbando) < TALLAS.indexOf(rec) ? `Más ajustada que tu ${rec}` : `Más holgada que tu ${rec}`;
+  $('prob-frase').textContent = frase;
+  const zonas = $('prob-zonas');
+  if (cargar && !reducido() && ok) {
+    zonas.classList.add('cargando');
+    clearTimeout(cargoProbador);
+    cargoProbador = setTimeout(() => { zonas.classList.remove('cargando'); pintarProbador(); }, 650);
+    if (!zonas.children.length) zonas.innerHTML = ['Pecho', 'Cintura', 'Largo'].map(n => `<li><div class="zona-cab"><span class="vers">${n}</span><b>…</b></div><div class="pista-ajuste"></div><div class="pista-pie"><span>&nbsp;</span></div></li>`).join('');
+    $('prob-usar').textContent = 'Midiendo…';
+    $('prob-usar').disabled = true;
+    return;
+  }
+  if (zonas.classList.contains('cargando')) return;
+  if (zonas.children.length !== zs.length || !zonas.querySelector('.aguja')) {
+    zonas.innerHTML = zs.map(() => `<li><div class="zona-cab"><span class="vers"></span><b></b></div><div class="pista-ajuste"><span class="ideal"></span><span class="aguja"></span></div><div class="pista-pie" aria-hidden="true"><span></span><span></span></div></li>`).join('');
+  }
+  zs.forEach((z, i) => {
+    const li = zonas.children[i];
+    const min = z.largo ? -10 : -6, max = z.largo ? 10 : 20;
+    const pos = v => Math.max(0, Math.min(100, (v - min) / (max - min) * 100));
+    const a = z.largo ? pos(-3) : pos(z.aj - 3), b = z.largo ? pos(3) : pos(z.aj + 3);
+    const txt = z.largo ? (z.holg < -3 ? 'Queda corto' : z.holg > 3 ? 'Queda largo' : 'Largo justo')
+      : z.holg < 0 ? 'Aprieta' : z.holg < z.aj - 3 ? 'Justo' : z.holg <= z.aj + 3 ? 'Como te gusta' : 'Holgado';
+    li.querySelector('.vers').textContent = z.nombre;
+    li.querySelector('b').textContent = `${txt} · ${z.holg > 0 ? '+' : ''}${Math.round(z.holg)} cm`;
+    const pista = li.querySelector('.pista-ajuste');
+    pista.style.setProperty('--a', a + '%'); pista.style.setProperty('--w', (b - a) + '%'); pista.style.setProperty('--x', pos(z.holg) + '%');
+    const [p1, p2] = li.querySelectorAll('.pista-pie span');
+    p1.textContent = z.largo ? 'Corto' : 'Aprieta'; p2.textContent = z.largo ? 'Largo' : 'Holgado';
+  });
+  $('prob-usar').textContent = ok ? `Usar la ${tallaProbando} en la prenda` : 'Revisa tus medidas';
+  $('prob-usar').disabled = !ok;
+}
+function errorMedidas() {
+  const a = +$('m-alto-n').value, p = +$('m-peso-n').value;
+  const ea = !(a >= 140 && a <= 210), ep = !(p >= 35 && p <= 150);
+  $('m-alto-n').setAttribute('aria-invalid', ea); $('m-peso-n').setAttribute('aria-invalid', ep);
+  const e = $('prob-error');
+  e.hidden = !(ea || ep);
+  e.textContent = ea ? 'La altura va de 140 a 210 cm' : ep ? 'El peso va de 35 a 150 kg' : '';
+  return !(ea || ep);
+}
+function cambiarMedida(campo, v, { cargar = false } = {}) {
+  est.medidas[campo] = v;
+  salvar();
+  tallaProbando = null;
+  pintarProbador({ cargar });
+  const p = probarProd();
+  if (app.dataset.vista === 'probador') escena?.talla(tallaProbando, p);
+}
+$('m-alto').addEventListener('input', e => { $('m-alto-n').value = e.target.value; errorMedidas(); cambiarMedida('alto', +e.target.value); });
+$('m-peso').addEventListener('input', e => { $('m-peso-n').value = e.target.value; errorMedidas(); cambiarMedida('peso', +e.target.value); });
+['alto', 'peso'].forEach(k => $('m-' + k + '-n').addEventListener('input', e => {
+  const ok = errorMedidas();
+  est.medidas[k] = +e.target.value;
+  if (ok) { $('m-' + k).value = e.target.value; cambiarMedida(k, +e.target.value); }
+  else { salvar(); pintarProbador(); }
+}));
+$('m-ajuste').addEventListener('click', e => {
+  const b = e.target.closest('[data-ajuste]'); if (!b) return;
+  vibrar(6); cambiarMedida('ajuste', b.dataset.ajuste, { cargar: true });
+});
+$('prob-prendas').addEventListener('click', e => {
+  const b = e.target.closest('[data-probar]'); if (!b) return;
+  est.probar = +b.dataset.probar; tallaProbando = null; vibrar(6);
+  pintarProbador({ cargar: true });
+  escena?.mostrar(est.probar);
+  escena?.talla(tallaProbando, probarProd());
+});
+$('prob-tallas').addEventListener('click', e => {
+  const b = e.target.closest('[data-ptalla]'); if (!b) return;
+  tallaProbando = b.dataset.ptalla; vibrar(6);
+  pintarProbador();
+  escena?.talla(tallaProbando, probarProd());
+});
+$('prob-usar').addEventListener('click', () => {
+  const p = probarProd();
+  est.tallaSel[p.id] = tallaProbando; salvar();
+  avisar(`Talla ${tallaProbando} elegida para ${p.nombre}`, { tipo: 'ok', icono: '✓' });
+  abrirFicha(p.id);
+});
+
+/* =========================================================
+   BOLSA, ENTREGA Y PAGO EXPRÉS
+   ========================================================= */
+function cuentas() {
+  const sub = est.bolsa.reduce((s, l) => s + prod(l.id).precio * l.n, 0);
+  const ahorro = est.bolsa.reduce((s, l) => s + ((prod(l.id).antes || prod(l.id).precio) - prod(l.id).precio) * l.n, 0);
+  const envio = est.entrega === 'tienda' || sub >= GRATIS_DESDE || !sub ? 0 : ENVIO;
+  return { sub, ahorro, envio, total: sub + envio, uds: est.bolsa.reduce((s, l) => s + l.n, 0) };
+}
+function pintarInsignia() { const n = cuentas().uds; $('ins-bolsa').textContent = n || ''; }
+function pintarBolsa() {
+  const vacia = !est.bolsa.length;
+  $('confirmacion').hidden = true;
+  $('bolsa-vacia').hidden = !vacia;
+  $('bolsa-pago').hidden = vacia;
+  $('lineas').innerHTML = est.bolsa.map((l, i) => {
+    const p = prod(l.id), [cn] = colorDe(p, l.ci);
+    const max = stockDe(p.id, l.ci, tallasDe(p).indexOf(l.talla));
+    return `<li class="linea" data-i="${i}">
+      <figure>${mini(p, l.ci)}</figure>
+      <div><h4 class="disp">${esc(p.nombre)}</h4><p class="det vers">${esc(cn)}${l.talla !== 'Única' ? ' · talla ' + l.talla : ''}${max <= 2 ? ` · <span class="rebaja">quedan ${max}</span>` : ''}</p></div>
+      <span class="importe num">${euros(p.precio * l.n)}</span>
+      <div class="acc"><div class="paso" role="group" aria-label="Cantidad de ${esc(p.nombre)}">
+        <button type="button" data-menos="${i}" aria-label="Una menos">−</button><output class="num" aria-live="polite">${l.n}</output><button type="button" data-mas="${i}" aria-label="Una más" ${l.n >= max ? 'disabled' : ''}>+</button>
+      </div><button type="button" class="enlace" data-quitar="${i}">Quitar</button></div>
+    </li>`;
+  }).join('');
+  pintarTotales();
+}
+function pintarTotales() {
+  const c = cuentas();
+  $('entrega').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.entrega === est.entrega));
+  const casa = est.entrega === 'casa';
+  $('tiendas').hidden = casa;
+  $('tiendas').innerHTML = TIENDAS.map(t => `<li><button type="button" data-tienda="${t.id}" aria-pressed="${est.tienda === t.id}"><i aria-hidden="true"></i><span><b>${t.nombre}</b><br><small>${t.dir}</small></span><small>${t.hora.replace('Lista ', '')}</small></button></li>`).join('');
+  const falta = GRATIS_DESDE - c.sub;
+  $('envio-gratis').hidden = !casa;
+  $('envio-gratis').innerHTML = falta > 0 ? `Te faltan <b class="num">${euros(falta)}</b> para el envío gratis<i style="--p:${Math.min(1, c.sub / GRATIS_DESDE)}"></i>` : `Envío gratis desbloqueado · 24–48 h<i style="--p:1"></i>`;
+  $('totales').innerHTML = `
+    <div><span>Subtotal · ${c.uds} ${c.uds === 1 ? 'prenda' : 'prendas'}</span><span class="num">${euros(c.sub)}</span></div>
+    ${c.ahorro ? `<div class="ahorro"><span>Te ahorras</span><span class="num">−${euros(c.ahorro)}</span></div>` : ''}
+    <div><span>${casa ? 'Envío a casa' : 'Recogida en tienda'}</span><span class="num">${c.envio ? euros(c.envio) : 'Gratis'}</span></div>
+    <div class="total"><span class="vers">Total</span><b class="num" id="total-cifra">${euros(c.total)}</b></div>`;
+  $('pagar').disabled = !c.uds;
+}
+$('lineas').addEventListener('click', e => {
+  const mas = e.target.closest('[data-mas]'), menos = e.target.closest('[data-menos]'), quitar = e.target.closest('[data-quitar]');
+  if (mas) { est.bolsa[+mas.dataset.mas].n++; vibrar(6); salvar(); pintarBolsa(); pintarInsignia(); $('lineas').querySelector(`[data-mas="${mas.dataset.mas}"]`)?.focus(); }
+  else if (menos) {
+    const i = +menos.dataset.menos;
+    if (est.bolsa[i].n > 1) { est.bolsa[i].n--; vibrar(6); salvar(); pintarBolsa(); pintarInsignia(); $('lineas').querySelector(`[data-menos="${i}"]`)?.focus(); }
+    else quitarLinea(i);
+  } else if (quitar) quitarLinea(+quitar.dataset.quitar);
+});
+function quitarLinea(i) {
+  const li = $('lineas').querySelector(`[data-i="${i}"]`);
+  vibrar([6, 30, 6]);
+  const hecho = () => flip($('lineas'), () => { est.bolsa.splice(i, 1); salvar(); pintarBolsa(); pintarInsignia(); });
+  if (!li || reducido()) { hecho(); return; }
+  li.classList.add('quitando');
+  setTimeout(() => li.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(40px)' }], { duration: 260, easing: 'ease-in' }).onfinish = hecho, 300);
+}
+$('entrega').addEventListener('click', e => { const b = e.target.closest('[data-entrega]'); if (!b) return; est.entrega = b.dataset.entrega; vibrar(6); salvar(); pintarTotales(); });
+$('tiendas').addEventListener('click', e => { const b = e.target.closest('[data-tienda]'); if (!b) return; est.tienda = b.dataset.tienda; vibrar(6); salvar(); pintarTotales(); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-ir]'); if (b) tabs.ir(b.dataset.ir); });
+
+const hojaPago = hoja($('hoja-pago'));
+$('pagar').addEventListener('click', () => {
+  if (!est.bolsa.length) return;
+  const c = cuentas();
+  const casa = est.entrega === 'casa';
+  const t = TIENDAS.find(x => x.id === est.tienda);
+  $('pago-entrega').textContent = casa ? 'A domicilio · 24–48 h' : `${t.nombre} · ${t.hora.replace('Lista ', '')}`;
+  $('campo-cp').hidden = !casa;
+  $('f-nombre').value = est.nombre || '';
+  $('f-cp').value = est.cp || '';
+  $('pago-total').textContent = euros(c.total);
+  $('mantener-txt').textContent = `Mantén para pagar · ${euros(c.total)}`;
+  $('pago-error').hidden = true;
+  $('pago-form').hidden = false; $('pago-procesando').hidden = true;
+  hojaPago.abrir();
+});
+function validarPago() {
+  const nombre = $('f-nombre').value.trim(), cp = $('f-cp').value.trim();
+  const casa = est.entrega === 'casa';
+  let msg = '';
+  $('f-nombre').setAttribute('aria-invalid', !nombre);
+  $('f-cp').setAttribute('aria-invalid', casa && !/^\d{5}$/.test(cp));
+  if (!nombre) msg = 'Falta tu nombre para la etiqueta';
+  else if (casa && !/^\d{5}$/.test(cp)) msg = 'El código postal tiene cinco cifras';
+  $('pago-error').hidden = !msg;
+  $('pago-error').textContent = msg;
+  if (msg) { (nombre ? $('f-cp') : $('f-nombre')).focus(); vibrar([20, 40, 20]); }
+  return !msg;
+}
+// Mantener pulsado: la barra se llena como un pespunte; con teclado basta con Intro
+let presion = 0, presionT = 0;
+const mant = $('mantener');
+mant.addEventListener('pointerdown', ev => {
+  if (ev.button > 0) return;
+  ev.preventDefault();
+  if (!validarPago()) return;
+  const t0 = performance.now();
+  cancelAnimationFrame(presion);
+  const paso = ahora => {
+    const k = Math.min(1, (ahora - t0) / (reducido() ? 1 : 900));
+    mant.style.setProperty('--p', k);
+    if (k >= 1) { mant.style.setProperty('--p', 0); pagar(); return; }
+    presion = requestAnimationFrame(paso);
+  };
+  presion = requestAnimationFrame(paso);
+  presionT = t0;
+});
+const soltarMant = () => { if (presion) { cancelAnimationFrame(presion); presion = 0; if (performance.now() - presionT < 880) { mant.style.setProperty('--p', 0); } } };
+mant.addEventListener('pointerup', soltarMant);
+mant.addEventListener('pointerleave', soltarMant);
+mant.addEventListener('pointercancel', soltarMant);
+$('form-pago').addEventListener('submit', e => { e.preventDefault(); if (validarPago()) pagar(); });
+// Con teclado (Intro o espacio) el clic llega con detail 0: paga sin mantener
+mant.addEventListener('click', e => { if (e.detail === 0 && validarPago()) pagar(); });
+let pagando = false;
+function pagar() {
+  if (pagando) return;
+  pagando = true;
+  presion = 0;
+  est.nombre = $('f-nombre').value.trim(); est.cp = $('f-cp').value.trim();
+  $('pago-form').hidden = true; $('pago-procesando').hidden = false;
+  vibrar(12);
+  setTimeout(() => {
+    const c = cuentas();
+    const codigo = 'AL-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+    const ahora = Date.now();
+    const lineas = est.bolsa.map(l => ({ ...l }));
+    for (const l of lineas) {
+      const p = prod(l.id), si = tallasDe(p).indexOf(l.talla);
+      est.stock[p.id][l.ci][si] = Math.max(0, est.stock[p.id][l.ci][si] - l.n);
+      est.ventas.push({ t: ahora, id: l.id, ci: l.ci, talla: l.talla, n: l.n, importe: p.precio * l.n, canal: 'web', pedido: codigo });
+    }
+    est.pedidos.push({ codigo, t: ahora, total: c.total, lineas, entrega: est.entrega, tienda: est.tienda });
+    est.bolsa = [];
+    salvar();
+    hojaPago.cerrar();
+    pintarInsignia();
+    pintarConfirmacion(est.pedidos.at(-1));
+    vibrar([10, 50, 10, 50, 20]);
+    setTimeout(() => confeti($('confirmacion'), ['#111114', getComputedStyle(document.documentElement).getPropertyValue('--sd-accent').trim() || '#e7335a', '#d6c19c', '#87a088']), 250);
+    avisar(`Pedido ${codigo} confirmado`, { tipo: 'ok', icono: '✓' });
+    pintarTienda();
+    pagando = false;
+  }, 1400);
+}
+function pintarConfirmacion(ped) {
+  $('lineas').innerHTML = '';
+  $('bolsa-vacia').hidden = true;
+  $('bolsa-pago').hidden = true;
+  const t = TIENDAS.find(x => x.id === ped.tienda);
+  let bx = 0;
+  const barras = [...ped.codigo + 'ALBA07SS26'].map((ch, i) => {
+    const w = 1 + (ch.charCodeAt(0) + i) % 4, h = 1 + (i * 7 + ch.charCodeAt(0)) % 3;
+    const s = `var(--sd-ink) ${bx}px ${bx + w}px, transparent ${bx + w}px ${bx + w + h}px`;
+    bx += w + h; return s;
+  });
+  const c = $('confirmacion');
+  c.hidden = false;
+  c.innerHTML = `<article class="albaran">
+    <p class="vers apag" style="margin:0">Albarán · Nº 07 · SS26</p>
+    <h3 class="disp">Gracias${est.nombre ? ', ' + esc(est.nombre.split(' ')[0]) : ''}</h3>
+    <span class="codigo">${ped.codigo}</span>
+    <ul>${ped.lineas.map(l => { const p = prod(l.id); return `<li><span>${l.n} × ${esc(p.nombre)} <span class="apag">${esc(p.colores[l.ci][0])}${l.talla !== 'Única' ? ' · ' + l.talla : ''}</span></span><span class="num">${euros(p.precio * l.n)}</span></li>`; }).join('')}
+      <li><b>Total</b><b class="num">${euros(ped.total)}</b></li></ul>
+    <p style="margin:0">${ped.entrega === 'casa' ? `Llega en 24–48 h${est.cp ? ' a ' + esc(est.cp) : ''}. Te escribimos con el seguimiento.` : `Recógelo en ${t.nombre} (${t.dir}). ${t.hora}.`}</p>
+    <div class="codigo-barras" style="--barras:repeating-linear-gradient(90deg, ${barras.join(', ')})" aria-hidden="true"></div>
+    <button class="btn btn--ancho" type="button" data-ir="look" style="margin-top:12px">Seguir mirando</button>
+  </article>`;
+}
+
+/* =========================================================
+   TIENDA (vista del dueño): ventas, mapa de calor, reposición
+   ========================================================= */
+function ventasDelDia() {
+  if (est.dia === hoyClave() && Array.isArray(est.ventas)) return;
+  est.dia = hoyClave();
+  // Lo vendido hoy hasta ahora: hacia atrás desde este momento
+  const ventas = [];
+  let t = Date.now() - 6 * 60000;
+  let k = hash(est.dia) % 997;
+  for (let i = 0; i < 16; i++) {
+    k = (k * 31 + 17) % 9973;
+    const p = PRODUCTOS[k % PRODUCTOS.length], ci = k % p.colores.length, ts = tallasDe(p);
+    const n = 1 + (k % 5 === 0 ? 1 : 0);
+    ventas.unshift({ t, id: p.id, ci, talla: ts[k % ts.length], n, importe: p.precio * n, canal: k % 3 ? 'tienda' : 'web' });
+    t -= (14 + (k % 46)) * 60000;
+  }
+  est.ventas = ventas;
+  salvar();
+}
+let tProd = 1, celdaSel = null;
+function pintarTienda() {
+  ventasDelDia();
+  const v = est.ventas;
+  const total = v.reduce((s, x) => s + x.importe, 0);
+  const pedidos = new Set(v.map((x, i) => x.pedido || 'v' + i)).size;
+  const uds = v.reduce((s, x) => s + x.n, 0);
+  const d = new Date();
+  $('t-fecha').textContent = `${['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][d.getDay()]} ${d.getDate()} · ALBA Gran Vía + web`;
+  contar($('k-ventas'), total, { decimales: 0, sufijo: ' €' });
+  contar($('k-pedidos'), pedidos);
+  contar($('k-uds'), uds);
+  contar($('k-ticket'), pedidos ? total / pedidos : 0, { decimales: 2, sufijo: ' €' });
+  // ventas por hora: las últimas doce horas
+  const h0 = new Date(); h0.setMinutes(0, 0, 0);
+  const inicio = h0.getTime() - 11 * 3600000;
+  const horas = Array.from({ length: 12 }, (_, i) => v.filter(x => x.t >= inicio + i * 3600000 && x.t < inicio + (i + 1) * 3600000).reduce((s, x) => s + x.importe, 0));
+  const max = Math.max(60, ...horas);
+  $('grafica').innerHTML = horas.map((h, i) => {
+    const alto = h / max * 84, hh = new Date(inicio + i * 3600000).getHours();
+    return `<rect class="barra-h${i === 11 ? ' ahora' : ''}" x="${i * 26 + 4}" y="${92 - alto}" width="18" height="${Math.max(alto, 1)}"><title>${hh}:00 · ${euros(h, 0)}</title></rect><text x="${i * 26 + 13}" y="106" text-anchor="middle">${hh}h</text>`;
+  }).join('') + `<line x1="0" x2="320" y1="92.5" y2="92.5" stroke="currentColor" stroke-width=".6"/>`;
+  $('ventas').innerHTML = v.slice().sort((a, b) => b.t - a.t).slice(0, 8).map(x => {
+    const p = prod(x.id), h = new Date(x.t);
+    return `<li><span class="apag">${dosCifras(h.getHours())}:${dosCifras(h.getMinutes())}</span><span>${x.n > 1 ? x.n + ' × ' : ''}${esc(p.nombre)} <span class="apag">${x.talla}</span><span class="etiqueta-canal">${x.canal}</span></span><span class="num">${euros(x.importe)}</span></li>`;
+  }).join('');
+  pintarCalor();
+  pintarAvisos();
+}
+function pintarCalor() {
+  const p = prod(tProd);
+  $('t-prendas').innerHTML = PRODUCTOS.map(q => `<button type="button" class="chip" data-tprod="${q.id}" aria-pressed="${q.id === tProd}">${esc(q.nombre.split(' ')[0])}</button>`).join('');
+  const ts = tallasDe(p);
+  const maxS = Math.max(8, ...est.stock[p.id].flat());
+  $('calor').innerHTML = `<thead><tr><th scope="col"><span class="k-sr">Color</span></th>${ts.map(t => `<th scope="col">${t}</th>`).join('')}</tr></thead><tbody>${p.colores.map(([cn, c], ci) => `<tr><th scope="row"><i style="--c:${c}"></i>${cn}</th>${ts.map((t, si) => {
+    const n = stockDe(p.id, ci, si);
+    const pct = Math.round(8 + n / maxS * 72);
+    const k = `${p.id}|${ci}|${si}`;
+    return `<td><button type="button" class="celda num" data-celda="${k}" data-nivel="${n === 0 ? 0 : n <= 2 ? 1 : 2}" aria-pressed="${celdaSel === k}" aria-label="${cn}, talla ${t}: ${n} unidades" style="--fondo:color-mix(in srgb, var(--sd-ink) ${pct}%, transparent);${pct > 46 ? '--tinta:var(--sd-bg)' : ''}">${n}</button></td>`;
+  }).join('')}</tr>`).join('')}</tbody>`;
+}
+function alertas() {
+  const r = [];
+  for (const p of PRODUCTOS) p.colores.forEach(([cn], ci) => tallasDe(p).forEach((t, si) => {
+    const n = stockDe(p.id, ci, si);
+    if (n <= 1) r.push({ k: `${p.id}|${ci}|${si}`, p, cn, t, n });
+  }));
+  return r.sort((a, b) => a.n - b.n);
+}
+function pintarAvisos() {
+  const al = alertas();
+  const pend = al.filter(a => !est.repos.some(r => r.k === a.k));
+  $('ins-tienda').textContent = pend.length || '';
+  $('n-avisos').textContent = pend.length ? `${pend.length} por pedir` : 'todo en orden';
+  if (!al.length) { $('avisos').innerHTML = `<li class="apag" style="padding:14px 0">Todo en stock. Nada que pedir.</li>`; return; }
+  $('avisos').innerHTML = al.slice(0, 7).map(a => {
+    const r = est.repos.find(x => x.k === a.k);
+    return `<li class="aviso-rep${r ? ' pedido' : ''}" data-k="${a.k}"><b>${esc(a.p.nombre)}</b><small class="${a.n ? '' : 'urge'}">${esc(a.cn)} · ${a.t} · ${a.n ? 'queda 1' : 'agotada'}${est.avisame.includes(`${a.p.id}-${a.k.split('|')[1]}-${a.t}`) ? ' · 1 cliente esperando' : ''}</small>
+      <button class="btn" type="button" data-pedir="${a.k}" ${r ? 'disabled' : ''}>${r ? `Pedido ✓ ${r.codigo}` : 'Pedir al proveedor'}</button></li>`;
+  }).join('') + (al.length > 7 ? `<li class="apag" style="padding:10px 0;font-size:13px">y ${al.length - 7} más</li>` : '');
+}
+$('t-prendas').addEventListener('click', e => { const b = e.target.closest('[data-tprod]'); if (!b) return; tProd = +b.dataset.tprod; celdaSel = null; vibrar(6); pintarCalor(); $('detalle-celda').innerHTML = '<span class="apag">Toca una casilla para ver el detalle</span>'; });
+$('calor').addEventListener('click', e => {
+  const b = e.target.closest('[data-celda]'); if (!b) return;
+  celdaSel = b.dataset.celda;
+  const [id, ci, si] = celdaSel.split('|').map(Number);
+  const p = prod(id), t = tallasDe(p)[si], n = stockDe(id, ci, si);
+  const vendidas = est.ventas.filter(x => x.id === id && x.ci === ci && x.talla === t).reduce((s, x) => s + x.n, 0);
+  $('calor').querySelectorAll('.celda').forEach(x => x.setAttribute('aria-pressed', x === b));
+  $('detalle-celda').innerHTML = `<span><b>${esc(p.colores[ci][0])} · ${t}</b> — ${n} ${n === 1 ? 'unidad' : 'unidades'} · ${vendidas} vendidas hoy</span><button class="btn btn--linea" type="button" data-sumar="${celdaSel}" style="padding:8px 12px">+1 recuento</button>`;
+});
+$('detalle-celda').addEventListener('click', e => {
+  const b = e.target.closest('[data-sumar]'); if (!b) return;
+  const [id, ci, si] = b.dataset.sumar.split('|').map(Number);
+  est.stock[id][ci][si]++; salvar(); vibrar(6);
+  pintarCalor(); pintarAvisos();
+  const c = $('calor').querySelector(`[data-celda="${b.dataset.sumar}"]`); c?.classList.add('llena');
+  $('calor').querySelector(`[data-celda="${b.dataset.sumar}"]`)?.click();
+});
+$('avisos').addEventListener('click', e => {
+  const b = e.target.closest('[data-pedir]'); if (!b) return;
+  const k = b.dataset.pedir;
+  b.disabled = true; b.textContent = 'Enviando…'; vibrar(8);
+  setTimeout(() => {
+    const codigo = 'PR-' + (2400 + (hash(k + Date.now()) % 600));
+    est.repos.push({ k, codigo });
+    salvar(); pintarAvisos();
+    avisar(`${codigo} enviado al proveedor · llega en 48 h`, { tipo: 'ok', icono: '✓' });
+    // El proveedor sirve (acelerado para la demo) y la casilla se rellena
+    setTimeout(() => {
+      const [id, ci, si] = k.split('|').map(Number);
+      est.stock[id][ci][si] += 6;
+      est.repos = est.repos.filter(r => r.k !== k);
+      salvar();
+      if (app.dataset.vista === 'tienda') {
+        if (tProd !== id) { tProd = id; }
+        pintarCalor(); pintarAvisos();
+        $('calor').querySelector(`[data-celda="${k}"]`)?.classList.add('llena');
+        avisar(`Repuesto: ${prod(id).nombre} · ${tallasDe(prod(id))[si]} (+6)`, { icono: '↺' });
+      }
+      if (est.prod === id) pintarTallas();
+    }, 4200);
+  }, 900);
+});
+// Mientras miras la trastienda, la tienda sigue vendiendo
+let ventaViva = 0;
+function ventasEnVivo() {
+  clearTimeout(ventaViva);
+  ventaViva = setTimeout(() => {
+    if (app.dataset.vista === 'tienda') {
+      const opciones = [];
+      for (const p of PRODUCTOS) p.colores.forEach((_, ci) => tallasDe(p).forEach((t, si) => { if (stockDe(p.id, ci, si) > 0) opciones.push([p, ci, si, t]); }));
+      const [p, ci, si, t] = opciones[Math.floor(Math.random() * opciones.length)];
+      est.stock[p.id][ci][si]--;
+      est.ventas.push({ t: Date.now(), id: p.id, ci, talla: t, n: 1, importe: p.precio, canal: 'tienda' });
+      salvar();
+      pintarTienda();
+      $('ventas').firstElementChild?.classList.add('nueva');
+      avisar(`Venta en tienda: ${p.nombre} · ${t}`, { icono: '€' });
+      vibrar([6, 30, 6]);
+    }
+    ventasEnVivo();
+  }, 16000);
+}
+
+/* =========================================================
+   LA PRENDA EN 3D: tela que se mueve de verdad, colgada de su
+   percha en una barra. Ondas amortiguadas sobre una malla
+   (ecuación de onda con muelle a la pose de reposo), arrastre
+   del aire al girar o mecerla, y vuelo de falda por la fuerza
+   centrífuga.
+   ========================================================= */
+let escena = null;
+function actualizarReserva(p) {
+  const r = $('reserva-sil');
+  if (!p) { r.style.removeProperty('--sil'); r.style.setProperty('--c', 'transparent'); return; }
+  r.style.setProperty('--sil', `url(${SIL[p.id]})`);
+  r.style.setProperty('--c', colorDe(p)[1]);
+}
+
+function crearPrenda3D() {
+  const lienzo = $('lienzo'), caja = $('escenario');
+  const e = crearEscena(lienzo, {
+    camara: { fov: 28, pos: [0, -1, 7], mira: [0, -1, 0] },
+    sombras: true, sombraTam: 2.6, solPos: [1.9, 2.6, 6], luz: 1.55, ambiente: 0.7, exposicion: 1,
+    entornoIntensidad: 0.7,
+    alTema: t => tema(t),
+    cuadro: (t, dt) => paso(t, dt)
+  });
+  if (!e) return null;
+  const { scene, camera } = e;
+  e.sol.target.position.set(0, -1, 0); scene.add(e.sol.target);
+  e.sol.shadow.mapSize.set(1024, 1024);
+  e.sol.shadow.radius = 6;
+
+  // La pared del estudio: solo recibe la sombra de la prenda
+  const muro = new THREE.Mesh(new THREE.PlaneGeometry(40, 30), new THREE.ShadowMaterial({ opacity: 0.12 }));
+  muro.position.set(0, -2, -1.15); muro.receiveShadow = true; scene.add(muro);
+
+  // Barra cromada que cruza el encuadre
+  const cromo = new THREE.MeshStandardMaterial({ color: '#d7d8db', metalness: 1, roughness: 0.16 });
+  const barra = new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.017, 30, 16), cromo);
+  barra.rotation.z = Math.PI / 2; scene.add(barra);
+
+  /* ---------- madera de la percha ---------- */
+  const texMadera = (() => {
+    const [c, g] = lienzo2d(512, 64);
+    g.fillStyle = '#b98a5b'; g.fillRect(0, 0, 512, 64);
+    for (let i = 0; i < 70; i++) {
+      g.strokeStyle = `rgba(90,50,20,${0.05 + Math.random() * 0.12})`; g.lineWidth = 0.6 + Math.random() * 1.6;
+      const y = Math.random() * 64; g.beginPath(); g.moveTo(0, y);
+      for (let x = 0; x <= 512; x += 32) g.lineTo(x, y + Math.sin(x / 70 + i) * 2.5);
+      g.stroke();
+    }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+    return t;
+  })();
+  const matMadera = new THREE.MeshPhysicalMaterial({ map: texMadera, roughness: 0.38, clearcoat: 0.6, clearcoatRoughness: 0.25 });
+  const matNegro = new THREE.MeshStandardMaterial({ color: '#1b1b1d', roughness: 0.45, metalness: 0.3 });
+
+  const yPercha = -0.31;
+  const hombroY = x => yPercha - 0.12 * Math.pow(Math.min(Math.abs(x), 0.46) / 0.46, 1.5);
+  // El gancho: sube desde la percha, abraza la barra y vuelve por detrás
+  const geoGancho = new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
+    [0, yPercha, 0.03], [0, -0.14, 0.03], [0, -0.02, 0.032], [0, 0.03, 0.01], [0, 0.03, -0.024], [0, -0.005, -0.04], [0, -0.035, -0.03]
+  ].map(v => new THREE.Vector3(...v))), 40, 0.0105, 8);
+  const geoHombros = (() => {
+    const pts = [];
+    for (let i = 0; i <= 16; i++) { const x = -0.46 + i / 16 * 0.92; pts.push(new THREE.Vector3(x, hombroY(x) - 0.012, 0.03)); }
+    const g = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 64, 0.03, 12);
+    g.translate(0, 0, -0.03); g.scale(1, 1, 0.55); g.translate(0, 0, 0.03);
+    return g;
+  })();
+  const geoPunta = new THREE.SphereGeometry(0.03, 16, 10);
+  const geoBarraPinzas = new RoundedBoxGeometry(0.98, 0.032, 0.032, 2, 0.012);
+  const geoPinza = new RoundedBoxGeometry(0.075, 0.12, 0.05, 2, 0.012);
+  const geoMuelle = new THREE.TorusGeometry(0.02, 0.006, 6, 16);
+
+  function percha(tipo) {
+    const g = new THREE.Group();
+    const gancho = new THREE.Mesh(geoGancho, cromo); gancho.castShadow = true; g.add(gancho);
+    if (tipo === 'hombros') {
+      const h = new THREE.Mesh(geoHombros, matMadera); h.castShadow = true; g.add(h);
+      [-1, 1].forEach(s => { const p = new THREE.Mesh(geoPunta, matMadera); p.position.set(s * 0.46, hombroY(0.46) - 0.012, 0.03); p.scale.set(1, 1, 0.55); g.add(p); });
+    } else if (tipo === 'pinzas') {
+      const b = new THREE.Mesh(geoBarraPinzas, matNegro); b.position.set(0, -0.33, 0.03); b.castShadow = true; g.add(b);
+      [-1, 1].forEach(s => {
+        const p = new THREE.Mesh(geoPinza, cromo); p.position.set(s * 0.36, -0.40, 0.03); p.castShadow = true; g.add(p);
+        const m = new THREE.Mesh(geoMuelle, cromo); m.position.set(s * 0.36, -0.37, 0.06); g.add(m);
+      });
+    }
+    return g;
+  }
+  const bordeSup = (tipo, x) => tipo === 'hombros'
+    ? (Math.abs(x) <= 0.46 ? hombroY(x) - 0.035 : hombroY(0.46) - 0.035 - 0.3 * (Math.abs(x) - 0.46))
+    : tipo === 'pinzas' ? -0.42 : yPercha - 0.02;
+
+  /* ---------- tejidos en canvas (gris claro: el color lo pone el material) ---------- */
+  function texturaTejido(p) {
+    const F = FORMAS[p.forma];
+    const W = 512, H = Math.min(1024, Math.round(512 * F.h / F.w));
+    const [c, g] = lienzo2d(W, H);
+    const [ca, ga] = lienzo2d(W, H);
+    ga.fillStyle = '#000'; ga.fillRect(0, 0, W, H);
+    dibujarSilueta(p.forma, ga, W, H);
+    g.fillStyle = '#f3f3f3'; g.fillRect(0, 0, W, H);
+    const azar = (() => { let s = hash(p.forma); return () => ((s = Math.imul(s ^ (s >>> 15), 2246822507) + 0x6d2b79f5 >>> 0) % 10000) / 10000; })();
+    switch (F.tejido) {
+      case 'punto': // filas de puntos en V
+        g.lineWidth = 1.1;
+        for (let y = 0; y < H; y += 5) for (let x = 0; x < W; x += 6) {
+          g.strokeStyle = `rgba(0,0,0,${0.06 + azar() * 0.06})`;
+          g.beginPath(); g.moveTo(x, y); g.lineTo(x + 3, y + 4); g.lineTo(x + 6, y); g.stroke();
         }
-        $('cart-total').textContent = fmt(bag.reduce((s, it) => s + it.price, 0));
-    }
-    const openCart  = () => { $('cart').classList.add('show'); $('cart-backdrop').classList.add('show'); };
-    const closeCart = () => { $('cart').classList.remove('show'); $('cart-backdrop').classList.remove('show'); };
-
-    $('bag-btn').addEventListener('click', openCart);
-    $('cart-close').addEventListener('click', closeCart);
-    $('cart-backdrop').addEventListener('click', closeCart);
-    $('fav-btn').addEventListener('click', () => {
-        if (!favs.size) { toast('Marca productos con el corazón 🤍'); return; }
-        activeCat = 'Todo';
-        transition(() => { renderCats(); renderGrid(); });
-        toast(`Tienes ${favs.size} favorito${favs.size > 1 ? 's' : ''} ❤️`);
-    });
-
-    $('checkout').addEventListener('click', () => {
-        if (!bag.length) { toast('La cesta está vacía'); return; }
-        $('done-sub').innerHTML =
-            `${bag.length} artículo${bag.length > 1 ? 's' : ''} · ${$('cart-total').textContent}<br>` +
-            'Recibirás un email con el seguimiento.<br>Entrega estimada: 24–48 h 📦';
-        bag.length = 0;
-        updateBadges();
-        renderCart();
-        closeCart();
-        $('done').classList.add('show');
-    });
-    $('done-close').addEventListener('click', () => transition(() => $('done').classList.remove('show')));
-
-    /* ----- Delegación global ----- */
-    document.addEventListener('click', e => {
-        const cat = e.target.closest('[data-cat]');
-        if (cat) { activeCat = cat.dataset.cat; transition(() => { renderCats(); renderGrid(); }); return; }
-
-        const fav = e.target.closest('[data-fav]');
-        if (fav) {
-            const id = +fav.dataset.fav;
-            favs.has(id) ? favs.delete(id) : favs.add(id);
-            fav.textContent = favs.has(id) ? '❤️' : '🤍';
-            updateBadges();
-            return;
+        break;
+      case 'lino': // hilos irregulares con nudos
+        for (let i = 0; i < H * 0.7; i++) { g.fillStyle = `rgba(0,0,0,${0.012 + azar() * 0.03})`; g.fillRect(azar() * W * 0.3 - 20, azar() * H, W * (0.3 + azar() * 0.8), 1 + azar()); }
+        for (let i = 0; i < W * 0.7; i++) { g.fillStyle = `rgba(0,0,0,${0.012 + azar() * 0.028})`; g.fillRect(azar() * W, azar() * H * 0.3 - 20, 1 + azar(), H * (0.4 + azar())); }
+        for (let i = 0; i < 160; i++) { g.fillStyle = `rgba(0,0,0,${0.05 + azar() * 0.05})`; g.fillRect(azar() * W, azar() * H, 3 + azar() * 8, 1.6); }
+        break;
+      case 'denim': // sarga en diagonal y trama blanca
+        g.lineWidth = 1.3;
+        for (let k = -H; k < W; k += 3) { g.strokeStyle = `rgba(0,0,0,${0.08 + azar() * 0.1})`; g.beginPath(); g.moveTo(k, H); g.lineTo(k + H, 0); g.stroke(); }
+        for (let i = 0; i < 3000; i++) { g.fillStyle = `rgba(255,255,255,${0.12 + azar() * 0.2})`; g.fillRect(azar() * W, azar() * H, 1.4, 1); }
+        // lavado stone: más claro en muslos y rodillas
+        [[0.27, 0.42], [0.73, 0.42], [0.25, 0.66], [0.75, 0.66]].forEach(([u, v]) => {
+          const r = g.createRadialGradient(u * W, v * H, 2, u * W, v * H, W * 0.2);
+          r.addColorStop(0, 'rgba(255,255,255,.16)'); r.addColorStop(1, 'rgba(255,255,255,0)');
+          g.fillStyle = r; g.fillRect(0, 0, W, H);
+        });
+        break;
+      case 'saten': // reflejos largos de la caída
+        for (let i = 0; i < 14; i++) {
+          const x = azar() * W, a = 10 + azar() * 40;
+          const gr = g.createLinearGradient(x - a, 0, x + a, 0);
+          gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.5, `rgba(0,0,0,${0.03 + azar() * 0.05})`); gr.addColorStop(1, 'rgba(0,0,0,0)');
+          g.fillStyle = gr; g.fillRect(x - a, H * 0.15, a * 2, H);
         }
-        const open = e.target.closest('[data-open]');
-        if (open) { openPdp(PRODUCTS.find(p => p.id === +open.dataset.open)); return; }
+        break;
+      case 'piel': // grano de la piel
+        for (let i = 0; i < 6000; i++) { g.fillStyle = `rgba(0,0,0,${0.03 + azar() * 0.05})`; g.beginPath(); g.ellipse(azar() * W, azar() * H, 1 + azar() * 2.5, 1 + azar() * 1.6, azar() * 3, 0, 7); g.fill(); }
+        break;
+    }
+    // Costuras y detalles del patrón
+    const pes = { ancho: 1.6, color: 'rgba(0,0,0,.32)', guion: [5, 4] };
+    const raya = { ancho: 2.2, color: 'rgba(0,0,0,.2)' };
+    const nervio = (x0, y0, x1, y1) => { g.save(); g.beginPath(); g.rect(x0 * W, y0 * H, (x1 - x0) * W, (y1 - y0) * H); g.clip(); g.strokeStyle = 'rgba(0,0,0,.14)'; g.lineWidth = 1.4; for (let x = x0 * W; x < x1 * W; x += 3.5) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); } g.restore(); };
+    const boton = (u, v, r = 0.018) => { g.fillStyle = 'rgba(0,0,0,.45)'; g.beginPath(); g.arc(u * W, v * H, r * W, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.35)'; g.beginPath(); g.arc(u * W - 2, v * H - 2, r * W * 0.35, 0, 7); g.fill(); };
+    switch (p.forma) {
+      case 'camiseta':
+        linea(g, [[0.40, 0.01], [0.45, 0.06], [0.5, 0.077], [0.55, 0.06], [0.60, 0.01]], W, H, { ancho: 10, color: 'rgba(0,0,0,.08)' });
+        linea(g, [[0.40, 0.03], [0.45, 0.08], [0.5, 0.097], [0.55, 0.08], [0.60, 0.03]], W, H, pes);
+        linea(g, [[0.14, 0.96], [0.86, 0.96]], W, H, pes);
+        linea(g, [[0.945, 0.27], [0.99, 0.15]], W, H, pes); linea(g, [[0.055, 0.27], [0.01, 0.15]], W, H, pes);
+        break;
+      case 'jersey':
+        nervio(0.38, 0, 0.62, 0.075); nervio(0.15, 0.89, 0.85, 0.97); nervio(0.86, 0.81, 1, 0.9); nervio(0, 0.81, 0.14, 0.9);
+        linea(g, [[0.17, 0.89], [0.83, 0.89]], W, H, raya);
+        break;
+      case 'blazer':
+        g.fillStyle = 'rgba(0,0,0,.07)';
+        g.beginPath(); g.moveTo(0.41 * W, 0); g.lineTo(0.5 * W, 0.52 * H); g.lineTo(0.59 * W, 0); g.lineTo(0.66 * W, 0.04 * H); g.lineTo(0.62 * W, 0.12 * H); g.lineTo(0.66 * W, 0.15 * H); g.lineTo(0.5 * W, 0.52 * H); g.lineTo(0.34 * W, 0.15 * H); g.lineTo(0.38 * W, 0.12 * H); g.lineTo(0.34 * W, 0.04 * H); g.closePath(); g.fill();
+        linea(g, [[0.41, 0], [0.5, 0.52]], W, H, raya); linea(g, [[0.59, 0], [0.5, 0.52]], W, H, raya);
+        linea(g, [[0.34, 0.04], [0.38, 0.12], [0.34, 0.15], [0.5, 0.52]], W, H, raya); linea(g, [[0.66, 0.04], [0.62, 0.12], [0.66, 0.15], [0.5, 0.52]], W, H, raya);
+        linea(g, [[0.5, 0.52], [0.5, 0.93]], W, H, raya);
+        boton(0.52, 0.58);
+        linea(g, [[0.23, 0.66], [0.38, 0.66], [0.38, 0.7], [0.23, 0.7], [0.23, 0.66]], W, H, raya);
+        linea(g, [[0.62, 0.66], [0.77, 0.66], [0.77, 0.7], [0.62, 0.7], [0.62, 0.66]], W, H, raya);
+        linea(g, [[0.64, 0.33], [0.74, 0.32]], W, H, { ancho: 3, color: 'rgba(0,0,0,.22)' });
+        linea(g, [[0.89, 0.8], [0.99, 0.8]], W, H, pes); linea(g, [[0.11, 0.8], [0.01, 0.8]], W, H, pes);
+        boton(0.94, 0.77, 0.008); boton(0.96, 0.75, 0.008); boton(0.06, 0.77, 0.008); boton(0.04, 0.75, 0.008);
+        break;
+      case 'vestido':
+        linea(g, [[0.30, 0.125], [0.40, 0.155], [0.5, 0.22], [0.60, 0.155], [0.70, 0.125]], W, H, { ancho: 4, color: 'rgba(0,0,0,.18)' });
+        linea(g, [[0.31, 0.40], [0.5, 0.41], [0.69, 0.40]], W, H, { ancho: 1.5, color: 'rgba(0,0,0,.12)' });
+        linea(g, [[0.12, 0.975], [0.5, 0.988], [0.88, 0.975]], W, H, pes);
+        break;
+      case 'vaquero':
+        linea(g, [[0.03, 0.05], [0.97, 0.05]], W, H, raya); linea(g, [[0.03, 0.044], [0.97, 0.044]], W, H, pes);
+        [0.12, 0.3, 0.7, 0.88].forEach(u => linea(g, [[u, 0.0], [u, 0.065]], W, H, { ancho: 5, color: 'rgba(0,0,0,.18)' }));
+        boton(0.5, 0.025, 0.022);
+        linea(g, [[0.5, 0.05], [0.56, 0.06], [0.56, 0.2], [0.5, 0.26]], W, H, pes);
+        linea(g, [[0.2, 0.05], [0.25, 0.1], [0.36, 0.13]], W, H, pes); linea(g, [[0.8, 0.05], [0.75, 0.1], [0.64, 0.13]], W, H, pes);
+        linea(g, [[0.05, 0.3], [0.06, 0.99]], W, H, pes); linea(g, [[0.95, 0.3], [0.94, 0.99]], W, H, pes);
+        linea(g, [[0.06, 0.975], [0.45, 0.975]], W, H, pes); linea(g, [[0.55, 0.975], [0.94, 0.975]], W, H, pes);
+        break;
+      case 'bolso':
+        linea(g, [[0.07, 0.44], [0.93, 0.44]], W, H, pes);
+        linea(g, [[0.06, 0.97], [0.94, 0.97]], W, H, pes);
+        g.fillStyle = 'rgba(0,0,0,.14)'; g.font = `700 ${Math.round(W * 0.09)}px system-ui, sans-serif`; g.textAlign = 'center';
+        g.save(); g.translate(W / 2, 0.72 * H); g.scale(1.6, 1); g.fillText('A L B A', 0, 0); g.restore();
+        boton(0.5, 0.47, 0.016);
+        break;
+    }
+    const map = new THREE.CanvasTexture(c); map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 4;
+    const alpha = new THREE.CanvasTexture(ca);
+    return { map, alpha };
+  }
 
-        if (e.target.closest('.pdp-close')) { $('pdp').classList.remove('show'); return; }
+  /* ---------- la tela: malla, reposo y estado de la simulación ---------- */
+  function construirTela(p, mat) {
+    const F = FORMAS[p.forma];
+    const NX = 22, NY = Math.max(20, Math.min(40, Math.round(22 * F.h / F.w)));
+    const n = NX * NY;
+    const rest = new Float32Array(n * 3), zB = new Float32Array(n), uv = new Float32Array(n * 2);
+    const K = new Float32Array(n), R = new Float32Array(n);
+    for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+      const k = j * NX + i, u = i / (NX - 1), v = j / (NY - 1);
+      const x = (u - 0.5) * F.w;
+      const y = bordeSup(F.percha, x) - v * F.h;
+      const prof = Math.sqrt(Math.max(0, 1 - (x / F.medio) ** 2));
+      const env = Math.min(1, v * 7) * (1 - 0.25 * v);
+      const ond = F.pliegue * Math.pow(v, 1.4) * Math.sin(x * 15 + 1.1);
+      rest[k * 3] = x; rest[k * 3 + 1] = y; rest[k * 3 + 2] = 0.045 + F.bulto * prof * env + ond;
+      zB[k] = 0.015 - F.bulto * 0.8 * prof * env + ond;
+      uv[k * 2] = u; uv[k * 2 + 1] = 1 - v;
+      K[k] = 2.6 + 190 * Math.pow(1 - v, 4);
+      R[k] = -y;
+    }
+    const idx = [];
+    for (let j = 0; j < NY - 1; j++) for (let i = 0; i < NX - 1; i++) { const a = j * NX + i, b = a + 1, c = a + NX, d = c + 1; idx.push(a, c, b, b, c, d); }
+    const malla = z => {
+      const g = new THREE.BufferGeometry();
+      const pos = new Float32Array(rest);
+      if (z) for (let k = 0; k < n; k++) pos[k * 3 + 2] = z[k];
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
+      g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+      g.setIndex(idx); g.computeVertexNormals();
+      const m = new THREE.Mesh(g, mat); m.castShadow = true; m.userData.tela = true;
+      return m;
+    };
+    const frente = malla(null), espalda = malla(zB);
+    espalda.userData.espalda = true;
+    return { NX, NY, n, rest, zB, K, R, D: new Float32Array(n * 3), Vv: new Float32Array(n * 3), frente, espalda, despierta: false, F, yPliegue: bordeSup(F.percha, 0) - F.h * 0.5 };
+  }
 
-        const size = e.target.closest('[data-size]');
-        if (size) { selSize = size.dataset.size; renderOptions(); return; }
-        const color = e.target.closest('[data-color]');
-        if (color) { selColor = color.dataset.color; renderOptions(); return; }
-
-        const rm = e.target.closest('[data-rm]');
-        if (rm) { bag.splice(+rm.dataset.rm, 1); updateBadges(); renderCart(); }
+  /* ---------- accesorios rígidos que cuelgan ---------- */
+  const matLente = (() => {
+    const [c, g] = lienzo2d(4, 64);
+    const gr = g.createLinearGradient(0, 0, 0, 64); gr.addColorStop(0, '#fff'); gr.addColorStop(1, '#555'); g.fillStyle = gr; g.fillRect(0, 0, 4, 64);
+    return new THREE.MeshPhysicalMaterial({ color: '#26303a', roughness: 0.05, metalness: 0.1, clearcoat: 1, transparent: true, alphaMap: new THREE.CanvasTexture(c), depthWrite: false, side: THREE.DoubleSide });
+  })();
+  const matCordon = new THREE.MeshStandardMaterial({ color: '#2a2522', roughness: 0.9 });
+  function gafas(mat) {
+    const g = new THREE.Group();
+    const aro = new THREE.TorusGeometry(0.15, 0.013, 12, 56);
+    [-1, 1].forEach(s => {
+      const a = new THREE.Mesh(aro, mat); a.position.set(s * 0.18, 0, 0); a.castShadow = true; g.add(a);
+      const l = new THREE.Mesh(new THREE.CircleGeometry(0.146, 40), matLente); l.position.set(s * 0.18, 0, 0.002); g.add(l);
+      const b = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.022, 0.03), mat); b.position.set(s * 0.335, 0.05, -0.01); g.add(b);
+      const v = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.016, 0.44), mat); v.position.set(s * 0.355, 0.05, -0.23); v.rotation.y = s * 0.05; v.castShadow = true; g.add(v);
+      const p = new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, -0.02, -0.06), new THREE.Vector3(0, -0.09, -0.08)), 10, 0.009, 6), mat);
+      p.position.set(s * 0.36, 0.05, -0.44); g.add(p);
     });
+    const puente = new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(new THREE.Vector3(-0.035, 0.07, 0), new THREE.Vector3(0, 0.11, 0.012), new THREE.Vector3(0.035, 0.07, 0)), 12, 0.011, 8), mat);
+    g.add(puente);
+    g.position.set(0, -0.62, 0.03); g.rotation.x = -0.12;
+    const cont = new THREE.Group();
+    cont.add(g);
+    const cord = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0, yPercha + 0.005, 0.03), new THREE.Vector3(-0.01, -0.42, 0.035), new THREE.Vector3(0, -0.51, 0.03)]), 16, 0.006, 6), matCordon);
+    cont.add(cord);
+    return cont;
+  }
+  const matSuela = new THREE.MeshPhysicalMaterial({ color: '#f2efe8', roughness: 0.6, clearcoat: 0.2 });
+  const matPanel = new THREE.MeshStandardMaterial({ color: '#b9b1a3', roughness: 0.7 });
+  function zapatilla(mat) {
+    const s = new THREE.Shape();
+    s.moveTo(-0.3, 0.07); s.lineTo(-0.315, 0.2); s.quadraticCurveTo(-0.315, 0.3, -0.22, 0.295);
+    s.quadraticCurveTo(-0.12, 0.24, -0.04, 0.27); s.lineTo(0.0, 0.33); s.quadraticCurveTo(0.05, 0.345, 0.07, 0.285);
+    s.quadraticCurveTo(0.2, 0.21, 0.3, 0.16); s.quadraticCurveTo(0.36, 0.12, 0.345, 0.07); s.closePath();
+    const sup = new THREE.ExtrudeGeometry(s, { depth: 0.17, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.035, bevelSegments: 4, curveSegments: 14 });
+    sup.translate(0, 0, -0.085);
+    const so = new THREE.Shape();
+    so.moveTo(-0.35, 0); so.lineTo(0.36, 0); so.quadraticCurveTo(0.41, 0.0, 0.4, 0.06); so.lineTo(0.38, 0.105); so.lineTo(-0.35, 0.11); so.quadraticCurveTo(-0.38, 0.05, -0.35, 0);
+    const suela = new THREE.ExtrudeGeometry(so, { depth: 0.23, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.015, bevelSegments: 2 });
+    suela.translate(0, 0, -0.115);
+    const z = new THREE.Group();
+    const a = new THREE.Mesh(sup, mat); a.castShadow = true; z.add(a);
+    const b = new THREE.Mesh(suela, matSuela); b.castShadow = true; z.add(b);
+    // panel lateral a los dos lados y talonera: así se lee como zapatilla
+    const pan = new THREE.Shape();
+    pan.moveTo(-0.27, 0.1); pan.quadraticCurveTo(-0.05, 0.12, 0.16, 0.22); pan.lineTo(0.2, 0.19); pan.quadraticCurveTo(0, 0.08, -0.25, 0.075); pan.closePath();
+    const geoPan = new THREE.ExtrudeGeometry(pan, { depth: 0.012, bevelEnabled: false });
+    [0.123, -0.135].forEach(zz => { const m = new THREE.Mesh(geoPan, matPanel); m.position.z = zz; z.add(m); });
+    const talon = new THREE.Mesh(new RoundedBoxGeometry(0.07, 0.12, 0.2, 2, 0.02), matPanel); talon.position.set(-0.33, 0.22, 0); z.add(talon);
+    z.rotation.set(0, -0.18, 0.1);
+    z.position.set(0.03, -1.0, 0.03);
+    const cont = new THREE.Group(); cont.add(z);
+    z.updateMatrix();
+    const inv = z.matrix.clone().invert();
+    const gancho = new THREE.Vector3(0, yPercha + 0.005, 0.03).applyMatrix4(inv);
+    [-0.045, 0.045].forEach(dz => {
+      const ojal = new THREE.Vector3(-0.01, 0.31, dz);
+      const mid = ojal.clone().lerp(gancho, 0.5).add(new THREE.Vector3(0.03, 0, dz));
+      const c = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([ojal, mid, gancho]), 20, 0.008, 6), matSuela);
+      z.add(c);
+    });
+    return cont;
+  }
 
-    /* ----- Init ----- */
-    renderCats();
-    renderGrid();
-    renderCart();
-    updateBadges();
-})();
+  /* ---------- jerarquía: carro (barra) → columpio (mecer) → giro → talla → prenda ---------- */
+  const carro = new THREE.Group(), columpio = new THREE.Group(), giro = new THREE.Group(), talla = new THREE.Group();
+  scene.add(carro); carro.add(columpio); columpio.add(giro); giro.add(talla);
+
+  const modelos = new Map();
+  function modelo(id) {
+    if (modelos.has(id)) return modelos.get(id);
+    const p = prod(id), F = FORMAS[p.forma];
+    const g = new THREE.Group();
+    const col = new THREE.Color(colorDe(p)[1]);
+    let mat, tela = null, H, W;
+    if (F.rigido) {
+      if (p.forma === 'gafas') { mat = new THREE.MeshStandardMaterial({ color: col, metalness: 1, roughness: 0.28 }); g.add(percha('gancho'), gafas(mat)); H = 0.8; W = 0.85; }
+      else { mat = new THREE.MeshPhysicalMaterial({ color: col, roughness: 0.62, sheen: 0.6, sheenRoughness: 0.5, sheenColor: new THREE.Color('#ffffff') }); g.add(percha('gancho'), zapatilla(mat)); H = 1.25; W = 0.9; }
+    } else {
+      const { map, alpha } = texturaTejido(p);
+      mat = new THREE.MeshPhysicalMaterial({
+        color: col, map, alphaMap: alpha, alphaTest: 0.5, side: THREE.DoubleSide,
+        roughness: F.rug, sheen: F.brillo, sheenRoughness: F.tejido === 'saten' ? 0.3 : 0.6, sheenColor: col.clone().lerp(new THREE.Color('#ffffff'), 0.55),
+        clearcoat: F.tejido === 'piel' ? 0.35 : 0, clearcoatRoughness: 0.4, bumpMap: map, bumpScale: F.tejido === 'saten' ? 0.4 : 1.6
+      });
+      tela = construirTela(p, mat);
+      g.add(percha(F.percha), tela.frente, tela.espalda);
+      H = -bordeSup(F.percha, 0) + F.h; W = F.w;
+    }
+    const m = { id, p, g, mat, tela, H, W, rigido: !!F.rigido };
+    modelos.set(id, m);
+    return m;
+  }
+
+  /* ---------- estado físico ---------- */
+  let actual = null, siguiente = undefined;
+  const riel = muelle(0, { rigidez: 55, amortiguacion: 12.5 });
+  const mX = muelle(0, { rigidez: 13, amortiguacion: 1.3 });
+  const mZ = muelle(0, { rigidez: 13, amortiguacion: 1.3 });
+  const esc = muelle(1, { rigidez: 150, amortiguacion: 12 });
+  const doble = muelle(0, { rigidez: 70, amortiguacion: 13 });
+  const camD = muelle(7, { rigidez: 45, amortiguacion: 13 });
+  const camY = muelle(-1, { rigidez: 45, amortiguacion: 13 });
+  let ang = 0, w = 0, arrastrando = false, wDrag = 0, alFrente = false;
+  const color = { de: new THREE.Color(), a: new THREE.Color(), t: 1 };
+  let encuadre = 1, pendiente = null;
+
+  function colocarModelo(id) {
+    if (actual) talla.remove(actual.g);
+    actual = id ? modelo(id) : null;
+    if (actual) {
+      talla.add(actual.g);
+      actual.mat.color.set(colorDe(actual.p)[1]);
+      color.t = 1;
+      if (actual.tela) { actual.tela.D.fill(0); actual.tela.Vv.fill(0); actual.tela.despierta = true; }
+      const t = est.tallaSel[actual.id];
+      esc.fijar(pendiente?.id === id ? pendiente.s : escalaTalla(t, actual.p));
+      pendiente = null;
+    }
+    ang = 0; w = 0; giro.rotation.y = 0;
+  }
+  const escalaTalla = (t, p) => {
+    const ts = p ? tallasDe(p) : TALLAS;
+    const i = ts.indexOf(t);
+    if (i < 0 || ts.length < 2) return 1;
+    return 1 + (i - (ts.length - 1) / 2) * 0.035;
+  };
+
+  /* ---------- simulación de la tela ---------- */
+  const C2 = 900, AMORT = 2.8, ARRASTRE = 0.32, CENTRIF = 0.03;
+  function simular(T, dt, mov) {
+    const { NX, NY, D, Vv, K, R, rest } = T;
+    let t = Math.min(dt, 0.05), maxV = 0;
+    const cosA = Math.cos(ang), sinA = Math.sin(ang);
+    // velocidad del aire en el marco del columpio → al marco del giro
+    while (t > 1e-6) {
+      const h = Math.min(t, 1 / 120); t -= h;
+      for (let j = 1; j < NY; j++) {
+        for (let i = 0; i < NX; i++) {
+          const k = j * NX + i, k3 = k * 3;
+          const l = i > 0 ? k - 1 : k, r = i < NX - 1 ? k + 1 : k, u = k - NX, d = j < NY - 1 ? k + NX : k;
+          const x = rest[k3], rr = R[k];
+          // velocidad del punto respecto al aire
+          const vxS = mov.vRiel + rr * mov.wZ, vzS = -rr * mov.wX;
+          let vx = vxS * cosA - vzS * sinA, vz = vxS * sinA + vzS * cosA;
+          vz += -x * mov.w;
+          const fx = Math.max(-3, Math.min(3, -ARRASTRE * vx + x * mov.w * mov.w * CENTRIF));
+          const fz = Math.max(-3, Math.min(3, -ARRASTRE * vz));
+          for (let c = 0; c < 3; c++) {
+            const lap = D[l * 3 + c] + D[r * 3 + c] + D[u * 3 + c] + D[d * 3 + c] - 4 * D[k3 + c];
+            const f = c === 0 ? fx : c === 2 ? fz : 0;
+            Vv[k3 + c] += (C2 * lap - K[k] * D[k3 + c] - AMORT * Vv[k3 + c] + f) * h;
+          }
+        }
+      }
+      for (let k = NX * 3; k < D.length; k++) {
+        D[k] = Math.max(-0.5, Math.min(0.5, D[k] + Vv[k] * h));
+        const a = Math.abs(Vv[k]); if (a > maxV) maxV = a;
+      }
+    }
+    const quieto = maxV < 0.003 && Math.abs(mov.vRiel) < 0.01 && Math.abs(mov.wX) + Math.abs(mov.wZ) + Math.abs(mov.w) < 0.01;
+    if (quieto) { D.fill(0); Vv.fill(0); }
+    return !quieto;
+  }
+  function escribir(T, f) {
+    const { n, rest, zB, D, frente, espalda, yPliegue } = T;
+    const pf = frente.geometry.attributes.position.array, pb = espalda.geometry.attributes.position.array;
+    const a = f * Math.PI * 0.97, ca = Math.cos(a), sa = Math.sin(a), eje = 0.2, estrecha = 1 - 0.34 * f;
+    // Doblar: la mitad de abajo gira hacia delante sobre un eje delante de la prenda
+    const poner = (arr, k3, x, y, z) => {
+      if (f > 0.001 && y < yPliegue) {
+        const dy = y - yPliegue, dz = z - eje;
+        y = yPliegue + dy * ca + dz * sa;
+        z = eje - dy * sa + dz * ca;
+      }
+      arr[k3] = x; arr[k3 + 1] = y; arr[k3 + 2] = z;
+    };
+    for (let k = 0; k < n; k++) {
+      const k3 = k * 3;
+      const x = (rest[k3] + D[k3]) * estrecha, y = rest[k3 + 1] + D[k3 + 1];
+      poner(pf, k3, x, y, rest[k3 + 2] + D[k3 + 2]);
+      poner(pb, k3, x, y, zB[k] + D[k3 + 2]);
+    }
+    frente.geometry.attributes.position.needsUpdate = true; espalda.geometry.attributes.position.needsUpdate = true;
+    frente.geometry.computeVertexNormals(); espalda.geometry.computeVertexNormals();
+  }
+
+  /* ---------- gestos: girar con inercia, tocar para mecer ---------- */
+  function mecer(u = 0.5, empuje = 1) {
+    if (!actual) return;
+    vibrar(6);
+    if (e.reducido) return;
+    mX.vel += 0.6 * empuje;
+    mZ.vel += (u - 0.5) * 1.1;
+    w += (u - 0.5) * 1.2;
+    e.animarDurante(600);
+  }
+  function onda(hit) {
+    const T = actual?.tela; if (!T || e.reducido) return;
+    const u0 = hit.uv.x, v0 = 1 - hit.uv.y;
+    const dentro = camera.position.clone(); giro.worldToLocal(dentro);
+    const s = dentro.z > 0 ? 1 : -1;
+    for (let j = 1; j < T.NY; j++) for (let i = 0; i < T.NX; i++) {
+      const k = j * T.NX + i;
+      const du = (i / (T.NX - 1) - u0) * T.F.w, dv = (j / (T.NY - 1) - v0) * T.F.h;
+      const q = Math.exp(-(du * du + dv * dv) / 0.03);
+      T.Vv[k * 3 + 2] += -s * 2.6 * q;
+      T.Vv[k * 3] += du * 3 * q;
+    }
+  }
+  // La pista de gestos se va en cuanto se ha tocado la prenda una vez
+  const aprendido = () => { if (!est.gesto) { est.gesto = true; salvar(); } $('esc-pie').hidden = true; };
+  if (est.gesto) $('esc-pie').hidden = true;
+  arrastre(lienzo, {
+    alEmpezar: () => { arrastrando = true; wDrag = 0; aprendido(); },
+    alMover: dx => {
+      const d = dx * 0.011;
+      ang += d; wDrag = wDrag * 0.5 + (d / 0.016) * 0.5;
+      w = e.reducido ? 0 : wDrag;
+      e.animarDurante(400);
+    },
+    alSoltar: vx => { arrastrando = false; w = e.reducido ? 0 : Math.max(-14, Math.min(14, vx * 11)); e.animarDurante(800); },
+    alTocar: ev => {
+      arrastrando = false; w = 0;
+      if (!actual) return;
+      const hit = e.tocar(ev, [actual.g]);
+      if (hit) { if (hit.uv && hit.object.userData.tela) onda(hit); mecer(hit.uv ? hit.uv.x : 0.5, 1); }
+      else if (app.dataset.vista !== 'look') mecer(0.5, 0.6);
+    }
+  });
+  caja.addEventListener('keydown', ev => {
+    if (ev.target !== caja) return;
+    if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') {
+      ev.preventDefault();
+      const s = ev.key === 'ArrowLeft' ? -1 : 1;
+      if (e.reducido) ang += s * Math.PI / 6; else w += s * 3.2;
+      e.animarDurante(600);
+    } else if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); mecer(0.62, 1); }
+  });
+  $('b-girar').addEventListener('click', () => { if (e.reducido) ang += Math.PI; else w += 6.2; e.animarDurante(800); vibrar(6); });
+  $('b-mecer').addEventListener('click', () => mecer(0.65, 1));
+
+  /* ---------- fotograma ---------- */
+  const tamCam = () => {
+    const H = actual ? actual.H * esc.valor : 1.6, W = actual ? actual.W : 1;
+    const asp = e.tam.ancho / Math.max(1, e.tam.alto);
+    const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const altoVis = (Math.max(H, 1.5) + 0.62) / encuadre;
+    let d = altoVis / 2 / tan;
+    d = Math.max(d, (W + 0.55) / 2 / (tan * asp));
+    const centro = (0.1 - Math.max(H, 1.5)) / 2;
+    return { d, y: centro - altoVis * (1 - encuadre) / 2 };
+  };
+  function paso(t, dt) {
+    let vivo = false;
+    // cambiar de prenda corriendo por la barra
+    riel.paso(dt);
+    if (siguiente !== undefined && (riel.valor <= -3.6 || e.reducido)) {
+      colocarModelo(siguiente); siguiente = undefined;
+      riel.fijar(e.reducido ? 0 : 4.2); riel.a(0);
+      if (!e.reducido) riel.valor = 4.2;
+    }
+    const vRiel = riel.vel;
+    carro.position.x = riel.valor;
+    if (!riel.quieto) vivo = true;
+    // mecerse
+    mX.paso(dt); mZ.paso(dt);
+    columpio.rotation.x = mX.valor; columpio.rotation.z = mZ.valor;
+    if (!mX.quieto || !mZ.quieto) vivo = true;
+    // girar con inercia
+    if (alFrente) {
+      // antes de doblarla, la prenda se pone de cara
+      const meta = Math.round(ang / (Math.PI * 2)) * Math.PI * 2;
+      ang += (meta - ang) * Math.min(1, dt * 9); w = 0;
+      if (Math.abs(meta - ang) < 0.002) { ang = meta; alFrente = false; } else vivo = true;
+    } else if (!arrastrando) {
+      ang += w * dt;
+      w *= Math.exp(-1.5 * dt);
+      if (Math.abs(w) < 0.02) w = 0; else vivo = true;
+    } else vivo = true;
+    giro.rotation.y = ang;
+    // talla
+    const s = esc.paso(dt);
+    const f = doble.paso(dt);
+    const encoge = f > 0.85 ? 1 - 0.5 * (f - 0.85) / 0.15 : 1;
+    talla.scale.setScalar(Math.max(0.001, s * encoge));
+    if (!esc.quieto || !doble.quieto) vivo = true;
+    // color con fundido
+    if (actual && color.t < 1) {
+      color.t = Math.min(1, color.t + dt / 0.45);
+      const k = 1 - Math.pow(1 - color.t, 3);
+      actual.mat.color.copy(color.de).lerp(color.a, k);
+      if (actual.mat.sheenColor) actual.mat.sheenColor.copy(actual.mat.color).lerp(new THREE.Color('#ffffff'), 0.55);
+      vivo = true;
+    }
+    // tela
+    if (actual?.tela) {
+      const T = actual.tela;
+      const mov = { vRiel, wX: mX.vel, wZ: mZ.vel, w: arrastrando ? wDrag : w };
+      if (vivo || T.despierta) {
+        T.despierta = simular(T, dt, mov);
+        escribir(T, Math.max(0, f));
+        if (T.despierta) vivo = true;
+      }
+    } else if (actual && f > 0.01) {
+      vivo = true;
+    }
+    // cámara que encuadra la prenda
+    const c = tamCam();
+    camD.a(c.d); camY.a(c.y);
+    camD.paso(dt); camY.paso(dt);
+    camera.position.set(0, camY.valor + 0.25, camD.valor);
+    camera.lookAt(0, camY.valor, 0);
+    if (!camD.quieto || !camY.quieto) vivo = true;
+    return vivo;
+  }
+
+  function tema(t) {
+    muro.material.opacity = t.oscuro ? 0.16 : 0.11;
+    e.renderer.toneMappingExposure = t.oscuro ? 1.18 : 1;
+    e.ambiente.intensity = t.oscuro ? 0.9 : 0.7;
+  }
+
+  // Arranque: la primera prenda llega por la barra
+  colocarModelo(null);
+  {
+    const c = tamCam(); camD.fijar(c.d); camY.fijar(c.y);
+  }
+  caja.classList.add('is-listo');
+
+  return {
+    mostrar(id) {
+      if (id === (siguiente !== undefined ? siguiente : actual?.id ?? null)) return;
+      if (!actual && siguiente === undefined) {
+        colocarModelo(id);
+        if (!e.reducido && id) { riel.fijar(4.2); riel.a(0); }
+        e.animarDurante(1500);
+        return;
+      }
+      siguiente = id;
+      riel.a(-4.4);
+      e.animarDurante(2400);
+    },
+    color(hex) {
+      if (!actual) return;
+      color.de.copy(actual.mat.color); color.a.set(hex);
+      color.t = e.reducido ? 1 : 0;
+      if (e.reducido) actual.mat.color.set(hex);
+      e.animarDurante(600);
+    },
+    talla(t, p) {
+      if (p && actual?.id !== p.id) { pendiente = { id: p.id, s: escalaTalla(t, p) }; return; }
+      if (!actual) return;
+      esc.a(escalaTalla(t, actual.p));
+      if (!e.reducido) { mX.vel += 0.12; if (actual.tela) actual.tela.despierta = true; }
+      e.animarDurante(900);
+    },
+    doblar() {
+      return new Promise(res => {
+        if (!actual) { res(null); return; }
+        const r = caja.getBoundingClientRect();
+        const centro = new THREE.Vector3(0, -actual.H * 0.45, 0.1);
+        talla.localToWorld(centro);
+        const s = e.aPantalla(centro);
+        const pos = { x: r.left + s.x, y: r.top + s.y };
+        if (e.reducido) { res(pos); return; }
+        if (actual.tela) actual.tela.despierta = true;
+        alFrente = true;
+        doble.a(1);
+        e.animarDurante(1600);
+        setTimeout(() => {
+          res(pos);
+          setTimeout(() => { doble.a(0); mX.vel -= 0.35; e.animarDurante(1800); }, 650);
+        }, 480);
+      });
+    },
+    encuadre(f) { encuadre = f; e.animarDurante(1200); }
+  };
+}
+
+/* =========================================================
+   ARRANQUE
+   ========================================================= */
+pintarFavCab();
+pintarLook();
+pintarFicha();
+pintarProbador();
+pintarBolsa();
+pintarInsignia();
+ventasDelDia();
+pintarTienda();
+// Las reposiciones a medias de otra visita ya han llegado
+if (est.repos.length) { est.repos.forEach(r => { const [id, ci, si] = r.k.split('|').map(Number); est.stock[id][ci][si] += 6; }); est.repos = []; salvar(); pintarAvisos(); }
+
+escena = crearPrenda3D();
+actualizarReserva(prod(visibles()[0]?.id || est.prod));
+
+const encuadreDe = v => (v === 'look' && innerWidth < 960 ? 0.7 : 1);
+let vistaPrev = null;
+const tabs = pestanas($('tabs'), {
+  clave: 'alba-vista',
+  alCambiar(v) {
+    const antes = vistaPrev; vistaPrev = v;
+    app.dataset.vista = v;
+    document.documentElement.classList.toggle('snap', v === 'look');
+    escena?.encuadre(encuadreDe(v));
+    if (v === 'look') {
+      const id = antes === 'prenda' || antes === 'probador' ? est.prod : null;
+      const h = id ? document.querySelector(`.historia[data-prod="${id}"]:not(.portada)`) : historiaActiva;
+      requestAnimationFrame(() => { ajustarTitulares(); if (h) h.scrollIntoView({ block: 'start' }); else window.scrollTo(0, 0); });
+      const pid = +(h || document.querySelector('.historia'))?.dataset.prod || null;
+      escena?.mostrar(pid); actualizarReserva(pid ? prod(pid) : null);
+      return;
+    }
+    window.scrollTo({ top: 0 });
+    if (v === 'prenda') { pintarFicha(); escena?.mostrar(est.prod); actualizarReserva(prod(est.prod)); }
+    if (v === 'probador') {
+      tallaProbando = null;
+      pintarProbador({ cargar: true });
+      const p = probarProd();
+      escena?.mostrar(p.id); actualizarReserva(p);
+      escena?.talla(tallaProbando, p);
+    }
+    if (v === 'bolsa' && (est.bolsa.length || $('confirmacion').hidden)) pintarBolsa();
+    if (v === 'tienda') { pintarTienda(); ventasEnVivo(); }
+    requestAnimationFrame(ajustarTitulares);
+  }
+});
+$('marca').addEventListener('click', () => { tabs.ir('look'); requestAnimationFrame(() => window.scrollTo(0, 0)); });
+$('cab-fav').addEventListener('click', () => {
+  est.filtro = 'Guardados'; salvar();
+  pintarLook();
+  historiaActiva = null;
+  tabs.ir('look');
+  requestAnimationFrame(() => document.querySelectorAll('.historia')[1]?.scrollIntoView({ block: 'start' }));
+});
+addEventListener('resize', () => escena?.encuadre(encuadreDe(app.dataset.vista)));
 </script>
 </body>
 </html>
