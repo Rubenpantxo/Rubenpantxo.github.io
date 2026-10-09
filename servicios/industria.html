@@ -603,6 +603,13 @@ svg.ico { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-wi
 }
 @media (max-width: 520px) { .caj-marca small { display: none; } .caj-marca b { white-space: normal; line-height: .92; font-size: 16.5px; } }
 @media (max-width: 370px) { .tipo { font-size: 10.5px; } }
+/* En el visor de la home (unos 350 px) el cajetín se queda con escala y fecha
+   para que el nombre de la casa quepa entero. */
+@media (max-width: 400px) {
+  .caj-datos { grid-template-columns: auto; }
+  .caj-datos > div:nth-child(3), .caj-datos > div:nth-child(5) { display: none; }
+  .caj-datos > div:nth-child(4) { border-bottom: 1px solid var(--sd-ink); }
+}
 
 /* ---------- imprimir la oferta ---------- */
 @media print {

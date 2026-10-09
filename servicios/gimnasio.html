@@ -588,6 +588,10 @@ body {
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   border-top: 1px solid var(--linea);
 }
+/* Los botones van sesgados (skewX) y sus esquinas asoman un par de píxeles por
+   el borde: se recorta en horizontal sin crear contenedor de scroll, así los
+   elementos sticky siguen funcionando. */
+.app { overflow-x: clip; }
 .tabs-pie .k-tabs { max-width: 620px; margin: 0 auto; height: var(--barra); }
 .tabs-pie [data-vista] { letter-spacing: .08em; text-transform: uppercase; font-size: 10px; }
 .tabs-pie .k-tabs-marca { background: none; border-bottom: 3px solid var(--sd-accent); border-radius: 0; top: auto; bottom: 2px; height: 3px; }
