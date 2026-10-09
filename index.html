@@ -84,6 +84,11 @@
             opacity: 0;
             pointer-events: none;
         }
+        /* En móvil el menú va en columna: los ocultos salen del flujo para que
+           la sección abierta suba hasta arriba en vez de dejar un hueco enorme */
+        @media (max-width: 639px) {
+            body.section-open .nav-item:not(.active) { position: absolute; }
+        }
         body.section-open .nav-item.active {
             transform: translateY(0); opacity: 1; pointer-events: auto;
             background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5);
@@ -271,198 +276,248 @@
         <main id="content-container" class="mt-16">
 
             <!-- ============================================================
-                 SECCIÓN SERVICIOS — webs y apps a medida con simulaciones
+                 SECCIÓN SERVICIOS — primera pantalla mínima: titular, fondo
+                 WebGL 3D y una tarjeta por negocio. Cada tarjeta abre su demo
+                 en un visor (js/servicios.js). Fondo: js/servicios-gl.js
                  ============================================================ -->
-            <section id="servicios" class="content-section content-hidden" aria-labelledby="servicios-title">
+            <section id="servicios" class="content-section content-hidden" aria-labelledby="servicios-title" data-sv-tema="oscuro">
                 <div class="sv-wrap">
                     <div class="sv-progress" aria-hidden="true"></div>
+                    <canvas class="sv-gl" aria-hidden="true"></canvas>
 
                     <!-- HERO -->
                     <header class="sv-hero">
-                        <p class="sv-eyebrow">Diseño &amp; desarrollo a medida</p>
-                        <h2 id="servicios-title" class="sv-title">Aplicaciones web y sitios web completos</h2>
-                        <p class="sv-slogan">Tus clientes pasan la mayor parte de su tiempo en otras webs, por lo que preferirían que tu página o producto funcione de la misma manera a la que ya están acostumbrados.</p>
-                        <div class="sv-marquee" aria-hidden="true">
-                            <div class="sv-marquee-track">
-                                <span>Webs · Apps · <em>UX</em> · Diseño · Rendimiento · Webs · Apps · <em>UX</em> · Diseño · Rendimiento · </span><span>Webs · Apps · <em>UX</em> · Diseño · Rendimiento · Webs · Apps · <em>UX</em> · Diseño · Rendimiento · </span>
+                        <p class="sv-eyebrow">Webs &amp; apps a medida</p>
+                        <h2 id="servicios-title" class="sv-title">
+                            <span class="sv-line" style="--d:0"><span>Tu negocio,</span></span>
+                            <span class="sv-line" style="--d:1"><em>en una app.</em></span>
+                        </h2>
+                        <button type="button" class="sv-theme" id="sv-theme" role="switch" aria-checked="true" aria-label="Modo oscuro">
+                            <span class="sv-theme-track" aria-hidden="true">
+                                <span class="sv-theme-knob">
+                                    <svg class="sv-theme-ico sv-theme-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+                                    <svg class="sv-theme-ico sv-theme-moon" viewBox="0 0 24 24"><path d="M20.2 14.6A8.4 8.4 0 0 1 9.4 3.8a8.4 8.4 0 1 0 10.8 10.8z"/></svg>
+                                </span>
+                            </span>
+                            <span class="sv-theme-label" id="sv-theme-label">Oscuro</span>
+                        </button>
+                        <div class="sv-hero-foot">
+                            <p class="sv-lead">Elige uno y pruébalo. Sin descargar nada.</p>
+                            <div class="sv-hero-bar">
+                                <a class="sv-sistemas-link" href="servicios/sistemas-de-diseno.html">
+                                    <span class="sv-sistemas-muestras" aria-hidden="true"><!--@bloque muestras--><span style="background:#a3e635"></span><span style="background:#b34a1f"></span><span style="background:#e7335a"></span><span style="background:#a4262c"></span><span style="background:#c8f04c"></span><span style="background:#1f9d55"></span><span style="background:#c67139"></span><span style="background:#c9a255"></span><span style="background:#5980a6"></span><!--/@bloque muestras--></span>
+                                    <!--@N-->Nueve<!--/@N--> sistemas de diseño ↗
+                                </a>
                             </div>
                         </div>
-                        <a class="sv-sistemas-link" href="servicios/sistemas-de-diseno.html">
-                            <span class="sv-sistemas-muestras" aria-hidden="true"><!--@bloque muestras--><span style="background:#a3e635"></span><span style="background:#b34a1f"></span><span style="background:#e7335a"></span><span style="background:#a4262c"></span><span style="background:#c8f04c"></span><span style="background:#1f9d55"></span><span style="background:#c67139"></span><span style="background:#c9a255"></span><span style="background:#5980a6"></span><!--/@bloque muestras--></span>
-                            Elige entre mis <!--@n-->nueve<!--/@n--> sistemas de diseño ↗
-                        </a>
                     </header>
 
-                    <!-- SIMULACIONES INTERACTIVAS -->
-                    <div class="sv-demos">
-                        <div class="sv-demos-head sv-reveal">
-                            <h3><span class="sv-demos-l1">5 simulaciones</span><span class="sv-demos-l2">5 negocios que funcionan</span></h3>
-                            <p>Añade productos a tu cesta de la compra, reserva una clase, cambia de look… y comprueba lo que sentirían tus clientes.</p>
-                            <span class="sv-touch">👆 Tócalas — son interactivas</span>
+                    <!-- NEGOCIOS: una tarjeta skeuomórfica por demo -->
+                    <ul class="sv-deck" id="sv-deck" aria-label="Negocios con demo interactiva">
+
+                        <!-- 01 · BAR: pizarra de tiza en marco de madera -->
+                        <li style="--i:0">
+                            <a class="sv-card sv-card--bar" href="servicios/bar-restaurante.html" data-demo="bar" style="--accent:#ff8a4c">
+                                <span class="sv-mat" aria-hidden="true">
+                                    <span class="sv-chalk-title">Menú del día</span>
+                                    <svg class="sv-chalk-cup" viewBox="0 0 100 82">
+                                        <path class="sv-steam" d="M38 24c-5-6 5-9 0-16"/>
+                                        <path class="sv-steam" d="M50 24c-5-6 5-9 0-16"/>
+                                        <path class="sv-steam" d="M62 24c-5-6 5-9 0-16"/>
+                                        <path d="M27 31h47v8c0 15-10 25-23.5 25S27 54 27 39z"/>
+                                        <path d="M74 36h4.5a8 8 0 0 1 0 16H72"/>
+                                        <path d="M14 70c14 6 58 6 72 0"/>
+                                    </svg>
+                                    <span class="sv-chalk-stick"></span>
+                                </span>
+                                <span class="sv-card-num">01</span>
+                                <span class="sv-card-go" aria-hidden="true">↗</span>
+                                <span class="sv-card-body">
+                                    <span class="sv-card-name">Bar &amp; Restaurante</span>
+                                    <span class="sv-card-tag">Pide y reserva</span>
+                                </span>
+                                <span class="sv-glare" aria-hidden="true"></span>
+                            </a>
+                        </li>
+
+                        <!-- 02 · ROPA: etiqueta colgante sobre lino -->
+                        <li style="--i:1">
+                            <a class="sv-card sv-card--ropa" href="servicios/tienda-ropa.html" data-demo="ropa" style="--accent:#ff5e82">
+                                <span class="sv-mat" aria-hidden="true">
+                                    <span class="sv-tag">
+                                        <svg class="sv-tag-string" viewBox="0 0 20 60" preserveAspectRatio="none"><path d="M10 60C6 44 16 26 9 0"/></svg>
+                                        <span class="sv-tag-paper">
+                                            <span class="sv-tag-hole"></span>
+                                            <span class="sv-tag-brand">ALBA</span>
+                                            <span class="sv-tag-size">M</span>
+                                            <span class="sv-tag-old">39,90 €</span>
+                                            <span class="sv-tag-price">29,90 €</span>
+                                        </span>
+                                        <span class="sv-tag-sale">-25%</span>
+                                    </span>
+                                </span>
+                                <span class="sv-card-num">02</span>
+                                <span class="sv-card-go" aria-hidden="true">↗</span>
+                                <span class="sv-card-body">
+                                    <span class="sv-card-name">Tienda de ropa</span>
+                                    <span class="sv-card-tag">Moda online</span>
+                                </span>
+                                <span class="sv-glare" aria-hidden="true"></span>
+                            </a>
+                        </li>
+
+                        <!-- 03 · CARNICERÍA: tique de turno sobre azulejo -->
+                        <li style="--i:2">
+                            <a class="sv-card sv-card--carne" href="servicios/carniceria.html" data-demo="carne" style="--accent:#ff5a5a">
+                                <span class="sv-mat" aria-hidden="true">
+                                    <span class="sv-ticket">
+                                        <span class="sv-ticket-top">Su turno</span>
+                                        <span class="sv-ticket-num"><span>07</span><span>08</span></span>
+                                        <span class="sv-ticket-foot">Carnicería Manolo</span>
+                                    </span>
+                                </span>
+                                <span class="sv-card-num">03</span>
+                                <span class="sv-card-go" aria-hidden="true">↗</span>
+                                <span class="sv-card-body">
+                                    <span class="sv-card-name">Carnicería</span>
+                                    <span class="sv-card-tag">Encarga sin colas</span>
+                                </span>
+                                <span class="sv-glare" aria-hidden="true"></span>
+                            </a>
+                        </li>
+
+                        <!-- 04 · GIMNASIO: disco de pesas sobre suelo de caucho -->
+                        <li style="--i:3">
+                            <a class="sv-card sv-card--gym" href="servicios/gimnasio.html" data-demo="gym" style="--accent:#c8f04c">
+                                <span class="sv-mat" aria-hidden="true">
+                                    <span class="sv-plate">
+                                        <span class="sv-plate-ring"></span>
+                                        <span class="sv-plate-kg">20<small>KG</small></span>
+                                        <span class="sv-plate-hub"></span>
+                                        <span class="sv-plate-brand">IMPULSO</span>
+                                    </span>
+                                </span>
+                                <span class="sv-card-num">04</span>
+                                <span class="sv-card-go" aria-hidden="true">↗</span>
+                                <span class="sv-card-body">
+                                    <span class="sv-card-name">Gimnasio</span>
+                                    <span class="sv-card-tag">Entrena y reserva</span>
+                                </span>
+                                <span class="sv-glare" aria-hidden="true"></span>
+                            </a>
+                        </li>
+
+                        <!-- 05 · SUPERMERCADO: tique de caja saliendo de la impresora -->
+                        <li style="--i:4">
+                            <a class="sv-card sv-card--super" href="servicios/supermercado.html" data-demo="super" style="--accent:#4ce0b3">
+                                <span class="sv-mat" aria-hidden="true">
+                                    <span class="sv-receipt">
+                                        <span class="sv-rc-head">SUPER LA PLAZA</span>
+                                        <span class="sv-rc-line"><i>PAN DE PUEBLO</i><b>1,20</b></span>
+                                        <span class="sv-rc-line"><i>LECHE FRESCA</i><b>0,95</b></span>
+                                        <span class="sv-rc-line"><i>TOMATE KG</i><b>2,30</b></span>
+                                        <span class="sv-rc-total"><i>TOTAL</i><b>4,45 €</b></span>
+                                        <span class="sv-rc-bar"></span>
+                                    </span>
+                                    <span class="sv-slot"></span>
+                                </span>
+                                <span class="sv-card-num">05</span>
+                                <span class="sv-card-go" aria-hidden="true">↗</span>
+                                <span class="sv-card-body">
+                                    <span class="sv-card-name">Supermercado</span>
+                                    <span class="sv-card-tag">Tienda + almacén</span>
+                                </span>
+                                <span class="sv-glare" aria-hidden="true"></span>
+                            </a>
+                        </li>
+
+                        <!-- 06 · GRANJA: caja de madera con sello de tinta -->
+                        <li style="--i:5">
+                            <a class="sv-card sv-card--granja" href="servicios/granja.html" data-demo="granja" style="--accent:#f5c04a">
+                                <span class="sv-mat" aria-hidden="true">
+                                    <span class="sv-nails"></span>
+                                    <span class="sv-straw"></span>
+                                    <span class="sv-eggs"><i></i><i></i><i></i></span>
+                                    <span class="sv-stamp"><b>Las Encinas</b><small>Huevos · leche · miel</small></span>
+                                </span>
+                                <span class="sv-card-num">06</span>
+                                <span class="sv-card-new">Nuevo</span>
+                                <span class="sv-card-go" aria-hidden="true">↗</span>
+                                <span class="sv-card-body">
+                                    <span class="sv-card-name">Granja</span>
+                                    <span class="sv-card-tag">Del campo a casa</span>
+                                </span>
+                                <span class="sv-glare" aria-hidden="true"></span>
+                            </a>
+                        </li>
+
+                        <!-- 07 · INDUSTRIA: placa de acero cepillado con manómetro -->
+                        <li style="--i:6">
+                            <a class="sv-card sv-card--industria" href="servicios/industria.html" data-demo="industria" style="--accent:#5fb4ff">
+                                <span class="sv-mat" aria-hidden="true">
+                                    <span class="sv-rivets"></span>
+                                    <svg class="sv-gauge" viewBox="0 0 100 100">
+                                        <defs>
+                                            <linearGradient id="sv-gauge-bezel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbfcfd"/><stop offset=".45" stop-color="#9aa2aa"/><stop offset=".55" stop-color="#5d646b"/><stop offset="1" stop-color="#d9dde1"/></linearGradient>
+                                            <radialGradient id="sv-gauge-face" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#dcd6c6"/></radialGradient>
+                                        </defs>
+                                        <circle cx="50" cy="50" r="48" fill="url(#sv-gauge-bezel)"/>
+                                        <circle cx="50" cy="50" r="41" fill="url(#sv-gauge-face)"/>
+                                        <path class="sv-gauge-red" d="M81.5 44.4A32 32 0 0 1 77.7 66"/>
+                                        <g class="sv-gauge-ticks"><path d="M22.3 66L27.1 63.2M18.5 55.6L21.9 54.9M18.5 44.4L23.9 45.4M22.3 34L25.3 35.8M29.4 25.5L33 29.7M39.1 19.9L40.3 23.2M50 18L50 23.5M60.9 19.9L59.7 23.2M70.6 25.5L67 29.7M77.7 34L74.7 35.8M81.5 44.4L76.1 45.4M81.5 55.6L78.1 54.9M77.7 66L72.9 63.2"/></g>
+                                        <text x="50" y="72" text-anchor="middle">BAR</text>
+                                        <g class="sv-gauge-needle"><path d="M50 54L50 21"/><circle cx="50" cy="50" r="4.5"/></g>
+                                        <circle cx="50" cy="50" r="41" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1.2"/>
+                                    </svg>
+                                    <span class="sv-hazard"></span>
+                                </span>
+                                <span class="sv-card-num">07</span>
+                                <span class="sv-card-new">Nuevo</span>
+                                <span class="sv-card-go" aria-hidden="true">↗</span>
+                                <span class="sv-card-body">
+                                    <span class="sv-card-name">Industria</span>
+                                    <span class="sv-card-tag">Planta conectada</span>
+                                </span>
+                                <span class="sv-glare" aria-hidden="true"></span>
+                            </a>
+                        </li>
+
+                        <!-- 08 · LOGÍSTICA: contenedor de chapa ondulada con etiqueta -->
+                        <li style="--i:7">
+                            <a class="sv-card sv-card--logistica" href="servicios/logistica.html" data-demo="logistica" style="--accent:#a08cff">
+                                <span class="sv-mat" aria-hidden="true">
+                                    <span class="sv-ct-code">EBRX 482131 <b>4</b></span>
+                                    <span class="sv-ct-spec">MAX. GROSS 30.480 KG</span>
+                                    <span class="sv-ct-rods"><i></i><i></i></span>
+                                    <span class="sv-label">
+                                        <span class="sv-label-top">EXPRÉS · 24 H</span>
+                                        <span class="sv-label-bar"></span>
+                                        <span class="sv-label-to">→ PAMPLONA</span>
+                                    </span>
+                                </span>
+                                <span class="sv-card-num">08</span>
+                                <span class="sv-card-new">Nuevo</span>
+                                <span class="sv-card-go" aria-hidden="true">↗</span>
+                                <span class="sv-card-body">
+                                    <span class="sv-card-name">Logística</span>
+                                    <span class="sv-card-tag">Envíos en directo</span>
+                                </span>
+                                <span class="sv-glare" aria-hidden="true"></span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="sv-marquee" aria-hidden="true">
+                        <div class="sv-marquee-track">
+                            <span>Webs · Apps · <em>UX</em> · Diseño · Rendimiento · Webs · Apps · <em>UX</em> · Diseño · Rendimiento · </span><span>Webs · Apps · <em>UX</em> · Diseño · Rendimiento · Webs · Apps · <em>UX</em> · Diseño · Rendimiento · </span>
                         </div>
-
-                        <!-- 01 · BAR / RESTAURANTE -->
-                        <article class="sv-case" style="--accent:#ff8a4c">
-                            <div class="sv-case-info sv-reveal">
-                                <div class="sv-case-num">01</div>
-                                <span class="sv-case-chip">Inspirado en Glovo · Just Eat · cartas QR</span>
-                                <h4>Bar &amp; Restaurante</h4>
-                                <p>Carta digital con pedidos desde la mesa y reserva online. El cliente ya sabe usarla antes de abrirla, porque pide igual que en su app de comida a domicilio.</p>
-                                <ul class="sv-case-ux">
-                                    <li>Carta por categorías con chips deslizables</li>
-                                    <li>Carrito flotante con el total siempre visible</li>
-                                    <li>Reserva de mesa en tres toques, sin llamadas</li>
-                                    <li>Confirmación de pedido con tiempo estimado</li>
-                                </ul>
-                                <a class="sv-case-open" href="servicios/bar-restaurante.html" target="_blank" rel="noopener">Abrir demo completa ↗</a>
-                            </div>
-                            <div class="sv-case-stage">
-                                <div>
-                                    <div class="sv-phone">
-                                        <div class="sv-phone-island" aria-hidden="true"></div>
-                                        <iframe src="servicios/bar-restaurante.html" loading="lazy" title="Demo interactiva: Taberna El Rincón, bar restaurante"></iframe>
-                                    </div>
-                                    <p class="sv-phone-hint">Taberna El Rincón · pide y reserva</p>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- 02 · TIENDA DE ROPA -->
-                        <article class="sv-case" style="--accent:#ff5e82">
-                            <div class="sv-case-info sv-reveal">
-                                <div class="sv-case-num">02</div>
-                                <span class="sv-case-chip">Inspirado en Zara · ASOS · Instagram Shopping</span>
-                                <h4>Tienda de ropa</h4>
-                                <p>Moda online con la experiencia de las grandes marcas: rejilla de producto, favoritos y compra exprés. Tu tienda de barrio, jugando en primera división.</p>
-                                <ul class="sv-case-ux">
-                                    <li>Rejilla de producto con corazones de favoritos</li>
-                                    <li>Ficha con tallas, colores y rebajas</li>
-                                    <li>Cesta lateral y pedido en un toque</li>
-                                    <li>Banners de campaña (rebajas, novedades)</li>
-                                </ul>
-                                <a class="sv-case-open" href="servicios/tienda-ropa.html" target="_blank" rel="noopener">Abrir demo completa ↗</a>
-                            </div>
-                            <div class="sv-case-stage">
-                                <div>
-                                    <div class="sv-phone">
-                                        <div class="sv-phone-island" aria-hidden="true"></div>
-                                        <iframe src="servicios/tienda-ropa.html" loading="lazy" title="Demo interactiva: ALBA, tienda de moda"></iframe>
-                                    </div>
-                                    <p class="sv-phone-hint">ALBA · moda online</p>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- 03 · CARNICERÍA -->
-                        <article class="sv-case" style="--accent:#ff6b6b">
-                            <div class="sv-case-info sv-reveal">
-                                <div class="sv-case-num">03</div>
-                                <span class="sv-case-chip">Inspirado en WhatsApp · encargos de toda la vida</span>
-                                <h4>Carnicería</h4>
-                                <p>El encargo de siempre, sin colas ni llamadas. Se pide al peso y la confirmación llega como un chat de WhatsApp: la interfaz que toda tu clientela domina, tenga la edad que tenga.</p>
-                                <ul class="sv-case-ux">
-                                    <li>Pedido al peso (gramos) o por unidades</li>
-                                    <li>Franja horaria de recogida, sin esperas</li>
-                                    <li>Confirmación tipo chat de WhatsApp</li>
-                                    <li>Total estimado que se ajusta al peso real</li>
-                                </ul>
-                                <a class="sv-case-open" href="servicios/carniceria.html" target="_blank" rel="noopener">Abrir demo completa ↗</a>
-                            </div>
-                            <div class="sv-case-stage">
-                                <div>
-                                    <div class="sv-phone">
-                                        <div class="sv-phone-island" aria-hidden="true"></div>
-                                        <iframe src="servicios/carniceria.html" loading="lazy" title="Demo interactiva: Carnicería Manolo, encargos"></iframe>
-                                    </div>
-                                    <p class="sv-phone-hint">Carnicería Manolo · encarga y recoge</p>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- 04 · GIMNASIO / ENTRENADOR PERSONAL -->
-                        <article class="sv-case" style="--accent:#c8f04c">
-                            <div class="sv-case-info sv-reveal">
-                                <div class="sv-case-num">04</div>
-                                <span class="sv-case-chip">Inspirado en Apple Fitness · Strava · ClassPass</span>
-                                <h4>Gimnasio &amp; Entrenador personal</h4>
-                                <p>Anillos de actividad, reserva de clases con plazas en tiempo real y venta de planes personalizados. La motivación de las grandes apps de fitness, con tu marca.</p>
-                                <ul class="sv-case-ux">
-                                    <li>Anillos de actividad y progreso semanal</li>
-                                    <li>Reserva de clases con aforo en vivo</li>
-                                    <li>Perfil del entrenador con sus servicios</li>
-                                    <li>Solicitud de plan según objetivo</li>
-                                </ul>
-                                <a class="sv-case-open" href="servicios/gimnasio.html" target="_blank" rel="noopener">Abrir demo completa ↗</a>
-                            </div>
-                            <div class="sv-case-stage">
-                                <div>
-                                    <div class="sv-phone">
-                                        <div class="sv-phone-island" aria-hidden="true"></div>
-                                        <iframe src="servicios/gimnasio.html" loading="lazy" title="Demo interactiva: IMPULSO, gimnasio y entrenador personal"></iframe>
-                                    </div>
-                                    <p class="sv-phone-hint">IMPULSO · entrena y reserva</p>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- 05 · SUPERMERCADO DE PUEBLO -->
-                        <article class="sv-case" style="--accent:#4ce0b3">
-                            <div class="sv-case-info sv-reveal">
-                                <div class="sv-case-num">05</div>
-                                <span class="sv-case-chip">Inspirado en Mercadona online · apps de inventario</span>
-                                <h4>Supermercado de pueblo: tienda + almacén</h4>
-                                <p>Dos apps en una. La cara pública: tienda online con recogida. La cara privada (solo el propietario, con PIN): panel de almacén con pedidos entrantes, stock en tiempo real y alertas de reposición. Haz un pedido en la tienda y míralo aparecer en el almacén.</p>
-                                <ul class="sv-case-ux">
-                                    <li>Tienda pública: catálogo + recogida sin colas</li>
-                                    <li>Zona del propietario protegida con PIN (1234)</li>
-                                    <li>Cada venta descuenta stock al instante</li>
-                                    <li>Alertas de stock bajo mínimo y reposición</li>
-                                </ul>
-                                <a class="sv-case-open" href="servicios/supermercado.html" target="_blank" rel="noopener">Abrir demo completa ↗</a>
-                            </div>
-                            <div class="sv-case-stage">
-                                <div>
-                                    <div class="sv-phone">
-                                        <div class="sv-phone-island" aria-hidden="true"></div>
-                                        <iframe src="servicios/supermercado.html" loading="lazy" title="Demo interactiva: Super La Plaza, tienda online y gestión de almacén"></iframe>
-                                    </div>
-                                    <p class="sv-phone-hint">Super La Plaza · tienda y almacén</p>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-
-                    <!-- QUÉ OFREZCO -->
-                    <div class="sv-offer sv-reveal">
-                        <article class="sv-offer-card">
-                            <span class="ico">⚡</span>
-                            <h3>Aplicaciones web</h3>
-                            <p>Herramientas que funcionan como una app nativa, directamente en el navegador. Sin instalaciones, sin tiendas de apps, siempre actualizadas.</p>
-                            <ul>
-                                <li>Pedidos, reservas y encargos online</li>
-                                <li>Paneles de gestión privados (stock, clientes, ventas)</li>
-                                <li>Funcionan en móvil, tablet y ordenador</li>
-                                <li>Instalables en la pantalla de inicio (PWA)</li>
-                            </ul>
-                        </article>
-                        <article class="sv-offer-card">
-                            <span class="ico">🌐</span>
-                            <h3>Sitios web completos</h3>
-                            <p>Tu negocio abierto 24/7: presencia profesional que genera confianza y convierte visitas en clientes.</p>
-                            <ul>
-                                <li>Diseño a medida, rápido y accesible</li>
-                                <li>Optimizado para Google (SEO) y para móvil</li>
-                                <li>Catálogos, cartas digitales y citas online</li>
-                                <li>Dominio, hosting y mantenimiento incluidos</li>
-                            </ul>
-                        </article>
                     </div>
 
                     <!-- CONTACTO -->
                     <div class="sv-contact sv-reveal" id="sv-contact">
                         <div class="sv-contact-intro">
                             <h3>¿Tienes un negocio?<br><em>Hagámosle una app.</em></h3>
-                            <p>Cuéntame tu idea en dos líneas. Te respondo con una propuesta concreta: qué haría, cómo se vería y cuánto tardaría. Sin compromiso y en tu idioma, no en jerga técnica.</p>
+                            <p>Cuéntamelo en dos líneas y te respondo con una propuesta.</p>
                             <div class="sv-contact-links">
                                 <a href="mailto:rubenpantxo@gmail.com"><i class="fas fa-envelope"></i> rubenpantxo@gmail.com</a>
                             </div>
@@ -488,6 +543,9 @@
                                     <option>Carnicería / Alimentación</option>
                                     <option>Gimnasio / Entrenador personal</option>
                                     <option>Supermercado / Comercio local</option>
+                                    <option>Granja / Explotación agraria</option>
+                                    <option>Industria / Fábrica</option>
+                                    <option>Logística / Transporte</option>
                                     <option>Otro</option>
                                 </select>
                             </div>
@@ -501,6 +559,51 @@
                         </form>
                     </div>
                 </div>
+
+                <!-- VISOR: la demo elegida dentro de un móvil -->
+                <dialog class="sv-viewer" id="sv-viewer" aria-labelledby="sv-v-name">
+                    <div class="sv-v-inner" id="sv-v-inner">
+                        <header class="sv-v-info">
+                            <p class="sv-v-count"><span id="sv-v-num">01</span><span class="sv-v-of"> / 08</span></p>
+                            <h3 class="sv-v-name" id="sv-v-name">Bar &amp; Restaurante</h3>
+                            <p class="sv-v-inspo" id="sv-v-inspo"></p>
+                            <ul class="sv-v-chips" id="sv-v-chips"></ul>
+                            <div class="sv-v-actions">
+                                <button type="button" class="sv-v-want" id="sv-v-want">Quiero una así <span aria-hidden="true">→</span></button>
+                                <a class="sv-v-open" id="sv-v-open" href="servicios/bar-restaurante.html" target="_blank" rel="noopener"><span class="sv-v-open-txt">Pantalla completa</span> <span aria-hidden="true">↗</span></a>
+                            </div>
+                        </header>
+                        <div class="sv-v-stage">
+                            <button type="button" class="sv-v-nav sv-v-prev" id="sv-v-prev" aria-label="Negocio anterior">←</button>
+                            <div class="sv-v-phone" id="sv-v-phone">
+                                <div class="sv-v-island" aria-hidden="true"></div>
+                                <div class="sv-v-screen">
+                                    <div class="sv-v-loader" aria-hidden="true"><span></span></div>
+                                    <iframe id="sv-v-frame" title="Demo interactiva"></iframe>
+                                </div>
+                            </div>
+                            <button type="button" class="sv-v-nav sv-v-next" id="sv-v-next" aria-label="Negocio siguiente">→</button>
+                        </div>
+                        <div class="sv-v-dots" id="sv-v-dots" role="group" aria-label="Elegir negocio"></div>
+                    </div>
+                    <button type="button" class="sv-v-close" id="sv-v-close" aria-label="Cerrar la demo">✕</button>
+                </dialog>
+
+                <!-- Filtros SVG de las texturas (tiza y tinta de sello) -->
+                <svg class="sv-defs" aria-hidden="true" focusable="false">
+                    <filter id="sv-f-chalk" x="-5%" y="-5%" width="110%" height="110%">
+                        <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="1" seed="7" result="ruido"/>
+                        <feColorMatrix in="ruido" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.15" result="grano"/>
+                        <feComposite in="SourceGraphic" in2="grano" operator="in" result="tiza"/>
+                        <feDisplacementMap in="tiza" in2="ruido" scale="1.4" xChannelSelector="R" yChannelSelector="G"/>
+                    </filter>
+                    <filter id="sv-f-ink" x="-5%" y="-5%" width="110%" height="110%">
+                        <feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="11" result="ruido"/>
+                        <feColorMatrix in="ruido" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.8 2.35" result="grano"/>
+                        <feComposite in="SourceGraphic" in2="grano" operator="in" result="tinta"/>
+                        <feDisplacementMap in="tinta" in2="ruido" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+                    </filter>
+                </svg>
             </section>
 
 <section id="apps" class="content-section content-hidden section section--apps" aria-labelledby="apps-title">
@@ -1897,6 +2000,7 @@
         });
     </script>
     <script src="js/servicios.js" defer></script>
+    <script src="js/servicios-gl.js" defer></script>
     <script src="js/jenga.js" defer></script>
 </body>
 </html>

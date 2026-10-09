@@ -17,6 +17,12 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
 ├── js/                     # Scripts
 ├── img/                    # Logos e iconos del sitio
 ├── docs/                   # Notas internas (guías, recursos)
+├── servicios/              # Demos de negocio que abre la sección Servicios (visor con móvil)
+│   ├── bar-restaurante.html · tienda-ropa.html · carniceria.html · gimnasio.html · supermercado.html
+│   ├── granja.html         # Cesta de temporada, visitas con reserva y sensores de la nave
+│   ├── industria.html      # Presupuesto B2B con pieza en 3D, pedidos por fases y planta en directo
+│   ├── logistica.html      # Seguimiento en mapa, tarifa al momento y firma de entrega
+│   └── sistemas/           # Sistemas de diseño (tema.css + selector que usan todas las demos)
 ├── mapas/                  # Mapas embebidos
 │   ├── cabanillas.html     # Plano urbano interactivo de Cabanillas (vector + ortofoto IDENA)
 │   └── cabanillas-data.js  # Datos embebidos: Catastro de Navarra (alturas/parcelas) + OpenStreetMap

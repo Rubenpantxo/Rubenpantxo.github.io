@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="es" data-paleta="arena-salvia" data-tipo="caprasimo-figtree" data-elem="arcilla">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Granja Las Encinas — Demo cesta de temporada, visitas y sensores</title>
+<link rel="stylesheet" href="sistemas/tema.css">
+<style>
+    :root {
+        --radius: var(--sd-radius);
+        --line: var(--sd-line);
+        --muted: var(--sd-muted);
+        --card: var(--sd-surface-2);
+        --sage: var(--sd-accent-2);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+        font-family: var(--sd-font, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
+        background: var(--sd-bg); color: var(--sd-ink);
+        max-width: 480px; margin: 0 auto; overscroll-behavior: contain;
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+    h1, h2, .disp {
+        font-family: var(--sd-display);
+        font-weight: var(--sd-display-peso);
+        font-style: var(--sd-display-estilo);
+        letter-spacing: var(--sd-display-tracking);
+        text-transform: var(--sd-display-caja);
+    }
+    button { font: inherit; color: inherit; }
+    .demo-badge {
+        position: fixed; top: 42px; left: -34px; z-index: 90;
+        background: color-mix(in srgb, var(--sd-ink) 85%, transparent); color: var(--sd-bg); font-size: 10px; font-weight: 700;
+        letter-spacing: .2em; padding: 4px 38px; transform: rotate(-45deg); pointer-events: none;
+    }
+    /* El selector de diseño arriba: abajo taparía la barra de pestañas */
+    html body .sdx-abrir { top: calc(10px + env(safe-area-inset-top)); bottom: auto; right: 10px; padding: 8px 12px; font-size: 12px; }
+
+    .view { display: none; }
+    .view.active { display: block; animation: view-in .35s ease both; }
+    @keyframes view-in { from { opacity: 0; transform: translateY(10px); } }
+
+    /* ---------- CABECERA ---------- */
+    .hero {
+        position: relative; overflow: hidden;
+        margin: 10px 12px 0; padding: 50px 18px 18px;
+        border-radius: calc(var(--radius) + 6px);
+        color: var(--sd-on-accent);
+        background:
+            radial-gradient(120% 70% at 85% -10%, color-mix(in srgb, #ffd27a 55%, transparent), transparent 60%),
+            linear-gradient(160deg, var(--sd-accent) 0%, var(--sd-accent-strong) 100%);
+        box-shadow: var(--sd-shadow-md);
+    }
+    .hero::after {
+        /* surcos del campo */
+        content: ''; position: absolute; left: -10%; right: -10%; bottom: -36px; height: 70px;
+        background: repeating-linear-gradient(100deg, rgba(0,0,0,.12) 0 6px, transparent 6px 16px);
+        border-radius: 50% 50% 0 0; opacity: .7;
+    }
+    .hero .art { position: absolute; right: 16px; top: 38px; font-size: 44px; filter: drop-shadow(0 4px 8px rgba(0,0,0,.2)); }
+    .hero h1 { font-size: 27px; line-height: 1.05; max-width: 80%; }
+    .hero p { font-size: 13px; opacity: .92; margin-top: 6px; max-width: 78%; line-height: 1.45; }
+    .hero .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; position: relative; z-index: 1; }
+    .hero .badge {
+        font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+        background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
+    }
+
+    .sect { padding: 18px 14px 6px; display: flex; justify-content: space-between; align-items: baseline; }
+    .sect h2 { font-size: 18px; }
+    .sect small { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+    /* ---------- TIENDA ---------- */
+    .chips { display: flex; gap: 8px; padding: 0 14px 6px; overflow-x: auto; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip {
+        flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--card);
+        font-size: 13px; font-weight: 700; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+        transition: background .2s, color .2s, border-color .2s, transform .15s;
+    }
+    .chip:active { transform: scale(.95); }
+    .chip.active { background: var(--sd-accent-solid); color: var(--sd-on-accent); border-color: var(--sd-accent-solid); }
+    .prods { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px 14px 10px; }
+    .prod {
+        position: relative; display: flex; flex-direction: column;
+        background: var(--card); border-radius: var(--radius); padding: 12px;
+        box-shadow: var(--sd-shadow-sm); animation: rise .35s ease both;
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+    .prod .img { font-size: 40px; text-align: center; padding: 6px 0 4px; transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+    .prod.has .img { transform: scale(1.08) rotate(-4deg); }
+    .prod h3 { font-size: 13.5px; font-weight: 800; line-height: 1.2; min-height: 33px; }
+    .prod .meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .prod .pr { font-size: 15px; font-weight: 800; color: var(--sd-accent-text); margin-top: 6px; }
+    .prod .pr small { font-size: 11px; font-weight: 600; color: var(--muted); }
+    .tag-hoy {
+        position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 800;
+        padding: 3px 7px; border-radius: 999px;
+        background: color-mix(in srgb, var(--sage) 22%, var(--card)); color: color-mix(in srgb, var(--sage) 50%, var(--sd-ink));
+    }
+    .add, .step {
+        margin-top: 10px; height: 38px; border-radius: var(--sd-radius-btn);
+    }
+    .add {
+        width: 100%; border: 0; cursor: pointer; font-weight: 800; font-size: 13px;
+        background: var(--sd-accent-solid); color: var(--sd-on-accent);
+        transition: transform .15s;
+    }
+    .add:active { transform: scale(.95); }
+    .step {
+        display: flex; align-items: center; justify-content: space-between;
+        background: color-mix(in srgb, var(--sd-accent) 14%, var(--card));
+        animation: pop .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes pop { from { transform: scale(.8); opacity: 0; } }
+    .step button {
+        width: 38px; height: 38px; border: 0; background: none; cursor: pointer;
+        font-size: 18px; font-weight: 800; color: var(--sd-accent-text);
+    }
+    .step b { font-size: 14px; }
+
+    .box-plan {
+        margin: 6px 14px 0; padding: 14px; border-radius: var(--radius);
+        background: color-mix(in srgb, var(--sage) 16%, var(--card)); box-shadow: var(--sd-shadow-sm);
+        display: flex; gap: 12px; align-items: center;
+    }
+    .box-plan .ico { font-size: 30px; }
+    .box-plan h3 { font-size: 14px; font-weight: 800; }
+    .box-plan p { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+    #cartbar {
+        position: fixed; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 40;
+        transform: translate(-50%, 160%);
+        width: calc(100% - 24px); max-width: 456px; border: 0; cursor: pointer;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 14px 18px; border-radius: 16px;
+        background: var(--sd-ink); color: var(--sd-bg); font-weight: 800; font-size: 14px;
+        box-shadow: 0 10px 30px color-mix(in srgb, var(--sd-ink) 40%, transparent);
+        transition: transform .4s cubic-bezier(.2,.9,.3,1.2);
+    }
+    #cartbar.show { transform: translate(-50%, 0); }
+    #cartbar.bump { animation: bump .35s ease; }
+    @keyframes bump { 50% { transform: translate(-50%, 0) scale(1.04); } }
+
+    /* ---------- HOJA INFERIOR ---------- */
+    .backdrop { position: fixed; inset: 0; background: rgba(30,20,10,.45); opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 60; }
+    .backdrop.show { opacity: 1; pointer-events: auto; }
+    .sheet {
+        position: fixed; left: 50%; bottom: 0; z-index: 61;
+        transform: translate(-50%, 105%);
+        width: 100%; max-width: 480px; max-height: 88dvh; overflow-y: auto;
+        background: var(--sd-bg); border-radius: 24px 24px 0 0;
+        padding: 10px 18px calc(22px + env(safe-area-inset-bottom));
+        transition: transform .4s cubic-bezier(.2,.9,.3,1.05);
+    }
+    .sheet.show { transform: translate(-50%, 0); }
+    .grip { width: 42px; height: 5px; border-radius: 9px; background: var(--line); margin: 0 auto 12px; }
+    .sheet h2 { font-size: 21px; margin-bottom: 6px; }
+    .row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+    .row .nm { flex: 1; font-weight: 700; }
+    .row .q { color: var(--muted); font-size: 12.5px; }
+    .label { font-size: 11.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; }
+    .opts { display: grid; gap: 8px; }
+    .opt {
+        display: flex; gap: 12px; align-items: center; text-align: left;
+        padding: 12px; border-radius: var(--radius); cursor: pointer;
+        border: 2px solid var(--line); background: var(--card);
+        transition: border-color .2s, background .2s;
+    }
+    .opt .ico { font-size: 24px; }
+    .opt b { display: block; font-size: 14px; }
+    .opt span span { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .opt .price { margin-left: auto; font-weight: 800; font-size: 13px; }
+    .opt.active { border-color: var(--sd-accent-solid); background: color-mix(in srgb, var(--sd-accent) 10%, var(--card)); }
+    .switch-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); background: color-mix(in srgb, var(--sage) 14%, var(--card)); margin-top: 10px; }
+    .switch-row div { flex: 1; }
+    .switch-row b { font-size: 14px; display: block; }
+    .switch-row small { font-size: 12px; color: var(--muted); }
+    .sw {
+        position: relative; width: 50px; height: 30px; border-radius: 999px; border: 0; cursor: pointer;
+        background: color-mix(in srgb, var(--sd-ink) 18%, var(--card)); transition: background .25s;
+    }
+    .sw::after {
+        content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%;
+        background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.25); transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .sw[aria-checked="true"] { background: var(--sage); }
+    .sw[aria-checked="true"]::after { transform: translateX(20px); }
+    .field {
+        width: 100%; padding: 12px 14px; font: inherit; font-size: 14px;
+        border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); color: var(--sd-ink); outline: none;
+    }
+    .field:focus { border-color: var(--sd-accent-solid); }
+    .total { display: flex; justify-content: space-between; align-items: baseline; padding: 16px 0 2px; font-weight: 800; font-size: 17px; }
+    .total small { display: block; font-size: 11.5px; color: var(--sage); font-weight: 700; }
+    .cta {
+        width: 100%; margin-top: 14px; border: 0; cursor: pointer;
+        padding: 15px; border-radius: var(--sd-radius-btn);
+        background: var(--sd-accent-solid); color: var(--sd-on-accent); font-weight: 800; font-size: 15px;
+        box-shadow: var(--sd-shadow-md); transition: transform .15s;
+    }
+    .cta:active { transform: scale(.97); }
+    .cta:disabled { opacity: .45; box-shadow: none; }
+
+    /* ---------- CONFIRMACIÓN ---------- */
+    .done {
+        position: fixed; inset: 0; z-index: 70; display: none; place-items: center; text-align: center; padding: 26px;
+        background: linear-gradient(160deg, var(--sd-accent), var(--sd-accent-strong)); color: var(--sd-on-accent);
+    }
+    .done.show { display: grid; }
+    .done .big { font-size: 64px; animation: grow .6s cubic-bezier(.34,1.56,.64,1) both; }
+    @keyframes grow { from { transform: scale(0) rotate(-30deg); } }
+    .done h2 { font-size: 25px; margin-top: 10px; }
+    .done p { font-size: 13.5px; margin-top: 8px; line-height: 1.6; opacity: .92; }
+    .done .btns { display: grid; gap: 10px; margin-top: 22px; }
+    .done button {
+        border: 0; cursor: pointer; padding: 13px 22px; border-radius: 999px; font-weight: 800; font-size: 14px;
+        background: var(--sd-bg); color: var(--sd-accent-text);
+    }
+    .done button.ghost { background: rgba(255,255,255,.16); color: var(--sd-on-accent); border: 1px solid rgba(255,255,255,.35); }
+    .confeti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .confeti i { position: absolute; top: -40px; font-style: normal; font-size: 22px; animation: fall linear forwards; }
+    @keyframes fall { to { transform: translateY(110dvh) rotate(540deg); } }
+
+    /* ---------- VISITAS ---------- */
+    .acts { display: grid; gap: 10px; padding: 4px 14px; }
+    .act {
+        display: flex; gap: 12px; align-items: center; text-align: left; width: 100%;
+        padding: 12px; border-radius: var(--radius); cursor: pointer;
+        border: 2px solid transparent; background: var(--card); box-shadow: var(--sd-shadow-sm);
+        transition: border-color .2s, transform .15s;
+    }
+    .act:active { transform: scale(.98); }
+    .act .ico { width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center; font-size: 28px; background: color-mix(in srgb, var(--sage) 18%, var(--sd-bg)); flex: 0 0 auto; }
+    .act b { display: block; font-size: 14.5px; }
+    .act small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .act .pr { margin-left: auto; font-weight: 800; font-size: 13px; color: var(--sd-accent-text); white-space: nowrap; }
+    .act.active { border-color: var(--sd-accent-solid); }
+    .days { display: flex; gap: 8px; overflow-x: auto; padding: 4px 14px 6px; scrollbar-width: none; scroll-snap-type: x mandatory; }
+    .days::-webkit-scrollbar { display: none; }
+    .day {
+        flex: 0 0 56px; scroll-snap-align: start; padding: 10px 0; border-radius: 14px; cursor: pointer;
+        border: 1.5px solid var(--line); background: var(--card); text-align: center;
+        transition: background .2s, color .2s, transform .15s;
+    }
+    .day small { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+    .day b { display: block; font-size: 19px; margin-top: 2px; }
+    .day em { display: block; font-style: normal; font-size: 9.5px; font-weight: 700; color: var(--sd-danger); margin-top: 2px; min-height: 12px; }
+    .day:disabled { opacity: .4; cursor: not-allowed; }
+    .day.active { background: var(--sd-accent-solid); color: var(--sd-on-accent); border-color: var(--sd-accent-solid); }
+    .day.active small, .day.active em { color: inherit; }
+    .slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 4px 14px; }
+    .slot {
+        padding: 11px 4px; border-radius: 12px; cursor: pointer; text-align: center;
+        border: 1.5px solid var(--line); background: var(--card); font-weight: 800; font-size: 14px;
+    }
+    .slot small { display: block; font-size: 10.5px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+    .slot.active { background: var(--sd-ink); color: var(--sd-bg); border-color: var(--sd-ink); }
+    .slot.active small { color: inherit; opacity: .75; }
+    .tickets { margin: 4px 14px 0; padding: 4px 14px; border-radius: var(--radius); background: var(--card); box-shadow: var(--sd-shadow-sm); }
+    .tk { display: flex; align-items: center; gap: 10px; padding: 10px 0; }
+    .tk + .tk { border-top: 1px dashed var(--line); }
+    .tk div { flex: 1; }
+    .tk b { font-size: 14px; display: block; }
+    .tk small { font-size: 12px; color: var(--muted); }
+    .mini { display: flex; align-items: center; gap: 4px; }
+    .mini button {
+        width: 34px; height: 34px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--sd-bg);
+        cursor: pointer; font-weight: 800; font-size: 16px;
+    }
+    .mini span { width: 26px; text-align: center; font-weight: 800; }
+    .pad { padding: 0 14px; }
+
+    .ticket {
+        position: relative; width: min(320px, 100%); margin: 0 auto; text-align: left;
+        background: var(--sd-bg); color: var(--sd-ink); border-radius: 18px; padding: 18px 18px 16px;
+        box-shadow: 0 20px 50px rgba(0,0,0,.25); animation: grow .6s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .ticket::before, .ticket::after {
+        content: ''; position: absolute; top: 62%; width: 22px; height: 22px; border-radius: 50%;
+        background: var(--sd-accent-strong);
+    }
+    .ticket::before { left: -11px; }
+    .ticket::after { right: -11px; }
+    .ticket h3 { font-family: var(--sd-display); font-size: 19px; }
+    .ticket p { font-size: 12.5px; color: var(--muted); margin-top: 4px; opacity: 1; }
+    .ticket .cut { border-top: 2px dashed var(--line); margin: 16px -18px 14px; }
+    .ticket .qr-row { display: flex; gap: 14px; align-items: center; }
+    .qr { width: 86px; height: 86px; display: grid; grid-template-columns: repeat(11, 1fr); gap: 1px; flex: 0 0 auto; }
+    .qr i { background: var(--sd-ink); border-radius: 1px; }
+    .qr i.o { background: transparent; }
+    .ticket .code { font-family: var(--sd-mono, ui-monospace, monospace); font-size: 13px; font-weight: 700; }
+
+    /* ---------- MI GRANJA (panel) ---------- */
+    .owner-head { padding: 66px 16px 6px; }
+    .owner-head small { font-size: 12px; color: var(--muted); font-weight: 700; }
+    .owner-head h1 { font-size: 26px; line-height: 1.1; margin-top: 2px; }
+    .weather { display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--card); box-shadow: var(--sd-shadow-sm); }
+    .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 12px 14px 0; }
+    .kpi { background: var(--card); border-radius: var(--radius); padding: 12px; box-shadow: var(--sd-shadow-sm); }
+    .kpi b { font-size: 24px; display: block; font-variant-numeric: tabular-nums; }
+    .kpi b.bump { animation: kbump .5s ease; }
+    @keyframes kbump { 40% { transform: scale(1.18); color: var(--sd-accent-text); } }
+    .kpi small { font-size: 11px; color: var(--muted); font-weight: 700; }
+    .sensors { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 14px; }
+    .sensor { background: var(--card); border-radius: var(--radius); padding: 12px; box-shadow: var(--sd-shadow-sm); }
+    .sensor.wide { grid-column: 1 / -1; }
+    .sensor .t { font-size: 12px; font-weight: 800; color: var(--muted); display: flex; justify-content: space-between; }
+    .sensor .v { font-size: 26px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .sensor .v small { font-size: 13px; color: var(--muted); }
+    .state { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, var(--sd-ok) 18%, var(--card)); color: var(--sd-ok); }
+    .state.warn { background: color-mix(in srgb, var(--sd-warn) 18%, var(--card)); color: var(--sd-warn); }
+    .bar { height: 8px; border-radius: 9px; background: color-mix(in srgb, var(--sd-ink) 10%, transparent); margin-top: 8px; overflow: hidden; }
+    .bar i { display: block; height: 100%; border-radius: inherit; background: var(--sage); transition: width .8s ease; }
+    .spark { width: 100%; height: 36px; margin-top: 6px; overflow: visible; }
+    .spark polyline { fill: none; stroke: var(--sd-accent); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+    .tanks { display: flex; gap: 14px; justify-content: space-around; margin-top: 10px; }
+    .tank { text-align: center; font-size: 11px; font-weight: 800; color: var(--muted); }
+    .tank .glass {
+        position: relative; width: 46px; height: 74px; margin: 0 auto 6px; border-radius: 10px 10px 14px 14px; overflow: hidden;
+        background: color-mix(in srgb, var(--sd-ink) 8%, transparent);
+        box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--sd-ink) 14%, transparent);
+    }
+    .tank .water {
+        position: absolute; left: 0; right: 0; bottom: 0; transition: height 1.2s cubic-bezier(.2,.9,.3,1.1);
+        background: linear-gradient(#7fc4e8, #3d8fc4);
+    }
+    .tank .water::before {
+        content: ''; position: absolute; left: -50%; top: -6px; width: 200%; height: 12px;
+        background: radial-gradient(circle at 25% 100%, #7fc4e8 6px, transparent 6.5px) 0 0 / 23px 12px repeat-x;
+        animation: wave 2.4s linear infinite;
+    }
+    @keyframes wave { to { transform: translateX(23px); } }
+    .tank.low .water { background: linear-gradient(#f2b37a, #d9783a); }
+    .tank.low .water::before { background-image: radial-gradient(circle at 25% 100%, #f2b37a 6px, transparent 6.5px); }
+    .alert {
+        margin: 0 14px; padding: 12px; border-radius: var(--radius); display: flex; gap: 10px; align-items: center;
+        background: color-mix(in srgb, var(--sd-warn) 16%, var(--card)); box-shadow: var(--sd-shadow-sm);
+        animation: rise .35s ease both;
+    }
+    .alert .ico { font-size: 22px; }
+    .alert div { flex: 1; font-size: 13px; }
+    .alert b { display: block; }
+    .alert button {
+        border: 0; cursor: pointer; padding: 9px 14px; border-radius: var(--sd-radius-btn);
+        background: var(--sd-warn); color: #fff; font-weight: 800; font-size: 12.5px;
+    }
+    .alert.ok { background: color-mix(in srgb, var(--sd-ok) 16%, var(--card)); }
+    .list { margin: 0 14px; background: var(--card); border-radius: var(--radius); box-shadow: var(--sd-shadow-sm); padding: 2px 12px; }
+    .item { display: flex; align-items: center; gap: 12px; padding: 12px 0; cursor: pointer; }
+    .item + .item { border-top: 1px dashed var(--line); }
+    .item .box {
+        width: 26px; height: 26px; border-radius: 8px; flex: 0 0 auto; display: grid; place-items: center;
+        border: 2px solid var(--line); background: var(--sd-bg); color: transparent; font-weight: 900; font-size: 14px;
+        transition: background .2s, border-color .2s, color .2s, transform .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    .item div { flex: 1; min-width: 0; }
+    .item b { display: block; font-size: 14px; }
+    .item small { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .item .amt { font-weight: 800; font-size: 13px; }
+    .item.is-done .box { background: var(--sd-ok); border-color: var(--sd-ok); color: #fff; transform: scale(1.12); }
+    .item.is-done b { text-decoration: line-through; opacity: .55; }
+    .item.is-new { animation: flash 1.6s ease; }
+    @keyframes flash { 0%, 40% { background: color-mix(in srgb, var(--sd-accent) 18%, transparent); } }
+    .new-pill { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px; background: var(--sd-accent-solid); color: var(--sd-on-accent); margin-left: 6px; vertical-align: 2px; }
+
+    /* ---------- PESTAÑAS ---------- */
+    .tabbar {
+        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 50;
+        width: 100%; max-width: 480px; display: flex;
+        padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
+        background: color-mix(in srgb, var(--sd-bg) 88%, transparent);
+        -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+        border-top: 1px solid var(--line);
+    }
+    .tab {
+        flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+        border: 0; background: none; cursor: pointer; padding: 5px 0;
+        font-size: 11px; font-weight: 800; color: var(--muted);
+    }
+    .tab .ico { font-size: 21px; filter: grayscale(1) opacity(.65); transition: filter .2s, transform .3s cubic-bezier(.34,1.56,.64,1); }
+    .tab.active { color: var(--sd-accent-text); }
+    .tab.active .ico { filter: none; transform: translateY(-2px) scale(1.1); }
+    .tab .dot { position: absolute; margin: -2px 0 0 22px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 9px; background: var(--sd-danger); color: #fff; font-size: 10px; line-height: 16px; display: none; }
+    .tab .dot.show { display: block; animation: pop .3s ease; }
+    .tab { position: relative; }
+
+    .toast {
+        position: fixed; left: 50%; bottom: calc(140px + env(safe-area-inset-bottom)); z-index: 80;
+        transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+        background: var(--sd-ink); color: var(--sd-bg); font-size: 13px; font-weight: 700;
+        padding: 9px 18px; border-radius: 999px; white-space: nowrap; transition: all .3s;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+</style>
+<script src="sistemas/tema-datos.js"></script>
+<script src="../js/selector-sistema.js" defer></script>
+</head>
+<body>
+<div class="demo-badge">DEMO</div>
+
+<!-- VISTA: TIENDA -->
+<main id="view-tienda" class="view active">
+    <header class="hero">
+        <span class="art" aria-hidden="true">🌾</span>
+        <h1>Granja Las Encinas</h1>
+        <p>Lo que hoy sale del campo, mañana en tu mesa.</p>
+        <div class="badges">
+            <span class="badge">🐔 Gallinas camperas</span>
+            <span class="badge">📍 A 3 km del pueblo</span>
+        </div>
+    </header>
+
+    <div class="box-plan">
+        <span class="ico" aria-hidden="true">🧺</span>
+        <div>
+            <h3>Cesta de temporada</h3>
+            <p>Llena tu cesta y repítela cada semana con un 10&nbsp;% menos.</p>
+        </div>
+    </div>
+
+    <div class="sect"><h2>Recogido hoy</h2><small id="stock-hint">8 productos</small></div>
+    <div class="chips" id="chips" role="tablist" aria-label="Categorías"></div>
+    <section class="prods" id="prods" aria-label="Productos"></section>
+</main>
+
+<!-- VISTA: VISITAS -->
+<main id="view-visitas" class="view">
+    <header class="hero">
+        <span class="art" aria-hidden="true">🐑</span>
+        <h1>Ven a conocernos</h1>
+        <p>Visitas en familia y con el cole. Botas recomendadas.</p>
+    </header>
+
+    <div class="sect"><h2>¿Qué te apetece?</h2></div>
+    <div class="acts" id="acts"></div>
+
+    <div class="sect"><h2>Día</h2><small>Los lunes descansamos</small></div>
+    <div class="days" id="days"></div>
+
+    <div class="sect"><h2>Hora</h2></div>
+    <div class="slots" id="vslots"></div>
+
+    <div class="sect"><h2>Entradas</h2></div>
+    <div class="tickets">
+        <div class="tk"><div><b>Adultos</b><small id="pa">8,00 €</small></div><div class="mini"><button data-t="ad" data-d="-1" aria-label="Quitar adulto">−</button><span id="n-ad">2</span><button data-t="ad" data-d="1" aria-label="Añadir adulto">+</button></div></div>
+        <div class="tk"><div><b>Niños</b><small id="pn">5,00 € · menores de 3, gratis</small></div><div class="mini"><button data-t="ni" data-d="-1" aria-label="Quitar niño">−</button><span id="n-ni">1</span><button data-t="ni" data-d="1" aria-label="Añadir niño">+</button></div></div>
+    </div>
+    <div class="pad">
+        <div class="total"><span>Total</span><span id="v-total">21,00 €</span></div>
+        <button class="cta" id="book">Reservar visita</button>
+    </div>
+</main>
+
+<!-- VISTA: MI GRANJA (panel del granjero) -->
+<main id="view-panel" class="view">
+    <header class="owner-head">
+        <small>Panel de la granja · solo para ti</small>
+        <h1>Buenos días, Javier</h1>
+        <span class="weather">☀️ <span id="wx">21°</span> · viento 8 km/h · sin lluvia</span>
+    </header>
+
+    <div class="kpis">
+        <div class="kpi"><b id="k-eggs">312</b><small>huevos hoy</small></div>
+        <div class="kpi"><b id="k-orders">2</b><small>cestas</small></div>
+        <div class="kpi"><b id="k-visits">6</b><small>visitantes</small></div>
+    </div>
+
+    <div class="sect"><h2>Sensores</h2><small id="live">● en directo</small></div>
+    <div class="sensors">
+        <div class="sensor">
+            <div class="t">🌡️ Nave gallinas <span class="state" id="st-temp">Ideal</span></div>
+            <div class="v"><span id="v-temp">21,4</span><small> °C</small></div>
+            <div class="bar"><i id="b-temp" style="width:55%"></i></div>
+        </div>
+        <div class="sensor">
+            <div class="t">🌱 Huerta <span class="state" id="st-hum">Bien</span></div>
+            <div class="v"><span id="v-hum">38</span><small> % hum.</small></div>
+            <div class="bar"><i id="b-hum" style="width:38%"></i></div>
+        </div>
+        <div class="sensor wide">
+            <div class="t">☀️ Placas solares <span id="v-sol" style="color:var(--sd-ink)">4,2 kW</span></div>
+            <svg class="spark" viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true"><polyline id="spark" points=""/></svg>
+        </div>
+        <div class="sensor wide">
+            <div class="t">💧 Bebederos</div>
+            <div class="tanks" id="tanks"></div>
+        </div>
+    </div>
+
+    <div class="sect"><h2>Avisos</h2></div>
+    <div id="alerts"></div>
+
+    <div class="sect"><h2>Cestas de hoy</h2><small>Toca para marcar preparada</small></div>
+    <div class="list" id="orders"></div>
+
+    <div class="sect"><h2>Tareas</h2></div>
+    <div class="list" id="tasks"></div>
+    <div style="height:14px"></div>
+</main>
+
+<button id="cartbar" aria-label="Ver mi cesta"><span id="cb-items">🧺 Mi cesta · 0</span><span id="cb-total">0,00 € →</span></button>
+
+<div class="backdrop" id="backdrop"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="grip" aria-hidden="true"></div>
+    <h2 id="sheet-title">Tu cesta</h2>
+    <div id="sheet-rows"></div>
+    <div class="label">¿Cómo la quieres?</div>
+    <div class="opts" id="delivery">
+        <button class="opt active" data-del="granja" data-fee="0"><span class="ico">🏡</span><span><b>Recojo en la granja</b><span>Sábado de 10 a 13 h</span></span><span class="price">Gratis</span></button>
+        <button class="opt" data-del="pueblo" data-fee="2"><span class="ico">🚜</span><span><b>Reparto en el pueblo</b><span>Jueves por la tarde</span></span><span class="price">2,00 €</span></button>
+    </div>
+    <div class="switch-row">
+        <span style="font-size:22px" aria-hidden="true">🔁</span>
+        <div><b>Repetir cada semana</b><small>Ahorra un 10 % · cancela cuando quieras</small></div>
+        <button class="sw" id="sub" role="switch" aria-checked="false" aria-label="Repetir cada semana"></button>
+    </div>
+    <div class="label">Tu nombre</div>
+    <input class="field" id="cust" placeholder="Ej.: María" autocomplete="off">
+    <div class="total"><span>Total<small id="disc"></small></span><span id="s-total">0,00 €</span></div>
+    <button class="cta" id="confirm">Reservar mi cesta</button>
+</section>
+
+<div class="done" id="done" role="dialog" aria-modal="true">
+    <div class="confeti" id="confeti" aria-hidden="true"></div>
+    <div id="done-body"></div>
+</div>
+
+<nav class="tabbar" aria-label="Secciones">
+    <button class="tab active" data-view="tienda"><span class="ico">🧺</span>Tienda</button>
+    <button class="tab" data-view="visitas"><span class="ico">🎟️</span>Visitas</button>
+    <button class="tab" data-view="panel"><span class="ico">📡</span>Mi granja<span class="dot" id="tab-dot">1</span></button>
+</nav>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const eur = n => n.toFixed(2).replace('.', ',') + ' €';
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    /* ---------- DATOS ---------- */
+    const PRODUCTOS = [
+        { id: 1, cat: 'huevos', emoji: '🥚', name: 'Huevos camperos (docena)', price: 3.90, unit: 'docena', stock: 14 },
+        { id: 2, cat: 'lacteos', emoji: '🥛', name: 'Leche fresca de oveja 1 L', price: 2.40, unit: 'litro', stock: 9 },
+        { id: 3, cat: 'lacteos', emoji: '🧀', name: 'Queso curado de la casa', price: 9.80, unit: 'pieza 500 g', stock: 6 },
+        { id: 4, cat: 'huerta', emoji: '🥬', name: 'Cesta de verdura de temporada', price: 12.00, unit: '≈ 4 kg', stock: 5 },
+        { id: 5, cat: 'huerta', emoji: '🍅', name: 'Tomate de huerta', price: 2.80, unit: 'kg', stock: 18 },
+        { id: 6, cat: 'despensa', emoji: '🍯', name: 'Miel de romero', price: 7.50, unit: 'tarro 500 g', stock: 11 },
+        { id: 7, cat: 'despensa', emoji: '🍞', name: 'Hogaza de horno de leña', price: 3.20, unit: 'pieza', stock: 8 },
+        { id: 8, cat: 'lacteos', emoji: '🥣', name: 'Yogur natural (4 ud.)', price: 3.60, unit: 'pack', stock: 7 }
+    ];
+    const CATS = [
+        { id: 'todo', t: 'Todo' }, { id: 'huevos', t: '🥚 Huevos' }, { id: 'lacteos', t: '🧀 Lácteos' },
+        { id: 'huerta', t: '🥕 Huerta' }, { id: 'despensa', t: '🍯 Despensa' }
+    ];
+    const ACTIVIDADES = [
+        { id: 'ordeno', emoji: '🐑', name: 'Ordeña con nosotros', info: '1 h · desde 4 años', ad: 8, ni: 5 },
+        { id: 'huevos', emoji: '🥚', name: 'Recogida de huevos', info: '45 min · todas las edades', ad: 6, ni: 4 },
+        { id: 'queso', emoji: '🧀', name: 'Taller de queso', info: '2 h · desde 8 años · te lo llevas', ad: 18, ni: 12 },
+        { id: 'tractor', emoji: '🚜', name: 'Paseo en tractor', info: '30 min · todas las edades', ad: 5, ni: 3 }
+    ];
+
+    const cesta = new Map();
+    let cat = 'todo';
+    let entrega = { del: 'granja', fee: 0 };
+    let suscripcion = false;
+
+    function toast(msg) {
+        const t = $('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toast.h);
+        toast.h = setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    /* ---------- TIENDA ---------- */
+    function pintarChips() {
+        $('chips').innerHTML = CATS.map(c =>
+            `<button class="chip ${c.id === cat ? 'active' : ''}" role="tab" aria-selected="${c.id === cat}" data-cat="${c.id}">${c.t}</button>`).join('');
+    }
+    function pintarProductos() {
+        const lista = PRODUCTOS.filter(p => cat === 'todo' || p.cat === cat);
+        $('stock-hint').textContent = lista.length + (lista.length === 1 ? ' producto' : ' productos');
+        $('prods').innerHTML = lista.map((p, i) => {
+            const q = cesta.get(p.id) || 0;
+            const ctrl = q
+                ? `<div class="step"><button data-id="${p.id}" data-d="-1" aria-label="Quitar">−</button><b>${q}</b><button data-id="${p.id}" data-d="1" aria-label="Añadir otro">+</button></div>`
+                : `<button class="add" data-id="${p.id}" data-d="1">Añadir</button>`;
+            return `<article class="prod ${q ? 'has' : ''}" style="animation-delay:${i * 40}ms">
+                ${p.id === 1 || p.id === 5 ? '<span class="tag-hoy">Hoy</span>' : ''}
+                <div class="img" aria-hidden="true">${p.emoji}</div>
+                <h3>${esc(p.name)}</h3>
+                <div class="meta">${esc(p.unit)} · quedan ${p.stock - q}</div>
+                <div class="pr">${eur(p.price)}</div>
+                ${ctrl}
+            </article>`;
+        }).join('');
+    }
+    function totales() {
+        let n = 0, sub = 0;
+        cesta.forEach((q, id) => { const p = PRODUCTOS.find(x => x.id === id); n += q; sub += q * p.price; });
+        const desc = suscripcion ? sub * .1 : 0;
+        return { n, sub, desc, total: sub - desc + (n ? entrega.fee : 0) };
+    }
+    function pintarBarra(bump) {
+        const { n, sub } = totales();
+        $('cb-items').textContent = '🧺 Mi cesta · ' + n;
+        $('cb-total').textContent = eur(sub) + ' →';
+        const bar = $('cartbar');
+        bar.classList.toggle('show', n > 0 && $('view-tienda').classList.contains('active'));
+        if (bump) { bar.classList.remove('bump'); void bar.offsetWidth; bar.classList.add('bump'); }
+    }
+    $('chips').addEventListener('click', e => {
+        const b = e.target.closest('.chip');
+        if (!b) return;
+        cat = b.dataset.cat;
+        pintarChips();
+        pintarProductos();
+    });
+    $('prods').addEventListener('click', e => {
+        const b = e.target.closest('button[data-id]');
+        if (!b) return;
+        const p = PRODUCTOS.find(x => x.id === +b.dataset.id);
+        const q = (cesta.get(p.id) || 0) + +b.dataset.d;
+        if (q > p.stock) { toast('No quedan más por hoy'); return; }
+        if (q <= 0) cesta.delete(p.id); else cesta.set(p.id, q);
+        pintarProductos();
+        pintarBarra(true);
+    });
+
+    /* hoja de la cesta */
+    function abrirHoja() {
+        pintarHoja();
+        $('backdrop').classList.add('show');
+        $('sheet').classList.add('show');
+    }
+    function cerrarHoja() {
+        $('backdrop').classList.remove('show');
+        $('sheet').classList.remove('show');
+    }
+    function pintarHoja() {
+        const filas = [];
+        cesta.forEach((q, id) => {
+            const p = PRODUCTOS.find(x => x.id === id);
+            filas.push(`<div class="row"><span aria-hidden="true">${p.emoji}</span><span class="nm">${esc(p.name)}</span><span class="q">× ${q}</span><b>${eur(q * p.price)}</b></div>`);
+        });
+        $('sheet-rows').innerHTML = filas.join('');
+        const t = totales();
+        $('s-total').textContent = eur(t.total);
+        $('disc').textContent = t.desc ? '−' + eur(t.desc) + ' por repetir cada semana' : '';
+        $('confirm').disabled = !t.n;
+    }
+    $('cartbar').addEventListener('click', abrirHoja);
+    $('backdrop').addEventListener('click', cerrarHoja);
+    $('delivery').addEventListener('click', e => {
+        const b = e.target.closest('.opt');
+        if (!b) return;
+        document.querySelectorAll('#delivery .opt').forEach(o => o.classList.toggle('active', o === b));
+        entrega = { del: b.dataset.del, fee: +b.dataset.fee };
+        pintarHoja();
+    });
+    $('sub').addEventListener('click', () => {
+        suscripcion = !suscripcion;
+        $('sub').setAttribute('aria-checked', String(suscripcion));
+        pintarHoja();
+    });
+
+    function confeti(emojis) {
+        const c = $('confeti');
+        c.innerHTML = '';
+        for (let i = 0; i < 22; i++) {
+            const e = document.createElement('i');
+            e.textContent = emojis[i % emojis.length];
+            e.style.left = Math.random() * 100 + '%';
+            e.style.animationDuration = 1.6 + Math.random() * 1.6 + 's';
+            e.style.animationDelay = Math.random() * .5 + 's';
+            c.appendChild(e);
+        }
+    }
+    function mostrarHecho(html, emojis) {
+        $('done-body').innerHTML = html;
+        confeti(emojis);
+        $('done').classList.add('show');
+    }
+    $('done').addEventListener('click', e => {
+        const b = e.target.closest('button[data-go]');
+        if (!b) return;
+        $('done').classList.remove('show');
+        irA(b.dataset.go);
+    });
+
+    $('confirm').addEventListener('click', () => {
+        const t = totales();
+        if (!t.n) return;
+        const nombre = $('cust').value.trim() || 'María';
+        const items = [];
+        cesta.forEach((q, id) => {
+            const p = PRODUCTOS.find(x => x.id === id);
+            p.stock -= q;
+            items.push(q + '× ' + p.name.split(' (')[0]);
+        });
+        pedidos.unshift({
+            id: Date.now(), nombre, nuevo: true,
+            detalle: items.join(', '),
+            cuando: entrega.del === 'granja' ? 'Recoge el sábado' : 'Reparto el jueves',
+            total: t.total, sub: suscripcion
+        });
+        cesta.clear();
+        cerrarHoja();
+        pintarProductos();
+        pintarBarra();
+        pintarPedidos();
+        $('tab-dot').classList.add('show');
+        mostrarHecho(`
+            <div class="big" aria-hidden="true">🧺</div>
+            <h2>¡Cesta reservada, ${esc(nombre)}!</h2>
+            <p>${entrega.del === 'granja' ? 'Te la tenemos lista el sábado de 10 a 13 h.' : 'Te la llevamos el jueves por la tarde.'}${suscripcion ? '<br>Se repetirá cada semana con un 10 % menos.' : ''}</p>
+            <p>Mira cómo le llega al granjero en <b>Mi granja</b>.</p>
+            <div class="btns">
+                <button data-go="panel">Ver el panel de la granja</button>
+                <button class="ghost" data-go="tienda">Seguir comprando</button>
+            </div>`, ['🥚', '🥕', '🌾', '🧀', '🍅']);
+    });
+
+    /* ---------- VISITAS ---------- */
+    const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+    const visita = { act: ACTIVIDADES[0], dia: null, hora: '10:00', ad: 2, ni: 1 };
+    function pintarActividades() {
+        $('acts').innerHTML = ACTIVIDADES.map(a =>
+            `<button class="act ${a.id === visita.act.id ? 'active' : ''}" data-act="${a.id}">
+                <span class="ico" aria-hidden="true">${a.emoji}</span>
+                <span><b>${esc(a.name)}</b><small>${esc(a.info)}</small></span>
+                <span class="pr">${eur(a.ad)}</span>
+            </button>`).join('');
+    }
+    function pintarDias() {
+        const hoy = new Date();
+        const html = [];
+        for (let i = 1; i <= 14; i++) {
+            const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + i);
+            const lunes = d.getDay() === 1;
+            const completo = !lunes && (i === 3 || i === 9);
+            const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            if (!visita.dia && !lunes && !completo) visita.dia = key;
+            html.push(`<button class="day ${visita.dia === key ? 'active' : ''}" data-day="${key}" ${lunes || completo ? 'disabled' : ''}>
+                <small>${DIAS[d.getDay()]}</small><b>${d.getDate()}</b><em>${lunes ? 'cerrado' : completo ? 'completo' : ''}</em></button>`);
+        }
+        $('days').innerHTML = html.join('');
+    }
+    function pintarHoras() {
+        const huecos = [['10:00', 6], ['12:00', 3], ['17:30', 9]];
+        $('vslots').innerHTML = huecos.map(([h, n]) =>
+            `<button class="slot ${visita.hora === h ? 'active' : ''}" data-h="${h}">${h}<small>quedan ${n}</small></button>`).join('');
+    }
+    function pintarEntradas() {
+        $('n-ad').textContent = visita.ad;
+        $('n-ni').textContent = visita.ni;
+        $('pa').textContent = eur(visita.act.ad);
+        $('pn').textContent = eur(visita.act.ni) + ' · menores de 3, gratis';
+        const total = visita.ad * visita.act.ad + visita.ni * visita.act.ni;
+        $('v-total').textContent = eur(total);
+        $('book').disabled = visita.ad + visita.ni === 0;
+    }
+    $('acts').addEventListener('click', e => {
+        const b = e.target.closest('.act');
+        if (!b) return;
+        visita.act = ACTIVIDADES.find(a => a.id === b.dataset.act);
+        pintarActividades();
+        pintarEntradas();
+    });
+    $('days').addEventListener('click', e => {
+        const b = e.target.closest('.day');
+        if (!b || b.disabled) return;
+        visita.dia = b.dataset.day;
+        pintarDias();
+    });
+    $('vslots').addEventListener('click', e => {
+        const b = e.target.closest('.slot');
+        if (!b) return;
+        visita.hora = b.dataset.h;
+        pintarHoras();
+    });
+    document.querySelector('.tickets').addEventListener('click', e => {
+        const b = e.target.closest('button[data-t]');
+        if (!b) return;
+        visita[b.dataset.t] = Math.max(0, Math.min(10, visita[b.dataset.t] + +b.dataset.d));
+        pintarEntradas();
+    });
+    function qr() {
+        let s = '';
+        for (let i = 0; i < 121; i++) {
+            const x = i % 11, y = Math.floor(i / 11);
+            const ojo = (x < 3 && y < 3) || (x > 7 && y < 3) || (x < 3 && y > 7);
+            s += `<i class="${ojo || Math.random() > .5 ? '' : 'o'}"></i>`;
+        }
+        return s;
+    }
+    $('book').addEventListener('click', () => {
+        const d = new Date(visita.dia + 'T12:00:00');
+        const fecha = d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+        const personas = visita.ad + visita.ni;
+        $('k-visits').textContent = 6 + personas;
+        const codigo = 'ENC-' + Math.floor(1000 + Math.random() * 9000);
+        mostrarHecho(`
+            <div class="ticket">
+                <h3>${visita.act.emoji} ${esc(visita.act.name)}</h3>
+                <p>${esc(fecha)} · ${visita.hora} h</p>
+                <div class="cut"></div>
+                <div class="qr-row">
+                    <div class="qr" aria-hidden="true">${qr()}</div>
+                    <div>
+                        <p>${visita.ad} adulto${visita.ad === 1 ? '' : 's'} · ${visita.ni} niño${visita.ni === 1 ? '' : 's'}</p>
+                        <p class="code">${codigo}</p>
+                        <p>Enséñalo en la puerta de la granja</p>
+                    </div>
+                </div>
+            </div>
+            <div class="btns"><button data-go="visitas">Hecho</button></div>`, ['🐑', '🐔', '🌻', '🚜']);
+    });
+
+    /* ---------- MI GRANJA ---------- */
+    const pedidos = [
+        { id: 1, nombre: 'Lucía', detalle: '2× Huevos camperos, 1× Miel de romero', cuando: 'Recoge el sábado', total: 15.30, sub: true },
+        { id: 2, nombre: 'Bar El Rincón', detalle: '6× Huevos camperos, 3× Queso curado', cuando: 'Reparto el jueves', total: 54.80, sub: false }
+    ];
+    const tareas = [
+        { t: 'Recoger huevos de la tarde', s: 'Nave 1 y 2 · 17:00' },
+        { t: 'Ordeño', s: '42 ovejas · 18:30' },
+        { t: 'Revisar la cerca de la parcela 2', s: 'El viento la movió ayer' }
+    ];
+    const bebederos = [{ n: 'B1', v: 86 }, { n: 'B2', v: 64 }, { n: 'B3', v: 31 }];
+
+    function pintarPedidos() {
+        $('k-orders').textContent = pedidos.length;
+        $('orders').innerHTML = pedidos.map(p => `
+            <div class="item ${p.hecho ? 'is-done' : ''} ${p.nuevo ? 'is-new' : ''}" data-ped="${p.id}" role="checkbox" aria-checked="${!!p.hecho}" tabindex="0">
+                <span class="box" aria-hidden="true">✓</span>
+                <div><b>${esc(p.nombre)}${p.nuevo ? '<span class="new-pill">nueva</span>' : ''}</b><small>${esc(p.detalle)}</small><small>${esc(p.cuando)}${p.sub ? ' · 🔁 semanal' : ''}</small></div>
+                <span class="amt">${eur(p.total)}</span>
+            </div>`).join('');
+    }
+    function pintarTareas() {
+        $('tasks').innerHTML = tareas.map((t, i) => `
+            <div class="item ${t.hecho ? 'is-done' : ''}" data-task="${i}" role="checkbox" aria-checked="${!!t.hecho}" tabindex="0">
+                <span class="box" aria-hidden="true">✓</span>
+                <div><b>${esc(t.t)}</b><small>${esc(t.s)}</small></div>
+            </div>`).join('');
+    }
+    function marcar(e) {
+        const it = e.target.closest('.item');
+        if (!it) return;
+        if (it.dataset.ped) {
+            const p = pedidos.find(x => x.id === +it.dataset.ped);
+            p.hecho = !p.hecho; p.nuevo = false;
+            pintarPedidos();
+            if (p.hecho) toast('📦 Cesta de ' + p.nombre + ' preparada');
+        } else {
+            const t = tareas[+it.dataset.task];
+            t.hecho = !t.hecho;
+            pintarTareas();
+        }
+    }
+    ['orders', 'tasks'].forEach(id => {
+        $(id).addEventListener('click', marcar);
+        $(id).addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); marcar(e); } });
+    });
+
+    function pintarBebederos() {
+        $('tanks').innerHTML = bebederos.map((b, i) => `
+            <div class="tank ${b.v < 35 ? 'low' : ''}">
+                <div class="glass"><div class="water" style="height:${b.v}%"></div></div>
+                ${b.n} · <span>${Math.round(b.v)} %</span>
+            </div>`).join('');
+        const bajos = bebederos.filter(b => b.v < 35);
+        $('alerts').innerHTML = bajos.length
+            ? bajos.map(b => `<div class="alert"><span class="ico">⚠️</span><div><b>Bebedero ${b.n.slice(1)} al ${Math.round(b.v)} %</b>Las gallinas de la nave 2 beben de aquí.</div><button data-fill="${b.n}">Rellenar</button></div>`).join('')
+            : '<div class="alert ok"><span class="ico">✅</span><div><b>Todo en orden</b>Ningún sensor fuera de rango.</div></div>';
+    }
+    $('alerts').addEventListener('click', e => {
+        const b = e.target.closest('button[data-fill]');
+        if (!b) return;
+        const t = bebederos.find(x => x.n === b.dataset.fill);
+        t.v = 100;
+        pintarBebederos();
+        toast('💧 Abriendo la válvula del ' + t.n);
+    });
+
+    // Datos en directo (simulados)
+    let temp = 21.4, hum = 38, huevos = 312;
+    const solar = Array.from({ length: 24 }, (_, i) => 3.2 + Math.sin(i / 4) * .8 + Math.random() * .4);
+    function pintarSensores() {
+        $('v-temp').textContent = temp.toFixed(1).replace('.', ',');
+        $('b-temp').style.width = Math.max(5, Math.min(100, (temp - 10) * 4)) + '%';
+        const tOk = temp >= 18 && temp <= 24;
+        $('st-temp').textContent = tOk ? 'Ideal' : 'Revisar';
+        $('st-temp').classList.toggle('warn', !tOk);
+        $('v-hum').textContent = Math.round(hum);
+        $('b-hum').style.width = hum + '%';
+        $('st-hum').textContent = hum < 30 ? 'Regar' : 'Bien';
+        $('st-hum').classList.toggle('warn', hum < 30);
+        const lo = 1.5, hi = 6;
+        $('spark').setAttribute('points', solar.map((v, i) => (i * 100 / (solar.length - 1)).toFixed(1) + ',' + (34 - (v - lo) / (hi - lo) * 32).toFixed(1)).join(' '));
+        $('v-sol').textContent = solar[solar.length - 1].toFixed(1).replace('.', ',') + ' kW';
+        $('wx').textContent = Math.round(temp - .5) + '°';
+    }
+    setInterval(() => {
+        temp = Math.max(17, Math.min(25.5, temp + (Math.random() - .5) * .35));
+        hum = Math.max(24, Math.min(60, hum + (Math.random() - .55) * 1.2));
+        solar.shift();
+        solar.push(Math.max(1, Math.min(5.8, solar[solar.length - 1] + (Math.random() - .5) * .6)));
+        bebederos.forEach(b => { b.v = Math.max(8, b.v - Math.random() * .6); });
+        if (Math.random() < .35) {
+            huevos += 1;
+            const k = $('k-eggs');
+            k.textContent = huevos;
+            k.classList.remove('bump'); void k.offsetWidth; k.classList.add('bump');
+        }
+        pintarSensores();
+        if ($('view-panel').classList.contains('active')) {
+            document.querySelectorAll('#tanks .tank').forEach((el, i) => {
+                el.querySelector('.water').style.height = bebederos[i].v + '%';
+                el.querySelector('span').textContent = Math.round(bebederos[i].v) + ' %';
+                el.classList.toggle('low', bebederos[i].v < 35);
+            });
+            const n = bebederos.filter(b => b.v < 35).length;
+            if (n !== document.querySelectorAll('#alerts .alert:not(.ok)').length) pintarBebederos();
+        }
+    }, 1400);
+
+    /* ---------- NAVEGACIÓN ---------- */
+    function irA(vista) {
+        document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + vista));
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === vista));
+        if (vista === 'panel') {
+            $('tab-dot').classList.remove('show');
+            pintarBebederos();
+            pintarPedidos();
+            pedidos.forEach(p => { p.nuevo = false; });
+        }
+        pintarBarra();
+        window.scrollTo(0, 0);
+    }
+    document.querySelector('.tabbar').addEventListener('click', e => {
+        const t = e.target.closest('.tab');
+        if (t) irA(t.dataset.view);
+    });
+
+    pintarChips();
+    pintarProductos();
+    pintarActividades();
+    pintarDias();
+    pintarHoras();
+    pintarEntradas();
+    pintarPedidos();
+    pintarTareas();
+    pintarBebederos();
+    pintarSensores();
+})();
+</script>
+</body>
+</html>
