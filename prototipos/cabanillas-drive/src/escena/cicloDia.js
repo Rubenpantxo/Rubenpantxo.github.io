@@ -116,7 +116,7 @@ export function creaCicloDia({ escena, camara, luzSol, direccionRender, intensid
     escena.traverse((o) => {
       if (!o.material || o === sky || o === estrellas) return;
       for (const m of Array.isArray(o.material) ? o.material : [o.material]) {
-        if (sinLuz.has(m) || m.userData.esSuelo) continue;
+        if (sinLuz.has(m) || m.userData.esSuelo || m.userData.luzPropia) continue;
         if (m.isMeshBasicMaterial || m.isSpriteMaterial) {
           m.userData.colorDia = m.color.clone();
           m.userData.luzMinima = m.isSpriteMaterial ? 0.55 : 0;   // los carteles se siguen leyendo
