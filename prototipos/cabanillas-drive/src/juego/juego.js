@@ -16,6 +16,7 @@ import { creaHud } from '../hud/hud.js';
 import { creaCarteles } from '../escena/carteles.js';
 import { cargaMuros, creaMuros } from '../escena/muros.js';
 import { cargaElementos, creaElementos } from '../escena/elementos.js';
+import { avanzaAgua, creaCanal } from '../escena/agua.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
 import { creaLuces } from './luces.js';
@@ -69,6 +70,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     terreno: mundo.terreno, fisica, calles: geoCalles, edificios: mundo.geoEdificios, muros: datosMuros,
   });
   escena.add(elementos.raiz);
+  const canal = creaCanal(await cargaGeoJSON(ESCENA.rutaAgua).catch(() => null), mundo.terreno);
+  escena.add(canal);
+  hierba.ponExclusion(canal.userData.bajoAgua);
   const colisiones = creaGestorColisiones(fisica, { radio: CALIDAD.radioColisiones });
   const nodos = nodosDeCalles(geoCalles);
   const coche = creaCoche(fisica, escena, modelosCoches[VEHICULO.modelo]);
@@ -205,6 +209,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
       orbita(dt);
       arboles.avanza(dt);
       hierba.avanza(dt);
+      avanzaAgua(dt);
       hierba.actualiza(camara.position);
       tiempoReparto -= dt;
       if (tiempoReparto <= 0) {
@@ -268,6 +273,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     }
     arboles.avanza(dt);
     hierba.avanza(dt);
+    avanzaAgua(dt);
     hierba.actualiza(camara.position);
     tiempoReparto -= dt;
     if (tiempoReparto <= 0) {

@@ -116,6 +116,7 @@ export function creaHierba(vegetacion, terreno, { radio = 60, maxPorClase = 4000
 
   // Mechones de una celda: [x, y, z, giro, alto, ancho, r, g, b] por clase (se guardan)
   const cache = new Map();
+  let excluye = null;          // (x, z, y) → true donde no debe haber hierba (bajo el agua del canal)
   const colorLineal = new THREE.Color();
   const hsl = {};
   function celda(ci, cj) {
@@ -132,13 +133,15 @@ export function creaHierba(vegetacion, terreno, { radio = 60, maxPorClase = 4000
         const d = muestra(densidad, x, z, clase.canal) / 255;
         const giro = r(), altoR = r(), anchoR = r(), prueba = r();
         if (d < DENSIDAD_MIN || prueba >= d) continue;
+        const y = terreno.alturaEn(x, z);
+        if (excluye?.(x, z, y)) continue;
         colorLineal.setRGB(muestra(color, x, z, 0) / 255, muestra(color, x, z, 1) / 255, muestra(color, x, z, 2) / 255,
           THREE.SRGBColorSpace).multiplyScalar(clase.brillo * (0.85 + 0.3 * anchoR));
         // La foto aérea apaga el color (bruma): algo más de saturación a ras de suelo
         colorLineal.getHSL(hsl);
         colorLineal.setHSL(hsl.h, Math.min(1, hsl.s * 1.4), hsl.l);
         const alto = THREE.MathUtils.lerp(clase.alto[0], clase.alto[1], altoR) * (0.6 + 0.4 * d);
-        salida.push(x, terreno.alturaEn(x, z) - 0.03, z, giro * Math.PI * 2, alto, clase.ancho * (0.8 + 0.4 * anchoR),
+        salida.push(x, y - 0.03, z, giro * Math.PI * 2, alto, clase.ancho * (0.8 + 0.4 * anchoR),
           colorLineal.r, colorLineal.g, colorLineal.b);
       }
       return salida;
@@ -199,6 +202,7 @@ export function creaHierba(vegetacion, terreno, { radio = 60, maxPorClase = 4000
     raiz,
     actualiza,
     avanza(dt) { uniformes.uTiempo.value += dt; },
+    ponExclusion(fn) { excluye = fn; cache.clear(); ultima.set(Infinity, 0, 0); },
     get triangulos() { return triangulos; },
     get mechones() { return mallas.map((m) => m.count); },
   };
