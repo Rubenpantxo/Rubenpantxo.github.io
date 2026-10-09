@@ -42,15 +42,15 @@ Así cada app se distingue sin explicarla: basta con ver el objeto para saber de
 ## Fases
 
 ### Fase 0 — Cimientos compartidos
-- [ ] Three.js r170 servido desde el propio repo (`js/vendor/three/`), con los complementos que se necesiten y las importaciones relativas. Así no hace falta importmap, que la revisión de CI no acepta como script en línea.
-- [ ] `servicios/kit/escena.js`. Arranca la escena (renderer, cámara, luces de estudio y entorno), lee los tokens `--sd-*` como colores de Three y se repinta al cambiar de sistema. También se encarga de:
+- [x] Three.js r170 servido desde el propio repo (`js/vendor/three/`), con los complementos que se necesiten y las importaciones relativas. Así no hace falta importmap, que la revisión de CI no acepta como script en línea.
+- [x] `servicios/kit/escena.js`. Arranca la escena (renderer, cámara, luces de estudio y entorno), lee los tokens `--sd-*` como colores de Three y se repinta al cambiar de sistema. También se encarga de:
   - pausar fuera de pantalla;
   - la pose quieta con movimiento reducido;
   - la pérdida de contexto;
   - el fallback sin WebGL;
   - ajustar la resolución si baja el rendimiento.
-- [ ] `servicios/kit/gestos.js`: arrastrar y girar con inercia, resortes (spring), contadores que ruedan, listas animadas por FLIP y una vibración corta cuando el dispositivo la tiene.
-- [ ] `servicios/kit/app.css`: la estructura común (barra de pestañas, hojas inferiores, avisos, esqueletos de carga, foco visible) construida solo con tokens. La identidad de cada negocio va en su propio CSS.
+- [x] `servicios/kit/gestos.js`: arrastrar y girar con inercia, resortes (spring), contadores que ruedan, listas animadas por FLIP y una vibración corta cuando el dispositivo la tiene.
+- [x] `servicios/kit/app.css`: la estructura común (barra de pestañas, hojas inferiores, avisos, esqueletos de carga, foco visible) construida solo con tokens. La identidad de cada negocio va en su propio CSS.
 
 ### Fases 1 a 8 — Las apps, una por fase
 Cada una sustituye a la demo actual en el mismo archivo, así que no cambia ningún enlace.
@@ -67,7 +67,7 @@ Cada una sustituye a la demo actual en el mismo archivo, así que no cambia ning
 Después de cada app se actualiza su ficha en el visor de la home (`js/servicios.js`: lema y rasgos).
 
 ### Fase 9 — Sistemas de diseño, rediseño completo
-- [ ] **Portada nueva** en la misma línea que Servicios: minimalismo funcional, mucho espacio y titular audaz. Sustituye al parallax cinematográfico por **una vitrina 3D**, con una muestra de material por sistema:
+- [x] **Portada nueva** en la misma línea que Servicios: minimalismo funcional, mucho espacio y titular audaz. Sustituye al parallax cinematográfico por **una vitrina 3D**, con una muestra de material por sistema:
 
   | Sistema | Material |
   |---|---|
@@ -81,22 +81,26 @@ Después de cada app se actualiza su ficha en el visor de la home (`js/servicios
   | Clásico | Marco dorado |
   | Industrial | Acero mecanizado |
 
-- [ ] **Tarjetas nuevas: cada tarjeta es una muestra viva de su estilo**, diseñada en su propio lenguaje y con su microinteracción propia:
+- [x] **Tarjetas nuevas: cada tarjeta es una muestra viva de su estilo**, diseñada en su propio lenguaje y con su microinteracción propia:
   - Neón: líneas de escaneo y píxel;
   - Savia: cristal con refracción;
   - Carmín: sombra dura que se aplasta al pulsar;
   - Clásico: filete dorado que se dibuja;
   - el resto, igual.
-- [ ] **Mezclador**: paleta, tipografía y elementos aplicados en vivo a una pantalla de ejemplo, el mismo que usan las demos.
-- [ ] El generador (`generar-sistemas.mjs`) sigue siendo la fuente de la verdad: se reescriben sus plantillas para que las tarjetas nuevas salgan de `sistemas-datos.mjs`. Se mantienen las marcas `@bloque` de la portada y de `index.html`.
+- [x] **Mezclador**: paleta, tipografía y elementos aplicados en vivo a una pantalla de ejemplo, el mismo que usan las demos.
+- [x] El generador (`generar-sistemas.mjs`) sigue siendo la fuente de la verdad: se reescriben sus plantillas para que las tarjetas nuevas salgan de `sistemas-datos.mjs`. Se mantienen las marcas `@bloque` de la portada y de `index.html`.
 
 ### Fase 10 — Integración y control de calidad
-- [ ] Capturas automáticas (Playwright) de cada app a 390 px y a 1280 px, con el tema claro y el oscuro y con varios sistemas.
-- [ ] Prueba en el visor de la home (iframe), con teclado y con movimiento reducido.
-- [ ] Peso por página y fotogramas por segundo en móvil simulado.
-- [ ] `node scripts/revisar.mjs --all` sin fallos.
-- [ ] Actualizar el README.
+- [x] Capturas automáticas (Playwright) de cada app a 390 px y a 1280 px, con el tema claro y el oscuro y con varios sistemas.
+- [x] Prueba en el visor de la home (iframe), con teclado y con movimiento reducido.
+- [ ] Fotogramas por segundo en un móvil real: aquí el WebGL va por software y no sirve para medirlo.
+- [x] `node scripts/revisar.mjs --all` sin fallos.
+- [x] Actualizar el README.
 
 ## Orden y entregas
 - Fase 0, luego las apps en orden y después la Fase 9. Cada fase es un commit propio en `claude/blissful-hamilton-iik55b`.
 - Las apps se pueden desarrollar en paralelo una vez estén los cimientos: cada una vive en su propio archivo.
+
+## Estado
+
+Hecho todo salvo medir fotogramas en un móvil real. Cada app pesa entre 140 y 190 KB (por encima de la meta de 60–130 KB), sin contar Three.js, que se comparte y queda en caché.
