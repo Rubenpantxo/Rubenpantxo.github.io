@@ -5,6 +5,7 @@
 // Se agrupan en los mismos chunks que el terreno (orto.json) para la carga por distancia.
 import * as THREE from 'three';
 import { CALIDAD } from '../config/calidad.js';
+import { FACHADAS_REALES } from '../datos/fachadasReales.js';
 import { GLSL_FACHADA, LUCES_FACHADA } from './fachadas.glsl.js';
 
 // Colores base por estilo; cada casa además varía un poco tono, saturación y luz
@@ -20,6 +21,15 @@ const PALETAS = {
   porche: ['#d8cdb8', '#bfb39c'],
 };
 const ESTILOS = { enfoscado: 0, ladrillo: 1, piedra: 2, nave: 3, hormigon: 4, porche: 5 };
+// aReal = (zócalo r, g, b lineal; alto del zócalo + 10 × marcas): marcas 1 real, 2 balcones, 4 rejas
+const SIN_REAL = [0, 0, 0, 0];
+
+function datosReal(r) {
+  if (!r) return SIN_REAL;
+  const z = new THREE.Color(r.zocalo ?? '#000000').convertSRGBToLinear();
+  const marcas = 1 + (r.balcones ? 2 : 0) + (r.rejas ? 4 : 0);
+  return [z.r, z.g, z.b, (r.zocalo ? r.altoZocalo ?? 0.9 : 0) + 10 * marcas];
+}
 
 // Generador pseudoaleatorio repetible por edificio
 function azar(semilla) {
@@ -65,7 +75,8 @@ function sinCierre(anillo) {
 // Acumulador de vértices de un chunk (muros y tejados en la misma geometría, 2 grupos)
 class Chunk {
   constructor() {
-    this.muros = { pos: [], nor: [], col: [], uvMuro: [], muro: [], muro2: [] };
+    this.muros = { pos: [], nor: [], col: [], uvMuro: [], muro: [], muro2: [], real: [] };
+    this.real = SIN_REAL;              // datos de fachada real del edificio que se está añadiendo
     this.tejados = { pos: [], nor: [], uv: [] };
   }
 
@@ -94,6 +105,7 @@ class Chunk {
       m.uvMuro.push(u, w);
       m.muro.push(alto, datos[0], largo, datos[1]);
       m.muro2.push(...datos2);
+      m.real.push(...this.real);
     }
   }
 
@@ -130,6 +142,7 @@ class Chunk {
         m.uvMuro.push(u, w);
         m.muro.push(alero, datos[0], largo, datos[1]);
         m.muro2.push(...datos2);
+        m.real.push(...this.real);
       }
     }
   }
@@ -211,6 +224,8 @@ class Chunk {
     muro.set(m.muro);
     const muro2 = new Float32Array(total * 4);
     muro2.set(m.muro2);
+    const real = new Float32Array(total * 4);
+    real.set(m.real);
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
@@ -218,6 +233,7 @@ class Chunk {
     g.setAttribute('aUvMuro', new THREE.BufferAttribute(uvMuro, 2));
     g.setAttribute('aMuro', new THREE.BufferAttribute(muro, 4));
     g.setAttribute('aMuro2', new THREE.BufferAttribute(muro2, 4));
+    g.setAttribute('aReal', new THREE.BufferAttribute(real, 4));
     g.addGroup(0, nMuros, 0);
     g.addGroup(nMuros, nTejados, 1);
     g.computeBoundingBox();
@@ -236,13 +252,16 @@ function materialFachada() {
 attribute vec2 aUvMuro;
 attribute vec4 aMuro;
 attribute vec4 aMuro2;
+attribute vec4 aReal;
 varying vec2 vUvMuro;
 varying vec4 vMuro;
-varying vec4 vMuro2;`)
+varying vec4 vMuro2;
+varying vec4 vReal;`)
       .replace('#include <begin_vertex>', `#include <begin_vertex>
 vUvMuro = aUvMuro;
 vMuro = aMuro;
-vMuro2 = aMuro2;`);
+vMuro2 = aMuro2;
+vReal = aReal;`);
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>
 ${CALIDAD.nivel === 'bajo' ? '#define FACHADA_SIMPLE' : ''}
@@ -257,7 +276,7 @@ totalEmissiveRadiance += colorLuzFachada * luzFachada * uIntensidadVentanas;`)
       .replace('#include <common>', `#include <common>
 uniform float uIntensidadVentanas;`);
   };
-  material.customProgramCacheKey = () => `fachada-v3-${CALIDAD.nivel}`;
+  material.customProgramCacheKey = () => `fachada-v4-${CALIDAD.nivel}`;
   return material;
 }
 
@@ -268,11 +287,13 @@ function preparaEdificio(f, aspecto) {
   if (!anillos.length) return null;
   const exterior = anillos[0];
   const r = azar(props.id * 2654435761);
-  const estilo = eligeEstilo(props, areaAnillo(exterior), r);
+  const real = FACHADAS_REALES[props.id];
+  const estilo = real?.estilo ?? eligeEstilo(props, areaAnillo(exterior), r);
   const paleta = PALETAS[estilo];
   const color = new THREE.Color(paleta[Math.floor(r() * paleta.length)]);
   color.offsetHSL((r() - 0.5) * 0.03, (r() - 0.5) * 0.12, (r() - 0.5) * 0.08).convertSRGBToLinear();
   color.multiplyScalar(0.94 + r() * 0.1);
+  if (real?.color) color.set(real.color).convertSRGBToLinear();
   const info = aspecto.edificios[String(props.id)];
   let cx = 0; let cz = 0;
   let xmin = Infinity; let xmax = -Infinity; let zmin = Infinity; let zmax = -Infinity;
@@ -282,7 +303,7 @@ function preparaEdificio(f, aspecto) {
     zmin = Math.min(zmin, z); zmax = Math.max(zmax, z);
   }
   return {
-    props, anillos, estilo, color, info,
+    props, anillos, estilo, color, info, real: datosReal(real),
     aCalle: new Set(info?.calle ?? []),
     medianeras: new Set(props.medianeras ?? []),
     semilla: (props.id % 997) + 0.5,
@@ -296,6 +317,7 @@ function agregaEdificio(chunk, e, tejados) {
   const { props, anillos } = e;
   const lidar = tejados?.edificios[String(props.id)];
   const perfiles = lidar?.p;
+  chunk.real = e.real;
   anillos.forEach((anillo, k) => {
     for (let i = 0; i < anillo.length; i++) {
       const datos = [props.plantas ?? 1, e.semilla];

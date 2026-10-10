@@ -37,6 +37,11 @@ condiciones de cada web antes de publicar el juego.
 - Detalle del suelo: Asphalt031, PavingStones136 y Ground109, de ambientCG (CC0), en `data/raw/externos/texturas/`.
 - N8AO (oclusión ambiental), de N8python, licencia ISC; postprocessing (pmndrs), licencia Zlib.
 
+## Fachadas de referencia
+- Fotos de Mapillary, CC-BY-SA 4.0: imagen 532346855555160, de avaldeon (25-02-2023), calle Ramón y Cajal.
+  Se usan como referencia para elegir estilo, colores, zócalo, balcones y rejas (src/datos/fachadasReales.js);
+  la foto no se copia al juego.
+
 ## Herramientas del pipeline (no se distribuyen con el juego)
 - MPFB2 (MakeHuman Plugin For Blender) 2.0.17, GPL-3.0, de extensions.blender.org.
 - Detector de coches YOLO11-OBB de Ultralytics (AGPL-3.0), entrenado con el conjunto DOTA.

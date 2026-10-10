@@ -188,7 +188,7 @@ renderer.setAnimationLoop(() => {
   if (!tamanoAplicado) return;          // aún sin tamaño (panel oculto): no se dibuja
   gobiernaResolucion(dtReal);
   actualiza(dt);
-  ciclo.actualiza(dt, { avanza: !api?.pausado });
+  ciclo.actualiza(dt);
   renderer.info.reset();
   render.render();
 });

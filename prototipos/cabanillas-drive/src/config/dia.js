@@ -6,16 +6,15 @@ export const DIA = {
   latitudGrados: 42.03,
   longitudGrados: -1.52,
   husoHoras: 2,                 // hora de verano (el vuelo es de verano: sol a 65°)
-  minutosPorDia: 24,            // en modo ciclo, un día dura 24 min (1 h de juego = 1 min)
-  // Modos: hora de la foto fija, ciclo que avanza, o una hora fija (hora local)
+  // Horas que se pueden elegir (hora local). «Día» es la de la ortofoto (sin hora: las sombras 3D
+  // caen sobre las de la foto). La tecla T adelanta una hora sin cambiar de modo.
   modos: {
-    foto: { nombre: 'Hora de la foto' },
-    ciclo: { nombre: 'Ciclo día y noche' },
-    manana: { nombre: 'Mañana', hora: 9 },
+    amanecer: { nombre: 'Amanecer', hora: 7.35 },
+    dia: { nombre: 'Día' },
     atardecer: { nombre: 'Atardecer', hora: 20.85 },
     noche: { nombre: 'Noche', hora: 0.5 },
   },
-  modoInicial: 'foto',
+  modoInicial: 'dia',
   luna: { intensidad: 0.42, color: 0xa9bfff },
   // Luz de la ortofoto (terreno, tejados, impostores) de noche y su tono al atardecer
   fotoNoche: [0.05, 0.06, 0.1],

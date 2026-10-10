@@ -7,6 +7,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { registraEstatico } from '../fisica/fisica.js';
+import { conFlujo, materialAgua, materialChorro } from './agua.js';
 
 const FUENTE = 'system-ui, "Segoe UI", Roboto, sans-serif';
 const Y = new THREE.Vector3(0, 1, 0);
@@ -67,8 +68,9 @@ function mesa() {
   return une(p);
 }
 
+// El agua de la fuente (láminas con oleaje y chorros que caen) va aparte: aguaFuente()
 function fuente() {
-  // Pilón octogonal: fondo bajo, ocho tramos de pretil y el agua dentro
+  // Pilón octogonal: fondo bajo, ocho tramos de pretil, columna y taza
   const pretil = [];
   const r = 1.35;
   const lado = 2 * r * Math.tan(Math.PI / 8);
@@ -79,12 +81,30 @@ function fuente() {
   return une([
     ...pretil,
     pieza(cil(1.3, 0.15, 8), PIEDRA, M(0, 0.075, 0, { ry: Math.PI / 8 })),
-    pieza(cil(1.28, 0.03, 8), '#3d7f9e', M(0, 0.42, 0, { ry: Math.PI / 8 })),
     pieza(cil(0.2, 1.2, 8), PIEDRA, M(0, 0.9, 0)),
     pieza(cil(0.5, 0.14, 12, 0.3), PIEDRA, M(0, 1.5, 0)),
-    pieza(cil(0.42, 0.02, 12), '#3d7f9e', M(0, 1.575, 0)),
     pieza(cil(0.06, 0.35, 6), PIEDRA, M(0, 1.75, 0)),
   ]);
+}
+
+function aguaFuente(raiz, x, y, z) {
+  const lamina = (r, alto, seg, giro = 0) => conFlujo(new THREE.CircleGeometry(r, seg).rotateX(-Math.PI / 2).rotateY(giro)
+    .translate(x, y + alto, z));
+  const agua = new THREE.Mesh(mergeGeometries([lamina(1.27, 0.42, 8, Math.PI / 8), lamina(0.43, 1.57, 16)]), materialAgua('fuente'));
+  agua.name = 'fuente_agua';
+  agua.userData.sinSombra = true;
+  raiz.add(agua);
+  // Cortina que cae del borde de la taza al pilón y surtidor de arriba
+  const cortina = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.66, 1.08, 24, 1, true), materialChorro());
+  cortina.position.set(x, y + 0.98, z);
+  const surtidor = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.07, 0.4, 8, 1, true), materialChorro());
+  surtidor.position.set(x, y + 2.1, z);
+  for (const m of [cortina, surtidor]) {
+    m.name = 'fuente_chorro';
+    m.userData.sinSombra = true;
+    m.renderOrder = 2;
+    raiz.add(m);
+  }
 }
 
 function bebedero() {
@@ -334,7 +354,10 @@ export function creaElementos(datos, { terreno, fisica, calles, edificios, muros
   instancias('bancos', banco(), datos.bancos, [1.85, 0.9, 0.6]);
   instancias('mesas_picnic', mesa(), datos.mesas, [1.85, 0.8, 1.6]);
   for (const f of datos.fuentes ?? []) {
-    if (f.tipo === 'fuente') suelto('fuente', fuente(), f, [2.6, 0.6, 2.6]);
+    if (f.tipo === 'fuente') {
+      suelto('fuente', fuente(), f, [2.6, 0.6, 2.6]);
+      aguaFuente(raiz, f.x, f.y ?? terreno.alturaEn(f.x, f.z), f.z);
+    }
     else suelto('bebedero', bebedero(), f, [0.3, 1.1, 0.3]);
   }
   for (const a of datos.aparcabicis ?? []) suelto('aparcabicis', aparcabicis(a.plazas), a);
@@ -409,16 +432,19 @@ export function creaElementos(datos, { terreno, fisica, calles, edificios, muros
     suelto('puerta', une(p), { ...pu, rumbo });
   }
 
-  // Piscinas: lámina de agua y borde de piedra
+  // Piscinas: lámina de agua con oleaje unos centímetros por debajo de una albardilla de piedra en
+  // relieve (cara interior, encimera de 0,35 m y cara exterior hasta el suelo)
   const agua = [];
   const borde = [];
   for (const pis of datos.piscinas ?? []) {
     const anillo = pis.p;
     const ys = anillo.map(([x, z]) => terreno.alturaEn(x, z));
     const y = Math.max(...ys) + 0.03;
+    const suelo = Math.min(...ys) - 0.05;
+    const yb = y + 0.14;
     const forma = new THREE.Shape(anillo.map(([x, z]) => new THREE.Vector2(x, -z)));
     const g = new THREE.ShapeGeometry(forma).rotateX(-Math.PI / 2).translate(0, y, 0);
-    agua.push(g);
+    agua.push(conFlujo(g));
     // Borde: franja de 0,35 m hacia fuera de cada lado
     let area = 0;
     for (let i = 0; i < anillo.length; i++) {
@@ -433,18 +459,19 @@ export function creaElementos(datos, { terreno, fisica, calles, edificios, muros
       const l = Math.hypot(x1 - x0, z1 - z0) || 1;
       const nx = (-(z1 - z0) / l) * fuera * 0.35;
       const nz = ((x1 - x0) / l) * fuera * 0.35;
+      const v = (px, py, pz) => new THREE.Vector3(px, py, pz);
+      const quad = (a, b, c, d) => [a, b, c, a, c, d];
       const lado = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(x0, y + 0.04, z0), new THREE.Vector3(x1, y + 0.04, z1), new THREE.Vector3(x1 + nx, y + 0.04, z1 + nz),
-        new THREE.Vector3(x0, y + 0.04, z0), new THREE.Vector3(x1 + nx, y + 0.04, z1 + nz), new THREE.Vector3(x0 + nx, y + 0.04, z0 + nz),
+        ...quad(v(x0, yb, z0), v(x1, yb, z1), v(x1 + nx, yb, z1 + nz), v(x0 + nx, yb, z0 + nz)),
+        ...quad(v(x0, y - 0.25, z0), v(x1, y - 0.25, z1), v(x1, yb, z1), v(x0, yb, z0)),
+        ...quad(v(x0 + nx, yb, z0 + nz), v(x1 + nx, yb, z1 + nz), v(x1 + nx, suelo, z1 + nz), v(x0 + nx, suelo, z0 + nz)),
       ]);
       lado.computeVertexNormals();
       borde.push(pieza(lado, '#e6e1d4'));
     }
   }
   if (agua.length) {
-    const malla = new THREE.Mesh(mergeGeometries(agua), new THREE.MeshStandardMaterial({
-      color: 0x2a9fd0, roughness: 0.06, metalness: 0.1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
-    }));
+    const malla = new THREE.Mesh(mergeGeometries(agua), materialAgua('piscina'));
     malla.name = 'piscinas_agua';
     malla.receiveShadow = true;
     malla.userData.sinSombra = true;

@@ -56,17 +56,28 @@ export function creaEntrada(raizTactil) {
   if (window.matchMedia('(pointer: coarse)').matches) muestraTactil();
   window.addEventListener('touchstart', muestraTactil, { passive: true, once: true });
 
-  zona.addEventListener('pointerdown', (e) => {
-    if (dedoJoystick !== null) return;
+  // Joystick «flotante» (aparece donde se toca la mitad izquierda) o «fijo» (siempre visible en
+  // su sitio; se elige en Ajustes y entonces solo responde al tocarlo)
+  const esFijo = () => document.documentElement.dataset.joystick === 'fijo';
+  const empiezaJoystick = (e, elemento) => {
+    if (dedoJoystick !== null || raizTactil.classList.contains('editando')) return;
     dedoJoystick = e.pointerId;
-    captura(zona, e.pointerId);
-    origenX = e.clientX;
-    origenY = e.clientY;
-    base.style.transform = `translate(${origenX - radio}px, ${origenY - radio}px)`;
+    captura(elemento, e.pointerId);
+    if (esFijo()) {
+      const r = base.getBoundingClientRect();
+      origenX = r.left + r.width / 2;
+      origenY = r.top + r.height / 2;
+    } else {
+      origenX = e.clientX;
+      origenY = e.clientY;
+      base.style.transform = `translate(${origenX - radio}px, ${origenY - radio}px)`;
+      base.hidden = false;
+    }
     mando.style.transform = 'translate(0px, 0px)';
-    base.hidden = false;
-  });
-  zona.addEventListener('pointermove', (e) => {
+  };
+  zona.addEventListener('pointerdown', (e) => { if (!esFijo()) empiezaJoystick(e, zona); });
+  base.addEventListener('pointerdown', (e) => { if (esFijo()) { e.stopPropagation(); empiezaJoystick(e, base); } });
+  const mueveJoystick = (e) => {
     if (e.pointerId !== dedoJoystick) return;
     let dx = e.clientX - origenX;
     const dy = e.clientY - origenY;
@@ -77,16 +88,20 @@ export function creaEntrada(raizTactil) {
     const dyN = Math.max(-1, Math.min(1, dy / radio));
     tactil.direccion = Math.abs(dx) < zonaMuerta ? 0 : dx;
     tactil.avance = Math.abs(dyN) < zonaMuerta ? 0 : -dyN;
-  });
+  };
   const sueltaJoystick = (e) => {
     if (e.pointerId !== dedoJoystick) return;
     dedoJoystick = null;
     tactil.direccion = 0;
     tactil.avance = 0;
-    base.hidden = true;
+    mando.style.transform = 'translate(0px, 0px)';
+    if (!esFijo()) base.hidden = true;
   };
-  zona.addEventListener('pointerup', sueltaJoystick);
-  zona.addEventListener('pointercancel', sueltaJoystick);
+  for (const el of [zona, base]) {
+    el.addEventListener('pointermove', mueveJoystick);
+    el.addEventListener('pointerup', sueltaJoystick);
+    el.addEventListener('pointercancel', sueltaJoystick);
+  }
 
   // Botones mantenidos (acelerar, frenar, freno de mano) y de pulsación (cámara, reiniciar)
   for (const boton of raizTactil.querySelectorAll('[data-mantener]')) {

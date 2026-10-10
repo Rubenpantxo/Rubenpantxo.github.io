@@ -10,6 +10,11 @@ Dos fuentes, sin inventar nada:
    coche aparcado (07_coches_orto.py), ni un edificio, con altura regular (los setos y los
    objetos sueltos son irregulares). Tramos de al menos 2 m; los huecos de menos de 0,5 m se
    cierran (las puertas, más anchas, se quedan abiertas).
+3. Catastro (tapias del casco): en el casco urbano del Catastro (CATAST_Pol_CascoUrbano) los
+   linderos de parcela que no son pared de un edificio son tapias de corral o de patio, o el
+   cerramiento a la calle (el LiDAR no las ve cuando hay árboles encima, son bajas o finas). Se
+   ponen salvo sobre la calzada, en parques y zonas peatonales de OSM y en tramos cortos.
+   Altura: la que mide el LiDAR a ±1 m si se ve en buena parte del tramo; si no, 2 m (f: catastro).
 Junto a pistas deportivas y piscinas (OSM leisure=pitch, sports_centre, swimming_pool) los
 tramos altos (> 2,2 m) se marcan como valla metálica.
 
@@ -49,6 +54,13 @@ TRAMO_MIN_M = 2.0
 HUECO_MAX_M = 0.5
 REGULARIDAD = 0.6            # fracción de muestras a ±0,35 m de la mediana
 VALLA_DEPORTIVA_M = 2.2
+TAPIA_POR_DEFECTO_M = 2.0
+TAPIA_TRAMO_MIN_M = 1.5
+TAPIA_BUSQUEDA_M = 1.0
+TAPIA_MEDIDA_MIN = 0.4       # fracción del tramo que el LiDAR tiene que ver para usar su altura
+LIBRES_OSM = {"park", "playground", "garden", "pitch", "dog_park"}
+MEDIA_CALZADA_M = {"primary": 4.0, "primary_link": 3.5, "secondary": 4.0, "tertiary": 3.5, "residential": 3.0,
+                   "unclassified": 3.0, "living_street": 2.5, "service": 2.2, "pedestrian": 2.0, "track": 2.0}
 POR_DEFECTO = {"wall": 1.8, "fence": 2.0, "retaining_wall": 1.0}
 TIPOS_OSM = {"wall": "muro", "fence": "valla", "retaining_wall": "contencion"}
 DECIMALES = 2
@@ -62,7 +74,7 @@ def lee_osm(ruta, a_local):
     for n in raiz.iter("node"):
         e, n_ = a_utm.transform(float(n.get("lon")), float(n.get("lat")))
         nodos[n.get("id")] = a_local(e, n_)
-    barreras, deportes = [], []
+    barreras, deportes, libres, calles = [], [], [], []
     for w in raiz.iter("way"):
         tags = {t.get("k"): t.get("v") for t in w.findall("tag")}
         pts = [nodos[nd.get("ref")] for nd in w.findall("nd") if nd.get("ref") in nodos]
@@ -79,7 +91,15 @@ def lee_osm(ruta, a_local):
             pol = Polygon(pts)
             if pol.is_valid and pol.area > 20:
                 deportes.append(pol)
-    return barreras, deportes
+        # Espacios abiertos (sin tapia): parques, jardines, plazas peatonales
+        abierto = tags.get("leisure") in LIBRES_OSM or tags.get("highway") == "pedestrian" or tags.get("place") == "square"
+        if abierto and len(pts) >= 4 and pts[0] == pts[-1]:
+            pol = Polygon(pts)
+            if pol.is_valid:
+                libres.append(pol)
+        if tags.get("highway") in MEDIA_CALZADA_M:
+            calles.append(LineString(pts).buffer(MEDIA_CALZADA_M[tags["highway"]] + 0.3, cap_style="flat"))
+    return barreras, deportes, libres, calles
 
 
 class Muestreo:
@@ -176,7 +196,7 @@ def main() -> int:
     if not ruta_osm.is_file():
         print("Falta data/raw/osm_extra/zona.osm: ejecuta antes tools/04b_osm_inventario.py")
         return 1
-    barreras, deportes = lee_osm(ruta_osm, a_local)
+    barreras, deportes, libres, calles_osm = lee_osm(ruta_osm, a_local)
     zona_deportiva = unary_union([d.buffer(3.0) for d in deportes]) if deportes else None
     print(f"OSM: {len(barreras)} barreras, {len(deportes)} zonas deportivas o piscinas")
 
@@ -248,20 +268,61 @@ def main() -> int:
             n_lidar += 1
             largo_lidar += (j - i) * PASO_M
 
+    # 3. Tapias del casco: linderos sin muro, fuera de la calzada y de los espacios abiertos
+    capa_casco = busca_capa(dir_raw(config) / "catastro", "CATASTPolCascoUrbano")
+    n_cat, largo_cat, medidas_cat = 0, 0.0, 0
+    if capa_casco is None:
+        print("No está la capa de casco urbano del Catastro: sin tapias del paso 3")
+    else:
+        casco = unary_union([transforma(a_local_geom, g) for g in gpd.read_file(capa_casco[0]).geometry if g is not None])
+        ya = unary_union([LineString(m["p"]) for m in muros]).buffer(1.0)
+        fuera = unary_union([huellas.buffer(0.4), ya, *[c for c in calles_osm], *[l.buffer(1.5) for l in libres]])
+        todos = unary_union([transforma(a_local_geom, g).boundary for g in parcelas.geometry if g is not None])
+        candidatos = todos.intersection(casco).difference(fuera)
+        candidatos = linemerge(candidatos) if not isinstance(candidatos, LineString) else candidatos
+        partes3 = list(candidatos.geoms) if hasattr(candidatos, "geoms") else [candidatos]
+        for linea in partes3:
+            if not isinstance(linea, LineString) or linea.length < TAPIA_TRAMO_MIN_M:
+                continue
+            s = np.arange(PASO_M / 2, linea.length, PASO_M)
+            pts = np.array([linea.interpolate(d).coords[0] for d in s])
+            delante = np.array([linea.interpolate(min(d + 0.1, linea.length)).coords[0] for d in s]) -                 np.array([linea.interpolate(max(d - 0.1, 0)).coords[0] for d in s])
+            delante /= np.maximum(np.linalg.norm(delante, axis=1, keepdims=True), 1e-6)
+            normal = np.stack([-delante[:, 1], delante[:, 0]], axis=1)
+            mejor = np.full(len(s), -1.0)
+            for o in np.arange(-TAPIA_BUSQUEDA_M, TAPIA_BUSQUEDA_M + 1e-6, 0.25):
+                q = pts + normal * o
+                h, verde = muestreo.en(q[:, 0], q[:, 1])
+                mejor = np.maximum(mejor, np.where((~verde) & (h >= 0.4) & (h <= ALTURA_MAX_M), h, -1.0))
+            vistas = mejor > 0
+            if vistas.mean() >= TAPIA_MEDIDA_MIN:
+                altura = float(np.clip(np.median(mejor[vistas]), 1.0, 3.5))
+                medidas_cat += 1
+            else:
+                altura = TAPIA_POR_DEFECTO_M
+            muros.append({"t": "muro", "h": round(altura, DECIMALES), "f": "catastro",
+                          "p": [[round(x, DECIMALES), round(z, DECIMALES)] for x, z in simplifica(list(linea.coords), 0.1)]})
+            n_cat += 1
+            largo_cat += linea.length
+        print(f"Tapias del casco (Catastro): {n_cat} tramos, {largo_cat / 1000:.2f} km "
+              f"({medidas_cat} con altura del LiDAR, el resto {TAPIA_POR_DEFECTO_M} m)")
+
     (assets / "muros.json").write_text(json.dumps({
         "sistema": "local: x este, z sur (m); h = altura sobre el terreno (m)",
-        "fuentes": "OpenStreetMap (ODbL) barrier=*; LiDAR PNOA 2024 (nDSM) en linderos del Catastro de Navarra",
+        "fuentes": "OpenStreetMap (ODbL) barrier=*; LiDAR PNOA 2024 (nDSM) en linderos del Catastro de Navarra; "
+                    "tapias del casco: linderos del Catastro de Navarra sin edificio",
         "muros": muros}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     por_tipo = {}
     for m in muros:
         por_tipo[m["t"]] = por_tipo.get(m["t"], 0) + 1
-    print(f"Muros: {len(muros)} ({n_lidar} del LiDAR, {largo_lidar / 1000:.2f} km; "
-          f"{len(muros) - n_lidar} de OSM) · por tipo {por_tipo}")
+    print(f"Muros: {len(muros)} ({n_lidar} del LiDAR, {largo_lidar / 1000:.2f} km; {n_cat} del Catastro; "
+          f"{len(muros) - n_lidar - n_cat} de OSM) · por tipo {por_tipo}")
 
     lienzo = Lienzo(origin, 1, fondo=Image.open(dir_previews(config) / "orto.jpg"))
     colores = {"muro": (255, 60, 40, 255), "valla": (60, 200, 255, 255), "contencion": (255, 200, 0, 255)}
     for m in muros:
-        lienzo.geometria(LineString(m["p"]), borde=colores[m["t"]], ancho=2 if m["f"] == "lidar" else 3)
+        borde = (255, 120, 220, 255) if m["f"] == "catastro" else colores[m["t"]]
+        lienzo.geometria(LineString(m["p"]), borde=borde, ancho=2 if m["f"] != "osm" else 3)
     lienzo.img.save(dir_previews(config) / "muros.png")
     return 0
 

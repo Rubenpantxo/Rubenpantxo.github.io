@@ -161,6 +161,19 @@
 - [x] 2.2 `npm run escena` (gltf-transform optimize, meshopt + WebP, simplificación con bordes bloqueados): **12,5 MB**; terreno 657 k triángulos, edificios 26 k. `public/assets/` total ≈ 30 MB.
 - [x] 2.3 Visor en `src/`: GLB + calles OSM sobre el terreno (L / botón para ocultarlas) y comprobación GLB ↔ terrain.f32 por rayos: media 1,0 cm, p95 2,8 cm, máx. 7,1 cm. Probado en escritorio y móvil, sin errores. `npm run build` correcto (dist 30 MB).
 
+### Peticiones de Rubén (2026-10-09)
+- [x] Minimapa: al tocarlo se abre el pueblo entero (arrastrar, rueda o pellizco; «Todo» y «Dónde estoy»); pausa el juego. M gira el minimapa.
+- [x] Hora: solo Amanecer (7:21), Día (la de la ortofoto), Atardecer y Noche. Fuera el ciclo continuo; T adelanta una hora.
+- [x] Fuera la brújula.
+- [x] Kuga (el coche blanco con el capó «levantado»): el capó y paneles del techo iban en el objeto INTERIOR, que se quitaba entero. `excluir_materiales` en `tools/coches.json` quita solo las caras del habitáculo.
+- [x] Agua (`src/escena/agua.js`): oleaje animado con reflejos. Canal de Tauste como lámina a la cota del cauce en el MDT (franja plana ~0,5 m bajo las orillas), sin hierba encima; piscinas con albardilla; fuente con láminas y cortina de agua.
+- [x] Marcas viales (`tools/16_marcas_viales.py` → `assets/osm/marcas.json`, `src/escena/marcas.js`): 72 pasos de cebra de OSM, ejes y bordes de la carretera, 12 líneas de STOP/ceda, 21,6 km de bordillo. Aceras más claras y asfalto algo más oscuro en el shader del suelo.
+- [x] Ajustes en Controles (pestaña «Ajustes»): esquina del minimapa, minimapa girando o norte arriba, joystick fijo y visible, mover los botones táctiles (freno de mano, pedales…). Se guardan en el navegador.
+- [x] Muros (`tools/13_muros.py`, fuente 3): en el casco urbano del Catastro, los linderos sin edificio son tapias (salvo calzada, parques y zonas peatonales de OSM). +998 tramos (20 km); altura del LiDAR si se ve, si no 2 m.
+- [x] Farolas (`tools/17_farolas.py`, `src/escena/farolas.js`): OSM no tiene y el plano de alumbrado del Ayuntamiento solo cubre la UE5. 67 báculos detectados en el nDSM y 334 estimados completando cada calle con la separación medida. De noche: brillo, halo, charco de luz y luces reales en las 8 más cercanas (4 en media, 0 en móvil).
+- [x] Prueba de fachadas reales (`src/datos/fachadasReales.js`): estilo, color, zócalo, balcones y rejas por edificio. 4 casas de la calle Ramón y Cajal a partir de la foto de Mapillary 532346855555160 (avaldeon, CC-BY-SA 4.0). La correspondencia foto–edificio va por la posición de la imagen (±5 m).
+- Orden del pipeline: … → 13_muros → 15_osm_elementos → 16_marcas_viales → 17_farolas.
+
 ## Pendiente de Rubén (lo hará más adelante; no recordárselo en cada informe)
 - R4: capturas de Scaniverse de 3–5 edificios en `data/raw/splats/<nombre>/` (instrucciones en `PLAN_REALISMO.md`).
 - Probar en su Android: `npm run dev:red` y abrir `http://<IP del PC>:5173/?debug=1` (objetivo ≥ 30 FPS en «bajo»).
