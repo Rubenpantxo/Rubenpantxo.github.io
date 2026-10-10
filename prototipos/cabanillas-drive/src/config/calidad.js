@@ -6,7 +6,7 @@ export const NIVELES = {
     sombras: true, mapaSombras: 4096, radioSombras: 110,
     ao: true, aoMediaResolucion: false,
     distanciaArbolesDetalle: 110, radioHierba: 70,
-    detalleSuelo: true,
+    detalleSuelo: true, lucesFarolas: 8,
     // Coches aparcados: modelo completo / versión ligera / coche genérico hasta el máximo
     distanciaCochesDetalle: 70, distanciaCochesLejos: 180, distanciaCochesMax: 900,
     // Edificios con tejado del LiDAR hasta esta distancia (más lejos, techo plano)
@@ -26,7 +26,7 @@ export const NIVELES = {
     sombras: true, mapaSombras: 2048, radioSombras: 80,
     ao: true, aoMediaResolucion: true,
     distanciaArbolesDetalle: 90, radioHierba: 55,
-    detalleSuelo: true,
+    detalleSuelo: true, lucesFarolas: 4,
     distanciaCochesDetalle: 55, distanciaCochesLejos: 120, distanciaCochesMax: 600,
     distanciaEdificiosDetalle: 400, sombrasEdificios: true, unirMaterialesCoche: false,
     terreno: 'assets/cabanillas.glb', atlasTejados: 'assets/tejados.jpg',
@@ -41,7 +41,7 @@ export const NIVELES = {
     sombras: true, mapaSombras: 1024, radioSombras: 50,
     ao: false, aoMediaResolucion: true,
     distanciaArbolesDetalle: 55, radioHierba: 30,
-    detalleSuelo: false,
+    detalleSuelo: false, lucesFarolas: 0,   // de noche, solo halos y charcos de luz
     distanciaCochesDetalle: 40, distanciaCochesLejos: 0, distanciaCochesMax: 350,
     // Las sombras de los edificios ya están pintadas en la ortofoto (mismo sol): en móvil no se
     // calculan; y el coche del jugador agrupa sus materiales (menos llamadas de dibujo)

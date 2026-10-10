@@ -16,6 +16,9 @@ import { creaHud } from '../hud/hud.js';
 import { creaCarteles } from '../escena/carteles.js';
 import { cargaMuros, creaMuros } from '../escena/muros.js';
 import { cargaElementos, creaElementos } from '../escena/elementos.js';
+import { avanzaAgua, creaCanal } from '../escena/agua.js';
+import { cargaMarcas, creaMarcas } from '../escena/marcas.js';
+import { cargaFarolas, creaFarolas } from '../escena/farolas.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
 import { creaLuces } from './luces.js';
@@ -69,6 +72,13 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     terreno: mundo.terreno, fisica, calles: geoCalles, edificios: mundo.geoEdificios, muros: datosMuros,
   });
   escena.add(elementos.raiz);
+  const canal = creaCanal(await cargaGeoJSON(ESCENA.rutaAgua).catch(() => null), mundo.terreno);
+  escena.add(canal);
+  hierba.ponExclusion(canal.userData.bajoAgua);
+  const marcas = creaMarcas(await cargaMarcas(ESCENA.rutaMarcas), mundo.terreno);
+  escena.add(marcas.raiz);
+  const farolas = creaFarolas(await cargaFarolas(ESCENA.rutaFarolas), { terreno: mundo.terreno, fisica, luces: CALIDAD.lucesFarolas });
+  escena.add(farolas.raiz);
   const colisiones = creaGestorColisiones(fisica, { radio: CALIDAD.radioColisiones });
   const nodos = nodosDeCalles(geoCalles);
   const coche = creaCoche(fisica, escena, modelosCoches[VEHICULO.modelo]);
@@ -205,6 +215,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
       orbita(dt);
       arboles.avanza(dt);
       hierba.avanza(dt);
+      avanzaAgua(dt);
       hierba.actualiza(camara.position);
       tiempoReparto -= dt;
       if (tiempoReparto <= 0) {
@@ -268,6 +279,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     }
     arboles.avanza(dt);
     hierba.avanza(dt);
+    avanzaAgua(dt);
     hierba.actualiza(camara.position);
     tiempoReparto -= dt;
     if (tiempoReparto <= 0) {
@@ -294,6 +306,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     }
     hud.actualiza(aPie ? peaton.estado() : e, dt, trafico.posiciones());
     luces.actualiza(ciclo ? ciclo.estado.oscuridad : 0);
+    farolas.actualiza(ciclo ? ciclo.estado.oscuridad : 0, camara, dt);
     let texto = textoDepuracion;
     if (tiempoVolcado > VEHICULO.reinicio.segundosVolcado) texto = 'Coche volcado: pulsa R (o ↺) para recolocarlo';
     if (performance.now() < avisoHasta) texto = aviso;
@@ -301,7 +314,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   }
 
   const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico, peaton,
-    get aPie() { return aPie; }, bajarse, subirse, irA, avisa, carteles, luces, ciclo, peatones, muros, elementos,
+    get aPie() { return aPie; }, bajarse, subirse, irA, avisa, carteles, luces, ciclo, peatones, muros, elementos, farolas,
     lugares: carteles.lugares.map(({ nombre, icono }) => ({ nombre, icono })),
     get fps() { return fps; },
     get pausado() { return pausado; },
