@@ -157,14 +157,14 @@
   "jugador": false,
   "largo": 4.52,
   "ancho": 2.186,
-  "alto": 1.686,
+  "alto": 1.72,
   "pintura": true,
   "color_original": [
    0.0,
    1.0,
    1.0
   ],
-  "triangulos": 8993,
+  "triangulos": 8995,
   "ruedas": [],
   "fuente": "3DExport (Ford Kuga 2017)"
  },
