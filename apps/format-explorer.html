@@ -494,6 +494,19 @@ body::before{
   .eco-info{transition:none}
 }
 
+
+/* ---------- Apps del sitio dentro del escritorio ---------- */
+.app-tile{width:48px;height:48px;border-radius:11px;display:grid;place-items:center;font-size:27px;line-height:1;
+  background:linear-gradient(180deg,rgba(255,255,255,.55) 0 46%,transparent 47%),linear-gradient(160deg,var(--a),var(--b));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.65),0 0 0 1px rgba(0,40,80,.45)}
+.app-tile img{width:38px;height:38px;object-fit:contain}
+.fr-wrap{flex:1;min-height:0;display:flex;flex-direction:column}
+.fr-wrap iframe{flex:1;width:100%;border:0;background:#fff;display:block}
+.fr-bar{display:flex;justify-content:flex-end;padding:3px 8px;font-size:11px}
+.fr-bar a{color:#0b3c66}
+/* Al arrastrar o redimensionar una ventana el puntero puede caer dentro del
+   iframe y dejar de llegar aqui; se apagan mientras dura el gesto. */
+body.win-drag iframe{pointer-events:none}
 </style>
 </head>
 <body>
@@ -1270,7 +1283,7 @@ function mkWin(id,title,icon,w,h,contentHTML,opts={}){
   el.className='win';el.id='win-'+id;
   const desk=document.getElementById('desktop');
   const dw=desk.clientWidth,dh=desk.clientHeight;
-  const ICON_COL=112; // franja izquierda reservada a los iconos del escritorio
+  const ICON_COL=window.ICON_COL||112; // franja izquierda reservada a los iconos del escritorio
   const W=Math.min(w,dw-16),H=Math.min(h,dh-16);
   el.style.width=W+'px';el.style.height=H+'px';
   let L=Math.max(ICON_COL+8,(dw-W)/2+(winCount%5)*26-24);
@@ -1376,28 +1389,39 @@ function makeResizable(el,id){
 // ---------------- Desktop icons ----------------
 const DICONS=[
   {id:'explorer',n:'Format Explorer',img:iconExplorer(),run:openExplorer},
+  {id:'conversor',n:'Rueda · Conversor',e:'🎡',img:appTile('🎡','#ffb38a','#e8552f'),run:()=>openApp('conversor','Rueda — conversor de archivos','🎡','conversor-rueda.html',980,680)},
+  {id:'notes',n:'Pantxiko Notes',e:'📝',img:appTile('<img src="../img/Notes%20Logo.png" alt="">','#ffffff','#cfdeec'),run:()=>openApp('notes','Pantxiko Notes','📝','pantxiko-notes.html',900,640)},
+  {id:'cabanillas',n:'Cabanillas',e:'🗺️',img:appTile('🗺️','#9fd4f7','#2a7fd0'),run:()=>openApp('cabanillas','Cabanillas — mapa','🗺️','../mapas/cabanillas.html',1100,720)},
+  {id:'escenas',n:'Escenas',e:'🎬',img:appTile('🎬','#d4f59a','#5d9c2a'),run:()=>openApp('escenas','Escenas','🎬','escenas/index.html',1100,720)},
+  {id:'biblioteca',n:'Biblioteca',e:'📚',img:appTile('📚','#ffe0a3','#d08a2a'),run:()=>openApp('biblioteca','Biblioteca','📚','biblioteca/index_biblio.html',1000,700)},
+  {id:'insta',n:'Instagram Downloader',e:'📥',img:appTile('📥','#fbc3e0','#c2477a'),run:()=>openApp('insta','Instagram Downloader','📥','instagram-downloader/index_insta_down.html',900,660)},
   {id:'eco',n:'Ecosistema IA',img:iconEco(),run:openEco},
   {id:'stats',n:'Estadísticas',img:iconStats(),run:openStats},
   {id:'about',n:'Acerca de',img:iconHelp(),run:openAbout},
 ];
+function appTile(inner,a,b){return `<span class="app-tile" style="--a:${a};--b:${b}">${inner}</span>`}
 function iconExplorer(){return `<svg viewBox="0 0 48 48"><rect x="4" y="10" width="40" height="32" fill="#c0c0c0" stroke="#000"/><rect x="4" y="10" width="40" height="7" fill="#000080"/><rect x="8" y="21" width="14" height="16" fill="#fff" stroke="#808080"/><rect x="26" y="21" width="14" height="16" fill="#fff" stroke="#808080"/><rect x="10" y="24" width="10" height="2" fill="#3f6f9a"/><rect x="10" y="28" width="10" height="2" fill="#3f6f9a"/><rect x="28" y="24" width="10" height="2" fill="#b0432a"/><rect x="28" y="28" width="10" height="2" fill="#b0432a"/></svg>`}
 function iconEco(){return `<svg viewBox="0 0 48 48"><rect x="17" y="19" width="14" height="10" fill="#000835" stroke="#fff"/><circle cx="9" cy="9" r="6" fill="#2563b0" stroke="#000"/><circle cx="39" cy="9" r="6" fill="#7c3aad" stroke="#000"/><circle cx="9" cy="39" r="6" fill="#3d8b40" stroke="#000"/><circle cx="39" cy="39" r="6" fill="#d23b3b" stroke="#000"/><path d="M13 13 L19 19 M35 13 L29 19 M13 35 L19 29 M35 35 L29 29" stroke="#000080" stroke-width="2"/></svg>`}
 function iconStats(){return `<svg viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" fill="#fff" stroke="#000"/><rect x="11" y="26" width="6" height="12" fill="#000080"/><rect x="21" y="18" width="6" height="20" fill="#b0432a"/><rect x="31" y="12" width="6" height="26" fill="#3d8b40"/></svg>`}
 function iconHelp(){return `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="#ffffd5" stroke="#000"/><text x="24" y="32" text-anchor="middle" font-size="22" font-family="Times New Roman" font-weight="bold" fill="#000080">?</text></svg>`}
 function iconFiles(){return `<svg viewBox="0 0 48 48"><rect x="5" y="13" width="22" height="29" fill="#fff" stroke="#000"/><path d="M5 13 h9 l3 4 h10 v5 H5 z" fill="#e0a93b" stroke="#000"/><rect x="20" y="7" width="23" height="31" fill="#fff" stroke="#000"/><rect x="24" y="14" width="15" height="2.6" fill="#3f6f9a"/><rect x="24" y="19" width="15" height="2.6" fill="#b0432a"/><rect x="24" y="24" width="11" height="2.6" fill="#3d8b40"/><rect x="24" y="29" width="13" height="2.6" fill="#6B4076"/></svg>`}
 function iconDash(){return `<svg viewBox="0 0 48 48"><rect x="5" y="7" width="38" height="34" fill="#fff" stroke="#000"/><rect x="5" y="7" width="38" height="6" fill="#000080"/><rect x="9" y="30" width="6" height="7" fill="#5D7339"/><rect x="18" y="23" width="6" height="14" fill="#3F6F9A"/><rect x="27" y="18" width="6" height="19" fill="#8C2A30"/><rect x="36" y="27" width="3" height="10" fill="#C8901C"/><path d="M9 26 L18 20 L27 16 L38 22" fill="none" stroke="#cc0000" stroke-width="1.6"/></svg>`}
-const ICON_POS_KEY='fx95_icon_pos';
+const ICON_POS_KEY='fx95_icon_pos_v2'; // v2: con las apps del sitio cambió la rejilla; las posiciones viejas se solaparían
 function loadIconPos(){try{return JSON.parse(localStorage.getItem(ICON_POS_KEY))||{}}catch(e){return{}}}
 function saveIconPos(p){try{localStorage.setItem(ICON_POS_KEY,JSON.stringify(p))}catch(e){}}
 function renderDesktop(){
   const d=document.getElementById('desktop');
   const pos=loadIconPos();
+  // Columnas de iconos de arriba abajo, tantas filas como quepan; las ventanas se abren a su derecha.
+  const rows=Math.max(1,Math.floor((d.clientHeight-14)/96));
+  window.ICON_COL=8+Math.ceil(DICONS.length/rows)*92;
   DICONS.forEach((ic,i)=>{
+    const col=Math.floor(i/rows),row=i%rows;
     const el=document.createElement('div');
     el.className='dicon';el.dataset.icon=ic.id;
     const p=pos[ic.id];
-    el.style.left=(p?p.x:14)+'px';            // por defecto: una sola columna a la izquierda
-    el.style.top=(p?p.y:14+i*84)+'px';
+    el.style.left=(p?p.x:14+col*92)+'px';
+    el.style.top=(p?p.y:14+row*96)+'px';
     el.innerHTML=`<div class="dicon-img">${ic.img}</div><div class="dicon-lbl">${esc(ic.n)}</div>`;
     makeIconDraggable(el,ic);
     d.appendChild(el);
@@ -1429,6 +1453,14 @@ function makeIconDraggable(el,ic){
     el.addEventListener('pointermove',mv);el.addEventListener('pointerup',up);
   });
   el.addEventListener('dblclick',()=>ic.run());
+}
+
+// ---------------- Apps del sitio, cada una en su ventana ----------------
+// Se cargan tal cual en un iframe: siguen siendo paginas independientes.
+function openApp(id,title,icon,src,w,h){
+  const html=`<div class="fr-wrap"><iframe src="${src}" title="${esc(title)}"></iframe></div>
+  <div class="fr-bar"><a href="${src}" target="_blank" rel="noopener">↗ Abrir en una pestaña</a></div>`;
+  mkWin(id,title,icon,w,h,html);
 }
 
 // ---------------- Format Explorer window ----------------
@@ -1578,7 +1610,7 @@ function openAbout(){
       • Clic en la <b>etiqueta de lenguaje</b> → formatos con la misma base.<br>
       • Abre el <b>🧠 Ecosistema IA</b> para explorar cómo se conectan lenguajes, librerías, gestores, repositorios, CDNs y formatos. Su panel de información aparece <b>debajo del esquema</b>.<br>
       • La estructura de carpetas (local y repositorio) vive ahora en <b>🗄️ Estructura</b>, la aplicación hermana.<br>
-      • <b>📈 Recursos</b>: panel con el estado y el peso de cada carpeta del proyecto.<br>
+      • Las <b>aplicaciones del sitio</b> (Rueda, Pantxiko Notes, Cabanillas, Escenas, Biblioteca e Instagram Downloader) se abren aquí, cada una en su ventana.<br>
       • Las ventanas se <b>arrastran, minimizan y maximizan</b>; los <b>iconos del escritorio también se arrastran</b> y recuerdan su posición.
     </div></div></div>`;
   mkWin('about','Acerca de Format Explorer','❓',400,330,html);
@@ -1675,12 +1707,12 @@ function selectEco(el,name){
 // ---------------- Start menu + clock ----------------
 function initShell(){
   const sm=document.getElementById('sm-items');
-  sm.innerHTML=DICONS.map(d=>`<div class="sm-i" data-run="${d.id}"><span class="ic">${{explorer:'🗄️',files:'🗂️',dash:'📈',eco:'🧠',stats:'📊',about:'❓'}[d.id]}</span>${esc(d.n)}</div>`).join('')
+  sm.innerHTML=DICONS.map(d=>`<div class="sm-i" data-run="${d.id}"><span class="ic">${d.e||{explorer:'🗄️',files:'🗂️',dash:'📈',eco:'🧠',stats:'📊',about:'❓'}[d.id]}</span>${esc(d.n)}</div>`).join('')
     +`<div class="sm-sep"></div><div class="sm-i" data-run="__web"><span class="ic">🌍</span>rubenpantxo.com</div>`;
   sm.addEventListener('click',e=>{
     const i=e.target.closest('.sm-i');if(!i)return;
     document.getElementById('startmenu').classList.remove('open');
-    if(i.dataset.run==='__web'){location.href='https://rubenpantxo.com';return}
+    if(i.dataset.run==='__web'){(window.top||window).location.href='https://rubenpantxo.com';return}
     DICONS.find(d=>d.id===i.dataset.run)?.run();
   });
   const sb=document.getElementById('startbtn');
@@ -1693,9 +1725,16 @@ function initShell(){
     String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
   tick();setInterval(tick,10000);
 }
+document.addEventListener('pointerdown',e=>{
+  if(e.target.closest('.tbar')||e.target.closest('.win-rsz'))document.body.classList.add('win-drag');
+},true);
+['pointerup','pointercancel'].forEach(ev=>
+  document.addEventListener(ev,()=>document.body.classList.remove('win-drag'),true));
+
 renderDesktop();
 initShell();
-openExplorer();
+// Con ?escritorio (como lo incrusta la seccion Aplicaciones) arranca con el escritorio despejado.
+if(!new URLSearchParams(location.search).has('escritorio'))openExplorer();
 </script>
 </body>
 </html>
