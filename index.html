@@ -305,8 +305,8 @@
                             <p class="sv-lead">Elige uno y pruébalo. Sin descargar nada.</p>
                             <div class="sv-hero-bar">
                                 <a class="sv-sistemas-link" href="servicios/sistemas-de-diseno.html">
-                                    <span class="sv-sistemas-muestras" aria-hidden="true"><!--@bloque muestras--><span style="background:#a3e635"></span><span style="background:#b34a1f"></span><span style="background:#e7335a"></span><span style="background:#a4262c"></span><span style="background:#c8f04c"></span><span style="background:#1f9d55"></span><span style="background:#c67139"></span><span style="background:#c9a255"></span><span style="background:#5980a6"></span><!--/@bloque muestras--></span>
-                                    <!--@N-->Nueve<!--/@N--> sistemas de diseño ↗
+                                    <span class="sv-sistemas-muestras" aria-hidden="true"><!--@bloque muestras--><span style="background:#a3e635"></span><span style="background:#b34a1f"></span><span style="background:#e7335a"></span><span style="background:#a4262c"></span><span style="background:#c8f04c"></span><span style="background:#1f9d55"></span><span style="background:#c67139"></span><span style="background:#c9a255"></span><span style="background:#5980a6"></span><span style="background:#9ff3e4"></span><!--/@bloque muestras--></span>
+                                    <!--@N-->Diez<!--/@N--> sistemas de diseño ↗
                                 </a>
                             </div>
                         </div>
@@ -610,68 +610,10 @@
                 <header class="section__header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <h2 id="apps-title" class="text-3xl font-bold">Aplicaciones</h2>
                 </header>
-                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-6">
-                    
-                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer" onclick="document.getElementById('pantxiko-notes-app').classList.remove('hidden')">
-                        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 shadow-sm p-1">
-                            <img src="img/Notes Logo.png" alt="Pantxiko Notes Logo" class="w-full h-full object-contain">
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Pantxiko Notes</h3>
-                            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Nuevo</span>
-                        </div>
-                    </article>
-
-                    <a href="mapas/cabanillas.html" class="block">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
-                        <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-3xl">🗺️</div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Cabanillas</h3>
-                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Mapa</span>
-                        </div>
-                    </article>
-                    </a>
-
-                    <a href="apps/escenas/index.html" class="block">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
-                        <div class="w-12 h-12 bg-lime-50 rounded-lg flex items-center justify-center text-3xl">🎬</div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Escenas</h3>
-                            <span class="text-xs bg-lime-100 text-lime-700 px-2 py-0.5 rounded-full font-medium">Cine · 3D</span>
-                        </div>
-                    </article>
-                    </a>
-
-                    <a href="apps/format-explorer.html" class="block">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
-                        <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center text-3xl">📁</div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Format Explorer</h3>
-                            <span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">Formatos</span>
-                        </div>
-                    </article>
-                    </a>
-
-                    <a href="apps/biblioteca/index_biblio.html" class="block">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
-                        <div class="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center text-3xl">📚</div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Biblioteca</h3>
-                            <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Libros</span>
-                        </div>
-                    </article>
-                    </a>
-
-                    <a href="apps/instagram-downloader/index_insta_down.html" class="block">
-                    <article class="bg-white rounded-lg shadow-md p-4 flex items-center gap-3 hover:shadow-lg transition-shadow cursor-pointer">
-                        <div class="w-12 h-12 bg-pink-50 rounded-lg flex items-center justify-center text-3xl">📥</div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-800">Instagram Downloader</h3>
-                            <span class="text-xs bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full font-medium">Vídeos</span>
-                        </div>
-                    </article>
-                    </a>
-
+                <div class="apps-escritorio my-6">
+                    <!-- Escritorio estilo Vista (apps/format-explorer.html): cada aplicación se abre en su ventana. -->
+                    <iframe src="apps/format-explorer.html?escritorio" title="Escritorio de aplicaciones" loading="lazy" class="w-full block rounded-xl shadow-lg" style="height:min(78vh,780px);min-height:520px;border:0"></iframe>
+                    <p class="text-sm mt-3 text-gray-600">Doble clic en un icono para abrir la aplicación. <a href="apps/format-explorer.html?escritorio" class="underline">Abrir el escritorio a pantalla completa ↗</a></p>
                 </div>
             </section>
 
