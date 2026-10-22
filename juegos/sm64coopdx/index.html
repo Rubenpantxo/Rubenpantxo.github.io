@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SM64 Coop DX · Web</title>
+<style>
+  :root {
+    --fondo: #0b0d12;
+    --panel: #151923;
+    --borde: #2a3142;
+    --texto: #e8ebf2;
+    --suave: #9aa3b5;
+    --acento: #e5372a;
+    --acento-2: #f6c33b;
+    --error: #ff7a6b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--fondo); color: var(--texto); overflow: hidden;
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+  #escenario { position: fixed; inset: 0; display: grid; place-items: center; }
+  #canvas { display: block; background: #000; outline: none; image-rendering: auto; }
+
+  #portada { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px;
+    background: radial-gradient(ellipse at 50% 30%, #1b2233 0%, var(--fondo) 70%); }
+  #portada[hidden] { display: none; }
+  .tarjeta { width: min(460px, 100%); background: var(--panel); border: 1px solid var(--borde);
+    border-radius: 14px; padding: 28px 24px; text-align: center; }
+  h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: .5px; }
+  h1 b { color: var(--acento); }
+  .sub { margin: 0 0 22px; color: var(--suave); font-size: 14px; }
+
+  #zona { border: 2px dashed var(--borde); border-radius: 10px; padding: 22px 14px; margin-bottom: 16px;
+    transition: border-color .15s, background .15s; }
+  #zona.encima { border-color: var(--acento-2); background: #1d2230; }
+  #zona p { margin: 0 0 12px; color: var(--suave); font-size: 14px; }
+
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 11px 20px; cursor: pointer; }
+  .primario { background: var(--acento); color: #fff; }
+  .primario:hover { filter: brightness(1.1); }
+  .secundario { background: transparent; color: var(--suave); border: 1px solid var(--borde); padding: 8px 14px; font-weight: 500; }
+  .secundario:hover { color: var(--texto); }
+  button:disabled { opacity: .5; cursor: default; }
+
+  #estado { min-height: 22px; margin: 12px 0 0; font-size: 14px; color: var(--suave); }
+  #estado.error { color: var(--error); }
+  .acciones { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .nota { margin: 18px 0 0; font-size: 12px; color: var(--suave); }
+
+  #barra { position: fixed; top: 10px; right: 10px; display: flex; gap: 8px; opacity: .35; transition: opacity .2s; }
+  #barra:hover { opacity: 1; }
+  #barra[hidden] { display: none; }
+  #carga { position: fixed; inset: auto 0 24px; text-align: center; color: var(--suave); font-size: 14px; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="escenario"><canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas></div>
+<div id="carga" hidden></div>
+
+<div id="portada">
+  <div class="tarjeta">
+    <h1>SM64 <b>Coop DX</b></h1>
+    <p class="sub">Versión para navegador · un jugador</p>
+
+    <div id="sin-rom">
+      <div id="zona">
+        <p>Arrastra aquí tu ROM de <strong>Super Mario 64 (USA)</strong><br>o elígela desde tu equipo.</p>
+        <button class="primario" id="btn-elegir">Cargar ROM</button>
+        <input type="file" id="archivo" accept=".z64,.n64,.v64,.rom,.bin" hidden>
+      </div>
+    </div>
+
+    <div id="con-rom" hidden>
+      <p class="sub" style="margin-bottom:16px">ROM guardada en este navegador.</p>
+      <div class="acciones">
+        <button class="primario" id="btn-jugar">Jugar</button>
+        <button class="secundario" id="btn-cambiar">Usar otra ROM</button>
+      </div>
+    </div>
+
+    <p id="estado" role="status"></p>
+    <p class="nota">La ROM se queda en tu navegador (IndexedDB): no se sube a ningún servidor.<br>Necesitas tu propia copia del juego.</p>
+  </div>
+</div>
+
+<div id="barra" hidden>
+  <button class="secundario" id="btn-pantalla">Pantalla completa</button>
+</div>
+
+<script>
+'use strict';
+// SHA-1 de "Super Mario 64 (U) [!].z64", la única versión que acepta el juego (sm64.us.sha1)
+const SHA1_USA = '9bef1128717f958171a4afac3ed78ee2bb4e86ce';
+const RUTA_ROM = '/rom/baserom.us.z64';
+// build-web.sh lo sustituye en cada compilación: evita mezclar .js/.wasm/.data de versiones distintas en caché
+const VERSION = '1792627715';
+// Carpeta de usuario del juego (SDL_GetPrefPath): partida, configuración y datos de mods
+const RUTA_PARTIDAS = '/libsdl/sm64coopdx';
+
+const $ = (id) => document.getElementById(id);
+const estado = (texto, esError = false) => { $('estado').textContent = texto; $('estado').classList.toggle('error', esError); };
+
+// --- IndexedDB: un único almacén con la ROM ya validada en formato .z64 ---
+const almacen = {
+  abrir() {
+    return new Promise((ok, mal) => {
+      const req = indexedDB.open('sm64coopdx-web', 1);
+      req.onupgradeneeded = () => req.result.createObjectStore('archivos');
+      req.onsuccess = () => ok(req.result);
+      req.onerror = () => mal(req.error);
+    });
+  },
+  async operar(modo, fn) {
+    const db = await this.abrir();
+    return new Promise((ok, mal) => {
+      const tx = db.transaction('archivos', modo);
+      const req = fn(tx.objectStore('archivos'));
+      tx.oncomplete = () => { db.close(); ok(req.result); };
+      tx.onerror = () => { db.close(); mal(tx.error); };
+    });
+  },
+  leer() { return this.operar('readonly', (s) => s.get('rom')); },
+  guardar(bytes) { return this.operar('readwrite', (s) => s.put(bytes, 'rom')); },
+  borrar() { return this.operar('readwrite', (s) => s.delete('rom')); },
+};
+
+// --- ROM: pasa .v64 (bytes intercambiados) y .n64 (little-endian) a .z64 y valida ---
+function aZ64(bytes) {
+  const cab = (bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3]) >>> 0;
+  if (cab === 0x80371240) return bytes;
+  const out = new Uint8Array(bytes.length);
+  if (cab === 0x37804012) {
+    for (let i = 0; i + 1 < bytes.length; i += 2) { out[i] = bytes[i + 1]; out[i + 1] = bytes[i]; }
+    return out;
+  }
+  if (cab === 0x40123780) {
+    for (let i = 0; i + 3 < bytes.length; i += 4) {
+      out[i] = bytes[i + 3]; out[i + 1] = bytes[i + 2]; out[i + 2] = bytes[i + 1]; out[i + 3] = bytes[i];
+    }
+    return out;
+  }
+  return null;
+}
+
+async function sha1(bytes) {
+  const hash = await crypto.subtle.digest('SHA-1', bytes);
+  return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function procesarArchivo(archivo) {
+  if (!archivo) return;
+  estado('Comprobando la ROM…');
+  const z64 = aZ64(new Uint8Array(await archivo.arrayBuffer()));
+  if (!z64) { estado('Ese archivo no parece una ROM de Nintendo 64.', true); return; }
+  if (await sha1(z64) !== SHA1_USA) {
+    estado('No es la ROM esperada: hace falta «Super Mario 64 (USA)» sin modificar.', true);
+    return;
+  }
+  try { await almacen.guardar(z64); }
+  catch (e) { console.warn('No se pudo guardar la ROM en IndexedDB:', e); }
+  arrancar(z64);
+}
+
+// --- Partidas: la carpeta de usuario vive en IndexedDB (IDBFS) y se vuelca tras cada guardado ---
+const partidas = {
+  listo: false,
+  ocupado: false,
+  pendiente: false,
+  temporizador: 0,
+  // Carga lo guardado antes de que arranque main() (el juego lee ahí la configuración y la partida)
+  montar() {
+    const FS = Module.FS;
+    FS.mkdirTree(RUTA_PARTIDAS);
+    FS.mount(Module.IDBFS, {}, RUTA_PARTIDAS);
+    Module.addRunDependency('partidas');
+    FS.syncfs(true, (err) => {
+      if (err) console.warn('No se pudieron leer las partidas guardadas:', err);
+      this.listo = true; // a partir de aquí ya se puede volcar sin pisar lo guardado
+      Module.removeRunDependency('partidas');
+    });
+  },
+  volcar() {
+    if (!this.listo) return;
+    if (this.ocupado) { this.pendiente = true; return; }
+    this.ocupado = true;
+    Module.FS.syncfs(false, (err) => {
+      if (err) console.warn('No se pudo guardar la partida:', err);
+      this.ocupado = false;
+      if (this.pendiente) { this.pendiente = false; this.volcar(); }
+    });
+  },
+  // El juego lo llama al escribir la partida o la configuración; agrupa escrituras seguidas
+  pedir() {
+    clearTimeout(this.temporizador);
+    this.temporizador = setTimeout(() => this.volcar(), 300);
+  },
+};
+// Red de seguridad para lo que no avisa (p. ej. datos de mods) y al salir de la pestaña
+setInterval(() => partidas.volcar(), 15000);
+addEventListener('pagehide', () => partidas.volcar());
+document.addEventListener('visibilitychange', () => { if (document.hidden) partidas.volcar(); });
+
+// --- Juego: el script de Emscripten se carga solo cuando ya hay ROM ---
+let arrancado = false;
+function arrancar(rom) {
+  if (arrancado) return;
+  arrancado = true;
+  $('portada').hidden = true;
+  $('barra').hidden = false;
+  const carga = $('carga');
+  carga.hidden = false;
+  carga.textContent = 'Cargando el juego…';
+
+  const canvas = $('canvas');
+  window.Module = {
+    canvas,
+    preRun: [() => {
+      Module.FS.mkdirTree('/rom');
+      Module.FS.writeFile(RUTA_ROM, rom);
+      partidas.montar();
+    }],
+    pedirGuardado: () => partidas.pedir(),
+    locateFile: (ruta) => ruta + '?v=' + VERSION,
+    setStatus(texto) {
+      carga.textContent = texto ? texto.replace('Downloading data...', 'Descargando datos…') : '';
+      carga.hidden = !texto;
+    },
+    onRuntimeInitialized() { carga.hidden = true; canvas.focus(); },
+    onAbort(motivo) { carga.hidden = false; carga.textContent = 'El juego se ha detenido: ' + motivo; },
+  };
+  ajustarCanvas();
+  const script = document.createElement('script');
+  script.src = 'sm64coopdx.js?v=' + VERSION;
+  script.onerror = () => { carga.textContent = 'No se pudo descargar el juego.'; };
+  document.body.appendChild(script);
+}
+
+// Mantiene la proporción del canvas (SDL fija su tamaño interno) ocupando la ventana
+function ajustarCanvas() {
+  const c = $('canvas');
+  const w = c.width || 1280, h = c.height || 720;
+  const escala = Math.min(innerWidth / w, innerHeight / h);
+  c.style.width = Math.floor(w * escala) + 'px';
+  c.style.height = Math.floor(h * escala) + 'px';
+}
+addEventListener('resize', ajustarCanvas);
+new MutationObserver(ajustarCanvas).observe($('canvas'), { attributes: true, attributeFilter: ['width', 'height'] });
+
+// --- Interfaz ---
+$('btn-elegir').onclick = () => $('archivo').click();
+$('archivo').onchange = (e) => procesarArchivo(e.target.files[0]);
+$('btn-cambiar').onclick = async () => {
+  await almacen.borrar().catch(() => {});
+  $('con-rom').hidden = true;
+  $('sin-rom').hidden = false;
+  estado('');
+};
+$('btn-pantalla').onclick = () => $('canvas').requestFullscreen?.();
+
+const zona = $('zona');
+['dragenter', 'dragover'].forEach((t) => addEventListener(t, (e) => { e.preventDefault(); zona.classList.add('encima'); }));
+['dragleave', 'drop'].forEach((t) => addEventListener(t, (e) => { e.preventDefault(); zona.classList.remove('encima'); }));
+addEventListener('drop', (e) => { if (!arrancado) procesarArchivo(e.dataTransfer.files[0]); });
+
+// Al abrir: si ya hay ROM guardada, basta con pulsar «Jugar» (el clic también habilita el audio)
+let romGuardada = null;
+$('btn-jugar').onclick = () => romGuardada && arrancar(romGuardada);
+almacen.leer().then((rom) => {
+  if (rom instanceof Uint8Array && rom.length) {
+    romGuardada = rom;
+    $('sin-rom').hidden = true;
+    $('con-rom').hidden = false;
+  }
+}).catch((e) => console.warn('IndexedDB no disponible:', e));
+</script>
+</body>
+</html>
