@@ -5,6 +5,9 @@
 !.htaccess
 !.githooks/
 !.githooks/**
+!.claude/
+!.claude/skills/
+!.claude/skills/**
 *~
 
 # Dependencias y registros
