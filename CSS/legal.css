@@ -1,0 +1,68 @@
+/* Páginas legales y de error: misma libreta que la portada, sin Tailwind. */
+:root {
+    --papel: #fdfdf8;
+    --raya: #eee;
+    --margen: #abced4;
+    --tinta: #1f2933;
+    --suave: #4a5560;
+    --azul: #003366;
+    --amarillo: #ffde59;
+    --borde: #333;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: var(--tinta);
+    line-height: 1.65;
+    background-color: var(--papel);
+    background-image:
+        linear-gradient(90deg, transparent 39px, var(--margen) 39px, var(--margen) 41px, transparent 41px),
+        linear-gradient(var(--raya) .1em, transparent .1em);
+    background-size: 100% 100%, 100% 1.65em;
+}
+
+.pagina { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px 56px; }
+
+.cabecera { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+.cabecera a { display: flex; align-items: center; gap: 12px; color: var(--azul); text-decoration: none; }
+.cabecera img { height: 48px; width: auto; }
+.cabecera span { font-family: 'Kalam', cursive; font-weight: 700; font-size: 1.8rem; line-height: 1; }
+
+h1, h2, h3 { font-family: 'Kalam', cursive; color: var(--azul); line-height: 1.2; }
+h1 { font-size: clamp(2rem, 6vw, 2.8rem); margin: 0 0 4px; }
+h2 { font-size: 1.5rem; margin: 2rem 0 .4rem; }
+h3 { font-size: 1.2rem; margin: 1.4rem 0 .3rem; }
+.actualizado { color: var(--suave); margin: 0 0 1.5rem; }
+
+a { color: var(--azul); font-weight: 600; }
+a:focus-visible, button:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+
+ul { padding-left: 1.3rem; }
+li { margin: .2rem 0; }
+
+.ficha { background: #fff; border: 2px solid var(--borde); border-radius: 12px; box-shadow: 3px 3px 0 var(--borde); padding: 14px 18px; margin: 1rem 0; }
+.ficha p { margin: .2rem 0; }
+
+.tabla { width: 100%; overflow-x: auto; margin: 1rem 0; }
+.tabla:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+table { width: 100%; border-collapse: collapse; background: #fff; font-size: .95rem; min-width: 520px; }
+th, td { border: 1px solid #c9d2d8; padding: 8px 10px; text-align: left; vertical-align: top; }
+th { background: #eef4f6; }
+
+.boton {
+    display: inline-block; font-family: 'Kalam', cursive; font-weight: 700; font-size: 1.15rem;
+    background: var(--amarillo); color: #222; padding: 8px 20px; border-radius: 12px;
+    border: 2px solid var(--borde); box-shadow: 3px 3px 0 var(--borde); text-decoration: none; cursor: pointer;
+}
+.boton:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--borde); }
+
+.pie { margin-top: 3rem; padding-top: 1rem; border-top: 2px dashed #c9d2d8; font-size: .9rem; color: var(--suave); }
+.pie nav { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-bottom: 6px; }
+
+@media (max-width: 480px) {
+    body { background-image: linear-gradient(var(--raya) .1em, transparent .1em); background-size: 100% 1.65em; }
+    .pagina { padding-left: 16px; }
+}

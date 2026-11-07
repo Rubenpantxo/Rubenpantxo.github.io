@@ -314,9 +314,72 @@
         const accessKey = ((accessKeyInput && accessKeyInput.value) || '').trim();
         const hayClaveWeb3Forms = accessKey && accessKey !== MARCADOR_SIN_CLAVE;
 
-        const note = document.getElementById('sv-form-note');
         const status = document.getElementById('sv-form-status');
         const submitBtn = form.querySelector('.sv-submit');
+
+        // --- Validación: mensajes propios, junto a cada campo ---
+        const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        const ENLACES_MAX = 2;
+        const reglas = {
+            nombre: v => v.length < 2 ? 'Escribe tu nombre (al menos 2 letras).'
+                : /https?:|www\.|[<>]/i.test(v) ? 'El nombre no puede llevar enlaces ni símbolos < >.' : '',
+            email: v => !v ? 'Escribe tu correo para poder responderte.'
+                : !EMAIL_RE.test(v) ? 'Revisa el correo: debe tener la forma nombre@dominio.com.' : '',
+            mensaje: v => v.length < 15 ? 'Cuéntame un poco más (mínimo 15 caracteres).'
+                : (v.match(/https?:\/\/|www\./gi) || []).length > ENLACES_MAX ? 'Pon como mucho dos enlaces en el mensaje.' : '',
+            acepta_privacidad: (v, campo) => campo.checked ? '' : 'Marca la casilla para poder enviarlo.'
+        };
+        function validarCampo(campo) {
+            const regla = reglas[campo.name];
+            if (!regla) return true;
+            const error = regla(campo.value.trim(), campo);
+            const hueco = document.getElementById(campo.id + '-error');
+            if (hueco) hueco.textContent = error;
+            campo.setAttribute('aria-invalid', error ? 'true' : 'false');
+            return !error;
+        }
+        Object.keys(reglas).forEach(nombre => {
+            const campo = form.elements[nombre];
+            if (!campo) return;
+            // El error aparece al salir del campo y se corrige en cuanto se arregla
+            campo.addEventListener('blur', () => { if (campo.value || campo.type === 'checkbox') validarCampo(campo); });
+            campo.addEventListener(campo.type === 'checkbox' ? 'change' : 'input', () => {
+                if (campo.getAttribute('aria-invalid') === 'true') validarCampo(campo);
+            });
+        });
+        const mensaje = form.elements.mensaje;
+        const contador = document.getElementById('sv-mensaje-contador');
+        if (mensaje && contador) {
+            mensaje.addEventListener('input', () => { contador.textContent = `${mensaje.value.length} / ${mensaje.maxLength}`; });
+        }
+        form.addEventListener('reset', () => {
+            if (contador) contador.textContent = `0 / ${mensaje.maxLength}`;
+            form.querySelectorAll('[aria-invalid]').forEach(c => c.setAttribute('aria-invalid', 'false'));
+        });
+
+        // --- Antispam invisible (además del honeypot «botcheck» de Web3Forms) ---
+        // Un bot rellena y envía en milisegundos y suele hacerlo sin teclear
+        // nada; una persona tarda segundos. Si parece un bot se finge el envío
+        // para no darle pistas.
+        const TIEMPO_MINIMO_MS = 4000;
+        let inicioRelleno = 0;
+        let pulsaciones = 0;
+        form.addEventListener('focusin', () => { if (!inicioRelleno) inicioRelleno = Date.now(); });
+        form.addEventListener('keydown', () => { pulsaciones++; });
+        form.addEventListener('input', e => { if (e.inputType && e.inputType.startsWith('insertFromPaste')) pulsaciones++; });
+        function pareceBot() {
+            const trampa = document.getElementById('sv-botcheck');
+            if (trampa && trampa.checked) return true;
+            if (!inicioRelleno || Date.now() - inicioRelleno < TIEMPO_MINIMO_MS) return true;
+            return pulsaciones === 0;
+        }
+        function fingirEnvio() {
+            if (status) {
+                status.textContent = '✅ Idea enviada. Te responderé pronto.';
+                status.className = 'sv-form-status is-success';
+            }
+            form.reset();
+        }
 
         function enviarPorMailto(data) {
             const nombre = (data.get('nombre') || '').toString().trim() || 'Un futuro cliente';
@@ -337,7 +400,7 @@
                 '?subject=' + encodeURIComponent(subject) +
                 '&body=' + encodeURIComponent(body);
 
-            if (note) note.textContent = '✉️ Abriendo tu aplicación de correo con el mensaje preparado…';
+            if (status) status.textContent = '✉️ Abriendo tu aplicación de correo con el mensaje preparado…';
         }
 
         async function enviarPorWeb3Forms(data) {
@@ -372,7 +435,23 @@
 
         form.addEventListener('submit', e => {
             e.preventDefault();
+            const campos = Object.keys(reglas).map(n => form.elements[n]).filter(Boolean);
+            const validos = campos.map(validarCampo);
+            const primeroMal = campos[validos.indexOf(false)];
+            if (primeroMal) {
+                primeroMal.focus();
+                if (status) {
+                    status.textContent = 'Revisa los campos marcados.';
+                    status.className = 'sv-form-status is-error';
+                }
+                return;
+            }
+            if (pareceBot()) {
+                fingirEnvio();
+                return;
+            }
             const data = new FormData(form);
+            ['nombre', 'email', 'mensaje'].forEach(n => data.set(n, (data.get(n) || '').toString().trim()));
             if (hayClaveWeb3Forms) {
                 enviarPorWeb3Forms(data);
             } else {

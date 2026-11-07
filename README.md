@@ -2,20 +2,25 @@
 
 Sitio web personal de Rubenpantxo, alojado en GitHub Pages bajo el dominio [rubenpantxo.com](https://rubenpantxo.com).
 
-Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps son privadas: se muestran con un candado y piden contraseña al abrirlas.
+Hub estático que reúne aplicaciones, juegos y enlaces propios.
 
 ## Estructura
 
 ```
 .
 ├── index.html              # Landing principal con secciones y router
-├── 404.html                # Página de error
+├── 404.html                # Página de error (GitHub Pages la sirve para cualquier ruta que no exista)
+├── legal/                  # Privacidad, aviso legal y condiciones, cookies
 ├── CNAME                   # Dominio personalizado
 ├── .htaccess               # Cabeceras de seguridad y reglas del servidor
 ├── robots.txt
-├── CSS/                    # Estilos globales
-├── js/                     # Scripts
-├── img/                    # Logos e iconos del sitio
+├── sitemap.xml             # Portada, demos de servicios y páginas legales
+├── site.webmanifest        # Nombre e iconos del sitio
+├── favicon.ico
+├── tailwind.config.js      # Tailwind de la portada → CSS/tailwind.css (npm run css)
+├── CSS/                    # Estilos globales (legal.css: páginas legales y 404)
+├── js/                     # Scripts (consentimiento.js: aviso de cookies + Google Analytics 4)
+├── img/                    # Logos, iconos del sitio e imagen al compartir (compartir.png)
 ├── docs/                   # Notas internas (guías, recursos)
 ├── servicios/              # Demos de negocio que abre la sección Servicios (visor con móvil)
 │   ├── kit/                # Base común: escena Three.js, gestos y estructura (app.css)
@@ -33,36 +38,32 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
 │   ├── cabanillas.html     # Plano urbano interactivo de Cabanillas (vector + ortofoto IDENA)
 │   └── cabanillas-data.js  # Datos embebidos: Catastro de Navarra (alturas/parcelas) + OpenStreetMap
 ├── apps/                   # Aplicaciones
-│   ├── alumbrado-pro/      # (privada)
-│   ├── biblioteca/         # (privada)
+│   ├── alumbrado-pro/      # (no listada)
+│   ├── biblioteca/         # (no listada)
 │   ├── escenas/            # Control de cámara: blocking 3D + generador de prompts
 │   ├── format-explorer.html
-│   ├── instagram-downloader/   # (privada)
+│   ├── instagram-downloader/   # (no listada)
 │   ├── pantxiko-notes.html
 │   ├── qibla.html          # Brújula Qibla
-│   └── resource-hub/       # (privada)
+│   └── resource-hub/       # (no listada)
 └── juegos/                 # Juegos
     ├── Chess3D/
     ├── cabanillas-drive/   # Compilado de prototipos/cabanillas-drive (npm run publica)
     ├── circle.html
     ├── cesta-punta/
-    ├── granja/             # (privada)
+    ├── granja/             # (no listada)
     ├── tekken-barrio-ps1/
     └── tetris/
 ```
 
-## Zona privada
-
-Las apps y juegos marcados con la clase `private-app` se muestran siempre en sus secciones con un candado (🔒). Al hacer clic piden la contraseña en un modal; si es correcta se abre la app y la sesión queda validada (candados en 🔓). La autenticación es cliente-side (hash SHA-256 contra `PASSWORD_HASH` en `index.html`) y la sesión se guarda en `sessionStorage`.
-
-> Nota: como el hash viaja en el HTML, la zona privada solo sirve para ocultar contenido del visitante casual, no protege secretos.
-
 ## Stack
 
 - HTML / CSS / JavaScript vanilla
-- Tailwind CSS y Font Awesome vía CDN
+- Tailwind CSS compilado para la portada (`CSS/tailwind.css`): si añades clases nuevas a `index.html`, ejecuta `npm run css`
+- Font Awesome vía CDN
 - Three.js r170 servido desde el repo (`js/vendor/three/`) para las escenas 3D de Servicios
-- Sin build step: cualquier servidor estático sirve el sitio
+- Google Analytics 4 (`G-QDLQVMJHMJ`) cargado por `js/consentimiento.js` solo tras aceptar las cookies; fuera de rubenpantxo.com no mide (añade `?ga=1` para probarlo en local)
+- Sin build step para servir: cualquier servidor estático sirve el sitio
 - GitHub Pages como hosting
 
 ## Desarrollo local
