@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-app="format-explorer">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Format Explorer</title>
+<title>Format Explorer · formatos de archivo y apps</title>
+<meta name="description" content="Escritorio con estilo de Windows clásico: fichas de cientos de formatos de archivo, el mapa del ecosistema de la IA y las apps de rubenpantxo.com en ventanas.">
+<link rel="canonical" href="https://rubenpantxo.com/apps/format-explorer.html">
+<meta name="theme-color" content="#000080">
+<link rel="manifest" href="format-explorer.webmanifest">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../img/apps/explorer-192.png">
+<script src="../js/consentimiento.js"></script>
+<script src="../js/app.js"></script>
 <style>
 /* ============================================================
    FORMAT EXPLORER — Windows Vista / Aero aesthetic
@@ -68,6 +76,8 @@ body{
   cursor:move;padding:6px 2px;border:1px dotted transparent;transition:filter .18s var(--ease)}
 .dicon:hover .dicon-img{filter:drop-shadow(0 4px 6px rgba(0,0,0,.45)) brightness(1.06)}
 .dicon.dragging{opacity:.85;z-index:50}
+.dicon:focus-visible,.sm-i:focus-visible,.fico:focus-visible{outline:2px dotted #fff;outline-offset:2px}
+.sm-i:focus-visible,.fico:focus-visible{outline-color:#000080}
 .dicon.sel{border-color:rgba(255,255,255,.7)}
 .dicon.sel .dicon-lbl{background:var(--w95-sel);color:#fff}
 .dicon-img{width:48px;height:48px;image-rendering:pixelated;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));transition:filter .18s var(--ease)}
@@ -510,9 +520,9 @@ body.win-drag iframe{pointer-events:none}
 </style>
 </head>
 <body>
-<div id="desktop"></div>
+<div id="desktop" role="main" aria-label="Escritorio"><h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Format Explorer</h1></div>
 <div id="startmenu"><div class="sm-band"><span>Explorer</span></div><div class="sm-items" id="sm-items"></div></div>
-<div id="taskbar">
+<div id="taskbar" role="navigation" aria-label="Barra de tareas">
   <button class="btn95" id="startbtn"><img alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAA7fFvVAAAADUlEQVR4nGNgYGBgAAAABQABXvMqOgAAAABJRU5ErkJggg==" style="display:none">🪟 Inicio</button>
   <div id="taskitems" style="display:flex;gap:4px;flex:1;min-width:0;overflow:hidden"></div>
   <div id="clock">00:00</div>
@@ -1419,6 +1429,7 @@ function renderDesktop(){
     const col=Math.floor(i/rows),row=i%rows;
     const el=document.createElement('div');
     el.className='dicon';el.dataset.icon=ic.id;
+    el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label','Abrir '+ic.n);
     const p=pos[ic.id];
     el.style.left=(p?p.x:14+col*92)+'px';
     el.style.top=(p?p.y:14+row*96)+'px';
@@ -1449,10 +1460,13 @@ function makeIconDraggable(el,ic){
       el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up);
       el.classList.remove('dragging');
       if(moved){const pos=loadIconPos();pos[ic.id]={x:el.offsetLeft,y:el.offsetTop};saveIconPos(pos)}
+      // En pantallas táctiles no hay doble clic fiable: un toque abre la app
+      else if(ev.pointerType==='touch')ic.run();
     };
     el.addEventListener('pointermove',mv);el.addEventListener('pointerup',up);
   });
   el.addEventListener('dblclick',()=>ic.run());
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();ic.run()}});
 }
 
 // ---------------- Apps del sitio, cada una en su ventana ----------------
@@ -1460,6 +1474,7 @@ function makeIconDraggable(el,ic){
 function openApp(id,title,icon,src,w,h){
   const html=`<div class="fr-wrap"><iframe src="${src}" title="${esc(title)}"></iframe></div>
   <div class="fr-bar"><a href="${src}" target="_blank" rel="noopener">↗ Abrir en una pestaña</a></div>`;
+  if(!wins[id]&&window.rpApp)rpApp.evento('app_lanzada',{destino:id});
   mkWin(id,title,icon,w,h,html);
 }
 
@@ -1477,7 +1492,7 @@ function openExplorer(){
     <span id="fx-count" style="color:#444"></span>
   </div>
   <div class="explorer">
-    <div class="side95" id="fx-cats">
+    <div class="side95" id="fx-cats" tabindex="0" aria-label="Categorías">
       <div class="cat95${curCat==='*'?' active':''}" data-cat="*"><span class="ci">🗃️</span><span class="cn"><b>Todas</b></span><span class="cc">${ALL_EXTS.length}</span></div>
       ${catRows}
     </div>
@@ -1486,6 +1501,8 @@ function openExplorer(){
   <div class="statusbar"><div class="status-cell" id="fx-status">Listo.</div><div class="status-cell fix">${ALL_EXTS.length} formatos</div><div class="status-cell fix">${APPS.length} aplicaciones</div></div>`;
   mkWin('explorer','Format Explorer','🗄️',880,600,html,{onOpen:el=>{
     el.querySelector('#fx-search').addEventListener('input',e=>{curSearch=e.target.value.trim().toUpperCase();renderGrid()});
+    el.querySelectorAll('#fx-cats .cat95').forEach(c=>{c.tabIndex=0;c.setAttribute('role','button')});
+    el.querySelector('#fx-cats').addEventListener('keydown',e=>{const c=e.target.closest('.cat95');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();c.click()}});
     el.querySelector('#fx-cats').addEventListener('click',e=>{
       const c=e.target.closest('.cat95');if(!c)return;
       curCat=c.dataset.cat;
@@ -1509,9 +1526,12 @@ function renderGrid(){
   }).join('')||'<div style="grid-column:1/-1;padding:30px;text-align:center;color:#666">No se encontraron formatos.</div>';
   document.querySelector('#win-explorer #fx-count').textContent=list.length+' elementos';
   grid.querySelectorAll('.fico').forEach(f=>{
-    f.onclick=()=>{grid.querySelectorAll('.fico').forEach(x=>x.classList.remove('sel'));f.classList.add('sel');
-      document.querySelector('#win-explorer #fx-status').textContent='.'+f.dataset.ext.toLowerCase()+' — '+(D[f.dataset.ext]?.f||'');};
+    f.tabIndex=0;f.setAttribute('role','button');f.setAttribute('aria-label','Ficha del formato .'+f.dataset.ext.toLowerCase());
+    f.onclick=e=>{grid.querySelectorAll('.fico').forEach(x=>x.classList.remove('sel'));f.classList.add('sel');
+      document.querySelector('#win-explorer #fx-status').textContent='.'+f.dataset.ext.toLowerCase()+' — '+(D[f.dataset.ext]?.f||'');
+      if(e.pointerType==='touch')openProps(f.dataset.ext);};
     f.ondblclick=()=>openProps(f.dataset.ext);
+    f.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openProps(f.dataset.ext)}};
   });
 }
 
@@ -1707,8 +1727,9 @@ function selectEco(el,name){
 // ---------------- Start menu + clock ----------------
 function initShell(){
   const sm=document.getElementById('sm-items');
-  sm.innerHTML=DICONS.map(d=>`<div class="sm-i" data-run="${d.id}"><span class="ic">${d.e||{explorer:'🗄️',files:'🗂️',dash:'📈',eco:'🧠',stats:'📊',about:'❓'}[d.id]}</span>${esc(d.n)}</div>`).join('')
-    +`<div class="sm-sep"></div><div class="sm-i" data-run="__web"><span class="ic">🌍</span>rubenpantxo.com</div>`;
+  sm.innerHTML=DICONS.map(d=>`<div class="sm-i" role="button" tabindex="0" data-run="${d.id}"><span class="ic" aria-hidden="true">${d.e||{explorer:'🗄️',files:'🗂️',dash:'📈',eco:'🧠',stats:'📊',about:'❓'}[d.id]}</span>${esc(d.n)}</div>`).join('')
+    +`<div class="sm-sep"></div><div class="sm-i" role="button" tabindex="0" data-run="__web"><span class="ic" aria-hidden="true">🌍</span>rubenpantxo.com</div>`;
+  sm.addEventListener('keydown',e=>{const i=e.target.closest('.sm-i');if(i&&(e.key==='Enter'||e.key===' ')){e.preventDefault();i.click()}});
   sm.addEventListener('click',e=>{
     const i=e.target.closest('.sm-i');if(!i)return;
     document.getElementById('startmenu').classList.remove('open');

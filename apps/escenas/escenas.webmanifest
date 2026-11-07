@@ -1,0 +1,19 @@
+{
+  "id": "/apps/escenas/",
+  "name": "Escenas · Control de cámara",
+  "short_name": "Escenas",
+  "description": "Coloca cámara y personajes, elige plano y lente, y obtén el prompt para tu modelo de IA.",
+  "lang": "es",
+  "start_url": "/apps/escenas/",
+  "scope": "/apps/escenas/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0d0a",
+  "theme_color": "#0a0d0a",
+  "categories": ["productivity", "photo"],
+  "icons": [
+    { "src": "/img/apps/escenas-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/img/apps/escenas-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/img/apps/escenas-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
