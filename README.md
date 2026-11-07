@@ -2,7 +2,7 @@
 
 Sitio web personal de Rubenpantxo, alojado en GitHub Pages bajo el dominio [rubenpantxo.com](https://rubenpantxo.com).
 
-Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps son privadas: se muestran con un candado y piden contraseña al abrirlas.
+Hub estático que reúne aplicaciones, juegos y enlaces propios.
 
 ## Estructura
 
@@ -55,12 +55,6 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
     ├── tekken-barrio-ps1/
     └── tetris/
 ```
-
-## Zona privada
-
-Las apps y juegos marcados con la clase `private-app` se muestran siempre en sus secciones con un candado (🔒). Al hacer clic piden la contraseña en un modal; si es correcta se abre la app y la sesión queda validada (candados en 🔓). La autenticación es cliente-side (hash SHA-256 contra `PASSWORD_HASH` en `index.html`) y la sesión se guarda en `sessionStorage`.
-
-> Nota: como el hash viaja en el HTML, la zona privada solo sirve para ocultar contenido del visitante casual, no protege secretos.
 
 ## Stack
 
