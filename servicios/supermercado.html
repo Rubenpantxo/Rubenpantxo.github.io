@@ -5,6 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Super La Plaza — Demo cesta 3D, Scan &amp; Go, recogida y almacén</title>
 <meta name="description" content="Demo: llena la cesta en 3D desde los pasillos, comparte la lista de casa, escanea y paga en caja rápida o elige franja de recogida. Con almacén para el dueño.">
+<!--@cabecera-->
+<link rel="canonical" href="https://rubenpantxo.com/servicios/supermercado.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Rubenpantxo.com">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Super La Plaza — Demo cesta 3D, Scan &amp; Go, recogida y almacén">
+<meta property="og:description" content="Demo: llena la cesta en 3D desde los pasillos, comparte la lista de casa, escanea y paga en caja rápida o elige franja de recogida. Con almacén para el dueño.">
+<meta property="og:url" content="https://rubenpantxo.com/servicios/supermercado.html">
+<meta property="og:image" content="https://rubenpantxo.com/img/compartir.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" href="../img/favicon-32.png" type="image/png">
+<link rel="apple-touch-icon" href="../img/apple-touch-icon.png">
+<script src="../js/consentimiento.js" defer></script>
+<!--/@cabecera-->
 <link rel="stylesheet" href="sistemas/tema.css">
 <link rel="stylesheet" href="kit/app.css">
 <style>
@@ -19,6 +34,7 @@
 :root {
   --amarillo: #ffd400;
   --rojo: #e2001a;
+  --rojo-tinta: #b30015; /* rojo de pegatinas y ofertas: 4.5:1 con el amarillo y el blanco */
   --etq-tinta: #141414;
   --rail-1: #e3e6e9; --rail-2: #b3b9bf; --rail-3: #858c93;
   --cab: 56px;
@@ -209,15 +225,15 @@ body { min-height: 100dvh; font-size: 15px; line-height: 1.4; overflow-x: hidden
 .etq-antes { grid-column: 1 / -1; justify-self: end; font-size: 12px; font-weight: 800; line-height: 1; margin: 2px 0 3px; opacity: .9; position: relative; z-index: 1; }
 .etq-pie { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-end; gap: 6px; font-size: 9.5px; font-weight: 700; margin-top: auto; white-space: nowrap; }
 .etq-pie svg { height: 18px; width: auto; min-width: 0; flex: 0 1 auto; background: #fff; padding: 1px 2px; }
-.etq--oferta { background: var(--rojo); color: #fff; }
+.etq--oferta { background: var(--rojo-tinta); color: #fff; }
 .pegatina {
   position: absolute; left: 6px; top: 6px; z-index: 2; width: 60px; height: 60px;
   display: grid; place-content: center; text-align: center; line-height: .9;
-  background: var(--rojo); color: var(--amarillo); clip-path: var(--estrella);
+  background: var(--rojo-tinta); color: var(--amarillo); clip-path: var(--estrella);
   transform: rotate(-12deg); font-weight: 900; font-size: 15px; letter-spacing: -.03em;
 }
 .pegatina small { display: block; font-size: 8.5px; letter-spacing: 0; margin-bottom: 1px; }
-.pegatina--2x { background: var(--amarillo); color: var(--rojo); width: 64px; height: 64px; }
+.pegatina--2x { background: var(--amarillo); color: var(--rojo-tinta); width: 64px; height: 64px; }
 .pegatina.is-logro { animation: pegar .55s var(--k-rebote); }
 .pegatina.is-logro::after { content: "✓"; position: absolute; }
 @keyframes pegar { from { transform: rotate(-60deg) scale(1.7); opacity: 0; } }

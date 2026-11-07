@@ -9,13 +9,18 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios. Algunas apps so
 ```
 .
 ├── index.html              # Landing principal con secciones y router
-├── 404.html                # Página de error
+├── 404.html                # Página de error (GitHub Pages la sirve para cualquier ruta que no exista)
+├── legal/                  # Privacidad, aviso legal y condiciones, cookies
 ├── CNAME                   # Dominio personalizado
 ├── .htaccess               # Cabeceras de seguridad y reglas del servidor
 ├── robots.txt
-├── CSS/                    # Estilos globales
-├── js/                     # Scripts
-├── img/                    # Logos e iconos del sitio
+├── sitemap.xml             # Portada, demos de servicios y páginas legales
+├── site.webmanifest        # Nombre e iconos del sitio
+├── favicon.ico
+├── tailwind.config.js      # Tailwind de la portada → CSS/tailwind.css (npm run css)
+├── CSS/                    # Estilos globales (legal.css: páginas legales y 404)
+├── js/                     # Scripts (consentimiento.js: aviso de cookies + Google Analytics 4)
+├── img/                    # Logos, iconos del sitio e imagen al compartir (compartir.png)
 ├── docs/                   # Notas internas (guías, recursos)
 ├── servicios/              # Demos de negocio que abre la sección Servicios (visor con móvil)
 │   ├── kit/                # Base común: escena Three.js, gestos y estructura (app.css)
@@ -60,9 +65,11 @@ Las apps y juegos marcados con la clase `private-app` se muestran siempre en sus
 ## Stack
 
 - HTML / CSS / JavaScript vanilla
-- Tailwind CSS y Font Awesome vía CDN
+- Tailwind CSS compilado para la portada (`CSS/tailwind.css`): si añades clases nuevas a `index.html`, ejecuta `npm run css`
+- Font Awesome vía CDN
 - Three.js r170 servido desde el repo (`js/vendor/three/`) para las escenas 3D de Servicios
-- Sin build step: cualquier servidor estático sirve el sitio
+- Google Analytics 4 (`G-QDLQVMJHMJ`) cargado por `js/consentimiento.js` solo tras aceptar las cookies; fuera de rubenpantxo.com no mide (añade `?ga=1` para probarlo en local)
+- Sin build step para servir: cualquier servidor estático sirve el sitio
 - GitHub Pages como hosting
 
 ## Desarrollo local

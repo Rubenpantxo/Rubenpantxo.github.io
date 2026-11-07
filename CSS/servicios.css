@@ -1094,7 +1094,8 @@
 .sv-submit {
     border: none; cursor: pointer; margin-top: .4rem;
     font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800; color: #fff;
-    background: linear-gradient(120deg, var(--sv-violet), var(--sv-rose));
+    /* Tonos más oscuros que --sv-violet/--sv-rose: el texto blanco necesita contraste 4.5:1 */
+    background: linear-gradient(120deg, #5b4ae0, #d6335c);
     padding: 16px; border-radius: 16px;
     box-shadow: 0 12px 36px rgba(124, 108, 255, .35);
     transition: transform .2s ease, box-shadow .2s ease;
@@ -1103,9 +1104,33 @@
 .sv-submit:active { transform: scale(.98); }
 .sv-submit:disabled { opacity: .6; cursor: wait; transform: none; }
 .sv-form-note { font-size: .78rem; color: var(--sv-muted); text-align: center; }
+.sv-form-note a, .sv-acepto a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+/* Validación: el error se anuncia junto a su campo */
+#sv-contact-form [aria-invalid="true"] { border-color: #ff5c7a; }
+.sv-error { display: block; margin-top: 6px; font-size: .8rem; font-weight: 700; color: #ff5c7a; }
+.sv-error:empty { display: none; }
+.sv-contador { float: right; font-size: .72rem; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--sv-muted); }
+
+#sv-contact-form .sv-acepto {
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: .85rem; font-weight: 500; letter-spacing: 0; text-transform: none; line-height: 1.5;
+    color: var(--sv-text); cursor: pointer;
+}
+#sv-contact-form .sv-acepto input {
+    width: 20px; height: 20px; flex: none; margin: 1px 0 0; padding: 0;
+    accent-color: var(--sv-acc); cursor: pointer;
+}
+.sv-info-datos { font-size: .75rem; line-height: 1.55; color: var(--sv-muted); }
+.sv-info-datos a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .sv-form-status { font-size: .85rem; font-weight: 700; text-align: center; min-height: 1.2em; }
 .sv-form-status.is-success { color: #2ecc71; }
 .sv-form-status.is-error { color: #ff5c7a; }
+/* En claro, verde y rojo más oscuros para llegar a 4.5:1 sobre el papel */
+#servicios[data-sv-tema="claro"] .sv-form-status.is-success { color: #1a7f45; }
+#servicios[data-sv-tema="claro"] .sv-form-status.is-error,
+#servicios[data-sv-tema="claro"] .sv-error { color: #c0264b; }
+#servicios[data-sv-tema="claro"] #sv-contact-form [aria-invalid="true"] { border-color: #c0264b; }
 
 /* ============================================================
    VISOR — la demo dentro de un móvil
