@@ -12,6 +12,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sistemas } from './sistemas-datos.mjs';
 import { capturas } from './paletas-datos.mjs';
+import { cabeceraWeb } from './cabecera-web.mjs';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const RAIZ = join(AQUI, '..', '..');
@@ -93,7 +94,7 @@ const html = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Muestrario de color — Sistemas de diseño</title>
 <meta name="description" content="Muestrario de color agrupado por paletas: cada color a tamaño real, con su nombre y su hexadecimal. Un clic lo copia.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+${cabeceraWeb({ archivo: 'paletas.html', titulo: 'Muestrario de color — Sistemas de diseño', descripcion: 'Muestrario de color agrupado por paletas: cada color a tamaño real, con su nombre y su hexadecimal. Un clic lo copia.' })}<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../apps/escenas/halogen.css">

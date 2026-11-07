@@ -22,12 +22,88 @@
     <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
     <link rel="manifest" href="site.webmanifest">
     <meta name="theme-color" content="#fdfdf8">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://rubenpantxo.com/#web",
+          "url": "https://rubenpantxo.com/",
+          "name": "Rubenpantxo.com",
+          "inLanguage": "es",
+          "publisher": { "@id": "https://rubenpantxo.com/#ruben" }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://rubenpantxo.com/#ruben",
+          "name": "Rubén Aguado Alonso",
+          "alternateName": "Rubenpantxo",
+          "url": "https://rubenpantxo.com/",
+          "email": "mailto:rubenpantxo@gmail.com",
+          "address": { "@type": "PostalAddress", "addressLocality": "Cabanillas", "addressRegion": "Navarra", "addressCountry": "ES" },
+          "sameAs": ["https://www.instagram.com/rubenpantxo/", "https://github.com/Rubenpantxo"]
+        },
+        {
+          "@type": "ProfessionalService",
+          "@id": "https://rubenpantxo.com/#servicios",
+          "name": "Rubenpantxo · Webs y apps a medida",
+          "description": "Diseño y desarrollo de webs y apps a medida para negocios: hostelería, comercio, gimnasios, granjas, industria y logística, con demos interactivas.",
+          "url": "https://rubenpantxo.com/#servicios",
+          "image": "https://rubenpantxo.com/img/compartir.png",
+          "logo": "https://rubenpantxo.com/img/icono-512.png",
+          "email": "rubenpantxo@gmail.com",
+          "founder": { "@id": "https://rubenpantxo.com/#ruben" },
+          "address": { "@type": "PostalAddress", "addressLocality": "Cabanillas", "addressRegion": "Navarra", "addressCountry": "ES" },
+          "areaServed": [{ "@type": "AdministrativeArea", "name": "Navarra" }, { "@type": "Country", "name": "España" }],
+          "knowsLanguage": "es"
+        }
+      ]
+    }
+    </script>
     <script src="js/consentimiento.js" defer></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="CSS/servicios.css">
+    <!-- Fuentes propias (CSS/fuentes/fuentes.css, en línea para no esperar a otra
+         descarga antes de pintar). Sin preload: con font-display: swap el texto
+         sale enseguida y las fuentes no compiten con el HTML y el CSS -->
+    <style>
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 400 900;
+            font-display: swap;
+            src: url(CSS/fuentes/inter-latin.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+        @font-face {
+            font-family: 'Kalam';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url(CSS/fuentes/kalam-400-latin.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+        @font-face {
+            font-family: 'Kalam';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: url(CSS/fuentes/kalam-700-latin.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+    </style>
+    <!-- Iconos y estilos de Servicios no bloquean el primer pintado: la portada
+         no los necesita para verse (Servicios empieza oculta) -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="CSS/servicios.css" id="css-servicios" media="print" onload="this.media='all'">
+    <script>
+        // Si se entra directo a Servicios o al contacto, su CSS sí hace falta desde el principio
+        if (/^#(servicios|contacto)$/.test(location.hash)) document.getElementById('css-servicios').media = 'all';
+    </script>
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <link rel="stylesheet" href="CSS/servicios.css">
+    </noscript>
     <!-- Tailwind compilado (npm run css); antes, CDN de desarrollo -->
     <link rel="stylesheet" href="CSS/tailwind.css">
     <style>
@@ -125,6 +201,15 @@
         #back-arrow { background-color: #dc3545; color: white; box-shadow: 3px 3px 0 #333; }
         .icon-hidden { transform: scale(0); opacity: 0; pointer-events: none; }
 
+        /* Teclado: lo oculto sale del orden de tabulación (visibility tras la
+           animación) y todo lo pulsable enseña el foco */
+        .icon-hidden, .social-hidden { visibility: hidden; transition-property: transform, opacity, visibility; }
+        body.section-open .nav-item:not(.active) { visibility: hidden; transition-property: all, visibility; }
+        .nav-item:focus-visible, .corner-icon:focus-visible, .category-card:focus-visible,
+        .link-card-neumorph:focus-visible, .neumorph-button:focus-visible, #social-links a:focus-visible {
+            outline: 3px solid #1a73e8; outline-offset: 3px;
+        }
+
         /* CTA único de la web: lleva al formulario de Servicios */
         .cta-principal-wrap { display: flex; justify-content: center; margin-top: 2rem; }
         .cta-principal {
@@ -174,93 +259,6 @@
         #enlaces-content { background: #f5f5f0; }
 
         /* ============================================
-           ESTILOS PANTXIKO NOTES INTEGRADO
-           ============================================ */
-        #pantxiko-notes-app {
-            background: linear-gradient(160deg, #1a0a00 0%, #5c1a00 15%, #b84000 30%, #e06010 45%, #f0882a 55%, #e07828 65%, #c85010 75%, #8b2a00 88%, #3a0800 100%);
-            z-index: 1000;
-        }
-
-        #pantxiko-notes-app::before {
-            content: ''; position: absolute; inset: 0;
-            background-image: radial-gradient(ellipse 60% 40% at 15% 20%, rgba(0,0,0,0.55) 0%, transparent 70%), radial-gradient(ellipse 50% 50% at 85% 10%, rgba(0,0,0,0.45) 0%, transparent 65%), radial-gradient(ellipse 30% 60% at 5% 50%, rgba(0,0,0,0.4) 0%, transparent 70%), radial-gradient(ellipse 35% 55% at 95% 40%, rgba(0,0,0,0.35) 0%, transparent 65%);
-            pointer-events: none; z-index: 0;
-        }
-
-        .pn-header-title-wrap {
-            background: linear-gradient(135deg, #fdf8e8 0%, #f5ead5 40%, #ede0c4 70%, #fdf8e8 100%);
-            border-radius: 6px 6px 2px 2px; padding: 7px 18px 8px; position: relative;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.9);
-            clip-path: polygon(0% 8%, 2% 0%, 5% 6%, 8% 1%, 11% 7%, 14% 2%, 17% 8%, 20% 1%, 23% 7%, 26% 2%, 29% 8%, 32% 1%, 35% 6%, 38% 2%, 41% 7%, 44% 1%, 47% 8%, 50% 2%, 53% 7%, 56% 1%, 59% 8%, 62% 2%, 65% 7%, 68% 1%, 71% 8%, 74% 2%, 77% 7%, 80% 1%, 83% 8%, 86% 2%, 89% 7%, 92% 2%, 95% 8%, 98% 1%, 100% 6%, 100% 100%, 0% 100%);
-        }
-        .pn-header-title-wrap h1 { font-family: 'Kalam', cursive; font-size: 30px; font-weight: 700; color: #2a1a00; display: flex; align-items: center; gap: 7px; white-space: nowrap; margin: 0; }
-
-        .pn-btn-settings {
-            background: rgba(230,220,200,0.5); border: 1.5px solid rgba(200,180,140,0.6); border-radius: 10px; width: 42px; height: 42px;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px;
-            backdrop-filter: blur(8px); transition: background 0.2s; color: rgba(255,255,255,0.9);
-        }
-        .pn-btn-settings:hover { background: rgba(255,255,255,0.25); }
-
-        .pn-note-container {
-            flex: 1; margin: 6px 10px 8px; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
-            background: rgba(255,252,240,0.82); box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.25);
-            backdrop-filter: blur(4px); position: relative; z-index: 1;
-        }
-        .pn-note-container::before {
-            content: ''; position: absolute; inset: 0;
-            background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 31px, rgba(120,140,170,0.35) 31px, rgba(120,140,170,0.35) 32px);
-            background-position: 0 44px; pointer-events: none; z-index: 1;
-        }
-
-        .pn-toolbar { display: flex; align-items: center; gap: 3px; padding: 8px 10px; background: rgba(240,235,220,0.9); border-bottom: 1px solid rgba(140,120,90,0.2); flex-shrink: 0; flex-wrap: wrap; position: relative; z-index: 2; }
-        .pn-tb-btn { background: rgba(255,255,255,0.7); border: 1.5px solid rgba(180,160,120,0.35); border-radius: 7px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; font-family: 'Inter', sans-serif; color: #2a1800; transition: all 0.15s; user-select: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .pn-tb-btn:hover { background: rgba(255,255,255,0.95); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-        .pn-tb-btn.active { background: rgba(200,170,100,0.4); border-color: rgba(160,120,60,0.6); }
-        .pn-tb-btn.bold { font-weight: 900; font-size: 17px; } .pn-tb-btn.italic { font-style: italic; font-size: 16px; } .pn-tb-btn.underline { text-decoration: underline; font-size: 16px; }
-        .pn-tb-sep { width: 1px; height: 24px; background: rgba(140,120,90,0.3); margin: 0 3px; }
-        .pn-tb-select { background: rgba(255,255,255,0.7); border: 1.5px solid rgba(180,160,120,0.35); border-radius: 7px; padding: 0 8px; height: 34px; font-size: 13px; font-family: 'Inter', sans-serif; color: #2a1800; cursor: pointer; outline: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .pn-tb-color { width: 34px; height: 34px; border-radius: 7px; border: 1.5px solid rgba(180,160,120,0.35); cursor: pointer; padding: 3px; background: rgba(255,255,255,0.7); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-
-        .pn-editor-wrap { flex: 1; position: relative; overflow: hidden; }
-        .pn-mascot-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -52%); width: 220px; opacity: 0.18; pointer-events: none; z-index: 2; user-select: none; }
-        #pn-editor { position: absolute; inset: 0; padding: 10px 16px 10px 18px; font-size: 15px; line-height: 32px; color: #1a0e00; outline: none; overflow-y: auto; background: transparent; z-index: 3; font-family: 'Inter', sans-serif; resize: none; white-space: pre-wrap; }
-        #pn-editor:empty::before { content: attr(data-placeholder); color: rgba(80,60,30,0.35); pointer-events: none; }
-
-        .pn-bottom-bar { display: flex; gap: 8px; padding: 10px 10px 12px; flex-shrink: 0; position: relative; z-index: 1; }
-        .pn-action-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 6px; background: rgba(230,218,195,0.55); border: 1.5px solid rgba(200,178,140,0.5); border-radius: 14px; cursor: pointer; font-size: 11px; font-family: 'Inter', sans-serif; color: rgba(255,248,230,0.95); font-weight: 500; backdrop-filter: blur(8px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-        .pn-action-btn:hover { background: rgba(255,240,210,0.7); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.28); }
-        .pn-action-btn:active { transform: translateY(0); }
-        .pn-action-btn .btn-icon { font-size: 22px; line-height: 1; }
-        .pn-action-btn.recording { background: rgba(220,80,60,0.55); border-color: rgba(220,80,60,0.7); }
-        @keyframes mic-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
-
-        .pn-dictate-wrap { display: flex; justify-content: center; padding: 8px 10px 0; flex-shrink: 0; position: relative; z-index: 1; }
-        .pn-dictate-btn {
-            display: flex; flex-direction: column; align-items: center; gap: 6px;
-            padding: 14px 32px; background: rgba(230,218,195,0.55); border: 1.5px solid rgba(200,178,140,0.5);
-            border-radius: 18px; cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
-            color: rgba(255,248,230,0.95); font-weight: 500; backdrop-filter: blur(8px);
-            transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-        }
-        .pn-dictate-btn:hover { background: rgba(255,240,210,0.7); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.28); }
-        .pn-dictate-btn:active { transform: translateY(0); }
-        .pn-dictate-btn .pn-mic-icon { width: 64px; height: 64px; object-fit: contain; display: block; }
-        .pn-dictate-btn.recording { background: rgba(220,80,60,0.55); border-color: rgba(220,80,60,0.7); }
-        .pn-dictate-btn.recording .pn-mic-icon { animation: mic-pulse 0.9s ease-in-out infinite; }
-
-        .pn-settings-panel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1100; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
-        .pn-settings-panel.open { display: flex; }
-        .pn-settings-box { background: linear-gradient(135deg, #fdf8e8, #f0e8d0); border-radius: 16px; padding: 24px; width: 90%; max-width: 320px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-        .pn-settings-box h2 { font-family: 'Kalam', cursive; font-size: 18px; color: #2a1800; margin-bottom: 16px; }
-        .pn-settings-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 14px; color: #3a2000; }
-        .pn-settings-row select { border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; padding: 4px 8px; font-size: 13px; background: white; }
-        .pn-settings-close { margin-top: 18px; width: 100%; background: #b84000; color: white; border: none; border-radius: 10px; padding: 10px; font-family: 'Kalam', cursive; font-size: 16px; cursor: pointer; }
-
-        .pn-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(30,15,0,0.85); color: #fde8b0; padding: 9px 20px; border-radius: 20px; font-size: 13px; font-family: 'Kalam', cursive; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 1200; white-space: nowrap; }
-        .pn-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* ============================================
            JENGA DE LA PORTADA
            ============================================ */
         #jenga-home {
@@ -282,33 +280,33 @@
                 <h1 class="titulo-principal text-[2.1rem] leading-tight sm:text-5xl md:text-7xl font-bold">Rubenpantxo.com</h1>
             </div>
             
-            <div id="contact-toggle" class="corner-icon flex items-center justify-center">?</div>
-            <div id="back-arrow" class="corner-icon flex items-center justify-center icon-hidden">↩</div>
+            <div id="contact-toggle" class="corner-icon flex items-center justify-center" role="button" tabindex="0" aria-label="Contacto y redes sociales" aria-expanded="false" aria-controls="social-links">?</div>
+            <div id="back-arrow" class="corner-icon flex items-center justify-center icon-hidden" role="button" tabindex="0" aria-label="Volver a la portada">↩</div>
 
             <div id="social-links" class="absolute top-20 right-8 mt-2 flex flex-col items-center gap-4 social-hidden">
-                <a href="https://www.instagram.com/rubenpantxo/" target="_blank" rel="noopener" aria-label="Instagram de Rubenpantxo" class="text-3xl text-pink-600 hover:scale-110 transition-transform"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+                <a href="https://www.instagram.com/rubenpantxo/" target="_blank" rel="noopener" aria-label="Instagram de Rubenpantxo" class="text-3xl text-pink-600 hover:scale-110 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" width="1em" height="1em" fill="currentColor" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg></a>
                 <a href="mailto:rubenpantxo@gmail.com" aria-label="Escribir un correo a rubenpantxo@gmail.com" class="text-3xl text-red-600 hover:scale-110 transition-transform"><i class="fas fa-envelope" aria-hidden="true"></i></a>
-                <a href="https://github.com/Rubenpantxo" target="_blank" rel="noopener" aria-label="GitHub de Rubenpantxo" class="text-3xl text-gray-800 hover:scale-110 transition-transform"><i class="fab fa-github" aria-hidden="true"></i></a>
+                <a href="https://github.com/Rubenpantxo" target="_blank" rel="noopener" aria-label="GitHub de Rubenpantxo" class="text-3xl text-gray-800 hover:scale-110 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" width="1em" height="1em" fill="currentColor" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></a>
             </div>
         </header>
 
         <nav id="main-nav" class="flex flex-col sm:flex-row justify-center items-center gap-8 sm:gap-12 mt-8">
-            <div class="nav-item text-xl p-4 rounded-lg" data-section="apps">
+            <div class="nav-item text-xl p-4 rounded-lg" role="button" tabindex="0" data-section="apps">
                 <span class="typewriter-text">Aplicaciones</span>
             </div>
-            <div class="nav-item text-xl p-4 rounded-lg" data-section="games">
+            <div class="nav-item text-xl p-4 rounded-lg" role="button" tabindex="0" data-section="games">
                 <span class="typewriter-text">Juegos</span>
             </div>
-            <div class="nav-item text-xl p-4 rounded-lg" data-section="enlaces">
+            <div class="nav-item text-xl p-4 rounded-lg" role="button" tabindex="0" data-section="enlaces">
                 <span class="typewriter-text">Enlaces Web</span>
             </div>
-            <div class="nav-item text-xl p-4 rounded-lg" data-section="servicios">
+            <div class="nav-item text-xl p-4 rounded-lg" role="button" tabindex="0" data-section="servicios">
                 <span class="typewriter-text">Servicios</span>
             </div>
         </nav>
 
         <div class="cta-principal-wrap">
-            <a class="cta-principal" id="cta-principal" href="#contacto">Cuéntame tu idea →</a>
+            <a class="cta-principal" id="cta-principal" href="#contacto" data-evento="cta_click" data-evento-ubicacion="portada">Cuéntame tu idea →</a>
         </div>
 
         <!-- JENGA: torre de madera interactiva para amenizar la portada -->
@@ -347,7 +345,7 @@
                         <div class="sv-hero-foot">
                             <p class="sv-lead">Elige uno y pruébalo. Sin descargar nada.</p>
                             <div class="sv-hero-bar">
-                                <a class="sv-sistemas-link" href="servicios/sistemas-de-diseno.html">
+                                <a class="sv-sistemas-link" href="servicios/sistemas-de-diseno.html" data-evento="ver_sistemas">
                                     <span class="sv-sistemas-muestras" aria-hidden="true"><!--@bloque muestras--><span style="background:#a3e635"></span><span style="background:#b34a1f"></span><span style="background:#e7335a"></span><span style="background:#a4262c"></span><span style="background:#c8f04c"></span><span style="background:#1f9d55"></span><span style="background:#c67139"></span><span style="background:#c9a255"></span><span style="background:#5980a6"></span><span style="background:#9ff3e4"></span><!--/@bloque muestras--></span>
                                     <!--@N-->Diez<!--/@N--> sistemas de diseño ↗
                                 </a>
@@ -607,7 +605,7 @@
                                 <span class="sv-error" id="sv-acepto-error"></span>
                             </div>
                             <button type="submit" class="sv-submit">Enviar mi idea 🚀</button>
-                            <p class="sv-info-datos" id="sv-form-note"><strong>Responsable:</strong> Rubén Aguado Alonso. <strong>Finalidad:</strong> responder a tu consulta. <strong>Destinatarios:</strong> nadie más, salvo Web3Forms, que me reenvía el mensaje. <strong>Derechos:</strong> acceso, rectificación y supresión en rubenpantxo@gmail.com. <a href="legal/privacidad.html">Más información</a>.</p>
+                            <p class="sv-info-datos" id="sv-form-note"><strong>Responsable:</strong> Rubén Aguado Alonso. <strong>Finalidad:</strong> responder a tu consulta. <strong>Destinatarios:</strong> nadie más, salvo Web3Forms, que me reenvía el mensaje. <strong>Derechos:</strong> acceso, rectificación y supresión en rubenpantxo@gmail.com. <a href="legal/privacidad.html">Más información sobre privacidad</a>.</p>
                             <p class="sv-form-status" id="sv-form-status" role="status"></p>
                         </form>
                     </div>
@@ -623,7 +621,7 @@
                             <ul class="sv-v-chips" id="sv-v-chips"></ul>
                             <div class="sv-v-actions">
                                 <button type="button" class="sv-v-want" id="sv-v-want">Quiero una así <span aria-hidden="true">→</span></button>
-                                <a class="sv-v-open" id="sv-v-open" href="servicios/bar-restaurante.html" target="_blank" rel="noopener"><span class="sv-v-open-txt">Pantalla completa</span> <span aria-hidden="true">↗</span></a>
+                                <a class="sv-v-open" id="sv-v-open" href="servicios/bar-restaurante.html" target="_blank" rel="noopener" data-evento="demo_pantalla_completa"><span class="sv-v-open-txt">Pantalla completa</span> <span aria-hidden="true">↗</span></a>
                             </div>
                         </header>
                         <div class="sv-v-stage">
@@ -667,6 +665,12 @@
                     <!-- Escritorio estilo Vista (apps/format-explorer.html): cada aplicación se abre en su ventana. -->
                     <iframe src="apps/format-explorer.html?escritorio" title="Escritorio de aplicaciones" loading="lazy" class="w-full block rounded-xl shadow-lg" style="height:min(78vh,780px);min-height:520px;border:0"></iframe>
                     <p class="text-sm mt-3 text-gray-600">Doble clic en un icono para abrir la aplicación. <a href="apps/format-explorer.html?escritorio" class="underline">Abrir el escritorio a pantalla completa ↗</a></p>
+                    <p class="text-sm mt-1 text-gray-600">O ábrelas directamente:
+                        <a href="apps/conversor-rueda.html" class="underline">Rueda, conversor de archivos</a> ·
+                        <a href="apps/pantxiko-notes.html" class="underline">Pantxiko Notes</a> ·
+                        <a href="apps/escenas/index.html" class="underline">Escenas</a> ·
+                        <a href="mapas/cabanillas.html" class="underline">Mapa de Cabanillas</a>
+                    </p>
                 </div>
             </section>
 
@@ -751,16 +755,16 @@
             </section>
             <section id="enlaces-content" class="content-section content-hidden">
                 <div class="pt-8">
-                    <h3 class="text-2xl font-bold border-b-2 pb-2 border-gray-400 mb-6">Enlaces de Interés</h3>
+                    <h2 class="text-2xl font-bold border-b-2 pb-2 border-gray-400 mb-6">Enlaces de Interés</h2>
 
                     <!-- Grid de categorías -->
                     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
                         <!-- Mapas -->
-                        <div class="category-card cursor-pointer" data-category="mapas">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="mapas">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-map-marked-alt text-6xl text-green-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Mapas</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Mapas</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">15 recursos</p>
@@ -768,10 +772,10 @@
                         </div>
 
                         <!-- IAs -->
-                        <div class="category-card cursor-pointer" data-category="ias">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="ias">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-brain text-6xl text-purple-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">IAs</h4>
+                                <h3 class="text-xl font-bold text-gray-800">IAs</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">15 recursos</p>
@@ -779,10 +783,10 @@
                         </div>
 
                         <!-- Esquemas -->
-                        <div class="category-card cursor-pointer" data-category="esquemas">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="esquemas">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-project-diagram text-6xl text-yellow-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Esquemas</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Esquemas</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">1 recurso</p>
@@ -790,10 +794,10 @@
                         </div>
 
                         <!-- Developing -->
-                        <div class="category-card cursor-pointer" data-category="developing">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="developing">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-code text-6xl text-blue-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Developing</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Developing</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">7 recursos</p>
@@ -801,10 +805,10 @@
                         </div>
 
                         <!-- Blogs -->
-                        <div class="category-card cursor-pointer" data-category="blogs">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="blogs">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-blog text-6xl text-pink-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Blogs</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Blogs</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">1 recurso</p>
@@ -812,10 +816,10 @@
                         </div>
 
                         <!-- Multimedia -->
-                        <div class="category-card cursor-pointer" data-category="multimedia">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="multimedia">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-photo-video text-6xl text-orange-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Multimedia</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Multimedia</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">2 recursos</p>
@@ -823,10 +827,10 @@
                         </div>
 
                         <!-- Seguridad -->
-                        <div class="category-card cursor-pointer" data-category="seguridad">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="seguridad">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-shield-alt text-6xl text-red-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Seguridad</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Seguridad</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">1 recurso</p>
@@ -834,10 +838,10 @@
                         </div>
 
                         <!-- Curiosidades -->
-                        <div class="category-card cursor-pointer" data-category="curiosidades">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="curiosidades">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-lightbulb text-6xl text-cyan-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Curiosidades</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Curiosidades</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">7 recursos</p>
@@ -845,10 +849,10 @@
                         </div>
 
                         <!-- Herramientas -->
-                        <div class="category-card cursor-pointer" data-category="herramientas">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="herramientas">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-tools text-6xl text-amber-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Herramientas</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Herramientas</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">10 recursos</p>
@@ -856,10 +860,10 @@
                         </div>
 
                         <!-- Finanzas -->
-                        <div class="category-card cursor-pointer" data-category="finanzas">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="finanzas">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-coins text-6xl text-emerald-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Finanzas</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Finanzas</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">10 recursos</p>
@@ -867,10 +871,10 @@
                         </div>
 
                         <!-- Escritura -->
-                        <div class="category-card cursor-pointer" data-category="escritura">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="escritura">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-pen-fancy text-6xl text-rose-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Escritura</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Escritura</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">10 recursos</p>
@@ -878,10 +882,10 @@
                         </div>
 
                         <!-- Formación -->
-                        <div class="category-card cursor-pointer" data-category="formacion">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="formacion">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-graduation-cap text-6xl text-indigo-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Formación</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Formación</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">11 recursos</p>
@@ -889,10 +893,10 @@
                         </div>
 
                         <!-- Productividad -->
-                        <div class="category-card cursor-pointer" data-category="productividad">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="productividad">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-tasks text-6xl text-sky-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Productividad</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Productividad</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">10 recursos</p>
@@ -900,10 +904,10 @@
                         </div>
 
                         <!-- Empleo -->
-                        <div class="category-card cursor-pointer" data-category="empleo">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="empleo">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-briefcase text-6xl text-slate-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Empleo</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Empleo</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">10 recursos</p>
@@ -911,10 +915,10 @@
                         </div>
 
                         <!-- Marketing -->
-                        <div class="category-card cursor-pointer" data-category="marketing">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="marketing">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-bullhorn text-6xl text-fuchsia-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Marketing</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Marketing</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">11 recursos</p>
@@ -922,10 +926,10 @@
                         </div>
 
                         <!-- Diseño -->
-                        <div class="category-card cursor-pointer" data-category="diseno">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="diseno">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-palette text-6xl text-violet-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Diseño</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Diseño</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">11 recursos</p>
@@ -933,10 +937,10 @@
                         </div>
 
                         <!-- Programación -->
-                        <div class="category-card cursor-pointer" data-category="programacion">
+                        <div class="category-card cursor-pointer" role="button" tabindex="0" data-category="programacion">
                             <div class="rounded-t-lg p-6 flex flex-col items-center justify-center h-40">
                                 <i class="fas fa-laptop-code text-6xl text-lime-600 mb-2 category-icon"></i>
-                                <h4 class="text-xl font-bold text-gray-800">Programación</h4>
+                                <h3 class="text-xl font-bold text-gray-800">Programación</h3>
                             </div>
                             <div class="bg-gradient-to-b from-white/50 to-white/30 rounded-b-lg p-3">
                                 <p class="text-sm text-gray-700 text-center font-semibold">10 recursos</p>
@@ -951,7 +955,7 @@
                             <i class="fas fa-arrow-left"></i> Volver a Categorías
                         </button>
 
-                        <div id="category-title" class="text-2xl font-bold mb-6"></div>
+                        <h3 id="category-title" class="text-2xl font-bold mb-6" tabindex="-1"></h3>
 
                         <!-- Mapas -->
                         <div id="links-mapas" class="category-links hidden">
@@ -1619,87 +1623,6 @@
         </footer>
     </div>
 
-    <div id="pantxiko-notes-app" class="hidden fixed inset-0 flex flex-col overflow-hidden">
-        
-        <header class="relative z-10 flex items-center justify-between p-3 flex-shrink-0" style="padding: 10px 14px 6px;">
-            <div class="pn-header-title-wrap">
-                <h1>🎙️ Pantxiko Notes 📝</h1>
-            </div>
-            <div class="flex gap-3">
-                <button class="pn-btn-settings" id="pnBtnSettings" title="Configuración">⚙️</button>
-                <button class="pn-btn-settings" onclick="document.getElementById('pantxiko-notes-app').classList.add('hidden')" title="Cerrar App" style="background: rgba(220,50,50,0.6); border-color: rgba(200,40,40,0.8);">✖</button>
-            </div>
-        </header>
-
-        <div class="pn-note-container">
-            <div class="pn-toolbar">
-                <button class="pn-tb-btn bold" id="pnTbBold" title="Negrita">A</button>
-                <button class="pn-tb-btn italic" id="pnTbItalic" title="Cursiva">I</button>
-                <button class="pn-tb-btn underline" id="pnTbUnderline" title="Subrayado">U</button>
-                <div class="pn-tb-sep"></div>
-                <input class="pn-tb-color" type="color" id="pnTbColor" value="#1a0e00" title="Color de texto">
-                <select class="pn-tb-select" id="pnTbFontSize" title="Tamaño">
-                    <option value="13">Aa 13</option>
-                    <option value="15" selected>Aa 15</option>
-                    <option value="18">Aa 18</option>
-                    <option value="22">Aa 22</option>
-                    <option value="28">Aa 28</option>
-                </select>
-                <div class="pn-tb-sep"></div>
-                <button class="pn-tb-btn" id="pnTbAlignL" title="Izquierda">&#8676;</button>
-                <button class="pn-tb-btn" id="pnTbAlignC" title="Centro">&#8596;</button>
-                <button class="pn-tb-btn" id="pnTbAlignR" title="Derecha">&#8677;</button>
-                <div class="pn-tb-sep"></div>
-                <button class="pn-tb-btn" id="pnTbClear" title="Limpiar formato">&lt;&gt;</button>
-            </div>
-
-            <div class="pn-editor-wrap">
-                <img src="img/Notes Logo.png" alt="" class="pn-mascot-watermark" loading="lazy" decoding="async">
-                
-                <div id="pn-editor" contenteditable="true" data-placeholder="Empieza a escribir o dicta tu nota..."></div>
-            </div>
-        </div>
-
-        <div class="pn-dictate-wrap">
-            <button class="pn-dictate-btn" id="pnBtnDictate">
-                <img src="img/IconoMicrofono.png" alt="" class="pn-mic-icon" loading="lazy" decoding="async">
-                <span class="pn-dictate-label">Dictar</span>
-            </button>
-        </div>
-
-        <div class="pn-bottom-bar">
-            <button class="pn-action-btn" id="pnBtnCopy"><span class="btn-icon">📋</span>Copiar</button>
-            <button class="pn-action-btn" id="pnBtnSave"><span class="btn-icon">💾</span>Guardar</button>
-            <button class="pn-action-btn" id="pnBtnPdf"><span class="btn-icon">📄</span>Pasar a PDF</button>
-        </div>
-
-        <div class="pn-settings-panel" id="pnSettingsPanel">
-            <div class="pn-settings-box">
-                <h2>⚙️ Configuración</h2>
-                <div class="pn-settings-row">
-                    <span>Idioma de voz</span>
-                    <select id="pnVoiceLang">
-                        <option value="es-ES" selected>Español</option>
-                        <option value="eu-ES">Euskera</option>
-                        <option value="en-US">English</option>
-                        <option value="fr-FR">Français</option>
-                    </select>
-                </div>
-                <div class="pn-settings-row">
-                    <span>Guardar automático</span>
-                    <select id="pnAutoSave">
-                        <option value="30">30 seg</option>
-                        <option value="60" selected>1 min</option>
-                        <option value="0">Desactivado</option>
-                    </select>
-                </div>
-                <button class="pn-settings-close" id="pnSettingsClose">Cerrar</button>
-            </div>
-        </div>
-
-        <div class="pn-toast" id="pnToast"></div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // ==========================================
@@ -1787,192 +1710,25 @@
 
             contactToggle.addEventListener('click', () => {
                 if (!body.classList.contains('section-open')) socialLinks.classList.toggle('social-hidden');
+                contactToggle.setAttribute('aria-expanded', String(!socialLinks.classList.contains('social-hidden')));
             });
 
-            // ==========================================
-            // LÓGICA DE PANTXIKO NOTES (INTEGRADA)
-            // ==========================================
-            const pnEditor = document.getElementById('pn-editor');
-            const pnBtnSettings = document.getElementById('pnBtnSettings');
-            const pnSettingsPanel = document.getElementById('pnSettingsPanel');
-            const pnSettingsClose = document.getElementById('pnSettingsClose');
-            const pnToast = document.getElementById('pnToast');
-
-            function showPnToast(msg) {
-                pnToast.textContent = msg;
-                pnToast.classList.add('show');
-                setTimeout(() => pnToast.classList.remove('show'), 2200);
-            }
-
-            const savedNotes = localStorage.getItem('pantxiko-notes-content');
-            if (savedNotes) pnEditor.innerHTML = savedNotes;
-
-            let pnAutoSaveTimer;
-            function schedulePnAutoSave() {
-                clearTimeout(pnAutoSaveTimer);
-                const delay = parseInt(document.getElementById('pnAutoSave')?.value || '60') * 1000;
-                if (delay > 0) pnAutoSaveTimer = setTimeout(savePnNote, delay);
-            }
-            pnEditor.addEventListener('input', schedulePnAutoSave);
-
-            function savePnNote() {
-                localStorage.setItem('pantxiko-notes-content', pnEditor.innerHTML);
-                showPnToast('✅ Nota guardada');
-            }
-
-            pnBtnSettings.addEventListener('click', () => pnSettingsPanel.classList.add('open'));
-            pnSettingsClose.addEventListener('click', () => pnSettingsPanel.classList.remove('open'));
-            pnSettingsPanel.addEventListener('click', e => { if (e.target === pnSettingsPanel) pnSettingsPanel.classList.remove('open'); });
-
-            function fmtPn(cmd, val) {
-                pnEditor.focus();
-                document.execCommand(cmd, false, val || null);
-            }
-
-            document.getElementById('pnTbBold').addEventListener('click', () => { fmtPn('bold'); document.getElementById('pnTbBold').classList.toggle('active'); });
-            document.getElementById('pnTbItalic').addEventListener('click', () => { fmtPn('italic'); document.getElementById('pnTbItalic').classList.toggle('active'); });
-            document.getElementById('pnTbUnderline').addEventListener('click', () => { fmtPn('underline'); document.getElementById('pnTbUnderline').classList.toggle('active'); });
-            document.getElementById('pnTbColor').addEventListener('input', e => fmtPn('foreColor', e.target.value));
-            document.getElementById('pnTbFontSize').addEventListener('change', e => {
-                const px = e.target.value;
-                const sel = window.getSelection();
-                if (sel.rangeCount) {
-                    const range = sel.getRangeAt(0);
-                    if (!range.collapsed) {
-                        document.execCommand('fontSize', false, '7');
-                        pnEditor.querySelectorAll('font[size="7"]').forEach(el => {
-                            el.removeAttribute('size');
-                            el.style.fontSize = px + 'px';
-                        });
-                    } else {
-                        pnEditor.style.fontSize = px + 'px';
-                    }
-                }
+            // Teclado: los <div role="button"> se activan con Intro y Espacio como un botón
+            document.addEventListener('keydown', e => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                const boton = e.target.closest('[role="button"][tabindex="0"]');
+                if (!boton || boton !== e.target) return;
+                e.preventDefault();
+                boton.click();
             });
-            document.getElementById('pnTbAlignL').addEventListener('click', () => fmtPn('justifyLeft'));
-            document.getElementById('pnTbAlignC').addEventListener('click', () => fmtPn('justifyCenter'));
-            document.getElementById('pnTbAlignR').addEventListener('click', () => fmtPn('justifyRight'));
-            document.getElementById('pnTbClear').addEventListener('click', () => fmtPn('removeFormat'));
-
-            document.getElementById('pnBtnCopy').addEventListener('click', () => {
-                navigator.clipboard.writeText(pnEditor.innerText).then(() => showPnToast('📋 Copiado al portapapeles'));
+            // Al abrir o cerrar una sección, el foco va a lo que acaba de aparecer
+            navItems.forEach(item => item.addEventListener('click', () => {
+                setTimeout(() => { if (body.classList.contains('section-open')) backArrow.focus({ preventScroll: true }); }, 120);
+            }));
+            backArrow.addEventListener('click', () => {
+                const activo = document.querySelector('.nav-item.active') || navItems[0];
+                setTimeout(() => activo.focus({ preventScroll: true }), 120);
             });
-
-            document.getElementById('pnBtnSave').addEventListener('click', savePnNote);
-
-            document.getElementById('pnBtnPdf').addEventListener('click', () => {
-                const w = window.open('', '_blank');
-                w.document.write(`
-                    <html><head><title>Pantxiko Notes</title>
-                    <style>
-                        body { font-family: sans-serif; padding: 40px; background: #fdf8f0; }
-                        h1 { font-family: Georgia, cursive; color: #2a1800; margin-bottom: 20px; }
-                        .content { font-size: 15px; line-height: 1.7; }
-                    </style></head>
-                    <body><h1>🎙️ Pantxiko Notes</h1>
-                    <div class="content">${pnEditor.innerHTML}</div>
-                    <script>window.onload=()=>{ window.print(); window.close(); }<\/script>
-                    </body></html>
-                `);
-                w.document.close();
-            });
-
-            // Dictado por voz
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            let recognition = null;
-            let isListening = false;
-            const pnBtnDictate = document.getElementById('pnBtnDictate');
-
-            // El dictado empieza donde esta el cursor, no al final de la nota
-            let pnSavedRange = null;
-            const pnRememberCaret = () => {
-                const sel = window.getSelection();
-                if (!sel || !sel.rangeCount) return;
-                const r = sel.getRangeAt(0);
-                if (pnEditor.contains(r.commonAncestorContainer)) pnSavedRange = r.cloneRange();
-            };
-            document.addEventListener('selectionchange', () => { if (document.activeElement === pnEditor) pnRememberCaret(); });
-            ['keyup','mouseup','touchend','blur'].forEach(ev => pnEditor.addEventListener(ev, pnRememberCaret));
-            const pnCaretRange = () => {
-                const sel = window.getSelection();
-                if (sel && sel.rangeCount) {
-                    const r = sel.getRangeAt(0);
-                    if (pnEditor.contains(r.commonAncestorContainer)) return r.cloneRange();
-                }
-                if (pnSavedRange && pnEditor.contains(pnSavedRange.commonAncestorContainer)) return pnSavedRange.cloneRange();
-                return null;
-            };
-            const pnPlaceInterim = span => {
-                const r = pnCaretRange();
-                if (r) { r.deleteContents(); r.collapse(false); r.insertNode(span); }
-                else { pnEditor.appendChild(span); }
-            };
-            const pnCaretAfter = node => {
-                if (!node || !node.parentNode) return;
-                const r = document.createRange();
-                r.setStartAfter(node); r.collapse(true);
-                pnSavedRange = r.cloneRange();
-                const sel = window.getSelection();
-                if (sel) { sel.removeAllRanges(); sel.addRange(r); }
-            };
-            if (SpeechRecognition) {
-                recognition = new SpeechRecognition();
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                let interimSpan = null;
-
-                recognition.onstart = () => {
-                    isListening = true;
-                    pnBtnDictate.classList.add('recording');
-                    pnBtnDictate.querySelector('.pn-dictate-label').textContent = 'Dictando...';
-                };
-
-                recognition.onend = () => {
-                    isListening = false;
-                    pnBtnDictate.classList.remove('recording');
-                    pnBtnDictate.querySelector('.pn-dictate-label').textContent = 'Dictar';
-                    if (interimSpan) { const prev = interimSpan.previousSibling; interimSpan.remove(); interimSpan = null; if (prev) pnCaretAfter(prev); }
-                };
-
-                recognition.onresult = e => {
-                    if (!interimSpan) {
-                        interimSpan = document.createElement('span');
-                        interimSpan.style.color = 'rgba(100,60,20,0.5)';
-                        interimSpan.style.fontStyle = 'italic';
-                        pnPlaceInterim(interimSpan);
-                    }
-                    let interim = '';
-                    let finalText = '';
-                    for (let i = e.resultIndex; i < e.results.length; i++) {
-                        if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
-                        else interim += e.results[i][0].transcript;
-                    }
-                    if (finalText) {
-                        const textNode = document.createTextNode(finalText + ' ');
-                        interimSpan.before(textNode);
-                        pnCaretAfter(textNode);
-                        interimSpan.textContent = '';
-                        savePnNote();
-                    }
-                    interimSpan.textContent = interim;
-                };
-
-                recognition.onerror = e => {
-                    if (e.error !== 'aborted') showPnToast('⚠️ Error: ' + e.error);
-                };
-
-                pnBtnDictate.addEventListener('click', () => {
-                    if (isListening) recognition.stop();
-                    else {
-                        recognition.lang = document.getElementById('pnVoiceLang')?.value || 'es-ES';
-                        recognition.start();
-                    }
-                });
-            } else {
-                pnBtnDictate.disabled = true;
-                pnBtnDictate.style.opacity = '0.4';
-                pnBtnDictate.title = 'Tu navegador no soporta reconocimiento de voz';
-            }
 
             // Manejo de categorías de enlaces
             const categoryCards = document.querySelectorAll('.category-card');
@@ -2010,14 +1766,18 @@
                     document.querySelectorAll('.category-links').forEach(links => links.classList.add('hidden'));
                     const selectedLinks = document.getElementById(`links-${category}`);
                     if (selectedLinks) selectedLinks.classList.remove('hidden');
+                    ultimaCategoria = card;
+                    if (categoryTitle) categoryTitle.focus({ preventScroll: true });
                 });
             });
+            let ultimaCategoria = null;
 
             if (backToCategoriesBtn) {
                 backToCategoriesBtn.addEventListener('click', () => {
                     if (categoryLinksContainer) categoryLinksContainer.classList.add('hidden');
                     if (categoryGrid) categoryGrid.style.display = 'grid';
                     document.querySelectorAll('.category-links').forEach(links => links.classList.add('hidden'));
+                    if (ultimaCategoria) ultimaCategoria.focus({ preventScroll: true });
                 });
             }
         });

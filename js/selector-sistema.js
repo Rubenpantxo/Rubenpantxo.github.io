@@ -117,6 +117,10 @@
     'padding:11px 16px;border:1px solid #3a3a40;border-radius:999px;background:#17171b;color:#f4f4f6;',
     'font:600 13px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;box-shadow:0 6px 24px rgb(0 0 0/.35)}',
     '.sdx-abrir:hover{background:#202027;border-color:#55555e}',
+    '.sdx-web{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 12px}',
+    '.sdx-quiero{display:inline-flex;padding:9px 14px;border-radius:999px;background:#ffde59;color:#17171b;text-decoration:none;font:700 13px/1 ui-sans-serif,system-ui,sans-serif}',
+    '.sdx-quiero:hover{background:#ffe680}',
+    '.sdx-volver{color:#d7d7de;font:600 12px/1.3 ui-sans-serif,system-ui,sans-serif;text-decoration:underline;text-underline-offset:2px}',
     '.sdx-abrir i{display:block;width:12px;height:12px;border-radius:50%;background:conic-gradient(#e7335a,#c8f04c,#38e1d4,#c67139,#e7335a)}',
     '.sdx-panel{position:fixed;inset:auto 12px 12px auto;z-index:9999;width:min(30rem,calc(100vw - 24px));',
     'max-height:min(38rem,calc(100vh - 24px));overflow:auto;padding:18px;border:1px solid #3a3a40;border-radius:16px;',
@@ -251,6 +255,19 @@
 
   document.body.appendChild(abrir);
   document.body.appendChild(panel);
+
+  // Una demo abierta por su cuenta (desde Google o «Pantalla completa») no
+  // tiene otra salida: el panel lleva a la portada y a su formulario. Dentro
+  // del visor de la portada no se pone, porque el visor ya trae el suyo.
+  var esDemo = /\/servicios\/[^\/]+\.html$/.test(location.pathname) && !/sistemas-de-diseno/.test(location.pathname);
+  if (esDemo && window.self === window.top) {
+    var web = document.createElement('nav');
+    web.className = 'sdx-web';
+    web.setAttribute('aria-label', 'Rubenpantxo.com');
+    web.innerHTML = '<a class="sdx-quiero" href="/#contacto" data-evento="quiero_una_asi" data-evento-origen="demo_suelta">Quiero una así →</a>'
+      + '<a class="sdx-volver" href="/">Volver a rubenpantxo.com</a>';
+    panel.insertBefore(web, panel.querySelector('.sdx-pie-cab'));
+  }
 
   /* ---------- pintar el estado ---------- */
   function pintarSeleccion() {
