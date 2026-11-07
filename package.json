@@ -6,14 +6,23 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "build": "echo \"Nothing to build\"",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "css": "npx tailwindcss@3.4.17 -c tailwind.config.js -i CSS/tailwind.entrada.css -o CSS/tailwind.css --minify"
+    "build": "npm run biblioteca && npm run css:biblioteca && npm run css:insta",
+    "css:insta": "node scripts/css-insta.mjs",
+    "test": "node --test \"apps/instagram-downloader/pruebas/*.test.mjs\"",
+    "css": "tailwindcss -c tailwind.config.js -i CSS/tailwind.entrada.css -o CSS/tailwind.css --minify",
+    "biblioteca": "babel apps/biblioteca/biblioteca.jsx --config-file ./apps/biblioteca/babel.config.cjs -o apps/biblioteca/biblioteca.js",
+    "css:biblioteca": "tailwindcss -c tailwind.biblioteca.config.js -i CSS/tailwind.entrada.css -o apps/biblioteca/biblioteca.css --minify"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "8.1.0",
+    "@babel/core": "8.1.0",
+    "@babel/preset-react": "8.0.1",
+    "tailwindcss": "3.4.17"
   }
 }
