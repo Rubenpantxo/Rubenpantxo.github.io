@@ -6,18 +6,19 @@ seguridad (HSTS, CSP…), redirecciones 301 de verdad y una caché más larga.
 
 Estado comprobado el 7-11-2026 (lo repite el workflow **Monitor**):
 
-- `http://rubenpantxo.com` responde **200 sin pasar a https**: «Enforce HTTPS»
-  está desactivado en GitHub.
-- `https://www.rubenpantxo.com` da **error de certificado**: el CNAME de `www`
-  apunta a `www.rubenpantxo.github.io` (no existe) en vez de a
-  `rubenpantxo.github.io`, y por eso GitHub no emite certificado para `www`.
+- ✅ El CNAME de `www` ya apunta a `rubenpantxo.github.io`, y GitHub Pages lo da
+  por válido y apto para HTTPS. Antes apuntaba a `www.rubenpantxo.github.io`,
+  que no existe.
+- ⏳ `http://rubenpantxo.com` todavía responde **200 sin pasar a https**. GitHub
+  está emitiendo el certificado que incluye `www` y, hasta que termine, no deja
+  activar «Enforce HTTPS».
 
 Hazlo **en este orden**: primero que GitHub tenga los certificados bien y
 fuerce HTTPS; después, Cloudflare.
 
 ---
 
-## 1. Arreglar `www` en el DNS actual
+## 1. Arreglar `www` en el DNS actual ✅ (hecho el 7-11-2026)
 
 En el panel de tu proveedor de dominio, cambia el registro de `www`:
 
@@ -140,14 +141,140 @@ y de `www` tienen que desaparecer.
 
 ## 4. Google Search Console
 
-1. search.google.com/search-console → **Añadir propiedad** → tipo **Dominio** → `rubenpantxo.com`.
-2. Copia el registro **TXT** que te da y añádelo en Cloudflare → DNS
-   (tipo TXT, nombre `@`). Pulsa **Verificar**.
-3. **Sitemaps** → envía `https://rubenpantxo.com/sitemap.xml`.
-4. **Inspección de URLs** → `https://rubenpantxo.com/` → *Solicitar indexación*.
-5. En unos días, revisa **Indexación → Páginas**: las que aparezcan como
-   «Excluida por la etiqueta noindex» deben ser solo la 404, las apps no
-   listadas (biblioteca, instagram-downloader) y las redirecciones antiguas.
+Sirve para ver qué páginas tiene Google, con qué búsquedas sale la web y qué
+errores encuentra al rastrearla. Se tarda unos 15 minutos. Los informes
+empiezan a llenarse a los 2 o 3 días.
+
+**Antes de empezar.** Mejor hazlo con *Enforce HTTPS* ya activo (paso 2), para
+que Google vea directamente las direcciones `https://`, aunque no es
+imprescindible. No hace falta esperar a Cloudflare. Usa la misma cuenta de
+Google que tiene GA4, para poder vincularlos en el 4.5.
+
+### 4.1 Crear la propiedad
+
+1. Entra en <https://search.google.com/search-console>.
+2. Arriba a la izquierda, abre el selector de propiedades y elige **Añadir
+   propiedad**.
+3. Elige el recuadro de la izquierda, **Dominio** (no «Prefijo de la URL»).
+   Escribe `rubenpantxo.com` sin `https://` ni `www` y pulsa **Continuar**.
+
+   Una propiedad de tipo *Dominio* junta en una sola `http`, `https`, `www` y
+   cualquier subdominio. Con «Prefijo de la URL» harían falta varias.
+
+4. Aparece un valor del tipo `google-site-verification=AbC123…`. Cópialo con el
+   botón **Copiar** y deja esa ventana abierta.
+
+### 4.2 Verificar con un registro TXT
+
+El valor se añade como registro TXT donde esté el DNS en ese momento.
+
+**Si el DNS sigue en Squarespace** (así está hoy):
+
+1. Ve a <https://account.squarespace.com/domains>, abre **rubenpantxo.com** y
+   entra en **DNS** (*DNS settings*).
+2. En **Registros personalizados** (*Custom records*), pulsa **Añadir
+   registro** (*Add record*):
+
+   | Tipo | Host | Datos | TTL |
+   |---|---|---|---|
+   | TXT | `@` | `google-site-verification=…` (el valor copiado, completo) | el que venga (1 h) |
+
+3. Guarda. No toques los cuatro `A`, el `CNAME` de `www` ni ningún registro de
+   correo que haya. Ya hay dos TXT en `@`, `dub-domain-verification=…` y
+   `openai-domain-verification=…`: no los borres. El de Google se añade como
+   uno más; un mismo nombre puede tener varios TXT.
+
+**Si ya has pasado a Cloudflare:** ve a **DNS → Records → Add record**, con
+Type `TXT`, Name `@`, Content el valor copiado y TTL `Auto`. Los TXT no llevan
+nube naranja.
+
+Después, en cualquiera de los dos casos:
+
+4. Vuelve a Search Console y pulsa **Verificar**. Si dice que no encuentra el
+   registro, espera de 10 a 60 minutos y pulsa otra vez. Si has cerrado la
+   ventana, entra en la propiedad sin verificar: te da el mismo valor.
+5. Para comprobar tú que el registro ya se ve:
+
+   ```bash
+   nslookup -type=TXT rubenpantxo.com 8.8.8.8
+   ```
+
+   En la respuesta tiene que salir la línea `google-site-verification=…`.
+
+> **No borres nunca ese TXT.** Google lo vuelve a comprobar de vez en cuando
+> y, si desaparece, pierdes la verificación. Al pasar a Cloudflare (paso 3),
+> mira que los tres TXT (Google, dub y openai) estén entre los registros
+> importados **antes** de cambiar los nameservers. Si falta alguno, añádelo a
+> mano.
+
+Verificar mediante GA4 no funciona aquí. GA4 solo se carga después de aceptar
+las cookies, así que Google no encuentra su código al leer la página.
+
+### 4.3 Enviar el sitemap
+
+1. Ve a **Indexación → Sitemaps**.
+2. En «Añadir un sitemap nuevo», el prefijo `https://rubenpantxo.com/` ya viene
+   puesto. Escribe solo `sitemap.xml` y pulsa **Enviar**.
+3. El estado debe quedar en **Correcto** con **29 páginas descubiertas**: la
+   portada, las 8 demos y su vitrina, las 12 fichas de sistemas, las 4 apps
+   públicas y las 3 legales. Al principio puede salir «No se ha podido
+   obtener»: es normal, Google lo reintenta solo.
+
+`robots.txt` ya indica dónde está el sitemap, así que Google lo encontraría de
+todas formas. Enviarlo solo adelanta el proceso.
+
+### 4.4 Pedir que indexe las páginas principales
+
+1. Arriba, en la barra **Inspeccionar cualquier URL**, pega
+   `https://rubenpantxo.com/`.
+2. Pulsa **Probar URL publicada**. Tiene que decir «La URL está disponible para
+   Google».
+3. Pulsa **Solicitar indexación**.
+4. Repítelo con 2 o 3 páginas importantes, por ejemplo
+   `https://rubenpantxo.com/servicios/sistemas-de-diseno.html`, una demo y
+   `https://rubenpantxo.com/apps/pantxiko-notes.html`. Hay un cupo diario de
+   unas 10. El resto lo recoge del sitemap.
+
+### 4.5 Vincular con GA4 (opcional)
+
+1. En GA4 ve a **Administrar → Vinculaciones de productos → Vinculaciones de
+   Search Console → Vincular**.
+2. Elige la propiedad `rubenpantxo.com` y el flujo web.
+3. Los datos salen en **Informes → Search Console**. Si no ves ese apartado, ve a
+   **Biblioteca** y publica la colección «Search Console».
+
+### 4.6 Qué revisar a los 3–7 días: Indexación → Páginas
+
+Que haya páginas «sin indexar» no es un error, salvo que sean páginas que
+quieres en Google. Esto es lo esperable:
+
+| Motivo que muestra Search Console | Qué páginas | ¿Está bien? |
+|---|---|---|
+| Excluida por la etiqueta «noindex» | `404.html`, `apps/biblioteca/index_biblio.html`, `apps/instagram-downloader/index_insta_down.html` y las 6 fichas renombradas (`alba`, `halogen`, `impulso`, `la-plaza`, `manolo`, `rincon`) | ✅ A propósito |
+| Página con redirección | `www.…`, `juegos/Chess3D/Chess3D.html`; y `http://…` en cuanto esté *Enforce HTTPS* | ✅ |
+| Página alternativa con etiqueta canónica adecuada | `/index.html` (y `http://…` mientras no se fuerce HTTPS) | ✅ Su `canonical` apunta a la buena. Pasa a «con redirección» cuando Cloudflare la redirija |
+| Bloqueada por robots.txt | `/prototipos/`, `/servicios/sistemas/uiverse/`, `/servicios/sistemas/kits/` | ✅ A propósito |
+| No encontrada (404) | Las apps borradas (qibla, alumbrado-pro, resource-hub, granja) | ✅ Desaparecen solas con el tiempo |
+| Descubierta o rastreada: actualmente sin indexar | Cualquiera | ⏳ Normal en una web nueva. Si a las 3–4 semanas sigue así una página importante, vuelve a pedir su indexación (4.4) |
+
+Esto **no** debería aparecer. Si aparece, hay algo que arreglar:
+
+- **Duplicada: el usuario no ha indicado ninguna versión canónica.** Las 29
+  páginas del sitemap llevan su `canonical`: comprobado el 7-11-2026.
+- **Error de servidor (5xx)** o **Error de redirección.** Revisa Cloudflare, sobre
+  todo las Redirect Rules.
+- En **Experiencia → HTTPS**, páginas «no HTTPS». Esto pasa si *Enforce HTTPS*
+  sigue sin activar.
+
+### 4.7 Después
+
+- Cuando añadas o quites una página pública, actualiza `sitemap.xml` (con su
+  `lastmod`). Search Console vuelve a leer el sitemap solo.
+- Si una página no debe salir en Google, ponle `<meta name="robots"
+  content="noindex">` y quítala del sitemap. Bloquearla en `robots.txt` no basta
+  y además impide que Google vea el `noindex`.
+- Google avisa por correo a los propietarios de los errores graves. No hace falta
+  configurarlo.
 
 ## 5. Google Analytics 4
 
