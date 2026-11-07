@@ -53,6 +53,30 @@
         document.head.appendChild(s);
     }
 
+    // Eventos de conversión. Sin consentimiento no se envía nada: la llamada
+    // se ignora. Se usan desde el código (window.rpEvento) o en el marcado con
+    // data-evento="nombre" y data-evento-<parámetro>="valor".
+    function evento(nombre, parametros) {
+        if (!gaCargado || window['ga-disable-' + GA_ID]) return;
+        gtag('event', nombre, parametros || {});
+    }
+    window.rpEvento = evento;
+    document.addEventListener('click', e => {
+        const el = e.target.closest('[data-evento], a[href^="mailto:"]');
+        if (!el) return;
+        if (!el.dataset.evento) {
+            evento('contacto_email', { pagina: location.pathname });
+            return;
+        }
+        const parametros = { pagina: location.pathname };
+        for (const [clave, valor] of Object.entries(el.dataset)) {
+            if (clave.startsWith('evento') && clave !== 'evento') {
+                parametros[clave.slice(6).toLowerCase()] = valor;
+            }
+        }
+        evento(el.dataset.evento, parametros);
+    });
+
     // Al retirar el consentimiento: se corta el envío y se borran las cookies _ga.
     function retirarGA() {
         window['ga-disable-' + GA_ID] = true;

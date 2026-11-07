@@ -188,6 +188,7 @@
             setTimeout(() => dialog.classList.remove('is-entering'), 500);
         }
         section.dispatchEvent(new CustomEvent('sv:visor', { detail: true }));
+        if (window.rpEvento) window.rpEvento('demo_abierta', { demo: card.dataset.demo });
         return true;
     }
 
@@ -253,6 +254,7 @@
         el('sv-v-want').addEventListener('click', () => {
             const card = cards[actual];
             const d = card && DEMOS[card.dataset.demo];
+            if (window.rpEvento && card) window.rpEvento('quiero_una_asi', { demo: card.dataset.demo, origen: 'visor' });
             cerrar();
             const select = el('sv-negocio');
             if (select && d) {
@@ -401,6 +403,7 @@
                 '&body=' + encodeURIComponent(body);
 
             if (status) status.textContent = '✉️ Abriendo tu aplicación de correo con el mensaje preparado…';
+            if (window.rpEvento) window.rpEvento('generate_lead', { metodo: 'mailto', negocio });
         }
 
         async function enviarPorWeb3Forms(data) {
@@ -422,8 +425,11 @@
                     status.textContent = '✅ Idea enviada. Te responderé pronto.';
                     status.classList.add('is-success');
                 }
+                // La conversión principal de la web (márcala como evento clave en GA4)
+                if (window.rpEvento) window.rpEvento('generate_lead', { metodo: 'formulario', negocio: data.get('negocio') });
                 form.reset();
             } catch (err) {
+                if (window.rpEvento) window.rpEvento('formulario_error', { motivo: String(err && err.message || err).slice(0, 80) });
                 if (status) {
                     status.textContent = '❌ No se pudo enviar. Escríbeme a rubenpantxo@gmail.com.';
                     status.classList.add('is-error');

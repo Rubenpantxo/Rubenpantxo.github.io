@@ -19,9 +19,8 @@
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#fdfdf8">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="/CSS/fuentes/kalam-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/CSS/fuentes/fuentes.css">
     <link rel="stylesheet" href="/CSS/legal.css">
     <script src="/js/consentimiento.js" defer></script>
 </head>
@@ -64,7 +63,7 @@
         <p>Si no aceptas, no se carga ningún script de Google Analytics. Más detalles en la <a href="/legal/cookies.html">política de cookies</a>.</p>
 
         <h3>3. Datos técnicos de la visita</h3>
-        <p>Como en cualquier web, al visitarla tu navegador envía al servidor tu <strong>dirección IP</strong> y datos técnicos (navegador, sistema operativo, página solicitada). El alojamiento (GitHub Pages) los registra para mantener el servicio y protegerlo de abusos. Lo mismo ocurre con los servicios que sirven tipografías e iconos (Google Fonts y la CDN de Cloudflare).</p>
+        <p>Como en cualquier web, al visitarla tu navegador envía al servidor tu <strong>dirección IP</strong> y datos técnicos (navegador, sistema operativo, página solicitada). El alojamiento (GitHub Pages) los registra para mantener el servicio y protegerlo de abusos. Lo mismo ocurre con Cloudflare, que distribuye la web y sus iconos, y con Google Fonts, que sirve las tipografías de las demos de servicios.</p>
         <ul>
             <li><strong>Base legal:</strong> el interés legítimo en que la web funcione y sea segura (art. 6.1.f RGPD).</li>
         </ul>
@@ -77,8 +76,8 @@
         <ul>
             <li><strong>GitHub Inc.</strong> (Microsoft): alojamiento de la web.</li>
             <li><strong>Web3Forms</strong>: recibe el formulario de contacto y me lo reenvía por correo.</li>
-            <li><strong>Google LLC</strong>: correo electrónico (Gmail), Google Analytics (solo si lo aceptas) y Google Fonts.</li>
-            <li><strong>Cloudflare Inc.</strong>: distribución de bibliotecas de iconos y código (cdnjs).</li>
+            <li><strong>Google LLC</strong>: correo electrónico (Gmail), Google Analytics (solo si lo aceptas) y Google Fonts (solo en las demos de servicios).</li>
+            <li><strong>Cloudflare Inc.</strong>: red de distribución (CDN) y protección de la web, e iconos (cdnjs).</li>
         </ul>
         <p>Algunos de estos proveedores están en Estados Unidos o pueden tratar datos fuera del Espacio Económico Europeo. En esos casos la transferencia se ampara en el Marco de Privacidad de Datos UE-EE. UU. (Data Privacy Framework) o en las cláusulas contractuales tipo aprobadas por la Comisión Europea.</p>
 

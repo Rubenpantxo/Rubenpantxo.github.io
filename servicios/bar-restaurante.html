@@ -197,15 +197,15 @@ body::after {
 
 .seccion { scroll-margin-top: calc(var(--cabecera) + 56px); padding-top: 8px; }
 /* Ornamento de imprenta: —— ❦ Tapas ❦ —— */
-.seccion h3 {
+.seccion h2 {
   display: flex; align-items: center; gap: 12px;
   margin: 18px 0 6px; font-size: 26px; font-weight: var(--sd-display-peso);
 }
-.seccion h3::before, .seccion h3::after {
+.seccion h2::before, .seccion h2::after {
   content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--sd-ink) 25%, transparent);
 }
-.seccion h3 span::before, .seccion h3 span::after { content: "❦"; font-size: 13px; color: var(--sd-accent); margin: 0 8px; vertical-align: 3px; font-style: normal; }
-.seccion h3 span::before { display: inline-block; transform: scaleX(-1); }
+.seccion h2 span::before, .seccion h2 span::after { content: "❦"; font-size: 13px; color: var(--sd-accent); margin: 0 8px; vertical-align: 3px; font-style: normal; }
+.seccion h2 span::before { display: inline-block; transform: scaleX(-1); }
 
 .plato {
   display: grid; grid-template-columns: 1fr auto; gap: 2px 12px;
@@ -471,7 +471,7 @@ body::after {
 .comanda[data-e="marcha"] footer button { background: #6ad08f; }
 .comanda.es-tuya { box-shadow: 0 0 0 2px var(--sd-accent); }
 .agotados { margin-top: 18px; }
-.agotados h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--c-apag); margin: 0 0 8px; }
+.agotados h3 { font-family: inherit; font-weight: 700; font-style: normal; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--c-apag); margin: 0 0 8px; }
 .agotados .chips button { color: var(--c-tinta); border-color: #4a3c33; }
 .agotados .chips button[aria-pressed="true"] { background: #e2553f; border-color: #e2553f; color: #fff; text-decoration: line-through; }
 
@@ -610,7 +610,7 @@ body::after {
     </div>
     <div class="comandas" id="comandas" aria-live="polite"></div>
     <div class="agotados">
-      <h4>Se ha acabado… (se tacha en la carta al momento)</h4>
+      <h3>Se ha acabado… (se tacha en la carta al momento)</h3>
       <div class="chips" id="agotados"></div>
     </div>
   </section>
@@ -737,7 +737,7 @@ function pintarCarta() {
   $('carta').replaceChildren(...CATS.map(c => {
     const s = document.createElement('section');
     s.className = 'seccion'; s.id = 'sec-' + c.id;
-    s.innerHTML = `<h3 class="disp"><span>${c.nombre}</span></h3>`;
+    s.innerHTML = `<h2 class="disp"><span>${c.nombre}</span></h2>`;
     for (const p of PLATOS.filter(p => p.cat === c.id)) {
       const d = document.createElement('div');
       d.className = 'plato'; d.dataset.plato = p.id;

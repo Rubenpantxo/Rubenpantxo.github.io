@@ -184,12 +184,15 @@
   .flecha:hover { background: color-mix(in srgb, var(--pg-tinta) 20%, transparent); }
   .flecha:active { transform: scale(.9); }
   .flecha svg { width: 20px; height: 20px; }
-  .puntos { display: flex; gap: 6px; justify-content: center; margin-top: 12px; grid-column: 1 / -1; }
+  .puntos { display: flex; gap: 16px; justify-content: center; margin-top: 12px; grid-column: 1 / -1; }
   .puntos button {
+    position: relative;
     width: 8px; height: 8px; padding: 0; border: 0; border-radius: 4px; cursor: pointer;
     background: color-mix(in srgb, var(--pg-tinta) 28%, transparent);
     transition: width .45s var(--pg-rebote), background .4s;
   }
+  /* Se ve de 8 px pero se pulsa en 24×24 px: tamaño mínimo de diana de WCAG 2.2 */
+  .puntos button::before { content: ""; position: absolute; inset: -8px; }
   .puntos button[aria-current="true"] { width: 28px; background: var(--pg-tinta); }
   .baja {
     position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
@@ -460,7 +463,7 @@
 <body>
 
 <header class="nav" id="nav">
-  <a href="../index.html#servicios">Rubenpantxo</a>
+  <a href="../#servicios">Rubenpantxo</a>
   <nav aria-label="Secciones de esta página">
     <a href="#catalogo">Catálogo</a>
     <a href="#mezclador">Mezclador</a>
@@ -743,7 +746,7 @@
         <li><a href="sistemas/elementos.html"><b>Biblioteca de elementos <span aria-hidden="true">↗</span></b><span>Botones, campos y avisos de cada forma.</span></a></li>
         <li><a href="sistemas/paletas.html"><b>Muestrario de color <span aria-hidden="true">↗</span></b><span>Los <!--@colores-->166<!--/@colores--> colores, con nombre y código. Un clic y lo copias.</span></a></li>
       </ul>
-      <a class="volver" href="../index.html#servicios">← Volver a Servicios</a>
+      <a class="volver" href="../#servicios">← Volver a Servicios</a>
     </div>
   </section>
 </main>
