@@ -1,0 +1,19 @@
+{
+  "id": "/apps/pantxiko-notes.html",
+  "name": "Pantxiko Notes",
+  "short_name": "Notes",
+  "description": "Bloc de notas con dictado por voz. Las notas se guardan solo en tu dispositivo.",
+  "lang": "es",
+  "start_url": "/apps/pantxiko-notes.html",
+  "scope": "/apps/pantxiko-notes.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#5c1a00",
+  "theme_color": "#b84000",
+  "categories": ["productivity"],
+  "icons": [
+    { "src": "/img/apps/notes-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/img/apps/notes-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/img/apps/notes-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -155,7 +155,8 @@ y de `www` tienen que desaparecer.
   el envío correcto del formulario (o la apertura del correo si falla).
 - Otros eventos que ya se envían: `cta_click`, `demo_abierta`,
   `demo_pantalla_completa`, `quiero_una_asi`, `ver_sistemas`,
-  `contacto_email` y `formulario_error`.
+  `contacto_email` y `formulario_error`. Los de las apps (`app_abierta`,
+  `archivo_convertido`, `error_app`…) están en `docs/apps-pwa-y-android.md`.
 - La política de privacidad dice que los datos se guardan **2 meses** (lo que
   trae GA4 de serie). Si lo cambias en *Administrar → Recogida y conservación
   de datos*, cambia también ese texto en `legal/privacidad.html`.

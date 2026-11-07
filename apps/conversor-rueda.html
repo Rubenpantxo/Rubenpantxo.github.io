@@ -1,9 +1,17 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-app="conversor-rueda">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Rueda · conversor</title>
+<title>Rueda · conversor de archivos en el navegador</title>
+<meta name="description" content="Convierte imágenes, PDF, Word, texto, CSV y JSON sin subirlos a ningún servidor: todo ocurre en tu navegador. Recorta imágenes y añádeles fondo.">
+<link rel="canonical" href="https://rubenpantxo.com/apps/conversor-rueda.html">
+<meta name="theme-color" content="#f26b3f">
+<link rel="manifest" href="conversor-rueda.webmanifest">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../img/apps/rueda-192.png">
+<script src="../js/consentimiento.js"></script>
+<script src="../js/app.js"></script>
 <style>
 /* Rueda: conversor de archivos local. Arrastra un archivo con Shift pulsado
    y suéltalo sobre un formato de la rueda. Todo ocurre en el navegador. */
@@ -41,6 +49,7 @@ kbd{font:600 11px var(--f);padding:2px 6px;border-radius:6px;background:#fff;bor
   text-shadow:0 1px 8px #5a1f0a55;max-width:min(520px,calc(100vw - 40px))}
 .empty-card b{display:block;font-size:24px;letter-spacing:-.5px;margin-bottom:8px}
 .empty-card span{font-size:14px;opacity:.95}
+.empty-card kbd{color:var(--ink);text-shadow:none}
 body.has-files .empty{opacity:0}
 body.drop-over #desk::after{content:"";position:absolute;inset:12px;border-radius:26px;border:3px dashed #fff;background:#ffffff1f}
 
@@ -125,19 +134,21 @@ input[type=range]{flex:1;min-width:140px;accent-color:var(--accent)}
 .foot .pill{box-shadow:0 0 0 1px #0000001a}
 
 @media(max-width:640px){.hint{display:none}.bar{top:10px}.file{width:84px}.fname{max-width:80px}}
+.solo-tactil{display:none}
+@media(pointer:coarse){.solo-raton{display:none}.solo-tactil{display:inline}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<div class="bar" role="toolbar" aria-label="Rueda">
+<header class="bar" aria-label="Rueda">
   <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 2a10 10 0 0 1 10 10h-6a4 4 0 0 0-4-4z" fill="#e8552f"/><path d="M2 12A10 10 0 0 1 12 2v6a4 4 0 0 0-4 4z" fill="#ffb347"/><path d="M12 22A10 10 0 0 1 2 12h6a4 4 0 0 0 4 4z" fill="#8b6cf0"/><circle cx="12" cy="12" r="3" fill="#24140d"/></svg>Rueda</div>
   <span class="hint">Arrastra un archivo con <kbd>⇧ Shift</kbd> y suéltalo en un formato</span>
   <button class="pill" id="open">Abrir archivos</button>
   <button class="pill dark" id="convert" disabled title="Abrir la rueda del archivo seleccionado (Intro)">Convertir</button>
   <input type="file" id="picker" multiple hidden>
-</div>
+</header>
 <main id="desk" aria-label="Mesa de archivos">
-  <div class="empty"><div class="empty-card"><b>Suelta aquí tus archivos</b><span>Imágenes, PDF, Word, texto, CSV o JSON. Después arrastra uno manteniendo <kbd>⇧ Shift</kbd>: aparece la rueda de formatos.<br><br>Nada sale de este equipo: todo se convierte en el navegador.</span></div></div>
+  <div class="empty"><div class="empty-card"><b>Suelta aquí tus archivos</b><span>Imágenes, PDF, Word, texto, CSV o JSON. <span class="solo-raton">Después arrastra uno manteniendo <kbd>⇧ Shift</kbd>: aparece la rueda de formatos.</span><span class="solo-tactil">Pulsa «Abrir archivos», toca uno y pulsa «Convertir»: aparece la rueda de formatos.</span><br><br>Nada sale de este equipo: todo se convierte en el navegador.</span></div></div>
 </main>
 <div id="wheel" aria-hidden="true"></div>
 <div id="toasts" aria-live="polite"></div>
@@ -273,14 +284,17 @@ document.addEventListener('pointerdown',e=>{if(clickMode&&!e.target.closest('#wh
 
 // ---------- Ejecutar una conversión ----------
 async function run(f,t){
-  if(t.id==='crop')return openCrop(f);
-  if(t.id==='bg')return openBg(f);
+  const noAbre=e=>toast(`No se pudo abrir la imagen: ${e.message||e}`,'err',5000);
+  if(t.id==='crop')return openCrop(f).catch(noAbre);
+  if(t.id==='bg')return openBg(f).catch(noAbre);
   const tt=toast(`Convirtiendo ${f.name} a ${t.label}…`,'busy');
   try{const outs=await convert(f,t.id);tt.remove();let last=f;
+    window.rpApp&&rpApp.evento('archivo_convertido',{de:f.ext||'?',a:t.id});
     for(const o of outs){const [x,y]=freeSpot(last.x,last.y);last=addFile(o.blob,o.name,x,y,true)}
     const first=files[files.length-outs.length];
     toast(outs.length>1?`${outs.length} archivos creados`:`${first.name} · ${human(first.blob.size)}`,'ok',6000,outs.length===1?()=>download(first):()=>files.slice(-outs.length).forEach(download));
-  }catch(err){tt.remove();console.error(err);toast(`No se pudo convertir: ${err.message||err}`,'err',6000)}}
+  }catch(err){tt.remove();console.error(err);toast(`No se pudo convertir: ${err.message||err}`,'err',6000);
+    window.rpApp&&rpApp.fallo(`convertir ${f.ext||'?'} a ${t.id}: ${err.message||err}`,'run')}}
 function toast(msg,kind,ms,onDl){const t=document.createElement('div');t.className='toast'+(kind==='err'?' err':'');
   t.innerHTML=(kind==='busy'?'<span class="spin"></span>':kind==='ok'?'<span style="color:var(--ok);font-weight:800">✓</span>':'')+`<span class="msg">${esc(msg)}</span>`+(onDl?'<button class="pill dark">Descargar</button>':'');
   if(onDl)t.querySelector('button').onclick=()=>{onDl();t.remove()};
@@ -329,7 +343,9 @@ function makePdf(pages){const enc=new TextEncoder(),parts=[],offs=[];let len=0;
   put(`trailer\n<< /Size ${total} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);return new Blob(parts,{type:MIME.pdf})}
 
 // ---------- Texto ----------
-function mdToHtml(md){const inl=s=>esc(s).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>').replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,'<a href="$2">$1</a>');
+// Solo enlaces web, de correo o relativos: un [texto](javascript:…) del Markdown queda como texto.
+const safeHref=h=>{const m=h.match(/^([a-z][\w+.-]*):/i);return !m||/^(https?|mailto)$/i.test(m[1])?h:null};
+function mdToHtml(md){const inl=s=>esc(s).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>').replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,(m,t,h)=>safeHref(h)?`<a href="${h}">${t}</a>`:m);
   const out=[];let list=null,code=null,para=[];const flush=()=>{if(para.length){out.push('<p>'+inl(para.join(' '))+'</p>');para=[]}if(list){out.push(`</${list}>`);list=null}};
   for(const line of md.split(/\r?\n/)){
     if(code!==null){if(/^```/.test(line)){out.push('<pre><code>'+esc(code.join('\n'))+'</code></pre>');code=null}else code.push(line);continue}
@@ -403,11 +419,15 @@ async function docxText(blob){const u=new Uint8Array(await blob.arrayBuffer()),v
   throw new Error('el DOCX no tiene texto')}
 
 // ---------- PDF de entrada (pdf.js se descarga solo la primera vez) ----------
+// Versión fijada y con integridad (SRI): si cdnjs sirviera otro archivo, el
+// navegador no lo ejecuta. isEvalSupported:false cierra CVE-2024-4367 (un PDF
+// preparado podía ejecutar JavaScript al abrirse con pdf.js < 4.2.67).
 let pdfjs=null;
 function loadPdfJs(){if(pdfjs)return pdfjs;pdfjs=new Promise((ok,ko)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  s.integrity='sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn4I1slHydcbZK34nLaR3cAeYSJshoxIOq3mjEf7xJE8YWIUHMn+oCQ==';s.crossOrigin='anonymous';s.referrerPolicy='no-referrer';
   s.onload=()=>{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';ok(pdfjsLib)};
   s.onerror=()=>{pdfjs=null;ko(new Error('hace falta conexión para leer PDF la primera vez'))};document.head.appendChild(s)});return pdfjs}
-async function pdfConvert(f,to){const lib=await loadPdfJs(),doc=await lib.getDocument({data:new Uint8Array(await f.blob.arrayBuffer())}).promise,base=baseOf(f.name),N=Math.min(doc.numPages,40),out=[];
+async function pdfConvert(f,to){const lib=await loadPdfJs(),doc=await lib.getDocument({data:new Uint8Array(await f.blob.arrayBuffer()),isEvalSupported:false}).promise,base=baseOf(f.name),N=Math.min(doc.numPages,40),out=[];
   if(to==='txt'){let s='';for(let i=1;i<=doc.numPages;i++){const tc=await (await doc.getPage(i)).getTextContent();s+=tc.items.map(it=>it.str+(it.hasEOL?'\n':' ')).join('')+'\n\n'}
     return [{name:`${base}.txt`,blob:new Blob([s.trim()],{type:MIME.txt+';charset=utf-8'})}]}
   for(let i=1;i<=N;i++){const page=await doc.getPage(i),vp=page.getViewport({scale:2}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
@@ -438,8 +458,9 @@ addEventListener('resize',()=>{if($('#dlg-crop').open)drawCrop()});
 $('#crop-ok').onclick=async()=>{const f=crop.f,img=$('#crop-img'),b=cropBox(),sx=Math.round(crop.x*b.nw),sy=Math.round(crop.y*b.nh),w=Math.max(1,Math.round(crop.w*b.nw)),h=Math.max(1,Math.round(crop.h*b.nh));
   const c=document.createElement('canvas');c.width=w;c.height=h;const fmt=['jpg','jpeg'].includes(f.ext)?'jpg':f.ext==='webp'?'webp':'png';
   const x=c.getContext('2d');if(fmt==='jpg'){x.fillStyle='#fff';x.fillRect(0,0,w,h)}x.drawImage(img,sx,sy,w,h,0,0,w,h);
-  $('#dlg-crop').close();const blob=await encodeCanvas(c,fmt),[px,py]=freeSpot(f.x,f.y),nf=addFile(blob,`${baseOf(f.name)} recortada.${fmt}`,px,py,true);
-  toast(`${nf.name} · ${w}×${h}`,'ok',6000,()=>download(nf))};
+  $('#dlg-crop').close();try{const blob=await encodeCanvas(c,fmt),[px,py]=freeSpot(f.x,f.y),nf=addFile(blob,`${baseOf(f.name)} recortada.${fmt}`,px,py,true);
+  toast(`${nf.name} · ${w}×${h}`,'ok',6000,()=>download(nf));window.rpApp&&rpApp.evento('archivo_convertido',{de:f.ext||'?',a:'recorte'})}
+  catch(e){toast(`No se pudo recortar: ${e.message||e}`,'err',6000)}};
 
 // ---------- Fondo ----------
 const BGS=['linear-gradient:#ff5f6d,#ffc371','linear-gradient:#8e2de2,#4a00e0','linear-gradient:#00c6ff,#0072ff','linear-gradient:#f7971e,#ffd200','linear-gradient:#11998e,#38ef7d',
@@ -458,7 +479,9 @@ function drawBg(c=$('#bg-canvas')){const img=bg.img,s=Math.min(1,2400/Math.max(i
   x.save();path();x.clip();x.drawImage(img,pad,pad,w,h);x.restore()}
 ['#bg-pad','#bg-rad','#bg-sh'].forEach(s=>$(s).addEventListener('input',()=>drawBg()));
 $('#bg-ok').onclick=async()=>{const f=bg.f,c=document.createElement('canvas');drawBg(c);$('#dlg-bg').close();
-  const blob=await toBlob(c,'image/png'),[px,py]=freeSpot(f.x,f.y),nf=addFile(blob,`${baseOf(f.name)} con fondo.png`,px,py,true);toast(`${nf.name} · ${c.width}×${c.height}`,'ok',6000,()=>download(nf))};
+  try{const blob=await toBlob(c,'image/png'),[px,py]=freeSpot(f.x,f.y),nf=addFile(blob,`${baseOf(f.name)} con fondo.png`,px,py,true);toast(`${nf.name} · ${c.width}×${c.height}`,'ok',6000,()=>download(nf));
+    window.rpApp&&rpApp.evento('archivo_convertido',{de:f.ext||'?',a:'fondo'})}
+  catch(e){toast(`No se pudo crear la imagen: ${e.message||e}`,'err',6000)}};
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
 
 // ---------- Entrada de archivos ----------
