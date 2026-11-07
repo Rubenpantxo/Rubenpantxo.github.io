@@ -10,7 +10,9 @@ const path = require('path');
 const { spawn, execFile } = require('child_process');
 const crypto = require('crypto');
 
-const PORT = 8787;
+// IGDL_PORT e IGDL_YTDLP solo los usan las pruebas automaticas (pruebas/):
+// otro puerto y un yt-dlp falso que no sale a internet.
+const PORT = parseInt(process.env.IGDL_PORT || '', 10) || 8787;
 
 // Secreto distinto en cada arranque. Se inyecta en la pagina que sirve este
 // mismo proceso y se exige en todo /api/*. Sin el, bastaba con que te llevaran
@@ -26,6 +28,26 @@ const HOSTS_PERMITIDOS = new Set(['localhost:' + PORT, '127.0.0.1:' + PORT]);
 // la maquina sin CPU y a la IP marcada por Instagram como scraper.
 const MAX_TRABAJOS = 2;
 let trabajosActivos = 0;
+
+// Ademas del tope de simultaneas, un tope por tiempo: una pagina (o un bucle
+// por error) que pida sin parar acaba con la IP marcada por Instagram.
+const VENTANA_MS = 10 * 60 * 1000;
+const LIMITES = {
+    info: parseInt(process.env.IGDL_LIMITE_INFO || '', 10) || 30,
+    descargar: parseInt(process.env.IGDL_LIMITE_DESCARGAS || '', 10) || 20,
+};
+const historial = { info: [], descargar: [] };
+// Devuelve 0 si se puede atender, o los segundos que hay que esperar.
+function esperaPorLimite(tipo) {
+    const ahora = Date.now();
+    const h = historial[tipo];
+    while (h.length && ahora - h[0] >= VENTANA_MS) h.shift();
+    if (h.length >= LIMITES[tipo]) return Math.ceil((VENTANA_MS - (ahora - h[0])) / 1000);
+    h.push(ahora);
+    return 0;
+}
+const MAX_LARGO_URL = 500;
+const MAX_INDICE = 50; // un carrusel de Instagram tiene como mucho 20 elementos
 const HTML_CANDIDATOS = ['Instagram_Downloader.html', 'index_insta_down.html', 'index.html'];
 const HTML_FILE = (HTML_CANDIDATOS
     .map((n) => path.join(__dirname, n))
@@ -46,13 +68,15 @@ function parseIgUrl(raw) {
 
 /* ---------- localizacion de yt-dlp ---------- */
 
-const CANDIDATOS = [
-    { cmd: 'python', base: ['-m', 'yt_dlp'] },
-    { cmd: 'py', base: ['-m', 'yt_dlp'] },
-    { cmd: 'python3', base: ['-m', 'yt_dlp'] },
-    { cmd: 'yt-dlp.exe', base: [] },
-    { cmd: 'yt-dlp', base: [] },
-];
+const CANDIDATOS = process.env.IGDL_YTDLP
+    ? [{ cmd: process.execPath, base: [process.env.IGDL_YTDLP] }]
+    : [
+        { cmd: 'python', base: ['-m', 'yt_dlp'] },
+        { cmd: 'py', base: ['-m', 'yt_dlp'] },
+        { cmd: 'python3', base: ['-m', 'yt_dlp'] },
+        { cmd: 'yt-dlp.exe', base: [] },
+        { cmd: 'yt-dlp', base: [] },
+    ];
 
 let ytdlp = null;
 
@@ -73,11 +97,15 @@ function detectarYtdlp() {
 
 function ejecutarYtdlp(args, opciones) {
     const capturar = !opciones || opciones.capturar !== false;
+    const senal = opciones && opciones.senal;
     return new Promise((resolve, reject) => {
+        if (senal && senal.aborted) return reject(new Error('Peticion cancelada.'));
         const p = spawn(ytdlp.cmd, ytdlp.base.concat(args), { windowsHide: true });
         let out = '';
         let err = '';
         const t = setTimeout(() => p.kill(), TIMEOUT_MS);
+        // Si la pagina se cierra o cancela, yt-dlp no sigue trabajando para nadie.
+        if (senal) senal.addEventListener('abort', () => p.kill(), { once: true });
         if (capturar) p.stdout.on('data', (d) => { out += d; });
         p.stderr.on('data', (d) => { err += d; });
         p.on('error', (e) => { clearTimeout(t); reject(e); });
@@ -156,10 +184,15 @@ function json(res, status, data, cabeceras) {
     res.writeHead(status, Object.assign({
         'Content-Type': 'application/json; charset=utf-8',
         'Cache-Control': 'no-store',
+        'X-Content-Type-Options': 'nosniff',
         'Content-Length': Buffer.byteLength(body),
     }, cabeceras || {}));
     res.end(body);
 }
+
+// En los registros solo va texto corto y en una linea: nada de lo que mande
+// el navegador se copia entero a la consola.
+const corto = (t) => String(t == null ? '' : t).replace(/[\r\n\t]+/g, ' ').slice(0, 120);
 
 function mensajeError(texto) {
     const t = String(texto);
@@ -190,8 +223,8 @@ function normalizarEntrada(e, index) {
     };
 }
 
-async function apiInfo(res, entrada, cabeceras) {
-    const bruto = await ejecutarYtdlpConSesion(['-J', '--no-warnings', entrada.url]);
+async function apiInfo(res, entrada, cabeceras, senal) {
+    const bruto = await ejecutarYtdlpConSesion(['-J', '--no-warnings', entrada.url], { senal });
     const data = JSON.parse(bruto);
     const entradas = data._type === 'playlist' && Array.isArray(data.entries) ? data.entries : [data];
     const items = entradas.map(normalizarEntrada).filter((i) => i.esVideo);
@@ -199,27 +232,44 @@ async function apiInfo(res, entrada, cabeceras) {
     json(res, 200, { ok: true, code: entrada.code, items: items }, cabeceras);
 }
 
-async function apiDescarga(res, entrada, index, cabeceras) {
-    const base = path.join(os.tmpdir(), 'igdl-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8));
-    await ejecutarYtdlpConSesion([
-        '-f', 'b[ext=mp4]/bv*[ext=mp4]+ba/b',
-        '--merge-output-format', 'mp4',
-        '--no-warnings',
-        '--playlist-items', String(index + 1),
-        '-o', base + '.%(ext)s',
-        entrada.url,
-    ], { capturar: false });
-
+async function apiDescarga(res, entrada, index, cabeceras, senal) {
+    const base = path.join(os.tmpdir(), 'igdl-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex'));
     const dir = path.dirname(base);
     const prefijo = path.basename(base);
-    const archivo = fs.readdirSync(dir).find((f) => f.indexOf(prefijo) === 0);
+    // Si yt-dlp falla a medias deja trozos (.part, .ytdl, el audio suelto):
+    // se borran todos los archivos de esta descarga.
+    const borrarRestos = () => {
+        try {
+            fs.readdirSync(dir).filter((f) => f.indexOf(prefijo) === 0)
+                .forEach((f) => fs.unlink(path.join(dir, f), () => {}));
+        } catch (e) { /* carpeta temporal no legible: nada que borrar */ }
+    };
+    try {
+        await ejecutarYtdlpConSesion([
+            '-f', 'b[ext=mp4]/bv*[ext=mp4]+ba/b',
+            '--merge-output-format', 'mp4',
+            '--no-warnings',
+            '--playlist-items', String(index + 1),
+            '-o', base + '.%(ext)s',
+            entrada.url,
+        ], { capturar: false, senal });
+    } catch (e) {
+        borrarRestos();
+        throw e;
+    }
+
+    const archivo = fs.readdirSync(dir).find((f) => f.indexOf(prefijo) === 0 && /\.mp4$/i.test(f))
+        || fs.readdirSync(dir).find((f) => f.indexOf(prefijo) === 0);
     if (!archivo) throw new Error('yt-dlp no genero ningun archivo.');
 
     const ruta = path.join(dir, archivo);
     const nombre = limpiarNombre(entrada.code) + '.mp4';
-    const stat = fs.statSync(ruta);
+    let stat;
+    try { stat = fs.statSync(ruta); } catch (e) { borrarRestos(); throw e; }
+    if (senal && senal.aborted) { borrarRestos(); return; }
 
     res.writeHead(200, Object.assign({
+        'X-Content-Type-Options': 'nosniff',
         'Content-Type': 'video/mp4',
         'Content-Length': stat.size,
         'Content-Disposition': 'attachment; filename="' + nombre + '"',
@@ -227,9 +277,8 @@ async function apiDescarga(res, entrada, index, cabeceras) {
     }, cabeceras || {}));
     const stream = fs.createReadStream(ruta);
     stream.pipe(res);
-    const limpiar = () => fs.unlink(ruta, () => {});
-    stream.on('close', limpiar);
-    stream.on('error', limpiar);
+    stream.on('close', borrarRestos);
+    stream.on('error', borrarRestos);
 }
 
 /* ---------- servidor ---------- */
@@ -240,7 +289,7 @@ const servidor = http.createServer(async (req, res) => {
     // Antes que nada: la cabecera Host. Un dominio del atacante que resuelva a
     // 127.0.0.1 llega hasta aqui con su propio Host, no con localhost.
     if (!HOSTS_PERMITIDOS.has(String(req.headers.host || '').toLowerCase())) {
-        console.warn('[bloqueado] Host no permitido: ' + req.headers.host);
+        console.warn('[bloqueado] Host no permitido: ' + corto(req.headers.host));
         res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
         return res.end(JSON.stringify({ ok: false, error: 'Host no permitido.' }));
     }
@@ -249,7 +298,7 @@ const servidor = http.createServer(async (req, res) => {
     // no se hace ningun trabajo.
     const cabeceras = cors(req);
     if (cabeceras === null) {
-        console.warn('[bloqueado] origen no permitido: ' + req.headers.origin);
+        console.warn('[bloqueado] origen no permitido: ' + corto(req.headers.origin));
         res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
         return res.end(JSON.stringify({ ok: false, error: 'Origen no permitido.' }));
     }
@@ -275,7 +324,7 @@ const servidor = http.createServer(async (req, res) => {
         const valido = recibido.length === esperado.length
             && crypto.timingSafeEqual(recibido, esperado);
         if (!valido) {
-            console.warn('[bloqueado] token invalido o ausente en ' + u.pathname);
+            console.warn('[bloqueado] token invalido o ausente en ' + corto(u.pathname));
             return json(res, 403, { ok: false, error: 'Falta el token de sesion. Abre http://localhost:' + PORT + ' en el navegador.' }, cabeceras);
         }
     }
@@ -290,20 +339,41 @@ const servidor = http.createServer(async (req, res) => {
         if (!ytdlp) {
             return json(res, 503, { ok: false, error: 'yt-dlp no esta instalado. Ejecuta: python -m pip install -U yt-dlp' }, cabeceras);
         }
-        const entrada = parseIgUrl(u.searchParams.get('url') || '');
+        const bruta = u.searchParams.get('url') || '';
+        const entrada = bruta.length <= MAX_LARGO_URL ? parseIgUrl(bruta) : null;
         if (!entrada) {
             return json(res, 400, { ok: false, error: 'El enlace no es de Instagram. Debe ser del tipo instagram.com/reel/... o instagram.com/p/...' }, cabeceras);
+        }
+        const textoIndice = u.searchParams.get('index') || '0';
+        const index = /^\d{1,3}$/.test(textoIndice) ? parseInt(textoIndice, 10) : -1;
+        if (u.pathname === '/api/descargar' && (index < 0 || index >= MAX_INDICE)) {
+            return json(res, 400, { ok: false, error: 'El numero de elemento no es valido.' }, cabeceras);
         }
         if (trabajosActivos >= MAX_TRABAJOS) {
             return json(res, 429, { ok: false, error: 'Ya hay ' + MAX_TRABAJOS + ' descargas en curso. Espera a que terminen.' }, cabeceras);
         }
+        const tipo = u.pathname === '/api/info' ? 'info' : 'descargar';
+        const espera = esperaPorLimite(tipo);
+        if (espera) {
+            const minutos = Math.max(1, Math.ceil(espera / 60));
+            console.warn('[limite] demasiadas peticiones de ' + tipo + ' en 10 minutos');
+            return json(res, 429, {
+                ok: false,
+                error: 'Has hecho muchas peticiones seguidas. Espera unos ' + minutos + ' min para que Instagram no bloquee tu conexion.',
+            }, Object.assign({ 'Retry-After': String(espera) }, cabeceras));
+        }
+
+        // Si el navegador cierra la peticion antes de tiempo, se para yt-dlp.
+        const control = new AbortController();
+        res.on('close', () => { if (!res.writableFinished) control.abort(); });
+
         trabajosActivos++;
         try {
-            if (u.pathname === '/api/info') return await apiInfo(res, entrada, cabeceras);
-            const index = Math.max(0, parseInt(u.searchParams.get('index') || '0', 10) || 0);
-            return await apiDescarga(res, entrada, index, cabeceras);
+            if (tipo === 'info') return await apiInfo(res, entrada, cabeceras, control.signal);
+            return await apiDescarga(res, entrada, index, cabeceras, control.signal);
         } catch (e) {
-            console.error('[error]', e.message);
+            if (control.signal.aborted) return console.warn('[cancelada] el navegador cerro la peticion de ' + tipo);
+            console.error('[error] ' + corto(e.message));
             if (res.headersSent) return res.destroy();
             return json(res, 502, { ok: false, error: mensajeError(e.message) }, cabeceras);
         } finally {
@@ -336,6 +406,12 @@ const servidor = http.createServer(async (req, res) => {
                 'Content-Type': 'text/html; charset=utf-8',
                 'Cache-Control': 'no-store',
                 'Content-Length': Buffer.byteLength(salida),
+                // La pagina lleva el token: que ninguna otra web pueda meterla
+                // en un iframe y hacer que pulses sus botones sin verlo.
+                'X-Frame-Options': 'DENY',
+                'Content-Security-Policy': "frame-ancestors 'none'; object-src 'none'; base-uri 'self'",
+                'X-Content-Type-Options': 'nosniff',
+                'Referrer-Policy': 'no-referrer',
             });
             res.end(salida);
         });
@@ -365,8 +441,11 @@ servidor.listen(PORT, '127.0.0.1', () => {
     console.log('  Instagram Downloader - servidor local');
     console.log('  --------------------------------------');
     console.log('  Abre:   http://localhost:' + PORT + '  <- la pagina debe abrirse DESDE aqui');
-    console.log('  Token de esta sesion: ' + TOKEN);
-    console.log('  (cambia en cada arranque; solo lo lleva la pagina que sirve este proceso)');
+    // El token no se imprime: solo lo necesita la pagina que sirve este
+    // proceso, y una consola se comparte en capturas o se copia a un chat.
+    console.log('  Token de sesion: generado (cambia en cada arranque)');
+    console.log('  Limites: ' + MAX_TRABAJOS + ' a la vez · ' + LIMITES.info + ' consultas y '
+        + LIMITES.descargar + ' descargas cada 10 min');
     console.log('  Cookies del navegador: ' + (NAVEGADOR_COOKIES
         ? 'SI, ' + NAVEGADOR_COOKIES + ' (IGDL_COOKIES_BROWSER)'
         : 'no (para activarlas: set IGDL_COOKIES_BROWSER=chrome)'));

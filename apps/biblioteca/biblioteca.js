@@ -1,0 +1,2640 @@
+/*! Biblioteca · generado desde biblioteca.jsx con `npm run biblioteca`: no lo edites a mano.
+    (Antes se compilaba en el navegador con Babel, ~3 MB en cada visita.)
+    Si añades clases de Tailwind nuevas, ejecuta también `npm run css:biblioteca`. */
+(function () {
+  'use strict';
+
+  const {
+    useState,
+    useEffect,
+    useRef,
+    useCallback
+  } = React;
+  const evento = (nombre, parametros) => {
+    if (window.rpApp) window.rpApp.evento(nombre, parametros);
+  };
+  const Icon = ({
+    children,
+    className = '',
+    size = 24,
+    ...props
+  }) => React.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    className: className,
+    ...props
+  }, children);
+  const ArrowLeft = ({
+    className,
+    ...props
+  }) => React.createElement(Icon, {
+    className: `w-4 h-4 ${className || ''}`,
+    ...props
+  }, React.createElement("path", {
+    d: "m12 19-7-7 7-7"
+  }), React.createElement("path", {
+    d: "M19 12H5"
+  }));
+  const BookIcon = ({
+    className,
+    ...props
+  }) => React.createElement(Icon, {
+    className: `w-8 h-8 ${className || ''}`,
+    ...props
+  }, React.createElement("path", {
+    d: "M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"
+  }));
+  const LibraryIcon = ({
+    className,
+    ...props
+  }) => React.createElement(Icon, {
+    className: `w-6 h-6 ${className || ''}`,
+    ...props
+  }, React.createElement("path", {
+    d: "m16 6 4 14"
+  }), React.createElement("path", {
+    d: "M12 6v14"
+  }), React.createElement("path", {
+    d: "M8 8v12"
+  }), React.createElement("path", {
+    d: "M4 4v16"
+  }));
+  const CATEGORIES = [{
+    id: 'infantiles',
+    name: 'Infantiles',
+    color: '#FCD34D',
+    label: 'Amarillo'
+  }, {
+    id: 'psicologia',
+    name: 'Psicología',
+    color: '#FB923C',
+    label: 'Naranja'
+  }, {
+    id: 'teologia',
+    name: 'Teología/Creencias',
+    color: '#86EFAC',
+    label: 'Verde Claro'
+  }, {
+    id: 'derecho',
+    name: 'Derecho',
+    color: '#93C5FD',
+    label: 'Azul Claro'
+  }, {
+    id: 'historia',
+    name: 'Historia',
+    color: '#D8B4FE',
+    label: 'Morado Claro'
+  }, {
+    id: 'navarra',
+    name: 'Navarra',
+    color: '#EF4444',
+    label: 'Rojo'
+  }, {
+    id: 'cocina',
+    name: 'Cocina',
+    color: '#A0522D',
+    label: 'Marrón'
+  }, {
+    id: 'viajes',
+    name: 'Viajes',
+    color: '#22C55E',
+    label: 'Verde Oscuro'
+  }, {
+    id: 'novelas',
+    name: 'Novelas',
+    color: '#9CA3AF',
+    label: 'Gris'
+  }, {
+    id: 'ciencias',
+    name: 'Otras ciencias',
+    color: '#60A5FA',
+    label: 'Azul Oscuro'
+  }, {
+    id: 'arte',
+    name: 'Arte',
+    color: '#991B1B',
+    label: 'Granate'
+  }, {
+    id: 'enciclopedias',
+    name: 'Enciclopedias / Diccionarios',
+    color: '#C084FC',
+    label: 'Morado Oscuro'
+  }];
+  const BOOKS = {
+    infantiles: [{
+      title: "Fray Perico y su borrico",
+      author: "Juan Muñoz Martín"
+    }, {
+      title: "Fray Perico en la guerra",
+      author: "Juan Muñoz Martín"
+    }, {
+      title: "Fray Perico, Calcetín y el guerrillero Martín",
+      author: "Juan Muñoz Martín"
+    }, {
+      title: "El pirata Garrapata en Japón",
+      author: "Juan Muñoz Martín"
+    }, {
+      title: "Fray Perico de la Mancha",
+      author: "Juan Muñoz Martín"
+    }, {
+      title: "El empollón, el cabeza cuadrada, el gafotas y el pelmazo",
+      author: "Roberto Santiago"
+    }, {
+      title: "El misterio de los hijos de Lúa",
+      author: "Fina Casalderrey"
+    }, {
+      title: "Las cometas del recuerdo",
+      author: "Gloria Cecilia Díaz"
+    }, {
+      title: "El secreto de papá",
+      author: "Jürgen Banscherus"
+    }, {
+      title: "Kimazi y la montaña",
+      author: "Hilary Ruben"
+    }, {
+      title: "Como si no hubiera sucedido",
+      author: "Jim Benton"
+    }, {
+      title: "Junie B. Jones tiene un admirador secreto",
+      author: "Barbara Park"
+    }, {
+      title: "Junie B. Jones y Warren el Superguapo",
+      author: "Barbara Park"
+    }, {
+      title: "Junie B. Jones y el autobús apestoso",
+      author: "Barbara Park"
+    }, {
+      title: "El Pequeño Vampiro",
+      author: "Angela Sommer-Bodenburg"
+    }, {
+      title: "Kika Superbruja y el hechizo de la Navidad",
+      author: "Knister"
+    }, {
+      title: "La Puerta del Tiempo",
+      author: "Ulysses Moore"
+    }, {
+      title: "Las Fieras Fútbol Club: Joschka",
+      author: "Joachim Masannek"
+    }, {
+      title: "Las Fieras Fútbol Club: Marlon",
+      author: "Joachim Masannek"
+    }, {
+      title: "El bromista invisible",
+      author: "James Preller"
+    }, {
+      title: "El monstruo goloso",
+      author: "James Preller"
+    }, {
+      title: "El hámster desaparecido",
+      author: "James Preller"
+    }, {
+      title: "Tobi Lolness",
+      author: "Timothée de Fombelle"
+    }, {
+      title: "The Giver",
+      author: "Lois Lowry"
+    }, {
+      title: "Ausländer",
+      author: "Paul Dowswell"
+    }, {
+      title: "El otro barrio",
+      author: "Elvira Lindo"
+    }, {
+      title: "Piratas del Caribe",
+      author: "Disney"
+    }, {
+      title: "Don Quijote",
+      author: "Miguel de Cervantes"
+    }, {
+      title: "San Manuel Bueno, mártir",
+      author: "Miguel de Unamuno"
+    }, {
+      title: "Marianela",
+      author: "Benito Pérez Galdós"
+    }, {
+      title: "África en el corazón",
+      author: "M.ª del Carmen de la Bandera"
+    }, {
+      title: "Mi vida en el paraíso",
+      author: "M.ª del Carmen de la Bandera"
+    }, {
+      title: "Un duende a rayas",
+      author: "María Puncel"
+    }, {
+      title: "El regreso del gato asesino",
+      author: "Anne Fine"
+    }, {
+      title: "Rastro de Dios y otros cuentos",
+      author: "Montserrat del Amo"
+    }, {
+      title: "El detective Warton",
+      author: "Russell E. Erickson"
+    }, {
+      title: "Cuentos de intriga de la hormiga Miga",
+      author: "Emili Teixidor"
+    }, {
+      title: "Diez cuentos de lobos",
+      author: "Jean-François Bladé"
+    }, {
+      title: "Querido yo",
+      author: "Galila Ron-Feder"
+    }, {
+      title: "Quien encuentra un pirata, encuentra un tesoro",
+      author: "Guido Quarzo"
+    }, {
+      title: "El rey del escondite",
+      author: "Santiago García-Clairac"
+    }, {
+      title: "Mi abuelo era un cerezo",
+      author: "Angela Nanetti"
+    }, {
+      title: "Fantasmas de día",
+      author: "Lucía Baquedano"
+    }, {
+      title: "Pandillas rivales",
+      author: "Javier Malpica"
+    }, {
+      title: "El niño que quería ser Tintín",
+      author: "Santiago García-Clairac"
+    }, {
+      title: "Teo y su hermana",
+      author: "Violeta Denou"
+    }, {
+      title: "Teo y los deportes",
+      author: "Violeta Denou"
+    }, {
+      title: "Teo en un día de fiesta",
+      author: "Violeta Denou"
+    }, {
+      title: "Teo y su familia",
+      author: "Violeta Denou"
+    }, {
+      title: "Teo está enfermo",
+      author: "Violeta Denou"
+    }, {
+      title: "Teo y su cumpleaños",
+      author: "Violeta Denou"
+    }, {
+      title: "Antonio Machado para niños",
+      author: "Antonio Machado"
+    }, {
+      title: "Noel viaja a los Polos",
+      author: "Varios"
+    }, {
+      title: "Noel viaja a la China",
+      author: "Varios"
+    }, {
+      title: "Noel viaja a la India",
+      author: "Varios"
+    }, {
+      title: "Moby Dick (infantil)",
+      author: "Herman Melville"
+    }, {
+      title: "Busca los animales de la Tierra",
+      author: "Varios"
+    }, {
+      title: "Biblia Juvenil - Antiguo Testamento",
+      author: "Varios"
+    }, {
+      title: "Mi primer libro de la Prehistoria",
+      author: "Juan Luis Arsuaga"
+    }, {
+      title: "Mi primer Quijote",
+      author: "José María Plaza"
+    }, {
+      title: "Las Crónicas de Narnia",
+      author: "C.S. Lewis"
+    }, {
+      title: "La Picaresca Española",
+      author: "Anónimo / Cervantes / Quevedo"
+    }, {
+      title: "La máquina maravillosa",
+      author: "Elvira Menéndez"
+    }, {
+      title: "XXI y el Doctor Kat",
+      author: "Márquez & Laperla"
+    }, {
+      title: "El Principito",
+      author: "Antoine de Saint-Exupéry"
+    }],
+    psicologia: [{
+      title: "El cerebro en acción",
+      author: "A.R. Luria"
+    }, {
+      title: "Psicofisiología",
+      author: "UNED"
+    }, {
+      title: "La estructura de la magia I",
+      author: "Richard Bandler"
+    }, {
+      title: "Modificación de conducta con niños y adolescentes",
+      author: "F.X. Méndez / D. Macià Antón"
+    }, {
+      title: "Psicología de la Organización",
+      author: "José M. Peiró"
+    }, {
+      title: "De sapos a príncipes",
+      author: "Richard Bandler / John Grinder"
+    }, {
+      title: "Aportaciones recientes en Psicopatología",
+      author: "Bonifacio Sandín"
+    }, {
+      title: "Psicología Fisiológica",
+      author: "Marvin Schwartz"
+    }, {
+      title: "Los sentidos, bases de la percepción",
+      author: "Miguelina Guirao"
+    }, {
+      title: "Pensamiento, resolución de problemas y cognición",
+      author: "Richard E. Mayer"
+    }, {
+      title: "Psicología General (1)",
+      author: "José Luis Vega Vega"
+    }, {
+      title: "Psicología General (2)",
+      author: "José Luis Vega Vega"
+    }, {
+      title: "Lecturas de Psicodiagnóstico",
+      author: "F. Jiménez Gómez / R. de Diego Vallejo"
+    }, {
+      title: "Índices descriptivos de asociación",
+      author: "Juan Carro"
+    }, {
+      title: "Introducción al psicodiagnóstico de Rorschach",
+      author: "Fernando Jiménez Gómez"
+    }, {
+      title: "Psicología Médica, Psiquiatría y Salud Mental",
+      author: "A. Seva Díaz"
+    }, {
+      title: "Use su cabeza para variar",
+      author: "Richard Bandler"
+    }, {
+      title: "Poema Pedagógico (1, 2 y 3)",
+      author: "A. Makarenko"
+    }, {
+      title: "La fortaleza vacía",
+      author: "Bruno Bettelheim"
+    }, {
+      title: "El sentido del sexo",
+      author: "Kaplan"
+    }, {
+      title: "La práctica de la psicoterapia",
+      author: "Luis Cencillo"
+    }, {
+      title: "Principios básicos del aprendizaje",
+      author: "Roger M. Tarpy"
+    }, {
+      title: "Las prácticas de la terapia de red",
+      author: "Mony Elkaïm y otros"
+    }, {
+      title: "El cambio familiar: Desarrollos de modelos",
+      author: "H.Ch. Fishman / B.L. Rosman"
+    }, {
+      title: "Aplicaciones clínicas de evaluación y modificación de conducta",
+      author: "D. Macià Antón / F.X. Méndez"
+    }, {
+      title: "Desarrollo psicológico y educación III",
+      author: "Marchesi / Coll / Palacios"
+    }, {
+      title: "La sexualidad humana/1",
+      author: "Masters / Johnson / Kolodny"
+    }, {
+      title: "La psicología como posibilidad",
+      author: "Luis Cencillo"
+    }, {
+      title: "La percepción",
+      author: "Rock"
+    }, {
+      title: "Para comprender la sexualidad",
+      author: "F. López / A. Fuertes"
+    }, {
+      title: "Diferencias individuales: Rasgos y factores",
+      author: "Buss-Poley"
+    }, {
+      title: "Psicología Social Experimental",
+      author: "Varios"
+    }, {
+      title: "Introducción a la psicopatología y la psiquiatría",
+      author: "J. Vallejo"
+    }, {
+      title: "Primer lenguaje",
+      author: "P.A. de Vasco / J.G. de Villena"
+    }, {
+      title: "El Poder del Ahora",
+      author: "Eckhart Tolle"
+    }, {
+      title: "Seis sombreros para pensar",
+      author: "Edward de Bono"
+    }, {
+      title: "Constelaciones Familiares",
+      author: "Paula Jiménez Huertas"
+    }, {
+      title: "El árbol genealógico",
+      author: "Denny Johnson / Edith Cuffe"
+    }],
+    teologia: [{
+      title: "Holy Bible",
+      author: "Varios"
+    }, {
+      title: "Misal de la asamblea dominical",
+      author: "Varios"
+    }, {
+      title: "Todo se puede curar",
+      author: "Sir Martin Brofman"
+    }, {
+      title: "Obedece a tu cuerpo ¡ámate!",
+      author: "Lise Bourbeau"
+    }, {
+      title: "Pide y se te dará",
+      author: "Esther y Jerry Hicks"
+    }, {
+      title: "De la Medicación a la Meditación",
+      author: "OSHO"
+    }, {
+      title: "Relectura de las Cartas de San Pablo",
+      author: "Javier Garrido"
+    }, {
+      title: "Médicos del Cielo",
+      author: "Aura Küpper"
+    }, {
+      title: "Jerusalem",
+      author: "Rubén Cedeño"
+    }, {
+      title: "Los lugares que te asustan",
+      author: "Pema Chödrön"
+    }, {
+      title: "Vida, Amor y Risa",
+      author: "OSHO"
+    }, {
+      title: "El Alquimista",
+      author: "Paulo Coelho"
+    }, {
+      title: "Las doce puertas",
+      author: "Dan Millman"
+    }, {
+      title: "El conflicto con Dios hoy",
+      author: "Javier Garrido"
+    }, {
+      title: "Es fácil dejar de preocuparse",
+      author: "Allen Carr"
+    }, {
+      title: "El libro del Resonador Sátvico",
+      author: "Sesha"
+    }, {
+      title: "La Farmacia del Alma",
+      author: "OSHO"
+    }, {
+      title: "La enfermedad como camino",
+      author: "T. Dethlefsen / R. Dahlke"
+    }, {
+      title: "Ahora entiendo la Biblia",
+      author: "G. Lohfink"
+    }, {
+      title: "Vivir en la luz",
+      author: "Shakti Gawain"
+    }, {
+      title: "Telos - Libro 1",
+      author: "Aurelia Louise Jones"
+    }, {
+      title: "Las Siete Llamas Sagradas",
+      author: "Aurelia Louise Jones"
+    }, {
+      title: "Mensajes desde el retiro de Saint Germain",
+      author: "Varios"
+    }, {
+      title: "La Décima Revelación",
+      author: "James Redfield"
+    }, {
+      title: "La fuerza del optimismo",
+      author: "Luis Rojas Marcos"
+    }, {
+      title: "Fuego en el corazón",
+      author: "Deepak Chopra"
+    }, {
+      title: "La Paradoja",
+      author: "James C. Hunter"
+    }, {
+      title: "Padres del Nuevo Milenio",
+      author: "Victoria A. Serra"
+    }, {
+      title: "Ora a tu Padre",
+      author: "Jean Lafrance"
+    }, {
+      title: "Shimriti",
+      author: "Jorge Bucay"
+    }, {
+      title: "Seguir a Jesús en la vida ordinaria",
+      author: "Javier Garrido"
+    }, {
+      title: "Jesús de Nazaret",
+      author: "Günther Bornkamm"
+    }, {
+      title: "El camino de Jesús - Relectura de los evangelios",
+      author: "Javier Garrido"
+    }, {
+      title: "Una Espiritualidad",
+      author: "Javier Garrido"
+    }, {
+      title: "Meditación: La primera y última libertad",
+      author: "OSHO"
+    }, {
+      title: "Las 36 leyes espirituales de la vida",
+      author: "Diana Cooper"
+    }, {
+      title: "Bajo el árbol amigo",
+      author: "Frederic Solergibert"
+    }, {
+      title: "Palabras para cada amanecer",
+      author: "Hugh Prather"
+    }, {
+      title: "La Magia de tu Mente",
+      author: "U.S. Andersen"
+    }, {
+      title: "Tres Palabras Mágicas",
+      author: "U.S. Andersen"
+    }, {
+      title: "Rasgar el velo de la Dualidad",
+      author: "Andreas Moritz"
+    }, {
+      title: "Introducción al Antiguo Testamento",
+      author: "José Luis Sicre"
+    }, {
+      title: "El libro del masaje",
+      author: "Varios"
+    }, {
+      title: "Tiempo de Crecer /3",
+      author: "Varios"
+    }, {
+      title: "Cuentos Rusos",
+      author: "Varios"
+    }, {
+      title: "La Pirámide Hueca",
+      author: "ESIC"
+    }, {
+      title: "Almas Muertas",
+      author: "Nikolai Gogol"
+    }, {
+      title: "Virgo",
+      author: "Maria Grazia Mutti"
+    }, {
+      title: "El Profeta",
+      author: "G. Jalil Gibrán"
+    }, {
+      title: "El Loco",
+      author: "G. Jalil Gibrán"
+    }],
+    derecho: [{
+      title: "Código de Comercio y Leyes Complementarias",
+      author: "Civitas"
+    }, {
+      title: "Justicia Administrativa",
+      author: "Civitas"
+    }, {
+      title: "La Cámara de Comptos de Navarra",
+      author: "Luis Oroz Urda"
+    }, {
+      title: "Ley de Arbitraje",
+      author: "José Luis Navarro Pérez"
+    }, {
+      title: "Asalto al poder",
+      author: "Jesús Cacho"
+    }, {
+      title: "Aspectos jurídicos de las operaciones bancarias",
+      author: "Varios"
+    }, {
+      title: "Derecho Procesal Laboral",
+      author: "B. Blasco Segura / R.L. Alcázar"
+    }, {
+      title: "Contrato de Trabajo",
+      author: "Varios"
+    }, {
+      title: "Legislación Social Básica",
+      author: "Civitas"
+    }, {
+      title: "Pedro Toledo: El desafío",
+      author: "Jesús Cacho"
+    }],
+    historia: [{
+      title: "Rincones de la Historia de Navarra (varios tomos)",
+      author: "Florencio Idoate"
+    }, {
+      title: "La capitalización de la agricultura española 1962-75",
+      author: "Luis Tarrafeta Puyal"
+    }, {
+      title: "Introducción a la Historia del Mundo Contemporáneo",
+      author: "Varios"
+    }, {
+      title: "Diccionario Biográfico de Diputados Forales de Navarra",
+      author: "Varios"
+    }, {
+      title: "La Guerra Civil contada a los jóvenes",
+      author: "Arturo Pérez-Reverte"
+    }, {
+      title: "Comunidades Autónomas: Navarra",
+      author: "Varios"
+    }, {
+      title: "La época de las Revoluciones: De Goya a la modernidad",
+      author: "Varios"
+    }, {
+      title: "Gran Historia Universal: Egipto y los Grandes Imperios",
+      author: "Varios"
+    }, {
+      title: "Economía: Teoría y Política",
+      author: "F. Mochón"
+    }, {
+      title: "Iniciación a la Contabilidad",
+      author: "Juan Palomero"
+    }, {
+      title: "Plan General de Contabilidad (Ed. 2005)",
+      author: "Varios"
+    }, {
+      title: "Ciencias Políticas y Sociología",
+      author: "Varios"
+    }, {
+      title: "Organización de Empresas y Administración de Personal",
+      author: "Varios"
+    }, {
+      title: "Seguridad e Higiene en el Trabajo",
+      author: "Varios"
+    }, {
+      title: "Tratado de la Constitución para Europa",
+      author: "Varios"
+    }],
+    navarra: [{
+      title: "Navarra, castillos y palacios",
+      author: "GAN"
+    }, {
+      title: "Expedición Navarra al Himalaya-79",
+      author: "GAN"
+    }, {
+      title: "Navarra",
+      author: "GAN"
+    }, {
+      title: "El Arte en Navarra",
+      author: "Diario de Navarra"
+    }, {
+      title: "Bardenas Reales de Navarra",
+      author: "GAN"
+    }, {
+      title: "Navarra en Ruta",
+      author: "Conocer Navarra"
+    }, {
+      title: "Orfebrería de Navarra - 1",
+      author: "Varios"
+    }, {
+      title: "Orfebrería de Navarra - 2",
+      author: "Varios"
+    }, {
+      title: "Descubra España: Cantabria I",
+      author: "Varios"
+    }, {
+      title: "Calignometrías",
+      author: "Koldo Sebastián"
+    }, {
+      title: "La luz y las sombras en la pintura española",
+      author: "Mariano Navarro"
+    }],
+    cocina: [{
+      title: "Amigas entre Fogones",
+      author: "Kate Jacobs"
+    }, {
+      title: "Pocharán navarro",
+      author: "Varios"
+    }, {
+      title: "Dime qué comes y te diré de qué enfermas",
+      author: "Francisco Fajardo"
+    }, {
+      title: "Operación Adelgazar",
+      author: "Blanca Galofre"
+    }, {
+      title: "Vinos de Navarra",
+      author: "Varios"
+    }, {
+      title: "La Dieta de la Vida",
+      author: "Angelita Alfaro"
+    }, {
+      title: "Mis recetas anticáncer",
+      author: "Dra. Odile Fernández"
+    }, {
+      title: "Es fácil dejar de fumar, si sabes cómo",
+      author: "Allen Carr"
+    }, {
+      title: "La Cocina de la Salud",
+      author: "Valentín Fuster / Josep Corbella"
+    }, {
+      title: "Prevenir el cáncer",
+      author: "Varios"
+    }],
+    viajes: [{
+      title: "Siria, Jordania, Yemen e Irán",
+      author: "Travelview"
+    }, {
+      title: "Croacia - Guía Viva",
+      author: "Anaya Touring Club"
+    }, {
+      title: "Las Guías Oro: París",
+      author: "Edición Española"
+    }, {
+      title: "Viena",
+      author: "Condé Nast Traveler"
+    }, {
+      title: "Lisboa",
+      author: "Condé Nast Traveler"
+    }, {
+      title: "Catalunya",
+      author: "Condé Nast Traveler"
+    }, {
+      title: "Dubrovnik",
+      author: "Varios"
+    }, {
+      title: "Acropolis (Griego)",
+      author: "Varios"
+    }, {
+      title: "Arte e Historia: Petra",
+      author: "Edición Española"
+    }, {
+      title: "La Cartuja de Granada",
+      author: "Ibérica"
+    }, {
+      title: "Toda Florencia",
+      author: "Español"
+    }, {
+      title: "Todo Toledo",
+      author: "Español"
+    }, {
+      title: "Todo Salamanca y su provincia",
+      author: "Español"
+    }, {
+      title: "Todo Asturias",
+      author: "Español"
+    }, {
+      title: "Colores de Roma y Vaticano",
+      author: "Español"
+    }, {
+      title: "Niza y sus alrededores",
+      author: "Varios"
+    }, {
+      title: "Pamplona",
+      author: "Iakoberta"
+    }],
+    novelas: [{
+      title: "Pablo Neruda - Obras Completas I",
+      author: "Pablo Neruda"
+    }, {
+      title: "Mi Bárbara",
+      author: "Laura Andreu Noguera"
+    }, {
+      title: "Historias de Mujeres Casadas",
+      author: "Cristina Campos"
+    }, {
+      title: "El Último Catón",
+      author: "Matilde Asensi"
+    }, {
+      title: "El cuco de cristal",
+      author: "Javier Castillo"
+    }, {
+      title: "Todo Arde",
+      author: "Juan Gómez-Jurado"
+    }, {
+      title: "Esclavos de la Libertad",
+      author: "Ildefonso Falcones"
+    }, {
+      title: "El sastre de Panamá",
+      author: "John le Carré"
+    }, {
+      title: "La Casa Rusia",
+      author: "John le Carré"
+    }, {
+      title: "El último suspiro del Moro",
+      author: "Salman Rushdie"
+    }, {
+      title: "Espiral de Artillería",
+      author: "Ignacio Padilla"
+    }, {
+      title: "El peso de la paja",
+      author: "Terenci Moix"
+    }, {
+      title: "La hija del Caníbal",
+      author: "Rosa Montero"
+    }, {
+      title: "El Capitán Alatriste",
+      author: "Arturo Pérez-Reverte"
+    }, {
+      title: "Limpieza de sangre",
+      author: "Arturo Pérez-Reverte"
+    }, {
+      title: "Un hombre",
+      author: "Oriana Fallaci"
+    }, {
+      title: "Te di la vida entera",
+      author: "Zoé Valdés"
+    }, {
+      title: "Los besos en el pan",
+      author: "Almudena Grandes"
+    }, {
+      title: "Mil Soles",
+      author: "Dominique Lapierre"
+    }, {
+      title: "Lo es",
+      author: "Frank McCourt"
+    }, {
+      title: "Noticia de un secuestro",
+      author: "Gabriel García Márquez"
+    }, {
+      title: "La Reina muy de cerca",
+      author: "Pilar Urbano"
+    }, {
+      title: "El manuscrito carmesí",
+      author: "Antonio Gala"
+    }, {
+      title: "La Invitada",
+      author: "Simone de Beauvoir"
+    }, {
+      title: "Los Triunfadores",
+      author: "Varios"
+    }, {
+      title: "Memorias de un preso",
+      author: "Mario Conde"
+    }, {
+      title: "Memorias",
+      author: "Farah Diba Pahlavi"
+    }, {
+      title: "El orgullo del valle",
+      author: "Margari Alonso"
+    }, {
+      title: "Tierra",
+      author: "Eloy Moreno"
+    }, {
+      title: "La luciérnaga azul",
+      author: "Gorka Bandolero"
+    }, {
+      title: "El Chef",
+      author: "Santi Lorente"
+    }, {
+      title: "El triángulo de las banderas",
+      author: "Santi Lorente"
+    }, {
+      title: "87 Lingotes",
+      author: "Gorka Bandolero"
+    }, {
+      title: "El Guerrero de la Llama Azul",
+      author: "Cristina Díaz Brisio"
+    }, {
+      title: "Ángel",
+      author: "Javier González Castellano"
+    }, {
+      title: "Por el camino de Swann",
+      author: "Marcel Proust"
+    }, {
+      title: "El peregrino ruso",
+      author: "Anónimo"
+    }, {
+      title: "La sonrisa etrusca",
+      author: "José Luis Sampedro"
+    }, {
+      title: "El imposible olvido",
+      author: "Antonio Gala"
+    }, {
+      title: "La soledad sonora",
+      author: "Antonio Gala"
+    }, {
+      title: "Los renglones torcidos de Dios",
+      author: "Torcuato Luca de Tena"
+    }, {
+      title: "Sentido y sensibilidad",
+      author: "Jane Austen"
+    }, {
+      title: "Demian",
+      author: "Hermann Hesse"
+    }, {
+      title: "Cállame con un beso",
+      author: "Blue Jeans"
+    }, {
+      title: "¿Sabes que te quiero?",
+      author: "Blue Jeans"
+    }, {
+      title: "Canciones para Paula",
+      author: "Blue Jeans"
+    }, {
+      title: "El Rabino",
+      author: "Noah Gordon"
+    }, {
+      title: "Chamán",
+      author: "Noah Gordon"
+    }, {
+      title: "El médico",
+      author: "Noah Gordon"
+    }, {
+      title: "Enamoramiento y Amor",
+      author: "Francesco Alberoni"
+    }, {
+      title: "La zapatera prodigiosa",
+      author: "Federico García Lorca"
+    }, {
+      title: "Historia de una gaviota...",
+      author: "Luis Sepúlveda"
+    }, {
+      title: "La visita del inspector",
+      author: "J.B. Priestley"
+    }, {
+      title: "Ecce homo",
+      author: "Friedrich Nietzsche"
+    }, {
+      title: "Si te dicen que caí",
+      author: "Juan Marsé"
+    }, {
+      title: "El Príncipe",
+      author: "Nicolás Maquiavelo"
+    }, {
+      title: "El Doctor Jivago",
+      author: "Boris Pasternak"
+    }, {
+      title: "La perla",
+      author: "John Steinbeck"
+    }, {
+      title: "La gaviota / El jardín de los cerezos",
+      author: "Antón Chéjov"
+    }, {
+      title: "Todos los nombres",
+      author: "José Saramago"
+    }, {
+      title: "Réquiem por un campesino español",
+      author: "Ramón J. Sender"
+    }, {
+      title: "Mrs. Caldwell habla con su hijo",
+      author: "Camilo José Cela"
+    }, {
+      title: "La familia de Pascual Duarte",
+      author: "Camilo José Cela"
+    }, {
+      title: "La hoja roja",
+      author: "Miguel Delibes"
+    }, {
+      title: "La espuma de los días",
+      author: "Boris Vian"
+    }, {
+      title: "Los Hermanos Karamázov (I y II)",
+      author: "Fiódor Dostoyevski"
+    }, {
+      title: "El jurado",
+      author: "John Grisham"
+    }, {
+      title: "Los cuentos del confinamiento",
+      author: "Santi Lorente"
+    }, {
+      title: "La ternura de las balas",
+      author: "Manuel Arriztu"
+    }, {
+      title: "Cantares gallegos",
+      author: "Obras Selectas"
+    }, {
+      title: "Cielos e inviernos",
+      author: "Ramón Irigoyen"
+    }, {
+      title: "Trois jours et une vie",
+      author: "Pierre Lemaitre"
+    }, {
+      title: "No pasó nada",
+      author: "Antonio Skármeta"
+    }, {
+      title: "El Guardián de la Flor de Loto",
+      author: "Andrés Pascual"
+    }, {
+      title: "Once minutos",
+      author: "Paulo Coelho"
+    }, {
+      title: "Travesuras de la niña mala",
+      author: "Mario Vargas Llosa"
+    }, {
+      title: "Si al atardecer llegara el mensajero",
+      author: "Puértolas"
+    }, {
+      title: "Una luz en el atardecer",
+      author: "Félix Teira Cubel"
+    }, {
+      title: "Con el diablo en los talones",
+      author: "José Pellón"
+    }, {
+      title: "Nadie vale más que otro",
+      author: "Lorenzo Silva"
+    }, {
+      title: "El hijo del aire",
+      author: "Fanny Rubio"
+    }, {
+      title: "Por qué no podemos esperar",
+      author: "Martin Luther King"
+    }, {
+      title: "El poder y la gloria",
+      author: "Graham Greene"
+    }, {
+      title: "La rabia y el orgullo",
+      author: "Oriana Fallaci"
+    }, {
+      title: "Tu nombre envenena mis sueños",
+      author: "Joaquín Leguina"
+    }, {
+      title: "La ciencia y la vida",
+      author: "V. Fuster / J.L. Sampedro"
+    }, {
+      title: "Katharine Hepburn",
+      author: "Anne Edwards"
+    }, {
+      title: "Los Santos Inocentes",
+      author: "Miguel Delibes"
+    }, {
+      title: "Padre nuestro que estás en Euskadi",
+      author: "Julio Flor"
+    }, {
+      title: "El Presidente",
+      author: "Pilar Cernuda"
+    }, {
+      title: "Pura vida",
+      author: "José María Mendiluce"
+    }, {
+      title: "Septiembre",
+      author: "Rosamunde Pilcher"
+    }, {
+      title: "Como el río que fluye",
+      author: "Paulo Coelho"
+    }, {
+      title: "Los invitados",
+      author: "Alfonso Grosso"
+    }, {
+      title: "Últimos días en Berlín",
+      author: "Paloma Sánchez-Garnica"
+    }, {
+      title: "El Infierno",
+      author: "Carmen Mola"
+    }, {
+      title: "Autónomos",
+      author: "Alex Martínez Vidal"
+    }, {
+      title: "El peligro de estar cuerda",
+      author: "Rosa Montero"
+    }, {
+      title: "Una librería en Berlín",
+      author: "Françoise Frenkel"
+    }, {
+      title: "El niño que perdió la guerra",
+      author: "Julia Navarro"
+    }, {
+      title: "Angélica (saga)",
+      author: "Anne y Serge Golon"
+    }, {
+      title: "Rabos de lagartija",
+      author: "Juan Marsé"
+    }, {
+      title: "La canción de Dorotea",
+      author: "Rosa Regàs"
+    }, {
+      title: "La carta esférica",
+      author: "Arturo Pérez-Reverte"
+    }, {
+      title: "La Saga de los Longevos",
+      author: "Eva Gª Sáenz de Urturi"
+    }, {
+      title: "El Jardín de las Mujeres Verelli",
+      author: "Carla Montero"
+    }, {
+      title: "El secreto de Helena",
+      author: "Lucinda Riley"
+    }, {
+      title: "El Lazarillo de Tormes",
+      author: "Anónimo"
+    }, {
+      title: "Asesinato en el Orient Express",
+      author: "Agatha Christie"
+    }, {
+      title: "Nuestro Juego",
+      author: "John le Carré"
+    }, {
+      title: "Últimas noticias del paraíso",
+      author: "Clara Sánchez"
+    }, {
+      title: "María Azlor, una vida entre las dos Españas",
+      author: "Margari Alonso"
+    }, {
+      title: "Gulliver's Travels",
+      author: "Jonathan Swift"
+    }, {
+      title: "Palabras a mí mismo",
+      author: "Hugh Prather"
+    }, {
+      title: "El Siciliano",
+      author: "Mario Puzo"
+    }, {
+      title: "Mujeres",
+      author: "Marilyn French"
+    }, {
+      title: "El origen del odio",
+      author: "Alice Miller"
+    }, {
+      title: "El colapso de la colmena",
+      author: "Varios"
+    }],
+    ciencias: [{
+      title: "Lengua Española",
+      author: "M. Esgueva / P. Ruiz-Va / A. Quilis"
+    }, {
+      title: "Ortografía Básica",
+      author: "Guillermo Hernández"
+    }, {
+      title: "Física y Química",
+      author: "L. Gómez-Cornejo / M.E. Díez"
+    }, {
+      title: "Gramática Griega",
+      author: "Jaime Berenguer Amenós"
+    }, {
+      title: "El Mundo en Imágenes",
+      author: "National Geographic / BBVA"
+    }, {
+      title: "Monumentos del Patrimonio de la Humanidad en España",
+      author: "BBVA"
+    }, {
+      title: "Pueblos Bellos de España",
+      author: "Luis Carandell"
+    }, {
+      title: "Mensajes del agua",
+      author: "Masaru Emoto"
+    }, {
+      title: "Salvamento y socorrismo",
+      author: "Varios"
+    }, {
+      title: "Revista de Trabajo",
+      author: "Varios"
+    }, {
+      title: "Pink Floyd",
+      author: "Varios"
+    }, {
+      title: "Los Doce Cantos",
+      author: "Varios"
+    }, {
+      title: "Aprende a Relajarte",
+      author: "Varios"
+    }, {
+      title: "El túnel",
+      author: "Ernesto Sábato"
+    }, {
+      title: "Antídotos",
+      author: "Luis Rojas Marcos"
+    }],
+    arte: [{
+      title: "La Historia del Arte",
+      author: "E.H. Gombrich"
+    }, {
+      title: "Leonardo: El vuelo de la mente",
+      author: "Charles Nicholl"
+    }, {
+      title: "La Pintura de Miguel Echauri",
+      author: "Varios"
+    }, {
+      title: "El Chi del Pincel",
+      author: "N. Rae"
+    }, {
+      title: "The Last Flower Paintings of Manet",
+      author: "Robert Gordon / Andrew Forge"
+    }, {
+      title: "Paisaje y Materia",
+      author: "Carlos López"
+    }, {
+      title: "Naturalezas Españolas [1940-1987]",
+      author: "Varios"
+    }, {
+      title: "Van Gogh: La obra completa",
+      author: "Taschen"
+    }, {
+      title: "Museo de Navarra",
+      author: "Varios"
+    }, {
+      title: "Ribera 1591-1652",
+      author: "Museo del Prado"
+    }, {
+      title: "Hooker's Finest Fruits",
+      author: "F.A. Roach / William T. Stearn"
+    }, {
+      title: "Aprender a Dibujar",
+      author: "Peter Gray"
+    }, {
+      title: "Grandes Maestros de la Pintura",
+      author: "Varios"
+    }, {
+      title: "La era de los impresionistas / Monet",
+      author: "Mariano Navarro"
+    }, {
+      title: "Materiales y técnicas del arte",
+      author: "Ralph Mayer"
+    }, {
+      title: "Isabel Guerra: El libro de la Paz Interior",
+      author: "Isabel Guerra"
+    }, {
+      title: "Clásicos del Arte",
+      author: "Noguer / Rizzoli"
+    }, {
+      title: "Aureliano de Beruete",
+      author: "Jesús Lasterra"
+    }, {
+      title: "Pintura Zen: Método y arte del Sumi-e",
+      author: "Varios"
+    }, {
+      title: "Historia del Mueble",
+      author: "María Eugenia Manrique"
+    }, {
+      title: "Gauguin y el viaje a lo exótico",
+      author: "Varios"
+    }, {
+      title: "Exposición Isabel Guerra 2015",
+      author: "Isabel Guerra"
+    }, {
+      title: "How to Paint like Turner",
+      author: "Tate"
+    }, {
+      title: "Modos de ver",
+      author: "John Berger"
+    }, {
+      title: "Zaha Hadid",
+      author: "Philip Jodidio / Taschen"
+    }, {
+      title: "Ana Marín",
+      author: "Retana Editor"
+    }, {
+      title: "Diccionario de las artes",
+      author: "Félix de Azúa"
+    }, {
+      title: "Fotos con Arte",
+      author: "Todo Foto"
+    }, {
+      title: "Sorolla: Apuntes en la Arena",
+      author: "Obra Social La Caixa"
+    }, {
+      title: "Historia del Arte: El Realismo y El Impresionismo",
+      author: "El País"
+    }, {
+      title: "El Arte en Navarra",
+      author: "Diario de Navarra"
+    }],
+    enciclopedias: [{
+      title: "Diccionario Fundamental de la Lengua Española",
+      author: "VOX / Bibliograf"
+    }, {
+      title: "Atlas Actual de Geografía Universal",
+      author: "Bibliograf / VOX"
+    }, {
+      title: "Gran Atlas del Mundo",
+      author: "BBVA / Plaza & Janés"
+    }, {
+      title: "Enciclopedia 3er Grado",
+      author: "EDAF"
+    }, {
+      title: "Guía del Alumno BUP 1992-93",
+      author: "Varios"
+    }, {
+      title: "B.U.P. 3 curso",
+      author: "Varios"
+    }]
+  };
+  const COVERS = {
+    "arte": {
+      "Diccionario de las artes": "arte-026-diccionario-de-las-artes.jpg",
+      "Fotos con Arte": "arte-fotos-con-arte.jpg",
+      "Grandes Maestros de la Pintura": "arte-grandes-maestros-de-la-pintura.jpg",
+      "Hooker's Finest Fruits": "arte-010-hooker-s-finest-fruits.jpg",
+      "How to Paint like Turner": "arte-how-to-paint-like-turner.jpg",
+      "Isabel Guerra: El libro de la Paz Interior": "arte-isabel-guerra-el-libro-de-la-paz-interior.jpg",
+      "La Historia del Arte": "arte-000-la-historia-del-arte.jpg",
+      "Materiales y técnicas del arte": "arte-014-materiales-y-tecnicas-del-arte.jpg",
+      "Modos de ver": "arte-023-modos-de-ver.jpg",
+      "Museo de Navarra": "arte-008-museo-de-navarra.jpg",
+      "Pintura Zen: Método y arte del Sumi-e": "arte-pintura-zen-metodo-y-arte-del-sumi-e.jpg",
+      "Ribera 1591-1652": "arte-ribera-1591-1652.jpg",
+      "Sorolla: Apuntes en la Arena": "arte-028-sorolla-apuntes-en-la-arena.jpg",
+      "The Last Flower Paintings of Manet": "arte-the-last-flower-paintings-of-manet.jpg",
+      "Van Gogh: La obra completa": "arte-van-gogh-la-obra-completa.jpg",
+      "Zaha Hadid": "arte-zaha-hadid.jpg"
+    },
+    "ciencias": {
+      "Antídotos": "ciencias-014-antidotos.jpg",
+      "El túnel": "ciencias-013-el-tunel.jpg",
+      "Gramática Griega": "ciencias-003-gramatica-griega.jpg",
+      "Los Doce Cantos": "ciencias-011-los-doce-cantos.jpg",
+      "Mensajes del agua": "ciencias-007-mensajes-del-agua.jpg",
+      "Ortografía Básica": "ciencias-001-ortografia-basica.jpg",
+      "Pink Floyd": "ciencias-010-pink-floyd.jpg",
+      "Pueblos Bellos de España": "ciencias-006-pueblos-bellos-de-espana.jpg"
+    },
+    "cocina": {
+      "Amigas entre Fogones": "cocina-000-amigas-entre-fogones.jpg",
+      "Dime qué comes y te diré de qué enfermas": "cocina-dime-que-comes-y-te-dire-de-que-enfermas.jpg",
+      "Es fácil dejar de fumar, si sabes cómo": "cocina-007-es-facil-dejar-de-fumar-si-sabes-como.jpg",
+      "La Cocina de la Salud": "cocina-008-la-cocina-de-la-salud.jpg",
+      "Mis recetas anticáncer": "cocina-006-mis-recetas-anticancer.jpg",
+      "Operación Adelgazar": "cocina-003-operacion-adelgazar.jpg",
+      "Prevenir el cáncer": "cocina-009-prevenir-el-cancer.jpg",
+      "Vinos de Navarra": "cocina-004-vinos-de-navarra.jpg"
+    },
+    "derecho": {
+      "Asalto al poder": "derecho-004-asalto-al-poder.jpg",
+      "Derecho Procesal Laboral": "derecho-006-derecho-procesal-laboral.jpg",
+      "Ley de Arbitraje": "derecho-003-ley-de-arbitraje.jpg"
+    },
+    "enciclopedias": {
+      "Atlas Actual de Geografía Universal": "enciclopedias-atlas-actual-de-geografia-universal.jpg",
+      "Diccionario Fundamental de la Lengua Española": "enciclopedias-diccionario-fundamental-de-la-lengua-espanol.jpg"
+    },
+    "historia": {
+      "Ciencias Políticas y Sociología": "historia-011-ciencias-politicas-y-sociologia.jpg",
+      "Diccionario Biográfico de Diputados Forales de Navarra": "historia-003-diccionario-biografico-de-diputados-forales-.jpg",
+      "Economía: Teoría y Política": "historia-008-economia-teoria-y-politica.jpg",
+      "La Guerra Civil contada a los jóvenes": "historia-004-la-guerra-civil-contada-a-los-jovenes.jpg",
+      "La época de las Revoluciones: De Goya a la modernidad": "historia-006-la-epoca-de-las-revoluciones-de-goya-a-la-mo.jpg",
+      "Plan General de Contabilidad (Ed. 2005)": "historia-010-plan-general-de-contabilidad-ed-2005.jpg",
+      "Seguridad e Higiene en el Trabajo": "historia-013-seguridad-e-higiene-en-el-trabajo.jpg"
+    },
+    "infantiles": {
+      "Antonio Machado para niños": "infantiles-051-antonio-machado-para-ninos.jpg",
+      "Ausländer": "infantiles-024-auslander.jpg",
+      "Busca los animales de la Tierra": "infantiles-056-busca-los-animales-de-la-tierra.jpg",
+      "Como si no hubiera sucedido": "infantiles-como-si-no-hubiera-sucedido.jpg",
+      "Diez cuentos de lobos": "infantiles-037-diez-cuentos-de-lobos.jpg",
+      "Don Quijote": "infantiles-027-don-quijote.jpg",
+      "El Pequeño Vampiro": "infantiles-014-el-pequeno-vampiro.jpg",
+      "El Principito": "infantiles-064-el-principito.jpg",
+      "El detective Warton": "infantiles-035-el-detective-warton.jpg",
+      "El empollón, el cabeza cuadrada, el gafotas y el pelmazo": "infantiles-005-el-empollon-el-cabeza-cuadrada-el-gafotas-y-.jpg",
+      "El hámster desaparecido": "infantiles-021-el-hamster-desaparecido.jpg",
+      "El misterio de los hijos de Lúa": "infantiles-006-el-misterio-de-los-hijos-de-lua.jpg",
+      "El monstruo goloso": "infantiles-020-el-monstruo-goloso.jpg",
+      "El niño que quería ser Tintín": "infantiles-044-el-nino-que-queria-ser-tintin.jpg",
+      "El otro barrio": "infantiles-025-el-otro-barrio.jpg",
+      "El pirata Garrapata en Japón": "infantiles-el-pirata-garrapata-en-japon.jpg",
+      "El regreso del gato asesino": "infantiles-033-el-regreso-del-gato-asesino.jpg",
+      "El secreto de papá": "infantiles-008-el-secreto-de-papa.jpg",
+      "Fantasmas de día": "infantiles-042-fantasmas-de-dia.jpg",
+      "Fray Perico de la Mancha": "infantiles-004-fray-perico-de-la-mancha.jpg",
+      "Fray Perico en la guerra": "infantiles-001-fray-perico-en-la-guerra.jpg",
+      "Fray Perico y su borrico": "infantiles-000-fray-perico-y-su-borrico.jpg",
+      "Fray Perico, Calcetín y el guerrillero Martín": "infantiles-002-fray-perico-calcetin-y-el-guerrillero-martin.jpg",
+      "Junie B. Jones y Warren el Superguapo": "infantiles-junie-b-jones-y-warren-el-superguapo.jpg",
+      "Junie B. Jones y el autobús apestoso": "infantiles-junie-b-jones-y-el-autobus-apestoso.jpg",
+      "Kika Superbruja y el hechizo de la Navidad": "infantiles-015-kika-superbruja-y-el-hechizo-de-la-navidad.jpg",
+      "Kimazi y la montaña": "infantiles-009-kimazi-y-la-montana.jpg",
+      "La Puerta del Tiempo": "infantiles-la-puerta-del-tiempo.jpg",
+      "La máquina maravillosa": "infantiles-062-la-maquina-maravillosa.jpg",
+      "Las Crónicas de Narnia": "infantiles-060-las-cronicas-de-narnia.jpg",
+      "Las Fieras Fútbol Club: Joschka": "infantiles-las-fieras-futbol-club-joschka.jpg",
+      "Las Fieras Fútbol Club: Marlon": "infantiles-las-fieras-futbol-club-marlon.jpg",
+      "Marianela": "infantiles-029-marianela.jpg",
+      "Mi abuelo era un cerezo": "infantiles-mi-abuelo-era-un-cerezo.jpg",
+      "Mi primer Quijote": "infantiles-059-mi-primer-quijote.jpg",
+      "Mi primer libro de la Prehistoria": "infantiles-058-mi-primer-libro-de-la-prehistoria.jpg",
+      "Mi vida en el paraíso": "infantiles-031-mi-vida-en-el-paraiso.jpg",
+      "Moby Dick (infantil)": "infantiles-055-moby-dick-infantil.jpg",
+      "Pandillas rivales": "infantiles-043-pandillas-rivales.jpg",
+      "Piratas del Caribe": "infantiles-026-piratas-del-caribe.jpg",
+      "Rastro de Dios y otros cuentos": "infantiles-034-rastro-de-dios-y-otros-cuentos.jpg",
+      "San Manuel Bueno, mártir": "infantiles-028-san-manuel-bueno-martir.jpg",
+      "Teo en un día de fiesta": "infantiles-047-teo-en-un-dia-de-fiesta.jpg",
+      "Teo está enfermo": "infantiles-049-teo-esta-enfermo.jpg",
+      "Teo y los deportes": "infantiles-046-teo-y-los-deportes.jpg",
+      "Teo y su cumpleaños": "infantiles-050-teo-y-su-cumpleanos.jpg",
+      "Teo y su familia": "infantiles-048-teo-y-su-familia.jpg",
+      "Teo y su hermana": "infantiles-045-teo-y-su-hermana.jpg",
+      "The Giver": "infantiles-023-the-giver.jpg",
+      "Tobi Lolness": "infantiles-022-tobi-lolness.jpg",
+      "Un duende a rayas": "infantiles-032-un-duende-a-rayas.jpg",
+      "África en el corazón": "infantiles-030-africa-en-el-corazon.jpg"
+    },
+    "navarra": {
+      "Descubra España: Cantabria I": "navarra-descubra-espana-cantabria-i.jpg"
+    },
+    "novelas": {
+      "Asesinato en el Orient Express": "novelas-108-asesinato-en-el-orient-express.jpg",
+      "Canciones para Paula": "novelas-045-canciones-para-paula.jpg",
+      "Cantares gallegos": "novelas-cantares-gallegos.jpg",
+      "Chamán": "novelas-047-chaman.jpg",
+      "Como el río que fluye": "novelas-092-como-el-rio-que-fluye.jpg",
+      "Con el diablo en los talones": "novelas-078-con-el-diablo-en-los-talones.jpg",
+      "Cállame con un beso": "novelas-043-callame-con-un-beso.jpg",
+      "Demian": "novelas-042-demian.jpg",
+      "Ecce homo": "novelas-053-ecce-homo.jpg",
+      "El Capitán Alatriste": "novelas-013-el-capitan-alatriste.jpg",
+      "El Doctor Jivago": "novelas-el-doctor-jivago.jpg",
+      "El Guardián de la Flor de Loto": "novelas-073-el-guardian-de-la-flor-de-loto.jpg",
+      "El Jardín de las Mujeres Verelli": "novelas-105-el-jardin-de-las-mujeres-verelli.jpg",
+      "El Lazarillo de Tormes": "novelas-107-el-lazarillo-de-tormes.jpg",
+      "El Príncipe": "novelas-055-el-principe.jpg",
+      "El Rabino": "novelas-046-el-rabino.jpg",
+      "El Siciliano": "novelas-114-el-siciliano.jpg",
+      "El cuco de cristal": "novelas-004-el-cuco-de-cristal.jpg",
+      "El imposible olvido": "novelas-038-el-imposible-olvido.jpg",
+      "El jurado": "novelas-066-el-jurado.jpg",
+      "El manuscrito carmesí": "novelas-022-el-manuscrito-carmesi.jpg",
+      "El médico": "novelas-048-el-medico.jpg",
+      "El niño que perdió la guerra": "novelas-el-nino-que-perdio-la-guerra.jpg",
+      "El peligro de estar cuerda": "novelas-097-el-peligro-de-estar-cuerda.jpg",
+      "El peregrino ruso": "novelas-036-el-peregrino-ruso.jpg",
+      "El peso de la paja": "novelas-011-el-peso-de-la-paja.jpg",
+      "El poder y la gloria": "novelas-082-el-poder-y-la-gloria.jpg",
+      "El sastre de Panamá": "novelas-007-el-sastre-de-panama.jpg",
+      "El secreto de Helena": "novelas-106-el-secreto-de-helena.jpg",
+      "El Último Catón": "novelas-003-el-ultimo-caton.jpg",
+      "Enamoramiento y Amor": "novelas-049-enamoramiento-y-amor.jpg",
+      "Esclavos de la Libertad": "novelas-esclavos-de-la-libertad.jpg",
+      "Espiral de Artillería": "novelas-010-espiral-de-artilleria.jpg",
+      "Gulliver's Travels": "novelas-112-gulliver-s-travels.jpg",
+      "Historia de una gaviota...": "novelas-051-historia-de-una-gaviota.jpg",
+      "Historias de Mujeres Casadas": "novelas-002-historias-de-mujeres-casadas.jpg",
+      "Katharine Hepburn": "novelas-086-katharine-hepburn.jpg",
+      "La Casa Rusia": "novelas-008-la-casa-rusia.jpg",
+      "La Invitada": "novelas-023-la-invitada.jpg",
+      "La Reina muy de cerca": "novelas-021-la-reina-muy-de-cerca.jpg",
+      "La Saga de los Longevos": "novelas-104-la-saga-de-los-longevos.jpg",
+      "La canción de Dorotea": "novelas-102-la-cancion-de-dorotea.jpg",
+      "La carta esférica": "novelas-103-la-carta-esferica.jpg",
+      "La ciencia y la vida": "novelas-085-la-ciencia-y-la-vida.jpg",
+      "La espuma de los días": "novelas-la-espuma-de-los-dias.jpg",
+      "La familia de Pascual Duarte": "novelas-062-la-familia-de-pascual-duarte.jpg",
+      "La hija del Caníbal": "novelas-012-la-hija-del-canibal.jpg",
+      "La hoja roja": "novelas-063-la-hoja-roja.jpg",
+      "La perla": "novelas-057-la-perla.jpg",
+      "La rabia y el orgullo": "novelas-083-la-rabia-y-el-orgullo.jpg",
+      "La soledad sonora": "novelas-039-la-soledad-sonora.jpg",
+      "La sonrisa etrusca": "novelas-037-la-sonrisa-etrusca.jpg",
+      "La zapatera prodigiosa": "novelas-050-la-zapatera-prodigiosa.jpg",
+      "Limpieza de sangre": "novelas-014-limpieza-de-sangre.jpg",
+      "Lo es": "novelas-019-lo-es.jpg",
+      "Los Hermanos Karamázov (I y II)": "novelas-los-hermanos-karamazov-i-y-ii.jpg",
+      "Los Santos Inocentes": "novelas-087-los-santos-inocentes.jpg",
+      "Los Triunfadores": "novelas-024-los-triunfadores.jpg",
+      "Los besos en el pan": "novelas-017-los-besos-en-el-pan.jpg",
+      "Los renglones torcidos de Dios": "novelas-040-los-renglones-torcidos-de-dios.jpg",
+      "Memorias": "novelas-memorias.jpg",
+      "Memorias de un preso": "novelas-025-memorias-de-un-preso.jpg",
+      "Mil Soles": "novelas-018-mil-soles.jpg",
+      "Mrs. Caldwell habla con su hijo": "novelas-061-mrs-caldwell-habla-con-su-hijo.jpg",
+      "Mujeres": "novelas-115-mujeres.jpg",
+      "Nadie vale más que otro": "novelas-nadie-vale-mas-que-otro.jpg",
+      "No pasó nada": "novelas-072-no-paso-nada.jpg",
+      "Noticia de un secuestro": "novelas-020-noticia-de-un-secuestro.jpg",
+      "Nuestro Juego": "novelas-109-nuestro-juego.jpg",
+      "Once minutos": "novelas-074-once-minutos.jpg",
+      "Padre nuestro que estás en Euskadi": "novelas-088-padre-nuestro-que-estas-en-euskadi.jpg",
+      "Por el camino de Swann": "novelas-035-por-el-camino-de-swann.jpg",
+      "Pura vida": "novelas-090-pura-vida.jpg",
+      "Rabos de lagartija": "novelas-101-rabos-de-lagartija.jpg",
+      "Réquiem por un campesino español": "novelas-060-requiem-por-un-campesino-espanol.jpg",
+      "Sentido y sensibilidad": "novelas-041-sentido-y-sensibilidad.jpg",
+      "Septiembre": "novelas-091-septiembre.jpg",
+      "Si al atardecer llegara el mensajero": "novelas-076-si-al-atardecer-llegara-el-mensajero.jpg",
+      "Si te dicen que caí": "novelas-054-si-te-dicen-que-cai.jpg",
+      "Te di la vida entera": "novelas-016-te-di-la-vida-entera.jpg",
+      "Tierra": "novelas-028-tierra.jpg",
+      "Todo Arde": "novelas-005-todo-arde.jpg",
+      "Todos los nombres": "novelas-059-todos-los-nombres.jpg",
+      "Travesuras de la niña mala": "novelas-075-travesuras-de-la-nina-mala.jpg",
+      "Trois jours et une vie": "novelas-071-trois-jours-et-une-vie.jpg",
+      "Tu nombre envenena mis sueños": "novelas-084-tu-nombre-envenena-mis-suenos.jpg",
+      "Un hombre": "novelas-015-un-hombre.jpg",
+      "Una luz en el atardecer": "novelas-077-una-luz-en-el-atardecer.jpg",
+      "¿Sabes que te quiero?": "novelas-044-sabes-que-te-quiero.jpg",
+      "Últimas noticias del paraíso": "novelas-110-ultimas-noticias-del-paraiso.jpg",
+      "Últimos días en Berlín": "novelas-094-ultimos-dias-en-berlin.jpg"
+    },
+    "psicologia": {
+      "Constelaciones Familiares": "psicologia-036-constelaciones-familiares.jpg",
+      "Desarrollo psicológico y educación III": "psicologia-desarrollo-psicologico-y-educacion-iii.jpg",
+      "El Poder del Ahora": "psicologia-034-el-poder-del-ahora.jpg",
+      "El cambio familiar: Desarrollos de modelos": "psicologia-023-el-cambio-familiar-desarrollos-de-modelos.jpg",
+      "El sentido del sexo": "psicologia-019-el-sentido-del-sexo.jpg",
+      "Introducción a la psicopatología y la psiquiatría": "psicologia-032-introduccion-a-la-psicopatologia-y-la-psiqui.jpg",
+      "Introducción al psicodiagnóstico de Rorschach": "psicologia-introduccion-al-psicodiagnostico-de-rorschac.jpg",
+      "La fortaleza vacía": "psicologia-018-la-fortaleza-vacia.jpg",
+      "La psicología como posibilidad": "psicologia-027-la-psicologia-como-posibilidad.jpg",
+      "Pensamiento, resolución de problemas y cognición": "psicologia-009-pensamiento-resolucion-de-problemas-y-cognic.jpg",
+      "Poema Pedagógico (1, 2 y 3)": "psicologia-poema-pedagogico-1-2-y-3.jpg",
+      "Seis sombreros para pensar": "psicologia-035-seis-sombreros-para-pensar.jpg",
+      "Use su cabeza para variar": "psicologia-016-use-su-cabeza-para-variar.jpg"
+    },
+    "teologia": {
+      "Almas Muertas": "teologia-046-almas-muertas.jpg",
+      "Bajo el árbol amigo": "teologia-036-bajo-el-arbol-amigo.jpg",
+      "Cuentos Rusos": "teologia-044-cuentos-rusos.jpg",
+      "El Alquimista": "teologia-011-el-alquimista.jpg",
+      "El Loco": "teologia-049-el-loco.jpg",
+      "El Profeta": "teologia-048-el-profeta.jpg",
+      "El camino de Jesús - Relectura de los evangelios": "teologia-032-el-camino-de-jesus-relectura-de-los-evangeli.jpg",
+      "El conflicto con Dios hoy": "teologia-013-el-conflicto-con-dios-hoy.jpg",
+      "El libro del masaje": "teologia-042-el-libro-del-masaje.jpg",
+      "Es fácil dejar de preocuparse": "teologia-014-es-facil-dejar-de-preocuparse.jpg",
+      "Fuego en el corazón": "teologia-025-fuego-en-el-corazon.jpg",
+      "Holy Bible": "teologia-000-holy-bible.jpg",
+      "Introducción al Antiguo Testamento": "teologia-introduccion-al-antiguo-testamento.jpg",
+      "Jesús de Nazaret": "teologia-031-jesus-de-nazaret.jpg",
+      "La Décima Revelación": "teologia-023-la-decima-revelacion.jpg",
+      "La Magia de tu Mente": "teologia-038-la-magia-de-tu-mente.jpg",
+      "La Paradoja": "teologia-026-la-paradoja.jpg",
+      "La enfermedad como camino": "teologia-017-la-enfermedad-como-camino.jpg",
+      "La fuerza del optimismo": "teologia-024-la-fuerza-del-optimismo.jpg",
+      "Las Siete Llamas Sagradas": "teologia-021-las-siete-llamas-sagradas.jpg",
+      "Las doce puertas": "teologia-012-las-doce-puertas.jpg",
+      "Los lugares que te asustan": "teologia-009-los-lugares-que-te-asustan.jpg",
+      "Meditación: La primera y última libertad": "teologia-034-meditacion-la-primera-y-ultima-libertad.jpg",
+      "Mensajes desde el retiro de Saint Germain": "teologia-022-mensajes-desde-el-retiro-de-saint-germain.jpg",
+      "Misal de la asamblea dominical": "teologia-001-misal-de-la-asamblea-dominical.jpg",
+      "Médicos del Cielo": "teologia-007-medicos-del-cielo.jpg",
+      "Obedece a tu cuerpo ¡ámate!": "teologia-003-obedece-a-tu-cuerpo-amate.jpg",
+      "Palabras para cada amanecer": "teologia-037-palabras-para-cada-amanecer.jpg",
+      "Pide y se te dará": "teologia-004-pide-y-se-te-dara.jpg",
+      "Rasgar el velo de la Dualidad": "teologia-040-rasgar-el-velo-de-la-dualidad.jpg",
+      "Shimriti": "teologia-029-shimriti.jpg",
+      "Todo se puede curar": "teologia-002-todo-se-puede-curar.jpg",
+      "Vida, Amor y Risa": "teologia-vida-amor-y-risa.jpg",
+      "Virgo": "teologia-047-virgo.jpg",
+      "Vivir en la luz": "teologia-019-vivir-en-la-luz.jpg"
+    },
+    "viajes": {
+      "Acropolis (Griego)": "viajes-007-acropolis-griego.jpg",
+      "Dubrovnik": "viajes-006-dubrovnik.jpg"
+    }
+  };
+  const FLASHLIGHT_CSS = `
+    .shelf-bg {
+        --color-0: #fff;
+        --color-1: #111;
+        --color-2: #222;
+        --color-3: #333;
+        --color-4: #2e2e2e;
+        --color-5: #d2b48c;
+        --color-6: #b22222;
+        --color-7: #871a1a;
+        --color-8: #ff6347;
+        --color-9: #ff3814;
+        width: 100%;
+        min-height: 100vh;
+        background-color: var(--color-1);
+        background-image: linear-gradient(
+            to top,
+            var(--color-2) 5%,
+            var(--color-1) 6%,
+            var(--color-1) 7%,
+            transparent 7%
+        ),
+        linear-gradient(to bottom, var(--color-1) 30%, transparent 80%),
+        linear-gradient(to right, var(--color-2), var(--color-4) 5%, transparent 5%),
+        linear-gradient(
+            to right,
+            transparent 6%,
+            var(--color-2) 6%,
+            var(--color-4) 9%,
+            transparent 9%
+        ),
+        linear-gradient(
+            to right,
+            transparent 27%,
+            var(--color-2) 27%,
+            var(--color-4) 34%,
+            transparent 34%
+        ),
+        linear-gradient(
+            to right,
+            transparent 51%,
+            var(--color-2) 51%,
+            var(--color-4) 57%,
+            transparent 57%
+        ),
+        linear-gradient(to bottom, var(--color-1) 35%, transparent 35%),
+        linear-gradient(
+            to right,
+            transparent 42%,
+            var(--color-2) 42%,
+            var(--color-4) 44%,
+            transparent 44%
+        ),
+        linear-gradient(
+            to right,
+            transparent 45%,
+            var(--color-2) 45%,
+            var(--color-4) 47%,
+            transparent 47%
+        ),
+        linear-gradient(
+            to right,
+            transparent 48%,
+            var(--color-2) 48%,
+            var(--color-4) 50%,
+            transparent 50%
+        ),
+        linear-gradient(
+            to right,
+            transparent 87%,
+            var(--color-2) 87%,
+            var(--color-4) 91%,
+            transparent 91%
+        ),
+        linear-gradient(to bottom, var(--color-1) 37.5%, transparent 37.5%),
+        linear-gradient(
+            to right,
+            transparent 14%,
+            var(--color-2) 14%,
+            var(--color-4) 20%,
+            transparent 20%
+        ),
+        linear-gradient(to bottom, var(--color-1) 40%, transparent 40%),
+        linear-gradient(
+            to right,
+            transparent 10%,
+            var(--color-2) 10%,
+            var(--color-4) 13%,
+            transparent 13%
+        ),
+        linear-gradient(
+            to right,
+            transparent 21%,
+            var(--color-2) 21%,
+            #1a1a1a 25%,
+            transparent 25%
+        ),
+        linear-gradient(
+            to right,
+            transparent 58%,
+            var(--color-2) 58%,
+            var(--color-4) 64%,
+            transparent 64%
+        ),
+        linear-gradient(
+            to right,
+            transparent 92%,
+            var(--color-2) 92%,
+            var(--color-4) 95%,
+            transparent 95%
+        ),
+        linear-gradient(to bottom, var(--color-1) 48%, transparent 48%),
+        linear-gradient(
+            to right,
+            transparent 96%,
+            var(--color-2) 96%,
+            #1a1a1a 99%,
+            transparent 99%
+        ),
+        linear-gradient(
+            to bottom,
+            transparent 68.5%,
+            transparent 76%,
+            var(--color-1) 76%,
+            var(--color-1) 77.5%,
+            transparent 77.5%,
+            transparent 86%,
+            var(--color-1) 86%,
+            var(--color-1) 87.5%,
+            transparent 87.5%
+        ),
+        linear-gradient(
+            to right,
+            transparent 35%,
+            var(--color-2) 35%,
+            var(--color-4) 41%,
+            transparent 41%
+        ),
+        linear-gradient(to bottom, var(--color-1) 68%, transparent 68%),
+        linear-gradient(
+            to right,
+            transparent 78%,
+            var(--color-3) 78%,
+            var(--color-3) 80%,
+            transparent 80%,
+            transparent 82%,
+            var(--color-3) 82%,
+            var(--color-3) 83%,
+            transparent 83%
+        ),
+        linear-gradient(
+            to right,
+            transparent 66%,
+            var(--color-2) 66%,
+            var(--color-4) 85%,
+            transparent 85%
+        );
+        background-size: 300px 150px;
+        background-position: center bottom;
+        /* Capa de fondo fija al viewport: ya no es el contenedor del
+           contenido ni un scroller, asi que nada de lo que pase en la
+           rejilla puede moverla. */
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .shelf-bg:before {
+        content: "";
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-color: var(--color-1);
+        background-image: linear-gradient(
+            to top,
+            var(--color-5) 5%,
+            var(--color-1) 6%,
+            var(--color-1) 7%,
+            transparent 7%
+        ),
+        linear-gradient(to bottom, var(--color-1) 30%, transparent 30%),
+        linear-gradient(to right, var(--color-6), var(--color-7) 5%, transparent 5%),
+        linear-gradient(
+            to right,
+            transparent 6%,
+            var(--color-8) 6%,
+            var(--color-9) 9%,
+            transparent 9%
+        ),
+        linear-gradient(
+            to right,
+            transparent 27%,
+            #556b2f 27%,
+            #39481f 34%,
+            transparent 34%
+        ),
+        linear-gradient(
+            to right,
+            transparent 51%,
+            #fa8072 51%,
+            #f85441 57%,
+            transparent 57%
+        ),
+        linear-gradient(to bottom, var(--color-1) 35%, transparent 35%),
+        linear-gradient(
+            to right,
+            transparent 42%,
+            #008080 42%,
+            #004d4d 44%,
+            transparent 44%
+        ),
+        linear-gradient(
+            to right,
+            transparent 45%,
+            #008080 45%,
+            #004d4d 47%,
+            transparent 47%
+        ),
+        linear-gradient(
+            to right,
+            transparent 48%,
+            #008080 48%,
+            #004d4d 50%,
+            transparent 50%
+        ),
+        linear-gradient(
+            to right,
+            transparent 87%,
+            #789 87%,
+            #4f5d6a 91%,
+            transparent 91%
+        ),
+        linear-gradient(to bottom, var(--color-1) 37.5%, transparent 37.5%),
+        linear-gradient(
+            to right,
+            transparent 14%,
+            #bdb76b 14%,
+            #989244 20%,
+            transparent 20%
+        ),
+        linear-gradient(to bottom, var(--color-1) 40%, transparent 40%),
+        linear-gradient(
+            to right,
+            transparent 10%,
+            #808000 10%,
+            #4d4d00 13%,
+            transparent 13%
+        ),
+        linear-gradient(
+            to right,
+            transparent 21%,
+            #8b4513 21%,
+            #5e2f0d 25%,
+            transparent 25%
+        ),
+        linear-gradient(
+            to right,
+            transparent 58%,
+            #8b4513 58%,
+            #5e2f0d 64%,
+            transparent 64%
+        ),
+        linear-gradient(
+            to right,
+            transparent 92%,
+            #2f4f4f 92%,
+            #1c2f2f 95%,
+            transparent 95%
+        ),
+        linear-gradient(to bottom, var(--color-1) 48%, transparent 48%),
+        linear-gradient(
+            to right,
+            transparent 96%,
+            #2f4f4f 96%,
+            #1c2f2f 99%,
+            transparent 99%
+        ),
+        linear-gradient(
+            to bottom,
+            transparent 68.5%,
+            transparent 76%,
+            var(--color-1) 76%,
+            var(--color-1) 77.5%,
+            transparent 77.5%,
+            transparent 86%,
+            var(--color-1) 86%,
+            var(--color-1) 87.5%,
+            transparent 87.5%
+        ),
+        linear-gradient(
+            to right,
+            transparent 35%,
+            #cd5c5c 35%,
+            #bc3a3a 41%,
+            transparent 41%
+        ),
+        linear-gradient(to bottom, var(--color-1) 68%, transparent 68%),
+        linear-gradient(
+            to right,
+            transparent 78%,
+            #bc8f8f 78%,
+            #bc8f8f 80%,
+            transparent 80%,
+            transparent 82%,
+            #bc8f8f 82%,
+            #bc8f8f 83%,
+            transparent 83%
+        ),
+        linear-gradient(
+            to right,
+            transparent 66%,
+            #a52a2a 66%,
+            #7c2020 85%,
+            transparent 85%
+        );
+        background-size: 300px 150px;
+        background-position: center bottom;
+        z-index: 0;
+    }
+
+    .content-wrapper {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        min-height: 100vh;
+    }
+
+    /* ================= LIBRERÍA: rejilla y tarjetas ================= */
+    /* Nada de esto debe alterar el layout al pasar el ratón: las
+       tarjetas tienen altura fija y solo se anima transform. */
+
+    .library-root { position: relative; min-height: 100vh; }
+
+    .books-grid {
+        display: grid;
+        column-gap: 1rem;
+        row-gap: 1.75rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (min-width: 640px)  { .books-grid { grid-template-columns: repeat(3, minmax(0,1fr)); column-gap: 1.25rem; row-gap: 2rem; } }
+    @media (min-width: 768px)  { .books-grid { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+    @media (min-width: 1024px) { .books-grid { grid-template-columns: repeat(5, minmax(0,1fr)); } }
+    @media (min-width: 1280px) { .books-grid { grid-template-columns: repeat(6, minmax(0,1fr)); } }
+
+    .book-card {
+        position: relative;
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .book-card__inner {
+        display: block;
+        transform: translate3d(0, 0, 0);
+        transition: transform .3s cubic-bezier(.22,.61,.36,1), filter .3s ease;
+        will-change: transform;
+    }
+    /* Solo el libro señalado se mueve. Nunca cambia el flujo. */
+    @media (hover: hover) and (pointer: fine) {
+        .book-card:hover  { z-index: 5; }
+        .book-card:hover  .book-card__inner,
+        .book-card:focus-visible .book-card__inner {
+            transform: translate3d(0, -8px, 0) scale(1.045);
+        }
+        .book-card:hover .book-card__cover { box-shadow: 0 18px 32px -14px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.06); }
+    }
+    .book-card:focus-visible { outline: 2px solid var(--cat, #fff); outline-offset: 4px; border-radius: .5rem; }
+    .book-card:active .book-card__inner { transform: translate3d(0, -3px, 0) scale(.985); }
+
+    .book-card__cover {
+        position: relative;
+        display: block;
+        aspect-ratio: 2 / 3;
+        border-radius: .2rem .45rem .45rem .2rem;
+        overflow: hidden;
+        background: #16181d;
+        box-shadow: 0 10px 22px -14px rgba(0,0,0,.95), 0 1px 4px rgba(0,0,0,.6);
+        transition: box-shadow .3s ease, opacity .3s ease;
+    }
+    .cover-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+    .cover-fallback {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: .4rem;
+        padding: 11% 9%;
+        background-color: var(--cat, #555);
+        background-image: linear-gradient(155deg, rgba(255,255,255,.22), rgba(255,255,255,0) 42%, rgba(0,0,0,.42) 100%);
+    }
+    .cover-fallback::before {
+        content: "";
+        position: absolute;
+        inset: 6% 5%;
+        border: 1px solid currentColor;
+        opacity: .3;
+        border-radius: 2px;
+        pointer-events: none;
+    }
+    .cover-fallback__title {
+        position: relative;
+        font-weight: 800;
+        font-size: clamp(.6rem, 1.45vw, .95rem);
+        line-height: 1.14;
+        letter-spacing: -.01em;
+        display: -webkit-box;
+        -webkit-line-clamp: 6;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .cover-fallback__author {
+        position: relative;
+        font-size: clamp(.52rem, 1.05vw, .74rem);
+        font-weight: 600;
+        opacity: .85;
+        border-top: 1px solid currentColor;
+        padding-top: .28rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .book-card__spine {
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 8%;
+        background: linear-gradient(90deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.22) 55%, rgba(255,255,255,.05) 100%);
+        pointer-events: none;
+    }
+    .book-card__band {
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: var(--cat, #888);
+        pointer-events: none;
+    }
+    .book-card__meta {
+        display: block;
+        height: 3.35rem;
+        margin-top: .5rem;
+        overflow: hidden;
+        text-shadow: 0 1px 3px rgba(0,0,0,.95), 0 0 10px rgba(0,0,0,.8);
+    }
+    .book-card__title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: .8rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: #e8e9ee;
+    }
+    .book-card__author {
+        display: block;
+        margin-top: .12rem;
+        font-size: .69rem;
+        color: #9ba1ad;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* El resto del estante queda quieto y atenuado */
+    .books-grid.is-dimmed .book-card:not(.is-open) .book-card__inner { filter: brightness(.35) saturate(.55); }
+    .book-card.is-open .book-card__cover {
+        opacity: .12;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+    }
+    .book-card.is-open .book-card__meta { opacity: .35; }
+
+    /* ================= FICHA EN 3D ================= */
+
+    .book3d-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .book3d-backdrop {
+        position: absolute;
+        inset: 0;
+        border: 0;
+        padding: 0;
+        background: rgba(6,7,10,.84);
+        -webkit-backdrop-filter: blur(7px);
+        backdrop-filter: blur(7px);
+        cursor: zoom-out;
+        animation: b3dFade .3s ease both;
+    }
+    .book3d-dialog {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.25rem;
+        width: 100%;
+        max-width: 60rem;
+        max-height: 100%;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: .5rem;
+    }
+    @media (min-width: 900px) {
+        .book3d-dialog { flex-direction: row; align-items: center; justify-content: center; gap: 2.75rem; }
+    }
+
+    .book3d-stage {
+        position: relative;
+        flex: 0 0 auto;
+        perspective: 1500px;
+        perspective-origin: 50% 44%;
+        padding: 2rem 1rem 2.75rem;
+    }
+    .book3d-wrap {
+        transform-style: preserve-3d;
+        animation: b3dEnter .95s cubic-bezier(.2,.68,.3,1) both;
+    }
+    .book3d {
+        --bw: clamp(140px, 40vw, 232px);
+        --bh: calc(var(--bw) * 1.48);
+        --bd: clamp(18px, 5vw, 34px);
+        position: relative;
+        width: var(--bw);
+        height: var(--bh);
+        transform-style: preserve-3d;
+        transform: rotateX(7deg) rotateY(-26deg);
+        transition: transform .85s cubic-bezier(.22,.61,.36,1);
+        will-change: transform;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .book3d.is-back { transform: rotateX(7deg) rotateY(-206deg); }
+
+    .book3d-floor {
+        position: absolute;
+        left: 50%;
+        bottom: .9rem;
+        width: clamp(150px, 42vw, 250px);
+        height: 22px;
+        transform: translateX(-50%);
+        background: radial-gradient(ellipse at center, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 70%);
+        filter: blur(3px);
+        pointer-events: none;
+    }
+
+    .b3d-face {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        overflow: hidden;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+    .b3d-front, .b3d-back { width: var(--bw); height: var(--bh); }
+    .b3d-front {
+        transform: translate(-50%, -50%) translateZ(calc(var(--bd) / 2));
+        border-radius: 2px 6px 6px 2px;
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,.4);
+    }
+    .b3d-front::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(105deg, rgba(255,255,255,.26) 0%, rgba(255,255,255,0) 32%, rgba(0,0,0,.28) 100%);
+        pointer-events: none;
+    }
+    .b3d-back {
+        transform: translate(-50%, -50%) rotateY(180deg) translateZ(calc(var(--bd) / 2));
+        border-radius: 6px 2px 2px 6px;
+        background-color: var(--cat, #444);
+        background-image: linear-gradient(200deg, rgba(0,0,0,.45), rgba(0,0,0,.05));
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12% 10%;
+    }
+    .b3d-back__text { font-size: clamp(.55rem, 1.5vw, .74rem); line-height: 1.35; opacity: .9; }
+    .b3d-back__mark { font-size: clamp(.5rem, 1.3vw, .64rem); letter-spacing: .12em; text-transform: uppercase; opacity: .65; }
+
+    .b3d-spine {
+        width: var(--bd);
+        height: var(--bh);
+        transform: translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--bw) / 2));
+        background-color: var(--cat, #444);
+        background-image: linear-gradient(90deg, rgba(0,0,0,.5), rgba(255,255,255,.12) 45%, rgba(0,0,0,.45));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: .5rem .1rem;
+        border-radius: 2px 0 0 2px;
+    }
+    .b3d-spine__text {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        font-size: clamp(.42rem, 1.25vw, .62rem);
+        font-weight: 800;
+        letter-spacing: .04em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 100%;
+    }
+    .b3d-edge {
+        width: var(--bd);
+        height: var(--bh);
+        transform: translate(-50%, -50%) rotateY(90deg) translateZ(calc(var(--bw) / 2));
+        background-color: #efe8d8;
+        background-image: repeating-linear-gradient(to right, rgba(0,0,0,.16) 0 1px, rgba(0,0,0,0) 1px 3px);
+        box-shadow: inset -6px 0 10px -6px rgba(0,0,0,.55);
+        border-radius: 0 3px 3px 0;
+    }
+    .b3d-top, .b3d-bottom {
+        width: var(--bw);
+        height: var(--bd);
+        background-color: #efe8d8;
+        background-image: repeating-linear-gradient(to bottom, rgba(0,0,0,.14) 0 1px, rgba(0,0,0,0) 1px 3px);
+    }
+    .b3d-top    { transform: translate(-50%, -50%) rotateX(90deg)  translateZ(calc(var(--bh) / 2)); }
+    .b3d-bottom { transform: translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--bh) / 2)); box-shadow: inset 0 -6px 10px -6px rgba(0,0,0,.6); }
+
+    .book3d-info {
+        flex: 1 1 20rem;
+        min-width: 0;
+        max-width: 30rem;
+        background: rgba(16,18,23,.88);
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 1rem;
+        padding: 1.35rem 1.4rem;
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 30px 60px -30px rgba(0,0,0,.9);
+        animation: b3dInfo .5s .15s cubic-bezier(.2,.68,.3,1) both;
+    }
+    .book3d-info__kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        font-size: .68rem;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--cat, #ccc);
+    }
+    .book3d-info__kicker::before {
+        content: "";
+        width: .55rem; height: .55rem;
+        border-radius: 50%;
+        background: var(--cat, #ccc);
+        box-shadow: 0 0 10px var(--cat, #ccc);
+    }
+    .book3d-info__title { margin-top: .5rem; font-size: clamp(1.2rem, 3.4vw, 1.65rem); font-weight: 800; line-height: 1.15; color: #f3f4f7; }
+    .book3d-info__author { margin-top: .3rem; font-size: .95rem; color: #a9b0bd; }
+    .book3d-facts { margin-top: 1.1rem; display: grid; grid-template-columns: auto 1fr; gap: .45rem .9rem; font-size: .82rem; }
+    .book3d-facts dt { color: #7f8794; font-weight: 600; }
+    .book3d-facts dd { color: #dfe2e8; margin: 0; overflow-wrap: anywhere; }
+    .book3d-actions { margin-top: 1.35rem; display: flex; flex-wrap: wrap; gap: .6rem; }
+    .book3d-btn {
+        border: 1px solid rgba(255,255,255,.16);
+        background: rgba(255,255,255,.06);
+        color: #e8eaf0;
+        border-radius: .6rem;
+        padding: .5rem .95rem;
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .2s ease, border-color .2s ease;
+    }
+    .book3d-btn:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); }
+    .book3d-btn--primary { border-color: var(--cat, #888); color: var(--cat, #ddd); }
+    .book3d-hint { margin-top: .8rem; font-size: .7rem; color: #6f7783; }
+
+    @keyframes b3dFade { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes b3dInfo { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+    @keyframes b3dEnter {
+        from { opacity: 0; transform: translate3d(-18%, 8%, -320px) rotateY(-62deg) scale(.82); }
+        55%  { opacity: 1; }
+        to   { opacity: 1; transform: translate3d(0, 0, 0) rotateY(0deg) scale(1); }
+    }
+
+    /* Versión sin giro para quien prefiere menos movimiento */
+    @media (prefers-reduced-motion: reduce) {
+        .book-card__inner { transition: none; }
+        .book-card:hover .book-card__inner,
+        .book-card:focus-visible .book-card__inner { transform: none; }
+        .book3d-wrap { animation: none; }
+        .book3d-backdrop, .book3d-info { animation: none; }
+        .book3d { transition: none; transform: none; }
+        .book3d.is-back { transform: rotateY(180deg); }
+        .book3d-floor { display: none; }
+    }
+`;
+  const COVER_BASE = '../../img/Libros/portadas/';
+  const hexToRgb = hex => {
+    const h = String(hex || '#888888').replace('#', '');
+    const f = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+    return [parseInt(f.slice(0, 2), 16) || 0, parseInt(f.slice(2, 4), 16) || 0, parseInt(f.slice(4, 6), 16) || 0];
+  };
+  const readableOn = hex => {
+    const [r, g, b] = hexToRgb(hex);
+    const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    return lum > 0.55 ? '#111318' : '#f6f4ef';
+  };
+  const coverFileFor = (catId, book) => {
+    const map = COVERS[catId];
+    return map && map[book.title] || null;
+  };
+  const CoverArt = ({
+    book,
+    color,
+    file,
+    variant
+  }) => {
+    const [failed, setFailed] = useState(false);
+    const useImage = Boolean(file) && !failed;
+    if (useImage) {
+      return React.createElement("img", {
+        className: "cover-img",
+        src: COVER_BASE + file,
+        alt: 'Portada de ' + book.title,
+        loading: variant === 'card' ? 'lazy' : 'eager',
+        decoding: "async",
+        draggable: "false",
+        onError: () => setFailed(true)
+      });
+    }
+    return React.createElement("span", {
+      className: "cover-fallback",
+      style: {
+        '--cat': color,
+        color: readableOn(color)
+      }
+    }, React.createElement("span", {
+      className: "cover-fallback__title"
+    }, book.title), React.createElement("span", {
+      className: "cover-fallback__author"
+    }, book.author));
+  };
+  const luminancia = hex => {
+    const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const textoSobreOscuro = hex => {
+    const fondo = luminancia('#111111');
+    for (let t = 0; t <= 1; t += 0.05) {
+      const mezcla = '#' + [1, 3, 5].map(i => {
+        const v = parseInt(hex.slice(i, i + 2), 16);
+        return Math.round(v + (255 - v) * t).toString(16).padStart(2, '0');
+      }).join('');
+      if ((luminancia(mezcla) + 0.05) / (fondo + 0.05) >= 4.5) return mezcla;
+    }
+    return '#ffffff';
+  };
+  const CategoryCard = ({
+    category,
+    onClick
+  }) => {
+    return React.createElement("button", {
+      onClick: () => onClick(category),
+      className: "group relative w-full h-32 md:h-40 rounded-xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95 flex items-center justify-center overflow-hidden backdrop-blur-sm",
+      style: {
+        backgroundColor: 'transparent',
+        borderColor: category.color,
+        borderWidth: '2px',
+        color: textoSobreOscuro(category.color),
+        boxShadow: `0 0 10px -5px ${category.color}`
+      }
+    }, React.createElement("div", {
+      className: "z-10 text-center px-4"
+    }, React.createElement("h3", {
+      className: "text-xl md:text-2xl font-bold uppercase tracking-wider font-mono drop-shadow-md"
+    }, category.name)), React.createElement("div", {
+      className: "absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-10",
+      style: {
+        backgroundColor: category.color
+      }
+    }));
+  };
+  const BookItem = ({
+    book,
+    color,
+    file,
+    isOpen,
+    onSelect
+  }) => {
+    return React.createElement("button", {
+      type: "button",
+      className: 'book-card' + (isOpen ? ' is-open' : ''),
+      style: {
+        '--cat': color
+      },
+      "aria-label": 'Ver ficha de ' + book.title + ', de ' + book.author,
+      onClick: onSelect
+    }, React.createElement("span", {
+      className: "book-card__inner"
+    }, React.createElement("span", {
+      className: "book-card__cover"
+    }, React.createElement(CoverArt, {
+      book: book,
+      color: color,
+      file: file,
+      variant: "card"
+    }), React.createElement("span", {
+      className: "book-card__spine",
+      "aria-hidden": "true"
+    }), React.createElement("span", {
+      className: "book-card__band",
+      "aria-hidden": "true"
+    })), React.createElement("span", {
+      className: "book-card__meta"
+    }, React.createElement("span", {
+      className: "book-card__title"
+    }, book.title), React.createElement("span", {
+      className: "book-card__author"
+    }, book.author))));
+  };
+  const EXTRA_FIELDS = [['year', 'Año'], ['anio', 'Año'], ['año', 'Año'], ['publisher', 'Editorial'], ['editorial', 'Editorial'], ['edition', 'Edición'], ['edicion', 'Edición'], ['isbn', 'ISBN'], ['pages', 'Páginas'], ['paginas', 'Páginas'], ['language', 'Idioma'], ['idioma', 'Idioma'], ['saga', 'Saga'], ['series', 'Saga'], ['status', 'Estado de lectura'], ['estado', 'Estado de lectura'], ['leido', 'Estado de lectura'], ['rating', 'Valoración'], ['valoracion', 'Valoración'], ['location', 'Ubicación'], ['ubicacion', 'Ubicación'], ['balda', 'Balda'], ['notes', 'Notas'], ['notas', 'Notas']];
+  const Book3DModal = ({
+    book,
+    category,
+    file,
+    index,
+    total,
+    onClose
+  }) => {
+    const [showBack, setShowBack] = useState(false);
+    const closeRef = useRef(null);
+    useEffect(() => {
+      const root = document.documentElement;
+      root.classList.add('b3d-open');
+      const onKey = e => {
+        if (e.key === 'Escape') onClose();
+      };
+      document.addEventListener('keydown', onKey);
+      if (closeRef.current) closeRef.current.focus();
+      return () => {
+        root.classList.remove('b3d-open');
+        document.removeEventListener('keydown', onKey);
+      };
+    }, [onClose]);
+    const extras = EXTRA_FIELDS.filter(([key]) => book[key] !== undefined && book[key] !== null && String(book[key]).trim() !== '');
+    const seen = {};
+    return React.createElement("div", {
+      className: "book3d-overlay",
+      role: "dialog",
+      "aria-modal": "true",
+      "aria-label": 'Ficha de ' + book.title
+    }, React.createElement("button", {
+      className: "book3d-backdrop",
+      "aria-label": "Cerrar ficha",
+      onClick: onClose
+    }), React.createElement("div", {
+      className: "book3d-dialog",
+      style: {
+        '--cat': category.color
+      }
+    }, React.createElement("div", {
+      className: "book3d-stage"
+    }, React.createElement("div", {
+      className: "book3d-wrap"
+    }, React.createElement("div", {
+      className: 'book3d' + (showBack ? ' is-back' : ''),
+      style: {
+        '--cat': category.color,
+        color: readableOn(category.color)
+      },
+      onClick: () => setShowBack(v => !v),
+      role: "button",
+      tabIndex: 0,
+      "aria-label": showBack ? 'Ver la portada' : 'Ver la contraportada',
+      onKeyDown: e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setShowBack(v => !v);
+        }
+      }
+    }, React.createElement("div", {
+      className: "b3d-face b3d-front"
+    }, React.createElement(CoverArt, {
+      book: book,
+      color: category.color,
+      file: file,
+      variant: "hero"
+    })), React.createElement("div", {
+      className: "b3d-face b3d-back"
+    }, React.createElement("span", {
+      className: "b3d-back__text"
+    }, book.title), React.createElement("span", {
+      className: "b3d-back__mark"
+    }, "Biblioteca · ", category.name)), React.createElement("div", {
+      className: "b3d-face b3d-spine"
+    }, React.createElement("span", {
+      className: "b3d-spine__text"
+    }, book.title)), React.createElement("div", {
+      className: "b3d-face b3d-edge"
+    }), React.createElement("div", {
+      className: "b3d-face b3d-top"
+    }), React.createElement("div", {
+      className: "b3d-face b3d-bottom"
+    }))), React.createElement("div", {
+      className: "book3d-floor",
+      "aria-hidden": "true"
+    })), React.createElement("div", {
+      className: "book3d-info",
+      style: {
+        '--cat': category.color
+      }
+    }, React.createElement("span", {
+      className: "book3d-info__kicker"
+    }, category.name), React.createElement("h3", {
+      className: "book3d-info__title"
+    }, book.title), React.createElement("p", {
+      className: "book3d-info__author"
+    }, book.author), React.createElement("dl", {
+      className: "book3d-facts"
+    }, React.createElement("dt", null, "Género"), React.createElement("dd", null, category.name), React.createElement("dt", null, "Autor"), React.createElement("dd", null, book.author), extras.map(([key, label]) => {
+      if (seen[label]) return null;
+      seen[label] = true;
+      return React.createElement(React.Fragment, {
+        key: key
+      }, React.createElement("dt", null, label), React.createElement("dd", null, String(book[key])));
+    }), React.createElement("dt", null, "En el estante"), React.createElement("dd", null, "Ejemplar ", index + 1, " de ", total), React.createElement("dt", null, "Balda"), React.createElement("dd", null, category.name, " · ", category.label), React.createElement("dt", null, "Portada"), React.createElement("dd", null, file ? 'Archivo local (Open Library)' : 'Generada con el color del género')), React.createElement("div", {
+      className: "book3d-actions"
+    }, React.createElement("button", {
+      type: "button",
+      className: "book3d-btn book3d-btn--primary",
+      onClick: () => setShowBack(v => !v)
+    }, showBack ? 'Ver portada' : 'Girar el libro'), React.createElement("button", {
+      type: "button",
+      className: "book3d-btn",
+      ref: closeRef,
+      onClick: onClose
+    }, "Devolver al estante")), React.createElement("p", {
+      className: "book3d-hint"
+    }, "Toca el libro para girarlo. Pulsa Esc o fuera para cerrarlo."))));
+  };
+  function App() {
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selected, setSelected] = useState(null);
+    const openCategory = useCallback(cat => {
+      setSelected(null);
+      setSelectedCategory(cat);
+      evento('categoria_abierta', {
+        categoria: cat.id
+      });
+    }, []);
+    const closeBook = useCallback(() => setSelected(null), []);
+    const list = selectedCategory ? BOOKS[selectedCategory.id] || [] : [];
+    const openBook = selected ? list[selected.index] : null;
+    return React.createElement(React.Fragment, null, React.createElement("style", null, FLASHLIGHT_CSS), React.createElement("div", {
+      className: "library-root font-sans text-gray-100"
+    }, React.createElement("div", {
+      className: "shelf-bg",
+      "aria-hidden": "true"
+    }), React.createElement("div", {
+      className: "content-wrapper"
+    }, React.createElement("header", {
+      className: "p-6 bg-gray-900/60 backdrop-blur-md sticky top-0 z-50 border-b border-gray-800/50"
+    }, React.createElement("div", {
+      className: "max-w-7xl mx-auto flex items-center justify-between"
+    }, React.createElement("div", {
+      className: "flex items-center gap-3"
+    }, React.createElement("div", {
+      className: "p-2 bg-indigo-600/80 rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.5)]"
+    }, React.createElement(LibraryIcon, {
+      className: "w-6 h-6 text-white"
+    })), React.createElement("h1", {
+      className: "text-2xl font-bold tracking-tight text-white drop-shadow-md"
+    }, "Gestor de Biblioteca")), selectedCategory && React.createElement("button", {
+      onClick: () => {
+        setSelected(null);
+        setSelectedCategory(null);
+      },
+      className: "flex items-center gap-2 px-4 py-2 bg-gray-800/80 hover:bg-gray-700/80 border border-gray-600 rounded-lg transition-colors text-sm font-medium backdrop-blur-sm"
+    }, React.createElement(ArrowLeft, {
+      className: "w-4 h-4"
+    }), "Volver a Categorías"))), React.createElement("main", {
+      className: "max-w-7xl mx-auto p-4 md:p-8 pb-16"
+    }, !selectedCategory ? React.createElement("div", null, React.createElement("h2", {
+      className: "text-xl text-gray-300 mb-6 font-light drop-shadow-md"
+    }, "Selecciona una categoría para explorar"), React.createElement("div", {
+      className: "grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6"
+    }, CATEGORIES.map(cat => React.createElement(CategoryCard, {
+      key: cat.id,
+      category: cat,
+      onClick: openCategory
+    })))) : React.createElement("div", null, React.createElement("div", {
+      className: "mb-8 flex items-baseline gap-4 border-b border-gray-700/50 pb-4"
+    }, React.createElement("h2", {
+      className: "text-3xl md:text-4xl font-black uppercase",
+      style: {
+        color: textoSobreOscuro(selectedCategory.color)
+      }
+    }, selectedCategory.name), React.createElement("span", {
+      className: "text-gray-400 font-medium"
+    }, list.length, " libros")), React.createElement("div", {
+      className: 'books-grid' + (openBook ? ' is-dimmed' : '')
+    }, list.map((book, index) => React.createElement(BookItem, {
+      key: selectedCategory.id + '-' + index,
+      book: book,
+      color: selectedCategory.color,
+      file: coverFileFor(selectedCategory.id, book),
+      isOpen: Boolean(selected) && selected.index === index,
+      onSelect: () => {
+        setSelected({
+          index
+        });
+        evento('libro_abierto', {
+          categoria: selectedCategory.id
+        });
+      }
+    })), list.length === 0 && React.createElement("div", {
+      className: "col-span-full text-center py-20 text-gray-500"
+    }, React.createElement("p", null, "No hay libros registrados en esta categoría aún."))))), React.createElement("footer", {
+      className: "fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm border-t border-gray-800/50 p-2 text-center text-xs text-gray-500 z-40"
+    }, "Sistema de Archivo v1.2")), openBook && React.createElement(Book3DModal, {
+      key: selectedCategory.id + '-' + selected.index,
+      book: openBook,
+      category: selectedCategory,
+      file: coverFileFor(selectedCategory.id, openBook),
+      index: selected.index,
+      total: list.length,
+      onClose: closeBook
+    })));
+  }
+  class Seguro extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        fallo: false
+      };
+    }
+    static getDerivedStateFromError() {
+      return {
+        fallo: true
+      };
+    }
+    componentDidCatch(error) {
+      if (window.rpApp) window.rpApp.fallo(error && error.message, 'biblioteca.jsx');
+    }
+    render() {
+      if (!this.state.fallo) return this.props.children;
+      return React.createElement("div", {
+        role: "alert",
+        className: "max-w-md mx-auto mt-24 p-6 rounded-xl border border-gray-700 bg-gray-900 text-center"
+      }, React.createElement("p", {
+        className: "text-lg font-bold text-white mb-2"
+      }, "No se ha podido mostrar la biblioteca"), React.createElement("p", {
+        className: "text-gray-300 mb-4"
+      }, "Ha fallado algo al pintar la página. Recárgala para volver a intentarlo."), React.createElement("button", {
+        type: "button",
+        onClick: () => location.reload(),
+        className: "px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold"
+      }, "Recargar"));
+    }
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(React.createElement(Seguro, null, React.createElement(App, null)));
+})();

@@ -41,11 +41,11 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios.
 │   └── cabanillas-data.js  # Datos embebidos: Catastro de Navarra (alturas/parcelas) + OpenStreetMap
 ├── apps/                   # Aplicaciones (las públicas se instalan como PWA: *.webmanifest + sw.js)
 │   ├── sw.js               # Service worker «red primero»: apps sin conexión
-│   ├── biblioteca/         # (no listada, noindex)
+│   ├── biblioteca/         # (no listada, noindex) Fuente: biblioteca.jsx → npm run build
 │   ├── conversor-rueda.html  # Rueda: conversor de archivos
 │   ├── escenas/            # Control de cámara: blocking 3D + generador de prompts
 │   ├── format-explorer.html  # Escritorio estilo Vista que abre todas las apps
-│   ├── instagram-downloader/   # (no listada, noindex)
+│   ├── instagram-downloader/   # (no listada, noindex) server.js local + pruebas/ (npm test)
 │   └── pantxiko-notes.html # Notas con dictado y copia de seguridad
 └── juegos/                 # Juegos
     ├── Chess3D/
@@ -62,6 +62,8 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios.
 
 - HTML / CSS / JavaScript vanilla
 - Tailwind CSS compilado para la portada (`CSS/tailwind.css`): si añades clases nuevas a `index.html`, ejecuta `npm run css`
+- Biblioteca e Instagram Downloader también se compilan (`npm install` una vez y `npm run build`); la CI avisa si algo generado no coincide con su fuente
+- Pruebas: `npm test` (servidor del Instagram Downloader con un yt-dlp falso)
 - Font Awesome vía CDN
 - Three.js r170 servido desde el repo (`js/vendor/three/`) para las escenas 3D de Servicios
 - Google Analytics 4 (`G-QDLQVMJHMJ`) cargado por `js/consentimiento.js` solo tras aceptar las cookies; fuera de rubenpantxo.com no mide (añade `?ga=1` para probarlo en local)

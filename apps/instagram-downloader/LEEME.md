@@ -39,18 +39,22 @@ python -m pip install -U yt-dlp
 
 | Archivo | Para qué sirve |
 |---|---|
-| `index_insta_down.html` | La interfaz |
+| `index_insta_down.html` | La interfaz (lleva el CSS de Tailwind dentro: `npm run css:insta` lo regenera) |
 | `server.js` | Servidor local (puerto 8787) que llama a yt-dlp |
 | `Iniciar.bat` | Lanzador: comprueba requisitos, arranca y abre el navegador |
+| `pruebas/` | Pruebas automáticas del servidor (`npm test` desde la raíz del repo) |
 
 ## Seguridad
 
-Este servidor lanza procesos en tu ordenador, así que tiene tres cerrojos:
+Este servidor lanza procesos en tu ordenador, así que tiene estos cerrojos:
 
-- **Token por arranque.** Cada vez que arranca genera un secreto distinto, lo imprime en la
-  ventana negra y lo inyecta en la página que sirve él mismo. Todo `/api/*` lo exige. Por eso
-  hay que entrar por **`http://localhost:8787`**: si abres el `.html` a mano (doble clic,
-  `file://`) no hay token y el servidor responde 403.
+- **Token por arranque.** Cada vez que arranca genera un secreto distinto y lo inyecta en la
+  página que sirve él mismo (ya no lo imprime en la ventana negra: no hace falta y una consola
+  se comparte en capturas). Todo `/api/*` lo exige. Por eso hay que entrar por
+  **`http://localhost:8787`**: si abres el `.html` a mano (doble clic, `file://`) no hay token
+  y el servidor responde 403.
+- **Sin iframes.** La página lleva `X-Frame-Options: DENY`: ninguna otra web puede meterla
+  dentro y hacerte pulsar sus botones sin que lo veas.
 - **Host y origen comprobados.** Solo atiende peticiones cuyo `Host` sea `localhost:8787` o
   `127.0.0.1:8787`, y solo a una lista corta de orígenes. Esto corta el *DNS rebinding* y que
   cualquier web que visites use tu servidor de descargador mientras lo tienes abierto.
@@ -64,8 +68,25 @@ Este servidor lanza procesos en tu ordenador, así que tiene tres cerrojos:
   node server.js
   ```
 
-Además hay un tope de **2 descargas simultáneas**, para que una ráfaga de peticiones no deje
-la máquina sin CPU ni haga que Instagram marque tu IP.
+Además hay topes para que una ráfaga de peticiones no deje la máquina sin CPU ni haga que
+Instagram marque tu IP:
+
+- **2 trabajos a la vez** como mucho.
+- **30 consultas y 20 descargas cada 10 minutos.** Si se pasa, responde «espera unos minutos»
+  (código 429 con `Retry-After`).
+- Enlaces de más de 500 caracteres o números de elemento raros se rechazan antes de llamar a
+  yt-dlp, y si cierras la página a mitad, yt-dlp se para y se borran sus archivos temporales.
+
+## Pruebas
+
+`npm test` (desde la raíz del repo) arranca el servidor en el puerto 18787 con un yt-dlp
+falso (`pruebas/yt-dlp-falso.mjs`, no sale a internet) y comprueba cada endpoint y cada
+cerrojo: token, `Host`, orígenes, enlaces no válidos, foto sin vídeo, Instagram pidiendo
+sesión, descarga y borrado del temporal, tope de simultáneas y tope por tiempo. La CI las
+pasa en cada push.
+
+Las variables `IGDL_PORT`, `IGDL_YTDLP`, `IGDL_LIMITE_INFO` e `IGDL_LIMITE_DESCARGAS` existen
+solo para esas pruebas; en uso normal no hace falta tocarlas.
 
 ## Límites
 
