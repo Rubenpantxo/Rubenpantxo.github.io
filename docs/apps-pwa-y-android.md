@@ -2,8 +2,9 @@
 
 Afecta a las cuatro apps públicas: **Pantxiko Notes** (`apps/pantxiko-notes.html`),
 **Rueda** (`apps/conversor-rueda.html`), **Escenas** (`apps/escenas/`) y
-**Format Explorer** (`apps/format-explorer.html`). Biblioteca, Instagram
-Downloader, los juegos y el mapa quedan fuera.
+**Format Explorer** (`apps/format-explorer.html`). Las dos apps no listadas
+(Biblioteca e Instagram Downloader) tienen su propia tabla en el §7. Los juegos
+y el mapa quedan fuera.
 
 Las cuatro son páginas estáticas: no hay servidor propio, base de datos, cuentas
 de usuario ni pagos. Todo lo que guardan se queda en el navegador de cada
@@ -205,3 +206,48 @@ iPhone, *Añadir a pantalla de inicio* desde Safari ya da casi lo mismo gratis.
 - Alertas de seguridad de Dependabot: **Settings → Code security →
   Dependabot alerts** (actívalas si no lo están; el archivo
   `.github/dependabot.yml` solo programa los PR de actualización).
+
+## 7. Apps no listadas: Biblioteca e Instagram Downloader
+
+Siguen con `noindex` y fuera del sitemap y de las tiendas; no se instalan como
+PWA a propósito (no se anuncian). Sí cargan el aviso de cookies y `js/app.js`
+(errores y eventos) cuando se abren en rubenpantxo.com.
+
+**Biblioteca** (`apps/biblioteca/`) es un catálogo fijo: no guarda nada del
+usuario. **Instagram Downloader** (`apps/instagram-downloader/`) es la única app
+con API: una página que habla con `server.js`, un servidor que cada uno arranca
+en su propio ordenador (127.0.0.1:8787) y que llama a yt-dlp.
+
+| Punto | Biblioteca | Instagram Downloader |
+|---|---|---|
+| API keys y secretos | ✅ Ninguno | ✅ Ninguno. El token de sesión se genera en cada arranque y ya no se imprime en la consola. |
+| Permisos de BD y RLS | No aplica | No aplica |
+| Autenticación | No aplica | ✅ Token por arranque + `Host` y origen comprobados (sin cuentas) |
+| Datos de cada usuario | No aplica | No aplica: cada uno usa su propio servidor local |
+| Inyección y XSS | ✅ React escapa todo; datos fijos | ✅ Arreglado: la miniatura iba en `src="…"` escapada sin comillas (inyección de atributos). Ahora se escapan comillas y solo se aceptan miniaturas `https`. A yt-dlp nunca llega texto libre: la URL se rehace desde el código del post. |
+| Límites de API | No aplica | ✅ 2 a la vez, 30 consultas y 20 descargas cada 10 min (429 + `Retry-After`), enlaces ≤ 500 caracteres, índice < 50 |
+| Dependencias | ✅ React 18.3.1 servido desde el repo (`vendor/`, sacado del registro de npm); Babel y Tailwind ya no se cargan en el navegador. Antes: React, Babel y Tailwind de CDN **sin versión fija** | ✅ Tailwind compilado e incrustado (su CDN no admite comprobar integridad); Font Awesome con SRI. `server.js` no usa paquetes de npm; yt-dlp se actualiza al arrancar `Iniciar.bat`. |
+| Endpoints de API | No aplica | ✅ Pruebas automáticas de todos (`npm test`, en la CI) |
+| Gestión de errores | ✅ Si un componente falla, aviso con «Recargar» en vez de pantalla en blanco | ✅ Mensajes claros (servidor apagado, sin yt-dlp, foto sin vídeo, Instagram pide sesión, límite); si cierras la página, yt-dlp se para y se borran los temporales, también si falla a medias |
+| Información sensible | ✅ — | ✅ En la consola: sin token y con lo que manda el navegador recortado a una línea |
+| Pruebas de login | No aplica | No aplica (las del token están en `npm test`) |
+| Pagos | No aplica | No aplica |
+| Copias de seguridad | No aplica (los datos están en el código) | No aplica (no guarda nada) |
+| Responsive | ✅ 375 px sin scroll horizontal | ✅ 375 px sin scroll horizontal |
+| Llamadas y tiempos de carga | ✅ De ~3,5 MB (Babel + Tailwind CDN + compilar el JSX en cada visita) a ~240 KB | ✅ Sin los ~400 KB del CDN de Tailwind |
+| Estados de carga | ✅ «Cargando la biblioteca…» mientras llega el JS; categoría vacía ya existía | ✅ Ya existían (comprobando, procesando, error, servidor apagado); ahora se anuncian a lectores de pantalla |
+| Accesibilidad | ✅ axe: 0 infracciones en categorías, estante y ficha. El texto de «Arte» (granate sobre negro, ~1,5:1) se aclara solo lo necesario | ✅ axe: 0 infracciones. Campo del enlace con etiqueta, estados con `role="status"`/`alert` |
+| Analytics | `categoria_abierta`, `libro_abierto` | `video_encontrado`, `video_descargado` (solo desde rubenpantxo.com; en localhost no hay GA) |
+| Monitorización de errores | ✅ `error_app` | ✅ `error_app` en la versión web; el servidor local escribe sus errores en su ventana |
+| Legal y tiendas | No aplica (no listada) | No aplica (no listada). El LEEME recuerda descargar solo contenido público y para uso personal. |
+
+### Cómo se edita ahora la Biblioteca
+El código está en `apps/biblioteca/biblioteca.jsx`. Después de cambiarlo:
+
+```bash
+npm install          # la primera vez
+npm run build        # biblioteca.js, biblioteca.css y el CSS del Downloader
+```
+
+La CI (trabajo **compilados**) falla si los archivos generados no coinciden con
+su fuente, así que no se puede publicar un cambio a medias.
