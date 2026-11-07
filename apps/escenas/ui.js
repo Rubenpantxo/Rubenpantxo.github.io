@@ -111,14 +111,41 @@
     /* ------------------------------------------------------------
        ARRANQUE
        ------------------------------------------------------------ */
+    /* Sin WebGL (equipos antiguos, aceleración desactivada) la escena 3D
+       no puede arrancar: se avisa en el lienzo y el resto de la app
+       (tipos de plano, sujetos y prompt) sigue funcionando. */
+    function arrancarEscena(opciones) {
+        try {
+            Escena.init(opciones);
+            return true;
+        } catch (e) {
+            ['setVista', 'setAspecto', 'setEtiquetas', 'sincronizar'].forEach(function (m) {
+                Escena[m] = function () {};
+            });
+            var aviso = document.createElement('div');
+            aviso.className = 'stage-error';
+            aviso.setAttribute('role', 'alert');
+            aviso.innerHTML = '<b>No se puede mostrar la escena 3D</b>' +
+                '<span>Tu navegador o tu equipo no permiten gráficos 3D (WebGL). Prueba con otro navegador o activa la aceleración por hardware en sus ajustes. ' +
+                'Puedes seguir eligiendo el plano y copiando el prompt.</span>';
+            stage.appendChild(aviso);
+            if (window.rpApp) window.rpApp.fallo('sin WebGL: ' + (e && e.message || e), 'escena.js');
+            return false;
+        }
+    }
+
     function iniciar() {
         construirTiposDePlano();
         construirModelos();
         construirSujetos();
         construirBotonesAnadir();
         construirElementos();
+        cablearCopiaDeSeguridad();
+        $('btn-copiar-prompt').addEventListener('click', function () {
+            if (window.rpApp) window.rpApp.evento('prompt_copiado', { modelo: estado.prompt.modelo, salida: estado.prompt.salida });
+        });
 
-        Escena.init({
+        arrancarEscena({
             canvas: $('escena-canvas'),
             labels: $('labels'),
             onMoverSujeto: function (i, x, z) {
@@ -818,8 +845,19 @@
         try {
             var crudo = localStorage.getItem(CLAVE);
             if (!crudo) return null;
-            var g = JSON.parse(crudo);
-            if (!g || !Array.isArray(g.sujetos) || !g.sujetos.length || !g.camara) return null;
+            return normalizar(JSON.parse(crudo));
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /* Valida una escena (guardada o importada de un archivo) y la completa
+       con los valores de serie. Devuelve null si no lo es. */
+    function normalizar(g) {
+        try {
+            if (!g || typeof g !== 'object' || !Array.isArray(g.sujetos) || !g.sujetos.length || !g.camara || typeof g.camara !== 'object') return null;
+            g.sujetos = g.sujetos.slice(0, MAX_SUJETOS).filter(function (s) { return s && typeof s === 'object'; });
+            if (!g.sujetos.length) return null;
             var base = estadoInicial();
             /* Mezcla defensiva: una versión antigua guardada no debe
                dejar la app sin campos nuevos. */
@@ -831,7 +869,9 @@
 
             return {
                 sujetos: sujetos,
-                elementos: Array.isArray(g.elementos) ? g.elementos : [],
+                elementos: Array.isArray(g.elementos) ? g.elementos.filter(function (e) {
+                    return e && typeof e === 'object' && FORMAS.concat(PLANTILLAS).some(function (t) { return t.tipo === e.tipo; });
+                }).slice(0, MAX_ELEMENTOS) : [],
                 enfoque: Math.min(g.enfoque || 0, sujetos.length - 1),
                 camara: Object.assign(base.camara, g.camara),
                 vista: g.vista === 'plano' ? 'plano' : 'cenital',
@@ -843,6 +883,58 @@
         } catch (e) {
             return null;
         }
+    }
+
+    /* ------------------------------------------------------------
+       COPIA DE SEGURIDAD: descargar la escena y abrirla después
+       ------------------------------------------------------------ */
+    function cablearCopiaDeSeguridad() {
+        var bExportar = $('btn-exportar');
+        var bImportar = $('btn-importar');
+        var archivo = $('archivo-escena');
+        var nota = $('copia-estado');
+        if (!bExportar || !bImportar || !archivo) return;
+
+        function avisar(texto) { if (nota) nota.textContent = texto; }
+
+        bExportar.addEventListener('click', function () {
+            var datos = {
+                app: 'escenas', version: 1, fecha: new Date().toISOString(),
+                sujetos: estado.sujetos, elementos: estado.elementos, enfoque: estado.enfoque,
+                camara: estado.camara, vista: estado.vista, aspectoIndice: estado.aspectoIndice,
+                etiquetas: estado.etiquetas, planoActivo: estado.planoActivo, prompt: estado.prompt
+            };
+            var url = URL.createObjectURL(new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' }));
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'escena-' + new Date().toISOString().slice(0, 10) + '.json';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+            avisar('Escena descargada.');
+            if (window.rpApp) window.rpApp.evento('escena_exportada');
+        });
+
+        bImportar.addEventListener('click', function () { archivo.click(); });
+        archivo.addEventListener('change', function () {
+            var f = archivo.files[0];
+            archivo.value = '';
+            if (!f) return;
+            if (f.size > 1024 * 1024) { avisar('Ese archivo es demasiado grande para ser una escena.'); return; }
+            f.text().then(function (texto) {
+                var g;
+                try { g = normalizar(JSON.parse(texto)); } catch (e) { g = null; }
+                if (!g) { avisar('Ese archivo no es una escena de esta app.'); return; }
+                if (!confirm('¿Sustituir la escena actual por la del archivo?')) return;
+                try {
+                    localStorage.setItem(CLAVE, JSON.stringify(g));
+                } catch (e) {
+                    avisar('Este navegador no deja guardar (modo privado o sin espacio): no se puede abrir la escena.');
+                    return;
+                }
+                if (window.rpApp) window.rpApp.evento('escena_importada');
+                location.reload();
+            }, function () { avisar('No se pudo leer el archivo.'); });
+        });
     }
 
     /* ------------------------------------------------------------ */

@@ -6,9 +6,10 @@
 // exento de consentimiento) y se puede cambiar desde cualquier enlace con
 // el atributo data-cookies-config (p. ej. «Configurar cookies» del pie).
 //
-// Dentro de un iframe (las demos de servicios abiertas en el visor de la
-// portada) no hace nada: la página que las contiene ya pide el permiso y
-// mide la visita.
+// Dentro de un iframe (las demos de servicios en el visor de la portada, las
+// apps en las ventanas de Format Explorer) no muestra el aviso ni carga GA:
+// la página que las contiene ya pide el permiso y mide la visita. Los
+// eventos se le pasan a ella, que decide según su consentimiento.
 (function () {
     'use strict';
 
@@ -16,7 +17,14 @@
     const CLAVE = 'rp-consentimiento-v1';
     const POLITICA = '/legal/cookies.html';
 
-    if (window.self !== window.top) return;
+    if (window.self !== window.top) {
+        window.rpEvento = function (nombre, parametros) {
+            try {
+                if (window.parent.rpEvento) window.parent.rpEvento(nombre, parametros);
+            } catch (e) { /* padre de otro dominio: no se mide */ }
+        };
+        return;
+    }
 
     // Fuera del dominio publicado no se mide (servidor local, vistas previas),
     // salvo que se fuerce con ?ga=1 para probar.
