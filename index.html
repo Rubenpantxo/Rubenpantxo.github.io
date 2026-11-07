@@ -3,13 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prototipo - Rubenpantxo.com</title>
+    <title>Rubenpantxo.com · Webs y apps a medida, juegos y aplicaciones</title>
+    <meta name="description" content="Webs y apps a medida para negocios, con demos interactivas que puedes probar sin descargar nada. Además, juegos, aplicaciones y enlaces útiles de Rubén Aguado.">
+    <link rel="canonical" href="https://rubenpantxo.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Rubenpantxo.com">
+    <meta property="og:locale" content="es_ES">
+    <meta property="og:title" content="Rubenpantxo.com · Webs y apps a medida, juegos y aplicaciones">
+    <meta property="og:description" content="Webs y apps a medida para tu negocio, con demos que puedes probar. Juegos y aplicaciones propias.">
+    <meta property="og:url" content="https://rubenpantxo.com/">
+    <meta property="og:image" content="https://rubenpantxo.com/img/compartir.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Logo de Rubenpantxo sobre una hoja de libreta: webs y apps a medida para tu negocio.">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" href="img/favicon-32.png" type="image/png">
+    <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#fdfdf8">
+    <script src="js/consentimiento.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="CSS/servicios.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind compilado (npm run css); antes, CDN de desarrollo -->
+    <link rel="stylesheet" href="CSS/tailwind.css">
     <style>
         /* ============================================
            ESTILOS GENERALES Y PORTFOLIO
@@ -104,6 +124,25 @@
         #contact-toggle { background-color: #ffde59; color: #333; font-weight: bold; box-shadow: 3px 3px 0 #333, inset 2px 2px 0px rgba(255,255,255,0.5); }
         #back-arrow { background-color: #dc3545; color: white; box-shadow: 3px 3px 0 #333; }
         .icon-hidden { transform: scale(0); opacity: 0; pointer-events: none; }
+
+        /* CTA único de la web: lleva al formulario de Servicios */
+        .cta-principal-wrap { display: flex; justify-content: center; margin-top: 2rem; }
+        .cta-principal {
+            font-family: 'Kalam', cursive; font-weight: 700; font-size: 1.35rem; line-height: 1.2;
+            background: #ffde59; color: #222; padding: 10px 26px; border-radius: 14px;
+            border: 2px solid #333; box-shadow: 4px 4px 0 #333; text-decoration: none;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .cta-principal:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #333; }
+        .cta-principal:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #333; }
+        .cta-principal:focus-visible { outline: 3px solid #1a73e8; outline-offset: 3px; }
+        body.section-open .cta-principal-wrap { display: none; }
+
+        /* Pie legal */
+        .pie-legal { margin: 3rem auto 0; padding: 1rem 0 .5rem; text-align: center; font-size: .875rem; color: #4a5560; }
+        .pie-legal nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; margin-bottom: 4px; }
+        .pie-legal a { color: #003366; text-decoration: underline; text-underline-offset: 2px; }
+        .pie-legal a:focus-visible { outline: 3px solid #1a73e8; outline-offset: 2px; }
 
         #social-links { transition: opacity 0.3s ease, transform 0.3s ease; }
         .social-hidden { opacity: 0; transform: translateY(-20px); pointer-events: none; }
@@ -237,19 +276,19 @@
 <body class="bg-gray-100 min-h-screen p-4 sm:p-8 transition-all duration-500">
 
     <div class="max-w-7xl mx-auto">
-        <header class="relative text-center py-6">
+        <header class="relative text-center pt-[4.5rem] pb-6 sm:py-6">
             <div class="flex justify-center items-center gap-4">
-                <img id="site-logo" src="img/logo.PNG" alt="Logo Rubenpantxo" class="h-16">
-                <h1 class="titulo-principal text-5xl md:text-7xl font-bold">Rubenpantxo.com</h1>
+                <img id="site-logo" src="img/logo.PNG" alt="" width="35" height="64" class="h-16 w-auto">
+                <h1 class="titulo-principal text-[2.1rem] leading-tight sm:text-5xl md:text-7xl font-bold">Rubenpantxo.com</h1>
             </div>
             
             <div id="contact-toggle" class="corner-icon flex items-center justify-center">?</div>
             <div id="back-arrow" class="corner-icon flex items-center justify-center icon-hidden">↩</div>
 
             <div id="social-links" class="absolute top-20 right-8 mt-2 flex flex-col items-center gap-4 social-hidden">
-                <a href="https://www.instagram.com/rubenpantxo/" target="_blank" rel="noopener" class="text-3xl text-pink-600 hover:scale-110 transition-transform"><i class="fab fa-instagram"></i></a>
-                <a href="mailto:rubenpantxo@gmail.com" class="text-3xl text-red-600 hover:scale-110 transition-transform"><i class="fas fa-envelope"></i></a>
-                <a href="https://github.com/Rubenpantxo" target="_blank" rel="noopener" class="text-3xl text-gray-800 hover:scale-110 transition-transform"><i class="fab fa-github"></i></a>
+                <a href="https://www.instagram.com/rubenpantxo/" target="_blank" rel="noopener" aria-label="Instagram de Rubenpantxo" class="text-3xl text-pink-600 hover:scale-110 transition-transform"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+                <a href="mailto:rubenpantxo@gmail.com" aria-label="Escribir un correo a rubenpantxo@gmail.com" class="text-3xl text-red-600 hover:scale-110 transition-transform"><i class="fas fa-envelope" aria-hidden="true"></i></a>
+                <a href="https://github.com/Rubenpantxo" target="_blank" rel="noopener" aria-label="GitHub de Rubenpantxo" class="text-3xl text-gray-800 hover:scale-110 transition-transform"><i class="fab fa-github" aria-hidden="true"></i></a>
             </div>
         </header>
 
@@ -267,6 +306,10 @@
                 <span class="typewriter-text">Servicios</span>
             </div>
         </nav>
+
+        <div class="cta-principal-wrap">
+            <a class="cta-principal" id="cta-principal" href="#contacto">Cuéntame tu idea →</a>
+        </div>
 
         <!-- JENGA: torre de madera interactiva para amenizar la portada -->
         <section id="jenga-home" aria-label="Juego de Jenga">
@@ -522,18 +565,20 @@
                                 <a href="mailto:rubenpantxo@gmail.com"><i class="fas fa-envelope"></i> rubenpantxo@gmail.com</a>
                             </div>
                         </div>
-                        <form id="sv-contact-form">
+                        <form id="sv-contact-form" novalidate>
                             <input type="hidden" name="access_key" value="b8e6ddd6-0aaf-4a87-9718-bd971f811088">
                             <input type="hidden" name="subject" value="💡 Nueva idea de web/app desde rubenpantxo.com">
                             <input type="hidden" name="from_name" value="Formulario de Servicios — rubenpantxo.com">
                             <input type="checkbox" name="botcheck" id="sv-botcheck" style="display:none" tabindex="-1" autocomplete="off">
                             <div>
                                 <label for="sv-nombre">Tu nombre</label>
-                                <input type="text" id="sv-nombre" name="nombre" placeholder="Ej.: María" autocomplete="name" required>
+                                <input type="text" id="sv-nombre" name="nombre" placeholder="Ej.: María" autocomplete="name" required minlength="2" maxlength="80" aria-describedby="sv-nombre-error">
+                                <span class="sv-error" id="sv-nombre-error"></span>
                             </div>
                             <div>
                                 <label for="sv-email">Tu correo</label>
-                                <input type="email" id="sv-email" name="email" placeholder="Ej.: maria@ejemplo.com" autocomplete="email" required>
+                                <input type="email" id="sv-email" name="email" placeholder="Ej.: maria@ejemplo.com" autocomplete="email" inputmode="email" required maxlength="120" aria-describedby="sv-email-error">
+                                <span class="sv-error" id="sv-email-error"></span>
                             </div>
                             <div>
                                 <label for="sv-negocio">Tipo de negocio</label>
@@ -550,11 +595,19 @@
                                 </select>
                             </div>
                             <div>
-                                <label for="sv-mensaje">Tu idea</label>
-                                <textarea id="sv-mensaje" name="mensaje" placeholder="Ej.: Quiero que mis clientes encarguen por la web y recojan sin hacer cola…" required></textarea>
+                                <label for="sv-mensaje">Tu idea <span class="sv-contador" id="sv-mensaje-contador" aria-hidden="true">0 / 2000</span></label>
+                                <textarea id="sv-mensaje" name="mensaje" placeholder="Ej.: Quiero que mis clientes encarguen por la web y recojan sin hacer cola…" required minlength="15" maxlength="2000" aria-describedby="sv-mensaje-error"></textarea>
+                                <span class="sv-error" id="sv-mensaje-error"></span>
+                            </div>
+                            <div>
+                                <label class="sv-acepto" for="sv-acepto">
+                                    <input type="checkbox" id="sv-acepto" name="acepta_privacidad" value="sí" required aria-describedby="sv-acepto-error">
+                                    <span>He leído la <a href="legal/privacidad.html" target="_blank" rel="noopener">política de privacidad</a> y acepto que uséis mis datos para responderme.</span>
+                                </label>
+                                <span class="sv-error" id="sv-acepto-error"></span>
                             </div>
                             <button type="submit" class="sv-submit">Enviar mi idea 🚀</button>
-                            <p class="sv-form-note" id="sv-form-note">Se abrirá tu app de correo con el mensaje ya preparado.</p>
+                            <p class="sv-info-datos" id="sv-form-note"><strong>Responsable:</strong> Rubén Aguado Alonso. <strong>Finalidad:</strong> responder a tu consulta. <strong>Destinatarios:</strong> nadie más, salvo Web3Forms, que me reenvía el mensaje. <strong>Derechos:</strong> acceso, rectificación y supresión en rubenpantxo@gmail.com. <a href="legal/privacidad.html">Más información</a>.</p>
                             <p class="sv-form-status" id="sv-form-status" role="status"></p>
                         </form>
                     </div>
@@ -1117,10 +1170,6 @@
                                     <div class="flex items-center gap-3"><i class="fas fa-shapes text-2xl text-lime-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">VisuAlgo</h4></div>
                                     <p class="text-sm text-gray-600 mt-2">Visualiza algoritmos y estructuras de datos de forma interactiva.</p>
                                 </a>
-                                <a href="https://stan-smith.github.io/FossFLOW/" target="_blank" class="link-card-neumorph block">
-                                    <div class="flex items-center gap-3"><i class="fas fa-sitemap text-2xl text-cyan-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">FossFLOW</h4></div>
-                                    <p class="text-sm text-gray-600 mt-2">Visualizador de flujos de trabajo de código abierto para análisis de datos.</p>
-                                </a>
                                 <a href="https://posthog.com/" target="_blank" class="link-card-neumorph block">
                                     <div class="flex items-center gap-3"><i class="fas fa-chart-line text-2xl text-yellow-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">PostHog</h4></div>
                                     <p class="text-sm text-gray-600 mt-2">Plataforma de análisis de productos y datos para desarrolladores.</p>
@@ -1255,10 +1304,6 @@
                                     <div class="flex items-center gap-3"><i class="fas fa-magic text-2xl text-purple-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Wordtune</h4></div>
                                     <p class="text-sm text-gray-600 mt-2">Reescribe oraciones con sugerencias de IA para mejorar tu texto.</p>
                                 </a>
-                                <a href="https://www.readsy.co/" target="_blank" class="link-card-neumorph block">
-                                    <div class="flex items-center gap-3"><i class="fas fa-tachometer-alt text-2xl text-orange-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Readsy</h4></div>
-                                    <p class="text-sm text-gray-600 mt-2">Entrena tu velocidad de lectura con técnicas de lectura rápida.</p>
-                                </a>
                                 <a href="https://www.airstory.co/" target="_blank" class="link-card-neumorph block">
                                     <div class="flex items-center gap-3"><i class="fas fa-feather-alt text-2xl text-indigo-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Airstory</h4></div>
                                     <p class="text-sm text-gray-600 mt-2">Herramienta de investigación y escritura para crear contenido.</p>
@@ -1266,10 +1311,6 @@
                                 <a href="https://coschedule.com/headline-analyzer" target="_blank" class="link-card-neumorph block">
                                     <div class="flex items-center gap-3"><i class="fas fa-heading text-2xl text-red-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Headline Analyzer</h4></div>
                                     <p class="text-sm text-gray-600 mt-2">Analiza y puntúa tus titulares para maximizar el engagement.</p>
-                                </a>
-                                <a href="https://www.clichefinder.net/" target="_blank" class="link-card-neumorph block">
-                                    <div class="flex items-center gap-3"><i class="fas fa-search text-2xl text-gray-500 link-icon"></i><h4 class="font-bold text-lg text-gray-800">Cliché Finder</h4></div>
-                                    <p class="text-sm text-gray-600 mt-2">Detecta y elimina clichés de tu escritura para textos más originales.</p>
                                 </a>
                                 <a href="https://www.canirank.com/" target="_blank" class="link-card-neumorph block">
                                     <div class="flex items-center gap-3"><i class="fas fa-chart-bar text-2xl text-cyan-600 link-icon"></i><h4 class="font-bold text-lg text-gray-800">CanIRank</h4></div>
@@ -1566,6 +1607,16 @@
                 </div>
             </section>
         </main>
+
+        <footer class="pie-legal">
+            <nav aria-label="Información legal">
+                <a href="legal/privacidad.html">Privacidad</a>
+                <a href="legal/aviso-legal.html">Aviso legal y condiciones</a>
+                <a href="legal/cookies.html">Cookies</a>
+                <a href="#" data-cookies-config>Configurar cookies</a>
+            </nav>
+            <p>© 2026 Rubén Aguado Alonso</p>
+        </footer>
     </div>
 
     <div id="pantxiko-notes-app" class="hidden fixed inset-0 flex flex-col overflow-hidden">
@@ -1603,7 +1654,7 @@
             </div>
 
             <div class="pn-editor-wrap">
-                <img src="img/Notes Logo.png" alt="Mascota" class="pn-mascot-watermark">
+                <img src="img/Notes Logo.png" alt="" class="pn-mascot-watermark" loading="lazy" decoding="async">
                 
                 <div id="pn-editor" contenteditable="true" data-placeholder="Empieza a escribir o dicta tu nota..."></div>
             </div>
@@ -1611,7 +1662,7 @@
 
         <div class="pn-dictate-wrap">
             <button class="pn-dictate-btn" id="pnBtnDictate">
-                <img src="img/IconoMicrofono.png" alt="Micrófono" class="pn-mic-icon">
+                <img src="img/IconoMicrofono.png" alt="" class="pn-mic-icon" loading="lazy" decoding="async">
                 <span class="pn-dictate-label">Dictar</span>
             </button>
         </div>
@@ -1688,11 +1739,32 @@
                 });
             });
 
+            // CTA «Cuéntame tu idea»: abre Servicios y baja al formulario (también con #contacto)
+            const irAlContacto = () => {
+                const servicios = Array.from(navItems).find(i => i.dataset.section === 'servicios');
+                const yaAbierta = body.classList.contains('section-open');
+                if (!yaAbierta) servicios.click();
+                history.replaceState(null, null, '#contacto');
+                // Se espera a que termine la transición de entrada de la sección
+                setTimeout(() => {
+                    const contacto = document.getElementById('sv-contact');
+                    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+                    contacto.scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'start' });
+                    document.getElementById('sv-nombre').focus({ preventScroll: true });
+                }, yaAbierta ? 0 : 800);
+            };
+            document.getElementById('cta-principal').addEventListener('click', e => {
+                e.preventDefault();
+                irAlContacto();
+            });
+
             if (window.location.hash) {
                 const targetHash = window.location.hash.substring(1);
                 const targetItem = Array.from(navItems).find(i => i.dataset.section === targetHash);
                 if (targetItem) {
                     setTimeout(() => targetItem.click(), 100);
+                } else if (targetHash === 'contacto') {
+                    setTimeout(irAlContacto, 100);
                 }
             }
 
