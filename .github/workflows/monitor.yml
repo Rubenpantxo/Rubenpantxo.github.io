@@ -1,0 +1,59 @@
+name: Monitor
+
+# Cada 30 minutos comprueba que rubenpantxo.com responde (scripts/monitor.mjs).
+# Si algo crítico falla abre una issue con la etiqueta «caida» (GitHub te
+# avisa por correo) y la cierra sola cuando todo vuelve a responder.
+# Ojo: GitHub desactiva los workflows programados de un repo público tras
+# 60 días sin actividad; si pasa, se reactiva desde la pestaña Actions.
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Comprobar la web
+        id: monitor
+        continue-on-error: true
+        run: node scripts/monitor.mjs
+
+      - name: Abrir o actualizar la issue de caída
+        if: steps.monitor.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create caida --color B60205 --description "La web no responde bien (Monitor)" 2>/dev/null || true
+          abierta=$(gh issue list --label caida --state open --json number --jq '.[0].number')
+          if [ -n "$abierta" ]; then
+            gh issue comment "$abierta" --body-file informe-monitor.md
+          else
+            gh issue create --title "rubenpantxo.com no responde bien" --label caida --body-file informe-monitor.md
+          fi
+          exit 1
+
+      - name: Cerrar la issue si ya se ha recuperado
+        if: steps.monitor.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          abierta=$(gh issue list --label caida --state open --json number --jq '.[0].number' 2>/dev/null || true)
+          if [ -n "$abierta" ]; then
+            gh issue close "$abierta" --comment "Recuperada. $(head -n 3 informe-monitor.md | tail -n 1)"
+          fi

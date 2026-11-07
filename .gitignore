@@ -5,6 +5,8 @@
 !.htaccess
 !.githooks/
 !.githooks/**
+!.github/
+!.github/**
 *~
 
 # Dependencias y registros
@@ -26,3 +28,6 @@ red-hogar/
 # Datos reales exportados de Red Hogar (la semilla del repo es ficticia)
 red-hogar-datos-reales.json
 *.datos-reales.json
+
+# Informe local de scripts/monitor.mjs
+informe-monitor.md

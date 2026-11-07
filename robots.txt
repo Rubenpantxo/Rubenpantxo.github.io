@@ -4,5 +4,6 @@ User-agent: *
 # Prototipos y fragmentos de biblioteca: no son páginas para el buscador.
 Disallow: /prototipos/
 Disallow: /servicios/sistemas/uiverse/
+Disallow: /servicios/sistemas/kits/
 
 Sitemap: https://rubenpantxo.com/sitemap.xml

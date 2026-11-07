@@ -19,9 +19,8 @@
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#fdfdf8">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="/CSS/fuentes/kalam-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/CSS/fuentes/fuentes.css">
     <link rel="stylesheet" href="/CSS/legal.css">
     <script src="/js/consentimiento.js" defer></script>
 </head>
@@ -50,6 +49,7 @@
                 <tbody>
                     <tr><td>rp-consentimiento-v1</td><td>Almacenamiento local, propio</td><td>Recordar si aceptaste o rechazaste la analítica, para no volver a preguntarte.</td><td>Hasta que lo borres</td></tr>
                     <tr><td>Datos de juegos y aplicaciones</td><td>Almacenamiento local, propio</td><td>Guardar tus notas, partidas, ajustes y el tema elegido. Nunca salen de tu navegador.</td><td>Hasta que los borres</td></tr>
+                    <tr><td>__cf_bm, cf_clearance</td><td>Cookie técnica de Cloudflare</td><td>Solo si Cloudflare detecta tráfico sospechoso: distinguir personas de bots para proteger la web.</td><td>30 minutos (__cf_bm), hasta 1 año (cf_clearance)</td></tr>
                 </tbody>
             </table>
         </div>
@@ -71,7 +71,7 @@
         <p>Esta web no usa cookies de publicidad ni de perfiles, y tiene desactivadas las señales publicitarias de Google.</p>
 
         <h2>Servicios de terceros sin cookies</h2>
-        <p>Las tipografías (Google Fonts) y los iconos (cdnjs, de Cloudflare) se descargan desde servidores de terceros. No instalan cookies, pero, como cualquier descarga, esos servidores reciben tu dirección IP.</p>
+        <p>Los iconos (cdnjs, de Cloudflare) y las tipografías de las demos de servicios (Google Fonts) se descargan desde servidores de terceros. No instalan cookies, pero, como cualquier descarga, esos servidores reciben tu dirección IP.</p>
 
         <h2>Cómo aceptar, rechazar o retirar el consentimiento</h2>
         <ul>

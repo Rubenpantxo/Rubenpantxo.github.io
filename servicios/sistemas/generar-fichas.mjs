@@ -22,6 +22,7 @@ import { fileURLToPath } from 'node:url';
 import { sistemas } from './sistemas-datos.mjs';
 import { fichas } from './fichas-datos.mjs';
 import { KIT } from './componentes.mjs';
+import { cabeceraWeb } from './cabecera-web.mjs';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 
@@ -151,7 +152,7 @@ ${c.html(s.id + '-rev').split('\n').map(l => '            ' + l).join('\n')}
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>${esc(s.nombre)} — Sistema de diseño</title>
 <meta name="description" content="${esc(f.descripcion)}">
-${google}${extraCss}<link rel="stylesheet" href="tema.css">
+${cabeceraWeb({ archivo: s.ficha, titulo: `${s.nombre} — Sistema de diseño`, descripcion: f.descripcion })}${google}${extraCss}<link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="sistema.css">
 <link rel="stylesheet" href="ficha.css">
 ${estilo}<script src="copiar-color.js" defer></script>
