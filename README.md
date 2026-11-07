@@ -19,9 +19,9 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios.
 ├── favicon.ico
 ├── tailwind.config.js      # Tailwind de la portada → CSS/tailwind.css (npm run css)
 ├── CSS/                    # Estilos globales (legal.css: legales y 404; fuentes/: Kalam e Inter propias)
-├── js/                     # Scripts (consentimiento.js: aviso de cookies + Google Analytics 4)
-├── img/                    # Logos, iconos del sitio e imagen al compartir (compartir.png)
-├── docs/                   # Notas internas; cloudflare-y-publicacion.md: DNS, cabeceras, caché, Search Console
+├── js/                     # consentimiento.js: aviso de cookies + GA4 · app.js: errores, eventos y PWA de las apps
+├── img/                    # Logos, iconos del sitio, imagen al compartir (compartir.png) e iconos de las apps (apps/)
+├── docs/                   # cloudflare-y-publicacion.md: DNS, cabeceras, Search Console · apps-pwa-y-android.md: apps, PWA y Google Play
 ├── servicios/              # Demos de negocio que abre la sección Servicios (visor con móvil)
 │   ├── kit/                # Base común: escena Three.js, gestos y estructura (app.css)
 │   ├── bar-restaurante.html  # La mesa en 3D: platos que llegan, cuenta dividida, reserva en el plano
@@ -37,13 +37,14 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios.
 ├── mapas/                  # Mapas embebidos
 │   ├── cabanillas.html     # Plano urbano interactivo de Cabanillas (vector + ortofoto IDENA)
 │   └── cabanillas-data.js  # Datos embebidos: Catastro de Navarra (alturas/parcelas) + OpenStreetMap
-├── apps/                   # Aplicaciones
+├── apps/                   # Aplicaciones (las públicas se instalan como PWA: *.webmanifest + sw.js)
+│   ├── sw.js               # Service worker «red primero»: apps sin conexión
 │   ├── biblioteca/         # (no listada, noindex)
 │   ├── conversor-rueda.html  # Rueda: conversor de archivos
 │   ├── escenas/            # Control de cámara: blocking 3D + generador de prompts
 │   ├── format-explorer.html  # Escritorio estilo Vista que abre todas las apps
 │   ├── instagram-downloader/   # (no listada, noindex)
-│   └── pantxiko-notes.html
+│   └── pantxiko-notes.html # Notas con dictado y copia de seguridad
 └── juegos/                 # Juegos
     ├── Chess3D/
     ├── cabanillas-drive/   # Compilado de prototipos/cabanillas-drive (npm run publica)
@@ -65,6 +66,7 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios.
 - Sin build step para servir: cualquier servidor estático sirve el sitio
 - GitHub Pages como hosting, con Cloudflare delante (ver `docs/cloudflare-y-publicacion.md`)
 - Monitor cada 30 min (`.github/workflows/monitor.yml` + `scripts/monitor.mjs`): abre una issue «caida» si la web falla
+- Errores de las apps como evento `error_app` en GA4 (`js/app.js`); dependencias vigiladas por Dependabot (`.github/dependabot.yml`)
 
 ## Desarrollo local
 

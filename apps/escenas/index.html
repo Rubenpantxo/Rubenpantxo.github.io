@@ -1,11 +1,17 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-app="escenas">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0a0d0a">
 <meta name="description" content="Escenas — coloca cámara y personajes en planta, elige tipo de plano y lente, y obtén la descripción del encuadre y el prompt listo para tu modelo de IA.">
 <title>Escenas · Control de cámara</title>
+<link rel="canonical" href="https://rubenpantxo.com/apps/escenas/">
+<link rel="manifest" href="escenas.webmanifest">
+<link rel="icon" href="../../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../../img/apps/escenas-192.png">
+<script src="../../js/consentimiento.js"></script>
+<script src="../../js/app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -25,6 +31,7 @@
     </span>
     <span class="wordmark__text">ESCENAS<b>.</b></span>
   </a>
+  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Escenas · Control de cámara</h1>
   <div class="topbar__right">
     <p class="hk-meta topbar__hint">Arrastra los marcadores para mover la cámara y los personajes</p>
     <span class="hk-chip">Listo</span>
@@ -173,7 +180,7 @@
             <button type="button" class="hk-tab" id="btn-idioma-en" aria-pressed="false">EN</button>
           </div>
         </div>
-        <div class="prompt-out" id="prompt-out" aria-live="polite"></div>
+        <div class="prompt-out" id="prompt-out" aria-live="polite" tabindex="0" role="region" aria-label="Prompt generado"></div>
         <div class="prompt-actions">
           <button type="button" class="hk-btn hk-btn--primary" id="btn-copiar-prompt">
             Copiar prompt
@@ -181,6 +188,20 @@
           </button>
         </div>
       </div>
+    </section>
+
+    <section class="hk-card">
+      <div class="hk-card__head">
+        <h2 class="hk-meta">Copia de seguridad</h2>
+        <span class="hk-meta hk-meta--accent">Archivo .json</span>
+      </div>
+      <p class="panel-note">La escena se guarda sola en este navegador. Descárgala para no perderla o para seguir en otro dispositivo.</p>
+      <div class="backup-actions">
+        <button type="button" class="hk-btn" id="btn-exportar">Descargar escena</button>
+        <button type="button" class="hk-btn" id="btn-importar">Abrir escena…</button>
+      </div>
+      <input type="file" id="archivo-escena" accept=".json,application/json" hidden>
+      <p class="panel-note" id="copia-estado" role="status" aria-live="polite"></p>
     </section>
 
   </aside>

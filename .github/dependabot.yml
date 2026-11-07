@@ -1,0 +1,26 @@
+# Dependabot abre un PR cuando una dependencia tiene una versión nueva o un
+# fallo de seguridad conocido. Una vez al mes y con pocos PR a la vez para no
+# llenar el repo de ruido; las alertas de seguridad llegan en cuanto se
+# publican (Settings → Code security → Dependabot alerts).
+#
+# Las librerías que se cargan desde CDN o están copiadas en el repo (pdf.js,
+# three.js) no las ve Dependabot: se revisan a mano (docs/apps-pwa-y-android.md).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: npm
+    directory: /prototipos/cabanillas-drive
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
