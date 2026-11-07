@@ -36,7 +36,8 @@ fi
 
 # --- 3) Escaner de secretos ------------------------------------------------
 if command -v gitleaks >/dev/null 2>&1; then
-    if ! gitleaks protect --staged --redact --no-banner; then
+    # -v muestra archivo, linea y regla de cada hallazgo; --redact tapa el secreto.
+    if ! gitleaks protect --staged --redact -v --no-banner; then
         rojo "[pre-commit] gitleaks ha encontrado algo. Revisalo antes de commitear."
         fallos=1
     fi
