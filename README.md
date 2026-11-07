@@ -38,20 +38,20 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios.
 │   ├── cabanillas.html     # Plano urbano interactivo de Cabanillas (vector + ortofoto IDENA)
 │   └── cabanillas-data.js  # Datos embebidos: Catastro de Navarra (alturas/parcelas) + OpenStreetMap
 ├── apps/                   # Aplicaciones
-│   ├── alumbrado-pro/      # (privada)
-│   ├── biblioteca/         # (privada)
+│   ├── alumbrado-pro/      # (no listada)
+│   ├── biblioteca/         # (no listada)
 │   ├── escenas/            # Control de cámara: blocking 3D + generador de prompts
 │   ├── format-explorer.html
-│   ├── instagram-downloader/   # (privada)
+│   ├── instagram-downloader/   # (no listada)
 │   ├── pantxiko-notes.html
 │   ├── qibla.html          # Brújula Qibla
-│   └── resource-hub/       # (privada)
+│   └── resource-hub/       # (no listada)
 └── juegos/                 # Juegos
     ├── Chess3D/
     ├── cabanillas-drive/   # Compilado de prototipos/cabanillas-drive (npm run publica)
     ├── circle.html
     ├── cesta-punta/
-    ├── granja/             # (privada)
+    ├── granja/             # (no listada)
     ├── tekken-barrio-ps1/
     └── tetris/
 ```
