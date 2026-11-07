@@ -17,7 +17,9 @@ const PAGINAS = {
     '/servicios/sistemas-de-diseno.html': 'Sistemas de diseño',
     '/legal/privacidad.html': 'Política de privacidad',
     '/sitemap.xml': '<urlset',
-    '/robots.txt': 'Sitemap:'
+    '/robots.txt': 'Sitemap:',
+    // Si deja de servirse, la app Android de Pantxiko Notes enseña la barra del navegador
+    '/.well-known/assetlinks.json': 'com.rubenpantxo.notes'
 };
 const CABECERAS = ['strict-transport-security', 'content-security-policy', 'x-content-type-options', 'referrer-policy'];
 const DIAS_AVISO_CERTIFICADO = 14;
