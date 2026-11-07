@@ -1,0 +1,13 @@
+{
+  "name": "Rubenpantxo.com",
+  "short_name": "Rubenpantxo",
+  "lang": "es",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#fdfdf8",
+  "theme_color": "#fdfdf8",
+  "icons": [
+    { "src": "/img/icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/img/icono-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

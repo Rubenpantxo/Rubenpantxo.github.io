@@ -206,14 +206,14 @@ const contenidoIP = mode === 'all' ? lineasFugas : contenidoCompleto(archivos);
 // ======================================================= BLOQUE «SANIDAD» =
 // Lo que se rompió al editar: etiquetas huérfanas y enlaces a archivos que
 // ya no existen. Alcance fijo: index.html, 404.html y los .html de primer
-// nivel de apps/ y servicios/ (no servicios/sistemas/uiverse/**, que son 200+
+// nivel de apps/, servicios/ y legal/ (no servicios/sistemas/uiverse/**, que son 200+
 // fragmentos de biblioteca en marcha).
 function archivosSanidad() {
     const candidatos = [];
     for (const f of ['index.html', '404.html']) {
         if (fs.existsSync(path.join(ROOT, f))) candidatos.push(f);
     }
-    for (const dir of ['apps', 'servicios']) {
+    for (const dir of ['apps', 'servicios', 'legal']) {
         const abs = path.join(ROOT, dir);
         if (!fs.existsSync(abs)) continue;
         for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {

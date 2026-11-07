@@ -1,7 +1,8 @@
 # www.robotstxt.org/
 
-### Permitir acceso
 User-agent: *
+# Prototipos y fragmentos de biblioteca: no son páginas para el buscador.
+Disallow: /prototipos/
+Disallow: /servicios/sistemas/uiverse/
 
-### Denegar acceso
-# Disallow:
+Sitemap: https://rubenpantxo.com/sitemap.xml
