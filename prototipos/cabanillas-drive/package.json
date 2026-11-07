@@ -22,7 +22,7 @@
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.14.0",
     "n8ao": "^2.0.1",
-    "postprocessing": "^6.39.5",
+    "postprocessing": "^6.39.6",
     "three": "^0.180.0"
   },
   "devDependencies": {
