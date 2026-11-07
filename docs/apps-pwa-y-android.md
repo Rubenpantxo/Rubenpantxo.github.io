@@ -158,8 +158,8 @@ firma la app con su propia clave: copia su huella SHA-256 de Play Console →
 | Descripción breve | Hasta 80 caracteres |
 | Descripción completa | Hasta 4000 caracteres |
 | Icono | 512 × 512 PNG (ya está: `img/apps/notes-512.png`) |
-| Gráfico de funciones | 1024 × 500 PNG o JPG (falta) |
-| Capturas de móvil | Mínimo 2, entre 320 y 3840 px, proporción hasta 2:1 (faltan) |
+| Gráfico de funciones | 1024 × 500 PNG o JPG (hecho: `ficha/` del proyecto Android) |
+| Capturas de móvil | Mínimo 2, entre 320 y 3840 px, proporción hasta 2:1 (hechas: 4 de 1080 × 1920 en `ficha/`) |
 | Categoría | Productividad |
 | Correo de contacto | rubenpantxo@gmail.com |
 | Política de privacidad | `https://rubenpantxo.com/legal/privacidad.html` |
