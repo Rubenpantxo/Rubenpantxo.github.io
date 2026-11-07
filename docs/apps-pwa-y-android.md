@@ -119,28 +119,37 @@ Format Explorer es más una curiosidad.
    cerrada con al menos 12 testers durante 14 días** antes de poder publicar.
 3. Un móvil Android para probar.
 
-### 4.2 Empaquetar
-- **PWABuilder** (pwabuilder.com → URL de la app → *Package for stores →
-  Android*): lo más sencillo; descarga el AAB firmado, la clave y el
-  `assetlinks.json`.
-- O **Bubblewrap** (`npx @bubblewrap/cli init --manifest https://rubenpantxo.com/apps/pantxiko-notes.webmanifest`,
-  luego `bubblewrap build`). Necesita JDK y Android SDK (los instala él).
-- Nombre de paquete sugerido: `com.rubenpantxo.notes`.
-- **Guarda la clave de firma** (`.keystore` y sus contraseñas) fuera del repo y
-  con copia: sin ella no se pueden subir actualizaciones. Activa *Play App
-  Signing* en la consola.
+### 4.2 Paquete (hecho)
+El proyecto Android está **fuera de este repo** (todo lo que entra aquí se
+publica en la web), en `aplicaciones/1_Pantxiko_Notes/android/`, la carpeta
+hermana de este repo:
 
-### 4.3 Digital Asset Links (para que no salga la barra del navegador)
+- `salida/pantxiko-notes-1.0.0.aab` para Google Play y
+  `salida/pantxiko-notes-1.0.0.apk` para instalar a mano en un móvil.
+- `firma/`: la clave (`pantxiko-notes.keystore`, alias `pantxiko-notes`) y su
+  contraseña. **Haz copia fuera del ordenador**: sin ellas no se pueden subir
+  actualizaciones.
+- Paquete `com.rubenpantxo.notes`, Android 7.0 o superior (API 24), objetivo
+  API 36. Generado con Bubblewrap 1.27.0.
+- Cómo recompilar y firmar una versión nueva: `LEEME.md` de esa carpeta.
+
+### 4.3 Digital Asset Links (hecho, a falta de Play)
 La TWA solo se ve a pantalla completa si la web declara que la app es suya:
 
-1. Crea `/.well-known/assetlinks.json` con el contenido que da PWABuilder o
-   `bubblewrap fingerprint` (huella SHA-256 de la clave de Play App Signing,
-   que está en Play Console → *Integridad de la app*).
-2. **Ojo con GitHub Pages**: Jekyll ignora las carpetas que empiezan por
-   punto. Añade un archivo vacío `.nojekyll` en la raíz del repo (el sitio no
-   usa Jekyll para nada) o un `_config.yml` con `include: [".well-known"]`.
-3. Comprueba que `https://rubenpantxo.com/.well-known/assetlinks.json`
-   responde con el JSON.
+- `/.well-known/assetlinks.json` declara `com.rubenpantxo.notes` con la huella
+  de la clave local (`D6:23:B7:…:2A:FB:7B`).
+- `.nojekyll` en la raíz: sin él, GitHub Pages pasa el sitio por Jekyll, que
+  no publica las carpetas que empiezan por punto. El sitio no usa nada de
+  Jekyll (ningún archivo con *front matter*). Como efecto, ahora se sirven
+  tal cual los archivos con punto del repo (`.github/`, `.gitignore`…); el
+  repo ya es público, así que no se expone nada nuevo.
+- El workflow **Monitor** comprueba que `assetlinks.json` siga respondiendo.
+
+**Al subir el primer AAB a Play** (con *Play App Signing*, obligatorio), Google
+firma la app con su propia clave: copia su huella SHA-256 de Play Console →
+*Integridad de la app → Firma de apps* y **añádela** a la lista
+`sha256_cert_fingerprints` sin quitar la actual. Comprobación:
+`https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://rubenpantxo.com&relation=delegate_permission/common.handle_all_urls`
 
 ### 4.4 Ficha de Play Store
 | Campo | Requisito |

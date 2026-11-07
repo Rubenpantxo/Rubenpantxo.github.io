@@ -12,6 +12,8 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios.
 ├── 404.html                # Página de error (GitHub Pages la sirve para cualquier ruta que no exista)
 ├── legal/                  # Privacidad, aviso legal y condiciones, cookies
 ├── CNAME                   # Dominio personalizado
+├── .nojekyll               # Pages sirve el repo tal cual (sin Jekyll), para publicar .well-known/
+├── .well-known/assetlinks.json  # Verifica la app Android de Pantxiko Notes (TWA)
 ├── .htaccess               # Heredado de Apache: GitHub Pages lo ignora (las cabeceras van en Cloudflare)
 ├── robots.txt
 ├── sitemap.xml             # Portada, demos y fichas de sistemas de diseño, páginas legales
