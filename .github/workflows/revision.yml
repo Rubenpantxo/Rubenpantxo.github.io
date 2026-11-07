@@ -46,6 +46,39 @@ jobs:
             node scripts/revisar.mjs --all --bloque fugas
           fi
 
+  pruebas:
+    name: pruebas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Servidor del Instagram Downloader (yt-dlp falso, sin internet)
+        run: npm test
+
+  compilados:
+    name: compilados
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # biblioteca.js, biblioteca.css y el Tailwind incrustado del Instagram
+      # Downloader se generan desde su fuente: si alguien edita la fuente y no
+      # recompila (o edita el generado a mano), esto falla.
+      - name: Recompilar y comparar
+        run: |
+          npm ci --no-fund --no-audit
+          npm run build
+          git diff --exit-code -- apps/biblioteca/biblioteca.js apps/biblioteca/biblioteca.css apps/instagram-downloader/index_insta_down.html \
+            || { echo "::error::Los archivos generados no coinciden con su fuente. Ejecuta npm run build y sube el resultado."; exit 1; }
+
   sanidad:
     name: sanidad
     runs-on: ubuntu-latest
