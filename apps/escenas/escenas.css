@@ -379,6 +379,29 @@ body > .hk-backdrop { z-index: 0; }
 
 .prompt-actions .hk-btn { flex: 1 1 0; }
 
+/* Copia de seguridad */
+.backup-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.backup-actions .hk-btn { flex: 1 1 140px; }
+#copia-estado:empty { display: none; }
+
+/* Sin WebGL: aviso dentro del lienzo */
+.stage-error {
+    position: absolute;
+    inset: 50% 16px auto;
+    transform: translateY(-50%);
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 1px solid var(--hairline);
+    background: rgba(10, 13, 10, 0.92);
+    color: var(--ink, #e8efe4);
+    font-size: 14px;
+    line-height: 1.5;
+    z-index: 5;
+}
+.stage-error b { display: block; font-size: 16px; margin-bottom: 6px; }
+
 /* ------------------------------------------------------------
    RESPONSIVE
    ------------------------------------------------------------ */

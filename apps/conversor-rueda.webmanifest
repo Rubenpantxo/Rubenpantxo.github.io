@@ -1,0 +1,19 @@
+{
+  "id": "/apps/conversor-rueda.html",
+  "name": "Rueda · conversor de archivos",
+  "short_name": "Rueda",
+  "description": "Convierte imágenes, PDF, Word, texto, CSV y JSON en el navegador, sin subir nada.",
+  "lang": "es",
+  "start_url": "/apps/conversor-rueda.html",
+  "scope": "/apps/conversor-rueda.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f26b3f",
+  "theme_color": "#f26b3f",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    { "src": "/img/apps/rueda-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/img/apps/rueda-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/img/apps/rueda-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

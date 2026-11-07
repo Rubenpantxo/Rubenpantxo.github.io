@@ -7,6 +7,10 @@
 !.githooks/**
 !.github/
 !.github/**
+# GitHub Pages sin Jekyll (si no, no publica .well-known/) y la verificación de la app Android
+!.nojekyll
+!.well-known/
+!.well-known/assetlinks.json
 *~
 
 # Dependencias y registros
