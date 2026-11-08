@@ -8,5 +8,15 @@
         "D6:23:B7:E7:B7:61:19:F5:B3:80:BD:4D:37:74:3D:B6:11:6D:09:E8:88:8C:C9:D6:8C:96:1D:00:86:2A:FB:7B"
       ]
     }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.rubenpantxo.cestapunta",
+      "sha256_cert_fingerprints": [
+        "39:DC:A4:62:F1:9D:4A:65:93:87:05:B3:07:76:C8:A5:AF:8D:89:05:36:9E:89:C8:97:BB:FE:46:E3:5D:26:B7"
+      ]
+    }
   }
 ]
