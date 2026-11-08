@@ -3,7 +3,7 @@
      (la versión nueva se ve la siguiente vez que se abre el juego).
    - Librerías de CDN y fuentes de Google: caché primero (sus URL llevan versión fija).
    Al cambiar la lista de archivos, sube VERSION para que se rehaga la caché. */
-const VERSION = 'cesta-punta-v1';
+const VERSION = 'cesta-punta-v2';
 const LOCAL = [
   './',
   './index.html',
@@ -13,7 +13,8 @@ const LOCAL = [
   './escudos/escudos.js',
   './escudos/club_cabanillas.png',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './icons/icon-512-maskable.png'
 ];
 const CDN = [
   'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
