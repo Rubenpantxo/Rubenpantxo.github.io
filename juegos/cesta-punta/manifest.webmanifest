@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "Cesta Punta · Jai Alai",
+  "short_name": "Cesta Punta",
+  "description": "Juego de cesta punta en 3D en los frontones de Gernika, Cabanillas, Labrit, Hondarribia y Retegi",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0c1014",
+  "theme_color": "#a3141d",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "categories": ["games", "sports"]
+}
