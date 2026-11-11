@@ -20,6 +20,7 @@ import { avanzaAgua, creaCanal } from '../escena/agua.js';
 import { cargaMarcas, creaMarcas } from '../escena/marcas.js';
 import { cargaFarolas, creaFarolas } from '../escena/farolas.js';
 import { creaSingulares, sinArbolesSustituidos, sinMurosSustituidos } from '../escena/singulares.js';
+import { creaCasas } from '../escena/casas.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
 import { creaLuces } from './luces.js';
@@ -81,6 +82,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     { mallasTerreno: mundo.mallasTerreno, fisica });
   escena.add(marcas.raiz);
   escena.add(creaSingulares(mundo.terreno, fisica));
+  escena.add(creaCasas(mundo.terreno, fisica));
   const farolas = creaFarolas(await cargaFarolas(ESCENA.rutaFarolas), { terreno: mundo.terreno, fisica, luces: CALIDAD.lucesFarolas });
   escena.add(farolas.raiz);
   const colisiones = creaGestorColisiones(fisica, { radio: CALIDAD.radioColisiones });
