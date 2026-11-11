@@ -22,9 +22,10 @@ import math
 import sys
 
 from shapely import STRtree
-from shapely.geometry import LineString, MultiLineString, Point, shape
+from shapely.geometry import LineString, MultiLineString, Point, Polygon, shape
 from shapely.ops import nearest_points, unary_union
 
+import calzadas as calzadas_var
 from comun import cargar_config, cargar_origin, dir_assets, dir_raw
 
 elementos = importlib.import_module("15_osm_elementos")
@@ -38,6 +39,9 @@ TRAVESIA = {"primary"}                      # con arcén de aparcamiento en el c
 MEDIA_TRAVESIA_M = 6.0
 DIST_CASCO_M = 25.0
 MIN_PASO_M = 2.0
+LARGO_CEBRA_M = 3.0        # franjas del paso normal (CEBRA.largo en src/escena/marcas.js)
+MESETA_BADEN_M = 4.0       # meseta del paso sobreelevado (BADEN.meseta en src/escena/marcas.js)
+HOLGURA_HUECO_M = 0.3
 
 
 def r2(v):
@@ -79,16 +83,20 @@ def main() -> int:
     for v in vias:
         tipo = v["tags"].get("highway")
         if tipo in MEDIA and tipo != "track" and len(v["refs"]) >= 2:
-            calles.append({"tags": v["tags"], "tipo": tipo, "refs": v["refs"],
+            calles.append({"id": v["id"], "tags": v["tags"], "tipo": tipo, "refs": v["refs"],
                            "linea": LineString([nodos[r] for r in v["refs"]]), "media": MEDIA[tipo]})
     edificios = [shape(f["geometry"]) for f in json.loads((assets / "buildings.geojson").read_text(encoding="utf-8"))["features"]]
     casco = unary_union([e.buffer(DIST_CASCO_M) for e in edificios])
 
     # En la travesía la calzada incluye el arcén de aparcamiento (como en 11_suelo.py): el
     # bordillo va a MEDIA_TRAVESIA_M del eje y los pasos de cebra cruzan de bordillo a bordillo
+    # Calles con aparcamiento a los dos lados: calzada de ancho variable (calzadas.py, como en 11_suelo.py)
+    variables = calzadas_var.calzadas_variables([(c["id"], c["linea"], c["tipo"]) for c in calles],
+                                                {c["tipo"]: c["media"] for c in calles}, assets, config, origin)
     calzadas = []
     for c in calles:
-        z = c["linea"].buffer(c["media"], cap_style="flat")
+        cv = variables.get(calzadas_var.id_osm(c["id"]))
+        z = cv.calzada() if cv else c["linea"].buffer(c["media"], cap_style="flat")
         if c["tipo"] in TRAVESIA:
             z = z.union(c["linea"].buffer(MEDIA_TRAVESIA_M, cap_style="flat").intersection(casco))
         calzadas.append(z)
@@ -115,6 +123,18 @@ def main() -> int:
                 paso["elevado"] = True
             pasos.append(paso)
 
+    # Hueco de cada paso en la línea de borde: rectángulo a lo ancho de la calzada (más 1 m por
+    # fuera) y, a lo largo de la calle, lo que ocupan las franjas (3 m) o la meseta del badén (4 m)
+    huecos = []
+    for p in pasos:
+        ux, uz = p["dx"], p["dz"]
+        vx, vz = -uz, ux
+        a = p["largo"] / 2 + 1.0
+        b = (MESETA_BADEN_M if p.get("elevado") else LARGO_CEBRA_M) / 2 + HOLGURA_HUECO_M
+        huecos.append(Polygon([(p["x"] + ux * su * a + vx * sv * b, p["z"] + uz * su * a + vz * sv * b)
+                               for su, sv in ((-1, -1), (1, -1), (1, 1), (-1, 1))]))
+    sin_pasos = unary_union(huecos) if huecos else None
+
     # --- Ejes y bordes
     ejes, bordes = [], []
     for c in calles:
@@ -125,8 +145,10 @@ def main() -> int:
         if c["tipo"] in CON_BORDE:
             for lado in (-1, 1):
                 d = lado * (c["media"] - 0.25)
-                ejes_borde = c["linea"].offset_curve(d)
-                bordes += [coords(l, 2.0) for l in lineas(ejes_borde.intersection(zona)) if l.length > 4]
+                borde = c["linea"].offset_curve(d).intersection(zona)
+                if sin_pasos is not None:
+                    borde = borde.difference(sin_pasos)
+                bordes += [coords(l, 2.0) for l in lineas(borde) if l.length > 1.5]
 
     # --- Líneas de detención (STOP y ceda el paso)
     datos_el = json.loads((assets / "osm" / "elementos.json").read_text(encoding="utf-8"))
