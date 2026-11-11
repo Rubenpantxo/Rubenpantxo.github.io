@@ -11,11 +11,33 @@
 // De noche (cicloDia.js) una parte de las ventanas se enciende: cada ventana tiene su número
 // al azar y luce si está por debajo de «encendidas»; al bajar esa fracción de madrugada se
 // van apagando una a una. Son decorativas: no hay datos reales de qué casas tienen luz.
+import { Vector3 } from 'three';
+
 export const LUCES_FACHADA = {
   encendidas: { value: 0 },   // fracción de ventanas con luz
   intensidad: { value: 0 },   // 0 de día
 };
 
+// Dirección hacia el sol (o la luna) en mundo, para el relieve de los tejados sin luz
+// (edificios.js); la actualiza cicloDia.js
+export const SOL_TEJADOS = { value: new Vector3(0, 1, 0) };
+
+
+// Bump sin textura (gradiente de superficie de Mikkelsen, como el bumpmap de three): h en
+// metros; posición y normal en el mismo espacio (vista o mundo). Se llama fuera de ramas para
+// que dFdx sea fiable. Lo usan fachadas, muros (muros.js) y tejados (edificios.js).
+export const GLSL_RELIEVE = /* glsl */ `
+vec3 relievePBR(vec3 pos, vec3 n, float h, float caraF) {
+  vec3 sx = dFdx(pos);
+  vec3 sy = dFdy(pos);
+  vec3 r1 = cross(sy, n);
+  vec3 r2 = cross(n, sx);
+  float det = dot(sx, r1) * caraF;
+  vec2 dh = vec2(dFdx(h), dFdy(h));
+  vec3 grad = sign(det) * (dh.x * r1 + dh.y * r2);
+  return normalize(abs(det) * n - grad);
+}
+`;
 
 export const GLSL_FACHADA = /* glsl */ `
 varying vec2 vUvMuro;
@@ -25,6 +47,13 @@ varying vec4 vReal;                   // fachada real (datos/fachadasReales.js):
 uniform float uVentanasEncendidas;
 float luzFachada = 0.0;               // cuánto luce este píxel (ventana encendida)
 vec3 colorLuzFachada = vec3(0.0);
+// PBR: relieve en metros (+ sale, − hundido) que se convierte en normal con las derivadas de
+// pantalla (bump), y rugosidad/metal por material. hTex/rTex los deja cada textura al llamarla.
+float alturaF = 0.0;
+float rugosidadF = 0.9;
+float metalF = 0.0;
+float hTex = 0.0;
+float rTex = 0.9;
 
 float azar1(float n) { return fract(sin(n) * 43758.5453123); }
 float azar2(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123); }
@@ -86,6 +115,12 @@ vec3 ladrillos(vec2 p, vec3 base, float semilla, vec2 aa, float lejos) {
   float m = azar1(semilla * 9.1);
   vec3 mortero = m < 0.4 ? vec3(0.6, 0.58, 0.54) : (m < 0.7 ? vec3(0.76, 0.7, 0.6) : (m < 0.88 ? vec3(0.84, 0.83, 0.79) : vec3(0.32, 0.3, 0.28)));
   col = mix(col, mortero * 0.85, llaga);
+  // Llaga hundida 1–1,5 cm; cara del ladrillo con algo de bulto (más en los manuales)
+  // (el relieve se apaga antes que el color: las derivadas de una llaga fina dan moiré)
+  float cercaB = 1.0 - smoothstep(0.04, 0.14, max(aa.x, aa.y) / hilada);
+  hTex = (-mix(0.01, 0.015, manual) * llaga
+    + (0.0015 + manual * 0.002) * (ruidoF(p * vec2(55.0, 85.0) + id) - 0.5)) * cercaB;
+  rTex = mix(0.86, 0.96, llaga);
   return mix(col, mix(base, mortero, 0.15), lejos * 0.5);
 }
 
@@ -103,6 +138,9 @@ vec3 piedras(vec2 p, vec3 base, float semilla, vec2 aa, float lejos, float largo
     vec2 f = vec2(fract(u), fract(p.y / altoS));
     float junta = max(1.0 - smoothstep(0.0, 0.03 + aa.x * 3.0, f.x), 1.0 - smoothstep(0.0, 0.05 + aa.y * 3.0, f.y)) * (1.0 - lejos);
     col = base * (0.88 + 0.24 * azar2(id + semilla)) * (0.95 + 0.1 * ruidoF(p * 12.0 + id));
+    hTex = (-0.015 * junta + 0.004 * (ruidoF(p * 12.0 + id) - 0.5))
+      * (1.0 - smoothstep(0.03, 0.1, max(aa.x, aa.y) / altoS));
+    rTex = 0.84;
     return mix(col, col * 0.7, junta);
   }
   bool canto = tipo > 0.62 && tipo < 0.78;
@@ -120,16 +158,22 @@ vec3 piedras(vec2 p, vec3 base, float semilla, vec2 aa, float lejos, float largo
   col = mix(tono * (0.8 + 0.35 * azar1(v.y * 13.0 + semilla)), medio, lc);
   if (canto) col *= mix(0.85 + 0.25 * smoothstep(0.0, 0.3, v.x), 0.97, lc);
   col = mix(col, mix(vec3(0.72, 0.68, 0.6), base * 1.05, 0.4), mortero);
+  // Cada piedra abombada hacia su centro (el canto rodado, mucho) y el mortero hundido
+  float bulto = smoothstep(0.0, canto ? 0.3 : 0.18, v.x);
+  float hs = (bulto * (canto ? 0.025 : 0.012) - 0.008 * mortero) * (1.0 - lc);
   if (tipo >= 0.78) {
     float periodo = mix(0.9, 1.3, azar1(semilla * 8.8));
     float banda = step(fract(p.y / periodo), 0.21 / periodo);
     col = mix(col, ladrillos(p, vec3(0.56, 0.31, 0.2), semilla + 3.0, aa, lejos), banda);
+    hs = mix(hs, hTex, banda);
   }
   float filaE = floor(p.y / 0.3);
   float anchoE = mix(0.35, 0.55, azar1(semilla * 1.9)) * (mod(filaE, 2.0) > 0.5 ? 1.0 : 0.62);
   float esquina = 1.0 - step(anchoE, min(p.x, largoMuro - p.x));
   vec3 sillar = mix(base, vec3(0.78, 0.74, 0.66), 0.5) * (0.92 + 0.12 * azar2(vec2(filaE, semilla)));
   float jy = (1.0 - smoothstep(0.0, 0.05 + aa.y * 3.0, fract(p.y / 0.3))) * (1.0 - lejos);
+  hTex = mix(hs, 0.006 - 0.014 * jy, esquina);
+  rTex = 0.85;
   return mix(col, mix(sillar, sillar * 0.75, jy), esquina);
 }
 
@@ -139,7 +183,12 @@ vec3 enfoscado(vec2 p, vec3 base, float semilla, vec2 aa, float lejos, float alt
   vec3 c = base * (0.95 + 0.1 * fbmF(p * 0.35 + semilla));
   float textura = azar1(semilla * 4.4);
   float grano = textura < 0.33 ? 0.02 : (textura < 0.7 ? 0.05 : 0.09);
-  c *= 1.0 + (ruidoF(p * 35.0 + semilla) - 0.5) * grano * (1.0 - lejos);
+  float granoR = ruidoF(p * 35.0 + semilla) - 0.5;
+  c *= 1.0 + granoR * grano * (1.0 - lejos);
+  // Grano del mortero (liso, fratasado o rugoso) y ondulación suave del paño
+  float hs = granoR * grano * 0.05 * (1.0 - smoothstep(0.004, 0.012, max(aa.x, aa.y)))
+    + 0.002 * (fbmF(p * 2.0 + semilla) - 0.5) * (1.0 - lejos);
+  float rs = textura < 0.33 ? 0.72 : (textura < 0.7 ? 0.82 : 0.9);
   float viejo = azar1(semilla * 12.7);
   float churrete = smoothstep(0.55, 0.85, ruidoF(vec2(p.x * 3.5 + semilla, p.y * 0.25))) * smoothstep(alto * 0.3, alto, p.y);
   c *= 1.0 - 0.12 * churrete * viejo;
@@ -155,9 +204,15 @@ vec3 enfoscado(vec2 p, vec3 base, float semilla, vec2 aa, float lejos, float alt
     float borde = smoothstep(0.68, 0.71, mancha) - hueco;
     c = mix(c, c * 0.82, borde);
     c = mix(c, ladrillos(p, vec3(0.6, 0.38, 0.26), semilla, aa, lejos) * 0.9, hueco);
+    hs = mix(hs, hTex - 0.012, hueco);   // el ladrillo queda por debajo del enfoscado
+    rs = mix(rs, rTex, hueco);
   }
+  hTex = hs;
+  rTex = rs;
   return c;
 }
+
+${GLSL_RELIEVE}
 
 vec3 colorPersiana(float s) {
   if (s < 0.35) return vec3(0.33, 0.21, 0.12);   // marrón
@@ -169,6 +224,9 @@ vec3 colorPersiana(float s) {
 vec3 fachada(vec3 base, out float vidrio) {
   vidrio = 0.0;
   luzFachada = 0.0;
+  alturaF = 0.0;
+  rugosidadF = 0.9;
+  metalF = 0.0;
   vec2 p = vUvMuro;
   float alto = vMuro.x;
   float plantas = max(vMuro.y, 1.0);
@@ -203,6 +261,9 @@ vec3 fachada(vec3 base, out float vidrio) {
   // --- Hormigón (frontón, depósitos, silos): paños con juntas
   if (estilo > 3.5) {
     float junta = 1.0 - smoothstep(0.0, 0.03 + aa.x, abs(fract(p.x / 3.0) - 0.5) * 3.0 - 1.47);
+    alturaF = (-0.012 * junta + 0.002 * (ruidoF(p * 40.0 + semilla) - 0.5)) * (1.0 - lejos)
+      + 0.03 * (1.0 - cornisa) / 0.18;
+    rugosidadF = 0.95;
     return c * pie * (1.0 - 0.12 * junta * (1.0 - lejos)) * cornisa;
   }
 
@@ -210,6 +271,10 @@ vec3 fachada(vec3 base, out float vidrio) {
   if (estilo > 2.5) {
     float nervio = 0.5 + 0.5 * cos(p.x * 6.2831 / 0.3);
     c *= 1.0 - 0.10 * nervio * (1.0 - lejos);
+    // Chapa lacada: onda de 2 cm, algo metálica y bastante lisa
+    alturaF = 0.02 * nervio * (1.0 - lejos);
+    rugosidadF = 0.45;
+    metalF = 0.35;
     float banda = caja(p, vec2(0.6, alto - 1.6), vec2(largo - 0.6, alto - 0.9), aa) * step(0.5, azar1(semilla * 3.3));
     c = mix(c, vec3(0.12, 0.15, 0.17), banda * 0.9);
     vidrio = banda;
@@ -220,6 +285,7 @@ vec3 fachada(vec3 base, out float vidrio) {
       float porton = caja(vec2(x, p.y), vec2(-2.2, 0.0), vec2(2.2, min(4.5, alto - 1.0)), aa);
       vec3 colPorton = vec3(0.42, 0.44, 0.46) * (0.92 + 0.08 * cos(p.y * 6.2831 / 0.2));
       c = mix(c, colPorton, porton);
+      alturaF = mix(alturaF, -0.05 + 0.008 * cos(p.y * 6.2831 / 0.2) * (1.0 - lejos), porton);
     }
     return c * pie;
   }
@@ -235,8 +301,11 @@ vec3 fachada(vec3 base, out float vidrio) {
     if (bajaDistinta < 0.18 && p.y < altoPlantaF && !real) {
       c = bajaDistinta < 0.09 ? ladrillos(p, vec3(0.58, 0.33, 0.22), semilla + 1.0, aa, lejos)
                               : piedras(p, vec3(0.66, 0.6, 0.5), semilla + 2.0, aa, lejos, largo);
+      hTex += 0.015;   // el aplacado sobresale del enfoscado
     }
   }
+  alturaF = hTex;
+  rugosidadF = rTex;
   // Zócalo: gris de piedra con placas, el color de la fachada más oscuro, aplacado de piedra
   // irregular o ninguno (en ladrillo y piedra, solo a veces)
   float tipoZocalo = azar1(semilla * 4.7);
@@ -244,22 +313,33 @@ vec3 fachada(vec3 base, out float vidrio) {
   float altoZocalo = mix(0.45, 1.1, azar1(semilla * 2.1));
   float zona = (1.0 - smoothstep(altoZocalo - aa.y, altoZocalo + aa.y, p.y)) * hayZocalo;
   vec3 colZocalo;
+  float hZ = 0.008;
+  float rZ = 0.8;
   if (tipoZocalo < 0.3) {
     vec2 placa = vec2(p.x / 0.6, p.y / 0.4);
     float j = max(1.0 - smoothstep(0.0, 0.02 + aa.x * 2.0, fract(placa.x)), 1.0 - smoothstep(0.0, 0.03 + aa.y * 3.0, fract(placa.y)));
     colZocalo = vec3(0.42, 0.40, 0.37) * (0.92 + 0.12 * azar2(floor(placa) + semilla));
     colZocalo = mix(colZocalo, colZocalo * 0.7, j * (1.0 - lejos));
+    hZ = 0.02 - 0.006 * j * (1.0 - lejos);   // placas de piedra pulida, más lisas
+    rZ = 0.55;
   } else if (tipoZocalo < 0.6) {
     colZocalo = base * 0.62;
   } else {
     colZocalo = piedras(p, vec3(0.6, 0.55, 0.47), semilla + 5.0, aa, lejos, largo);
+    hZ = hTex + 0.02;
+    rZ = rTex;
   }
   if (real && altoZocaloReal > 0.05) {
     // Zócalo pintado del color de la foto, con algo de desgaste
     zona = 1.0 - smoothstep(altoZocaloReal - aa.y, altoZocaloReal + aa.y, p.y);
     colZocalo = vReal.rgb * (0.94 + 0.12 * fbmF(p * 3.0 + semilla));
+    hZ = 0.01;
+    rZ = 0.7;
   }
   c = mix(c, colZocalo, zona);
+  alturaF = mix(alturaF, hZ, zona) + 0.04 * (1.0 - cornisa) / 0.18;   // cornisa saliente
+  rugosidadF = mix(rugosidadF, rZ, zona);
+  rugosidadF = mix(1.0, rugosidadF, pie);   // pie sucio: mate
   c *= pie * cornisa;
 
   if (medianera > 0.5) return c * 0.94;   // muro ciego pegado al vecino
@@ -288,6 +368,11 @@ vec3 fachada(vec3 base, out float vidrio) {
       ? vec3(0.52, 0.53, 0.55) * (0.9 + 0.1 * cos(y * 6.2831 / 0.12) * (1.0 - lejos))
       : (azar1(semilla * 2.9) < 0.6 ? vec3(0.30, 0.18, 0.09) : vec3(0.15, 0.24, 0.17));
     c = mix(c, c * 0.72, marco);
+    // Puerta hundida en el muro con marco saliente; portón de lamas de chapa
+    alturaF = mix(alturaF, alturaF + 0.015, marco);
+    alturaF = mix(alturaF, -0.1 + (garaje ? 0.006 * cos(y * 6.2831 / 0.12) * (1.0 - lejos) : 0.0), hueco);
+    rugosidadF = mix(rugosidadF, garaje ? 0.5 : 0.65, hueco);
+    metalF = garaje ? 0.4 * hueco : 0.0;
     return mix(c, colHueco, hueco);
   }
   if (suerte > 0.88 && !(real && aCalle > 0.5)) return c;  // vano ciego
@@ -316,6 +401,12 @@ vec3 fachada(vec3 base, out float vidrio) {
   c = mix(c, colVidrio, hueco);
   c = mix(c, colPersiana, persiana);
   vidrio = clamp(hueco - persiana, 0.0, 1.0);
+  // Ventana metida en el muro (mocheta), marco saliente y lamas de la persiana
+  alturaF = mix(alturaF, alturaF + 0.012, marco);
+  alturaF = mix(alturaF, -0.08, hueco);
+  alturaF = mix(alturaF, -0.07 + 0.003 * cos(y * 6.2831 / 0.05) * (1.0 - smoothstep(0.004, 0.012, aa.y)), persiana);
+  rugosidadF = mix(rugosidadF, 0.5, marco);
+  rugosidadF = mix(rugosidadF, 0.6, persiana);
 
   if (balcon) {
     float losa = caja(vec2(x, y), vec2(-w * 0.5 - 0.3, y0 - 0.14), vec2(w * 0.5 + 0.3, y0), aa);
@@ -326,6 +417,11 @@ vec3 fachada(vec3 base, out float vidrio) {
     c = mix(c, vec3(0.38, 0.37, 0.35), losa);
     c = mix(c, vec3(0.05, 0.05, 0.05), hierro);
     vidrio *= 1.0 - hierro;
+    // Losa volada y barandilla de hierro (forja pintada: algo metálica)
+    alturaF = mix(alturaF, 0.1, losa);
+    alturaF = mix(alturaF, 0.04, hierro);
+    rugosidadF = mix(rugosidadF, 0.45, hierro);
+    metalF = max(metalF, hierro * 0.6);
   }
   if (baja && rejasReal && aCalle > 0.5) {
     // Reja de forja sobre la ventana de la planta baja
@@ -335,6 +431,9 @@ vec3 fachada(vec3 base, out float vidrio) {
     float hierroR = zonaR * max(mix(barra, 0.3, lejos), travesano);
     c = mix(c, vec3(0.06, 0.06, 0.06), hierroR);
     vidrio *= 1.0 - hierroR;
+    alturaF = mix(alturaF, 0.03, hierroR);
+    rugosidadF = mix(rugosidadF, 0.45, hierroR);
+    metalF = max(metalF, hierroR * 0.6);
   }
   // Luz de dentro: por el vidrio y, poca, entre las lamas de la persiana
   float suerteLuz = azar2(vec2(vano * 3.7 + semillaMuro * 0.11, planta * 5.3 + semilla));

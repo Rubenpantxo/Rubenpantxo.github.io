@@ -9,7 +9,7 @@
 import * as THREE from 'three';
 import { DIA } from '../config/dia.js';
 import { LUZ_SUELO } from './suelo.js';
-import { LUCES_FACHADA } from './fachadas.glsl.js';
+import { LUCES_FACHADA, SOL_TEJADOS } from './fachadas.glsl.js';
 
 const GRADO = Math.PI / 180;
 const suave = THREE.MathUtils.smoothstep;
@@ -158,6 +158,7 @@ export function creaCicloDia({ escena, camara, luzSol, direccionRender, intensid
       luzSol.intensity = luna;
       luzSol.color.copy(colorLuna);
     }
+    SOL_TEJADOS.value.copy(direccionRender);
 
     if (hemisferio) {
       hemisferio.intensity = mezcla(DIA.hemisferioNoche.intensidad, hemiDia.intensidad, dia);

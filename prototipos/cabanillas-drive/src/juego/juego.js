@@ -19,6 +19,7 @@ import { cargaElementos, creaElementos } from '../escena/elementos.js';
 import { avanzaAgua, creaCanal } from '../escena/agua.js';
 import { cargaMarcas, creaMarcas } from '../escena/marcas.js';
 import { cargaFarolas, creaFarolas } from '../escena/farolas.js';
+import { creaSingulares, sinArbolesSustituidos, sinMurosSustituidos } from '../escena/singulares.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
 import { creaLuces } from './luces.js';
@@ -38,7 +39,7 @@ const DISTANCIAS_COCHES = {
 export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   ui.estado.textContent = 'Cargando Cabanillas…';
   creaReflejos(renderer, escena);
-  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos, datosMuros, personas, datosElementos] = await Promise.all([
+  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos, murosLidar, personas, datosElementos] = await Promise.all([
     cargaMundo(renderer, ESCENA, {
       alProgresar: (f) => { ui.estado.textContent = `Cargando escena… ${Math.round(f * 100)} %`; },
     }),
@@ -54,10 +55,11 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     cargaPersonas(ESCENA.rutaPersonas),
     cargaElementos(ESCENA.rutaElementos),
   ]);
+  const datosMuros = sinMurosSustituidos(murosLidar);
   escena.add(mundo.raiz);
   const cochesAparcados = creaCochesAparcados(modelosCoches, aparcados, mundo.terreno, { excluir: [VEHICULO.modelo] });
   escena.add(cochesAparcados.raiz);
-  const arboles = creaArboles(renderer, modelosArboles, datosArboles, mundo.terreno, { entorno: escena });
+  const arboles = creaArboles(renderer, modelosArboles, sinArbolesSustituidos(datosArboles), mundo.terreno, { entorno: escena });
   escena.add(arboles.raiz);
   const hierba = creaHierba(vegetacion, mundo.terreno, { radio: CALIDAD.radioHierba });
   escena.add(hierba.raiz);
@@ -75,8 +77,10 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   const canal = creaCanal(await cargaGeoJSON(ESCENA.rutaAgua).catch(() => null), mundo.terreno);
   escena.add(canal);
   hierba.ponExclusion(canal.userData.bajoAgua);
-  const marcas = creaMarcas(await cargaMarcas(ESCENA.rutaMarcas), mundo.terreno);
+  const marcas = creaMarcas(await cargaMarcas(ESCENA.rutaMarcas), mundo.terreno,
+    { mallasTerreno: mundo.mallasTerreno, fisica });
   escena.add(marcas.raiz);
+  escena.add(creaSingulares(mundo.terreno, fisica));
   const farolas = creaFarolas(await cargaFarolas(ESCENA.rutaFarolas), { terreno: mundo.terreno, fisica, luces: CALIDAD.lucesFarolas });
   escena.add(farolas.raiz);
   const colisiones = creaGestorColisiones(fisica, { radio: CALIDAD.radioColisiones });

@@ -38,7 +38,8 @@ condiciones de cada web antes de publicar el juego.
 - N8AO (oclusión ambiental), de N8python, licencia ISC; postprocessing (pmndrs), licencia Zlib.
 
 ## Fachadas de referencia
-- Fotos de Mapillary, CC-BY-SA 4.0: imagen 532346855555160, de avaldeon (25-02-2023), calle Ramón y Cajal.
+- Fotos de Mapillary, CC-BY-SA 4.0: secuencia de avaldeon del 25-02-2023 por la carretera Tudela–Tauste /
+  calle Ramón y Cajal (71 casas; el id de la imagen de cada una va en `fuente`).
   Se usan como referencia para elegir estilo, colores, zócalo, balcones y rejas (src/datos/fachadasReales.js);
   la foto no se copia al juego.
 
