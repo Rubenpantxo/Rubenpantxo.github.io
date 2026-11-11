@@ -26,7 +26,10 @@ from affine import Affine
 from PIL import Image
 from rasterio.features import rasterize
 from scipy import ndimage
-from shapely.geometry import shape
+from shapely.geometry import LineString, shape
+from shapely.ops import unary_union
+
+import math
 
 import zipfile
 
@@ -34,6 +37,10 @@ from comun import cargar_config, cargar_origin, dir_assets, dir_raw
 
 PASO_M = 0.5
 ACERA_M = 1.8
+ANCHO_CAMINO_M = 4.0        # caminos agrícolas de tierra
+DIST_CASCO_M = 25.0         # como en 16_marcas_viales.py: casco = a menos de 25 m de un edificio
+TRAVESIA = ("primary",)     # carretera dentro del casco: con arcén de aparcamiento
+MEDIA_TRAVESIA_M = 6.0      # del eje al bordillo (carril 3,75 + aparcamiento 2,25); igual en 16_marcas_viales.py
 LADO_TEX = 512
 METROS_TEX = {"asfalto": 4.0, "baldosa": 2.0, "tierra": 4.0}   # texturas dibujadas: metros que cubren
 # Texturas de ambientCG (CC0): archivo y metros reales que cubre cada una
@@ -105,6 +112,28 @@ def textura_externa(carpeta, id_, fuerza):
     return np.clip(128 * (1 + (rel - 1) * fuerza), 0, 255).astype(np.uint8)
 
 
+def colores_orto(assets, filas, columnas, mascaras):
+    """Mediana sRGB de la ortofoto (a 0,5 m/px) en cada máscara, quitando lo oscuro (sombras,
+    coches) y lo muy claro (pintura): del percentil 35 al 85 de luminancia."""
+    meta = json.loads((assets / "orto" / "orto.json").read_text(encoding="utf-8"))
+    th, tw = meta["tesela_px"][1], meta["tesela_px"][0]
+    foto = np.zeros((meta["filas"] * th, meta["columnas"] * tw, 3), np.uint8)
+    for t in meta["teselas"]:
+        foto[t["fila"] * th:(t["fila"] + 1) * th, t["col"] * tw:(t["col"] + 1) * tw] = \
+            np.asarray(Image.open(assets / "orto" / t["archivo"]).convert("RGB"))
+    foto = np.asarray(Image.fromarray(foto).resize((columnas, filas), Image.BILINEAR)).astype(np.float32)
+    luz = foto @ np.array([0.2126, 0.7152, 0.0722], np.float32)
+    salida = {}
+    for nombre, m in mascaras.items():
+        if m.sum() < 100:
+            continue
+        l = luz[m]
+        sel = (l >= np.percentile(l, 35)) & (l <= np.percentile(l, 85))
+        salida[nombre] = [int(v) for v in np.median(foto[m][sel], axis=0)]
+    print("  colores de la foto:", salida)
+    return salida
+
+
 def main() -> int:
     config = cargar_config()
     origin = cargar_origin(config)
@@ -126,19 +155,50 @@ def main() -> int:
 
     calles = capa("osm/calles.geojson")
     caminos = capa("osm/caminos.geojson")
+    edificios = [shape(f["geometry"]) for f in capa("buildings.geojson")]
+    casco = mascara([unary_union([e.buffer(DIST_CASCO_M) for e in edificios])])
     calzada = mascara([shape(f["geometry"]).buffer(medias.get(f["properties"].get("tipo"), 3.0), cap_style="flat")
                        for f in calles if medias.get(f["properties"].get("tipo"), 3.0) > 0])
+    # Travesía: en el casco la carretera lleva arcén de aparcamiento a cada lado (coches a 4,6 m
+    # del eje, fachadas a ~8 m): calzada hasta MEDIA_TRAVESIA_M y la acera detrás
+    travesia = [shape(f["geometry"]) for f in calles if f["properties"].get("tipo") in TRAVESIA]
+    calzada |= mascara([g.buffer(MEDIA_TRAVESIA_M, cap_style="flat") for g in travesia]) & casco
+    # Acera solo en el casco: fuera, las carreteras y calles van entre campos sin acera
     acera = mascara([shape(f["geometry"]).buffer(medias.get(f["properties"].get("tipo"), 3.0) + ACERA_M)
-                     for f in calles])
+                     for f in calles]) & casco
+    acera |= mascara([g.buffer(MEDIA_TRAVESIA_M + ACERA_M) for g in travesia]) & casco
     acera |= mascara([shape(f["geometry"]).buffer(1.5) for f in caminos
                       if f["properties"].get("tipo") in ("footway", "pedestrian", "steps", "cycleway")])
     acera &= ~calzada
-    tierra = mascara([shape(f["geometry"]).buffer(2.0) for f in caminos
+    tierra = mascara([shape(f["geometry"]).buffer(ANCHO_CAMINO_M / 2) for f in caminos
                       if f["properties"].get("tipo") in ("track", "path")]) & ~calzada & ~acera
-    # Fuera de las calles (patios, solares, campos) no hay detalle: queda la foto
+    # Fuera de las calles (patios, solares, campos) no hay textura: queda la foto
     tipos = np.dstack([calzada, acera, tierra]).astype(np.float32) * 255
-    tipos = ndimage.gaussian_filter(tipos, (1.0, 1.0, 0))
+    tipos = ndimage.gaussian_filter(tipos, (0.7, 0.7, 0))
     Image.fromarray(tipos.astype(np.uint8)).save(salida / "tipos.png", optimize=True)
+
+    # Dirección de la vía más cercana (para alinear juntas de acera, desgaste y rodadas):
+    # R, G = cos 2θ, sin 2θ (eje sin sentido) y B = distancia al eje de la vía (0,1 m por nivel)
+    tramos = []
+    for f in calles + caminos:
+        g = shape(f["geometry"])
+        for linea in getattr(g, "geoms", [g]):
+            c = list(linea.coords)
+            for a, b in zip(c[:-1], c[1:]):
+                if a != b:
+                    tramos.append((LineString([a, b]), math.atan2(b[1] - a[1], b[0] - a[0])))
+    ids = rasterize([(t, i + 1) for i, (t, _) in enumerate(tramos)], out_shape=(filas, columnas), transform=local,
+                    fill=0, dtype="int32", all_touched=True)
+    dist, (iy, ix) = ndimage.distance_transform_edt(ids == 0, return_indices=True)
+    angulos = np.array([0.0] + [a for _, a in tramos])[ids[iy, ix]]
+    direccion = np.dstack([np.cos(2 * angulos) * 0.5 + 0.5, np.sin(2 * angulos) * 0.5 + 0.5,
+                           np.clip(dist * PASO_M / 25.5, 0, 1)]) * 255
+    Image.fromarray(np.round(direccion).astype(np.uint8)).save(salida / "direccion.png", optimize=True)
+
+    # Color de cada suelo en la ortofoto (mediana de lo soleado, sin coches ni sombras): la
+    # textura lo usa como base para que de lejos se vea igual que la foto
+    colores = colores_orto(assets, filas, columnas, {"calzada": calzada & casco, "acera": acera & casco,
+                                                     "tierra": tierra})
 
     r = np.random.default_rng(5)
     dibujadas = {"asfalto": textura_asfalto, "baldosa": textura_baldosa, "tierra": textura_tierra}
@@ -158,6 +218,8 @@ def main() -> int:
         "paso_m": PASO_M, "columnas": columnas, "filas": filas, "x0": -origin["ancho"] / 2, "z0": -origin["alto"] / 2,
         "metros_textura": metros,
         "canales": {"R": "calzada", "G": "acera", "B": "tierra"},
+        "direccion": {"R": "cos 2θ", "G": "sin 2θ", "B": "distancia al eje (25,5 m = 255)"},
+        "colores_srgb": colores,
     }, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"Calzada {calzada.sum() * PASO_M ** 2 / 1e4:.1f} ha · acera {acera.sum() * PASO_M ** 2 / 1e4:.1f} ha · "
           f"tierra {tierra.sum() * PASO_M ** 2 / 1e4:.1f} ha")

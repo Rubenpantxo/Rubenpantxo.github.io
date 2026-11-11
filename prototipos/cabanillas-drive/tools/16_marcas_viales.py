@@ -33,6 +33,9 @@ CON_EJE = {"primary", "primary_link", "secondary", "tertiary"}
 CON_BORDE = {"primary"}
 CON_BORDILLO = {"residential", "living_street", "unclassified", "tertiary", "secondary", "primary", "primary_link", "service"}
 CRUCES_SIN_MARCA = {"unmarked", "no"}
+CON_BADEN = {"primary", "primary_link"}     # pasos de cebra sobreelevados en la travesía
+TRAVESIA = {"primary"}                      # con arcén de aparcamiento en el casco (11_suelo.py)
+MEDIA_TRAVESIA_M = 6.0
 DIST_CASCO_M = 25.0
 MIN_PASO_M = 2.0
 
@@ -78,11 +81,18 @@ def main() -> int:
         if tipo in MEDIA and tipo != "track" and len(v["refs"]) >= 2:
             calles.append({"tags": v["tags"], "tipo": tipo, "refs": v["refs"],
                            "linea": LineString([nodos[r] for r in v["refs"]]), "media": MEDIA[tipo]})
-    calzadas = [c["linea"].buffer(c["media"], cap_style="flat") for c in calles]
-    calzada = unary_union(calzadas)
-
     edificios = [shape(f["geometry"]) for f in json.loads((assets / "buildings.geojson").read_text(encoding="utf-8"))["features"]]
     casco = unary_union([e.buffer(DIST_CASCO_M) for e in edificios])
+
+    # En la travesía la calzada incluye el arcén de aparcamiento (como en 11_suelo.py): el
+    # bordillo va a MEDIA_TRAVESIA_M del eje y los pasos de cebra cruzan de bordillo a bordillo
+    calzadas = []
+    for c in calles:
+        z = c["linea"].buffer(c["media"], cap_style="flat")
+        if c["tipo"] in TRAVESIA:
+            z = z.union(c["linea"].buffer(MEDIA_TRAVESIA_M, cap_style="flat").intersection(casco))
+        calzadas.append(z)
+    calzada = unary_union(calzadas)
 
     # --- Pasos de cebra
     pasos = []
@@ -96,8 +106,14 @@ def main() -> int:
                 continue
             (x0, z0), (x1, z1) = tramo.coords[0], tramo.coords[-1]
             c = tramo.interpolate(0.5, normalized=True)
-            pasos.append({"x": r2(c.x), "z": r2(c.y), "dx": r2((x1 - x0) / tramo.length), "dz": r2((z1 - z0) / tramo.length),
-                          "largo": r2(tramo.length)})
+            paso = {"x": r2(c.x), "z": r2(c.y), "dx": r2((x1 - x0) / tramo.length), "dz": r2((z1 - z0) / tramo.length),
+                    "largo": r2(tramo.length)}
+            # Badén: OSM no trae ninguno (traffic_calming); por decisión del autor, los pasos de
+            # la travesía (carretera dentro del casco) son pasos sobreelevados
+            if casco.contains(c) and any(cz.buffer(0.5).contains(c) for cz, cl in zip(calzadas, calles)
+                                         if cl["tipo"] in CON_BADEN):
+                paso["elevado"] = True
+            pasos.append(paso)
 
     # --- Ejes y bordes
     ejes, bordes = [], []
@@ -147,7 +163,7 @@ def main() -> int:
               "pasos": pasos, "ejes": ejes, "bordes": bordes, "detenciones": detenciones, "bordillos": bordillos}
     (assets / "osm" / "marcas.json").write_text(json.dumps(salida, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     largo = lambda ls: sum(LineString(l).length for l in ls)  # noqa: E731
-    print(f"Pasos de cebra {len(pasos)} · ejes {largo(ejes):.0f} m · bordes {largo(bordes):.0f} m · "
+    print(f"Pasos de cebra {len(pasos)} (elevados {sum(1 for p in pasos if p.get('elevado'))}) · ejes {largo(ejes):.0f} m · bordes {largo(bordes):.0f} m · "
           f"líneas de detención {len(detenciones)} · bordillos {largo(bordillos):.0f} m")
     return 0
 
