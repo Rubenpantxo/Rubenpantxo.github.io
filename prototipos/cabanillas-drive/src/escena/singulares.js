@@ -5,16 +5,17 @@
 import * as THREE from 'three';
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { SINGULARES, ZONAS_SIN_MUROS } from '../datos/singulares.js';
+import { enZonaCasas } from '../datos/casas.js';
 import { registraEstatico } from '../fisica/fisica.js';
 
 // ---------- Texturas de canvas
-function lienzo(lado) {
+export function lienzo(lado) {
   const c = document.createElement('canvas');
   c.width = c.height = lado;
   return [c, c.getContext('2d')];
 }
 
-function texturas(color, bump, metros, anisotropia = 8) {
+export function texturas(color, bump, metros, anisotropia = 8) {
   const map = new THREE.CanvasTexture(color);
   map.colorSpace = THREE.SRGBColorSpace;
   const bumpMap = bump ? new THREE.CanvasTexture(bump) : null;
@@ -27,7 +28,7 @@ function texturas(color, bump, metros, anisotropia = 8) {
 }
 
 // Aparejo de soga: ladrillo de 24 × 5 cm con llaga de 1 cm (el lienzo cubre 1,2 × 1,2 m)
-function texturaLadrillo(base, mortero = '#cfc6b4') {
+export function texturaLadrillo(base, mortero = '#cfc6b4') {
   const lado = 1024;
   const m = 1.2;
   const px = lado / m;
@@ -134,7 +135,7 @@ function texturaRotulo(texto) {
 
 // ---------- Utilidades de geometría
 // Caja con UV en metros (para texturas que se repiten por metros)
-function caja(sx, sy, sz, x, y, z) {
+export function caja(sx, sy, sz, x, y, z) {
   const g = new THREE.BoxGeometry(sx, sy, sz);
   const uv = g.attributes.uv;
   const escala = [[sz, sy], [sz, sy], [sx, sz], [sx, sz], [sx, sy], [sx, sy]];
@@ -148,7 +149,7 @@ function caja(sx, sy, sz, x, y, z) {
 }
 
 // Grupo orientado: +x local a lo largo de a→b, origen en a (y = 0 en «y0»)
-function marco(a, b, y0) {
+export function marco(a, b, y0) {
   const ex = b[0] - a[0];
   const ez = b[1] - a[1];
   const largo = Math.hypot(ex, ez);
@@ -158,7 +159,7 @@ function marco(a, b, y0) {
   return { grupo, largo };
 }
 
-function sombras(obj, proyecta = true) {
+export function sombras(obj, proyecta = true) {
   obj.traverse((o) => { if (o.isMesh) { o.castShadow = proyecta; o.receiveShadow = true; } });
   return obj;
 }
@@ -668,16 +669,19 @@ export function creaSingulares(terreno, fisica) {
   return raiz;
 }
 
-// Quita las vallas de muros.json que no existen (al pie del campanario)
+// Quita las vallas de muros.json que no existen (al pie del campanario) y los muros y vallas de
+// delante de las casas modeladas a mano (los pone casas.js)
 export function sinMurosSustituidos(datos) {
   if (!datos?.muros) return datos;
-  const fuera = (w) => w.t === 'valla' && ZONAS_SIN_MUROS.some((zona) =>
-    w.p.some(([x, z]) => Math.hypot(x - zona.x, z - zona.z) < zona.radio));
+  const fuera = (w) => (w.t === 'valla' && ZONAS_SIN_MUROS.some((zona) =>
+    w.p.some(([x, z]) => Math.hypot(x - zona.x, z - zona.z) < zona.radio)))
+    || enZonaCasas((w.p[0][0] + w.p[w.p.length - 1][0]) / 2, (w.p[0][1] + w.p[w.p.length - 1][1]) / 2);
   return { ...datos, muros: datos.muros.filter((w) => !fuera(w)) };
 }
 
-// Quita del LiDAR el árbol genérico que sustituye el pino modelado
+// Quita del LiDAR el árbol genérico que sustituye el pino modelado y los de delante de las casas
+// modeladas a mano (en San Isidro, casas.js pone los árboles de bola de las fotos)
 export function sinArbolesSustituidos(datos) {
   const { x, z } = SINGULARES.pino;
-  return { ...datos, arboles: datos.arboles.filter(([ax, az]) => Math.hypot(ax - x, az - z) > 3) };
+  return { ...datos, arboles: datos.arboles.filter(([ax, az]) => Math.hypot(ax - x, az - z) > 3 && !enZonaCasas(ax, az)) };
 }

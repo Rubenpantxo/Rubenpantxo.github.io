@@ -22,6 +22,7 @@ import json
 import sys
 
 import numpy as np
+import shapely
 from affine import Affine
 from PIL import Image
 from rasterio.features import rasterize
@@ -33,6 +34,7 @@ import math
 
 import zipfile
 
+import calzadas
 from comun import cargar_config, cargar_origin, dir_assets, dir_raw
 
 PASO_M = 0.5
@@ -41,6 +43,7 @@ ANCHO_CAMINO_M = 4.0        # caminos agrícolas de tierra
 DIST_CASCO_M = 25.0         # como en 16_marcas_viales.py: casco = a menos de 25 m de un edificio
 TRAVESIA = ("primary",)     # carretera dentro del casco: con arcén de aparcamiento
 MEDIA_TRAVESIA_M = 6.0      # del eje al bordillo (carril 3,75 + aparcamiento 2,25); igual en 16_marcas_viales.py
+RANGO_BORDILLO_M = 3.0      # bordillo.png: distancia al borde de la calzada de −3 a +3 m
 LADO_TEX = 512
 METROS_TEX = {"asfalto": 4.0, "baldosa": 2.0, "tierra": 4.0}   # texturas dibujadas: metros que cubren
 # Texturas de ambientCG (CC0): archivo y metros reales que cubre cada una
@@ -134,13 +137,41 @@ def colores_orto(assets, filas, columnas, mascaras):
     return salida
 
 
+def distancia_bordillo(calzada_v, calzada, acera, filas, columnas, origin):
+    """bordillo.png (gris): 128 + 127 · d / RANGO_BORDILLO_M, con d la distancia con signo al
+    borde de la calzada (+ dentro). Exacta (vector) en la franja junto a las aceras; fuera de
+    ella solo el signo, saturado."""
+    signo = np.where(calzada, 1.0, -1.0)
+    franja = ndimage.binary_dilation(acera, iterations=int(RANGO_BORDILLO_M / PASO_M) + 2)
+    franja &= ndimage.binary_dilation(calzada, iterations=int(RANGO_BORDILLO_M / PASO_M) + 2)
+    franja &= ndimage.binary_dilation(~calzada, iterations=int(RANGO_BORDILLO_M / PASO_M) + 2)
+    iy, ix = np.nonzero(franja)
+    x = -origin["ancho"] / 2 + (ix + 0.5) * PASO_M
+    z = -origin["alto"] / 2 + (iy + 0.5) * PASO_M
+    borde = calzada_v.boundary
+    tramos = [LineString(c) for g in getattr(borde, "geoms", [borde]) for c in zip(g.coords[:-1], g.coords[1:])]
+    arbol = shapely.STRtree(tramos)
+    puntos = shapely.points(x, z)
+    (cual, _), dist = arbol.query_nearest(puntos, max_distance=RANGO_BORDILLO_M + 1, return_distance=True, all_matches=False)
+    d = np.full(len(puntos), RANGO_BORDILLO_M + 1.0)
+    d[cual] = dist
+    shapely.prepare(calzada_v)
+    dentro = shapely.contains_xy(calzada_v, x, z)
+    d = np.where(dentro, d, -d)
+    total = signo * (RANGO_BORDILLO_M + 1.0)
+    total[iy, ix] = d
+    print(f"  bordillo: {len(puntos)} píxeles con distancia exacta")
+    return np.clip(np.round(128 + 127 * total / RANGO_BORDILLO_M), 0, 255).astype(np.uint8)
+
+
 def main() -> int:
     config = cargar_config()
     origin = cargar_origin(config)
     assets = dir_assets(config)
     salida = assets / "suelo"
     salida.mkdir(parents=True, exist_ok=True)
-    medias = importlib.import_module("08_arboles").MEDIA_CALZADA_M
+    # Anchos de 08_arboles.py, con el ramal de la carretera como en 15/16 (el bordillo sale de allí)
+    medias = {**importlib.import_module("08_arboles").MEDIA_CALZADA_M, "primary_link": 3.5}
 
     columnas, filas = int(origin["ancho"] / PASO_M), int(origin["alto"] / PASO_M)
     local = Affine(PASO_M, 0, -origin["ancho"] / 2, 0, PASO_M, -origin["alto"] / 2)
@@ -157,8 +188,16 @@ def main() -> int:
     caminos = capa("osm/caminos.geojson")
     edificios = [shape(f["geometry"]) for f in capa("buildings.geojson")]
     casco = mascara([unary_union([e.buffer(DIST_CASCO_M) for e in edificios])])
-    calzada = mascara([shape(f["geometry"]).buffer(medias.get(f["properties"].get("tipo"), 3.0), cap_style="flat")
-                       for f in calles if medias.get(f["properties"].get("tipo"), 3.0) > 0])
+    # Calles con aparcamiento a los dos lados (calzadas.py): calzada hasta cerca de las fachadas
+    variables = calzadas.calzadas_variables(
+        [(f["properties"].get("id"), shape(f["geometry"]), f["properties"].get("tipo")) for f in calles
+         if shape(f["geometry"]).geom_type == "LineString"], medias, assets, config, origin)
+
+    def forma_calzada(f):
+        cv = variables.get(calzadas.id_osm(f["properties"].get("id")))
+        return cv.calzada() if cv else shape(f["geometry"]).buffer(medias.get(f["properties"].get("tipo"), 3.0), cap_style="flat")
+    formas_calzada = [forma_calzada(f) for f in calles if medias.get(f["properties"].get("tipo"), 3.0) > 0]
+    calzada = mascara(formas_calzada)
     # Travesía: en el casco la carretera lleva arcén de aparcamiento a cada lado (coches a 4,6 m
     # del eje, fachadas a ~8 m): calzada hasta MEDIA_TRAVESIA_M y la acera detrás
     travesia = [shape(f["geometry"]) for f in calles if f["properties"].get("tipo") in TRAVESIA]
@@ -167,6 +206,7 @@ def main() -> int:
     acera = mascara([shape(f["geometry"]).buffer(medias.get(f["properties"].get("tipo"), 3.0) + ACERA_M)
                      for f in calles]) & casco
     acera |= mascara([g.buffer(MEDIA_TRAVESIA_M + ACERA_M) for g in travesia]) & casco
+    acera |= mascara([cv.acera() for cv in variables.values()]) & casco
     acera |= mascara([shape(f["geometry"]).buffer(1.5) for f in caminos
                       if f["properties"].get("tipo") in ("footway", "pedestrian", "steps", "cycleway")])
     acera &= ~calzada
@@ -176,6 +216,16 @@ def main() -> int:
     tipos = np.dstack([calzada, acera, tierra]).astype(np.float32) * 255
     tipos = ndimage.gaussian_filter(tipos, (0.7, 0.7, 0))
     Image.fromarray(tipos.astype(np.uint8)).save(salida / "tipos.png", optimize=True)
+
+    # Bordillo nítido: distancia con signo (m) al borde de la calzada, con la geometría exacta
+    # (la misma que da el bordillo de 16_marcas_viales.py), para que el juego corte asfalto y
+    # cemento justo debajo del bordillo en vez de mezclarlos en un metro y medio
+    casco_v = unary_union([e.buffer(DIST_CASCO_M) for e in edificios])
+    calzada_v = unary_union(formas_calzada + [g.buffer(MEDIA_TRAVESIA_M, cap_style="flat").intersection(casco_v) for g in travesia])
+    Image.fromarray(distancia_bordillo(calzada_v, calzada, acera, filas, columnas, origin)).save(
+        salida / "bordillo.png", optimize=True)
+    # Los coches aparcados que quedaban sobre la acera de esas calles pasan a la calzada
+    calzadas.recoloca_coches(assets, variables)
 
     # Dirección de la vía más cercana (para alinear juntas de acera, desgaste y rodadas):
     # R, G = cos 2θ, sin 2θ (eje sin sentido) y B = distancia al eje de la vía (0,1 m por nivel)

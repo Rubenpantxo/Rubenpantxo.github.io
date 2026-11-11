@@ -1,3 +1,5 @@
+import { EDIFICIOS_CASAS } from './casas.js';
+
 // Edificios y elementos singulares modelados a mano a partir de fotos de referencia que aportó
 // Rubén (vistas de calle, 2025) y su situación en OSM y el Catastro. Coordenadas locales
 // (x este, z sur, m). Lo construye src/escena/singulares.js.
@@ -38,7 +40,8 @@ export const SINGULARES = {
 // - 1543: caja de 4,5 × 4,5 m y 13,6 m de alto junto al pino de la entrada; allí no hay nada
 // - 575: la plaza de la iglesia con el solar del campanario (el Catastro le da 7,4 m y el LiDAR
 //   le hacía un tejado con la torre y los árboles); la iglesia son el 572 y el 1004
-export const EDIFICIOS_SUSTITUIDOS = new Set([...SINGULARES.salaCultura.sustituye, 1543, 575]);
+// Además, las casas modeladas a mano (datos/casas.js)
+export const EDIFICIOS_SUSTITUIDOS = new Set([...SINGULARES.salaCultura.sustituye, 1543, 575, ...EDIFICIOS_CASAS]);
 
 // Muros y vallas de muros.json que no existen: al pie del campanario el LiDAR vio una «valla»
 // de 2 m; en realidad es un murete de hormigón con barandilla negra (lo pone singulares.js)

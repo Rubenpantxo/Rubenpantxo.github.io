@@ -19,6 +19,7 @@ const AJUSTE = {
   calzada: 0.44,     // la foto aclara mucho el asfalto: brea gris oscura
   acera: 0.95,       // cemento gris claro
 };
+const RANGO_BORDILLO_M = 3.0;               // bordillo.png: −3…+3 m (RANGO_BORDILLO_M de 11_suelo.py)
 const ASFALTO_POR_DEFECTO = [86, 85, 82];
 const CEMENTO_POR_DEFECTO = [178, 173, 160];
 
@@ -46,7 +47,13 @@ export async function cargaDetalleSuelo(ruta, renderer) {
   direccion.magFilter = THREE.NearestFilter;
   direccion.minFilter = THREE.NearestFilter;
   direccion.generateMipmaps = false;
-  return { meta, tipos, direccion, asfalto, baldosa, tierra };
+  // Distancia al bordillo (11_suelo.py): sin mipmaps, que mezclarían los dos lados del bordillo
+  const bordillo = await cargador.loadAsync(`${ruta}bordillo.png`).catch(() => null);
+  if (bordillo) {
+    bordillo.generateMipmaps = false;
+    bordillo.minFilter = THREE.LinearFilter;
+  }
+  return { meta, tipos, direccion, asfalto, baldosa, tierra, bordillo };
 }
 
 // Color sRGB de la foto × ajuste → lineal
@@ -58,7 +65,7 @@ function colorSuelo(srgb, ajuste) {
 // Suelo procedural: deja en sueloProc el color (lineal) y en pesoProc cuánto sustituye a la foto
 const GLSL_SUELO = /* glsl */ `
 varying vec3 vMundo;
-uniform sampler2D uTipos, uDireccion, uAsfalto, uBaldosa, uTierra;
+uniform sampler2D uTipos, uDireccion, uAsfalto, uBaldosa, uTierra, uBordillo;
 uniform vec4 uZona;
 uniform vec3 uMetros;
 uniform vec3 uColAsfalto, uColAcera;
@@ -94,6 +101,18 @@ void calculaSuelo(vec3 foto) {
   pesoProc = smoothstep(0.15, 0.6, suma);
   if (pesoProc <= 0.0) return;
   tipo /= max(suma, 1e-3);
+  // Bordillo nítido: donde hay acera, asfalto y cemento se reparten por la distancia exacta al
+  // borde de la calzada (bordillo.png) en vez de por tipos.png, que es borroso (0,5 m/px)
+  float dBordillo = 9.0;
+#ifdef CON_BORDILLO
+  dBordillo = (texture2D(uBordillo, uvT).r * 255.0 - 128.0) / 127.0 * ${RANGO_BORDILLO_M.toFixed(1)};
+  float conAcera = smoothstep(0.0, 0.04, tipo.g);
+  float enCalzada = smoothstep(-0.6 * da, 0.6 * da, dBordillo);
+  float rg = tipo.r + tipo.g;
+  tipo.r = mix(tipo.r, rg * enCalzada, conAcera);
+  tipo.g = mix(tipo.g, rg * (1.0 - enCalzada), conAcera);
+  dBordillo = mix(9.0, dBordillo, conAcera);
+#endif
   vec3 dir = texture2D(uDireccion, uvT).rgb;
   float th = 0.5 * atan(dir.g * 2.0 - 1.0, dir.r * 2.0 - 1.0);
   vec2 eje = vec2(cos(th), sin(th));
@@ -111,7 +130,8 @@ void calculaSuelo(vec3 foto) {
   asf *= 1.0 - 0.12 * parche;                                // parche más nuevo, más negro
   float rodada = smoothstep(0.5, 1.0, dEje) * (1.0 - smoothstep(2.2, 2.9, dEje));
   asf *= 1.0 - 0.07 * rodada;                                // pulido de las ruedas
-  float bordeCalzada = 1.0 - smoothstep(0.55, 0.95, tipo.r + tipo.b);   // junto al bordillo
+  float bordeCalzada = dBordillo < 8.0 ? 1.0 - smoothstep(0.05, 0.7, dBordillo)   // junto al bordillo
+                                       : 1.0 - smoothstep(0.55, 0.95, tipo.r + tipo.b);
   asf = mix(asf, asf * vec3(1.05, 1.0, 0.9) * 1.15, bordeCalzada * 0.6);  // polvo y arena
   // Grietas selladas con betún: pocas, finas (1 cm) y solo de cerca (a media distancia la
   // línea ocuparía el píxel entero y daría una red negra)
@@ -177,6 +197,7 @@ export function materialSuelo(mapa, nombre, detalle = null) {
         uAsfalto: { value: detalle.asfalto },
         uBaldosa: { value: detalle.baldosa },
         uTierra: { value: detalle.tierra },
+        uBordillo: { value: detalle.bordillo },
         uZona: { value: new THREE.Vector4(meta.x0, meta.z0, meta.columnas * meta.paso_m, meta.filas * meta.paso_m) },
         uMetros: { value: new THREE.Vector3(meta.metros_textura.asfalto, meta.metros_textura.baldosa, meta.metros_textura.tierra) },
         uColAsfalto: { value: colorSuelo(col.calzada ? col.calzada : ASFALTO_POR_DEFECTO, col.calzada ? AJUSTE.calzada : 1) },
@@ -189,6 +210,7 @@ export function materialSuelo(mapa, nombre, detalle = null) {
           vMundo = (modelMatrix * vec4(transformed, 1.0)).xyz;`);
       shader.fragmentShader = shader.fragmentShader
         .replace('#include <common>', `#include <common>
+          ${detalle.bordillo ? '#define CON_BORDILLO' : ''}
           ${GLSL_SUELO}`)
         // La tierra toma el color de la foto muy suavizado (mip alto): sin lo borroso de cerca
         .replace('DETALLE_SUELO_COLOR', `calculaSuelo(texture(map, vMapUv, 5.0).rgb);
@@ -211,7 +233,7 @@ export function materialSuelo(mapa, nombre, detalle = null) {
         }
         #include <opaque_fragment>`);
   };
-  material.customProgramCacheKey = () => (detalle ? 'suelo_procedural_v2' : 'suelo_ortofoto_dia');
+  material.customProgramCacheKey = () => (detalle ? `suelo_procedural_v3${detalle.bordillo ? '_bordillo' : ''}` : 'suelo_ortofoto_dia');
   return material;
 }
 
