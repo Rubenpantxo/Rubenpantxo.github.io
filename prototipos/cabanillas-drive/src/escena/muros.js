@@ -6,6 +6,7 @@
 // Todo en una malla por tipo; colisión con cajas de hasta 6 m (gestor de colisiones).
 import * as THREE from 'three';
 import { registraEstatico } from '../fisica/fisica.js';
+import { GLSL_RELIEVE } from './fachadas.glsl.js';
 
 const GROSOR = { muro: 0.25, contencion: 0.4 };
 const PASO_TERRENO_M = 2;          // se parte cada tramo para seguir el terreno
@@ -25,11 +26,16 @@ float ruidoM(vec2 p) {
 `;
 
 // Acabados: 0 bloque de hormigón · 1 ladrillo · 2 enfoscado · 3 mampostería · 4 hormigón
+// Además del color dejan el relieve en metros (alturaM, bump con relievePBR) y la rugosidad
 const GLSL_MURO = /* glsl */ `
+float alturaM = 0.0;
+float rugosidadM = 0.92;
+${GLSL_RELIEVE}
 vec3 acabadoMuro(vec3 base) {
   vec2 p = vUvM;
   vec2 aa = max(fwidth(p), vec2(0.002));
   float lejos = smoothstep(0.03, 0.1, max(aa.x, aa.y));
+  float da = max(aa.x, aa.y);
   float s = vSemillaM;
   float tipo = vTipoM;
   vec3 c;
@@ -41,6 +47,9 @@ vec3 acabadoMuro(vec3 base) {
     float tono = mix(0.5, 0.66, azarM(vec2(s, 3.0))) * (0.94 + 0.12 * azarM(floor(b) + s));
     c = vec3(tono) * vec3(1.0, 0.98, 0.95);
     c = mix(c, c * 0.72, junta * (1.0 - lejos));
+    // Junta rehundida y bloque poroso
+    alturaM = (-0.012 * junta + 0.0015 * (ruidoM(p * 60.0 + s) - 0.5)) * (1.0 - smoothstep(0.008, 0.025, da));
+    rugosidadM = 0.95;
   } else if (tipo < 1.5) {                           // ladrillo
     float fila = floor(p.y / 0.065);
     vec2 b = vec2(p.x / 0.25 + 0.5 * mod(fila, 2.0), p.y / 0.065);
@@ -49,12 +58,18 @@ vec3 acabadoMuro(vec3 base) {
     vec3 roj = mix(vec3(0.55, 0.25, 0.15), vec3(0.7, 0.42, 0.26), azarM(vec2(s, 7.0)));
     c = roj * (0.85 + 0.3 * azarM(floor(b) + s * 1.7));
     c = mix(c, vec3(0.6, 0.57, 0.52), junta * 0.7);
+    alturaM = -0.01 * junta * (1.0 - smoothstep(0.003, 0.009, da));   // antes que el color: moiré
+    rugosidadM = mix(0.86, 0.96, junta);
   } else if (tipo < 2.5) {                           // enfoscado o encalado
     float t = azarM(vec2(s, 11.0));
     c = t < 0.35 ? vec3(0.86, 0.84, 0.79) : (t < 0.7 ? vec3(0.8, 0.7, 0.55) : vec3(0.72, 0.66, 0.58));
     c *= 0.93 + 0.1 * ruidoM(p * vec2(1.3, 2.0) + s) + 0.04 * ruidoM(p * 9.0) * (1.0 - lejos);
     float pie = 1.0 - smoothstep(0.1, 0.6 + 0.3 * ruidoM(vec2(p.x * 0.8, s)), p.y);
     c *= 1.0 - 0.22 * pie;                           // humedad y salpicaduras al pie
+    // Grano del mortero tirado a mano y paño ondulado
+    alturaM = 0.003 * (ruidoM(p * 30.0 + s) - 0.5) * (1.0 - smoothstep(0.005, 0.014, da))
+      + 0.004 * (ruidoM(p * vec2(1.3, 2.0) + s) - 0.5) * (1.0 - lejos);
+    rugosidadM = mix(t < 0.35 ? 0.8 : 0.88, 1.0, pie);
   } else if (tipo < 3.5) {                           // mampostería (piedras irregulares)
     vec2 q = p / vec2(0.42, 0.3);
     vec2 i = floor(q); vec2 f = fract(q);
@@ -68,9 +83,15 @@ vec3 acabadoMuro(vec3 base) {
     float mortero = (1.0 - smoothstep(0.05, 0.14, d2 - d1)) * (1.0 - lejos);
     vec3 piedra = mix(vec3(0.62, 0.56, 0.47), vec3(0.75, 0.7, 0.6), id) * (0.85 + 0.25 * azarM(vec2(id, s)));
     c = mix(piedra, vec3(0.7, 0.67, 0.6), mortero);
+    // Piedra abombada hacia el centro, mortero hundido
+    alturaM = (0.01 * smoothstep(0.0, 0.25, d2 - d1) - 0.005 * mortero) * (1.0 - smoothstep(0.02, 0.06, da));
+    rugosidadM = 0.86;
   } else {                                           // hormigón con encofrado
     float tabla = smoothstep(0.0, 0.02 + aa.y * 2.0, abs(fract(p.y / 0.5) - 0.5) * 2.0 - 0.96);
     c = vec3(0.6, 0.59, 0.56) * (0.92 + 0.1 * ruidoM(p * vec2(0.7, 3.0) + s)) * (1.0 - 0.1 * tabla * (1.0 - lejos));
+    // Rebaba de la junta del encofrado y veta de la tabla
+    alturaM = (0.004 * tabla + 0.0015 * (ruidoM(p * vec2(0.7, 30.0) + s) - 0.5)) * (1.0 - smoothstep(0.006, 0.02, da));
+    rugosidadM = 0.95;
   }
   return c;
 }
@@ -106,9 +127,13 @@ vUvM = aUvM; vSemillaM = aDatosM.x; vTipoM = aDatosM.y;`);
 ${GLSL_COMUN}
 ${GLSL_MURO}`)
       .replace('#include <color_fragment>', `#include <color_fragment>
-diffuseColor.rgb = acabadoMuro(diffuseColor.rgb);`);
+diffuseColor.rgb = acabadoMuro(diffuseColor.rgb);`)
+      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+roughnessFactor = rugosidadM;`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+normal = relievePBR(-vViewPosition, normal, alturaM, faceDirection);`);
   };
-  material.customProgramCacheKey = () => 'muro-v1';
+  material.customProgramCacheKey = () => 'muro-v2';
   return material;
 }
 

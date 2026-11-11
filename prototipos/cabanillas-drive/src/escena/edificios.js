@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import { CALIDAD } from '../config/calidad.js';
 import { FACHADAS_REALES } from '../datos/fachadasReales.js';
-import { GLSL_FACHADA, LUCES_FACHADA } from './fachadas.glsl.js';
+import { GLSL_FACHADA, GLSL_RELIEVE, LUCES_FACHADA, SOL_TEJADOS } from './fachadas.glsl.js';
 
 // Colores base por estilo; cada casa además varía un poco tono, saturación y luz
 const PALETAS = {
@@ -26,7 +26,7 @@ const SIN_REAL = [0, 0, 0, 0];
 
 function datosReal(r) {
   if (!r) return SIN_REAL;
-  const z = new THREE.Color(r.zocalo ?? '#000000').convertSRGBToLinear();
+  const z = new THREE.Color(r.zocalo ?? '#000000');   // Color ya lo pasa a lineal (ColorManagement)
   const marcas = 1 + (r.balcones ? 2 : 0) + (r.rejas ? 4 : 0);
   return [z.r, z.g, z.b, (r.zocalo ? r.altoZocalo ?? 0.9 : 0) + 10 * marcas];
 }
@@ -77,7 +77,7 @@ class Chunk {
   constructor() {
     this.muros = { pos: [], nor: [], col: [], uvMuro: [], muro: [], muro2: [], real: [] };
     this.real = SIN_REAL;              // datos de fachada real del edificio que se está añadiendo
-    this.tejados = { pos: [], nor: [], uv: [] };
+    this.tejados = { pos: [], nor: [], uv: [], teja: [] };   // teja: eje de caída (x, z) y pendiente
   }
 
   muro(a, b, base, alto, color, datos, datos2) {
@@ -155,20 +155,36 @@ class Chunk {
     const [xmin, zmin, xmax, zmax] = caja;
     const t = this.tejados;
     const V = tejados.vertices;
-    const p = [];
     const ab = new THREE.Vector3();
     const ac = new THREE.Vector3();
+    const tris = [];
+    // Eje de caída del agua del tejado entero (tensor de las normales horizontales por área,
+    // sin signo: los dos faldones de un tejado a dos aguas dan el mismo eje) y pendiente media.
+    // Los triángulos del LiDAR son pequeños y con ruido: orientar la teja por cada uno da granizo.
+    let sxx = 0; let szz = 0; let sxz = 0; let pend = 0; let area = 0;
     for (let k = 0; k < nIdx; k += 3) {
+      const p = [];
       for (let j = 0; j < 3; j++) {
         const i = (desde + tejados.indices[desdeIdx + k + j]) * 3;
         p[j] = [ref[0] + V[i] / 100, ref[1] + V[i + 1] / 100, ref[2] + V[i + 2] / 100];
       }
       ab.set(p[1][0] - p[0][0], p[1][1] - p[0][1], p[1][2] - p[0][2]);
       ac.set(p[2][0] - p[0][0], p[2][1] - p[0][1], p[2][2] - p[0][2]);
-      ab.cross(ac).normalize();
+      ab.cross(ac);
+      const a = ab.length() / 2;
+      ab.normalize();
+      tris.push([p, ab.clone()]);                 // la normal se guarda tal cual (aleros por debajo)
+      if (ab.y < 0) ab.negate();
+      sxx += ab.x * ab.x * a; szz += ab.z * ab.z * a; sxz += ab.x * ab.z * a;
+      pend += (1 - ab.y) * a; area += a;
+    }
+    const angulo = 0.5 * Math.atan2(2 * sxz, sxx - szz);   // vector propio principal
+    const teja = [Math.cos(angulo), Math.sin(angulo), area > 0 ? pend / area : 0];
+    for (const [p, n] of tris) {
       for (const [x, y, z] of p) {
         t.pos.push(x, y, z);
-        t.nor.push(ab.x, ab.y, ab.z);
+        t.nor.push(n.x, n.y, n.z);
+        t.teja.push(...teja);
         t.uv.push(u0 + ((x - xmin) / (xmax - xmin || 1)) * (u1 - u0),
           v0 + ((z - zmin) / (zmax - zmin || 1)) * (v1 - v0));
       }
@@ -195,6 +211,7 @@ class Chunk {
         const p = puntos[i];
         t.pos.push(p.x, y, p.y);
         t.nor.push(0, 1, 0);
+        t.teja.push(1, 0, 0);
         t.uv.push(u0 + ((p.x - xmin) / (xmax - xmin || 1)) * (u1 - u0),
           v0 + ((p.y - zmin) / (zmax - zmin || 1)) * (v1 - v0));
       }
@@ -226,6 +243,8 @@ class Chunk {
     muro2.set(m.muro2);
     const real = new Float32Array(total * 4);
     real.set(m.real);
+    const teja = new Float32Array(total * 3);
+    teja.set(t.teja, nMuros * 3);
     g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
@@ -234,6 +253,7 @@ class Chunk {
     g.setAttribute('aMuro', new THREE.BufferAttribute(muro, 4));
     g.setAttribute('aMuro2', new THREE.BufferAttribute(muro2, 4));
     g.setAttribute('aReal', new THREE.BufferAttribute(real, 4));
+    g.setAttribute('aTeja', new THREE.BufferAttribute(teja, 3));
     g.addGroup(0, nMuros, 0);
     g.addGroup(nMuros, nTejados, 1);
     g.computeBoundingBox();
@@ -270,13 +290,87 @@ ${GLSL_FACHADA}`)
 float vidrioFachada = 0.0;
 diffuseColor.rgb = fachada(diffuseColor.rgb, vidrioFachada);`)
       .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
-roughnessFactor = mix(roughnessFactor, 0.12, vidrioFachada);`)
+roughnessFactor = mix(rugosidadF, 0.12, vidrioFachada);`)
+      .replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>
+metalnessFactor = metalF * (1.0 - vidrioFachada);`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+#ifndef FACHADA_SIMPLE
+normal = relievePBR(-vViewPosition, normal, alturaF, faceDirection);
+#endif`)
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
 totalEmissiveRadiance += colorLuzFachada * luzFachada * uIntensidadVentanas;`)
       .replace('#include <common>', `#include <common>
 uniform float uIntensidadVentanas;`);
   };
-  material.customProgramCacheKey = () => `fachada-v4-${CALIDAD.nivel}`;
+  material.customProgramCacheKey = () => `fachada-v5-${CALIDAD.nivel}`;
+  return material;
+}
+
+// Teja árabe en relieve (canal y cobija cada 25 cm, filas solapadas cada 38 cm) siguiendo la
+// pendiente de cada faldón; en las cubiertas planas, solo grano. El color sigue siendo la
+// ortofoto: con tejados sin luz, el relieve no ilumina la foto (ya trae su luz), solo la
+// aclara u oscurece según mire cada teja al sol respecto al faldón liso.
+const GLSL_TEJADO = /* glsl */ `
+varying vec3 vPosT;
+varying vec3 vTeja;
+uniform vec3 uSolT;
+float azarT(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+${GLSL_RELIEVE}
+// Normal del triángulo (las mallas de tejado traen la normal vertical aunque tengan pendiente)
+vec3 normalFaldon() {
+  vec3 n = normalize(cross(dFdx(vPosT), dFdy(vPosT)));
+  return n.y < 0.0 ? -n : n;
+}
+// vTeja = eje de caída del agua del edificio (x, z) y su pendiente media (1 − n.y), de Chunk
+float alturaTejado(vec3 pos) {
+  float teja = smoothstep(0.005, 0.02, vTeja.z);             // teja desde ~8°; 0 en cubiertas planas
+  vec2 baja = vTeja.xy;
+  vec2 lado = vec2(-baja.y, baja.x);
+  float u = dot(pos.xz, lado);
+  float v = dot(pos.xz, baja) / max(1.0 - vTeja.z, 0.3);    // metros a lo largo del faldón
+  float da = max(fwidth(u), fwidth(v));
+  vec2 id = floor(vec2(u / 0.25, v / 0.38));
+  float onda = 0.5 + 0.5 * cos(6.2831 * u / 0.25);
+  float fila = abs(fract(v / 0.38) * 2.0 - 1.0);             // solape de filas (sin signo de caída)
+  // La onda es suave: aguanta hasta ~2 px por teja antes de dar moiré
+  float h = teja * (0.035 * onda + 0.012 * fila * (1.0 - smoothstep(0.02, 0.06, da)) + 0.006 * (azarT(id) - 0.5))
+    * (1.0 - smoothstep(0.05, 0.12, da));
+  h += (1.0 - teja) * 0.002 * azarT(floor(pos.xz * 25.0)) * (1.0 - smoothstep(0.01, 0.03, da));
+  return h;
+}
+`;
+
+function materialTejado(atlas, sinLuz) {
+  const material = sinLuz
+    ? new THREE.MeshBasicMaterial({ map: atlas })
+    : new THREE.MeshStandardMaterial({ map: atlas, roughness: 0.8 });
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uSolT = SOL_TEJADOS;
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', `#include <common>
+attribute vec3 aTeja;
+varying vec3 vPosT;
+varying vec3 vTeja;`)
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+vPosT = (modelMatrix * vec4(transformed, 1.0)).xyz;
+vTeja = aTeja;`);
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', `#include <common>
+${GLSL_TEJADO}`);
+    if (sinLuz) {
+      shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>
+{
+  vec3 nT = normalFaldon();
+  vec3 nP = relievePBR(vPosT, nT, alturaTejado(vPosT), 1.0);
+  float liso = 0.45 + max(dot(nT, uSolT), 0.0);
+  diffuseColor.rgb *= clamp((0.45 + max(dot(nP, uSolT), 0.0)) / liso, 0.7, 1.3);
+}`);
+    } else {
+      shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+normal = relievePBR(-vViewPosition, normal, alturaTejado(vPosT), faceDirection);`);
+    }
+  };
+  material.customProgramCacheKey = () => `tejado-v3-${sinLuz ? 'foto' : 'luz'}`;
   return material;
 }
 
@@ -291,9 +385,10 @@ function preparaEdificio(f, aspecto) {
   const estilo = real?.estilo ?? eligeEstilo(props, areaAnillo(exterior), r);
   const paleta = PALETAS[estilo];
   const color = new THREE.Color(paleta[Math.floor(r() * paleta.length)]);
-  color.offsetHSL((r() - 0.5) * 0.03, (r() - 0.5) * 0.12, (r() - 0.5) * 0.08).convertSRGBToLinear();
+  // Los hex son sRGB y THREE.Color ya los pasa a lineal: no convertir otra vez (oscurece y satura)
+  color.offsetHSL((r() - 0.5) * 0.03, (r() - 0.5) * 0.12, (r() - 0.5) * 0.08);
   color.multiplyScalar(0.94 + r() * 0.1);
-  if (real?.color) color.set(real.color).convertSRGBToLinear();
+  if (real?.color) color.set(real.color);
   const info = aspecto.edificios[String(props.id)];
   let cx = 0; let cz = 0;
   let xmin = Infinity; let xmax = -Infinity; let zmin = Infinity; let zmax = -Infinity;
@@ -370,9 +465,7 @@ export function creaEdificios(geojson, aspecto, atlas, rejilla, opciones) {
   }
 
   const fachada = materialFachada();
-  const tejado = tejadosSinLuz
-    ? new THREE.MeshBasicMaterial({ map: atlas })
-    : new THREE.MeshStandardMaterial({ map: atlas, roughness: 0.9 });
+  const tejado = materialTejado(atlas, tejadosSinLuz);
   const grupo = new THREE.Group();
   grupo.name = 'edificios';
   let conTejadoLidar = 0;
