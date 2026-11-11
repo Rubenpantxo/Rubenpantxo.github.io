@@ -13,5 +13,27 @@
   "R": "calzada",
   "G": "acera",
   "B": "tierra"
+ },
+ "direccion": {
+  "R": "cos 2θ",
+  "G": "sin 2θ",
+  "B": "distancia al eje (25,5 m = 255)"
+ },
+ "colores_srgb": {
+  "calzada": [
+   164,
+   160,
+   147
+  ],
+  "acera": [
+   169,
+   163,
+   148
+  ],
+  "tierra": [
+   190,
+   184,
+   170
+  ]
  }
 }
