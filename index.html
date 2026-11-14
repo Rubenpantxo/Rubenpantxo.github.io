@@ -2,6 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- Seguridad: solo se cargan recursos de los orígenes de esta lista (GitHub Pages no permite cabeceras). -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https://api.web3forms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; worker-src 'self' blob:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://api.web3forms.com">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rubenpantxo.com · Webs y apps a medida, juegos y aplicaciones</title>
     <meta name="description" content="Webs y apps a medida para negocios, con demos interactivas que puedes probar sin descargar nada. Además, juegos, aplicaciones y enlaces útiles de Rubén Aguado.">
@@ -94,14 +97,14 @@
     <!-- Iconos y estilos de Servicios no bloquean el primer pintado: la portada
          no los necesita para verse (Servicios empieza oculta) -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="CSS/servicios.css" id="css-servicios" media="print" onload="this.media='all'">
     <script>
         // Si se entra directo a Servicios o al contacto, su CSS sí hace falta desde el principio
         if (/^#(servicios|contacto)$/.test(location.hash)) document.getElementById('css-servicios').media = 'all';
     </script>
     <noscript>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
         <link rel="stylesheet" href="CSS/servicios.css">
     </noscript>
     <!-- Tailwind compilado (npm run css); antes, CDN de desarrollo -->
