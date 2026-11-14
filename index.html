@@ -94,14 +94,14 @@
     <!-- Iconos y estilos de Servicios no bloquean el primer pintado: la portada
          no los necesita para verse (Servicios empieza oculta) -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="CSS/servicios.css" id="css-servicios" media="print" onload="this.media='all'">
     <script>
         // Si se entra directo a Servicios o al contacto, su CSS sí hace falta desde el principio
         if (/^#(servicios|contacto)$/.test(location.hash)) document.getElementById('css-servicios').media = 'all';
     </script>
     <noscript>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
         <link rel="stylesheet" href="CSS/servicios.css">
     </noscript>
     <!-- Tailwind compilado (npm run css); antes, CDN de desarrollo -->
