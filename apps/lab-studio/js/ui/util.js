@@ -56,6 +56,8 @@ export const ico = (n, clase = '') => `<svg class="ico ${clase}" aria-hidden="tr
 export function descargar(nombre, contenido, tipo = 'text/plain;charset=utf-8') {
     const blob = contenido instanceof Blob ? contenido : new Blob([contenido], { type: tipo });
     const url = URL.createObjectURL(blob);
+    // Solo se admite el enlace temporal del propio navegador: nunca una URL con código.
+    if (!/^blob:/.test(url)) return;
     const a = document.createElement('a');
     a.href = url; a.download = nombre;
     document.body.appendChild(a); a.click(); a.remove();
