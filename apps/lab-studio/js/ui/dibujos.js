@@ -373,6 +373,168 @@ const ARTE = {
     }
 };
 
+// ------------------------------------------- robótica, radio y pantallas
+const abajo = p => p.lado === 'aba';
+const cable = (d, color, ancho = 2.4) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="${ancho}" stroke-linecap="round"/>`;
+
+Object.assign(ARTE, {
+    pca9685(def) {
+        let s = placa(120, 80, '#1f4f9c', 2);
+        for (const [x, y] of [[5, 46], [115, 46]]) s += circ(x, y, 2.6, '#0c0d0f');
+        // Tiras de tres pines por canal: señal, V+ y masa.
+        for (let x = 20; x <= 80; x += 10) {
+            s += rect(x - 4.6, 5.4, 9.2, 29.2, '#16171a', 'rx="1"');
+            [['#f2c230', 10], ['#d62828', 20], ['#16171a', 30]].forEach(([c, y]) => { s += rect(x - 3.4, y - 3.4, 6.8, 6.8, c, 'rx=".8"') + rect(x - 1.7, y - 1.7, 3.4, 3.4, 'url(#ls-oro)'); });
+        }
+        def.pines.filter(p => p.lado === 'arr').forEach((p, i) => { s += txt(p.x * U, 41, String(i), 4.4, '#fff', 'text-anchor="middle" font-weight="700"'); });
+        // Borna de potencia de los servos.
+        s += rect(94, 6, 22, 28, '#2a8f5a', 'rx="2" stroke="#16603a" stroke-width=".6"') + tornillo(105, 13, 4.4) + tornillo(105, 27, 4.4) + txt(105, 41, 'V+', 4.4, '#fff', 'text-anchor="middle" font-weight="700"');
+        s += chip(46, 44, 30, 12, 'PCA9685', 3.8) + smd(84, 48) + smd(84, 54, '#2a2c30') + smd(28, 48, '#2a2c30');
+        s += pads(def, macho, abajo) + rotulos(def, '#fff', 3.8, abajo);
+        return s;
+    },
+
+    mg996r(def) {
+        // Vista superior: orejas de fijación, cuerpo y plato del eje.
+        let s = rect(0, 15, 80, 16, '#26292e', 'rx="2"') + [5, 75].map(x => circ(x, 23, 2.6, '#0c0d0f')).join('');
+        s += rect(11, 4, 58, 38, '#1b1d21', 'rx="3" stroke="#0c0d0f" stroke-width=".8"') + rect(13, 6, 54, 8, '#fff', 'rx="2" opacity=".06"');
+        s += circ(54, 23, 11, '#f4f4f0', 'stroke="#b9bec4" stroke-width=".6"') + circ(54, 23, 3.4, 'url(#ls-metal)');
+        for (let i = 0; i < 6; i++) s += circ(54 + 7.6 * Math.cos(i * Math.PI / 3), 23 + 7.6 * Math.sin(i * Math.PI / 3), .8, '#9aa0a8');
+        s += txt(27, 20, 'MG996R', 5.2, '#e8c860', 'text-anchor="middle" font-weight="700"') + txt(27, 28, 'TowerPro', 4, '#e8c860', 'text-anchor="middle"') + txt(27, 35, 'metal gear', 3.4, '#a9adb3', 'text-anchor="middle"');
+        s += rect(24, 44.5, 32, 11, '#16171a', 'rx="1.5"');
+        s += [['#6b3f1d', 30], ['#d62828', 40], ['#f28c28', 50]].map(([c, x]) => cable(`M${x} 42V47`, c) + rect(x - 1.7, 48.3, 3.4, 3.4, 'url(#ls-oro)')).join('');
+        return s;
+    },
+
+    l298n(def) {
+        let s = placa(120, 120, '#b3202c', 3);
+        for (const [x, y] of [[6, 6], [114, 6], [6, 114], [114, 114]]) s += taladro(x, y, 3.6);
+        // Bornas de los dos motores y de alimentación.
+        s += rect(20, 1, 40, 19, '#1d5fc2', 'rx="2" stroke="#143f8a" stroke-width=".6"') + rect(60, 1, 40, 19, '#1d5fc2', 'rx="2" stroke="#143f8a" stroke-width=".6"');
+        s += rect(12, 100, 26, 19, '#1d5fc2', 'rx="2" stroke="#143f8a" stroke-width=".6"');
+        s += def.pines.filter(p => p.tipo === 'pas' || p.id === 'VM' || p.id === 'GND').map(p => tornillo(p.x * U, p.y * U, 4.6)).join('');
+        s += txt(40, 28, 'MOTOR A', 4.2, '#fff', 'text-anchor="middle"') + txt(80, 28, 'MOTOR B', 4.2, '#fff', 'text-anchor="middle"');
+        // Disipador con aletas y el integrado delante.
+        s += rect(36, 34, 48, 34, '#101113', 'rx="1.5"') + [42, 48, 54, 60, 66, 72, 78].map(x => `<path d="M${x} 36V66" stroke="#34373d" stroke-width="2"/>`).join('');
+        s += chip(42, 70, 36, 9, 'L298N', 4.2);
+        s += circ(16, 50, 9, '#15171a', 'stroke="#3a3e45" stroke-width=".8"') + circ(16, 50, 5.5, '#c3c8ce') + `<path d="M12.5 50h7M16 46.5v7" stroke="#70767e" stroke-width=".8"/>`;
+        s += chip(94, 44, 14, 12, '78M05', 2.6) + circ(102, 70, 2.2, '#ff5a4d') + smd(92, 78, '#2a2c30', 6, 3);
+        const logica = p => p.lado === 'aba' && p.id !== 'VM' && p.id !== 'GND';
+        s += pads(def, macho, logica) + rotulos(def, '#fff', 3.8, abajo);
+        return s;
+    },
+
+    motortt(def) {
+        // Reductora amarilla con el eje y el motor metálico a la derecha.
+        let s = rect(0, 5, 54, 27, '#f2c230', 'rx="5" stroke="#b98a12" stroke-width=".7"') + rect(2, 7, 50, 7, '#fff', 'rx="3" opacity=".22"');
+        s += circ(13, 18.5, 6.5, '#fbfbf7', 'stroke="#b9bec4" stroke-width=".6"') + rect(10, 17.2, 6, 2.6, '#9aa0a8', 'rx="1"');
+        for (const x of [28, 46]) s += circ(x, 18.5, 1.8, '#8a6a00');
+        s += rect(53, 8, 25, 21, 'url(#ls-metal)', 'rx="3" stroke="#70767e" stroke-width=".6"') + rect(76, 14, 4, 9, '#3a3e45', 'rx="1"');
+        s += txt(34, 28, '1:48', 4.4, '#7a5b08', 'text-anchor="middle" font-weight="700"');
+        s += cable('M62 29C62 38 30 30 30 40', '#d62828', 2) + cable('M68 29C68 42 40 32 40 40', '#16171a', 2);
+        s += def.pines.map(p => circ(p.x * U, p.y * U, 2.6, 'url(#ls-oro)')).join('');
+        return s;
+    },
+
+    portapilas() {
+        let s = rect(0, 0, 76, 80, '#1b1d21', 'rx="4" stroke="#0c0d0f" stroke-width=".8"');
+        for (let i = 0; i < 4; i++) {
+            const y = 5 + i * 18, dcha = i % 2 === 0;
+            s += rect(7, y, 60, 15, '#c9742a', 'rx="3"') + rect(7, y, 60, 5, '#fff', 'rx="3" opacity=".2"') + rect(dcha ? 50 : 7, y, 17, 15, '#2a2c30', 'rx="3"');
+            s += rect(dcha ? 67 : 3, y + 5, 4, 5, 'url(#ls-metal)', 'rx="1"');
+            s += txt(dcha ? 30 : 44, y + 10.4, 'AA 1,5 V', 4.4, '#fff', 'text-anchor="middle" font-weight="700"');
+        }
+        s += cable('M72 12C82 12 76 30 84 30', '#d62828') + cable('M72 68C82 68 76 50 84 50', '#16171a');
+        s += txt(86, 24, '+', 6, '#d62828', 'text-anchor="middle" font-weight="700"') + txt(86, 62, '−', 6, '#8b9199', 'text-anchor="middle" font-weight="700"');
+        return s;
+    },
+
+    mpu6050(def) {
+        let s = placa(90, 60, '#1f4f9c', 2) + taladro(8, 8, 3.6) + taladro(82, 8, 3.6);
+        s += chip(37, 10, 16, 16, 'MPU', 3.8) + smd(22, 12) + smd(22, 20, '#2a2c30') + smd(62, 12, '#2a2c30') + smd(62, 20);
+        // Ejes de medida serigrafiados.
+        s += `<g stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round"><path d="M72 34h10M82 34l-3-2M82 34l-3 2M72 34v-10M72 24l-2 3M72 24l2 3"/></g>` + txt(84, 31, 'X', 3.6, '#fff') + txt(74, 24, 'Y', 3.6, '#fff');
+        s += txt(26, 34, 'GY-521', 4.6, '#fff', 'text-anchor="middle" font-weight="700"') + circ(48, 32, 1.8, '#5fe07a');
+        s += pads(def, macho) + rotulos(def, '#fff', 3.6);
+        return s;
+    },
+
+    joystick(def) {
+        let s = placa(80, 80, '#1b1d21', 3);
+        for (const [x, y] of [[6, 6], [74, 6]]) s += taladro(x, y, 3.2);
+        s += rect(17, 6, 46, 46, 'url(#ls-metal)', 'rx="3" stroke="#70767e" stroke-width=".6"');
+        s += rect(63, 20, 9, 18, '#1d5fc2', 'rx="1.5"') + rect(31, 52, 18, 7, '#1d5fc2', 'rx="1.5"');
+        s += circ(40, 29, 19, '#0c0d0f') + circ(40, 29, 16, '#22252a') + circ(40, 29, 11, '#2f3338') + `<path d="M32 23a10 10 0 0 1 8-5" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".35"/>`;
+        s += pads(def, macho) + rotulos(def, '#fff', 3.6);
+        return s;
+    },
+
+    irreceptor(def) {
+        let s = placa(50, 60, '#1b1d21', 2) + taladro(42, 8, 3);
+        // Encapsulado con la lente en cúpula.
+        s += rect(13, 6, 22, 20, '#101113', 'rx="2" stroke="#3a3e45" stroke-width=".6"') + circ(24, 16, 6.5, '#3b1f24') + circ(22, 14, 2, '#8a4a52', 'opacity=".8"');
+        s += txt(24, 33, '38 kHz', 3.8, '#c9cdd3', 'text-anchor="middle"') + circ(41, 22, 1.8, '#ff5a4d') + smd(38, 30, '#2a2c30');
+        s += pads(def, macho) + rotulos(def, '#fff', 3.6);
+        return s;
+    },
+
+    iremisor(def) {
+        let s = placa(50, 60, '#1b1d21', 2) + taladro(42, 8, 3);
+        // LED infrarrojo transparente y su transistor.
+        s += circ(22, 16, 9.5, '#dfe7f3', 'stroke="#9fb0c8" stroke-width=".7"') + circ(22, 16, 5, '#aebcd2') + `<path d="M16 12a7 7 0 0 1 5-4" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>`;
+        s += `<g stroke="#ff7a6b" stroke-width="1" fill="none" stroke-linecap="round" opacity=".85"><path d="M33 9l5-3M35 16h6M33 23l5 3"/></g>`;
+        s += chip(34, 30, 9, 6, '', 3) + txt(20, 34, '940 nm', 3.8, '#c9cdd3', 'text-anchor="middle"');
+        s += pads(def, macho) + rotulos(def, '#fff', 3.6);
+        return s;
+    },
+
+    tft(def) {
+        let s = placa(120, 120, '#15171a', 3);
+        for (const [x, y] of [[6, 6], [114, 6], [6, 96], [114, 96]]) s += taladro(x, y, 3.2);
+        s += rect(15, 4, 90, 88, '#050608', 'rx="2"') + rect(19, 8, 82, 78, 'url(#ls-pantalla)');
+        // Pantalla de ejemplo: ocupación de canales.
+        s += `<text x="24" y="19" font-size="6.4" fill="#8fe9ff" ${MONO} font-weight="700">LAB STUDIO</text>`;
+        const barras = [[26, 22, '#7dd3fc'], [36, 40, '#a7f3d0'], [46, 30, '#fde68a'], [56, 52, '#fca5a5'], [66, 34, '#c4b5fd'], [76, 18, '#7dd3fc'], [86, 44, '#a7f3d0']];
+        s += barras.map(([x, h, c]) => rect(x, 78 - h, 7, h, c, 'rx="1" opacity=".9"')).join('') + rect(24, 79, 72, 1, '#5b6b86');
+        s += pads(def, macho) + rotulos(def, '#fff', 3.6);
+        return s;
+    },
+
+    nrf24(def) {
+        let s = placa(100, 60, '#15171a', 2);
+        // Antena impresa en meandro.
+        s += `<path d="M62 30V8h6v16h5V8h5v16h5V8h5v16h5V8" fill="none" stroke="#c9a23a" stroke-width="1.8"/>` + rect(58, 4, 40, 28, 'none', 'stroke="#fff" stroke-opacity=".12" stroke-width=".6" stroke-dasharray="2 2"');
+        s += chip(22, 10, 15, 15, 'nRF', 3.6) + rect(42, 12, 12, 6, 'url(#ls-metal)', 'rx="1" stroke="#70767e" stroke-width=".5"') + txt(48, 25, '16M', 3, '#a9adb3', 'text-anchor="middle"');
+        s += smd(8, 12) + smd(8, 19, '#2a2c30') + smd(42, 28, '#2a2c30');
+        s += pads(def, macho) + rotulos(def, '#fff', 3.4);
+        return s;
+    },
+
+    cc1101(def) {
+        let s = placa(100, 60, '#2f6b3a', 2);
+        // Blindaje metálico y conector de antena SMA.
+        s += rect(14, 6, 44, 28, 'url(#ls-metal)', 'rx="1.5" stroke="#70767e" stroke-width=".6"') + txt(36, 19, 'CC1101', 5, '#3b4047', 'text-anchor="middle" font-weight="700"') + txt(36, 27, '433 MHz', 4, '#3b4047', 'text-anchor="middle"');
+        s += `<path d="M60 20h6q2-5 4 0t4 0 4 0h4" fill="none" stroke="#e2b93b" stroke-width="1.2"/>`;
+        s += rect(82, 9, 18, 22, 'url(#ls-oro)', 'rx="2"') + circ(91, 20, 6, '#b08a1e') + circ(91, 20, 2.2, '#fff6d0') + rect(98, 14, 8, 12, 'url(#ls-oro)', 'rx="1.5"');
+        s += smd(64, 8) + smd(64, 30, '#2a2c30');
+        s += pads(def, macho) + rotulos(def, '#fff', 3.4);
+        return s;
+    },
+
+    rplidar() {
+        // Base, cabezal giratorio con las dos ópticas y motor con correa.
+        let s = `<path d="M10 8h92l36 18v68l-36 18H10q-10 0-10-10V18q0-10 10-10z" fill="#1c1e22" stroke="#0c0d0f" stroke-width=".8"/>`;
+        s += `<path d="M56 16L116 26M56 104L116 46" stroke="#3a3e45" stroke-width="2.4"/>`;
+        s += circ(116, 36, 11, '#2b2e33', 'stroke="#50555d" stroke-width="1"') + circ(116, 36, 4, 'url(#ls-metal)');
+        s += circ(56, 60, 45, '#101113', 'stroke="#3a3e45" stroke-width="1.2"') + circ(56, 60, 38, '#1f2227') + circ(56, 60, 38, 'none', 'stroke="#fff" stroke-opacity=".08" stroke-width="6"');
+        s += rect(28, 46, 56, 28, '#2a2d33', 'rx="6"') + circ(43, 60, 9, 'url(#ls-lente)', 'stroke="#50555d" stroke-width="1"') + circ(69, 60, 7, 'url(#ls-lente)', 'stroke="#50555d" stroke-width="1"');
+        s += circ(40, 57, 2, '#ff5a4d', 'opacity=".9"');
+        s += txt(56, 88, 'RPLIDAR A1', 5.4, '#c9cdd3', 'text-anchor="middle" font-weight="700" letter-spacing=".5"') + txt(56, 36, 'SLAMTEC', 4, '#70767e', 'text-anchor="middle"');
+        s += rect(112, 62, 22, 30, '#1d7a3e', 'rx="1.5"') + rect(126, 52, 18, 16, 'url(#ls-metal)', 'rx="2" stroke="#70767e" stroke-width=".6"') + chip(115, 74, 12, 10, '', 3);
+        return s;
+    }
+});
+
 // Lee «220 Ω», «4,7k», «10 kΩ», «1M»… como ohmios.
 export function leerOhmios(texto) {
     const m = /^\s*([\d.,]+)\s*([kKmMrR]?)/.exec(String(texto || ''));

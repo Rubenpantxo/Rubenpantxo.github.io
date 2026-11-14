@@ -292,6 +292,115 @@ export const PROYECTOS = [
         extra: [['Cámara OV2640', 5], ['Sonda DS18B20 sumergible', 2], ['Bomba peristáltica de 12 V con relé', 6.5]],
         material: [{ id: ESP }, { id: 'coral-usb' }, { id: 'ds18b20' }, { id: 'rele-2ch' }],
         repos: [R.yolo, R.pycoral, gh('milesburton/Arduino-Temperature-Control-Library', 'Sondas DS18B20')], docs: []
+    },
+
+    // ---- Ideas con microcontrolador y pequeños circuitos (sin Coral) ---
+    {
+        id: 'monitor-pc', titulo: 'Monitor de telemetría del PC en una OLED', ambito: 'Escritorio y utilidades', nivel: 'Inicial', modelo: 'Sin modelo de IA',
+        resumen: 'Muestra uso de CPU, memoria, temperatura y red del ordenador en una pantalla pequeña, con botones para cambiar de página.',
+        esp32: 'Recibe los datos por el puerto serie USB, los dibuja en la OLED y lee dos pulsadores para navegar.',
+        material: [{ id: 'pc-host' }, { id: ESP }, { id: 'oled-ssd1306' }, { id: 'pulsador', cantidad: 2 }],
+        repos: [gh('pepeangell5/ESP32_PC_MONITOR', 'Telemetría del PC en una OLED SSD1306 con botones'), R.ssd1306, R.json], docs: []
+    },
+    {
+        id: 'mando-ir', titulo: 'Mando universal: captura y repite infrarrojos', ambito: 'Domótica y potencia', nivel: 'Inicial', modelo: 'Sin modelo de IA',
+        resumen: 'Aprende los códigos de tus mandos y los reenvía desde el móvil o por MQTT para encender la tele o el aire acondicionado.',
+        esp32: 'Captura la trama con el receptor de 38 kHz, la guarda y la emite con el LED infrarrojo usando el periférico RMT.',
+        material: [{ id: ESP }, { id: 'ir-receptor' }, { id: 'ir-emisor' }, { id: 'oled-ssd1306' }, { id: 'pulsador' }],
+        repos: [gh('crankyoldgit/IRremoteESP8266', 'Captura y envío de infrarrojos con cientos de protocolos'), gh('pepeangell5/IR_REMOTE_CARDPUTER_ADV', 'Captura y transmisión de señales IR'), R.mqtt], docs: []
+    },
+    {
+        id: 'chat-nrf24', titulo: 'Mensajería punto a punto con nRF24L01+', ambito: 'Radio y comunicaciones', nivel: 'Intermedio', modelo: 'Sin modelo de IA',
+        resumen: 'Dos placas se envían mensajes por radio de 2,4 GHz sin Wi-Fi, router ni cobertura.',
+        esp32: 'Gestiona el transceptor por SPI, confirma la entrega de cada paquete y muestra los mensajes en la OLED.',
+        material: [{ id: ESP, cantidad: 2 }, { id: 'nrf24l01', cantidad: 2 }, { id: 'oled-ssd1306', cantidad: 2 }, { id: 'pulsador', cantidad: 2 }],
+        repos: [gh('pepeangell5/ESP32_DUAL_NRF_CHAT', 'Mensajes entre dos ESP32 con módulos nRF24'), gh('nRF24/RF24', 'Controlador del nRF24L01+')], docs: []
+    },
+    {
+        id: 'coche-robot', titulo: 'Coche robot de dos ruedas que esquiva obstáculos', ambito: 'Robótica móvil', nivel: 'Inicial', tiempo: '2 h', modelo: 'Sin modelo de IA',
+        resumen: 'Chasis de dos motores con ultrasonidos sobre un servo: avanza, mira a los lados y elige el camino libre. Admite mando IR o desde el móvil.',
+        esp32: 'Regula los dos motores por PWM a través del puente en H, orienta el sensor con el servo y decide el giro.',
+        aviso: 'Los motores van con sus pilas y la lógica con una batería externa de 5 V (aquí, la fuente de 5 V). Une las masas.',
+        extra: [['Chasis 2WD con rueda loca', 11.95]],
+        material: [{ id: ESP }, { id: 'fuente-5v' }, { id: 'l298n' }, { id: 'motor-tt', cantidad: 2 }, { id: 'portapilas-4aa' }, { id: 'hc-sr04' }, { id: 'divisor-5v-3v3' }, { id: 'sg90' }, { id: 'ir-receptor' }],
+        pasos: [
+            'Prueba cada motor por separado: IN1/IN2 fijan el sentido y el PWM en ENA la velocidad.',
+            'Mide la distancia con el HC-SR04 y para el coche a menos de 20 cm.',
+            'Gira el servo a izquierda y derecha, compara las dos distancias y elige el lado libre.',
+            'Añade el receptor IR para conducirlo con un mando y alternar entre modo manual y automático.'
+        ],
+        aprendizaje: [
+            'Los motores van con sus pilas y la lógica con sus 5 V: solo se unen las masas.',
+            'Un GPIO no mueve un motor: da la orden al puente en H, que es quien entrega la corriente.',
+            'El ECHO del HC-SR04 sale a 5 V y pasa por el divisor antes del GPIO.'
+        ],
+        montaje: {
+            partes: [
+                { k: 'm1', tipo: 'motor-tt', x: 6, y: 4 }, { k: 'm2', tipo: 'motor-tt', x: 6, y: 14 }, { k: 'bt', tipo: 'portapilas-4aa', x: 6, y: 24 },
+                { k: 'drv', tipo: 'l298n', x: 22, y: 6 }, { k: 'ps', tipo: 'fuente-5v', x: 22, y: 24 }, { k: 'esp', tipo: ESP, x: 42, y: 4 },
+                { k: 's', tipo: 'hc-sr04', x: 62, y: 4 }, { k: 'd', tipo: 'divisor-5v-3v3', x: 62, y: 16 }, { k: 'ir', tipo: 'ir-receptor', x: 72, y: 15 }, { k: 'sv', tipo: 'sg90', x: 64, y: 25 }
+            ],
+            cables: [
+                ['bt.V', 'drv.VM', 'Pilas a motores'], ['bt.GND', 'drv.GND'], ['drv.GND', 'esp.GND_1', 'Masa común'],
+                ['drv.OUT1', 'm1.A'], ['drv.OUT2', 'm1.B'], ['drv.OUT3', 'm2.A'], ['drv.OUT4', 'm2.B'],
+                ['esp.GPIO4', 'drv.ENA', 'PWM izquierdo'], ['esp.GPIO5', 'drv.IN1'], ['esp.GPIO6', 'drv.IN2'],
+                ['esp.GPIO7', 'drv.IN3'], ['esp.GPIO15', 'drv.IN4'], ['esp.GPIO16', 'drv.ENB', 'PWM derecho'],
+                ['ps.V', 'esp.5V_1', '5 V de la lógica'], ['ps.GND', 'esp.GND_1'],
+                ['s.VCC', 'ps.V'], ['s.GND', 'esp.GND_2'], ['s.TRIG', 'esp.GPIO1', 'Disparo'], ['s.ECHO', 'd.IN', 'Eco a 5 V'], ['d.OUT', 'esp.GPIO2', 'Eco a 3,3 V'], ['d.GND', 'esp.GND_3'],
+                ['ir.VCC', 'esp.3V3_1'], ['ir.GND', 'esp.GND_4'], ['ir.OUT', 'esp.GPIO42', 'Mando IR'],
+                ['sv.VCC', 'ps.V'], ['sv.GND', 'esp.GND_4'], ['sv.PWM', 'esp.GPIO41', 'Servo']
+            ]
+        },
+        repos: [gh('pepeangell5/SMART-CAR-QD001', 'Ejemplos para coche robot: motores, servo, ultrasonidos, IR y ESP-NOW'), R.servo], docs: []
+    },
+    {
+        id: 'mando-espnow', titulo: 'Emisora ESP-NOW para dron o coche', ambito: 'Robótica móvil', nivel: 'Intermedio', modelo: 'Sin modelo de IA',
+        resumen: 'Mando de dos joysticks que envía las órdenes por ESP-NOW con muy poca latencia, y receptor con unidad inercial para estabilizar.',
+        esp32: 'Lee los cuatro ejes con el ADC y los transmite por ESP-NOW; en el vehículo, fusiona el giroscopio y mezcla las órdenes de los motores.',
+        aviso: 'Un dron con hélices corta: pruébalo primero sin ellas y vuela en interior o en zonas permitidas.',
+        extra: [['ESP32-C3 SuperMini para el vehículo', 4], ['4 motores sin núcleo 8520 con hélices', 9], ['Batería LiPo 1S de 600 mAh', 6]],
+        material: [{ id: ESP }, { id: 'joystick', cantidad: 2 }, { id: 'mpu6050' }, { id: 'oled-ssd1306' }],
+        repos: [gh('pepeangell5/DRONE-FPV-ESP32C3-SUPERMINI', 'Dron casero controlado por ESP-NOW'), gh('electroniccats/mpu6050', 'MPU6050 con fusión por DMP'), R.idf], docs: [doc('ESP-NOW (Espressif)', 'https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/network/esp_now.html')]
+    },
+    {
+        id: 'analizador-wifi', titulo: 'Analizador de ocupación Wi-Fi de 2,4 GHz', ambito: 'Radio y comunicaciones', nivel: 'Inicial', modelo: 'Sin modelo de IA',
+        resumen: 'Escanea las redes visibles y dibuja la ocupación de cada canal para elegir el menos saturado para tu router.',
+        esp32: 'Hace un escaneo pasivo, ordena las redes por canal y potencia, y pinta el gráfico en la pantalla TFT.',
+        material: [{ id: ESP }, { id: 'tft-st7789' }, { id: 'pulsador', cantidad: 2 }],
+        repos: [gh('pepeangell5/ESP32-TOOLS', 'Analizador de redes Wi-Fi en 2,4 GHz'), gh('Bodmer/TFT_eSPI', 'Gráficos rápidos en pantallas TFT'), R.arduino], docs: []
+    },
+    {
+        id: 'teclado-macros', titulo: 'Teclado de macros USB y Bluetooth', ambito: 'Escritorio y utilidades', nivel: 'Inicial', modelo: 'Sin modelo de IA',
+        resumen: 'Botonera que el ordenador o el móvil ven como un teclado: lanza atajos, texto o control multimedia en tus propios equipos.',
+        esp32: 'Se presenta como teclado HID por su USB nativo (GPIO19/20) o por BLE y envía la combinación asignada a cada pulsador.',
+        material: [{ id: 'pc-host' }, { id: ESP }, { id: 'pulsador', cantidad: 4 }, { id: 'oled-ssd1306' }],
+        repos: [gh('pepeangell5/IPHONE-CONTROL-ESP32', 'Control por HID USB y Bluetooth con ESP32-S3'), gh('T-vK/ESP32-BLE-Keyboard', 'Teclado Bluetooth LE'), R.arduino], docs: []
+    },
+    {
+        id: 'receptor-433', titulo: 'Receptor de sensores de 433 MHz', ambito: 'Radio y comunicaciones', nivel: 'Intermedio', modelo: 'Sin modelo de IA',
+        resumen: 'Escucha las estaciones meteorológicas y sensores de 433 MHz de casa y publica sus lecturas por MQTT.',
+        esp32: 'Configura el CC1101 por SPI, decodifica las tramas recibidas y las envía a Home Assistant.',
+        aviso: 'Limítate a recibir y a tus propios dispositivos: emitir en 433 MHz está regulado.',
+        material: [{ id: ESP }, { id: 'cc1101' }, { id: 'oled-ssd1306' }],
+        repos: [gh('LSatan/SmartRC-CC1101-Driver-Lib', 'Controlador del CC1101 para Arduino y ESP32'), gh('merbanan/rtl_433', 'Referencia de protocolos de sensores de 433 MHz'), R.mqtt], docs: []
+    },
+    {
+        id: 'brazo-robot', titulo: 'Brazo robótico de cuatro ejes con joystick', ambito: 'Robótica móvil', nivel: 'Intermedio', modelo: 'Sin modelo de IA',
+        resumen: 'Brazo de servos metálicos que se mueve con dos joysticks y repite secuencias grabadas.',
+        esp32: 'Lee los joysticks, suaviza el movimiento y manda las posiciones al PCA9685 por I²C.',
+        aviso: 'Cuatro MG996R pueden pedir más de 3 A: usa una fuente de 5 – 6 V de al menos 5 A en V+.',
+        extra: [['Estructura de brazo de 4 ejes', 18], ['Fuente de 5 V / 5 A', 12]],
+        material: [{ id: ESP }, { id: 'pca9685' }, { id: 'mg996r', cantidad: 4 }, { id: 'joystick', cantidad: 2 }],
+        repos: [gh('adafruit/Adafruit-PWM-Servo-Driver-Library', 'Controlador del PCA9685'), R.servo], docs: [doc('Controladores de servos (RobotShop)', 'https://eu.robotshop.com/collections/servo-controllers')]
+    },
+    {
+        id: 'robot-lidar', titulo: 'Robot que cartografía la casa con LiDAR', ambito: 'Robótica móvil', nivel: 'Avanzado', modelo: 'SLAM 2D (slam_toolbox)',
+        resumen: 'Plataforma móvil que levanta el plano de una planta con un escáner láser y navega sola por él.',
+        esp32: 'Controla los motores y la odometría, y recibe las órdenes de velocidad de la Raspberry Pi por el puerto serie.',
+        coral: 'Opcional: detección de personas u objetos con la cámara para esquivarlos o seguirlos.',
+        extra: [['Chasis 2WD con rueda loca', 11.95], ['Batería externa USB de 10 000 mAh', 18]],
+        material: [{ id: PI }, { id: 'fuente-usbc' }, { id: 'rplidar-a1' }, { id: ESP }, { id: 'l298n' }, { id: 'motor-tt', cantidad: 2 }, { id: 'portapilas-4aa' }, { id: 'mpu6050' }],
+        repos: [gh('Slamtec/rplidar_ros', 'Nodo ROS del RPLIDAR'), gh('SteveMacenski/slam_toolbox', 'SLAM 2D para ROS 2'), gh('micro-ROS/micro_ros_arduino', 'ROS 2 en el microcontrolador')], docs: [doc('RPLIDAR A1 (Slamtec)', 'https://www.slamtec.com/en/Lidar/A1')]
     }
 ];
 

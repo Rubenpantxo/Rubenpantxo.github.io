@@ -254,13 +254,13 @@ export const COMPONENTES = [
         resumen: 'Micrófono digital omnidireccional de 24 bit por I²S',
         descripcion: 'Entrega audio PCM directamente al periférico I²S del ESP32-S3, sin pasar por el ADC. Base de los proyectos de palabra de activación y clasificación de sonido con TinyML.',
         aviso: 'Solo 3,3 V. El pin L/R debe ir a GND (canal izquierdo) o a VDD (canal derecho): si queda al aire el micrófono no responde.',
-        specs: [['Salida', 'I²S de 24 bit'], ['Relación señal/ruido', '61 dBA'], ['Sensibilidad', '−26 dBFS'], ['Respuesta', '60 Hz – 15 kHz'], ['Alimentación', '1,8 – 3,3 V · 1,4 mA']],
+        specs: [['Salida', 'I²S de 24 bit'], ['Relación señal/ruido', '61 dBA'], ['Sensibilidad', '−26 dBFS'], ['Respuesta', '60 Hz – 15 kHz'], ['Alimentación', '1,62 – 3,63 V · 1,4 mA']],
         pines: [
             pin('LR', 'L/R', 1, 2, 'izq', 'ent', { vmax: 3.6, req: true, nota: 'llévalo a GND (canal izquierdo) o a VDD (canal derecho).' }),
             pin('WS', 'WS', 1, 3, 'izq', 'ent', { vmax: 3.6, nota: 'Selección de palabra (LRCLK).' }),
             pin('SCK', 'SCK', 1, 4, 'izq', 'ent', { vmax: 3.6, nota: 'Reloj de bit (BCLK).' }),
             pin('SD', 'SD', 5, 2, 'der', 'sal', { v: 3.3, nota: 'Datos de audio hacia el micro.' }),
-            pin('VDD', 'VDD', 5, 3, 'der', 'alim', { vmin: 1.8, vmax: 3.6, i: 2 }),
+            pin('VDD', 'VDD', 5, 3, 'der', 'alim', { vmin: 1.62, vmax: 3.63, i: 2 }),
             gnd('GND', 5, 4, 'der')
         ],
         enlaces: [
@@ -271,7 +271,7 @@ export const COMPONENTES = [
     },
     {
         id: 'sg90', nombre: 'Microservo SG90', corto: 'Servo SG90', fabricante: 'TowerPro',
-        categoria: 'actuadores', propio: true, precio: 2.9, ref: 'M', w: 13, h: 6, dibujo: 'sg90',
+        categoria: 'actuadores', propio: true, precio: 3.45, ref: 'M', w: 13, h: 6, dibujo: 'sg90',
         resumen: 'Servo de 9 g · 180° · control por PWM de 50 Hz',
         descripcion: 'Servo de engranajes de nailon. El ángulo se fija con un pulso de 0,5 a 2,4 ms cada 20 ms, que el ESP32-S3 genera por hardware con LEDC.',
         aviso: 'Al arrancar pide picos de hasta 650 mA: con más de un servo usa una fuente de 5 V aparte y une las masas.',
@@ -314,7 +314,7 @@ export const COMPONENTES = [
     },
     {
         id: 'hc-sr04', nombre: 'Sensor ultrasónico HC-SR04', corto: 'HC-SR04', fabricante: 'Genérico',
-        categoria: 'sensores', precio: 2.4, ref: 'S', w: 18, h: 8, dibujo: 'hcsr04',
+        categoria: 'sensores', precio: 1.75, ref: 'S', w: 18, h: 8, dibujo: 'hcsr04',
         resumen: 'Distancia de 2 a 400 cm por tiempo de vuelo de ultrasonidos',
         descripcion: 'Un pulso de 10 µs en TRIG lanza la medida; ECHO se mantiene alto el tiempo que tarda el eco. Distancia en cm ≈ microsegundos / 58.',
         aviso: 'ECHO sale a 5 V: hacia un ESP32-S3 o una Raspberry Pi hay que bajarlo con un divisor (1 kΩ / 2 kΩ) o un convertidor de nivel.',
@@ -329,11 +329,11 @@ export const COMPONENTES = [
     },
     {
         id: 'bme280', nombre: 'Sensor ambiental BME280', corto: 'BME280', fabricante: 'Bosch Sensortec',
-        categoria: 'sensores', precio: 3, ref: 'S', w: 6, h: 5, dibujo: 'modulo', arte: { pcb: '#6b2fa3', chip: 'BME', etiqueta: 'BME280' },
+        categoria: 'sensores', precio: 10.95, ref: 'S', w: 6, h: 5, dibujo: 'modulo', arte: { pcb: '#6b2fa3', chip: 'BME', etiqueta: 'BME280' },
         resumen: 'Temperatura, humedad y presión por I²C',
         descripcion: 'Sensor combinado de precisión. Dirección I²C 0x76 o 0x77.',
-        specs: [['Rangos', '−40 a 85 °C · 0 – 100 % HR · 300 – 1100 hPa'], ['Interfaz', 'I²C (0x76/0x77) o SPI'], ['Alimentación', '1,8 – 3,6 V · < 1 mA']],
-        pines: fila([['VIN', 'VIN', 'alim', { vmin: 1.8, vmax: 3.6, i: 1 }], ['GND', 'GND', 'gnd'], ['SCL', 'SCL', 'es', { vmax: 3.6 }], ['SDA', 'SDA', 'es', { vmax: 3.6 }]], 5),
+        specs: [['Rangos', '−40 a 85 °C · 0 – 100 % HR · 300 – 1100 hPa'], ['Interfaz', 'I²C (0x76/0x77) o SPI'], ['Alimentación', '1,71 – 3,6 V · < 1 mA']],
+        pines: fila([['VIN', 'VIN', 'alim', { vmin: 1.71, vmax: 3.6, i: 1 }], ['GND', 'GND', 'gnd'], ['SCL', 'SCL', 'es', { vmax: 3.6 }], ['SDA', 'SDA', 'es', { vmax: 3.6 }]], 5),
         enlaces: [doc('Bosch BME280', 'https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/'), repo('adafruit/Adafruit_BME280_Library', 'https://github.com/adafruit/Adafruit_BME280_Library')]
     },
     {
@@ -341,13 +341,13 @@ export const COMPONENTES = [
         categoria: 'sensores', precio: 4, ref: 'S', w: 7, h: 5, dibujo: 'modulo', arte: { pcb: '#1f4f8f', chip: 'ToF', etiqueta: 'VL53L1X' },
         resumen: 'Distancia por tiempo de vuelo láser hasta 4 m, por I²C',
         descripcion: 'Mide distancia absoluta con independencia del color del objeto. Dirección I²C 0x29.',
-        specs: [['Alcance', 'hasta 400 cm · 50 Hz'], ['Interfaz', 'I²C (0x29)'], ['Alimentación', '2,6 – 5,5 V (módulo con regulador) · 20 mA']],
-        pines: fila([['VIN', 'VIN', 'alim', { vmin: 2.6, vmax: 5.5, i: 20 }], ['GND', 'GND', 'gnd'], ['SDA', 'SDA', 'es', I2C], ['SCL', 'SCL', 'es', I2C], ['XSHUT', 'XSHUT', 'ent', { vmax: 5.5, nota: 'Apagado, activo a nivel bajo.' }]], 5),
+        specs: [['Alcance', '4 – 400 cm · 30 Hz (50 Hz en modo corto, hasta 130 cm)'], ['Interfaz', 'I²C (0x29)'], ['Alimentación', '2,6 – 5,5 V (módulo con regulador) · 20 mA, picos de 40 mA']],
+        pines: fila([['VIN', 'VIN', 'alim', { vmin: 2.6, vmax: 5.5, i: 20 }], ['GND', 'GND', 'gnd'], ['SDA', 'SDA', 'es', I2C], ['SCL', 'SCL', 'es', I2C], ['XSHUT', 'XSHUT', 'ent', { vmax: 3.6, nota: 'Apagado, activo a nivel bajo. Trabaja a 2,8 V y no tolera 5 V.' }]], 5),
         enlaces: [doc('ST VL53L1X', 'https://www.st.com/en/imaging-and-photonics-solutions/vl53l1x.html'), repo('pololu/vl53l1x-arduino', 'https://github.com/pololu/vl53l1x-arduino')]
     },
     {
         id: 'pir-hcsr501', nombre: 'Detector de movimiento PIR HC-SR501', corto: 'PIR HC-SR501', fabricante: 'Genérico',
-        categoria: 'sensores', precio: 1.5, ref: 'S', w: 13, h: 10, dibujo: 'pir',
+        categoria: 'sensores', precio: 1.99, ref: 'S', w: 13, h: 10, dibujo: 'pir',
         resumen: 'Detección de presencia por infrarrojo pasivo, salida digital de 3,3 V',
         descripcion: 'Despierta al micro solo cuando hay movimiento, para no tener la cámara y la inferencia activas todo el tiempo.',
         specs: [['Alcance', '3 – 7 m · 110°'], ['Salida', 'Digital 3,3 V'], ['Alimentación', '4,5 – 20 V · 65 µA']],
@@ -356,7 +356,7 @@ export const COMPONENTES = [
     },
     {
         id: 'ds18b20', nombre: 'Sonda de temperatura DS18B20', corto: 'DS18B20', fabricante: 'Analog Devices',
-        categoria: 'sensores', precio: 2, ref: 'S', w: 5, h: 6, dibujo: 'modulo', arte: { pcb: '#20232a', chip: '1W', etiqueta: 'DS18B20' },
+        categoria: 'sensores', precio: 3.15, ref: 'S', w: 5, h: 6, dibujo: 'modulo', arte: { pcb: '#20232a', chip: '1W', etiqueta: 'DS18B20' },
         resumen: 'Termómetro digital 1-Wire, versión sumergible',
         descripcion: 'Un solo hilo de datos para varias sondas. Necesita una resistencia de 4,7 kΩ entre DQ y VDD.',
         specs: [['Rango', '−55 a 125 °C · ±0,5 °C'], ['Interfaz', '1-Wire'], ['Alimentación', '3,0 – 5,5 V · 1,5 mA']],
@@ -365,11 +365,11 @@ export const COMPONENTES = [
     },
     {
         id: 'rele-2ch', nombre: 'Módulo de 2 relés de 5 V', corto: 'Relé 2 canales', fabricante: 'Genérico (Songle)',
-        categoria: 'actuadores', precio: 3.5, ref: 'K', w: 20, h: 15, dibujo: 'rele2',
+        categoria: 'actuadores', precio: 2.25, ref: 'K', w: 20, h: 15, dibujo: 'rele2',
         resumen: 'Dos relés optoacoplados · contactos de 10 A a 250 V CA',
         descripcion: 'Permite que un GPIO conmute cargas de red o de continua con aislamiento. Las entradas son activas a nivel bajo.',
         aviso: 'Las entradas se activan a nivel bajo. Los contactos pueden llevar 230 V: mantén separado ese lado del resto del montaje.',
-        specs: [['Bobinas', '5 V · ≈ 70 mA por relé'], ['Contactos', '10 A a 250 V CA · 10 A a 30 V CC'], ['Entradas', 'Optoacopladas, activas a nivel bajo']],
+        specs: [['Bobinas', '5 V · 71 mA por relé (70 Ω, 0,36 W)'], ['Contactos', '10 A a 250 V CA · 10 A a 28 V CC'], ['Entradas', 'Optoacopladas, activas a nivel bajo']],
         pines: [
             gnd('GND', 1, 5, 'izq'),
             pin('IN1', 'IN1', 1, 6, 'izq', 'ent', { vmax: 5.5 }),
@@ -382,7 +382,7 @@ export const COMPONENTES = [
     },
     {
         id: 'zumbador', nombre: 'Zumbador activo (módulo)', corto: 'Zumbador', fabricante: 'Genérico',
-        categoria: 'actuadores', precio: 1, ref: 'BZ', w: 5, h: 7, dibujo: 'zumbador',
+        categoria: 'actuadores', precio: 1.9, ref: 'BZ', w: 5, h: 7, dibujo: 'zumbador',
         resumen: 'Aviso acústico de 85 dB con oscilador interno',
         descripcion: 'Suena al activar su entrada: no necesita generar tono por PWM.',
         specs: [['Alimentación', '3,3 – 5 V · 30 mA'], ['Sonido', '≈ 85 dB a 2,3 kHz']],
@@ -391,7 +391,7 @@ export const COMPONENTES = [
     },
     {
         id: 'oled-ssd1306', nombre: 'Pantalla OLED 0,96" I²C SSD1306', corto: 'OLED 0,96"', fabricante: 'Solomon Systech',
-        categoria: 'salidas', precio: 4.2, ref: 'DS', w: 11, h: 11, dibujo: 'oled',
+        categoria: 'salidas', precio: 6.15, ref: 'DS', w: 11, h: 11, dibujo: 'oled',
         resumen: '128 × 64 píxeles monocromo por I²C, dirección 0x3C',
         descripcion: 'Pantalla de alto contraste con solo dos hilos de datos. En el ESP32-S3 el I²C por defecto es SDA = GPIO8 y SCL = GPIO9.',
         specs: [['Resolución', '128 × 64'], ['Interfaz', 'I²C (0x3C)'], ['Alimentación', '3,3 – 5 V · 20 mA']],
@@ -473,7 +473,7 @@ export const COMPONENTES = [
         enlaces: []
     },
     {
-        id: 'pulsador', nombre: 'Pulsador táctil de 6 mm', corto: 'Pulsador', fabricante: 'Genérico', categoria: 'pasivos', precio: 0.1, ref: 'SW', w: 4, h: 4, dibujo: 'pulsador',
+        id: 'pulsador', nombre: 'Pulsador táctil de 6 mm', corto: 'Pulsador', fabricante: 'Genérico', categoria: 'pasivos', precio: 0.25, ref: 'SW', w: 4, h: 4, dibujo: 'pulsador',
         resumen: 'Pulsador normalmente abierto',
         descripcion: 'Entre un GPIO con pull-up interno y GND: se lee un 0 al pulsar.',
         specs: [['Contacto', 'NA · 50 mA a 12 V']],
@@ -481,7 +481,7 @@ export const COMPONENTES = [
         enlaces: []
     },
     {
-        id: 'divisor-5v-3v3', nombre: 'Divisor de tensión 1 kΩ / 2 kΩ', corto: 'Divisor 5→3,3 V', fabricante: 'Genérico', categoria: 'pasivos', precio: 0.2, ref: 'RN', w: 5, h: 5, dibujo: 'modulo', arte: { pcb: '#3a3d44', chip: '÷', etiqueta: '1k/2k' },
+        id: 'divisor-5v-3v3', nombre: 'Divisor de tensión 1 kΩ / 2 kΩ', corto: 'Divisor 5→3,3 V', fabricante: 'Genérico', categoria: 'pasivos', precio: 0.1, ref: 'RN', w: 5, h: 5, dibujo: 'modulo', arte: { pcb: '#3a3d44', chip: '÷', etiqueta: '1k/2k' },
         resumen: 'Baja una señal de 5 V a 3,3 V (una sola dirección)',
         descripcion: 'Dos resistencias en serie: de 5 V salen 3,33 V. Suficiente para señales lentas como el ECHO del HC-SR04.',
         specs: [['Relación', '2/3 · 5 V → 3,33 V'], ['Impedancia', '667 Ω']],
@@ -489,7 +489,7 @@ export const COMPONENTES = [
         enlaces: []
     },
     {
-        id: 'conversor-nivel', nombre: 'Convertidor de nivel bidireccional (4 canales)', corto: 'Convertidor nivel', fabricante: 'Genérico (BSS138)', categoria: 'pasivos', precio: 1.2, ref: 'LS', w: 7, h: 7, dibujo: 'modulo', arte: { pcb: '#a3232a', chip: 'LS', etiqueta: 'BSS138' },
+        id: 'conversor-nivel', nombre: 'Convertidor de nivel bidireccional (4 canales)', corto: 'Convertidor nivel', fabricante: 'Genérico (BSS138)', categoria: 'pasivos', precio: 2.95, ref: 'LS', w: 7, h: 7, dibujo: 'modulo', arte: { pcb: '#a3232a', chip: 'LS', etiqueta: 'BSS138' },
         resumen: 'Adapta señales entre 3,3 V y 5 V en ambos sentidos',
         descripcion: 'Cuatro canales con MOSFET BSS138. Sirve para I²C y para señales rápidas de un solo sentido.',
         specs: [['Canales', '4 bidireccionales'], ['Lado bajo', '1,8 – 3,6 V'], ['Lado alto', '3,3 – 5,5 V']],
@@ -524,10 +524,10 @@ export const COMPONENTES = [
         enlaces: [doc('REBT · Guía técnica (Ministerio de Industria)', 'https://industria.gob.es/Calidad-Industrial/seguridadindustrial/instalacionesindustriales/baja-tension/Paginas/guia-tecnica-aplicacion.aspx')]
     },
     {
-        id: 'magnetotermico', nombre: 'Interruptor magnetotérmico 1P+N C10', corto: 'Magnetotérmico C10', fabricante: 'Genérico', categoria: 'potencia', precio: 6, ref: 'Q', w: 4, h: 14, dibujo: 'magneto',
+        id: 'magnetotermico', nombre: 'Interruptor magnetotérmico 1P+N C10', corto: 'Magnetotérmico C10', fabricante: 'Genérico', categoria: 'potencia', precio: 11.14, ref: 'Q', w: 4, h: 14, dibujo: 'magneto',
         resumen: 'Protección de línea de 10 A, curva C, carril DIN',
         descripcion: 'Protege el circuito contra sobrecargas y cortocircuitos. 10 A es el calibre habitual de un circuito de alumbrado con cable de 1,5 mm².',
-        specs: [['Calibre', '10 A, curva C'], ['Poder de corte', '6 kA'], ['Anchura', '1 módulo DIN (18 mm)']],
+        specs: [['Calibre', '10 A, curva C'], ['Poder de corte', '6 kA'], ['Anchura', '1 o 2 módulos DIN (18 o 36 mm) según el modelo']],
         pines: [
             pin('L_IN', 'L entrada', 1, 0, 'arr', 'alim', { dom: 'ac', vmin: 110, vmax: 440, i: 0 }),
             pin('N_IN', 'N entrada', 3, 0, 'arr', 'neutro', { dom: 'ac' }),
@@ -537,11 +537,11 @@ export const COMPONENTES = [
         enlaces: []
     },
     {
-        id: 'lampara', nombre: 'Lámpara LED de 230 V', corto: 'Lámpara 230 V', fabricante: 'Genérico', categoria: 'potencia', precio: 3, ref: 'E', w: 6, h: 9, dibujo: 'lampara',
+        id: 'lampara', nombre: 'Lámpara LED de 230 V', corto: 'Lámpara 230 V', fabricante: 'Genérico', categoria: 'potencia', precio: 4.9, ref: 'E', w: 6, h: 9, dibujo: 'lampara',
         resumen: 'Carga de alumbrado de 9 W',
         descripcion: 'Carga de ejemplo para el circuito de potencia.',
-        specs: [['Potencia', '9 W · ≈ 40 mA a 230 V']],
-        pines: [pin('L', 'L', 2, 9, 'aba', 'alim', { dom: 'ac', vmin: 110, vmax: 240, i: 40 }), pin('N', 'N', 4, 9, 'aba', 'neutro', { dom: 'ac' })],
+        specs: [['Potencia', '9 W · 70 – 100 mA a 230 V (factor de potencia 0,5 – 0,7)']],
+        pines: [pin('L', 'L', 2, 9, 'aba', 'alim', { dom: 'ac', vmin: 110, vmax: 240, i: 80 }), pin('N', 'N', 4, 9, 'aba', 'neutro', { dom: 'ac' })],
         enlaces: []
     },
     {
@@ -551,6 +551,138 @@ export const COMPONENTES = [
         specs: [['Contacto', '10 AX · 250 V CA']],
         pines: [pin('1', '1', 2, 8, 'aba', 'pas'), pin('2', '2', 5, 8, 'aba', 'pas')],
         enlaces: []
+    },
+    {
+        id: 'pca9685', nombre: 'Controlador de 16 servos PCA9685', corto: 'PCA9685 16 servos', fabricante: 'NXP (módulo genérico)',
+        categoria: 'actuadores', precio: 8.95, ref: 'U', w: 12, h: 8, dibujo: 'pca9685',
+        resumen: '16 salidas PWM de 12 bit por I²C: mueve 16 servos con dos pines',
+        descripcion: 'Genera las 16 señales de servo por hardware y libera al microcontrolador. Varias placas se encadenan en el mismo bus cambiando la dirección (0x40 a 0x7F). Aquí se representan las cuatro primeras salidas.',
+        aviso: 'La lógica (VCC) y la potencia de los servos (V+) van por separado: alimenta V+ con una fuente de 5 – 6 V dedicada, nunca desde el pin de 3,3 V o 5 V de la placa.',
+        specs: [['Salidas', '16 PWM de 12 bit · 24 – 1526 Hz · 25 mA por salida'], ['Interfaz', 'I²C (0x40 por defecto, hasta 62 placas en el bus)'], ['Lógica', '2,3 – 5,5 V'], ['Potencia de servos', '5 – 6 V por la bornera V+']],
+        pines: [
+            ...fila([['GND', 'GND', 'gnd'], ['OE', 'OE', 'ent', { vmax: 5.5, nota: 'Habilitación de salidas, activa a nivel bajo. Puede quedar sin conectar.' }], ['SCL', 'SCL', 'es', I2C], ['SDA', 'SDA', 'es', I2C], ['VCC', 'VCC', 'alim', { vmin: 2.3, vmax: 5.5, i: 10 }], ['VP', 'V+', 'alim', { vmin: 4.5, vmax: 6, i: 0, nota: 'Alimentación de los servos: pasa directa a los conectores.' }]], 8),
+            ...[0, 1, 2, 3].map(n => pin('PWM' + n, 'PWM' + n, 2 + 2 * n, 1, 'arr', 'sal', { v: 3.3, nota: 'Señal de servo del canal ' + n + '.' }))
+        ],
+        enlaces: [hoja('Hoja de datos PCA9685', 'https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf'), repo('adafruit/Adafruit-PWM-Servo-Driver-Library', 'https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library'), doc('Controladores de servos en RobotShop', 'https://eu.robotshop.com/collections/servo-controllers')]
+    },
+    {
+        id: 'mg996r', nombre: 'Servo de alto par MG996R', corto: 'Servo MG996R', fabricante: 'TowerPro (Waveshare)',
+        categoria: 'actuadores', precio: 5.49, ref: 'M', w: 8, h: 6, dibujo: 'mg996r',
+        resumen: 'Servo de engranajes metálicos · unos 10 kg·cm · 180°',
+        descripcion: 'El servo habitual de brazos robóticos y hexápodos. Se controla igual que el SG90, con un pulso de 0,5 a 2,5 ms cada 20 ms.',
+        aviso: 'Bloqueado puede pedir más de 2 A: siempre con fuente propia de 5 – 6 V y masas unidas con la placa.',
+        specs: [['Par', '≈ 9,4 kg·cm a 4,8 V · 11 kg·cm a 6 V'], ['Velocidad', '≈ 0,17 s / 60° a 4,8 V'], ['Alimentación', '4,8 – 7,2 V · 500 – 900 mA en movimiento'], ['Peso', '55 g']],
+        pines: fila([['GND', 'GND (marrón)', 'gnd'], ['VCC', 'V+ (rojo)', 'alim', { vmin: 4.8, vmax: 7.2, i: 900 }], ['PWM', 'PWM (naranja)', 'ent', { vmax: 7.2 }]], 6, 3),
+        enlaces: [repo('madhephaestus/ESP32Servo', 'https://github.com/madhephaestus/ESP32Servo')]
+    },
+    {
+        id: 'l298n', nombre: 'Controlador de motores L298N', corto: 'Driver L298N', fabricante: 'STMicroelectronics (módulo genérico)',
+        categoria: 'actuadores', precio: 3.95, ref: 'U', w: 12, h: 12, dibujo: 'l298n',
+        resumen: 'Doble puente en H: dos motores de continua con sentido y velocidad',
+        descripcion: 'Cada canal invierte el giro con dos entradas (IN) y regula la velocidad con PWM en la habilitación (EN). Es la base de los coches robot de dos ruedas.',
+        aviso: 'Pierde cerca de 2 V en el puente: con 6 V de pilas el motor recibe unos 4 V. Une siempre su GND con el de la placa.',
+        specs: [['Canales', '2 motores DC o 1 paso a paso bipolar'], ['Motores', '5 – 35 V en el módulo (el chip admite 46 V) · 2 A por canal'], ['Entradas', 'Lógica de 5 V, válida con 3,3 V'], ['Caída', '≈ 1,8 V a 1 A · hasta 4,9 V a 2 A']],
+        pines: [
+            ...fila([['VM', '+12V', 'alim', { vmin: 5, vmax: 35, i: 0, nota: 'Alimentación de los motores.' }], ['GND', 'GND', 'gnd'], ['ENA', 'ENA', 'ent', { vmax: 5.5 }], ['IN1', 'IN1', 'ent', { vmax: 5.5 }], ['IN2', 'IN2', 'ent', { vmax: 5.5 }], ['IN3', 'IN3', 'ent', { vmax: 5.5 }], ['IN4', 'IN4', 'ent', { vmax: 5.5 }], ['ENB', 'ENB', 'ent', { vmax: 5.5 }]], 12, 2),
+            pin('OUT1', 'OUT1', 3, 1, 'arr', 'pas'), pin('OUT2', 'OUT2', 5, 1, 'arr', 'pas'), pin('OUT3', 'OUT3', 7, 1, 'arr', 'pas'), pin('OUT4', 'OUT4', 9, 1, 'arr', 'pas')
+        ],
+        enlaces: [hoja('Hoja de datos L298', 'https://www.st.com/resource/en/datasheet/l298.pdf')]
+    },
+    {
+        id: 'motor-tt', nombre: 'Motor reductor 1:48 con rueda', corto: 'Motor reductor', fabricante: 'Genérico',
+        categoria: 'actuadores', precio: 2.95, ref: 'M', w: 8, h: 5, dibujo: 'motortt',
+        resumen: 'Motor de continua de 3 – 6 V con reductora y rueda de 65 mm',
+        descripcion: 'El motor amarillo de los chasis de coche robot. Se conecta a una salida del controlador de motores, nunca directamente a un GPIO.',
+        specs: [['Alimentación', '3 – 6 V'], ['Reductora', '1:48 · ≈ 250 rpm a 6 V'], ['Consumo', '≈ 150 mA en vacío · 1,1 – 1,5 A bloqueado']],
+        pines: fila([['A', 'M+', 'pas'], ['B', 'M−', 'pas']], 5, 3),
+        enlaces: []
+    },
+    {
+        id: 'portapilas-4aa', nombre: 'Portapilas de 4 × AA', corto: 'Portapilas 4 AA', fabricante: 'Genérico',
+        categoria: 'alimentacion', precio: 1.49, ref: 'BT', w: 9, h: 8, dibujo: 'portapilas',
+        resumen: '6 V con pilas alcalinas (4,8 V con recargables) para motores y servos',
+        descripcion: 'Alimentación móvil para un coche robot o un brazo. Mantiene los motores fuera de la alimentación del microcontrolador.',
+        specs: [['Tensión', '6 V con alcalinas · 4,8 V con NiMH'], ['Corriente', '≈ 1,5 A de pico']],
+        pines: [pin('V', '+6V', 8, 3, 'der', 'fuente', { v: 6, imax: 1500 }), gnd('GND', 8, 5, 'der')],
+        enlaces: []
+    },
+    {
+        id: 'mpu6050', nombre: 'Acelerómetro y giroscopio MPU6050 (GY-521)', corto: 'IMU MPU6050', fabricante: 'TDK InvenSense',
+        categoria: 'sensores', precio: 3.95, ref: 'S', w: 9, h: 6, dibujo: 'mpu6050',
+        resumen: 'Seis ejes por I²C: inclinación, giro y vibración',
+        descripcion: 'La unidad inercial de drones, robots equilibristas y mandos por gestos. Dirección I²C 0x68 (0x69 con AD0 a nivel alto).',
+        specs: [['Ejes', '3 de aceleración (±2 a ±16 g) · 3 de giro (±250 a ±2000 °/s)'], ['Interfaz', 'I²C (0x68/0x69) · hasta 400 kHz'], ['Alimentación', '3 – 5 V en el módulo (el chip, 2,375 – 3,46 V) · 3,9 mA']],
+        pines: fila([['VCC', 'VCC', 'alim', { vmin: 3, vmax: 5.5, i: 4 }], ['GND', 'GND', 'gnd'], ['SCL', 'SCL', 'es', { vmax: 3.6 }], ['SDA', 'SDA', 'es', { vmax: 3.6 }], ['AD0', 'AD0', 'ent', { vmax: 3.6, nota: 'Selección de dirección: al aire o a GND, 0x68.' }], ['INT', 'INT', 'sal', { v: 3.3, nota: 'Interrupción de dato listo.' }]], 6),
+        enlaces: [repo('electroniccats/mpu6050', 'https://github.com/electroniccats/mpu6050'), repo('adafruit/Adafruit_MPU6050', 'https://github.com/adafruit/Adafruit_MPU6050')]
+    },
+    {
+        id: 'joystick', nombre: 'Joystick analógico XY con pulsador', corto: 'Joystick XY', fabricante: 'Genérico',
+        categoria: 'sensores', precio: 1.95, ref: 'JS', w: 8, h: 8, dibujo: 'joystick',
+        resumen: 'Dos potenciómetros y un pulsador: mando para coches, brazos y drones',
+        descripcion: 'Cada eje entrega una tensión proporcional a la posición, que se lee con el ADC. El pulsador cierra a GND.',
+        aviso: 'Aliméntalo a 3,3 V: a 5 V las salidas superan el máximo del ADC del ESP32-S3.',
+        specs: [['Ejes', '2 × 10 kΩ'], ['Salida', '0 V a la tensión de alimentación'], ['Pulsador', 'A GND, necesita pull-up']],
+        pines: fila([['GND', 'GND', 'gnd'], ['VCC', '+V', 'alim', { vmin: 3, vmax: 5.5, i: 1 }], ['VRX', 'VRx', 'sal', { v: 3.3 }], ['VRY', 'VRy', 'sal', { v: 3.3 }], ['SW', 'SW', 'pas']], 8),
+        enlaces: []
+    },
+    {
+        id: 'ir-receptor', nombre: 'Receptor de infrarrojos de 38 kHz', corto: 'Receptor IR', fabricante: 'Genérico (VS1838B)',
+        categoria: 'sensores', precio: 1.5, ref: 'IR', w: 5, h: 6, dibujo: 'irreceptor',
+        resumen: 'Lee los códigos de cualquier mando a distancia',
+        descripcion: 'Demodula la portadora de 38 kHz y entrega los pulsos ya limpios. Con él se capturan los códigos de un mando para repetirlos después.',
+        aviso: 'Aliméntalo a 3,3 V para que la salida no supere el nivel del ESP32-S3.',
+        specs: [['Portadora', '38 kHz · 940 nm'], ['Alcance', 'hasta 15 m'], ['Alimentación', '2,7 – 5,5 V · menos de 1,5 mA']],
+        pines: fila([['OUT', 'OUT', 'sal', { v: 3.3 }], ['GND', 'GND', 'gnd'], ['VCC', 'VCC', 'alim', { vmin: 2.7, vmax: 5.5, i: 2 }]], 6),
+        enlaces: [repo('crankyoldgit/IRremoteESP8266', 'https://github.com/crankyoldgit/IRremoteESP8266')]
+    },
+    {
+        id: 'ir-emisor', nombre: 'Emisor de infrarrojos (módulo)', corto: 'Emisor IR', fabricante: 'Genérico',
+        categoria: 'salidas', precio: 1.5, ref: 'IR', w: 5, h: 6, dibujo: 'iremisor',
+        resumen: 'LED infrarrojo con transistor: envía órdenes a la tele o al aire acondicionado',
+        descripcion: 'El micro modula la portadora de 38 kHz por un GPIO (periférico RMT) y el transistor del módulo da la corriente al LED.',
+        specs: [['Longitud de onda', '940 nm'], ['Alimentación', '3,3 – 5 V · hasta 100 mA en ráfaga']],
+        pines: fila([['DAT', 'DAT', 'ent', { vmax: 5.5 }], ['VCC', 'VCC', 'alim', { vmin: 3, vmax: 5.5, i: 100 }], ['GND', 'GND', 'gnd']], 6),
+        enlaces: [repo('crankyoldgit/IRremoteESP8266', 'https://github.com/crankyoldgit/IRremoteESP8266')]
+    },
+    {
+        id: 'tft-st7789', nombre: 'Pantalla TFT IPS 1,3" 240 × 240 ST7789', corto: 'TFT 1,3" ST7789', fabricante: 'Adafruit',
+        categoria: 'salidas', precio: 16.78, ref: 'DS', w: 12, h: 12, dibujo: 'tft',
+        resumen: 'Pantalla a color de gran ángulo por SPI, con ranura microSD',
+        descripcion: 'Para interfaces con gráficos, espectros o imágenes. Se maneja por SPI: en el ESP32-S3, SCK = GPIO12 y MOSI = GPIO11 por defecto.',
+        specs: [['Resolución', '240 × 240 · 65 536 colores'], ['Interfaz', 'SPI'], ['Alimentación', '3 – 5 V (con regulador y adaptación de nivel)']],
+        pines: fila([['VIN', 'VIN', 'alim', { vmin: 3, vmax: 5.5, i: 40 }], ['GND', 'GND', 'gnd'], ['SCK', 'SCK', 'ent', { vmax: 5.5 }], ['MOSI', 'MOSI', 'ent', { vmax: 5.5 }], ['CS', 'CS', 'ent', { vmax: 5.5 }], ['DC', 'D/C', 'ent', { vmax: 5.5 }], ['RST', 'RST', 'ent', { vmax: 5.5 }], ['BL', 'BL', 'ent', { vmax: 5.5, nota: 'Retroiluminación: admite PWM.' }]], 12, 2),
+        enlaces: [doc('Guía de la pantalla (Adafruit)', 'https://learn.adafruit.com/adafruit-1-3-and-1-54-240-x-240-wide-angle-tft-lcd-displays'), repo('adafruit/Adafruit-ST7735-Library', 'https://github.com/adafruit/Adafruit-ST7735-Library'), repo('Bodmer/TFT_eSPI', 'https://github.com/Bodmer/TFT_eSPI')]
+    },
+    {
+        id: 'nrf24l01', nombre: 'Transceptor de 2,4 GHz nRF24L01+', corto: 'Radio nRF24L01+', fabricante: 'Nordic Semiconductor',
+        categoria: 'red', precio: 2.45, ref: 'RF', w: 10, h: 6, dibujo: 'nrf24',
+        resumen: 'Enlace de radio punto a punto por SPI, sin Wi-Fi ni router',
+        descripcion: 'Dos módulos se envían paquetes de hasta 32 bytes a 2 Mbps: mandos, telemetría o mensajes entre dos placas.',
+        aviso: 'Solo 3,3 V en VCC: con 5 V se destruye. Las entradas aceptan señales de 5 V únicamente si VCC está entre 2,7 y 3,3 V. Es sensible al ruido de alimentación; un condensador de 10 µF entre VCC y GND evita cortes.',
+        specs: [['Banda', '2,4 GHz ISM · 126 canales'], ['Velocidad', '250 kbps, 1 o 2 Mbps'], ['Interfaz', 'SPI + CE e IRQ'], ['Alimentación', '1,9 – 3,6 V · 11,3 mA al transmitir · 13,5 mA al recibir']],
+        pines: fila([['GND', 'GND', 'gnd'], ['VCC', 'VCC', 'alim', { vmin: 1.9, vmax: 3.6, i: 14 }], ['CE', 'CE', 'ent', { vmax: 5.25 }], ['CSN', 'CSN', 'ent', { vmax: 5.25 }], ['SCK', 'SCK', 'ent', { vmax: 5.25 }], ['MOSI', 'MOSI', 'ent', { vmax: 5.25 }], ['MISO', 'MISO', 'sal', { v: 3.3 }], ['IRQ', 'IRQ', 'sal', { v: 3.3 }]], 6),
+        enlaces: [repo('nRF24/RF24', 'https://github.com/nRF24/RF24'), repo('pepeangell5/ESP32_DUAL_NRF_CHAT', 'https://github.com/pepeangell5/ESP32_DUAL_NRF_CHAT')]
+    },
+    {
+        id: 'cc1101', nombre: 'Transceptor sub-GHz CC1101 (433 MHz)', corto: 'Radio CC1101', fabricante: 'Texas Instruments',
+        categoria: 'red', precio: 3.95, ref: 'RF', w: 10, h: 6, dibujo: 'cc1101',
+        resumen: 'Radio de 433 MHz por SPI: sensores, mandos y estaciones meteorológicas',
+        descripcion: 'Recibe y decodifica las tramas de sensores domésticos de 433 MHz y permite enlaces propios de largo alcance y bajo consumo.',
+        aviso: 'Solo 3,3 V y entradas no tolerantes a 5 V. En 433 MHz la potencia y el tiempo de emisión están limitados por norma: úsalo para recibir y con tus propios dispositivos.',
+        specs: [['Bandas', '300 – 348, 387 – 464 y 779 – 928 MHz'], ['Interfaz', 'SPI + GDO0 y GDO2'], ['Alimentación', '1,8 – 3,6 V · 15 mA al recibir · 34 mA al transmitir a +12 dBm']],
+        pines: fila([['GND', 'GND', 'gnd'], ['VCC', 'VCC', 'alim', { vmin: 1.8, vmax: 3.6, i: 34 }], ['GDO0', 'GDO0', 'es', { vmax: 3.6 }], ['CSN', 'CSN', 'ent', { vmax: 3.6 }], ['SCK', 'SCK', 'ent', { vmax: 3.6 }], ['MOSI', 'MOSI', 'ent', { vmax: 3.6 }], ['MISO', 'MISO', 'sal', { v: 3.3 }], ['GDO2', 'GDO2', 'es', { vmax: 3.6 }]], 6),
+        enlaces: [doc('TI CC1101', 'https://www.ti.com/product/CC1101'), repo('LSatan/SmartRC-CC1101-Driver-Lib', 'https://github.com/LSatan/SmartRC-CC1101-Driver-Lib'), repo('merbanan/rtl_433 (protocolos de 433 MHz)', 'https://github.com/merbanan/rtl_433')]
+    },
+    {
+        id: 'rplidar-a1', nombre: 'Escáner láser 360° RPLIDAR A1M8', corto: 'RPLIDAR A1', fabricante: 'Slamtec',
+        categoria: 'sensores', precio: 98.01, ref: 'LD', w: 14, h: 12, dibujo: 'rplidar',
+        resumen: 'LiDAR 2D de 12 m: mapas y navegación autónoma con una Raspberry Pi',
+        descripcion: 'Gira y mide distancias en todo el plano. Con ROS 2 o las bibliotecas de Slamtec genera el mapa de una habitación (SLAM) y localiza al robot dentro de él.',
+        aviso: 'Va a un host con Linux por su adaptador USB, no al ESP32-S3. El motor suma consumo: en una Raspberry Pi cuenta con el límite conjunto de sus USB.',
+        alimPor: [['USB']],
+        specs: [['Alcance', '0,15 – 12 m · 360°'], ['Muestreo', '8000 medidas/s · 5,5 Hz de giro (ajustable de 2 a 10 Hz)'], ['Interfaz', 'UART a 3,3 V, con adaptador USB'], ['Alimentación', '5 V · 100 mA la electrónica, más el motor (se reservan 500 mA)'], ['Resolución angular', '≤ 1°']],
+        pines: [pin('USB', 'USB (adaptador)', 14, 6, 'der', 'usb_dev', { i: 500, puerto: 'usba' })],
+        enlaces: [doc('Slamtec RPLIDAR A1', 'https://www.slamtec.com/en/Lidar/A1'), repo('Slamtec/rplidar_ros', 'https://github.com/Slamtec/rplidar_ros'), repo('Slamtec/rplidar_sdk', 'https://github.com/Slamtec/rplidar_sdk')]
     }
 ];
 

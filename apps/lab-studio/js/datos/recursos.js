@@ -61,6 +61,27 @@ export const RECURSOS = [
         ]
     },
     {
+        id: 'robotica', titulo: 'Robótica, radio y proyectos de la comunidad', enlaces: [
+            gh('pepeangell5/ESP32_PC_MONITOR', 'Telemetría del PC en una OLED'),
+            gh('pepeangell5/SMART-CAR-QD001', 'Ejemplos para coche robot con ESP32'),
+            gh('pepeangell5/DRONE-FPV-ESP32C3-SUPERMINI', 'Dron casero por ESP-NOW'),
+            gh('pepeangell5/ESP32_DUAL_NRF_CHAT', 'Mensajes entre dos ESP32 con nRF24'),
+            gh('pepeangell5/IR_REMOTE_CARDPUTER_ADV', 'Captura y envío de infrarrojos'),
+            gh('pepeangell5/ESP32-TOOLS', 'Analizador de redes Wi-Fi de 2,4 GHz'),
+            gh('adafruit/Adafruit-PWM-Servo-Driver-Library', 'PCA9685: 16 servos por I²C'),
+            gh('nRF24/RF24', 'Radio nRF24L01+'),
+            gh('LSatan/SmartRC-CC1101-Driver-Lib', 'Radio CC1101 sub-GHz'),
+            gh('crankyoldgit/IRremoteESP8266', 'Infrarrojos: captura y envío'),
+            gh('electroniccats/mpu6050', 'Unidad inercial MPU6050'),
+            gh('Bodmer/TFT_eSPI', 'Pantallas TFT por SPI'),
+            gh('Slamtec/rplidar_ros', 'LiDAR RPLIDAR en ROS'),
+            gh('micro-ROS/micro_ros_arduino', 'ROS 2 en microcontroladores'),
+            web('Repositorios de ESP32-TOOLS (PepeAngell)', 'https://www.pepeangell.dev/repos/', 'Proyectos con ESP32, pantallas y radio'),
+            web('RobotShop Europa', 'https://eu.robotshop.com/es/', 'Servos, controladores, sensores y LiDAR'),
+            web('ESP-NOW (Espressif)', 'https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/network/esp_now.html', 'Enlace directo entre placas sin router')
+        ]
+    },
+    {
         id: 'referencia', titulo: 'Herramientas de referencia', enlaces: [
             web('ESP32-Tools', 'https://www.pepeangell.dev/firmware/', 'Firmware y laboratorio de montaje para ESP32'),
             web('Schemalyzer', 'https://www.schemalyzer.com/es', 'Análisis de esquemas y calculadoras'),
