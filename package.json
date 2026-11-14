@@ -8,7 +8,7 @@
     "start": "node server.js",
     "build": "npm run biblioteca && npm run css:biblioteca && npm run css:insta",
     "css:insta": "node scripts/css-insta.mjs",
-    "test": "node --test \"apps/instagram-downloader/pruebas/*.test.mjs\"",
+    "test": "node --test \"apps/instagram-downloader/pruebas/*.test.mjs\" \"apps/lab-studio/pruebas/*.test.mjs\"",
     "css": "tailwindcss -c tailwind.config.js -i CSS/tailwind.entrada.css -o CSS/tailwind.css --minify",
     "biblioteca": "babel apps/biblioteca/biblioteca.jsx --config-file ./apps/biblioteca/babel.config.cjs -o apps/biblioteca/biblioteca.js",
     "css:biblioteca": "tailwindcss -c tailwind.biblioteca.config.js -i CSS/tailwind.entrada.css -o apps/biblioteca/biblioteca.css --minify"

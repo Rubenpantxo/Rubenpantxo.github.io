@@ -1,0 +1,24 @@
+{
+  "id": "/apps/lab-studio/",
+  "name": "Lab Studio · Mesa de montaje",
+  "short_name": "Lab Studio",
+  "description": "Cablea ESP32-S3, Coral, Raspberry Pi y Shelly con piezas a escala, comprueba las reglas eléctricas y obtén materiales, redes y mapa de pines.",
+  "lang": "es",
+  "start_url": "/apps/lab-studio/",
+  "scope": "/apps/lab-studio/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#15171b",
+  "theme_color": "#15171b",
+  "categories": ["productivity", "utilities", "education"],
+  "icons": [
+    { "src": "/img/apps/labstudio-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/img/apps/labstudio-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/img/apps/labstudio-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Componentes", "url": "/apps/lab-studio/#componentes" },
+    { "name": "Proyectos", "url": "/apps/lab-studio/#proyectos" },
+    { "name": "Calculadoras", "url": "/apps/lab-studio/#calculadoras" }
+  ]
+}

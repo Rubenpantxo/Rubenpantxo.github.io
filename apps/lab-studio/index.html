@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es" data-app="lab-studio" data-tema="oscuro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#15171b">
+<meta name="description" content="Lab Studio: mesa de montaje para ESP32-S3, Google Coral, Raspberry Pi y Shelly. Cablea con piezas a escala, comprueba las reglas eléctricas y obtén materiales, redes y mapa de pines.">
+<title>Lab Studio · Mesa de montaje de electrónica</title>
+<link rel="canonical" href="https://rubenpantxo.com/apps/lab-studio/">
+<link rel="manifest" href="lab-studio.webmanifest">
+<link rel="icon" href="../../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../../img/apps/labstudio-192.png">
+<script src="../../js/consentimiento.js"></script>
+<script src="../../js/app.js"></script>
+<link rel="stylesheet" href="../../CSS/fuentes/fuentes.css">
+<link rel="stylesheet" href="css/lab.css">
+</head>
+<body>
+
+<header class="cabecera">
+  <a class="marca" href="../../" title="Volver a rubenpantxo.com">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="7" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v4M20 3v4M12 25v4M20 25v4M3 12h4M3 20h4M25 12h4M25 20h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 19l3-6 2 4 3-5" fill="none" stroke="var(--acento)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Lab Studio</span>
+  </a>
+  <h1 class="oculto">Lab Studio · Mesa de montaje de electrónica</h1>
+  <nav class="areas" aria-label="Áreas">
+    <a href="#montaje" data-area="montaje" data-ico="mesa">Montaje</a>
+    <a href="#componentes" data-area="componentes" data-ico="chip">Componentes</a>
+    <a href="#proyectos" data-area="proyectos" data-ico="proyectos">Proyectos</a>
+    <a href="#calculadoras" data-area="calculadoras" data-ico="calculadora">Calculadoras</a>
+    <a href="#recursos" data-area="recursos" data-ico="libro">Recursos</a>
+  </nav>
+  <div class="cabecera-der">
+    <button type="button" class="icono" data-accion="tema" data-ico="tema" title="Tema claro u oscuro" aria-label="Cambiar tema"></button>
+  </div>
+</header>
+
+<main>
+
+<!-- ============================ MONTAJE ============================ -->
+<section id="area-montaje" class="area area-montaje" aria-label="Mesa de montaje">
+  <div class="cinta" role="toolbar" aria-label="Herramientas">
+    <div class="grupo-cinta solo-estrecho">
+      <button type="button" class="icono" data-accion="biblioteca" data-ico="lista" title="Biblioteca" aria-label="Mostrar biblioteca"></button>
+    </div>
+    <div class="grupo-cinta">
+      <button type="button" class="icono" data-accion="nuevo" data-ico="nuevo" title="Montaje nuevo" aria-label="Montaje nuevo"></button>
+      <button type="button" class="icono" data-accion="abrir" data-ico="abrir" title="Abrir archivo (Ctrl+O)" aria-label="Abrir archivo"></button>
+      <button type="button" class="icono" data-accion="guardar" data-ico="guardar" title="Guardar archivo (Ctrl+S)" aria-label="Guardar archivo"></button>
+      <div class="con-menu">
+        <button type="button" data-menu="menu-exportar" data-ico="exportar" aria-haspopup="true" aria-expanded="false">Exportar</button>
+        <div class="menu" id="menu-exportar" hidden>
+          <button type="button" data-exportar="png">Imagen PNG</button>
+          <button type="button" data-exportar="svg">Dibujo SVG</button>
+          <hr>
+          <button type="button" data-exportar="materiales">Lista de materiales (CSV)</button>
+          <button type="button" data-exportar="redes">Lista de redes (TXT)</button>
+          <button type="button" data-exportar="pines">Mapa de pines (pines.h)</button>
+        </div>
+      </div>
+    </div>
+    <div class="grupo-cinta">
+      <button type="button" class="icono" data-accion="deshacer" data-ico="deshacer" title="Deshacer (Ctrl+Z)" aria-label="Deshacer"></button>
+      <button type="button" class="icono" data-accion="rehacer" data-ico="rehacer" title="Rehacer (Ctrl+Y)" aria-label="Rehacer"></button>
+    </div>
+    <div class="grupo-cinta">
+      <button type="button" class="icono" data-accion="sel" data-ico="cursor" title="Seleccionar y cablear (V)" aria-label="Seleccionar" aria-pressed="true"></button>
+      <button type="button" class="icono" data-accion="mano" data-ico="mano" title="Desplazar la mesa (H)" aria-label="Desplazar" aria-pressed="false"></button>
+    </div>
+    <div class="grupo-cinta">
+      <button type="button" class="icono" data-accion="girar" data-ico="girar" title="Girar 90° (R)" aria-label="Girar"></button>
+      <button type="button" class="icono" data-accion="duplicar" data-ico="duplicar" title="Duplicar (Ctrl+D)" aria-label="Duplicar"></button>
+      <button type="button" class="icono" data-accion="borrar" data-ico="borrar" title="Quitar (Supr)" aria-label="Quitar"></button>
+    </div>
+    <div class="grupo-cinta">
+      <button type="button" class="icono" data-accion="alejar" data-ico="menos" title="Alejar (−)" aria-label="Alejar"></button>
+      <output id="estado-zoom" class="zoom" title="Nivel de zoom">100 %</output>
+      <button type="button" class="icono" data-accion="acercar" data-ico="mas" title="Acercar (+)" aria-label="Acercar"></button>
+      <button type="button" class="icono" data-accion="encuadrar" data-ico="encuadre" title="Encuadrar todo (F)" aria-label="Encuadrar todo"></button>
+    </div>
+    <div class="grupo-cinta">
+      <button type="button" class="icono" data-accion="rejilla" data-ico="rejilla" title="Rejilla de 2,54 mm (G)" aria-label="Rejilla" aria-pressed="true"></button>
+      <button type="button" class="icono" data-accion="rotulos" data-ico="rotulo" title="Referencias y rótulos" aria-label="Rótulos" aria-pressed="true"></button>
+      <button type="button" class="icono" data-accion="esquema" data-ico="esquema" title="Vista de conexiones: atenúa las piezas y afina los cables" aria-label="Vista de conexiones" aria-pressed="false"></button>
+    </div>
+    <div class="cinta-fin">
+      <input id="nombre-doc" class="nombre-doc" type="text" maxlength="80" aria-label="Nombre del montaje" spellcheck="false">
+      <button type="button" id="chip-reglas" class="chip-reglas ok" data-accion="reglas" title="Ver el diagnóstico eléctrico"></button>
+      <button type="button" class="icono solo-estrecho" data-accion="inspector" data-ico="info" title="Panel de propiedades" aria-label="Mostrar panel"></button>
+    </div>
+  </div>
+
+  <div class="taller">
+    <aside class="lateral lateral-izq" id="biblioteca" aria-label="Biblioteca de componentes">
+      <div class="lateral-cab">
+        <h2>Biblioteca</h2>
+        <button type="button" class="conmutador" data-propios aria-pressed="false" data-ico="estrella" title="Mostrar solo las piezas de mi inventario">Mías</button>
+      </div>
+      <label class="buscador"><svg class="ico" aria-hidden="true"><use href="#i-buscar"/></svg><input id="buscar-pieza" type="search" placeholder="Buscar componente" aria-label="Buscar componente"></label>
+      <div class="bib-contenido"></div>
+    </aside>
+
+    <div class="mesa">
+      <svg id="lienzo" tabindex="0" role="application" aria-label="Mesa de montaje"></svg>
+      <div id="mesa-vacia" class="mesa-vacia" hidden>
+        <h2>La mesa está vacía</h2>
+        <p>Elige una pieza de la biblioteca y haz clic aquí para colocarla, o abre un montaje ya cableado.</p>
+        <a class="boton primario" href="#proyectos">Ver proyectos</a>
+      </div>
+      <button type="button" id="cancelar-modo" class="cancelar-modo" data-accion="cancelar" data-ico="cerrar" hidden>Cancelar</button>
+      <div id="globo" class="globo" hidden></div>
+    </div>
+
+    <aside class="lateral lateral-der" aria-label="Inspector">
+      <div class="pestanas" role="tablist">
+        <button type="button" role="tab" data-pestana="propiedades">Propiedades</button>
+        <button type="button" role="tab" data-pestana="reglas">Reglas</button>
+        <button type="button" role="tab" data-pestana="redes">Redes</button>
+        <button type="button" role="tab" data-pestana="materiales">Materiales</button>
+        <button type="button" role="tab" data-pestana="codigo">Código</button>
+      </div>
+      <div id="panel-derecho" class="panel" role="tabpanel"></div>
+    </aside>
+  </div>
+
+  <footer class="estado">
+    <span id="estado-pista" class="pista"></span>
+    <span id="estado-pos" class="mono">X 0  Y 0 mm</span>
+    <span id="cuenta-doc"></span>
+    <span id="estado-guardado" class="tenue"></span>
+  </footer>
+</section>
+
+<section id="area-componentes" class="area area-doc area-componentes" aria-label="Componentes" hidden></section>
+<section id="area-proyectos" class="area area-doc" aria-label="Proyectos" hidden></section>
+<section id="area-calculadoras" class="area area-doc" aria-label="Calculadoras" hidden></section>
+<section id="area-recursos" class="area area-doc" aria-label="Recursos" hidden></section>
+
+</main>
+
+<div id="avisos" class="avisos"></div>
+<dialog id="dialogo" class="dialogo"></dialog>
+<input id="archivo" type="file" accept=".json,application/json" hidden>
+<noscript><p class="sin-js">Lab Studio necesita JavaScript.</p></noscript>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
