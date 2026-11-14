@@ -170,6 +170,21 @@ export function analizar(doc, catalogo) {
             continue;
         }
 
+        // Límite conjunto de los puertos USB del host (p. ej. 1,2 A en la Raspberry Pi 4).
+        if (def.usbTotal) {
+            const cargas = [];
+            for (const p of def.pines.filter(p => p.tipo === 'usb_host')) {
+                const red = conectado(parte, p);
+                if (red) cargas.push(...red.pines.filter(e => e.pin.tipo === 'usb_dev'));
+            }
+            const consumo = cargas.reduce((s, e) => s + (e.pin.i || 0), 0);
+            if (consumo > def.usbTotal) {
+                anotar('aviso', 'A-USB-TOTAL', 'Puertos USB sobrecargados en conjunto',
+                    `${cargas.map(nom).join(', ')} piden ${fmtI(consumo)} y ${parte.ref} (${def.corto}) da ${fmtI(def.usbTotal)} entre todos sus puertos USB. Pasa alguno a un hub alimentado.`,
+                    [ent(def.pines.find(p => p.tipo === 'usb_host')), ...cargas]);
+            }
+        }
+
         // Alimentación: vías alternativas declaradas o todos los pines «alim».
         const conFuente = pin => {
             const red = pin && conectado(parte, pin);

@@ -311,3 +311,15 @@ test('proyectos: toda plantilla carga y pasa el ERC sin errores', () => {
         }
     }
 });
+
+test('ERC: límite conjunto de 1,2 A en los USB de la Raspberry Pi 4', () => {
+    const pi = { k: 'pi', tipo: 'raspberry-pi-4b', x: 0, y: 0 }, coral = { k: 'c', tipo: 'coral-usb', x: 40, y: 0 };
+    const una = { k: 'w1', tipo: 'webcam-ugreen-1080p', x: 0, y: 50 }, otra = { k: 'w2', tipo: 'webcam-ugreen-1080p', x: 30, y: 50 };
+    // Coral (900 mA) + una webcam (250 mA) = 1150 mA: cabe.
+    const justo = analizar(montaje([pi, coral, una], [['pi.USB3_1', 'c.USB'], ['pi.USB2_1', 'w1.USB']]), CATALOGO);
+    assert.ok(!codigos(justo).includes('A-USB-TOTAL'));
+    // Con la segunda webcam son 1400 mA: cada puerto va bien, el conjunto no.
+    const pasado = analizar(montaje([pi, coral, una, otra], [['pi.USB3_1', 'c.USB'], ['pi.USB2_1', 'w1.USB'], ['pi.USB2_2', 'w2.USB']]), CATALOGO);
+    assert.ok(codigos(pasado).includes('A-USB-TOTAL'));
+    assert.ok(!codigos(pasado).includes('A-CORRIENTE'));
+});
