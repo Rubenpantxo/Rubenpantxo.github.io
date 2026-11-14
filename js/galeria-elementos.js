@@ -24,8 +24,11 @@
   if (!IDX) return;
   var TOK = window.SD_TOKENIZADOS || {};
   var KITS = window.SD_KITS || [];
+  // Patrones en imagen (alfombras): van con los de UIverse, en su seccion.
+  var PROPIOS = window.SD_PATRONES_PROPIOS || [];
 
   var BASE = 'uiverse/';
+  var BASE_PROPIOS = 'patrones-propios/';
 
   /* ---------- el elemento a medida ----------
      Cada pieza se pinta dentro de un lienzo centrado y luego se escala para
@@ -152,10 +155,33 @@
 
   var cache = {};
 
+  // Un patron en imagen no se pide con fetch: se pinta con un <img> que
+  // cubre la casilla. Lo que se copia es un bloque con la imagen de fondo y
+  // la URL absoluta, para que funcione pegado en cualquier sitio.
+  function montarImagen(host, ruta) {
+    var url = new URL(ruta, location.href).href;
+    var raiz = host.shadowRoot || host.attachShadow({ mode: 'open' });
+    raiz.innerHTML = '<style>' + CSS_BASE
+      + 'img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}</style>'
+      + '<img alt="" decoding="async">';
+    var img = raiz.querySelector('img');
+    img.onload = function () { host.removeAttribute('cargando'); };
+    img.onerror = function () {
+      // Con shadow root puesto, el texto tiene que ir dentro para verse.
+      raiz.textContent = 'No se pudo cargar';
+      host.removeAttribute('cargando');
+    };
+    img.src = ruta;
+    host.__fuente = '<div class="patron"></div>\n\n<style>\n.patron {\n'
+      + '  min-height: 20rem;\n'
+      + '  background: url("' + url + '") center / cover;\n}\n</style>\n';
+  }
+
   function montar(host) {
     var ruta = host.getAttribute('src');
     if (!ruta || host.dataset.montado) return;
     host.dataset.montado = '1';
+    if (host.hasAttribute('imagen')) return montarImagen(host, ruta);
 
     var pedir = cache[ruta] || (cache[ruta] = fetch(ruta).then(function (r) {
       if (!r.ok) throw new Error(r.status);
@@ -260,6 +286,19 @@
     });
   }
 
+  function tarjetaPropia(e) {
+    return pieza({
+      cat: 'patrones',
+      ruta: BASE_PROPIOS + e.archivo,
+      archivo: e.archivo,
+      busca: e.tags + ' ' + e.nombre + ' ' + titulos.patrones + ' imagen',
+      pie: '<span class="gl-autor gl-autor--kit">' + esc(e.nombre) + '</span>'
+        + '<span class="gl-tags">' + esc(e.tags) + '</span>',
+      relleno: true,
+      imagen: true
+    });
+  }
+
   function pieza(o) {
     var li = document.createElement('li');
     li.className = 'gl-pieza';
@@ -272,6 +311,7 @@
     host.setAttribute('archivo', o.archivo);
     host.setAttribute('cargando', '');
     if (o.relleno) host.setAttribute('relleno', '');
+    if (o.imagen) host.setAttribute('imagen', '');
     host.className = 'gl-muestra';
 
     var pie = document.createElement('div');
@@ -354,14 +394,16 @@
 
   IDX.secciones.forEach(function (s) {
     var piezas = IDX.elementos.filter(function (e) { return e.cat === s.slug; });
-    if (!piezas.length) return;
+    var propias = s.slug === 'patrones' ? PROPIOS : [];
+    if (!piezas.length && !propias.length) return;
     var sec = document.createElement('section');
     sec.className = 'gl-seccion';
     sec.id = s.slug;
-    sec.innerHTML = '<h2>' + esc(s.titulo) + ' <span>' + piezas.length + '</span></h2>';
+    sec.innerHTML = '<h2>' + esc(s.titulo) + ' <span>' + (piezas.length + propias.length) + '</span></h2>';
     var ul = document.createElement('ul');
     ul.className = 'gl-rejilla';
     piezas.forEach(function (e) { ul.appendChild(tarjeta(e)); });
+    propias.forEach(function (e) { ul.appendChild(tarjetaPropia(e)); });
     sec.appendChild(ul);
     lista.appendChild(sec);
   });

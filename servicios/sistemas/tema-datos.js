@@ -150,6 +150,21 @@ window.SD_CATALOGO = {
       "fondo": "#14110d",
       "tinta": "#f1e8d8",
       "acento": "#c9a255"
+    },
+    {
+      "id": "abismo-plasma",
+      "nombre": "Abismo y plasma",
+      "banda": "oscura",
+      "nota": "Un azul petróleo de fondo marino, marfil frío para leer y un menta que solo marca el foco; el color de verdad lo pone el canto irisado.",
+      "muestras": [
+        "#9ff3e4",
+        "#04111c",
+        "#eef4f6",
+        "#c3a6ff"
+      ],
+      "fondo": "#04111c",
+      "tinta": "#eef4f6",
+      "acento": "#9ff3e4"
     }
   ],
   "tipografias": [
@@ -308,6 +323,18 @@ window.SD_CATALOGO = {
       "caja": "none",
       "estilo": "italic",
       "google": "Cormorant+Garamond:ital,wght@0,400;0,600;1,500;1,600&family=Lora:wght@400;600"
+    },
+    {
+      "id": "cormorant-onest",
+      "nombre": "Cormorant Garamond + Onest",
+      "nota": "Una serif de mucho contraste, grande y en redonda, sobre una grotesca geométrica y limpia; la mono para el código.",
+      "muestra": "Plasma líquido",
+      "display": "\"Cormorant Garamond\", Georgia, serif",
+      "peso": 500,
+      "tracking": "-0.01em",
+      "caja": "none",
+      "estilo": "normal",
+      "google": "Cormorant+Garamond:wght@500;600&family=Onest:wght@400;500;600&family=JetBrains+Mono"
     }
   ],
   "elementos": [
@@ -450,6 +477,16 @@ window.SD_CATALOGO = {
       "densidad": 1.05,
       "boton": "solido",
       "piel": "relieve"
+    },
+    {
+      "id": "plasma",
+      "nombre": "Plasma",
+      "nota": "Placas de vidrio oscuro con un canto irisado que gira despacio, un halo de color alrededor y todo lo pulsable en pastilla.",
+      "radio": "26px",
+      "radioBoton": "999px",
+      "densidad": 1.05,
+      "boton": "solido",
+      "piel": "plasma"
     }
   ],
   "presets": [
@@ -533,6 +570,15 @@ window.SD_CATALOGO = {
       "paleta": "acero-plano",
       "tipo": "barlow",
       "elem": "plano-tecnico"
+    },
+    {
+      "id": "plasma",
+      "nombre": "Plasma",
+      "ficha": "plasma.html",
+      "titular": "Vidrio líquido sobre un abismo petróleo, con el canto irisado.",
+      "paleta": "abismo-plasma",
+      "tipo": "cormorant-onest",
+      "elem": "plasma"
     }
   ]
 };

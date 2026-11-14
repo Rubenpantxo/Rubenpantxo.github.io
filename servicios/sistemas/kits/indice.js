@@ -566,5 +566,68 @@ window.SD_KITS = [
    "botones",
    "dato"
   ]
+ },
+ {
+  "id": "plasma",
+  "nombre": "Plasma",
+  "ficha": "plasma.html",
+  "titular": "Vidrio líquido sobre un abismo petróleo, con el canto irisado.",
+  "rasgo": "Oscuro · plasma · Cormorant Garamond + Onest",
+  "piel": "plasma",
+  "google": "Cormorant+Garamond:wght@500;600&family=Onest:wght@400;500;600&family=JetBrains+Mono",
+  "colores": [
+   "#9ff3e4",
+   "#04111c",
+   "#eef4f6",
+   "#c3a6ff"
+  ],
+  "componentes": [
+   {
+    "id": "botones",
+    "nombre": "Botones",
+    "archivo": "botones.html"
+   },
+   {
+    "id": "tarjeta",
+    "nombre": "Tarjeta",
+    "archivo": "tarjeta.html"
+   },
+   {
+    "id": "acceso",
+    "nombre": "Acceso",
+    "archivo": "acceso.html"
+   },
+   {
+    "id": "seleccion",
+    "nombre": "Selección",
+    "archivo": "seleccion.html"
+   },
+   {
+    "id": "avisos",
+    "nombre": "Avisos",
+    "archivo": "avisos.html"
+   },
+   {
+    "id": "pestanas",
+    "nombre": "Pestañas y filtros",
+    "archivo": "pestanas.html"
+   },
+   {
+    "id": "dato",
+    "nombre": "Dato",
+    "archivo": "dato.html"
+   },
+   {
+    "id": "plan",
+    "nombre": "Plan",
+    "archivo": "plan.html"
+   }
+  ],
+  "destacados": [
+   "tarjeta",
+   "acceso",
+   "botones",
+   "dato"
+  ]
  }
 ];

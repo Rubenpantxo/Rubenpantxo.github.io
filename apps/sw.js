@@ -3,7 +3,7 @@
 // Estrategia «red primero»: con conexión siempre se sirve lo último publicado
 // (no hay que acordarse de cambiar ninguna versión al editar una app) y cada
 // respuesta buena se guarda; sin conexión se sirve la copia guardada. Así
-// Pantxiko Notes, Rueda, Escenas y Format Explorer abren también offline una
+// Pantxiko Notes, Rueda, Escenas, Lab Studio y Format Explorer abren también offline una
 // vez visitadas, y se pueden instalar como aplicación.
 //
 // Solo guarda peticiones GET del propio dominio. Lo de fuera (pdf.js de
@@ -25,6 +25,28 @@ const PRECARGA = [
     '/apps/escenas/prompt.js',
     '/apps/escenas/escena.js',
     '/apps/escenas/ui.js',
+    '/apps/lab-studio/',
+    '/apps/lab-studio/css/lab.css',
+    '/apps/lab-studio/js/core/calculos.js',
+    '/apps/lab-studio/js/core/erc.js',
+    '/apps/lab-studio/js/core/exportar.js',
+    '/apps/lab-studio/js/core/historial.js',
+    '/apps/lab-studio/js/core/modelo.js',
+    '/apps/lab-studio/js/core/redes.js',
+    '/apps/lab-studio/js/core/ruta.js',
+    '/apps/lab-studio/js/datos/componentes.js',
+    '/apps/lab-studio/js/datos/proyectos.js',
+    '/apps/lab-studio/js/datos/recursos.js',
+    '/apps/lab-studio/js/main.js',
+    '/apps/lab-studio/js/ui/calculadoras.js',
+    '/apps/lab-studio/js/ui/dibujos.js',
+    '/apps/lab-studio/js/ui/lienzo.js',
+    '/apps/lab-studio/js/ui/paneles.js',
+    '/apps/lab-studio/js/ui/util.js',
+    '/apps/lab-studio/js/ui/vistas.js',
+    '/apps/lab-studio/lab-studio.webmanifest',
+    '/img/apps/labstudio-192.png',
+    '/img/apps/labstudio-512.png',
     '/js/app.js',
     '/js/consentimiento.js',
     '/CSS/fuentes/fuentes.css'

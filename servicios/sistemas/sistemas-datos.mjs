@@ -374,6 +374,39 @@ export const paletas = [
       ['Marfil', '#f1e8d8', 'Texto principal'],
       ['Marfil apagado', '#a89a84', 'Texto secundario']
     ]
+  },
+  {
+    id: 'abismo-plasma',
+    nombre: 'Abismo y plasma',
+    banda: 'oscura',
+    nota: 'Un azul petróleo de fondo marino, marfil frío para leer y un menta que solo marca el foco; el color de verdad lo pone el canto irisado.',
+    tokens: {
+      fondo: '#04111c',
+      superficie: '#0a1c28',
+      superficie2: '#102838',
+      tinta: '#eef4f6',
+      apagado: '#9ea7ac',
+      acento: '#9ff3e4',
+      acentoSolido: '#e6eef1',
+      acentoFuerte: '#c9d6db',
+      acentoTexto: '#9ff3e4',
+      onAcento: '#06121a',
+      acento2: '#c3a6ff',
+      linea: '#25313b',
+      ok: '#8fe3b0',
+      aviso: '#f2d27a',
+      peligro: '#ff9a9a'
+    },
+    colores: [
+      ['Abismo', '#04111c', 'Fondo de página'],
+      ['Placa', '#0a1c28', 'Superficie translúcida'],
+      ['Placa alta', '#102838', 'Campo, elemento elevado'],
+      ['Marfil frío', '#eef4f6', 'Texto y botón principal'],
+      ['Bruma', '#9ea7ac', 'Texto secundario'],
+      ['Menta', '#9ff3e4', 'Foco y acento'],
+      ['Lila', '#c3a6ff', 'Canto irisado'],
+      ['Rosa', '#ff9ed8', 'Canto irisado']
+    ]
   }
 ];
 
@@ -556,6 +589,19 @@ export const tipografias = [
     cajaDisplay: 'none',
     google: 'Cormorant+Garamond:ital,wght@0,400;0,600;1,500;1,600&family=Lora:wght@400;600',
     muestra: 'Oro y cursiva'
+  },
+  {
+    id: 'cormorant-onest',
+    nombre: 'Cormorant Garamond + Onest',
+    nota: 'Una serif de mucho contraste, grande y en redonda, sobre una grotesca geométrica y limpia; la mono para el código.',
+    display: '"Cormorant Garamond", Georgia, serif',
+    cuerpo: '"Onest", ui-sans-serif, system-ui, sans-serif',
+    mono: '"JetBrains Mono", ui-monospace, monospace',
+    pesoDisplay: 500,
+    trackingDisplay: '-0.01em',
+    cajaDisplay: 'none',
+    google: 'Cormorant+Garamond:wght@500;600&family=Onest:wght@400;500;600&family=JetBrains+Mono',
+    muestra: 'Plasma líquido'
   }
 ];
 
@@ -757,11 +803,25 @@ export const elementos = [
     grosorIcono: 1.8,
     botonPrincipal: 'solido',
     piel: 'relieve'
+  },
+  {
+    id: 'plasma',
+    nombre: 'Plasma',
+    nota: 'Placas de vidrio oscuro con un canto irisado que gira despacio, un halo de color alrededor y todo lo pulsable en pastilla.',
+    radio: '26px',
+    radioBoton: '999px',
+    radioActivo: '999px',
+    filo: '1px',
+    sombra: 'plasma',
+    densidad: 1.05,
+    grosorIcono: 1.6,
+    botonPrincipal: 'solido',
+    piel: 'plasma'
   }
 ];
 
 /* ============================================================
-   PRESETS — las nueve combinaciones por defecto
+   PRESETS — las combinaciones por defecto
    Son atajos, no jaulas: el configurador deja cambiar los tres ejes.
    ============================================================ */
 export const presets = [
@@ -818,6 +878,11 @@ export const presets = [
     proyectoCD: '9c8f62a8-66ca-460d-9927-227b5af6cbd2',
     paleta: 'acero-plano', tipografia: 'barlow', elementos: 'plano-tecnico',
     titular: 'Gris frío, azul de plano y cotas a la vista.'
+  },
+  {
+    id: 'plasma', nombre: 'Plasma', ficha: 'plasma.html',
+    paleta: 'abismo-plasma', tipografia: 'cormorant-onest', elementos: 'plasma',
+    titular: 'Vidrio líquido sobre un abismo petróleo, con el canto irisado.'
   }
 ];
 

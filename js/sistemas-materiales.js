@@ -1,8 +1,8 @@
 /**
- * LOS NUEVE MATERIALES DE LOS SISTEMAS DE DISEÑO
+ * LOS DIEZ MATERIALES DE LOS SISTEMAS DE DISEÑO
  *
  * Un objeto 3D por sistema: filamento, baldosa, cartel, bloque neobrutal,
- * vóxel, vidrio, arcilla, marco de oro y pieza mecanizada. Los usan la vitrina
+ * vóxel, vidrio, arcilla, marco de oro, pieza mecanizada y placa irisada. Los usan la vitrina
  * de la portada (js/sistemas-portada.js) y la cabecera de cada ficha
  * (js/sistemas-ficha.js).
  *
@@ -234,6 +234,44 @@ export function fabricas(e) {
       etq.scale.set(0.5, 0.19, 1); etq.position.set(0, -0.8, 0);
       cota.add(etq);
       const g = new THREE.Group(); g.add(pieza, cota);
+      return g;
+    },
+    // Placa de vidrio oscuro con el canto irisado girando, como aceite
+    plasma() {
+      const W = 1.2, H = 1.5, r = 0.24;
+      const forma = new THREE.Shape();
+      forma.moveTo(-W / 2 + r, -H / 2); forma.lineTo(W / 2 - r, -H / 2); forma.quadraticCurveTo(W / 2, -H / 2, W / 2, -H / 2 + r);
+      forma.lineTo(W / 2, H / 2 - r); forma.quadraticCurveTo(W / 2, H / 2, W / 2 - r, H / 2); forma.lineTo(-W / 2 + r, H / 2);
+      forma.quadraticCurveTo(-W / 2, H / 2, -W / 2, H / 2 - r); forma.lineTo(-W / 2, -H / 2 + r); forma.quadraticCurveTo(-W / 2, -H / 2, -W / 2 + r, -H / 2);
+      const geo = new THREE.ExtrudeGeometry(forma, { depth: 0.1, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 4, curveSegments: 24 });
+      geo.center();
+      const vidrio = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({
+        color: '#0a1c28', roughness: 0.12, metalness: 0.1, transparent: true, opacity: 0.82,
+        clearcoat: 1, clearcoatRoughness: 0.05, iridescence: 1, iridescenceIOR: 1.35, iridescenceThicknessRange: [180, 620]
+      }));
+      // El canto: un tubo por el perfil con la película de colores, que se desliza
+      const c = document.createElement('canvas'); c.width = 512; c.height = 8;
+      const x = c.getContext('2d');
+      const grad = x.createLinearGradient(0, 0, 512, 0);
+      ['#ff9ed8', '#f2d27a', '#8fe3b0', '#9ff3e4', '#c3a6ff', '#ff9ed8'].forEach((col, k, a) => grad.addColorStop(k / (a.length - 1), col));
+      x.fillStyle = grad; x.fillRect(0, 0, 512, 8);
+      const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = THREE.RepeatWrapping; tex.repeat.x = 2;
+      const perfil = forma.getSpacedPoints(160).slice(0, -1).map(p => new THREE.Vector3(p.x * 1.02, p.y * 1.02, 0));
+      const canto = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(perfil, true), 320, 0.032, 8, true),
+        new THREE.MeshBasicMaterial({ map: tex }));
+      // Una píldora marfil, el botón principal del sistema, posada en la placa
+      const pildora = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.42, 8, 24), material('ceramica', '#eef4f6', { roughness: 0.35 }));
+      pildora.rotation.z = Math.PI / 2; pildora.scale.z = 0.45; pildora.position.set(0, -0.42, 0.1);
+      const foco = new THREE.Mesh(new THREE.SphereGeometry(0.05, 24, 12), new THREE.MeshBasicMaterial({ color: '#9ff3e4' }));
+      foco.position.set(-0.36, 0.48, 0.09);
+      const menta = resplandor('#9ff3e4', 2.2); menta.position.set(-0.25, 0.3, -0.3);
+      const lila = resplandor('#c3a6ff', 2); lila.position.set(0.3, -0.35, -0.3);
+      const g = new THREE.Group(); g.add(menta, lila, vidrio, canto, pildora, foco);
+      g.userData.vivo = (t, act) => {
+        if (act) tex.offset.x = (t * 0.06) % 1;
+        menta.material.opacity = act ? 0.5 + Math.sin(t * 0.8) * 0.15 : 0.4;
+        lila.material.opacity = act ? 0.45 + Math.cos(t * 0.7) * 0.15 : 0.35;
+      };
       return g;
     }
   };
