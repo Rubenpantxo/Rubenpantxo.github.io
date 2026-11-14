@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<!-- Generado por generar-fichas.mjs desde sistemas-datos.mjs y fichas-datos.mjs. No editar a mano. -->
+<html lang="es" data-paleta="abismo-plasma" data-tipo="cormorant-onest" data-elem="plasma" data-preset="plasma" data-tema-memoria="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Plasma — Sistema de diseño</title>
+<meta name="description" content="Plasma: vidrio líquido oscuro. Placas translúcidas sobre un abismo petróleo con curvas de nivel, un canto irisado que gira y pastillas de marfil.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Onest:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css">
+<link rel="stylesheet" href="sistema.css">
+<link rel="stylesheet" href="ficha.css">
+<script src="copiar-color.js" defer></script>
+<script src="tema-datos.js"></script>
+<script src="../../js/selector-sistema.js" defer></script>
+<script type="module" src="../../js/sistemas-ficha.js"></script>
+</head>
+<body>
+
+<header class="fx-hero">
+  <nav class="fx-barra" aria-label="Sistemas">
+    <a class="fx-volver" href="../sistemas-de-diseno.html"><span aria-hidden="true">&#8592;</span> Todos los sistemas</a>
+    <span class="fx-mono">10 / 10</span>
+    <div class="fx-vecinos">
+      <a href="industrial.html" aria-label="Sistema anterior: Industrial">&#8592;</a>
+      <a href="halogeno.html" aria-label="Sistema siguiente: Halógeno">&#8594;</a>
+    </div>
+  </nav>
+
+  <div class="fx-hero-cuerpo">
+    <div class="fx-hero-texto">
+      <p class="fx-etiqueta fx-mono">Oscuro · vidrio líquido · canto irisado</p>
+      <h1 class="fx-nombre fx-disp" aria-label="Plasma"><span aria-hidden="true"><span style="--i:0">P</span><span style="--i:1">l</span><span style="--i:2">a</span><span style="--i:3">s</span><span style="--i:4">m</span><span style="--i:5">a</span></span></h1>
+      <p class="fx-bajada">Placas de vidrio oscuro flotando sobre el fondo de un mapa marino. Cada una deja pasar lo de detrás difuminado y lleva un canto irisado, rosa, oro, verde, cian y lila, que gira despacio como una película de aceite. Inspirado en Plasma UI, pero en CSS puro: sin WebGL y sin canvas.</p>
+      <div class="fx-acciones">
+        <a class="sd-btn" href="../bar-restaurante.html?paleta=abismo-plasma&amp;tipo=cormorant-onest&amp;elem=plasma">Pruébalo en una app &#8599;</a>
+        <button class="sd-btn sd-btn--linea fx-copiado" type="button" data-copiar-tokens>Copiar los tokens</button>
+      </div>
+    </div>
+    <figure class="fx-objeto" id="fx-objeto" aria-hidden="true">
+      <div class="fx-reserva"></div>
+      <canvas id="fx-lienzo"></canvas>
+      <figcaption class="fx-pista fx-mono">Arrastra para girarlo</figcaption>
+    </figure>
+  </div>
+
+  <ul class="fx-ejes">
+    <li><a href="#paleta"><small class="fx-mono">Paleta</small><b>Abismo y plasma</b><span class="fx-eje-muestra fx-bolas" aria-hidden="true"><i style="background:#9ff3e4"></i><i style="background:#04111c"></i><i style="background:#eef4f6"></i><i style="background:#c3a6ff"></i></span></a></li>
+    <li><a href="#tipografia"><small class="fx-mono">Tipografía</small><b>Cormorant Garamond + Onest</b><span class="fx-eje-muestra fx-aa fx-disp" aria-hidden="true">Aa</span></a></li>
+    <li><a href="#componentes"><small class="fx-mono">Elementos</small><b>Plasma</b><span class="fx-eje-muestra fx-forma" aria-hidden="true"></span></a></li>
+  </ul>
+</header>
+
+<main class="fx-main">
+
+  <section class="fx-seccion" id="paleta">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">01</span><h2 class="fx-disp">Paleta</h2><p>Un azul petróleo casi negro, marfil frío para leer y un menta que solo marca el foco. El color de verdad no está en la paleta: lo pone el canto irisado de cada placa. Toca un color para copiarlo.</p></header>
+    <ul class="pl-rejilla">
+      <li>
+        <button class="pl-color" type="button" data-hex="#04111C" style="--c:#04111c;--t:#ffffff"
+                aria-label="Copiar #04111C, Abismo">
+          <span class="pl-color__nombre">Abismo</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#04111C</b></span>
+          <span class="pl-color__rol">Fondo de página</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#0A1C28" style="--c:#0a1c28;--t:#ffffff"
+                aria-label="Copiar #0A1C28, Placa">
+          <span class="pl-color__nombre">Placa</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#0A1C28</b></span>
+          <span class="pl-color__rol">Superficie translúcida</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#102838" style="--c:#102838;--t:#ffffff"
+                aria-label="Copiar #102838, Placa alta">
+          <span class="pl-color__nombre">Placa alta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#102838</b></span>
+          <span class="pl-color__rol">Campo, elemento elevado</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#EEF4F6" style="--c:#eef4f6;--t:#101010"
+                aria-label="Copiar #EEF4F6, Marfil frío">
+          <span class="pl-color__nombre">Marfil frío</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#EEF4F6</b></span>
+          <span class="pl-color__rol">Texto y botón principal</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#9EA7AC" style="--c:#9ea7ac;--t:#101010"
+                aria-label="Copiar #9EA7AC, Bruma">
+          <span class="pl-color__nombre">Bruma</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#9EA7AC</b></span>
+          <span class="pl-color__rol">Texto secundario</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#9FF3E4" style="--c:#9ff3e4;--t:#101010"
+                aria-label="Copiar #9FF3E4, Menta">
+          <span class="pl-color__nombre">Menta</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#9FF3E4</b></span>
+          <span class="pl-color__rol">Foco y acento</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#C3A6FF" style="--c:#c3a6ff;--t:#101010"
+                aria-label="Copiar #C3A6FF, Lila">
+          <span class="pl-color__nombre">Lila</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#C3A6FF</b></span>
+          <span class="pl-color__rol">Canto irisado</span>
+        </button>
+      </li>
+      <li>
+        <button class="pl-color" type="button" data-hex="#FF9ED8" style="--c:#ff9ed8;--t:#101010"
+                aria-label="Copiar #FF9ED8, Rosa">
+          <span class="pl-color__nombre">Rosa</span>
+          <span class="pl-color__hex"><span>HEX</span> <b>#FF9ED8</b></span>
+          <span class="pl-color__rol">Canto irisado</span>
+        </button>
+      </li>
+    </ul>
+  </section>
+
+  <section class="fx-seccion" id="tipografia">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">02</span><h2 class="fx-disp">Tipografía</h2><p>Cormorant Garamond grande y en redonda para los titulares, con todo su contraste; Onest, una grotesca geométrica y tranquila, para el resto. JetBrains Mono para el código y las cifras.</p></header>
+    <div class="fx-probar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+      <input type="text" id="fx-texto" placeholder="Escribe aquí el nombre de tu negocio" aria-label="Texto de prueba para la tipografía" maxlength="60">
+      <label class="fx-tamano fx-mono">Tamaño <input type="range" id="fx-escala" min="0.6" max="1.6" step="0.05" value="1"></label>
+    </div>
+    <ul class="sd-tipo">
+      <li><span class="sd-tipo-meta">Display · Cormorant 500</span><span class="sd-muestra-display">Plasma líquido</span></li>
+      <li><span class="sd-tipo-meta">Subtítulo · Cormorant 600</span><span class="sd-muestra-titulo">Se funden al tocarse</span></li>
+      <li><span class="sd-tipo-meta">Cuerpo · Onest 400 / 16px</span><span class="sd-muestra-cuerpo">Sobre vidrio oscuro el texto va en marfil al 100 % o al 66 %: nunca más apagado, o el desenfoque del fondo se lo come.</span></li>
+      <li><span class="sd-tipo-meta">Código · JetBrains Mono</span><span class="sd-muestra-pie sd-muestra-dato">npm install plasma · 24px grid</span></li>
+    </ul>
+  </section>
+
+  <section class="fx-seccion" id="componentes">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">03</span><h2 class="fx-disp">Componentes</h2><p>Placas con radio de 26, desenfoque de 16 píxeles y un halo de menta alrededor. El canto es un degradado cónico enmascarado que da una vuelta cada 16 segundos (se para si pides menos movimiento). Lo pulsable va en pastilla: marfil sólido para la acción principal y vidrio para el resto.</p></header>
+    <ul class="sd-kit-rejilla">
+      <li class="sd-kit-pieza">
+        <h3>Botones</h3>
+        <div class="sd-escena">
+          <div class="sd-fila">
+            <button class="sd-btn" type="button">Continuar</button>
+            <button class="sd-btn sd-btn--linea" type="button">Ver más</button>
+            <button class="sd-btn sd-btn--suave" type="button">Guardar</button>
+            <button class="sd-btn sd-btn--fantasma" type="button">Cancelar</button>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Tarjeta</h3>
+        <div class="sd-escena">
+          <article class="sd-ficha">
+            <span class="sd-insignia">Nuevo</span>
+            <h4>Título de la tarjeta</h4>
+            <p>Dos líneas que explican qué hay dentro y por qué merece la pena abrirla.</p>
+            <div class="sd-progreso" role="progressbar" aria-label="Avance" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100"><span style="--v:64%"></span></div>
+            <div class="sd-fila">
+              <button class="sd-btn" type="button">Abrir</button>
+              <button class="sd-btn sd-btn--fantasma" type="button">Más tarde</button>
+            </div>
+          </article>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Acceso</h3>
+        <div class="sd-escena">
+          <div class="sd-ficha">
+            <h4>Entrar</h4>
+            <label class="sd-campo"><span>Correo</span><input type="email" placeholder="nombre@correo.com" autocomplete="off"></label>
+            <label class="sd-campo"><span>Contraseña</span><input type="password" placeholder="••••••••" autocomplete="off"></label>
+            <label class="sd-check"><input type="checkbox" checked> Recordarme</label>
+            <button class="sd-btn sd-btn--ancho" type="button">Entrar</button>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Selección</h3>
+        <div class="sd-escena">
+          <div class="sd-ficha">
+            <label class="sd-interruptor"><input type="checkbox" role="switch" checked> Avisos</label>
+            <label class="sd-interruptor"><input type="checkbox" role="switch"> Modo compacto</label>
+            <label class="sd-check"><input type="checkbox" checked> Opción marcada</label>
+            <label class="sd-check"><input type="checkbox"> Opción sin marcar</label>
+            <label class="sd-check"><input type="radio" name="sd-plasma-r" checked> Primera</label>
+            <label class="sd-check"><input type="radio" name="sd-plasma-r"> Segunda</label>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Avisos</h3>
+        <div class="sd-escena">
+          <div class="sd-pila">
+            <div class="sd-aviso sd-aviso--ok" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div><strong>Guardado</strong><p>Los cambios ya están a salvo.</p></div></div>
+            <div class="sd-aviso sd-aviso--peligro" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><strong>No se pudo enviar</strong><p>Revisa la conexión e inténtalo otra vez.</p></div></div>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Pestañas y filtros</h3>
+        <div class="sd-escena">
+          <div class="sd-pila">
+            <div class="sd-pestanas" role="tablist" aria-label="Vista">
+              <button type="button" role="tab" aria-selected="true">Resumen</button>
+              <button type="button" role="tab" aria-selected="false">Detalle</button>
+              <button type="button" role="tab" aria-selected="false">Historial</button>
+            </div>
+            <div class="sd-fila">
+              <span class="sd-chip sd-chip--activo">Todo</span>
+              <span class="sd-chip">Hoy</span>
+              <span class="sd-chip">Esta semana</span>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Dato</h3>
+        <div class="sd-escena">
+          <div class="sd-dato">
+            <span class="sd-dato__etiqueta">Visitas este mes</span>
+            <strong class="sd-dato__valor">2.480</strong>
+            <span class="sd-dato__delta">▲ 12 % frente al mes anterior</span>
+            <div class="sd-progreso" role="progressbar" aria-label="Objetivo" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><span style="--v:72%"></span></div>
+          </div>
+        </div>
+      </li>
+      <li class="sd-kit-pieza">
+        <h3>Plan</h3>
+        <div class="sd-escena">
+          <article class="sd-ficha">
+            <span class="sd-insignia">Recomendado</span>
+            <h4>Plan estándar</h4>
+            <p class="sd-precio"><strong>12 €</strong> / mes</p>
+            <ul class="sd-lista">
+              <li>Hasta cinco personas</li>
+              <li>Copia de seguridad diaria</li>
+              <li>Respuesta en un día</li>
+            </ul>
+            <button class="sd-btn sd-btn--ancho" type="button">Elegir plan</button>
+          </article>
+        </div>
+      </li>
+    </ul>
+
+    <h3>Iconos</h3>
+    <div class="sd-lienzo sd-iconos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Inicio"><path d="M3 10 12 4l9 6v10H3V10Z"/><path d="M9 20v-6h6v6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Buscar"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.3-4.3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Ajustes"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Aviso"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Progreso"><path d="M3 17l5-6 4 4 5-8 4 5"/></svg>
+    </div>
+  </section>
+
+  <section class="fx-seccion" id="apps">
+    <header class="fx-sec-cab"><span class="fx-sec-num fx-disp">04</span><h2 class="fx-disp">Pruébalo en una app</h2><p>Las ocho demos se abren vestidas con Plasma. El selector de abajo a la derecha deja cambiarlo en vivo.</p></header>
+    <ul class="fx-demos">
+      <li><a href="../bar-restaurante.html?paleta=abismo-plasma&amp;tipo=cormorant-onest&amp;elem=plasma" class="es-suya"><span><b>Bar &amp; Restaurante</b><small>La mesa en 3D · la que mejor le va</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../tienda-ropa.html?paleta=abismo-plasma&amp;tipo=cormorant-onest&amp;elem=plasma"><span><b>Tienda de ropa</b><small>La prenda colgada</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../carniceria.html?paleta=abismo-plasma&amp;tipo=cormorant-onest&amp;elem=plasma"><span><b>Carnicería</b><small>La báscula</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../gimnasio.html?paleta=abismo-plasma&amp;tipo=cormorant-onest&amp;elem=plasma"><span><b>Gimnasio</b><small>El cuerpo</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../supermercado.html?paleta=abismo-plasma&amp;tipo=cormorant-onest&amp;elem=plasma"><span><b>Supermercado</b><small>La cesta</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../granja.html?paleta=abismo-plasma&amp;tipo=cormorant-onest&amp;elem=plasma"><span><b>Granja</b><small>La finca</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../industria.html?paleta=abismo-plasma&amp;tipo=cormorant-onest&amp;elem=plasma"><span><b>Industria</b><small>La pieza</small></span><span aria-hidden="true">&#8599;</span></a></li>
+      <li><a href="../logistica.html?paleta=abismo-plasma&amp;tipo=cormorant-onest&amp;elem=plasma"><span><b>Logística</b><small>El mapa y la caja</small></span><span aria-hidden="true">&#8599;</span></a></li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="fx-pie">
+  <nav class="fx-siguientes" aria-label="Otros sistemas">
+    <a href="industrial.html"><small class="fx-mono">&#8592; Anterior</small><b class="fx-disp">Industrial</b></a>
+    <a href="halogeno.html"><small class="fx-mono">Siguiente &#8594;</small><b class="fx-disp">Halógeno</b></a>
+  </nav>
+  <nav class="fx-enlaces" aria-label="Enlaces relacionados">
+    <a href="configurador.html?paleta=abismo-plasma&amp;tipo=cormorant-onest&amp;elem=plasma">Montar el tuyo &#8599;</a>
+    <a href="elementos.html#sistemas">Biblioteca de elementos &#8599;</a>
+    <a href="paletas.html">Muestrario de color completo</a>
+    <a href="../sistemas-de-diseno.html">&#8592; Todos los sistemas</a>
+  </nav>
+</footer>
+
+<p class="cine-sr" role="status" aria-live="polite" data-copiar-estado></p>
+</body>
+</html>

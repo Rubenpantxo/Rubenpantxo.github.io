@@ -5,8 +5,8 @@
 
      <html data-paleta="…" data-tipo="…" data-elem="…">
 
-   Cada eje es libre: 10 paletas x 13 tipografias x 14 juegos de
-   elementos = 1820 combinaciones. Los nueve presets son solo
+   Cada eje es libre: 11 paletas x 14 tipografias x 15 juegos de
+   elementos = 2310 combinaciones. Los nueve presets son solo
    combinaciones de partida:
 
      preset       paleta             tipografia           elementos
@@ -19,6 +19,7 @@
    organico     arena-salvia       caprasimo-figtree    arcilla
    clasico      tinta-oro          cormorant-cursiva    filete
    industrial   acero-plano        barlow               plano-tecnico
+   plasma       abismo-plasma      cormorant-onest      plasma
 
    Las fuentes de Google las carga selector-sistema.js cuando hacen falta; el
    CSS solo nombra las familias. */
@@ -263,6 +264,27 @@
   color-scheme: dark;
 }
 
+/* Abismo y plasma — Un azul petróleo de fondo marino, marfil frío para leer y un menta que solo marca el foco; el color de verdad lo pone el canto irisado. */
+[data-paleta="abismo-plasma"] {
+  --sd-bg: #04111c;
+  --sd-surface: #0a1c28;
+  --sd-surface-2: #102838;
+  --sd-ink: #eef4f6;
+  --sd-muted: #9ea7ac;
+  --sd-accent: #9ff3e4;
+  --sd-accent-strong: #c9d6db;
+  --sd-accent-solid: #e6eef1;
+  --sd-accent-text: #9ff3e4;
+  --sd-on-accent: #06121a;
+  --sd-accent-2: #c3a6ff;
+  --sd-line: #25313b;
+  --sd-ok: #8fe3b0;
+  --sd-warn: #f2d27a;
+  --sd-danger: #ff9a9a;
+  --sd-banda: dark;
+  color-scheme: dark;
+}
+
 /* ============================================================
    EJE 2 — TIPOGRAFIAS
    ============================================================ */
@@ -418,6 +440,18 @@
   --sd-display-peso: 500;
   --sd-display-estilo: italic;
   --sd-display-tracking: 0;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+}
+
+/* Cormorant Garamond + Onest — Una serif de mucho contraste, grande y en redonda, sobre una grotesca geométrica y limpia; la mono para el código. */
+[data-tipo="cormorant-onest"] {
+  --sd-display: "Cormorant Garamond", Georgia, serif;
+  --sd-font: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: "JetBrains Mono", ui-monospace, monospace;
+  --sd-display-peso: 500;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: -0.01em;
   --sd-display-caja: none;
   --sd-cifras: normal;
 }
@@ -704,6 +738,26 @@
   --sd-shadow-sm: 0 1px 2px color-mix(in srgb, var(--sd-ink) 12%, transparent);
   --sd-shadow-md: 0 3px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent);
   --sd-shadow-lg: 0 12px 32px color-mix(in srgb, var(--sd-ink) 20%, transparent);
+  --sd-space-1: 4.2px;
+  --sd-space-2: 8.4px;
+  --sd-space-3: 12.6px;
+  --sd-space-4: 16.8px;
+  --sd-space-6: 25.2px;
+  --sd-space-8: 33.6px;
+}
+
+/* Plasma — Placas de vidrio oscuro con un canto irisado que gira despacio, un halo de color alrededor y todo lo pulsable en pastilla. */
+[data-elem="plasma"] {
+  --sd-radius: 26px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 999px;
+  --sd-border: 1px;
+  --sd-densidad: 1.05;
+  --sd-icon-stroke: 1.6;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 2px 8px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  --sd-shadow-md: 0 0 32px -10px color-mix(in srgb, var(--sd-accent) 38%, transparent), 0 18px 40px -16px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.1);
+  --sd-shadow-lg: 0 0 48px -10px color-mix(in srgb, var(--sd-accent) 48%, transparent), 0 26px 56px -18px rgb(0 0 0 / 0.75), inset 0 1px 0 rgb(255 255 255 / 0.14);
   --sd-space-1: 4.2px;
   --sd-space-2: 8.4px;
   --sd-space-3: 12.6px;
@@ -1628,6 +1682,170 @@
   color: var(--sd-on-accent);
 }
 
+/* Piel "plasma" — Plasma */
+@property --plasma-giro {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes plasma-giro { to { --plasma-giro: 360deg; } }
+
+[data-elem="plasma"] body {
+  background:
+    repeating-radial-gradient(120% 90% at 18% 26%, transparent 0 38px, color-mix(in srgb, var(--sd-accent) 7%, transparent) 38px 39px),
+    repeating-radial-gradient(90% 130% at 88% 78%, transparent 0 52px, color-mix(in srgb, var(--sd-accent) 5%, transparent) 52px 53px),
+    radial-gradient(60rem 40rem at 78% 10%, color-mix(in srgb, #1d7f8c 34%, transparent), transparent 70%),
+    radial-gradient(50rem 36rem at 4% 96%, color-mix(in srgb, #1b5d7a 30%, transparent), transparent 70%),
+    var(--sd-bg);
+  background-attachment: fixed;
+}
+
+[data-elem="plasma"] .sd-lienzo,
+[data-elem="plasma"] .sd-ficha,
+[data-elem="plasma"] .sd-dato,
+[data-elem="plasma"] .sd-aviso,
+[data-elem="plasma"] .sd-pestanas {
+  position: relative;
+  border-color: transparent;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--sd-surface-2) 66%, transparent), color-mix(in srgb, var(--sd-surface) 40%, transparent));
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: var(--sd-shadow-md);
+}
+
+[data-elem="plasma"] .sd-lienzo::before,
+[data-elem="plasma"] .sd-ficha::before,
+[data-elem="plasma"] .sd-dato::before,
+[data-elem="plasma"] .sd-aviso::before,
+[data-elem="plasma"] .sd-pestanas::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--plasma-giro), #ff9ed8, #ffd89e, #b6ffa8, #8ff0ff, #a9a6ff, #f09eff, #ff9ed8);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.75;
+  pointer-events: none;
+  animation: plasma-giro 16s linear infinite;
+}
+
+[data-elem="plasma"] .sd-ficha,
+[data-elem="plasma"] .sd-dato {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.2), box-shadow 0.35s ease;
+}
+
+[data-elem="plasma"] .sd-ficha:hover,
+[data-elem="plasma"] .sd-dato:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sd-shadow-lg);
+}
+
+[data-elem="plasma"] .sd-aviso {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--tono) 16%, color-mix(in srgb, var(--sd-surface-2) 60%, transparent)), color-mix(in srgb, var(--sd-surface) 40%, transparent));
+}
+
+[data-elem="plasma"] .sd-aviso::before {
+  opacity: 0.45;
+}
+
+[data-elem="plasma"] .sd-campo input {
+  border-color: color-mix(in srgb, var(--sd-ink) 16%, transparent);
+  background: color-mix(in srgb, var(--sd-bg) 45%, transparent);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.35);
+}
+
+[data-elem="plasma"] .sd-campo input:focus {
+  border-color: var(--sd-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sd-accent) 22%, transparent), inset 0 1px 3px rgb(0 0 0 / 0.35);
+}
+
+[data-elem="plasma"] .sd-btn {
+  font-weight: 500;
+}
+
+[data-elem="plasma"] .sd-btn:not([class*="sd-btn--"]) {
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.25), 0 8px 22px -8px color-mix(in srgb, var(--sd-accent) 55%, transparent);
+}
+
+[data-elem="plasma"] .sd-btn:not([class*="sd-btn--"]):hover {
+  filter: none;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.4), 0 0 28px -4px color-mix(in srgb, var(--sd-accent) 70%, transparent);
+}
+
+[data-elem="plasma"] .sd-btn--linea,
+[data-elem="plasma"] .sd-btn--suave {
+  border-color: color-mix(in srgb, var(--sd-ink) 18%, transparent);
+  background: color-mix(in srgb, var(--sd-surface) 55%, transparent);
+  color: var(--sd-ink);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--sd-shadow-sm);
+}
+
+[data-elem="plasma"] .sd-btn--linea:hover,
+[data-elem="plasma"] .sd-btn--suave:hover {
+  border-color: color-mix(in srgb, var(--sd-accent) 60%, transparent);
+}
+
+[data-elem="plasma"] .sd-pestanas button[aria-selected="true"] {
+  background: var(--sd-accent-solid);
+  color: var(--sd-on-accent);
+  box-shadow: 0 0 18px -6px color-mix(in srgb, var(--sd-accent) 60%, transparent);
+}
+
+[data-elem="plasma"] .sd-chip {
+  border-color: color-mix(in srgb, var(--sd-ink) 18%, transparent);
+  background: color-mix(in srgb, var(--sd-surface) 45%, transparent);
+}
+
+[data-elem="plasma"] .sd-chip--activo {
+  border-color: transparent;
+  background: var(--sd-accent-solid);
+  color: var(--sd-on-accent);
+}
+
+[data-elem="plasma"] .sd-interruptor input {
+  background: color-mix(in srgb, var(--sd-ink) 14%, transparent);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.4);
+}
+
+[data-elem="plasma"] .sd-interruptor input:checked {
+  background: linear-gradient(90deg, #8ff0ff, #a9a6ff);
+}
+
+[data-elem="plasma"] .sd-progreso {
+  background: color-mix(in srgb, var(--sd-ink) 10%, transparent);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.4);
+}
+
+[data-elem="plasma"] .sd-progreso > span {
+  background: linear-gradient(90deg, #8ff0ff, #a9a6ff, #ff9ed8);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--sd-accent) 50%, transparent);
+}
+
+[data-elem="plasma"] .sd-insignia {
+  font-family: var(--sd-mono);
+}
+
+[data-elem="plasma"] .sd-dato__valor {
+  font-family: var(--sd-display);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+[data-elem="plasma"] .sd-lienzo::before,
+[data-elem="plasma"] .sd-ficha::before,
+[data-elem="plasma"] .sd-dato::before,
+[data-elem="plasma"] .sd-aviso::before,
+[data-elem="plasma"] .sd-pestanas::before {
+  animation: none;
+}
+}
+
 /* ============================================================
    ENGANCHES COMUNES
    Lo minimo para que una pagina que declare los atributos ya se vea con su
@@ -1654,7 +1872,7 @@
   font-variant-numeric: var(--sd-cifras);
 }
 
-/* El cambio de tema no debe animarse: con 1820 combinaciones, una transicion
+/* El cambio de tema no debe animarse: con 2310 combinaciones, una transicion
    de color en cada elemento se ve como un parpadeo sucio. */
 @media (prefers-reduced-motion: no-preference) {
   .sd-tema,

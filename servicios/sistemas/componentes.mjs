@@ -55,6 +55,12 @@ export const SOMBRAS = {
     sm: '4px 4px 10px color-mix(in srgb, var(--sd-ink) 14%, transparent), -3px -3px 8px rgb(255 255 255 / 0.7)',
     md: '10px 10px 24px color-mix(in srgb, var(--sd-ink) 16%, transparent), -8px -8px 20px rgb(255 255 255 / 0.75), inset 3px 3px 6px rgb(255 255 255 / 0.55), inset -4px -4px 8px color-mix(in srgb, var(--sd-ink) 7%, transparent)',
     lg: '16px 16px 36px color-mix(in srgb, var(--sd-ink) 20%, transparent), -10px -10px 28px rgb(255 255 255 / 0.8), inset 4px 4px 8px rgb(255 255 255 / 0.6), inset -6px -6px 12px color-mix(in srgb, var(--sd-ink) 8%, transparent)'
+  },
+  // Plasma: la sombra es negra (aqui la tinta es clara) y el halo, del acento.
+  plasma: {
+    sm: '0 2px 8px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.08)',
+    md: '0 0 32px -10px color-mix(in srgb, var(--sd-accent) 38%, transparent), 0 18px 40px -16px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.1)',
+    lg: '0 0 48px -10px color-mix(in srgb, var(--sd-accent) 48%, transparent), 0 26px 56px -18px rgb(0 0 0 / 0.75), inset 0 1px 0 rgb(255 255 255 / 0.14)'
   }
 };
 
@@ -923,7 +929,114 @@ export const PIELES = {
 }
 .sd-progreso > span { border-radius: 0; }
 
-.sd-etiqueta { border-radius: var(--sd-radius); font-family: var(--sd-mono); }`
+.sd-etiqueta { border-radius: var(--sd-radius); font-family: var(--sd-mono); }`,
+
+  /* Plasma: vidrio liquido oscuro, a la manera de Plasma UI. El fondo son
+     curvas de nivel sobre un abismo petroleo; cada placa deja pasar lo de
+     detras difuminado y lleva un canto irisado que gira despacio. El canto es
+     un ::before enmascarado: con un borde de degradado, la placa translucida
+     dejaria ver el arcoiris por dentro. */
+  plasma: `
+@property --plasma-giro {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes plasma-giro { to { --plasma-giro: 360deg; } }
+:lienzo-raiz {
+  background:
+    repeating-radial-gradient(120% 90% at 18% 26%, transparent 0 38px, color-mix(in srgb, var(--sd-accent) 7%, transparent) 38px 39px),
+    repeating-radial-gradient(90% 130% at 88% 78%, transparent 0 52px, color-mix(in srgb, var(--sd-accent) 5%, transparent) 52px 53px),
+    radial-gradient(60rem 40rem at 78% 10%, color-mix(in srgb, #1d7f8c 34%, transparent), transparent 70%),
+    radial-gradient(50rem 36rem at 4% 96%, color-mix(in srgb, #1b5d7a 30%, transparent), transparent 70%),
+    var(--sd-bg);
+  background-attachment: fixed;
+}
+.sd-lienzo,
+.sd-ficha,
+.sd-dato,
+.sd-aviso,
+.sd-pestanas {
+  position: relative;
+  border-color: transparent;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--sd-surface-2) 66%, transparent), color-mix(in srgb, var(--sd-surface) 40%, transparent));
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: var(--sd-shadow-md);
+}
+.sd-lienzo::before,
+.sd-ficha::before,
+.sd-dato::before,
+.sd-aviso::before,
+.sd-pestanas::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--plasma-giro), #ff9ed8, #ffd89e, #b6ffa8, #8ff0ff, #a9a6ff, #f09eff, #ff9ed8);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.75;
+  pointer-events: none;
+  animation: plasma-giro 16s linear infinite;
+}
+.sd-ficha,
+.sd-dato { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.2), box-shadow 0.35s ease; }
+.sd-ficha:hover,
+.sd-dato:hover { transform: translateY(-3px); box-shadow: var(--sd-shadow-lg); }
+.sd-aviso { background: linear-gradient(160deg, color-mix(in srgb, var(--tono) 16%, color-mix(in srgb, var(--sd-surface-2) 60%, transparent)), color-mix(in srgb, var(--sd-surface) 40%, transparent)); }
+.sd-aviso::before { opacity: 0.45; }
+.sd-campo input {
+  border-color: color-mix(in srgb, var(--sd-ink) 16%, transparent);
+  background: color-mix(in srgb, var(--sd-bg) 45%, transparent);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.35);
+}
+.sd-campo input:focus {
+  border-color: var(--sd-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sd-accent) 22%, transparent), inset 0 1px 3px rgb(0 0 0 / 0.35);
+}
+.sd-btn { font-weight: 500; }
+.sd-btn:not([class*="sd-btn--"]) {
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.25), 0 8px 22px -8px color-mix(in srgb, var(--sd-accent) 55%, transparent);
+}
+.sd-btn:not([class*="sd-btn--"]):hover {
+  filter: none;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.4), 0 0 28px -4px color-mix(in srgb, var(--sd-accent) 70%, transparent);
+}
+.sd-btn--linea,
+.sd-btn--suave {
+  border-color: color-mix(in srgb, var(--sd-ink) 18%, transparent);
+  background: color-mix(in srgb, var(--sd-surface) 55%, transparent);
+  color: var(--sd-ink);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--sd-shadow-sm);
+}
+.sd-btn--linea:hover,
+.sd-btn--suave:hover { border-color: color-mix(in srgb, var(--sd-accent) 60%, transparent); }
+.sd-pestanas button[aria-selected="true"] {
+  background: var(--sd-accent-solid);
+  color: var(--sd-on-accent);
+  box-shadow: 0 0 18px -6px color-mix(in srgb, var(--sd-accent) 60%, transparent);
+}
+.sd-chip { border-color: color-mix(in srgb, var(--sd-ink) 18%, transparent); background: color-mix(in srgb, var(--sd-surface) 45%, transparent); }
+.sd-chip--activo { border-color: transparent; background: var(--sd-accent-solid); color: var(--sd-on-accent); }
+.sd-interruptor input { background: color-mix(in srgb, var(--sd-ink) 14%, transparent); box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.4); }
+.sd-interruptor input:checked { background: linear-gradient(90deg, #8ff0ff, #a9a6ff); }
+.sd-progreso { background: color-mix(in srgb, var(--sd-ink) 10%, transparent); box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.4); }
+.sd-progreso > span { background: linear-gradient(90deg, #8ff0ff, #a9a6ff, #ff9ed8); box-shadow: 0 0 14px color-mix(in srgb, var(--sd-accent) 50%, transparent); }
+.sd-insignia { font-family: var(--sd-mono); }
+.sd-dato__valor { font-family: var(--sd-display); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) {
+  .sd-lienzo::before,
+  .sd-ficha::before,
+  .sd-dato::before,
+  .sd-aviso::before,
+  .sd-pestanas::before { animation: none; }
+}
+`
 };
 
 /* ============================================================

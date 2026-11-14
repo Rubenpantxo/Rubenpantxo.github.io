@@ -159,5 +159,21 @@ export const fichas = {
     ],
     componentes: 'Radio de 4, sin sombras y con escuadras de acento en las cuatro esquinas. Las barras de progreso llevan marcas cada 10 %, como una regla.',
     ejemplo: null
+  },
+
+  plasma: {
+    descripcion: 'Plasma: vidrio líquido oscuro. Placas translúcidas sobre un abismo petróleo con curvas de nivel, un canto irisado que gira y pastillas de marfil.',
+    etiqueta: 'Oscuro · vidrio líquido · canto irisado',
+    bajada: 'Placas de vidrio oscuro flotando sobre el fondo de un mapa marino. Cada una deja pasar lo de detrás difuminado y lleva un canto irisado, rosa, oro, verde, cian y lila, que gira despacio como una película de aceite. Inspirado en Plasma UI, pero en CSS puro: sin WebGL y sin canvas.',
+    paleta: 'Un azul petróleo casi negro, marfil frío para leer y un menta que solo marca el foco. El color de verdad no está en la paleta: lo pone el canto irisado de cada placa.',
+    tipografia: 'Cormorant Garamond grande y en redonda para los titulares, con todo su contraste; Onest, una grotesca geométrica y tranquila, para el resto. JetBrains Mono para el código y las cifras.',
+    tipo: [
+      ['Display · Cormorant 500', 'Plasma líquido', 'display'],
+      ['Subtítulo · Cormorant 600', 'Se funden al tocarse', 'titulo'],
+      ['Cuerpo · Onest 400 / 16px', 'Sobre vidrio oscuro el texto va en marfil al 100 % o al 66 %: nunca más apagado, o el desenfoque del fondo se lo come.', 'cuerpo'],
+      ['Código · JetBrains Mono', 'npm install plasma · 24px grid', 'dato']
+    ],
+    componentes: 'Placas con radio de 26, desenfoque de 16 píxeles y un halo de menta alrededor. El canto es un degradado cónico enmascarado que da una vuelta cada 16 segundos (se para si pides menos movimiento). Lo pulsable va en pastilla: marfil sólido para la acción principal y vidrio para el resto.',
+    ejemplo: null
   }
 };

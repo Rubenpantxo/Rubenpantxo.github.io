@@ -1,0 +1,171 @@
+<div class="sd-kit">
+<div class="sd-pila">
+  <div class="sd-aviso sd-aviso--ok" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div><strong>Guardado</strong><p>Los cambios ya están a salvo.</p></div></div>
+  <div class="sd-aviso sd-aviso--peligro" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><strong>No se pudo enviar</strong><p>Revisa la conexión e inténtalo otra vez.</p></div></div>
+</div>
+</div>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Onest:wght@400;500;600&family=JetBrains+Mono&display=swap");
+/* Plasma — Avisos. Sistema de diseño de rubenpantxo.com
+   (servicios/sistemas/plasma.html). Generado por generar-kits.mjs. */
+.sd-kit {
+  --sd-bg: #04111c;
+  --sd-surface: #0a1c28;
+  --sd-surface-2: #102838;
+  --sd-ink: #eef4f6;
+  --sd-muted: #9ea7ac;
+  --sd-accent: #9ff3e4;
+  --sd-accent-strong: #c9d6db;
+  --sd-accent-solid: #e6eef1;
+  --sd-accent-text: #9ff3e4;
+  --sd-on-accent: #06121a;
+  --sd-accent-2: #c3a6ff;
+  --sd-line: #25313b;
+  --sd-ok: #8fe3b0;
+  --sd-warn: #f2d27a;
+  --sd-danger: #ff9a9a;
+  --sd-display: "Cormorant Garamond", Georgia, serif;
+  --sd-font: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --sd-mono: "JetBrains Mono", ui-monospace, monospace;
+  --sd-display-peso: 500;
+  --sd-display-estilo: normal;
+  --sd-display-tracking: -0.01em;
+  --sd-display-caja: none;
+  --sd-cifras: normal;
+  --sd-radius: 26px;
+  --sd-radius-btn: 999px;
+  --sd-radius-activo: 999px;
+  --sd-border: 1px;
+  --sd-densidad: 1.05;
+  --sd-icon-stroke: 1.6;
+  --sd-boton: solido;
+  --sd-shadow-sm: 0 2px 8px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  --sd-shadow-md: 0 0 32px -10px color-mix(in srgb, var(--sd-accent) 38%, transparent), 0 18px 40px -16px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.1);
+  --sd-shadow-lg: 0 0 48px -10px color-mix(in srgb, var(--sd-accent) 48%, transparent), 0 26px 56px -18px rgb(0 0 0 / 0.75), inset 0 1px 0 rgb(255 255 255 / 0.14);
+  --sd-space-1: 4.2px;
+  --sd-space-2: 8.4px;
+  --sd-space-3: 12.6px;
+  --sd-space-4: 16.8px;
+  --sd-space-6: 25.2px;
+  --sd-space-8: 33.6px;
+  color-scheme: dark;
+  box-sizing: border-box;
+  display: grid;
+  gap: 12px;
+  width: 21rem;
+  padding: 1.5rem;
+  background: var(--sd-bg);
+  color: var(--sd-ink);
+  font-family: var(--sd-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sd-kit *,
+.sd-kit *::before,
+.sd-kit *::after {
+  box-sizing: border-box;
+}
+
+.sd-kit .sd-pila {
+  display: grid;
+  gap: var(--sd-space-3, 12px);
+}
+
+.sd-kit .sd-aviso {
+  --tono: var(--sd-accent);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.9rem 1rem;
+  border: var(--sd-border, 1px) solid color-mix(in srgb, var(--tono) 45%, var(--sd-line));
+  border-radius: var(--sd-radius);
+  background: color-mix(in srgb, var(--tono) 10%, var(--sd-surface));
+  color: var(--sd-ink);
+}
+
+.sd-kit .sd-aviso--ok {
+  --tono: var(--sd-ok);
+}
+
+.sd-kit .sd-aviso--peligro {
+  --tono: var(--sd-danger);
+}
+
+.sd-kit .sd-aviso svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 0.1rem;
+  color: var(--tono);
+  stroke-width: var(--sd-icon-stroke, 2);
+}
+
+.sd-kit .sd-aviso strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.sd-kit .sd-aviso p {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  color: var(--sd-muted);
+}
+
+@property --plasma-giro {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes plasma-giro { to { --plasma-giro: 360deg; } }
+
+.sd-kit {
+  background:
+    repeating-radial-gradient(120% 90% at 18% 26%, transparent 0 38px, color-mix(in srgb, var(--sd-accent) 7%, transparent) 38px 39px),
+    repeating-radial-gradient(90% 130% at 88% 78%, transparent 0 52px, color-mix(in srgb, var(--sd-accent) 5%, transparent) 52px 53px),
+    radial-gradient(60rem 40rem at 78% 10%, color-mix(in srgb, #1d7f8c 34%, transparent), transparent 70%),
+    radial-gradient(50rem 36rem at 4% 96%, color-mix(in srgb, #1b5d7a 30%, transparent), transparent 70%),
+    var(--sd-bg);
+  background-attachment: fixed;
+}
+
+.sd-kit .sd-aviso {
+  position: relative;
+  border-color: transparent;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--sd-surface-2) 66%, transparent), color-mix(in srgb, var(--sd-surface) 40%, transparent));
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: var(--sd-shadow-md);
+}
+
+.sd-kit .sd-aviso::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--plasma-giro), #ff9ed8, #ffd89e, #b6ffa8, #8ff0ff, #a9a6ff, #f09eff, #ff9ed8);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.75;
+  pointer-events: none;
+  animation: plasma-giro 16s linear infinite;
+}
+
+.sd-kit .sd-aviso {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--tono) 16%, color-mix(in srgb, var(--sd-surface-2) 60%, transparent)), color-mix(in srgb, var(--sd-surface) 40%, transparent));
+}
+
+.sd-kit .sd-aviso::before {
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+.sd-kit .sd-aviso::before {
+  animation: none;
+}
+}
+</style>
