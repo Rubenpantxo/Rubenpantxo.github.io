@@ -23,7 +23,7 @@
     "@dimforge/rapier3d-compat": "^0.14.0",
     "n8ao": "^2.0.1",
     "postprocessing": "^6.39.5",
-    "three": "^0.180.0"
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@dgreenheck/ez-tree": "^1.1.0",
