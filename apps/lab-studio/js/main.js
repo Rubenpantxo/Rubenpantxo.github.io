@@ -116,7 +116,14 @@ function cargar(doc, { encuadrar = true } = {}) {
 function encuadrarSiVisible() {
     if (app.area !== 'montaje' || app.encuadrado) return;
     app.encuadrado = true;
-    requestAnimationFrame(() => app.lienzo.encuadrar());
+    requestAnimationFrame(encuadrarAuto);
+}
+
+// Encuadre automático: se recuerda la vista que deja para saber después si
+// el usuario la ha movido.
+function encuadrarAuto() {
+    app.lienzo.encuadrar();
+    app.vistaAuto = { ...app.lienzo.vista };
 }
 
 function restaurar(doc) {
@@ -339,6 +346,13 @@ function iniciar() {
 function enlazar() {
     window.addEventListener('hashchange', pintarArea);
     window.addEventListener('resize', () => { if (!app.doc.partes.length) app.lienzo.encuadrar(); });
+    // Si la mesa cambia de tamaño (la hoja de estilos llega después del
+    // script, se gira el móvil, se abre un panel) y nadie ha tocado la vista,
+    // se vuelve a encuadrar. Sin esto el montaje inicial quedaba diminuto.
+    new ResizeObserver(() => {
+        const v = app.lienzo.vista, a = app.vistaAuto;
+        if (app.area === 'montaje' && a && v.x === a.x && v.y === a.y && v.z === a.z) encuadrarAuto();
+    }).observe($('#lienzo'));
 
     document.addEventListener('click', e => {
         const t = e.target.closest('button,[data-ficha],a');
