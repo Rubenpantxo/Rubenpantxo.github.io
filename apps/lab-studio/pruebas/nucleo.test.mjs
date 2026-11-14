@@ -277,7 +277,7 @@ test('exportación: materiales, redes y cabecera de pines', () => {
     const bom = listaMateriales(doc, CATALOGO, {});
     assert.equal(bom.lista.length, 3);
     assert.equal(bom.lista.find(f => f.def.id === 'resistencia').cantidad, 2);
-    assert.ok(Math.abs(bom.total - (9.5 + 4.2 + 0.1)) < 1e-9);
+    assert.ok(Math.abs(bom.total - (CATALOGO.get(ESP).precio + 4.2 + 0.1)) < 1e-9);
     assert.ok(Math.abs(bom.pendiente - 4.3) < 1e-9);
     assert.match(materialesCsv(doc, CATALOGO, {}), /R1 R2;2;Resistencia/);
     const a = analizar(doc, CATALOGO);

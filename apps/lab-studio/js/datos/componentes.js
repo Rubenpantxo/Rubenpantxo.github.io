@@ -124,7 +124,7 @@ const I2C = { vmax: 5.5 };
 export const COMPONENTES = [
     {
         id: 'esp32-s3-devkitc-1-n16r8', nombre: 'ESP32-S3-DevKitC-1 N16R8', corto: 'ESP32-S3 N16R8', fabricante: 'Espressif Systems',
-        categoria: 'placas', propio: true, precio: 9.5, ref: 'U', mcu: true, w: 11, h: 28, dibujo: 'esp32s3',
+        categoria: 'placas', propio: true, precio: 14, ref: 'U', mcu: true, w: 11, h: 28, dibujo: 'esp32s3',
         resumen: 'Doble núcleo LX7 a 240 MHz · 16 MB Flash · 8 MB PSRAM octal · Wi-Fi 4 + BLE 5 · USB OTG',
         descripcion: 'Placa de desarrollo con el módulo ESP32-S3-WROOM-1. Las instrucciones vectoriales del S3 aceleran redes neuronales con TensorFlow Lite Micro y ESP-NN; los 8 MB de PSRAM octal dan sitio al tensor arena de modelos de visión o audio.',
         aviso: 'En la variante N16R8 los GPIO 35, 36 y 37 están ocupados por la PSRAM octal: no se pueden usar. Todos los GPIO trabajan a 3,3 V y no toleran 5 V.',
@@ -151,7 +151,7 @@ export const COMPONENTES = [
     },
     {
         id: 'raspberry-pi-4b', nombre: 'Raspberry Pi 4 Model B', corto: 'Raspberry Pi 4B', fabricante: 'Raspberry Pi Ltd',
-        categoria: 'placas', propio: true, precio: 62, ref: 'U', mcu: true, w: 22, h: 34, dibujo: 'rpi4',
+        categoria: 'placas', propio: true, precio: 124.8, ref: 'U', mcu: true, w: 22, h: 34, dibujo: 'rpi4',
         resumen: 'Cortex-A72 de 4 núcleos a 1,8 GHz · 2 × USB 3.0 · Gigabit Ethernet · Wi-Fi de doble banda',
         descripcion: 'Ordenador de placa única con Linux. Es el host natural del Coral USB: sus dos puertos USB 3.0 dan al acelerador el ancho de banda que necesita y puede quedarse encendido 24/7 con el broker MQTT y la inferencia.',
         aviso: 'Los GPIO son de 3,3 V y no toleran 5 V. Para el Coral usa siempre los puertos azules (USB 3.0).',
@@ -159,12 +159,13 @@ export const COMPONENTES = [
         alimNota: 'necesita una fuente USB-C de 5,1 V / 3 A.',
         specs: [
             ['Procesador', 'Broadcom BCM2711, 4 × Cortex-A72 (ARMv8) a 1,8 GHz'],
-            ['Memoria', '1, 2, 4 u 8 GB LPDDR4-3200'],
+            ['Memoria', '1, 2, 4 u 8 GB LPDDR4-3200 (precio de la versión de 4 GB)'],
             ['Red', 'Gigabit Ethernet · Wi-Fi 802.11ac · Bluetooth 5.0'],
             ['USB', '2 × USB 3.0 · 2 × USB 2.0'],
             ['E/S', 'Cabecera de 40 pines: 28 GPIO, I²C, SPI, UART, PCM, PWM'],
+            ['GPIO', '3,3 V · hasta 16 mA por pin y 50 mA entre todos'],
             ['Vídeo', '2 × micro-HDMI (4K60) · CSI · DSI'],
-            ['Alimentación', '5,1 V / 3 A por USB-C'],
+            ['Alimentación', '5 V / 3 A por USB-C (vale 2,5 A si los USB piden menos de 500 mA)'],
             ['Dimensiones', '85 × 56 mm']
         ],
         pines: pinesPi(),
@@ -191,7 +192,7 @@ export const COMPONENTES = [
     },
     {
         id: 'coral-usb', nombre: 'Google Coral USB Accelerator', corto: 'Coral USB', fabricante: 'Google',
-        categoria: 'ia', propio: true, precio: 74.9, ref: 'A', w: 26, h: 12, dibujo: 'coral',
+        categoria: 'ia', propio: true, precio: 112, ref: 'A', w: 26, h: 12, dibujo: 'coral',
         resumen: 'Coprocesador Edge TPU · 4 TOPS a 2 W · modelos TensorFlow Lite INT8',
         descripcion: 'Acelerador de inferencia por USB. Ejecuta modelos TensorFlow Lite cuantizados a 8 bit compilados para el Edge TPU: MobileNet v2 en torno a 2,5 ms por imagen, sin cargar la CPU del host.',
         aviso: 'Necesita un host con Linux, macOS o Windows (PC o Raspberry Pi): no se conecta directamente al ESP32-S3. A máxima frecuencia consume hasta 900 mA y se calienta.',
@@ -204,7 +205,7 @@ export const COMPONENTES = [
             ['Conexión', 'USB 3.1 Gen 1 tipo C (funciona en USB 2.0, más lento)'],
             ['Consumo', '500 mA (frecuencia reducida) · 900 mA (máxima)'],
             ['Software', 'PyCoral · libedgetpu · delegado de TensorFlow Lite'],
-            ['Dimensiones', '65 × 30 × 8 mm']
+            ['Dimensiones', '65 × 30 mm']
         ],
         pines: [pin('USB', 'USB-C 3.0', 26, 6, 'der', 'usb_dev', { i: 900, usb3: true, puerto: 'usbc' })],
         enlaces: [
@@ -223,12 +224,12 @@ export const COMPONENTES = [
         descripcion: 'Cámara de interior con giro e inclinación. Tras crear la cuenta de cámara en la app entrega vídeo H.264 por RTSP, que el host decodifica con OpenCV o go2rtc para pasarlo al Coral.',
         aviso: 'Activa la cuenta de cámara en la app Mercusys. La URL es rtsp://usuario:clave@IP:554/stream1 (stream2 para baja resolución). Se alimenta con su propio adaptador.',
         specs: [
-            ['Vídeo', '2K / 1080p H.264 · 15–20 fps'],
-            ['Movimiento', 'Giro 360° · inclinación 114°'],
+            ['Vídeo', '2K (2304 × 1296) H.264 · 15 fps de fábrica, hasta 25 fps'],
+            ['Movimiento', 'Cobertura de 360° en horizontal y 110° en vertical'],
             ['Red', 'Wi-Fi 2,4 GHz 802.11 b/g/n'],
             ['Protocolos', 'RTSP (puerto 554) · ONVIF (puerto 2020)'],
-            ['Noche', 'LED infrarrojos de 850 nm'],
-            ['Alimentación', 'Adaptador propio de 9 V']
+            ['Noche', 'LED infrarrojos de 850 nm, hasta 12 m'],
+            ['Alimentación', 'Adaptador propio de 9 V / 0,6 A']
         ],
         pines: [pin('WIFI', 'Wi-Fi RTSP', 14, 6, 'der', 'red', { puerto: 'wifi', nota: 'Flujo RTSP H.264 por la red local.' })],
         enlaces: [
@@ -286,17 +287,17 @@ export const COMPONENTES = [
     },
     {
         id: 'shelly-1pm-mini-g3', nombre: 'Shelly 1PM Mini Gen3', corto: 'Shelly 1PM Mini', fabricante: 'Shelly',
-        categoria: 'potencia', propio: true, precio: 16.9, ref: 'K', w: 14, h: 12, dibujo: 'shelly',
+        categoria: 'potencia', propio: true, precio: 14.9, ref: 'K', w: 14, h: 12, dibujo: 'shelly',
         resumen: 'Relé Wi-Fi de 8 A con medida de potencia · 230 V · API local RPC, MQTT y scripts',
         descripcion: 'Interruptor inteligente de caja de mecanismo. Conmuta una carga de hasta 8 A, mide tensión, corriente y energía, y se controla en local por HTTP RPC, WebSocket o MQTT, lo que permite que el ESP32-S3 o la Raspberry lo accionen sin tocar 230 V.',
         aviso: 'Trabaja con tensión de red: instálalo con el circuito sin tensión y dentro de una caja. No tiene contacto seco: la salida O entrega la fase de L.',
         specs: [
-            ['Alimentación', '110 – 240 V CA, 50/60 Hz'],
+            ['Alimentación', '110 – 240 V CA, 50/60 Hz · consumo propio < 1,2 W'],
             ['Carga máxima', '8 A · 2000 W a 240 V'],
             ['Medida', 'Tensión, corriente, potencia activa y energía'],
-            ['Radio', 'Wi-Fi 2,4 GHz · Bluetooth'],
+            ['Radio', 'Wi-Fi 2,4 GHz 802.11 b/g/n · Bluetooth 4.2'],
             ['Control', 'RPC HTTP/WebSocket · MQTT · scripts mJS · entrada SW'],
-            ['Dimensiones', '35 × 29 × 16 mm']
+            ['Dimensiones', '34 × 29 × 16 mm']
         ],
         pines: [
             pin('SW', 'SW', 3, 1, 'arr', 'ent', { dom: 'ac', vmax: 240, nota: 'Entrada del pulsador o interruptor, conmutada a fase.' }),
