@@ -7,6 +7,8 @@
 - **R2 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/09_tejados.py` ajusta 1–4 faldones por RANSAC al MDS (tejado = mínimo de los planos, cumbreras exactas) o, si no cuadra, malla de rejilla del MDS; aleros de 0,3 m con canto; muros con la altura real del borde del tejado. 1 313 tejados de planos, 496 de rejilla, 3 planos por defecto. Error medio tejado − MDS 0,107 m (mediana 0,061). `tejados.json` + `tejados.bin` (2,6 MB, 1,1 MB comprimido). R2 aprobado.
 - **R3 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/10_sol.py` estima el sol del vuelo de la ortofoto correlacionando sombras del nDSM con lo oscuro de la foto (acimut 201°, elevación 65°). `src/escena/render.js`: sombras del sol en una caja que sigue a la cámara, oclusión ambiental N8AO + SMAA + OutputPass; reflejos del propio cielo (sin RoomEnvironment). `suelo.js`: el terreno recibe sombras 3D solo donde la foto está al sol, y detalle de cerca (`tools/11_suelo.py`: calzada/acera/tierra + texturas de asfalto, baldosa y tierra dibujadas). Calidad alto/medio/bajo en `src/config/calidad.js` (`?calidad=`; móvil → bajo). Render completo ≈ 7 ms a 1280×720. Rubén autorizó las descargas: cielo HDRI de Poly Haven (`tools/12_cielo.py`, girado para que su sol coincida con el de la ortofoto) y texturas de ambientCG para el suelo (`tools/11_suelo.py` las usa si están). 09_tejados: sin copas de árbol (píxeles verdes) y techo plano en edificios estrechos o con rejilla mala (error medio 0,090 m). Siguiente: R4 (splats, necesita capturas).
 
+**Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, fase **F0 (recinto sobre plano) hecha como propuesta, pendiente de la revisión de Rubén**. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
+
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
 ## Fases
@@ -193,6 +195,31 @@
 - [x] Calle Juan XXIII y Calle las Eras a mano (2026-11-11, datos en `src/datos/casasCalles.js`; fotos de Rubén): Juan XXIII 10, 16, 18, 20, 26, 37, 41, 43, 47, 51, 53, 55, 57, 69, 71 y 73; Las Eras 6, 7, 8, 9, 11 y 13. Cada casa con su marco sacado de su huella del Catastro (la que se quita). El 6 de Las Eras son tres cuerpos: el Bar Paco, una casa vieja de una planta con portón y la de ladrillo rosado con portón de madera (por eso sale con el 6 en dos fotos). `casas.js` suma recercados de huecos, árboles por casa y zócalo bajo las ventanas que entran en él; materiales nuevos: ladrillo amarillo y rosado, piedra gris, azulejo marrón y travertino. Los 87 y 89 de Ramón y Cajal (en blanco en la foto) no se han hecho.
 - [x] Herramienta para casas a mano (2026-11-11, `tools/30_casas_marcos.py`): por calle y números busca la casa en OSM, sus huellas del Catastro y el eje de la calle, y da el marco (origen, eje, ancho, fondo), lo que se quita y lo que se queda, el orden de la calle y hacia dónde mira cada fachada (`--listar`), avisa de huellas compartidas (`--juntas`) y de casas ya modeladas, y saca el esqueleto `fila(...)` para `casasCalles.js` (`--esqueleto`). La usa la skill de usuario `fachadas-cabanillas` (`~/.claude/skills/fachadas-cabanillas`), que hace todo el proceso a partir de las fotos de Rubén.
 - Orden del pipeline: … → 13_muros → 15_osm_elementos → 16_marcas_viales → 17_farolas.
+
+## Fiestas (PLAN_FIESTAS.md)
+
+**Fase actual: F0 — recinto sobre plano. Hecha como propuesta el 2026-11-15; parada hasta que Rubén la revise.**
+
+### Hecho en F0
+- `PLAN_FIESTAS.md` añadido al proyecto (venía del chat).
+- `src/datos/fiestas.js`: el recinto como dato. Línea de fachadas de la plaza y de San Roque (de las filas de `casasPlaza.js`, las huellas del Catastro y las tapias de `muros.json`; cada lado dice de dónde sale), y de ella cuelgan las vallas: paralelas a `SEPARACION_VALLA` (1,5 m) y seguidas, cruzando las bocacalles. 27 tramos numerados (plaza 1–5, puerta 6, calle 7–27), ruedo de arena, recorrido de la calle, puerta, tablado, candidatos para el camión, zonas de público y la lista de dudas. `estado: 'propuesta'`.
+- `tools/20_recinto_fiestas.py` → `data/processed/previews/recinto_fiestas.png` (y copia en `docs/fiestas/recinto_fiestas.jpg` con `--jpg`): vista general, tres detalles y el texto de las dudas. Lee `fiestas.js` con node (única fuente). Comprueba que ninguna valla atraviesa edificios, que la línea de fachadas pasa por fachadas reales, el ancho libre y el desnivel, y lista lo que hay hoy en el recinto. Con `--assets` usa otra carpeta de datos (la del juego publicado) y, si no están las teselas de la ortofoto, las saca de `cabanillas.glb`.
+- Medidas: plaza 725 m² entre fachadas, ruedo 518 m² (53 m de largo; 6,7 m de ancho en la puerta y 13,0 m junto al Ayuntamiento). Calle: 143 m de eje, de 7,0 m entre fachadas en lo más estrecho (x ≈ 121) a 16 m en la plazuela; 4,3 m libres entre vallas en lo más estrecho. Casi llano: 0,7 % en la plaza y 1,1 % en la calle. Vallas: 414 m de tablones, 8 m de tablado y 7 m de puerta.
+- En el recinto hoy: 0 coches aparcados, 9 farolas (1 del LiDAR y 8 estimadas), 3 árboles del LiDAR en San Roque y ningún banco ni señal de OSM. La F1 decide qué se quita.
+
+### Propuesto sin datos (lo decide Rubén; dudas D1–D11 en `fiestas.js` y en la imagen)
+- Tablado delante de la fachada oeste del Ayuntamiento, 3 m de fondo (D1). Camión en el callejón norte (A) o sur (B) del Ayuntamiento (D2). Callejones cerrados en su boca (D3).
+- Separación de 1,5 m en todo el recinto (D4), todo de tablones (D5), ningún burladero (D6).
+- Final del recorrido en la esquina de la Sala de Cultura, sin bajar por el ramal (D7). Bocacalles con valla seguida (D8). La plazuela y el retranqueo de San Roque quedan para el público (D9). Puerta al este de la boca de la Fragua (D10). Salida del encierro (D11).
+
+### Pendiente
+- Rubén: revisar la imagen, responder las dudas y copiar en `docs/fiestas/` los dos croquis y las seis fotos de las vallas (no estaban al hacer la F0, que se hizo en una sesión en la nube sin `public/assets/` ni `data/raw/`: los datos se leyeron del juego publicado en `juegos/cabanillas-drive/assets`).
+- Claude: corregir `fiestas.js` con sus respuestas, volver a generar la imagen y poner `estado: 'aprobado'`. Después, F1.
+
+### Decisiones
+- El recinto vive solo en `src/datos/fiestas.js`; la herramienta de Python lo evalúa con node para no duplicarlo.
+- Las vallas no se guardan punto a punto: se calculan de la línea de fachadas y la separación. Cambiar la separación o el tipo de un tramo es cambiar un número o una palabra.
+- En la foto aérea los tejados salen desplazados 1–2 m (no es ortofoto verdadera): para las vallas manda la línea de fachadas del Catastro, que es la del juego.
 
 ## Pendiente de Rubén (lo hará más adelante; no recordárselo en cada informe)
 - R4: capturas de Scaniverse de 3–5 edificios en `data/raw/splats/<nombre>/` (instrucciones en `PLAN_REALISMO.md`).
