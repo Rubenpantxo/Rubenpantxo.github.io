@@ -7,7 +7,7 @@
 - **R2 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/09_tejados.py` ajusta 1–4 faldones por RANSAC al MDS (tejado = mínimo de los planos, cumbreras exactas) o, si no cuadra, malla de rejilla del MDS; aleros de 0,3 m con canto; muros con la altura real del borde del tejado. 1 313 tejados de planos, 496 de rejilla, 3 planos por defecto. Error medio tejado − MDS 0,107 m (mediana 0,061). `tejados.json` + `tejados.bin` (2,6 MB, 1,1 MB comprimido). R2 aprobado.
 - **R3 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/10_sol.py` estima el sol del vuelo de la ortofoto correlacionando sombras del nDSM con lo oscuro de la foto (acimut 201°, elevación 65°). `src/escena/render.js`: sombras del sol en una caja que sigue a la cámara, oclusión ambiental N8AO + SMAA + OutputPass; reflejos del propio cielo (sin RoomEnvironment). `suelo.js`: el terreno recibe sombras 3D solo donde la foto está al sol, y detalle de cerca (`tools/11_suelo.py`: calzada/acera/tierra + texturas de asfalto, baldosa y tierra dibujadas). Calidad alto/medio/bajo en `src/config/calidad.js` (`?calidad=`; móvil → bajo). Render completo ≈ 7 ms a 1280×720. Rubén autorizó las descargas: cielo HDRI de Poly Haven (`tools/12_cielo.py`, girado para que su sol coincida con el de la ortofoto) y texturas de ambientCG para el suelo (`tools/11_suelo.py` las usa si están). 09_tejados: sin copas de árbol (píxeles verdes) y techo plano en edificios estrechos o con rejilla mala (error medio 0,090 m). Siguiente: R4 (splats, necesita capturas).
 
-**Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, fase **F0 (recinto sobre plano) hecha como propuesta, pendiente de la revisión de Rubén**. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
+**Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, fase **F0 (recinto sobre plano), segunda vuelta con las fotos de Rubén; sigue como propuesta, pendiente de su aprobación**. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
 
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
@@ -198,28 +198,40 @@
 
 ## Fiestas (PLAN_FIESTAS.md)
 
-**Fase actual: F0 — recinto sobre plano. Hecha como propuesta el 2026-11-15; parada hasta que Rubén la revise.**
+**Fase actual: F0 — recinto sobre plano. Segunda vuelta (2026-11-15) con las respuestas y cuatro fotos de Rubén; sigue siendo propuesta y está parada hasta que la apruebe.**
 
 ### Hecho en F0
 - `PLAN_FIESTAS.md` añadido al proyecto (venía del chat).
-- `src/datos/fiestas.js`: el recinto como dato. Línea de fachadas de la plaza y de San Roque (de las filas de `casasPlaza.js`, las huellas del Catastro y las tapias de `muros.json`; cada lado dice de dónde sale), y de ella cuelgan las vallas: paralelas a `SEPARACION_VALLA` (1,5 m) y seguidas, cruzando las bocacalles. 27 tramos numerados (plaza 1–5, puerta 6, calle 7–27), ruedo de arena, recorrido de la calle, puerta, tablado, candidatos para el camión, zonas de público y la lista de dudas. `estado: 'propuesta'`.
+- `src/datos/fiestas.js`: el recinto como dato. Línea de fachadas de la plaza y de San Roque (de las filas de `casasPlaza.js`, las huellas del Catastro y las tapias de `muros.json`; cada lado dice de dónde sale), y de ella cuelgan las vallas, paralelas a `SEPARACION_VALLA` (1,5 m). 28 tramos numerados (plaza 1–7, puerta 8, calle 9–28) con su tipo y la foto en que se ven (`visto`), cierres de barrotes, ruedo de arena, recorrido de la calle, puerta con su hoja, tablado, gradas de la Fragua, corral, ambulancia, burladero, valla gris, zonas de público y dudas. `estado: 'propuesta'`.
 - `tools/20_recinto_fiestas.py` → `data/processed/previews/recinto_fiestas.png` (y copia en `docs/fiestas/recinto_fiestas.jpg` con `--jpg`): vista general, tres detalles y el texto de las dudas. Lee `fiestas.js` con node (única fuente). Comprueba que ninguna valla atraviesa edificios, que la línea de fachadas pasa por fachadas reales, el ancho libre y el desnivel, y lista lo que hay hoy en el recinto. Con `--assets` usa otra carpeta de datos (la del juego publicado) y, si no están las teselas de la ortofoto, las saca de `cabanillas.glb`.
-- Medidas: plaza 725 m² entre fachadas, ruedo 518 m² (53 m de largo; 6,7 m de ancho en la puerta y 13,0 m junto al Ayuntamiento). Calle: 143 m de eje, de 7,0 m entre fachadas en lo más estrecho (x ≈ 121) a 16 m en la plazuela; 4,3 m libres entre vallas en lo más estrecho. Casi llano: 0,7 % en la plaza y 1,1 % en la calle. Vallas: 414 m de tablones, 8 m de tablado y 7 m de puerta.
-- En el recinto hoy: 0 coches aparcados, 9 farolas (1 del LiDAR y 8 estimadas), 3 árboles del LiDAR en San Roque y ningún banco ni señal de OSM. La F1 decide qué se quita.
+- Medidas: plaza 767 m² entre fachadas, ruedo 548 m² (57 m de largo; 6,4 m de ancho en la puerta y 13,0 m junto al Ayuntamiento). Calle: 139 m de eje desde la puerta, 7,0 m entre fachadas en lo más estrecho (x ≈ 121) y 5,3 m libres como mínimo. Casi llano: 0,7 % en la plaza y 1,1 % en la calle.
+- En el recinto hoy: 0 coches aparcados, 9 farolas (1 del LiDAR y 8 estimadas), 3 árboles del LiDAR en San Roque (el de x ≈ 131 se ve en la foto 2) y ningún banco ni señal de OSM. La F1 decide qué se quita.
 
-### Propuesto sin datos (lo decide Rubén; dudas D1–D11 en `fiestas.js` y en la imagen)
-- Tablado delante de la fachada oeste del Ayuntamiento, 3 m de fondo (D1). Camión en el callejón norte (A) o sur (B) del Ayuntamiento (D2). Callejones cerrados en su boca (D3).
-- Separación de 1,5 m en todo el recinto (D4), todo de tablones (D5), ningún burladero (D6).
-- Final del recorrido en la esquina de la Sala de Cultura, sin bajar por el ramal (D7). Bocacalles con valla seguida (D8). La plazuela y el retranqueo de San Roque quedan para el público (D9). Puerta al este de la boca de la Fragua (D10). Salida del encierro (D11).
+### Lo que fijan las respuestas y las fotos de Rubén (2026-11-15; fotos descritas en `docs/fiestas/README.md`)
+- Separación valla–fachada: 1,5 m (marcado en la foto 2). Tablado: 3 m de fondo.
+- No hay camión. Las vacas salen de un **corral** en el lado sur de la plaza, por una manga de tablas que cruza la acera, también en el encierro. En el callejón sur del Ayuntamiento, detrás de la valla, va la **ambulancia**.
+- La **puerta** está al oeste de la boca de la Fragua (de la esquina del nº 54 de San Roque al nº 29): la Fragua queda del lado de la plaza, con unas **gradas** en su boca. La hoja ocupa solo una parte del cierre.
+- Tipos de valla vistos: tablones en toda la plaza y frente a la parte este del nº 29; barandilla roja de tubo frente al resto del nº 29, que acaba en un cierre de barrotes contra la tapia; sin valla en las tapias de bloque del lado norte y en la casa siguiente (Catastro 365), que lleva una valla gris en la puerta; panel rojo macizo en el lado sur, del Catastro 166 al nº 54.
+- Un burladero en el lado sur de la plaza.
+- 16 de los 28 tramos (220 de 428 m) se ven en las fotos. El resto sigue de tablones como propuesta (con «?» en el plano).
+
+### Puesto a ojo o sin confirmar (dudas abiertas en `fiestas.js` y en la imagen)
+- D1 ancho del tablado: el mensaje llegó cortado; puesto de la esquina suroeste del Ayuntamiento a las casas del norte, tapando el callejón norte, por la foto 4.
+- D12 casa del corral: puesto en el portón del nº 8. D6 sitio del burladero y los demás. D10 ancho y lado de la hoja de la puerta. D13 fondo de las gradas de la Fragua.
+- D5 tipo de valla de los tramos 13–24. D7 final del recorrido. D8 bocacalles de la Vicera y del ramal. D9 plazuela y retranqueo. D11 por dónde acaba el encierro.
+- Resueltas: D2 (ambulancia, no camión), D3 (callejones cerrados en su boca) y D4 (1,5 m).
 
 ### Pendiente
-- Rubén: revisar la imagen, responder las dudas y copiar en `docs/fiestas/` los dos croquis y las seis fotos de las vallas (no estaban al hacer la F0, que se hizo en una sesión en la nube sin `public/assets/` ni `data/raw/`: los datos se leyeron del juego publicado en `juegos/cabanillas-drive/assets`).
-- Claude: corregir `fiestas.js` con sus respuestas, volver a generar la imagen y poner `estado: 'aprobado'`. Después, F1.
+- Rubén: revisar la imagen, responder las dudas y, si puede, pasar los dos croquis.
+- Claude: corregir `fiestas.js`, volver a generar la imagen y poner `estado: 'aprobado'`. Después, F1.
 
 ### Decisiones
 - El recinto vive solo en `src/datos/fiestas.js`; la herramienta de Python lo evalúa con node para no duplicarlo.
-- Las vallas no se guardan punto a punto: se calculan de la línea de fachadas y la separación. Cambiar la separación o el tipo de un tramo es cambiar un número o una palabra.
+- Las vallas no se guardan punto a punto: se calculan de la línea de fachadas y la separación. Cambiar la separación o el tipo de un tramo es cambiar un número o una palabra. Donde dos tramos seguidos tienen distinta separación sale un escalón con su cierre de barrotes.
 - En la foto aérea los tejados salen desplazados 1–2 m (no es ortofoto verdadera): para las vallas manda la línea de fachadas del Catastro, que es la del juego.
+- Las fotos de Rubén no se suben al repositorio (es público; salen vecinos reconocibles y son de la retransmisión): queda su descripción en `docs/fiestas/README.md`.
+- La foto que Rubén rotula «nº 22» se ha situado en el nº 25 de San Roque (Catastro 365): tapia de bloque a continuación, árbol del LiDAR en la acera y el cierre de barrotes del nº 29 al fondo. El nº 22 de OSM está 60 m al oeste de la Sala de Cultura, fuera del recinto.
+- La F0 se hizo en sesiones en la nube sin `public/assets/` ni `data/raw/`: los datos se leyeron del juego publicado (`juegos/cabanillas-drive/assets`).
 
 ## Pendiente de Rubén (lo hará más adelante; no recordárselo en cada informe)
 - R4: capturas de Scaniverse de 3–5 edificios en `data/raw/splats/<nombre>/` (instrucciones en `PLAN_REALISMO.md`).

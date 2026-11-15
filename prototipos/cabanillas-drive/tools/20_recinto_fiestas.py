@@ -1,7 +1,7 @@
 """Fiestas F0 — vista cenital del recinto del modo fiestas sobre la ortofoto.
 
 Dibuja lo que hay en src/datos/fiestas.js (línea de fachadas, vallas por tipo y numeradas,
-puerta, tablado, candidatos para el camión, zonas de público y dudas) para que Rubén lo revise
+puerta, tablado, gradas, corral, ambulancia, burladeros, zonas de público y dudas) para que Rubén lo revise
 y lo corrija antes de modelar nada (PLAN_FIESTAS.md, fase F0). Además comprueba la geometría y
 lista lo que hay hoy dentro del recinto (coches aparcados, farolas, bancos, árboles…), que la
 F1 tendrá que quitar o respetar.
@@ -54,19 +54,26 @@ ANCHO_IMAGEN = 1800
 COLOR_TIPO = {
     "tablones": (255, 150, 30),
     "panel": (235, 40, 40),
+    "tubo": (175, 120, 255),
     "puerta": (70, 230, 110),
     "tablado": (215, 30, 140),
+    "ninguna": (175, 175, 175),
 }
 NOMBRE_TIPO = {
     "tablones": "valla de tablones",
     "panel": "panel rojo macizo",
-    "puerta": "puerta practicable (plaza / calle)",
+    "tubo": "barandilla roja de tubo",
+    "puerta": "puerta (plaza / calle)",
     "tablado": "frente del tablado",
+    "ninguna": "sin valla (tapia o fachada)",
 }
 ARENA = (236, 205, 120)
 PUBLICO = (255, 235, 60)
 RECORRIDO = (120, 175, 255)
-CAMION = (60, 150, 255)
+AMBULANCIA = (60, 150, 255)
+CORRAL = (150, 95, 45)
+GRADAS = (200, 30, 30)
+GRIS = (215, 215, 215)
 DUDA = (255, 225, 40)
 
 FUENTES_TTF = ["DejaVuSans.ttf", "arial.ttf", "segoeui.ttf", "LiberationSans-Regular.ttf"]
@@ -206,14 +213,13 @@ class Panel(Lienzo):
         self.dib.text((px, py), texto, font=f, fill=(255, 255, 255), anchor="mm")
 
 
-def rect_camion(recinto: dict, cand: dict) -> list[tuple[float, float]]:
-    """Rectángulo del camión candidato: apoyado en el centro del tramo y hacia `direccion`."""
-    t = next(t for t in recinto["tramos"] if t["id"] == cand["tramo"])
-    cx, cz = (t["a"][0] + t["b"][0]) / 2, (t["a"][1] + t["b"][1]) / 2
-    dx, dz = cand["direccion"]
+def rect_ambulancia(amb: dict) -> list[tuple[float, float]]:
+    """Rectángulo de la ambulancia: apoyada en `en` y alargada hacia `direccion`."""
+    cx, cz = amb["en"]
+    dx, dz = amb["direccion"]
     n = math.hypot(dx, dz)
     dx, dz = dx / n, dz / n
-    largo, medio = recinto["camion"]["largo"], recinto["camion"]["ancho"] / 2
+    largo, medio = amb["largo"], amb["ancho"] / 2
     return [(cx - dz * medio, cz + dx * medio), (cx + dx * largo - dz * medio, cz + dz * largo + dx * medio),
             (cx + dx * largo + dz * medio, cz + dz * largo - dx * medio), (cx + dz * medio, cz - dx * medio)]
 
@@ -236,8 +242,8 @@ def dibuja_panel(panel: Panel, recinto: dict, capas: dict, titulo: str, general:
     panel.dib.polygon(panel.px(recinto["plaza"]["ruedo"]), fill=ARENA + (105,))
     panel.dib.polygon(panel.px(recinto["calle"]["recorrido"]), fill=RECORRIDO + (70,))
     panel.geometria(capas["publico"], relleno=PUBLICO + (85,))
-    tablado = recinto["tablado"]
-    panel.dib.polygon(panel.px(tablado["esquinas"]), fill=(200, 30, 30, 170), outline=(255, 255, 255, 255))
+    for gradas in [recinto["tablado"]] + recinto["gradas"]:
+        panel.dib.polygon(panel.px(gradas["esquinas"]), fill=GRADAS + (170,), outline=(255, 255, 255, 255))
     # Línea de fachadas de la que cuelgan las vallas
     for zona in ("plaza", "calle"):
         borde = recinto[zona]["borde"]
@@ -250,25 +256,51 @@ def dibuja_panel(panel: Panel, recinto: dict, capas: dict, titulo: str, general:
             caja = [(c["x"] + sn * dl + cs * da, c["z"] + cs * dl - sn * da) for dl, da in ((l, a), (l, -a), (-l, -a), (-l, a))]
             panel.dib.polygon(panel.px(caja), outline=(120, 255, 255, 255), width=2)
 
-    # Camión: candidatos, en discontinua
-    for cand in recinto["corralCandidatos"]:
-        caja = rect_camion(recinto, cand)
-        panel.dib.polygon(panel.px(caja), fill=CAMION + (70,))
-        for i in range(4):
-            panel.discontinua(caja[i], caja[(i + 1) % 4], CAMION + (255,), 3)
-        cx, cz = sum(p[0] for p in caja) / 4, sum(p[1] for p in caja) / 4
-        if panel.dentro(cx, cz) and not general:
-            panel.etiqueta(cx, cz, txt(f"Camión {cand['id']}?"), f_num, (255, 255, 255, 235), borde=CAMION)
+    # Ambulancia, corral (manga y salida), vallas grises de las puertas y burladeros
+    caja = rect_ambulancia(recinto["ambulancia"])
+    panel.dib.polygon(panel.px(caja), fill=AMBULANCIA + (110,), outline=AMBULANCIA + (255,), width=2)
+    cx, cz = (caja[1][0] + caja[2][0]) / 2 + 2.2, (caja[1][1] + caja[2][1]) / 2 + 1.4     # pasado el morro
+    if panel.dentro(cx, cz) and not general:
+        panel.etiqueta(cx, cz, "Ambulancia", f_num, (255, 255, 255, 235), borde=AMBULANCIA)
+    corral = recinto["corral"]
+    panel.dib.polygon(panel.px(corral["manga"]), fill=CORRAL + (220,), outline=(255, 255, 255, 255))
+    for refugio in recinto["refugios"]:
+        panel.dib.polygon(panel.px(refugio["esquinas"]), outline=GRIS + (255,), width=max(2, round(s * 0.15)))
+    for cierre in recinto["cierres"]:
+        panel.dib.line(panel.px([cierre["a"], cierre["b"]]), fill=(235, 40, 40, 255), width=max(3, round(s * 0.3)))
 
     # Vallas por tipo. Las que cruzan una calle (bocacalle, cierre) llevan rayas blancas encima
     grosor = max(4, round(s * 0.4))
     for t in recinto["tramos"]:
         color = COLOR_TIPO.get(t["tipo"], (255, 255, 255))
+        if t["tipo"] == "ninguna":
+            panel.discontinua(t["a"], t["b"], color + (255,), max(3, grosor // 2), trazo=grosor * 1.5, hueco=grosor)
+            continue
         panel.dib.line(panel.px([t["a"], t["b"]]), fill=(0, 0, 0, 255), width=grosor + 4)
         panel.dib.line(panel.px([t["a"], t["b"]]), fill=color + (255,), width=grosor)
         if t["clase"] in ("bocacalle", "cierre"):
             panel.discontinua(t["a"], t["b"], (255, 255, 255, 255), max(2, grosor // 2), trazo=grosor, hueco=grosor)
-    # Números: al lado de fuera del recorrido (hacia la fachada), para no tapar la valla
+    # Corral: flecha de salida hacia el ruedo; burladeros
+    if panel.dentro(*corral["salida"]):
+        (ax, ay), (bx, by) = panel.p(*corral["manga"][0]), panel.p(*corral["manga"][3])
+        sx, sy = panel.p(*corral["salida"])
+        l = math.hypot(bx - ax, by - ay) or 1.0
+        ux, uy = (bx - ax) / l, (by - ay) / l
+        punta = (sx + ux * 2.2 * s, sy + uy * 2.2 * s)
+        panel.dib.line([(sx, sy), punta], fill=(255, 255, 255, 255), width=max(3, round(s * 0.2)))
+        panel.dib.polygon([punta, (punta[0] - ux * 0.8 * s - uy * 0.5 * s, punta[1] - uy * 0.8 * s + ux * 0.5 * s),
+                           (punta[0] - ux * 0.8 * s + uy * 0.5 * s, punta[1] - uy * 0.8 * s - ux * 0.5 * s)], fill=(255, 255, 255, 255))
+        if not general:
+            mx, mz = corral["manga"][0][0] * 2 - corral["salida"][0] + 1.6, corral["manga"][0][1] * 2 - corral["salida"][1] + 1.2
+            panel.etiqueta(mx, mz, "Corral?", f_num, (255, 255, 255, 235), borde=CORRAL)
+    for b in recinto["burladeros"]:
+        if panel.dentro(*b["en"]):
+            px, py = panel.p(*b["en"])
+            r = max(4, s * 0.45)
+            panel.dib.rectangle([px - r, py - r * 0.45, px + r, py + r * 0.45], fill=(235, 40, 40, 255), outline=(255, 255, 255, 255))
+
+    # Números: al lado de fuera del recorrido (hacia la fachada), para no tapar la valla.
+    # Con «?», los tramos que no se ven en ninguna foto (siguen siendo propuesta)
     for t in recinto["tramos"]:
         mx, mz = (t["a"][0] + t["b"][0]) / 2, (t["a"][1] + t["b"][1]) / 2
         fx, fz = (t["fachada"][0][0] + t["fachada"][1][0]) / 2, (t["fachada"][0][1] + t["fachada"][1][1]) / 2
@@ -276,8 +308,14 @@ def dibuja_panel(panel: Panel, recinto: dict, capas: dict, titulo: str, general:
         fuera = (f_num.size * 0.95) / s + 0.25
         if d > 0.05:
             mx, mz = mx + (fx - mx) / d * fuera, mz + (fz - mz) / d * fuera
+        elif t["clase"] == "fachada":
+            # Sin valla (va sobre la tapia): el número, hacia el eje de la calle
+            eje = LineString(recinto[t["zona"]]["eje"])
+            q = eje.interpolate(eje.project(Point(mx, mz)))
+            d = math.hypot(q.x - mx, q.y - mz) or 1.0
+            mx, mz = mx + (q.x - mx) / d * fuera, mz + (q.y - mz) / d * fuera
         if panel.dentro(mx, mz):
-            panel.etiqueta(mx, mz, str(t["id"]), f_num, (255, 255, 255, 240), redonda=True,
+            panel.etiqueta(mx, mz, str(t["id"]) + ("" if t.get("visto") else "?"), f_num, (255, 255, 255, 240), redonda=True,
                            borde=COLOR_TIPO.get(t["tipo"], (0, 0, 0)))
 
     # Nombres de calles (OSM) y lugares
@@ -332,11 +370,13 @@ def bloque_leyenda(recinto: dict, ancho: int) -> Image.Image:
         ("arena (ruedo de la plaza)", ARENA, "relleno"),
         ("recorrido de la calle (asfalto)", RECORRIDO, "relleno"),
         ("acera del público, detrás de la valla", PUBLICO, "relleno"),
-        ("tablado (propuesta)", (200, 30, 30), "relleno"),
-        ("camión: candidatos A / B", CAMION, "relleno"),
-        ("coche aparcado hoy (se quita)", (120, 255, 255), "borde"),
+        ("tablado y gradas", GRADAS, "relleno"),
+        ("ambulancia", AMBULANCIA, "relleno"),
+        ("corral: manga y flecha de salida", CORRAL, "relleno"),
+        ("burladero / cierre de barrotes", (235, 40, 40), "relleno"),
+        ("valla gris en una puerta", GRIS, "borde"),
         ("línea de fachadas (gruesa) y Catastro (fina)", (255, 255, 255), "borde"),
-        ("duda (D1...); en círculo, el número de tramo", DUDA, "relleno"),
+        ("duda (D1...); en círculo, nº de tramo (con ?: no visto en fotos)", DUDA, "relleno"),
     ]
     columnas = 3
     filas = math.ceil(len(entradas) / columnas)
@@ -344,7 +384,7 @@ def bloque_leyenda(recinto: dict, ancho: int) -> Image.Image:
     img = Image.new("RGB", (ancho, alto), (20, 28, 38))
     d = ImageDraw.Draw(img)
     estado = recinto["estado"].upper()
-    d.text((16, 12), txt(f"Cabanillas Drive - modo fiestas - F0: recinto sobre plano ({estado}, pendiente de la revisión de Rubén)"),
+    d.text((16, 12), txt(f"Cabanillas Drive - modo fiestas - F0: recinto sobre plano ({estado}, segunda vuelta con las fotos de Rubén)"),
            font=f_tit, fill=(255, 255, 255))
     for i, (nombre, color, clase) in enumerate(entradas):
         x, y = 16 + (i // filas) * (ancho // columnas), 58 + (i % filas) * 26
@@ -403,18 +443,18 @@ def informe(recinto: dict, capas: dict, assets: Path) -> list[str]:
         if not pol.is_valid:
             avisos.append(f"el polígono del {nombre} se cruza consigo mismo")
 
-    print("\n  nº zona  clase      lado   tipo      largo   a → b                              nota")
+    print("\n  nº zona  clase      lado   tipo      largo   a → b                              visto        nota")
     por_tipo: dict[str, float] = {}
     for t in tramos:
         por_tipo[t["tipo"]] = por_tipo.get(t["tipo"], 0) + t["largo"]
         seg = LineString([t["a"], t["b"]])
         nota = t["nombre"] or ""
-        if seg.intersects(obst):
+        if t["tipo"] not in ("ninguna", "puerta") and seg.intersects(obst):
             corte = seg.intersection(obst).length
             if corte > 0.3:
                 avisos.append(f"tramo {t['id']}: la valla atraviesa {corte:.1f} m de edificio o tapia")
         print(f"  {t['id']:2d} {t['zona']:5s} {t['clase']:10s} {t['lado']:6s} {t['tipo']:9s} {t['largo']:5.1f}   "
-              f"({t['a'][0]:6.1f},{t['a'][1]:6.1f}) → ({t['b'][0]:6.1f},{t['b'][1]:6.1f})   {nota}")
+              f"({t['a'][0]:6.1f},{t['a'][1]:6.1f}) → ({t['b'][0]:6.1f},{t['b'][1]:6.1f})   {t.get('visto') or 'propuesta':12s} {nota}")
     print("  Total por tipo: " + ", ".join(f"{k} {v:.0f} m" for k, v in por_tipo.items()))
 
     # La línea de fachadas tiene que pasar por una fachada o una tapia de verdad
@@ -437,13 +477,17 @@ def informe(recinto: dict, capas: dict, assets: Path) -> list[str]:
                 if d < minimo[0]:
                     minimo = (d, p)
     print(f"\n  Ancho libre mínimo de la calle entre vallas: {minimo[0]:.1f} m en ({minimo[1].x:.0f}, {minimo[1].y:.0f})")
-    norte_p = next(t for t in tramos if t["zona"] == "plaza" and t["lado"] == "norte")
-    sur_p = next(t for t in tramos if t["zona"] == "plaza" and t["lado"] == "sur")
-    ancho_o = Point(norte_p["a"]).distance(LineString([sur_p["a"], sur_p["b"]]))
-    ancho_e = Point(norte_p["b"]).distance(LineString([sur_p["a"], sur_p["b"]]))
-    print(f"  Ruedo de la plaza: {norte_p['largo']:.0f} m de largo, {ancho_o:.1f} m de ancho junto a la puerta y "
-          f"{ancho_e:.1f} m junto al Ayuntamiento")
-    print(f"  Puerta: {recinto['puerta']['largo']:.1f} m entre vallas")
+    norte_p = [t for t in tramos if t["zona"] == "plaza" and t["lado"] == "norte"]
+    sur_p = unary_union([LineString([t["a"], t["b"]]) for t in tramos if t["zona"] == "plaza" and t["lado"] == "sur"])
+    ancho_o = Point(norte_p[0]["a"]).distance(sur_p)
+    ancho_e = Point(norte_p[-1]["b"]).distance(sur_p)
+    print(f"  Ruedo de la plaza: {sum(t['largo'] for t in norte_p):.0f} m de largo, {ancho_o:.1f} m de ancho junto a la "
+          f"puerta y {ancho_e:.1f} m junto al Ayuntamiento")
+    print(f"  Puerta: {recinto['puerta']['largo']:.1f} m entre vallas; hoja de {recinto['puerta']['hoja']['ancho']:.1f} m "
+          f"en la mitad {recinto['puerta']['hoja']['lado']} (a ojo)")
+    vistos = sum(t["largo"] for t in tramos if t.get("visto"))
+    print(f"  Tramos vistos en las fotos: {sum(1 for t in tramos if t.get('visto'))} de {len(tramos)} "
+          f"({vistos:.0f} de {sum(t['largo'] for t in tramos):.0f} m)")
 
     # Desnivel a lo largo de los ejes
     ruta_f32 = assets / "terrain" / "terrain.f32"
@@ -489,10 +533,13 @@ def informe(recinto: dict, capas: dict, assets: Path) -> list[str]:
     print(f"\n  Dudas abiertas: {len(recinto['dudas'])}")
     for d in recinto["dudas"]:
         print(f"    {d['id']}: {d['texto']}")
-    if recinto["corral"] is None:
-        print("  Camión/corral: sin decidir (candidatos " + ", ".join(c["id"] for c in recinto["corralCandidatos"]) + ")")
-    if not recinto["burladeros"]:
-        print("  Burladeros: ninguno puesto")
+    a_ojo = [n for n, v in (("corral", recinto["corral"]), ("hoja de la puerta", recinto["puerta"]["hoja"])) if v.get("aprox")]
+    a_ojo += [f"burladero {i + 1}" for i, b in enumerate(recinto["burladeros"]) if b.get("aprox")]
+    a_ojo += [g["nombre"] for g in recinto["gradas"] if g.get("aprox")]
+    a_ojo += ["valla gris de una puerta" for r in recinto["refugios"] if r.get("aprox")]
+    print("  Puesto a ojo (por confirmar): " + (", ".join(a_ojo) or "nada"))
+    print(f"  Cierres de barrotes: {len(recinto['cierres'])}; burladeros: {len(recinto['burladeros'])}; "
+          f"vallas grises: {len(recinto['refugios'])}")
     return avisos
 
 
@@ -534,7 +581,8 @@ def main() -> int:
         "obstaculos": unary_union(edificios + [m.buffer(0.1) for m in muros]),
         # Público: lo que queda entre la línea de fachadas y las vallas (menos el tablado)
         "publico": borde_total.difference(unary_union([Polygon(recinto["plaza"]["ruedo"]), Polygon(recinto["calle"]["recorrido"]),
-                                                        Polygon(recinto["tablado"]["esquinas"])]).buffer(0.01)),
+                                                        Polygon(recinto["tablado"]["esquinas"]),
+                                                        Polygon(recinto["corral"]["manga"])]).buffer(0.01)),
         "calles": [(f["properties"]["nombre"], shape(f["geometry"])) for f in lee_json(assets / "osm" / "calles.geojson")["features"]
                    if f["properties"].get("nombre") and f["geometry"]["type"] == "LineString"],
         "lugares": lugares,
