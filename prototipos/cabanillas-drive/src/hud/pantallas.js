@@ -160,8 +160,24 @@ export function creaPantallas({ alCambiar }) {
     });
   }
 
+  // «Fiestas»: entrar a un modo o volver al pueblo; al elegir se cierra la pausa. «enFiestas»
+  // dice si se está dentro, para ofrecer «Volver al pueblo»
+  function ponFiestas(alElegir, enFiestas) {
+    const sel = $('fiestas');
+    const salir = sel.querySelector('[value="salir"]');
+    new MutationObserver(() => { salir.hidden = !enFiestas(); sel.value = ''; })
+      .observe(pausa, { attributes: true, attributeFilter: ['hidden'] });
+    sel.addEventListener('change', () => {
+      if (!sel.value) return;
+      alElegir(sel.value);
+      sel.value = '';
+      cambia('jugando');
+    });
+  }
+
   return {
     ponLugares,
+    ponFiestas,
     ponHoras,
     get estado() { return estado; },
     textoCarga: etapaCarga,

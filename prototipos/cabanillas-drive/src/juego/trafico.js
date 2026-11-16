@@ -241,6 +241,15 @@ export function creaTrafico({ escena, fisica, modelos, grafo, terreno, excluirMo
     raiz,
     agentes,
     actualiza,
+    // Modo fiestas: fuera todos los coches (vuelven a aparecer solos al seguir actualizando)
+    retira() {
+      for (const a of agentes) {
+        a.listo = false;
+        a.grupo.visible = false;
+        a.cuerpo.setTranslation({ x: 0, y: -100, z: 0 }, true);
+        a.cuerpo.setNextKinematicTranslation({ x: 0, y: -100, z: 0 });
+      }
+    },
     // Para el minimapa
     posiciones() { return agentes.filter((a) => a.listo).map((a) => ({ x: a.pos.x, z: a.pos.z })); },
   };

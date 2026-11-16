@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { CALIDAD } from '../config/calidad.js';
 import { ESCENA } from '../config/escena.js';
 import { VEHICULO } from '../config/vehiculo.js';
+import { CAMARA } from '../config/camara.js';
 import { creaCamaraCoche } from '../camara/camaraCoche.js';
 import { creaEntrada } from '../controles/entrada.js';
 import { nodoMasCercano, nodosDeCalles } from '../datos/calles.js';
@@ -33,6 +34,7 @@ import { creaCoche } from '../vehiculo/coche.js';
 import { cargaGeoJSON } from '../visor/lineas.js';
 
 const MAX_PASOS_POR_FOTOGRAMA = 4;
+const CAMARA_FOV_COCHE = CAMARA.persecucion.fov;
 const DISTANCIAS_COCHES = {
   detalle: CALIDAD.distanciaCochesDetalle, lejos: CALIDAD.distanciaCochesLejos, max: CALIDAD.distanciaCochesMax,
 };
@@ -106,6 +108,10 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   });
   const botonBajar = document.querySelector('[data-pulsar="bajar"]');
   let aPie = false;
+  // Modo fiestas (PLAN_FIESTAS.md): su código se descarga la primera vez que se entra
+  let fiestas = null;
+  let cambiandoFiestas = false;
+  const enFiestas = () => Boolean(fiestas?.activo);
   let avisoHasta = 0;
   let aviso = '';
   const PARADO = { acelerador: 0, freno: 0, direccion: 0, frenoMano: true, analogica: false };
@@ -138,7 +144,57 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     avisa('No hay sitio para bajarse aquí');
   }
 
+  // Entrar al modo fiestas: sin tráfico ni peatones, el festejo montado y el jugador a pie dentro
+  async function entraFiestas(modo) {
+    if (cambiandoFiestas) return false;
+    cambiandoFiestas = true;
+    try {
+      if (!fiestas) {
+        const { creaModoFiestas } = await import('../fiestas/modoFiestas.js');
+        fiestas = creaModoFiestas({ escena, terreno: mundo.terreno, fisica, personas, ciclo });
+      }
+      const { NOMBRES_MODO } = await import('../fiestas/modoFiestas.js');
+      const entro = await fiestas.entra(modo, (salida) => {
+        trafico.retira();
+        trafico.raiz.visible = false;
+        peatones.raiz.visible = false;
+        obstaculosPeatones = [];
+        peaton.activa(salida.x, salida.z, salida.guinada);
+        colisiones.fuerza({ x: salida.x, z: salida.z });
+        aPie = true;
+        botonBajar.hidden = true;
+        camara.fov = PEATON.fov;
+        camara.updateProjectionMatrix();
+      });
+      if (entro) avisa(`Fiestas · ${NOMBRES_MODO[modo]} · en la pausa, «Volver al pueblo»`, 5);
+      return entro;
+    } finally {
+      cambiandoFiestas = false;
+    }
+  }
+
+  async function saleFiestas() {
+    if (!enFiestas() || cambiandoFiestas) return false;
+    cambiandoFiestas = true;
+    try {
+      return await fiestas.sale(() => {
+        subirseYa();
+        document.exitPointerLock?.();
+        trafico.raiz.visible = true;
+        peatones.raiz.visible = true;
+        botonBajar.hidden = false;
+        camara.fov = CAMARA_FOV_COCHE;
+        camara.updateProjectionMatrix();
+        const c = coche.cuerpo.translation();
+        colisiones.fuerza({ x: c.x, z: c.z });
+      });
+    } finally {
+      cambiandoFiestas = false;
+    }
+  }
+
   function subirse() {
+    if (enFiestas()) return;
     const p = peaton.estado().posicion;
     const c = coche.cuerpo.translation();
     if (Math.hypot(p.x - c.x, p.z - c.z) > PEATON.distanciaSubirM + 1.2) { avisa('Acércate al coche para subir'); return; }
@@ -153,6 +209,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   function irA(nombre) {
     const lugar = carteles.lugares.find((l) => l.nombre === nombre);
     if (!lugar) return;
+    if (enFiestas()) return;
     if (aPie) subirseYa();
     const n = nodoMasCercano(nodos, lugar.x, lugar.z, { excluirServicio: true });
     const haciaX = lugar.x - n.x;
@@ -209,9 +266,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   // Cámara de presentación: vuelta lenta alrededor del coche, algo elevada
   function orbita(dt) {
     anguloOrbita += dt * 0.12;
-    const e = coche.estado();
+    const e = aPie ? peaton.estado() : coche.estado();
     centroOrbita.copy(e.posicion);
-    const r = 16;
+    const r = aPie ? 9 : 16;
     camara.position.set(centroOrbita.x + Math.sin(anguloOrbita) * r, centroOrbita.y + 6, centroOrbita.z + Math.cos(anguloOrbita) * r);
     camara.lookAt(centroOrbita.x, centroOrbita.y + 1.2, centroOrbita.z);
   }
@@ -235,7 +292,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     }
     const mandos = entrada.actualiza();
     const mirada = entrada.consumeMirada();
-    if (entrada.consume('bajar')) {
+    if (entrada.consume('bajar') && !enFiestas()) {
       if (aPie) subirse(); else bajarse();
     }
     if (entrada.consume('reiniciar') && !aPie) recolocaCerca();
@@ -253,7 +310,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     const otros = [{ x: posCoche.x, z: posCoche.z, radio: 2.5 }];
     if (aPie) otros.push({ x: centro.x, z: centro.z, radio: 0.6 });
     otros.push(...obstaculosPeatones);
-    trafico.actualiza(dt, { jugador: centro, camara, otros });
+    const fiesta = enFiestas();
+    if (!fiesta) trafico.actualiza(dt, { jugador: centro, camara, otros });
     acumulado += Math.min(dt, PASO_FISICA * MAX_PASOS_POR_FOTOGRAMA);
     while (acumulado >= PASO_FISICA) {
       coche.aplicaEntrada(aPie ? PARADO : mandos, PASO_FISICA);
@@ -266,13 +324,14 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
 
     const e = coche.estado();
     const fCoche = e.adelante.clone().setY(0).normalize();
-    peatones.actualiza(dt, {
+    if (fiesta) fiestas.actualiza(dt, camara);
+    else peatones.actualiza(dt, {
       jugador: centro, camara, oscuridad: ciclo ? ciclo.estado.oscuridad : 0,
       coche: { x: e.posicion.x, z: e.posicion.z, fx: fCoche.x, fz: fCoche.z, velocidad: e.velocidadKmh / 3.6,
         largo: infoCoche.largo, ancho: infoCoche.ancho },
       aPie: aPie ? { x: centro.x, z: centro.z } : null,
     });
-    obstaculosPeatones = peatones.obstaculos();
+    if (!fiesta) obstaculosPeatones = peatones.obstaculos();
     const suelo = mundo.terreno.alturaEn(e.posicion.x, e.posicion.z);
     if (!aPie && e.posicion.y < suelo - VEHICULO.reinicio.caidaMaxima) recolocaCerca();
     tiempoVolcado = !aPie && e.volcado ? tiempoVolcado + dt : 0;
@@ -310,7 +369,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
           + `calidad ${CALIDAD.nivel} · resolución ${Math.round((ui.proporcionPixeles?.() ?? 1) * 100)} %`;
       }
     }
-    hud.actualiza(aPie ? peaton.estado() : e, dt, trafico.posiciones());
+    hud.actualiza(aPie ? peaton.estado() : e, dt, fiesta ? [] : trafico.posiciones());
     luces.actualiza(ciclo ? ciclo.estado.oscuridad : 0);
     farolas.actualiza(ciclo ? ciclo.estado.oscuridad : 0, camara, dt);
     let texto = textoDepuracion;
@@ -320,7 +379,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   }
 
   const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico, peaton,
-    get aPie() { return aPie; }, bajarse, subirse, irA, avisa, carteles, luces, ciclo, peatones, muros, elementos, farolas,
+    get aPie() { return aPie; }, bajarse, subirse, irA, avisa, entraFiestas, saleFiestas,
+    get fiestas() { return fiestas; },
+    get modoFiestas() { return enFiestas() ? fiestas.modo : null; }, carteles, luces, ciclo, peatones, muros, elementos, farolas,
     lugares: carteles.lugares.map(({ nombre, icono }) => ({ nombre, icono })),
     get fps() { return fps; },
     get pausado() { return pausado; },

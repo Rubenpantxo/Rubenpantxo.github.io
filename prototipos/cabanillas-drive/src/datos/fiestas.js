@@ -1,9 +1,9 @@
 // Recinto del modo fiestas (PLAN_FIESTAS.md, fase F0): dónde va cada cosa del festejo en la
 // Plaza del Ayuntamiento y la Calle San Roque. Coordenadas locales (x este, z sur, m).
 //
-// ESTADO: PROPUESTA sin aprobar (tercera vuelta). Rubén la revisa sobre la vista cenital que
-// dibuja tools/20_recinto_fiestas.py (data/processed/previews/recinto_fiestas.png) y no se
-// modela nada hasta que la apruebe.
+// ESTADO: APROBADO por Rubén (F0 cerrada el 2026-11-17). Lo que quedó a ojo o como propuesta
+// (DUDAS) se puede corregir aquí sin tocar el código: lo dibuja tools/20_recinto_fiestas.py
+// (data/processed/previews/recinto_fiestas.png) y lo monta src/fiestas/.
 //
 // De dónde sale cada dato (nada es inventado; lo que no se sabe va en DUDAS):
 // - Líneas de fachada: las filas de casas hechas a mano (casasPlaza.js: plaza_impares,
@@ -249,7 +249,7 @@ const U_CORRAL = [17.0, 19.6];
 const centroPuerta = medio(T_PUERTA);
 
 export const RECINTO_FIESTAS = {
-  estado: 'propuesta',            // pasa a 'aprobado' cuando Rubén dé el visto bueno a la F0
+  estado: 'aprobado',             // Rubén dio el visto bueno a la F0 el 2026-11-17
   separacionValla: SEPARACION_VALLA,
 
   plaza: {
