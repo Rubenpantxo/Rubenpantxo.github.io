@@ -6,6 +6,7 @@ import { CALIDAD } from '../config/calidad.js';
 import { creaEdificios } from './edificios.js';
 import { aplicaDetalleSuelo, cargaDetalleSuelo } from './suelo.js';
 import { EDIFICIOS_SUSTITUIDOS } from '../datos/singulares.js';
+import { corrigeTerreno } from '../datos/correccionesTerreno.js';
 
 // Tejados del LiDAR (tools/09_tejados.py): índice JSON + binario con vértices e índices
 async function cargaTejados(ruta) {
@@ -43,6 +44,9 @@ export async function cargaMundo(renderer, ajustes, { alProgresar } = {}) {
     cargaTejados(ajustes.rutaTejados),
     CALIDAD.detalleSuelo ? cargaDetalleSuelo(ajustes.rutaSuelo, renderer) : null,
   ]);
+  // Bultos del MDT que no existen: se aplanan antes de que nada se apoye en el terreno
+  modelo.raiz.updateMatrixWorld(true);
+  corrigeTerreno(terreno, modelo.terreno);
   aplicaDetalleSuelo(modelo.terreno, detalleSuelo);
   // Fuera los edificios del Catastro que sustituye un modelo singular o que no existen
   geoEdificios.features = geoEdificios.features.filter((f) => !EDIFICIOS_SUSTITUIDOS.has(f.properties.id));

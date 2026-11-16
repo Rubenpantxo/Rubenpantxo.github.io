@@ -29,12 +29,23 @@ function enEje(eje, metros) {
   return null;
 }
 
-export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo }) {
+// ¿Está (x, z) dentro del polígono?
+function dentroDe(poligono, x, z) {
+  let dentro = false;
+  for (let i = 0, j = poligono.length - 1; i < poligono.length; j = i++) {
+    const [xi, zi] = poligono[i]; const [xj, zj] = poligono[j];
+    if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) dentro = !dentro;
+  }
+  return dentro;
+}
+
+export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, farolas }) {
   const recinto = RECINTO_FIESTAS;
   let vallado = null;
   let ambiente = null;
   let modo = null;
   let horaAnterior = null;
+  let farolasQuitadas = 0;
 
   // Fundido a negro
   const velo = document.createElement('div');
@@ -68,6 +79,8 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo }) {
         terreno, fisica, personas, sitiosGradas: vallado.sitiosGradas, materiales: vallado.materiales, sombras: CALIDAD.sombras,
       });
       escena.add(vallado.raiz, ambiente.raiz);
+      // Fuera las farolas que caen en el ruedo o en el recorrido (las de las aceras se quedan)
+      farolasQuitadas = farolas?.oculta((x, z) => dentroDe(recinto.plaza.ruedo, x, z) || dentroDe(recinto.calle.recorrido, x, z)) ?? 0;
       // Hora de «Día», sin tocar lo que el jugador tenía elegido (se repone al salir)
       if (ciclo) {
         horaAnterior = ciclo.modo;
@@ -88,6 +101,7 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo }) {
     if (!vallado) return;
     ambiente.libera();
     vallado.libera();
+    farolas?.repone();
     vallado = null;
     ambiente = null;
     modo = null;
@@ -97,10 +111,11 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo }) {
 
   return {
     recinto,
+    dentroDe,
     get activo() { return modo !== null; },
     get modo() { return modo; },
     get resumen() {
-      return vallado ? { modo, puertaAbierta: vallado.puertaAbierta, ...ambiente.resumen } : null;
+      return vallado ? { modo, puertaAbierta: vallado.puertaAbierta, farolasQuitadas, ...ambiente.resumen } : null;
     },
     salida,
     // «alMontar» se llama con la pantalla en negro, ya montado el festejo (para colocar al jugador)

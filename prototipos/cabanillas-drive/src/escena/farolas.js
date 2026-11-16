@@ -38,7 +38,7 @@ export function creaFarolas(datos, { terreno, fisica, luces = 6 }) {
   const raiz = new THREE.Group();
   raiz.name = 'farolas';
   const lista = datos?.farolas ?? [];
-  if (!lista.length) return { raiz, actualiza() {} };
+  if (!lista.length) return { raiz, actualiza() {}, oculta() { return 0; }, repone() {} };
   const n = lista.length;
 
   // Báculo de altura 1 (se escala en Y por farola) y brazo + luminaria aparte (no se deforman)
@@ -77,6 +77,7 @@ export function creaFarolas(datos, { terreno, fisica, luces = 6 }) {
   const q = new THREE.Quaternion();
   const Y = new THREE.Vector3(0, 1, 0);
   const cabezas = [];
+  const choques = [];
   lista.forEach((f, i) => {
     const y = terreno.alturaEn(f.x, f.z);
     const h = Math.max(3, f.h);
@@ -98,6 +99,7 @@ export function creaFarolas(datos, { terreno, fisica, luces = 6 }) {
       const { RAPIER, mundo } = fisica;
       const c = mundo.createCollider(RAPIER.ColliderDesc.cuboid(0.12, h / 2, 0.12).setTranslation(f.x, y + h / 2, f.z));
       registraEstatico(fisica, c, f.x, f.z, 0.2);
+      choques[i] = { collider: c, x: f.x, y: y + h / 2, z: f.z };
     }
   });
   for (const m of [postes, bases, brazos, lampara]) {
@@ -126,9 +128,38 @@ export function creaFarolas(datos, { terreno, fisica, luces = 6 }) {
   let esperaReparto = 0;
   const orden = cabezas.map((_, i) => i);
 
+  // Modo fiestas: quitar las farolas que caen en el recorrido (y su choque) y reponerlas al salir
+  const instanciadas = [postes, bases, brazos, lampara, charcos];
+  const guardadas = new Map();
+  const nula = new THREE.Matrix4().makeScale(0, 0, 0);
+  function oculta(filtro) {
+    let cuantas = 0;
+    lista.forEach((f, i) => {
+      if (guardadas.has(i) || !filtro(f.x, f.z)) return;
+      guardadas.set(i, instanciadas.map((m) => { const g = new THREE.Matrix4(); m.getMatrixAt(i, g); return g; }));
+      for (const m of instanciadas) m.setMatrixAt(i, nula);
+      const c = choques[i];
+      c?.collider.setTranslation({ x: c.x, y: -500, z: c.z });
+      cuantas++;
+    });
+    for (const m of instanciadas) m.instanceMatrix.needsUpdate = true;
+    return cuantas;
+  }
+  function repone() {
+    for (const [i, matrices] of guardadas) {
+      instanciadas.forEach((m, k) => m.setMatrixAt(i, matrices[k]));
+      const c = choques[i];
+      c?.collider.setTranslation({ x: c.x, y: c.y, z: c.z });
+    }
+    guardadas.clear();
+    for (const m of instanciadas) m.instanceMatrix.needsUpdate = true;
+  }
+
   return {
     raiz,
     cantidad: n,
+    oculta,
+    repone,
     actualiza(oscuridad, camara, dt) {
       const on = THREE.MathUtils.smoothstep(oscuridad, 0.25, 0.7);
       vidrio.emissiveIntensity = 3.5 * on;

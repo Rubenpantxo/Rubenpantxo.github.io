@@ -151,7 +151,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     try {
       if (!fiestas) {
         const { creaModoFiestas } = await import('../fiestas/modoFiestas.js');
-        fiestas = creaModoFiestas({ escena, terreno: mundo.terreno, fisica, personas, ciclo });
+        fiestas = creaModoFiestas({ escena, terreno: mundo.terreno, fisica, personas, ciclo, farolas });
       }
       const { NOMBRES_MODO } = await import('../fiestas/modoFiestas.js');
       const entro = await fiestas.entra(modo, (salida) => {

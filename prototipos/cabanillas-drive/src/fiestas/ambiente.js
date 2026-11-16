@@ -45,8 +45,8 @@ function creaArena(poligono, terreno, fisica, sombras) {
   const contorno = poligono.map(([x, z]) => new THREE.Vector2(x, z));
   if (THREE.ShapeUtils.isClockWise(contorno)) contorno.reverse();
   let triangulos = THREE.ShapeUtils.triangulateShape(contorno, []).map((t) => t.map((i) => contorno[i]));
-  // Tres subdivisiones: los triángulos largos se separarían del terreno
-  for (let paso = 0; paso < 3; paso++) {
+  // Cinco subdivisiones (triángulos de ~1 m): con menos, los bultos del terreno asoman por la arena
+  for (let paso = 0; paso < 5; paso++) {
     const nuevos = [];
     for (const [a, b, c] of triangulos) {
       const ab = a.clone().add(b).multiplyScalar(0.5);
