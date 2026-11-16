@@ -4,12 +4,14 @@
 import { ARBOLES_BOLA_SAN_ISIDRO, CASAS_SAN_ISIDRO, EDIFICIOS_SAN_ISIDRO, FILA_SAN_ISIDRO, ZONA_SAN_ISIDRO } from './casasSanIsidro.js';
 import { FILAS_PLAZA } from './casasPlaza.js';
 import { FILAS_CALLES } from './casasCalles.js';
+import { FILAS_AYUNTAMIENTO } from './casasAyuntamiento.js';
 
 export const FILAS_CASAS = [
   { nombre: 'san_isidro', ...FILA_SAN_ISIDRO, casas: CASAS_SAN_ISIDRO, arboles: ARBOLES_BOLA_SAN_ISIDRO,
     edificios: EDIFICIOS_SAN_ISIDRO, zona: ZONA_SAN_ISIDRO },
   ...FILAS_PLAZA,
   ...FILAS_CALLES,
+  ...FILAS_AYUNTAMIENTO,
 ];
 
 // Edificios del Catastro que sustituyen (se quitan del mundo)

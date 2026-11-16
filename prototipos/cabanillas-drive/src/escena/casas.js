@@ -336,6 +336,71 @@ function texSillar(tonos, ancho, alto, metros, junta, colorJunta, semilla, opcio
   return texturas(c, cb, metros);
 }
 
+// Esfera de reloj: blanca, aro oscuro, marcas de las horas y agujas (las diez y diez)
+function texReloj() {
+  const [c, g] = lienzo(256);
+  g.fillStyle = '#f4f3ee'; g.fillRect(0, 0, 256, 256);
+  g.strokeStyle = '#2a2c2e'; g.lineWidth = 14; g.beginPath(); g.arc(128, 128, 120, 0, Math.PI * 2); g.stroke();
+  g.fillStyle = '#2a2c2e';
+  for (let h = 0; h < 12; h++) {
+    g.save(); g.translate(128, 128); g.rotate((h / 12) * Math.PI * 2);
+    g.fillRect(-4, -104, 8, h % 3 === 0 ? 26 : 16);
+    g.restore();
+  }
+  const aguja = (ang, largo, ancho) => { g.save(); g.translate(128, 128); g.rotate(ang); g.fillRect(-ancho / 2, -largo, ancho, largo + 12); g.restore(); };
+  aguja((10 / 12) * Math.PI * 2 + (10 / 60) * (Math.PI / 6), 62, 10);
+  aguja((10 / 60) * Math.PI * 2, 92, 7);
+  g.beginPath(); g.arc(128, 128, 9, 0, Math.PI * 2); g.fill();
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+
+// Banderas (tela 3:2): 'espana', 'navarra', 'europa' o municipal (roja con escudo)
+function texBandera(tipo) {
+  const [c, g] = lienzo(256);
+  c.height = 172;
+  const W = 256; const H = 172;
+  const escudo = (x, y, s, colores) => {
+    g.fillStyle = colores[0];
+    g.beginPath(); g.moveTo(x - s, y - s); g.lineTo(x + s, y - s); g.lineTo(x + s, y + s * 0.3);
+    g.quadraticCurveTo(x + s, y + s * 1.2, x, y + s * 1.4); g.quadraticCurveTo(x - s, y + s * 1.2, x - s, y + s * 0.3); g.closePath(); g.fill();
+    g.fillStyle = colores[1]; g.fillRect(x - s * 0.6, y - s * 0.6, s * 1.2, s * 0.5);
+    g.fillStyle = colores[2]; g.beginPath(); g.arc(x, y - s * 1.25, s * 0.45, Math.PI, 0); g.fill();
+  };
+  if (tipo === 'espana') {
+    g.fillStyle = '#c60b1e'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#ffc400'; g.fillRect(0, H / 4, W, H / 2);
+    escudo(W * 0.3, H * 0.47, 16, ['#c8102e', '#ffc400', '#ad8d32']);
+  } else if (tipo === 'navarra') {
+    g.fillStyle = '#d52b1e'; g.fillRect(0, 0, W, H);
+    g.strokeStyle = '#e8b730'; g.lineWidth = 5;
+    g.beginPath(); g.arc(W / 2, H / 2 + 6, 30, 0, Math.PI * 2); g.stroke();
+    for (let k = 0; k < 8; k++) {
+      const a = (k / 8) * Math.PI * 2;
+      g.beginPath(); g.moveTo(W / 2, H / 2 + 6); g.lineTo(W / 2 + Math.cos(a) * 30, H / 2 + 6 + Math.sin(a) * 30); g.stroke();
+    }
+    g.fillStyle = '#e8b730'; g.beginPath(); g.arc(W / 2, H / 2 - 34, 14, Math.PI, 0); g.fill();
+  } else if (tipo === 'europa') {
+    g.fillStyle = '#003399'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#ffcc00';
+    for (let k = 0; k < 12; k++) {
+      const a = (k / 12) * Math.PI * 2;
+      const x = W / 2 + Math.cos(a) * 52; const y = H / 2 + Math.sin(a) * 52;
+      g.beginPath();
+      for (let p = 0; p < 10; p++) {
+        const r = p % 2 ? 3.4 : 8.5; const b = -Math.PI / 2 + (p / 10) * Math.PI * 2;
+        g.lineTo(x + Math.cos(b) * r, y + Math.sin(b) * r);
+      }
+      g.closePath(); g.fill();
+    }
+  } else {
+    g.fillStyle = '#c8102e'; g.fillRect(0, 0, W, H);
+    escudo(W / 2, H / 2, 30, ['#e9c34a', '#2f5fa8', '#e9c34a']);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+
 // Cal vieja: blanco con churretes y manchas de humedad
 function texCal() {
   const lado = 512;
@@ -438,6 +503,11 @@ function material(clave, color) {
     case 'hierroNegro': m = std({ color: '#1b1c1e', roughness: 0.5, metalness: 0.5 }); break;
     case 'hierroBlanco': m = std({ color: '#efefec', roughness: 0.5, metalness: 0.2 }); break;
     case 'hierroRojo': m = std({ color: '#a3241e', roughness: 0.5, metalness: 0.3 }); break;
+    case 'hierroGris': m = std({ color: '#9a9c9c', roughness: 0.45, metalness: 0.5 }); break;
+    case 'paves': m = conTex(texSillar(['#c9d3d6', '#d3dcde', '#bfcacd', '#dce3e4'], 0.19, 0.19, 1.52, 0.014, '#9fa5a5', 111,
+      { aJunta: true, variacion: 0.05, grano: 6 }), { bumpScale: 0.6, roughness: 0.15, metalness: 0.25 }); break;
+    case 'reloj': m = std({ map: texReloj(), roughness: 0.4 }); break;
+    case 'bandera': m = std({ map: texBandera(color), roughness: 0.9, side: THREE.DoubleSide }); break;
     case 'hierroGranate': m = std({ color: '#7f3a28', roughness: 0.6, metalness: 0.3 }); break;
     case 'plastico': m = std({ color: '#ecebe6', roughness: 0.5 }); break;
     case 'negro': m = std({ color: '#26282a', roughness: 0.7 }); break;
@@ -497,7 +567,7 @@ function material(clave, color) {
 
 const PERSIANA = { madera: '#6f4a2e', blanca: '#e4e2dc', gris: '#3d4043', crema: '#cdbf9f' };
 const CONTRA = { madera: '#7a4f2c', blanca: '#f1f0ec' };
-const HIERRO = { negro: 'hierroNegro', blanco: 'hierroBlanco', rojo: 'hierroRojo', granate: 'hierroGranate' };
+const HIERRO = { negro: 'hierroNegro', blanco: 'hierroBlanco', rojo: 'hierroRojo', granate: 'hierroGranate', gris: 'hierroGris' };
 
 // ---------- Geometría en coordenadas de la fila: x = u, y, z = −w
 class Lote {
@@ -886,6 +956,10 @@ function tejado(lote, t) {
   lote.caja(sof, U0, U1, yb - 0.05, yb, w1, W1);
   const cornisa = t.cornisa ?? 0.18;
   lote.caja(material('blanco'), U0, U1, yf - cornisa, yf + 0.04, W0, W0 + 0.05);
+  // en los extremos con limatesa, el alero también da la vuelta (sofito y cornisa)
+  if (c0) { lote.caja(sof, U0, u0, yf - 0.05, yf, w0, w1); lote.caja(material('blanco'), U0, U0 + 0.05, yf - cornisa, yf + 0.04, W0, W1); }
+  if (c1) { lote.caja(sof, u1, U1, yf - 0.05, yf, w0, w1); lote.caja(material('blanco'), U1 - 0.05, U1, yf - cornisa, yf + 0.04, W0, W1); }
+  lote.caja(material('blanco'), U0, U1, yb - cornisa, yb + 0.04, W1 - 0.05, W1);
   // Canalón
   const can = new THREE.CylinderGeometry(0.06, 0.06, U1 - U0, 10, 1, true, 0, Math.PI).rotateZ(Math.PI / 2).rotateX(Math.PI);
   lote.pon(material('aluminio'), can.translate((U0 + U1) / 2, yf - 0.02, -(W0 - 0.05)));
@@ -926,10 +1000,21 @@ function tejado(lote, t) {
   for (const ch of t.chimeneas ?? []) {
     const yTej = ch.w <= wm ? yf + (ch.w - W0) * tan : yb + (W1 - ch.w) * tan;
     const m = material(ch.mat, ch.mat === 'enfoscado' ? '#f1efe9' : undefined);
-    lote.caja(m, ch.u - 0.25, ch.u + 0.25, yTej - 0.4, yTej + ch.alto, ch.w - 0.25, ch.w + 0.25);
-    lote.caja(material('hormigon'), ch.u - 0.32, ch.u + 0.32, yTej + ch.alto, yTej + ch.alto + 0.06, ch.w - 0.32, ch.w + 0.32);
-    lote.caja(m, ch.u - 0.12, ch.u + 0.12, yTej + ch.alto + 0.06, yTej + ch.alto + 0.26, ch.w - 0.12, ch.w + 0.12);
-    lote.caja(material('hormigon'), ch.u - 0.22, ch.u + 0.22, yTej + ch.alto + 0.26, yTej + ch.alto + 0.31, ch.w - 0.22, ch.w + 0.22);
+    const a = (ch.ancho ?? 0.5) / 2; const k = a / 0.25;
+    lote.caja(m, ch.u - a, ch.u + a, yTej - 0.4, yTej + ch.alto, ch.w - a, ch.w + a);
+    lote.caja(material('hormigon'), ch.u - a - 0.07, ch.u + a + 0.07, yTej + ch.alto, yTej + ch.alto + 0.06, ch.w - a - 0.07, ch.w + a + 0.07);
+    lote.caja(m, ch.u - 0.12 * k, ch.u + 0.12 * k, yTej + ch.alto + 0.06, yTej + ch.alto + 0.26, ch.w - 0.12 * k, ch.w + 0.12 * k);
+    lote.caja(material('hormigon'), ch.u - 0.22 * k, ch.u + 0.22 * k, yTej + ch.alto + 0.26, yTej + ch.alto + 0.31, ch.w - 0.22 * k, ch.w + 0.22 * k);
+    if (ch.lamas) {
+      // celosía de lamas en las cuatro caras (torreta de ventilación, campanario)
+      const lm = material('oscuro');
+      for (let y = yTej + 0.25; y < yTej + ch.alto - 0.2; y += 0.14) {
+        lote.caja(lm, ch.u - a * 0.6, ch.u + a * 0.6, y, y + 0.05, ch.w - a - 0.02, ch.w - a + 0.01);
+        lote.caja(lm, ch.u - a * 0.6, ch.u + a * 0.6, y, y + 0.05, ch.w + a - 0.01, ch.w + a + 0.02);
+        lote.caja(lm, ch.u - a - 0.02, ch.u - a + 0.01, y, y + 0.05, ch.w - a * 0.6, ch.w + a * 0.6);
+        lote.caja(lm, ch.u + a - 0.01, ch.u + a + 0.02, y, y + 0.05, ch.w - a * 0.6, ch.w + a * 0.6);
+      }
+    }
     if (ch.antena) {
       const hm = material('aluminio');
       lote.barra(hm, [ch.u + 0.3, yTej + ch.alto - 0.3, ch.w], [ch.u + 0.3, yTej + ch.alto + 2.0, ch.w], 0.04);
@@ -1072,6 +1157,29 @@ function rotulo(lote, r) {
   lote.pon(m, g);
 }
 
+// Reloj de fachada: esfera en w con su aro saliente
+function reloj(lote, r) {
+  lote.pon(material('reloj'), new THREE.CircleGeometry(r.radio, 40).translate(r.u, r.y, -(r.w - 0.06)));
+  lote.pon(material('negro'), new THREE.TorusGeometry(r.radio, 0.035, 8, 40).translate(r.u, r.y, -(r.w - 0.05)));
+}
+
+// Bandera con su mástil: sale de la fachada (u, y, w) hacia la calle, inclinado «angulo» grados
+// sobre la horizontal y abierto «abre» grados hacia +u; la tela cuelga de la mitad alta del mástil
+function bandera(lote, b) {
+  const L = b.largo ?? 2.2; const a = ((b.angulo ?? 50) * Math.PI) / 180; const ab = ((b.abre ?? 0) * Math.PI) / 180;
+  const d = [Math.sin(ab) * Math.cos(a), Math.sin(a), -Math.cos(ab) * Math.cos(a)];
+  const p = (t) => [b.u + d[0] * L * t, b.y + d[1] * L * t, b.w + d[2] * L * t];
+  lote.barra(material('hierroBlanco'), p(0), p(1), 0.022);
+  const alto = b.alto ?? 0.9;
+  const [x0, y0, w0] = p(0.42); const [x1, y1, w1] = p(0.98);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute([x0, y0, -w0, x1, y1, -w1, x1, y1 - alto, -w1, x0, y0 - alto, -w0], 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute([0, 1, 1, 1, 1, 0, 0, 0], 2));
+  g.setIndex([0, 1, 2, 0, 2, 3]);
+  g.computeVertexNormals();
+  lote.pon(material('bandera', b.tipo), g);
+}
+
 function split(lote, s) {
   lote.caja(material('plastico'), s.u - 0.4, s.u + 0.4, s.y, s.y + 0.55, s.w - 0.3, s.w);
   const rejilla = new THREE.CylinderGeometry(0.19, 0.19, 0.02, 24).rotateX(Math.PI / 2).translate(s.u + 0.12, s.y + 0.27, -(s.w - 0.31));
@@ -1119,7 +1227,7 @@ function creaFila(fila, terreno, fisica) {
   fila.casas.forEach((casa, k) => {
     const uc = (casa.u[0] + casa.u[1]) / 2;
     const [xa, za] = enMundo(uc, -1.2);
-    const y0 = terreno.alturaEn(xa, za);
+    const y0 = fila.nivel ?? terreno.alturaEn(xa, za);   // nivel: edificio repartido en varias filas
     lote.y0 = y0;
     const col = [];
     for (const c of casa.cuerpos) {
@@ -1130,8 +1238,10 @@ function creaFila(fila, terreno, fisica) {
     for (const c of casa.cornisas ?? []) cornisa(lote, c);
     for (const p of casa.porches ?? []) porche(lote, p);
     for (const c of casa.columnas ?? []) {
-      lote.pon(material('blanco'), new THREE.CylinderGeometry(c.radio, c.radio, c.y[1] - c.y[0], 20).translate(c.u, (c.y[0] + c.y[1]) / 2, -c.w));
+      lote.pon(material(c.mat ?? 'blanco'), new THREE.CylinderGeometry(c.radioArriba ?? c.radio, c.radio, c.y[1] - c.y[0], 24).translate(c.u, (c.y[0] + c.y[1]) / 2, -c.w));
     }
+    for (const r of casa.relojes ?? []) reloj(lote, r);
+    for (const b of casa.banderas ?? []) bandera(lote, b);
     for (const p of casa.postes ?? []) lote.barra(material(HIERRO[p.color ?? 'negro']), [p.u, p.y[0], p.w], [p.u, p.y[1], p.w], p.grueso ?? 0.05);
     for (const p of casa.plataformas ?? []) plataforma(lote, p);
     for (const e of casa.escaleras ?? []) escalera(lote, e);
