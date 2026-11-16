@@ -2,12 +2,14 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo fiestas**: el mismo pueblo, transformado como en las fiestas (vallas, arena, banderines, público, sin tráfico), con tres minijuegos de vacas. Complementa a `PLAN.md` y `PLAN_REALISMO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias (una fase cada vez, parada al final de cada fase, no inventar datos geográficos, español, escritorio y móvil siempre).
 
-Fecha: 2026-11-15. Estado: **F0 en segunda vuelta (2026-11-15), pendiente de la aprobación de Rubén**. Detalle en `PROGRESO.md`, apartado «Fiestas».
+Fecha: 2026-11-15. Estado: **F0 en tercera vuelta (2026-11-16), pendiente de la aprobación de Rubén**. Detalle en `PROGRESO.md`, apartado «Fiestas».
 
-> **Correcciones del 2026-11-15 (respuestas y fotos de Rubén), que mandan sobre el texto de abajo:**
-> - No hay camión de ganado. Las vacas salen de un **corral** en el lado sur de la plaza, por una manga de tablas, también en el encierro. La **ambulancia** (obligatoria) va detrás de la valla, en el callejón sur del Ayuntamiento.
-> - Además del tablado del Ayuntamiento hay **gradas en la boca de la Calle Fragua**. La puerta entre plaza y calle queda al oeste de esa boca, no en el nudo de OSM.
+> **Correcciones del 2026-11-15 y 16 (respuestas, fotos y croquis de Rubén), que mandan sobre el texto de abajo:**
+> - No hay camión de ganado. Las vacas salen de los **corrales**, el patio de detrás del nº 8 de la plaza, por el portón del nº 8 y una manga de tablas. La **ambulancia** (obligatoria) va en el callejón sur del Ayuntamiento.
+> - El **tablado** mide 3 m de fondo y va 3 m por delante de la fachada del Ayuntamiento, con paso por detrás.
+> - Hay una **grada a dos aguas delante del nº 2** de la plaza, una cara hacia la plaza y otra hacia la calle. La **puerta** entre plaza y calle sigue su cara este (mitad sur fija, mitad norte practicable), no está en el nudo de OSM.
 > - Más tipos de valla: **barandilla roja de tubo**, **cierres de barrotes** que cruzan la acera y **vallas grises** que protegen puertas. Delante de las tapias no hay valla.
+> - **Encierro** (F5): con la puerta abierta, las vacas salen del corral, van al final de la calle y vuelven a la plaza dos veces; a la segunda encuentran el corral abierto y entran.
 
 ---
 

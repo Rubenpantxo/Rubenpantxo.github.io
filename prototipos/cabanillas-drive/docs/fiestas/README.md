@@ -22,4 +22,15 @@ se saca de cada una. Si Rubén quiere guardarlas, que lo diga.
 | 3 | San Roque, desde el lado sur frente al nº 29, mirando al este | Lado norte: tapia de bloque sin valla; un cierre de barrotes rojos cruza la acera donde empieza el nº 29; delante del nº 29, barandilla roja de tubo de tres barras; después, tablones. Lado sur: paneles rojos macizos. La línea verde es la puerta: la vaca pasa por la mitad norte y la mitad sur es valla fija. Detrás, las gradas de la boca de la Fragua |
 | 4 | Plaza, mirando al este | Esquina noreste del ruedo. Detrás de la valla del fondo, gradas con gente a todo lo largo; a la derecha, la ambulancia, detrás de la valla (callejón sur del Ayuntamiento). Abajo a la derecha, el corral |
 
-Faltan todavía los dos croquis (plaza y calle).
+## Croquis de Rubén (2026-11-16)
+
+Tres dibujos a mano, dos de ellos sobre capturas de Google Maps. Tampoco están en el repositorio (las capturas son
+de Google); queda lo que dicen.
+
+| Croquis | Sobre qué | Qué dice |
+|---|---|---|
+| 1 | El detalle de la plaza del plano de la F0 | El tablado es un rectángulo de 3 m de fondo, 3 m por delante de la fachada del Ayuntamiento, desde la valla norte hasta la esquina de la cara sur; no llega a las casas del norte, así que por detrás se pasa del callejón norte a la acera de detrás de la valla norte. El cierre hacia el callejón sur va en línea con el frente del tablado. La ambulancia, más metida en el callejón sur. La «puerta de los corrales» está en la pared del nº 8, a 1,5 m de la valla, y de ella sale hacia atrás el pasillo de los corrales |
+| 2 | Google Maps, norte arriba | Los corrales son el patio de detrás del nº 8 (se ven los cercados) y se comunican con la plaza por un pasillo que sale junto al lado este del nº 8 |
+| 3 | Google Maps, sur arriba | Delante de la fachada del nº 2 de la plaza hay una grada a dos aguas: «grada lado plaza» al este y «grada lado calle» al oeste, y al oeste de ellas un hueco cerrado. La puerta entre plaza y calle sigue la cara este de las gradas: la mitad sur es fija (las gradas) y la mitad norte es la puerta |
+
+Esa grada se ve montada en la ortofoto del juego, delante del nº 2: de ahí salen su largo y su fondo aproximados.

@@ -1,7 +1,7 @@
 // Recinto del modo fiestas (PLAN_FIESTAS.md, fase F0): dónde va cada cosa del festejo en la
 // Plaza del Ayuntamiento y la Calle San Roque. Coordenadas locales (x este, z sur, m).
 //
-// ESTADO: PROPUESTA sin aprobar (segunda vuelta). Rubén la revisa sobre la vista cenital que
+// ESTADO: PROPUESTA sin aprobar (tercera vuelta). Rubén la revisa sobre la vista cenital que
 // dibuja tools/20_recinto_fiestas.py (data/processed/previews/recinto_fiestas.png) y no se
 // modela nada hasta que la apruebe.
 //
@@ -19,18 +19,27 @@
 //     foto 2: San Roque desde el lado sur, a la altura del nº 25, mirando a la plaza
 //     foto 3: San Roque desde el lado sur, frente al nº 29, mirando a la puerta y a la plaza
 //     foto 4: la plaza mirando al este: tablado, ambulancia y corral
+// - Tres croquis de Rubén del 2026-11-16 (también descritos en docs/fiestas/README.md):
+//     croquis 1: sobre el plano de la F0, el tablado, el cierre del callejón sur, la ambulancia
+//                y la puerta de los corrales
+//     croquis 2: sobre Google Maps, los corrales (patio detrás del nº 8) y su pasillo a la plaza
+//     croquis 3: sobre Google Maps, las gradas a dos aguas delante del nº 2 y la puerta
 
 // Distancia de la valla a la línea de fachadas (m): 1,5 m, marcado por Rubén en la foto 2.
 export const SEPARACION_VALLA = 1.5;
-// Fondo del tablado delante de la fachada del Ayuntamiento (m): 3 m, aprobado por Rubén.
+// Fondo del tablado (m): 3 m, aprobado por Rubén.
 export const FONDO_TABLADO = 3.0;
+// Paso libre entre el tablado y la fachada del Ayuntamiento (m): en el croquis 1 el tablado va
+// 3 m por delante de la fachada. Por ahí se pasa del callejón norte a la acera de detrás de la
+// valla norte.
+export const PASO_TRAS_TABLADO = 3.0;
 
 // Tipos de valla
 //   tablones  postes rojos y tablones de madera (la de la plaza)
 //   panel     chapa roja maciza, más baja
 //   tubo      barandilla roja de tubo, tres barras
 //   puerta    cierre entre plaza y calle, con una hoja practicable
-//   tablado   frente del tablado (tablones con las gradas detrás)
+//   tablado   frente del tablado o de unas gradas (tablones con las gradas detrás)
 //   ninguna   sin valla: el límite es la tapia o la fachada (las puertas, con valla gris)
 const T = 'tablones';
 const S = SEPARACION_VALLA;
@@ -39,32 +48,49 @@ const S = SEPARACION_VALLA;
 // el lado que va de él al siguiente (el último vuelve al primero), con la clase del lado, el
 // tipo de valla y su separación de la línea.
 
-// Plaza: cuña entre las dos filas de casas, de la puerta al Ayuntamiento. Incluye la boca de
-// la Calle Fragua, que queda del lado de la plaza con unas gradas (fotos 1 y 3).
+// Punto de la fila de pares de la plaza (casasPlaza.js: origen y eje de plaza_pares) a u metros
+// de la esquina del Ayuntamiento y a w metros de la fachada, hacia la plaza
+const r2 = (v) => Math.round(v * 100) / 100;
+const enPares = (u, w) => [r2(204.5 - 0.921759 * u + 0.387763 * w), r2(353.4 - 0.387763 * u - 0.921759 * w)];
+
+// Gradas a dos aguas delante del nº 2 de la plaza (croquis 3; se ven en las fotos 1 y 3 y también
+// en la ortofoto del juego, que las pilló montadas): un bloque pegado a la fachada con la grada
+// que mira a la plaza, la que mira a la calle y un hueco para estar de pie. Medidas a ojo del
+// croquis y de la ortofoto (D13). u a lo largo de la fila de pares; el nº 2 va de 48,33 a 61,19.
+const GRADAS_NUMERO_2 = { u: [50.3, 53.3, 57.3, 59.7], fondo: 5.0 };
+const G_ESTE_0 = enPares(GRADAS_NUMERO_2.u[0], 0);                              // en la fachada
+const G_ESTE_F = enPares(GRADAS_NUMERO_2.u[0], GRADAS_NUMERO_2.fondo);          // esquina al ruedo
+const G_OESTE_0 = enPares(GRADAS_NUMERO_2.u[3], 0);
+const G_OESTE_F = enPares(GRADAS_NUMERO_2.u[3], GRADAS_NUMERO_2.fondo);
+// Donde la recta de la cara este de las gradas llega a la línea de fachadas del norte: ahí acaba la puerta
+const PUERTA_NORTE = [162.42, 323.71];
+
+// Plaza: cuña entre las dos filas de casas, de la puerta al tablado
 const BORDE_PLAZA = [
-  { p: [146.6, 319.3], clase: 'fachada', lado: 'norte', tipo: T, sep: S, visto: 'foto 3',
-    ref: 'fachada del nº 29 de San Roque (Catastro 47), parte este' },
-  { p: [153.1, 320.9], clase: 'fachada', lado: 'norte', tipo: T, sep: S, visto: 'fotos 1 y 4',
-    ref: 'recta de la fila plaza_impares (nº 1 a 11); cruza el solar de 5,9 m que hay entre el nº 29 de San Roque y el nº 1' },
-  { p: [204.4, 335.65], clase: 'tablado', lado: 'este', tipo: 'tablado', sep: FONDO_TABLADO, visto: 'foto 4',
-    nombre: 'tablado (boca del callejón norte)',
-    ref: 'de la fila de impares a la esquina noroeste del Ayuntamiento (Catastro 259); boca de 3,7 m' },
-  { p: [203.2, 339.2], clase: 'tablado', lado: 'este', tipo: 'tablado', sep: FONDO_TABLADO, visto: 'fotos 1 y 4',
-    nombre: 'tablado (fachada del Ayuntamiento)', ref: 'fachada oeste del Ayuntamiento (Catastro 259), 7,7 m' },
-  { p: [200.8, 346.5], clase: 'bocacalle', lado: 'este', tipo: T, sep: FONDO_TABLADO, visto: 'foto 4',
-    nombre: 'callejón sur del Ayuntamiento',
-    ref: 'de la esquina suroeste del Ayuntamiento a la fila de pares; boca de 4,9 m. Detrás, la ambulancia' },
-  { p: [199.25, 351.2], clase: 'fachada', lado: 'sur', tipo: T, sep: S, visto: 'foto 1',
-    ref: 'recta de la fila plaza_pares (nº 10 a 2)' },
-  { p: [148.1, 329.7], clase: 'bocacalle', lado: 'sur', tipo: T, sep: S, visto: 'fotos 1 y 3', nombre: 'Calle Fragua',
-    ref: 'de la esquina del nº 2 de la plaza (Catastro 43) a la del nº 54 de San Roque (Catastro 50); boca de 4,1 m. Detrás, gradas' },
-  { p: [144.2, 328.4], clase: 'puerta', lado: 'oeste', tipo: 'puerta', sep: 0, visto: 'fotos 1 y 3',
-    ref: 'de la esquina del nº 54 de San Roque (Catastro 50) a la fachada del nº 29 (Catastro 47), perpendicular a la calle' },
+  { p: PUERTA_NORTE, clase: 'fachada', lado: 'norte', tipo: T, sep: S, visto: 'fotos 1 y 4',
+    ref: 'recta de la fila plaza_impares (nº 1 a 11)' },
+  { p: [204.4, 335.65], clase: 'tablado', lado: 'este', tipo: 'tablado', sep: FONDO_TABLADO + PASO_TRAS_TABLADO,
+    visto: 'fotos 1 y 4 y croquis 1',
+    ref: 'recta de la fachada oeste del Ayuntamiento (Catastro 259), de la fila de impares a su esquina suroeste; '
+      + 'el tablado va de 3 a 6 m de ella' },
+  { p: [200.8, 346.5], clase: 'bocacalle', lado: 'este', tipo: T, sep: FONDO_TABLADO + PASO_TRAS_TABLADO, visto: 'croquis 1',
+    nombre: 'cierre hacia el callejón sur',
+    ref: 'de la esquina suroeste del Ayuntamiento a la fila de pares, en línea con el frente del tablado' },
+  { p: [199.25, 351.2], clase: 'fachada', lado: 'sur', tipo: T, sep: S, visto: 'foto 1 y croquis 1',
+    ref: 'recta de la fila plaza_pares (nº 10 a 4 y el principio del nº 2)' },
+  { p: G_ESTE_0, clase: 'gradas', lado: 'oeste', tipo: 'tablado', sep: 0, visto: 'foto 1 y croquis 3',
+    nombre: 'frente de la grada del lado de la plaza', ref: 'cara este de las gradas del nº 2: es la parte fija del cierre' },
+  { p: G_ESTE_F, clase: 'puerta', lado: 'oeste', tipo: 'puerta', sep: 0, visto: 'fotos 1 y 3 y croquis 3',
+    ref: 'de la esquina de las gradas a la fila de impares, en la recta de su cara este' },
 ];
 
 // Calle San Roque: de la puerta a la Sala de Cultura. Primero el lado norte hacia el oeste,
-// luego el cierre final y el lado sur de vuelta.
+// luego el cierre final y el lado sur de vuelta, que acaba rodeando las gradas del nº 2.
 const BORDE_CALLE = [
+  { p: PUERTA_NORTE, clase: 'fachada', lado: 'norte', tipo: T, sep: S, visto: 'foto 3',
+    ref: 'recta de la fila plaza_impares (principio del nº 1) y el solar de 5,9 m que hay hasta el nº 29 de San Roque' },
+  { p: [153.1, 320.9], clase: 'fachada', lado: 'norte', tipo: T, sep: S, visto: 'foto 3',
+    ref: 'fachada del nº 29 de San Roque (Catastro 47), parte este' },
   { p: [146.6, 319.3], clase: 'fachada', lado: 'norte', tipo: 'tubo', sep: S, visto: 'foto 3',
     ref: 'fachada del nº 29 (Catastro 47), parte oeste; acaba en un cierre de barrotes contra la tapia' },
   { p: [139.8, 317.9], clase: 'fachada', lado: 'norte', tipo: 'ninguna', sep: 0, visto: 'fotos 2 y 3',
@@ -100,7 +126,14 @@ const BORDE_CALLE = [
     ref: 'fachadas del Catastro 261 y 246' },
   { p: [131.9, 324.8], clase: 'fachada', lado: 'sur', tipo: 'panel', sep: S, visto: 'foto 3',
     ref: 'fila san_roque (nº 54, Catastro 50)' },
-  { p: [144.2, 328.4], clase: 'puerta', lado: 'este', tipo: 'puerta', sep: 0, compartido: true, ref: 'la misma puerta de la plaza' },
+  { p: [144.2, 328.4], clase: 'bocacalle', lado: 'sur', tipo: T, sep: S, nombre: 'Calle Fragua',
+    ref: 'de la esquina del nº 54 de San Roque (Catastro 50) a la del nº 2 de la plaza (Catastro 43), boca de 4,1 m, '
+      + 'y 1,4 m de la fachada del nº 2 hasta las gradas' },
+  { p: G_OESTE_0, clase: 'gradas', lado: 'sur', tipo: T, sep: 0, visto: 'foto 3 y croquis 3',
+    nombre: 'cierre del hueco de las gradas', ref: 'cara oeste del bloque de gradas del nº 2 (la valla baja con gente detrás de la foto 3)' },
+  { p: G_OESTE_F, clase: 'gradas', lado: 'sur', tipo: T, sep: 0, visto: 'foto 1 y croquis 3',
+    nombre: 'costado de las gradas', ref: 'cara norte del bloque de gradas del nº 2' },
+  { p: G_ESTE_F, clase: 'puerta', lado: 'este', tipo: 'puerta', sep: 0, compartido: true, ref: 'la misma puerta de la plaza' },
 ];
 
 // --- Geometría: polígono paralelo hacia dentro, con una distancia por lado
@@ -114,7 +147,6 @@ function areaConSigno(pts) {
   return a / 2;
 }
 
-const r2 = (v) => Math.round(v * 100) / 100;
 const dist = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]);
 
 // Devuelve, por cada lado del borde, el segmento de valla [a, b] ya recortado en las esquinas.
@@ -179,44 +211,43 @@ const TRAMOS = [...plaza.tramos, ...calle.tramos];
 const tramo = (clase, nombre) => TRAMOS.find((t) => t.clase === clase && (!nombre || t.nombre === nombre));
 const medio = (t) => [r2((t.a[0] + t.b[0]) / 2), r2((t.a[1] + t.b[1]) / 2)];
 
-// Punto de la fila de pares de la plaza (casasPlaza.js: origen y eje de plaza_pares) a u metros
-// de la esquina del Ayuntamiento y a w metros de la fachada, hacia la plaza
-const enPares = (u, w) => [r2(204.5 - 0.921759 * u + 0.387763 * w), r2(353.4 - 0.387763 * u - 0.921759 * w)];
-
 const T_PUERTA = tramo('puerta');
-const T_FRAGUA = tramo('bocacalle', 'Calle Fragua');
 const T_PARES = TRAMOS.find((t) => t.zona === 'plaza' && t.lado === 'sur' && t.clase === 'fachada');
-const T_AMBULANCIA = tramo('bocacalle', 'callejón sur del Ayuntamiento');
-const T_TABLADO = TRAMOS.filter((t) => t.clase === 'tablado');
+const T_TABLADO = tramo('tablado');
 const T_CASA_GRIS = TRAMOS.find((t) => t.ref.startsWith('fachada del Catastro 365'));
 
 // --- Dudas que tiene que resolver Rubén (las pinta la vista cenital con su número).
 // Resueltas el 2026-11-15: D2 (no hay camión: en el callejón sur va la ambulancia y las vacas
 // salen de un corral), D3 (los callejones se cierran en su boca) y D4 (1,5 m).
+// Resueltas el 2026-11-16: D10 (puerta en la mitad norte del cierre; la mitad sur es el frente
+// de las gradas del nº 2), D11 (el encierro da dos vueltas y acaba en el corral) y D12 (el
+// corral está detrás del nº 8 y sale por su portón).
 export const DUDAS_FIESTAS = [
-  { id: 'D1', en: [207.5, 338.6], texto: 'Tablado: 3 m de fondo, aprobado. El ancho llegó cortado en el mensaje («desde donde hace '
-    + 'esquina la cara sur del Ayuntamiento…»). Por la foto 4 lo he puesto desde esa esquina hasta las casas del lado '
-    + 'norte, tapando el callejón norte. ¿Es así?' },
+  { id: 'D1', en: [207.5, 338.6], texto: 'Tablado: he leído tu rectángulo rojo así: 3 m de fondo, separado 3 m de la fachada del '
+    + 'Ayuntamiento (por detrás se pasa del callejón norte a la acera del lado norte), desde la valla norte hasta la '
+    + 'esquina de la cara sur del Ayuntamiento. ¿Es así, o el tablado va pegado a la fachada?' },
   { id: 'D5', en: [86.0, 306.5], texto: 'Tipo de valla: los tramos con «?» no se ven en las fotos y siguen de tablones como '
     + 'propuesta. ¿Cuáles llevan panel rojo, cuáles tubo y dónde no hay valla (solo vallas grises en las puertas)?' },
   { id: 'D6', en: [172.0, 335.0], texto: 'Burladeros: he puesto el único que se ve (foto 1, lado sur de la plaza), a ojo. '
     + '¿Dónde va exactamente y dónde están los demás, en la plaza y en la calle?' },
   { id: 'D7', en: [4.5, 283.0], texto: 'Final del recorrido: propuesto cerrarlo a la altura de la esquina de la Sala de Cultura, '
     + 'cruzando San Roque, con el ramal que baja a su fachada cerrado en la boca. ¿O el recorrido baja por el ramal?' },
-  { id: 'D8', en: [99.6, 300.6], texto: 'Bocacalles de la Vicera y del ramal de la Sala de Cultura: propuesta la valla seguida. '
-    + '¿Llevan puerta, paso para la gente o gradas, como la Fragua?' },
+  { id: 'D8', en: [99.6, 300.6], texto: 'Bocacalles de la Vicera, de la Fragua y del ramal de la Sala de Cultura: propuesta la valla '
+    + 'seguida. ¿Llevan puerta o paso para la gente?' },
   { id: 'D9', en: [36.0, 284.5], texto: 'Plazuela del lado norte de San Roque y retranqueo del lado sur (x ≈ 80): propuesto que la valla '
     + 'pase recta por delante y queden para el público.' },
-  { id: 'D10', en: [142.2, 323.6], texto: 'Puerta: por las fotos 1 y 3 la he pasado al oeste de la boca de la Fragua (la Fragua y sus '
-    + 'gradas quedan del lado de la plaza), con la hoja en la mitad norte y la mitad sur fija. ¿Es así? ¿Qué ancho tiene la hoja?' },
-  { id: 'D11', en: [20.0, 287.5], texto: 'Encierro: las vacas salen del corral de la plaza. ¿Recorren la calle hasta el final y '
-    + 'vuelven al corral, o acaban en otro sitio?' },
-  { id: 'D12', en: [186.5, 349.3], texto: 'Corral: las fotos 1 y 4 lo ponen en el lado sur de la plaza, cerca del Ayuntamiento, pero no '
-    + 'dicen en qué casa. Lo he puesto, a ojo, en el portón del nº 8. ¿Es el portón del nº 8, el del nº 10 u otro?' },
-  { id: 'D13', en: [143.0, 333.5], texto: 'Gradas de la boca de la Fragua: ¿cuánto fondo ocupan (dibujados 4 m) y cuántas filas tienen?' },
+  { id: 'D13', en: enPares(54.5, -3.5), texto: 'Gradas del nº 2: medidas a ojo de tu croquis y de la foto aérea: 5 m de fondo; 3 m de '
+    + 'ancho la grada de la plaza, 4 m la de la calle y 2,4 m el hueco para estar de pie. ¿Cuánto miden?' },
 ];
 
 // --- El recinto
+const esquinasPares = (u0, u1, w0, w1) => [enPares(u0, w0), enPares(u1, w0), enPares(u1, w1), enPares(u0, w1)];
+const U_G = GRADAS_NUMERO_2.u;
+const F_G = GRADAS_NUMERO_2.fondo;
+// Portón del nº 8 (casasPlaza.js: hueco de u 17,0 a 19,6): la puerta de los corrales
+const U_CORRAL = [17.0, 19.6];
+const centroPuerta = medio(T_PUERTA);
+
 export const RECINTO_FIESTAS = {
   estado: 'propuesta',            // pasa a 'aprobado' cuando Rubén dé el visto bueno a la F0
   separacionValla: SEPARACION_VALLA,
@@ -224,13 +255,15 @@ export const RECINTO_FIESTAS = {
   plaza: {
     borde: BORDE_PLAZA.map((v) => v.p),        // línea de fachadas
     ruedo: plaza.poligono,                     // interior del vallado: aquí va la arena
-    eje: [[144.9, 324.5], [148.38, 325.4], [150.69, 326.11], [191.2, 339.48]],   // OSM w1433831399, desde la puerta
+    eje: [centroPuerta, [191.2, 339.48]],      // OSM w1433831399, desde la puerta
   },
   calle: {
     borde: BORDE_CALLE.map((v) => v.p),
     recorrido: calle.poligono,                 // interior del vallado (asfalto)
-    // OSM w314839343, de la puerta al cruce del ramal de la Sala de Cultura
-    eje: [[144.9, 324.5], [114.16, 316.35], [98.27, 311.28], [58.18, 298.5], [12.02, 283.91]],
+    // OSM w314839343, de la puerta al cruce del ramal de la Sala de Cultura. Junto a las gradas
+    // del nº 2 se desvía al paso que queda entre ellas y la valla norte.
+    eje: [centroPuerta, [155.0, 325.1], [150.5, 324.6], [144.0, 324.2], [114.16, 316.35], [98.27, 311.28], [58.18, 298.5],
+      [12.02, 283.91]],
   },
 
   // Tramos de valla, numerados (primero la plaza, luego la puerta y la calle)
@@ -238,33 +271,41 @@ export const RECINTO_FIESTAS = {
   // Cierres cortos de barrotes donde la valla empieza o acaba contra una tapia o una fachada
   cierres: [...plaza.cierres, ...calle.cierres],
 
-  // Cierre entre plaza y calle. Cerrado en «Vacas en la plaza», abierto en los otros modos.
-  // La hoja practicable ocupa solo una parte (fotos 1 y 3): ancho y lado, a ojo (D10)
-  puerta: { tramo: T_PUERTA.id, a: T_PUERTA.a, b: T_PUERTA.b, largo: T_PUERTA.largo,
-    hoja: { lado: 'norte', ancho: r2(T_PUERTA.largo / 2), aprox: true } },
+  // Puerta entre plaza y calle: la mitad norte del cierre (respuesta de Rubén); la mitad sur, fija,
+  // es el frente de la grada que mira a la plaza. Cerrada en «Vacas en la plaza»; abierta en
+  // «Vacas en la calle» y durante todo el encierro.
+  puerta: { tramo: T_PUERTA.id, a: T_PUERTA.a, b: T_PUERTA.b, largo: T_PUERTA.largo },
 
-  // Tablado con gradas delante del Ayuntamiento: 3 m de fondo (aprobado); ancho por confirmar (D1)
-  tablado: { tramos: T_TABLADO.map((t) => t.id), fondo: FONDO_TABLADO,
-    esquinas: [T_TABLADO[0].fachada[0], T_TABLADO[T_TABLADO.length - 1].fachada[1], T_TABLADO[T_TABLADO.length - 1].b, T_TABLADO[0].a] },
+  // Tablado con gradas, 3 m de fondo, a 3 m de la fachada del Ayuntamiento (croquis 1; D1). Va de la
+  // valla norte a la esquina de la cara sur del Ayuntamiento.
+  tablado: (({ id, a, b }) => {
+    const l = dist(a, b); const n = [(b[1] - a[1]) / l, -(b[0] - a[0]) / l];     // hacia el Ayuntamiento (este)
+    const atras = (p) => [r2(p[0] + n[0] * FONDO_TABLADO), r2(p[1] + n[1] * FONDO_TABLADO)];
+    return { tramo: id, fondo: FONDO_TABLADO, paso: PASO_TRAS_TABLADO, esquinas: [a, b, atras(b), atras(a)] };
+  })(T_TABLADO),
 
-  // Gradas en la boca de la Calle Fragua, mirando a la puerta (fotos 1 y 3). Fondo a ojo (D13)
-  gradas: [(({ id, fachada: [p, q] }) => {
-    const l = dist(p, q); const fondo = 4.0;
-    const n = [(q[1] - p[1]) / l, -(q[0] - p[0]) / l];          // hacia dentro de la Fragua (sur)
-    return { tramo: id, nombre: 'gradas de la Fragua', fondo, aprox: true,
-      esquinas: [p, q, [r2(q[0] + n[0] * fondo), r2(q[1] + n[1] * fondo)], [r2(p[0] + n[0] * fondo), r2(p[1] + n[1] * fondo)]] };
-  })(T_FRAGUA)],
+  // Gradas a dos aguas delante del nº 2 de la plaza (croquis 3). Medidas a ojo (D13)
+  gradas: { casa: 'Plaza del Ayuntamiento 2', fondo: F_G, aprox: true, esquinas: esquinasPares(U_G[0], U_G[3], 0, F_G),
+    partes: [
+      { nombre: 'grada del lado de la plaza', mira: 'este', esquinas: esquinasPares(U_G[0], U_G[1], 0, F_G) },
+      { nombre: 'grada del lado de la calle', mira: 'oeste', esquinas: esquinasPares(U_G[1], U_G[2], 0, F_G) },
+      { nombre: 'hueco para estar de pie', mira: 'oeste', esquinas: esquinasPares(U_G[2], U_G[3], 0, F_G) },
+    ] },
 
-  // Corral del que salen las vacas, también en el encierro (respuesta de Rubén). Está en el lado
-  // sur de la plaza, cerca del Ayuntamiento (fotos 1 y 4): una manga de tablas que cruza la acera
-  // desde un portón hasta una puerta en la valla. La casa exacta está por confirmar (D12):
-  // provisionalmente, el portón del nº 8 (casasPlaza.js: hueco de u 17,0 a 19,6).
-  corral: { tramo: T_PARES.id, aprox: true, ancho: 2.6, manga: [enPares(17.0, 0), enPares(19.6, 0), enPares(19.6, S), enPares(17.0, S)],
-    salida: enPares(18.3, S) },
+  // Corral: las vacas salen de él y vuelven a él, también en el encierro. Los corrales son el patio
+  // de detrás del nº 8 de la plaza (croquis 2; se ven los cercados en la ortofoto) y se comunican
+  // con la plaza por un pasillo que acaba en el portón del nº 8 («puerta de los corrales», croquis 1).
+  // De ahí, una manga de tablas cruza la acera hasta una puerta en la valla (foto 1).
+  corral: { tramo: T_PARES.id, casa: 'Plaza del Ayuntamiento 8', ancho: r2(U_CORRAL[1] - U_CORRAL[0]),
+    puerta: [enPares(U_CORRAL[0], 0), enPares(U_CORRAL[1], 0)],
+    manga: esquinasPares(U_CORRAL[0], U_CORRAL[1], 0, S),
+    salida: enPares((U_CORRAL[0] + U_CORRAL[1]) / 2, S),
+    // Pasillo por dentro del edificio y patio de los corrales: a ojo, del croquis 2 y de la ortofoto
+    pasillo: [enPares((U_CORRAL[0] + U_CORRAL[1]) / 2, 0), [186.4, 356.5]],
+    patio: [[165.3, 358.0], [185.5, 357.2], [186.5, 369.5], [166.0, 371.0]], aprox: true },
 
-  // Ambulancia (obligatoria en el festejo): detrás de la valla, en el callejón sur del Ayuntamiento
-  // (foto 4). Se apoya en el centro del tramo y se alarga hacia fuera del ruedo en `direccion`.
-  ambulancia: { tramo: T_AMBULANCIA.id, en: medio(T_AMBULANCIA), direccion: [0.9218, 0.3878], largo: 5.6, ancho: 2.1 },
+  // Ambulancia (obligatoria en el festejo): dentro del callejón sur del Ayuntamiento (foto 4 y croquis 1)
+  ambulancia: { en: [202.0, 349.7], direccion: [0.935, 0.354], largo: 5.6, ancho: 2.1 },
 
   // Burladeros: panel rojo estrecho separado de la valla. Solo el que se ve en la foto 1, a ojo (D6)
   burladeros: [{ en: enPares(35.0, S + 0.9), lado: 'sur', zona: 'plaza', aprox: true, visto: 'foto 1' }],
@@ -278,10 +319,17 @@ export const RECINTO_FIESTAS = {
     return { tramo: id, tipo: 'gris', aprox: true, visto: 'foto 2', esquinas: [en(0.4, 0), en(3.4, 0), en(3.4, S), en(0.4, S)] };
   })(T_CASA_GRIS)],
 
-  // Zonas del público: la acera entre la línea de fachadas y la valla de cada tramo y las bocacalles
-  // (los balcones salen de las casas de casasPlaza.js en la F1; tablado y gradas van aparte)
-  publico: TRAMOS.filter((t) => t.sep > 0 && t.clase !== 'tablado').map((t) => ({
-    tramo: t.id, clase: t.clase === 'bocacalle' ? 'bocacalle' : 'acera', esquinas: [t.fachada[0], t.fachada[1], t.b, t.a],
+  // Encierro (respuesta de Rubén, 2026-11-16; para la F5): con la puerta abierta, las vacas salen
+  // del corral, van hasta el final de la calle y vuelven a la plaza; el corral sigue cerrado, así
+  // que repiten el recorrido; a la segunda vuelta lo encuentran abierto y entran.
+  encierro: { sale: 'corral', vueltas: 2, puertaAbierta: true, acaba: 'corral' },
+
+  // Zonas del público: la acera entre la línea de fachadas y la valla de cada tramo, las bocacalles
+  // y el paso de detrás del tablado (los balcones salen de las casas de casasPlaza.js en la F1;
+  // tablado y gradas van aparte)
+  publico: TRAMOS.filter((t) => t.sep > 0).map((t) => ({
+    tramo: t.id, clase: t.clase === 'bocacalle' ? 'bocacalle' : t.clase === 'tablado' ? 'paso' : 'acera',
+    esquinas: [t.fachada[0], t.fachada[1], t.b, t.a],
   })),
 
   dudas: DUDAS_FIESTAS,
