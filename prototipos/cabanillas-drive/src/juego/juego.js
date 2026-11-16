@@ -209,7 +209,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   function irA(nombre) {
     const lugar = carteles.lugares.find((l) => l.nombre === nombre);
     if (!lugar) return;
-    if (enFiestas()) return;
+    if (enFiestas()) { avisa('Estás en las fiestas: en la pausa, «Volver al pueblo»', 4); return; }
     if (aPie) subirseYa();
     const n = nodoMasCercano(nodos, lugar.x, lugar.z, { excluirServicio: true });
     const haciaX = lugar.x - n.x;

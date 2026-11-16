@@ -7,7 +7,7 @@
 - **R2 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/09_tejados.py` ajusta 1–4 faldones por RANSAC al MDS (tejado = mínimo de los planos, cumbreras exactas) o, si no cuadra, malla de rejilla del MDS; aleros de 0,3 m con canto; muros con la altura real del borde del tejado. 1 313 tejados de planos, 496 de rejilla, 3 planos por defecto. Error medio tejado − MDS 0,107 m (mediana 0,061). `tejados.json` + `tejados.bin` (2,6 MB, 1,1 MB comprimido). R2 aprobado.
 - **R3 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/10_sol.py` estima el sol del vuelo de la ortofoto correlacionando sombras del nDSM con lo oscuro de la foto (acimut 201°, elevación 65°). `src/escena/render.js`: sombras del sol en una caja que sigue a la cámara, oclusión ambiental N8AO + SMAA + OutputPass; reflejos del propio cielo (sin RoomEnvironment). `suelo.js`: el terreno recibe sombras 3D solo donde la foto está al sol, y detalle de cerca (`tools/11_suelo.py`: calzada/acera/tierra + texturas de asfalto, baldosa y tierra dibujadas). Calidad alto/medio/bajo en `src/config/calidad.js` (`?calidad=`; móvil → bajo). Render completo ≈ 7 ms a 1280×720. Rubén autorizó las descargas: cielo HDRI de Poly Haven (`tools/12_cielo.py`, girado para que su sol coincida con el de la ortofoto) y texturas de ambientCG para el suelo (`tools/11_suelo.py` las usa si están). 09_tejados: sin copas de árbol (píxeles verdes) y techo plano en edificios estrechos o con rejilla mala (error medio 0,090 m). Siguiente: R4 (splats, necesita capturas).
 
-**Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, fase **F0 (recinto sobre plano), tercera vuelta con fotos y croquis de Rubén; sigue como propuesta, pendiente de su aprobación**. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
+**Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, **F0 aprobada y F1 (el pueblo en fiestas, sin vacas) hecha el 2026-11-17, pendiente de que Rubén la pruebe**. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
 
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
@@ -199,13 +199,36 @@
 
 ## Fiestas (PLAN_FIESTAS.md)
 
-**Fase actual: F0 — recinto sobre plano. Tercera vuelta (2026-11-16) con tres croquis y más respuestas de Rubén; sigue siendo propuesta y está parada hasta que la apruebe.**
+**Fase actual: F1 — el pueblo en fiestas (sin vacas). Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno.** La F0 quedó aprobada por Rubén el 2026-11-17.
+
+### Hecho en F1
+- **Entrar y salir** (`src/fiestas/modoFiestas.js`, enganchado en `juego.js`): con `?fiestas=plaza|calle|encierro` o desde la pausa (desplegable «Fiestas»; dentro ofrece «Volver al pueblo»). Fundido a negro; se retira el tráfico, se ocultan los peatones, se pone la hora de «Día» sin cambiar la que el jugador tenía guardada, y el jugador queda a pie dentro del recinto (plaza: en el ruedo mirando al tablado; calle: a 45 m de la puerta; encierro: en el ruedo mirando a la puerta). Al salir se libera todo y vuelve al coche. El código de fiestas va en un archivo aparte (30 kB) que solo se descarga al entrar.
+- **Vallado** (`src/fiestas/vallado.js`, medidas en `src/config/fiestas.js`): tablones, panel rojo, barandilla de tubo, cierres de barrotes, puerta (cerrada en «plaza», abierta en los otros dos modos, recogida contra la valla norte), tablado y gradas del nº 2 con filas, burladero, valla gris y manga del corral con su portón. Una malla por material y colisión en cada tramo (3 m de alto: no se salta). Los tramos sin valla (tapias) también llevan colisión: la tapia de `muros.json` tiene un hueco de 0,9 m por el que se salía.
+- **Ambiente** (`src/fiestas/ambiente.js`): arena de 16 cm sobre el ruedo (tapa los bordillos), con su colisión; 20 ristras de banderines de fachada a fachada (515 banderines, se mueven con el viento); ambulancia en el callejón sur; público en las aceras de detrás de las vallas, en el tablado, en las gradas y en los balcones (también el del Ayuntamiento). **Los de las gradas y el tablado, sentados** (petición de Rubén): como aún no hay animación de sentado, se doblan los huesos de la postura de quieto.
+- **Farolas**: las 4 que caen en el ruedo o en el recorrido se quitan al entrar, con su choque, y se reponen al salir (`farolas.oculta` / `repone`).
+- **Montón delante del nº 5** (petición de Rubén): era un bulto de 0,8 m del MDT. Se aplana al cargar el mundo, en las alturas y en la malla (`src/datos/correccionesTerreno.js`); vale también para el modo de conducción. Es el único bulto de más de 20 cm en todo el recinto.
+- **Ayuntamiento a mano** (PR 152 de Rubén, fusionado): el tablado y el cierre del callejón sur cuelgan ahora de su fachada, que queda 1,4 m al oeste de la huella del Catastro. El ruedo pasa a 373 m² y 36 m de largo.
+- **Prueba automática** (`tools/prueba_fiestas.mjs`, con el servidor de desarrollo y Playwright): capturas, un «bot» que corre al azar a paso de física y comprobación al salir.
+  | Modo | Calidad | Recorrido del bot | Pasos fuera del recinto | Al salir |
+  |---|---|---|---|---|
+  | plaza (puerta cerrada) | bajo y medio | 0,6 km | 0 de 9 000 | igual que antes |
+  | calle (puerta abierta) | bajo | 2,4 km | 0 de 36 000 | igual que antes |
+  | encierro, móvil emulado 844×390 táctil | bajo | 2,4 km | 0 de 36 000 | igual que antes; mandos táctiles visibles |
+  «Igual que antes»: mismas colisiones (12 936), hora, tráfico y peatones visibles, farolas repuestas y nada del festejo en la escena. Sin errores de consola. La escena queda con 1 o 2 mallas más que antes de entrar (cambia de una prueba a otra); no llevan nombre de fiestas y no se ha mirado cuáles son (lo más probable, tejados que el juego genera al acercarse a la plaza). En modo plaza el bot no pasa de la puerta.
+- **Coste** (contado, no medido en FPS: aquí no hay tarjeta gráfica): el festejo añade 27 mallas y 0,20 M de triángulos en «bajo» (16 personas) y 51 mallas y 0,49 M en «medio» (40 personas). Casi todo es el público: cada persona son ~11 000 triángulos y una malla con esqueleto. En «alto», 70 personas.
+
+### Pendiente de F1 / para más adelante
+- Rubén: probarlo en su PC y en el móvil (`npm run dev` y `?fiestas=plaza&debug=1`) y decir cómo va de FPS. No está publicado en `juegos/` (eso es `npm run publica`, mejor desde su PC).
+- El público de calidad «alto» (70 personas, ~0,8 M de triángulos) no se ha podido probar aquí. Si pesa, bajar `FIESTAS.publico.cantidad`; el público lejano simplificado es de la F8.
+- La tapia del lado norte de San Roque se ve con un hueco de 0,9 m (viene de `muros.json`); no se puede pasar, pero se ve.
+- Las vallas grises de las puertas no dejan entrar (los refugios son de la F2).
+- La ortofoto pilló montadas las gradas del nº 2: en calidad «bajo» se ve su mancha en el suelo junto a las gradas.
 
 ### Hecho en F0
 - `PLAN_FIESTAS.md` añadido al proyecto (venía del chat).
 - `src/datos/fiestas.js`: el recinto como dato. Línea de fachadas de la plaza y de San Roque (de las filas de `casasPlaza.js`, las huellas del Catastro y las tapias de `muros.json`; cada lado dice de dónde sale), y de ella cuelgan las vallas, paralelas a `SEPARACION_VALLA` (1,5 m). 31 tramos numerados (plaza 1–5, puerta 6, calle 7–31) con su tipo y dónde se ven (`visto`), cierres de barrotes, ruedo de arena, recorrido de la calle, puerta, tablado, gradas del nº 2, corral con su pasillo y su patio, ambulancia, burladero, valla gris, regla del encierro, zonas de público y dudas. `estado: 'propuesta'`.
 - `tools/20_recinto_fiestas.py` → `data/processed/previews/recinto_fiestas.png` (y copia en `docs/fiestas/recinto_fiestas.jpg` con `--jpg`): vista general, tres detalles y el texto de las dudas. Lee `fiestas.js` con node (única fuente). Comprueba que ninguna valla atraviesa edificios, que la línea de fachadas pasa por fachadas reales, el ancho libre y el desnivel, y lista lo que hay hoy en el recinto. Con `--assets` usa otra carpeta de datos (la del juego publicado) y, si no están las teselas de la ortofoto, las saca de `cabanillas.glb`.
-- Medidas: plaza 604 m² entre fachadas, ruedo 393 m² (38 m de largo; 8,0 m de ancho en la puerta y 12,6 m junto al tablado). Calle: 155 m de eje desde la puerta; el paso más estrecho son los 3,5 m entre las gradas del nº 2 y la valla norte. Puerta de 4,5 m. Casi llano: 0,7 % en la plaza y 0,9 % en la calle.
+- Medidas (con el Ayuntamiento a mano): plaza 577 m² entre fachadas, ruedo 373 m² (36 m de largo; 8,0 m de ancho en la puerta y 12,4 m junto al tablado). Calle: 155 m de eje desde la puerta; el paso más estrecho son los 3,5 m entre las gradas del nº 2 y la valla norte. Puerta de 4,5 m. Casi llano: 0,7 % en la plaza y 0,9 % en la calle.
 - En el recinto hoy: 0 coches aparcados, 9 farolas (1 del LiDAR y 8 estimadas), 3 árboles del LiDAR en San Roque (el de x ≈ 131 se ve en la foto 2) y ningún banco ni señal de OSM. La F1 decide qué se quita.
 
 ### Lo que fijan las respuestas, las fotos y los croquis de Rubén (descritos en `docs/fiestas/README.md`)
@@ -224,9 +247,8 @@
 - D6 sitio del burladero y los demás. D5 tipo de valla de los tramos 13–24 y 29. D7 final del recorrido. D8 bocacalles de la Vicera, de la Fragua y del ramal. D9 plazuela y retranqueo.
 - Resueltas: D2 (ambulancia, no camión), D3 (callejones cerrados), D4 (1,5 m), D10 (puerta), D11 (encierro) y D12 (corral en el nº 8).
 
-### Pendiente
-- Rubén: revisar la imagen y aprobar la F0, o corregir. Las dudas que quedan tienen todas un valor puesto y se pueden cambiar después (son un número o una palabra en `fiestas.js`).
-- Claude: con su visto bueno, `estado: 'aprobado'` y F1.
+### Dudas de la F0 que siguen abiertas
+- Tienen todas un valor puesto y se pueden cambiar después (son un número o una palabra en `fiestas.js`): D1, D5, D6, D7, D8, D9 y D13.
 
 ### Decisiones
 - El recinto vive solo en `src/datos/fiestas.js`; la herramienta de Python lo evalúa con node para no duplicarlo.

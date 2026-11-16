@@ -116,6 +116,16 @@ def carga_recinto() -> dict:
     return json.loads(r.stdout)
 
 
+def carga_filas_casas() -> list[LineString]:
+    """Línea de fachada de cada fila de casas hecha a mano (src/datos/casas.js): es la que ve el juego."""
+    codigo = ("import('./src/datos/casas.js').then((m) => console.log(JSON.stringify(m.FILAS_CASAS.map((f) => "
+              "({ o: f.origen, e: f.eje, u: [Math.min(...f.casas.map((c) => c.u[0])), Math.max(...f.casas.map((c) => c.u[1]))] })))))")
+    r = subprocess.run(["node", "--input-type=module", "-e", codigo], cwd=RAIZ, capture_output=True, text=True, encoding="utf-8")
+    if r.returncode != 0:
+        return []
+    return [LineString([(f["o"][0] + f["e"][0] * u, f["o"][1] + f["e"][1] * u) for u in f["u"]]) for f in json.loads(r.stdout)]
+
+
 def lee_json(ruta: Path):
     return json.loads(ruta.read_text(encoding="utf-8"))
 
@@ -592,7 +602,7 @@ def main() -> int:
     capas = {
         "edificios": edificios,
         "muros": muros,
-        "obstaculos": unary_union(edificios + [m.buffer(0.1) for m in muros]),
+        "obstaculos": unary_union(edificios + [m.buffer(0.1) for m in muros] + [f.buffer(0.1) for f in carga_filas_casas()]),
         # Público: lo que queda entre la línea de fachadas y las vallas (menos el tablado)
         "publico": borde_total.difference(unary_union([Polygon(recinto["plaza"]["ruedo"]), Polygon(recinto["calle"]["recorrido"]),
                                                         Polygon(recinto["tablado"]["esquinas"]),

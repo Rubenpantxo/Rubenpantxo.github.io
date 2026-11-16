@@ -29,8 +29,9 @@ export const FIESTAS = {
     burladero: { anchoM: 1.3, altoM: 1.55, gruesoM: 0.06 },
   },
 
-  // Tablado y gradas: filas de asientos que suben desde el frente
-  gradas: { filaFondoM: 0.75, contrahuellaM: 0.4, primeraM: 0.9, barandillaM: 1.0 },
+  // Tablado y gradas: filas de asientos que suben desde el frente. La primera fila queda casi a
+  // la altura de la valla, como en la foto 4 (los pies de los sentados asoman por encima)
+  gradas: { filaFondoM: 0.75, contrahuellaM: 0.4, primeraM: 1.4, barandillaM: 1.0 },
 
   arena: { gruesoM: 0.16, color: 0xcdb083, colorOscuro: 0xb39468 },   // tapa los bordillos (12 cm)
 
@@ -47,11 +48,17 @@ export const FIESTAS = {
 
   // Público (personas de MakeHuman en postura de quieto). Cantidad por calidad.
   publico: {
-    cantidad: { alto: 80, medio: 50, bajo: 22 },
+    // Cada persona son ~11 000 triángulos y una malla con esqueleto: en «bajo», pocas. Un
+    // público lejano simplificado queda para la F8.
+    cantidad: { alto: 70, medio: 40, bajo: 16 },
     // Reparto: fracción en el tablado y las gradas, en los balcones y el resto en las aceras
     enGradas: 0.3, enBalcones: 0.12,
-    visibleHastaM: { alto: 95, medio: 75, bajo: 55 },
+    visibleHastaM: { alto: 95, medio: 70, bajo: 45 },
     separacionM: 0.62,
     semilla: 20261116,
+    // Sentados (gradas y tablado): no hay animación de sentado todavía (F6), así que se doblan
+    // los huesos de la postura de quieto: muslos hacia delante, piernas colgando y antebrazos
+    // sobre los muslos
+    sentado: { musloRad: 1.45, piernaRad: 0.12, antebrazoRad: 1.05, brazoRad: 0.18, caderaSobreAsientoM: 0.1 },
   },
 };

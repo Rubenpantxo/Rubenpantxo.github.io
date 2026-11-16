@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { clone as clonaConEsqueleto } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { CALIDAD } from '../config/calidad.js';
 import { FIESTAS } from '../config/fiestas.js';
+import { FILAS_AYUNTAMIENTO } from '../datos/casasAyuntamiento.js';
 import { FILAS_PLAZA } from '../datos/casasPlaza.js';
 import { Lote, azarCon } from './vallado.js';
 
@@ -259,15 +260,16 @@ function sitiosAceras(recinto) {
   return sitios;
 }
 
-// Sitios en los balcones de las casas de la plaza y de San Roque 50-54 (casasPlaza.js)
+// Sitios en los balcones de las casas de la plaza y de San Roque 50-54 (casasPlaza.js) y en el
+// balcón del Ayuntamiento que da a la plaza (casasAyuntamiento.js)
 function sitiosBalcones(terreno) {
   const sitios = [];
-  for (const fila of FILAS_PLAZA) {
+  for (const fila of [...FILAS_PLAZA, FILAS_AYUNTAMIENTO[0]]) {
     const { origen: O, eje: [ex, ez] } = fila;
     const enMundo = (u, w) => [O[0] + u * ex + w * ez, O[1] + u * ez - w * ex];
     for (const casa of fila.casas) {
       const [xa, za] = enMundo((casa.u[0] + casa.u[1]) / 2, -1.2);
-      const y0 = terreno.alturaEn(xa, za);
+      const y0 = fila.nivel ?? terreno.alturaEn(xa, za);
       for (const b of casa.balcones ?? []) {
         if (b.vuelo < 0.45) continue;
         const largo = b.u[1] - b.u[0];
@@ -286,6 +288,44 @@ function elige(sitios, cuantos, azar) {
   const lista = sitios.map((s) => ({ s, clave: Math.pow(azar(), 1 / (s.peso ?? 1)) }));
   lista.sort((a, b) => b.clave - a.clave);
   return lista.slice(0, cuantos).map((e) => e.s);
+}
+
+// Sienta a una persona doblando los huesos de su postura de quieto (esqueleto de MakeHuman de
+// tools/build_personas.py: thigh, calf, upperarm, lowerarm). Devuelve los huesos tocados con su
+// giro, para volver a ponerlos después de cada paso de la animación, y la altura de la cadera.
+const EJE_X = new THREE.Vector3(1, 0, 0);
+function sienta(objeto) {
+  const S = FIESTAS.publico.sentado;
+  objeto.updateMatrixWorld(true);
+  const qObjeto = objeto.getWorldQuaternion(new THREE.Quaternion());
+  // Giro sobre el eje transversal de la persona (su X), expresado en el mundo
+  const giro = (rad) => qObjeto.clone().multiply(new THREE.Quaternion().setFromAxisAngle(EJE_X, rad)).multiply(qObjeto.clone().invert());
+  const mundo = (h) => h.getWorldQuaternion(new THREE.Quaternion());
+  const fijados = [];
+  let cadera = null;
+  // Gira «hueso» en el mundo (a partir de la orientación «desde») sin tocar a su padre
+  const pon = (hueso, rad, desde = mundo(hueso)) => {
+    hueso.quaternion.copy(mundo(hueso.parent).invert().multiply(giro(rad).multiply(desde)));
+    hueso.updateMatrixWorld(true);
+    fijados.push([hueso, hueso.quaternion.clone()]);
+  };
+  for (const lado of ['l', 'r']) {
+    const muslo = objeto.getObjectByName(`thigh_${lado}`);
+    const pierna = objeto.getObjectByName(`calf_${lado}`);
+    const brazo = objeto.getObjectByName(`upperarm_${lado}`);
+    const antebrazo = objeto.getObjectByName(`lowerarm_${lado}`);
+    if (!muslo || !pierna) return null;
+    cadera ??= muslo.getWorldPosition(new THREE.Vector3()).y - objeto.position.y;
+    const piernaDePie = mundo(pierna);
+    pon(muslo, -S.musloRad);
+    pon(pierna, S.piernaRad, piernaDePie);          // la pierna, casi vertical como de pie
+    if (brazo && antebrazo) {
+      const antebrazoDePie = mundo(antebrazo);
+      pon(brazo, -S.brazoRad);
+      pon(antebrazo, -S.antebrazoRad, antebrazoDePie);
+    }
+  }
+  return { fijados, cadera };
 }
 
 function creaPublico(recinto, terreno, personas, sitiosGradas, sombras) {
@@ -312,8 +352,16 @@ function creaPublico(recinto, terreno, personas, sitiosGradas, sombras) {
     quieto.time = azar() * v.quieto.duration;
     mezclador.update(0);
     objeto.position.set(s.x, s.y ?? terreno.alturaEn(s.x, s.z), s.z);
-    objeto.rotation.y = s.rumbo + (azar() - 0.5) * 0.7;
+    objeto.rotation.y = s.rumbo + (azar() - 0.5) * (s.sentado ? 0.3 : 0.7);
     objeto.scale.setScalar(0.94 + azar() * 0.1);
+    let fijados = null;
+    if (s.sentado) {
+      const sentado = sienta(objeto);
+      if (sentado) {
+        fijados = sentado.fijados;
+        objeto.position.y = s.y + P.sentado.caderaSobreAsientoM - sentado.cadera;
+      }
+    }
     objeto.traverse((o) => {
       if (!o.isMesh) return;
       o.castShadow = sombras;
@@ -321,7 +369,7 @@ function creaPublico(recinto, terreno, personas, sitiosGradas, sombras) {
       o.frustumCulled = true;
     });
     grupo.add(objeto);
-    return { objeto, mezclador, turno: i % 4, pendiente: 0 };
+    return { objeto, mezclador, fijados, turno: i % 4, pendiente: 0 };
   });
   const visibleM = P.visibleHastaM[CALIDAD.nivel] ?? 75;
   let contador = 0;
@@ -336,7 +384,12 @@ function creaPublico(recinto, terreno, personas, sitiosGradas, sombras) {
         g.objeto.visible = d < visibleM;
         g.pendiente += dt;
         // La respiración de la postura de quieto, solo cerca y un fotograma de cada cuatro
-        if (d < 30 && (contador + g.turno) % 4 === 0) { g.mezclador.update(g.pendiente); g.pendiente = 0; }
+        if (d < 30 && (contador + g.turno) % 4 === 0) {
+          g.mezclador.update(g.pendiente);
+          g.pendiente = 0;
+          // Los sentados: la animación de quieto les pondría las piernas de pie
+          if (g.fijados) for (const [hueso, q] of g.fijados) hueso.quaternion.copy(q);
+        }
       }
     },
   };

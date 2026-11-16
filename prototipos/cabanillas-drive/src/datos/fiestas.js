@@ -19,6 +19,9 @@
 //     foto 2: San Roque desde el lado sur, a la altura del nº 25, mirando a la plaza
 //     foto 3: San Roque desde el lado sur, frente al nº 29, mirando a la puerta y a la plaza
 //     foto 4: la plaza mirando al este: tablado, ambulancia y corral
+// - El Ayuntamiento hecho a mano por Rubén (PR 152, casasAyuntamiento.js): su fachada a la plaza
+//   queda 1,4 m más al oeste que la huella del Catastro y mide 9,3 m; el tablado y el cierre del
+//   callejón sur cuelgan de ella desde el 2026-11-17.
 // - Tres croquis de Rubén del 2026-11-16 (también descritos en docs/fiestas/README.md):
 //     croquis 1: sobre el plano de la F0, el tablado, el cierre del callejón sur, la ambulancia
 //                y la puerta de los corrales
@@ -69,14 +72,14 @@ const PUERTA_NORTE = [162.42, 323.71];
 const BORDE_PLAZA = [
   { p: PUERTA_NORTE, clase: 'fachada', lado: 'norte', tipo: T, sep: S, visto: 'fotos 1 y 4',
     ref: 'recta de la fila plaza_impares (nº 1 a 11)' },
-  { p: [204.4, 335.65], clase: 'tablado', lado: 'este', tipo: 'tablado', sep: FONDO_TABLADO + PASO_TRAS_TABLADO,
+  { p: [202.96, 335.25], clase: 'tablado', lado: 'este', tipo: 'tablado', sep: FONDO_TABLADO + PASO_TRAS_TABLADO,
     visto: 'fotos 1 y 4 y croquis 1',
-    ref: 'recta de la fachada oeste del Ayuntamiento (Catastro 259), de la fila de impares a su esquina suroeste; '
-      + 'el tablado va de 3 a 6 m de ella' },
-  { p: [200.8, 346.5], clase: 'bocacalle', lado: 'este', tipo: T, sep: FONDO_TABLADO + PASO_TRAS_TABLADO, visto: 'croquis 1',
+    ref: 'recta de la fachada oeste del Ayuntamiento hecho a mano (casasAyuntamiento.js, fila ayuntamiento_oeste: '
+      + 'de (201,91, 338,23) a (198,82, 347,03)), de la fila de impares a su esquina suroeste; el tablado va de 3 a 6 m de ella' },
+  { p: [198.82, 347.03], clase: 'bocacalle', lado: 'este', tipo: T, sep: FONDO_TABLADO + PASO_TRAS_TABLADO, visto: 'croquis 1',
     nombre: 'cierre hacia el callejón sur',
     ref: 'de la esquina suroeste del Ayuntamiento a la fila de pares, en línea con el frente del tablado' },
-  { p: [199.25, 351.2], clase: 'fachada', lado: 'sur', tipo: T, sep: S, visto: 'foto 1 y croquis 1',
+  { p: [197.6, 350.5], clase: 'fachada', lado: 'sur', tipo: T, sep: S, visto: 'foto 1 y croquis 1',
     ref: 'recta de la fila plaza_pares (nº 10 a 4 y el principio del nº 2)' },
   { p: G_ESTE_0, clase: 'gradas', lado: 'oeste', tipo: 'tablado', sep: 0, visto: 'foto 1 y croquis 3',
     nombre: 'frente de la grada del lado de la plaza', ref: 'cara este de las gradas del nº 2: es la parte fija del cierre' },
@@ -305,7 +308,8 @@ export const RECINTO_FIESTAS = {
     patio: [[165.3, 358.0], [185.5, 357.2], [186.5, 369.5], [166.0, 371.0]], aprox: true },
 
   // Ambulancia (obligatoria en el festejo): dentro del callejón sur del Ayuntamiento (foto 4 y croquis 1)
-  ambulancia: { en: [202.0, 349.7], direccion: [0.935, 0.354], largo: 5.6, ancho: 2.1 },
+  // Centrada en el callejón, que mide 3,7 m entre el Ayuntamiento y las casas del lado sur
+  ambulancia: { en: [201.2, 349.75], direccion: [0.933, 0.359], largo: 5.6, ancho: 2.1 },
 
   // Burladeros: panel rojo estrecho separado de la valla. Solo el que se ve en la foto 1, a ojo (D6)
   burladeros: [{ en: enPares(35.0, S + 0.9), lado: 'sur', zona: 'plaza', aprox: true, visto: 'foto 1' }],

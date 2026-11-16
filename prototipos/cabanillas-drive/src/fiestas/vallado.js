@@ -159,7 +159,10 @@ export function creaVallado(recinto, { terreno, fisica, sombras = true }) {
   // --- Tramos de valla
   let puerta = null;
   for (const t of recinto.tramos) {
-    if (t.tipo === 'ninguna' || t.largo < 0.1) continue;
+    if (t.largo < 0.1) continue;
+    // Sin valla: el límite es la tapia o la fachada. Aun así lleva colisión, porque las tapias
+    // de muros.json tienen algún hueco por el que se saldría del recinto
+    if (t.tipo === 'ninguna') { colision(t.a, t.b); continue; }
     if (t.tipo === 'puerta') { puerta = t; continue; }
     if (t.tipo === 'panel') panel(lote, t.a, t.b);
     else if (t.tipo === 'tubo') tubo(lote, t.a, t.b);
@@ -194,8 +197,10 @@ export function creaVallado(recinto, { terreno, fisica, sombras = true }) {
       const n = Math.floor(ancho / FIESTAS.publico.separacionM);
       for (let k = 0; k < n; k++) {
         const s = punto(a, b, (k + 0.5) / n);
-        const dm = (d0 + d1) / 2;
-        sitiosGradas.push({ x: s[0] + fondo.dx * dm, y: y0 + h, z: s[1] + fondo.dz * dm, rumbo });
+        // Sentados cerca del borde de su fila, con las piernas colgando hacia la de delante (en la
+        // primera fila, algo más atrás: delante está la valla)
+        const dm = d0 + (i === 0 ? 0.52 : 0.3);
+        sitiosGradas.push({ x: s[0] + fondo.dx * dm, y: y0 + h, z: s[1] + fondo.dz * dm, rumbo, sentado: true });
       }
     }
     if (barandilla) {
