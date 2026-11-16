@@ -7,7 +7,7 @@
 - **R2 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/09_tejados.py` ajusta 1–4 faldones por RANSAC al MDS (tejado = mínimo de los planos, cumbreras exactas) o, si no cuadra, malla de rejilla del MDS; aleros de 0,3 m con canto; muros con la altura real del borde del tejado. 1 313 tejados de planos, 496 de rejilla, 3 planos por defecto. Error medio tejado − MDS 0,107 m (mediana 0,061). `tejados.json` + `tejados.bin` (2,6 MB, 1,1 MB comprimido). R2 aprobado.
 - **R3 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/10_sol.py` estima el sol del vuelo de la ortofoto correlacionando sombras del nDSM con lo oscuro de la foto (acimut 201°, elevación 65°). `src/escena/render.js`: sombras del sol en una caja que sigue a la cámara, oclusión ambiental N8AO + SMAA + OutputPass; reflejos del propio cielo (sin RoomEnvironment). `suelo.js`: el terreno recibe sombras 3D solo donde la foto está al sol, y detalle de cerca (`tools/11_suelo.py`: calzada/acera/tierra + texturas de asfalto, baldosa y tierra dibujadas). Calidad alto/medio/bajo en `src/config/calidad.js` (`?calidad=`; móvil → bajo). Render completo ≈ 7 ms a 1280×720. Rubén autorizó las descargas: cielo HDRI de Poly Haven (`tools/12_cielo.py`, girado para que su sol coincida con el de la ortofoto) y texturas de ambientCG para el suelo (`tools/11_suelo.py` las usa si están). 09_tejados: sin copas de árbol (píxeles verdes) y techo plano en edificios estrechos o con rejilla mala (error medio 0,090 m). Siguiente: R4 (splats, necesita capturas).
 
-**Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, **F0 aprobada y F1 (el pueblo en fiestas, sin vacas) hecha el 2026-11-17, pendiente de que Rubén la pruebe**. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
+**Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, **F0 aprobada; F1 (el pueblo en fiestas) y F2 (personaje en tercera persona) hechas el 2026-11-17, pendientes de que Rubén las pruebe**. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
 
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
@@ -199,7 +199,37 @@
 
 ## Fiestas (PLAN_FIESTAS.md)
 
-**Fase actual: F1 — el pueblo en fiestas (sin vacas). Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno.** La F0 quedó aprobada por Rubén el 2026-11-17.
+**Fase actual: F2 — personaje en tercera persona. Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno.** La F0 quedó aprobada el 2026-11-17 y la F1 está hecha y subida a `main` (Rubén pidió seguir con la F2 sin esperar a probarla).
+
+### Hecho en F2
+- **Jugador** (`src/fiestas/personaje.js`, parámetros en `FIESTAS.personaje`): una persona de MakeHuman (`h_joven`) con el cuerpo visible sobre la cápsula de `juego/peaton.js`, que gana tres métodos para esto (`mueve`: velocidad en el mundo con gravedad y salto; `llevaA`: colocar sin colisión; `ponColision`). Se mueve respecto a la cámara y el cuerpo gira hacia donde va.
+  - Andar 2,2 m/s (joystick a medias), correr 4,6 m/s y esprint 6,6 m/s (Mayús o joystick a fondo). El esprint gasta energía: se agota en 9,5 s y entonces se queda en correr hasta recuperar.
+  - **Quiebro** (Q): finta lateral de 2,3 m en 0,26 s, al lado al que se empuja la palanca o alternando. Dos seguidos hacen el **combo** de ida y vuelta.
+  - **Recorte** (E): arco hacia un lado mientras el cuerpo gira 155°.
+  - **Salto** (Espacio): 0,78 m de alto. **Especial** (E y Espacio casi a la vez, o su botón): 1,34 m de alto y 3,4 m de largo. El salto se convierte en especial si el otro botón llega en 0,16 s, y al revés.
+  - **Refugio** (F o botón «Subir»): a menos de 1,5 m de una valla de tablones se sube y se queda sentado arriba mirando al ruedo; junto al burladero o la valla gris se mete detrás, agachado. Otra vez F, baja. Dentro recupera energía el triple de rápido y `seguro` vale verdadero (lo usará la F3).
+  - Cada suerte cuesta energía (quiebro 0,07, recorte 0,11, salto 0,18, especial 0,32 de 1).
+- **Animaciones**: no hay Blender en esta sesión, así que no se han hecho las nuevas. Correr, saltar, quebrar, recortar, agacharse y sentarse en la valla se consiguen girando huesos por encima de «andar» y «quieto» (tronco inclinado, codos doblados, piernas recogidas…). Es el «juego reducido de animaciones» que el plan preveía; las de verdad quedan para la F6.
+- **Cámara** (`src/fiestas/camaraPersonaje.js`, `FIESTAS.camara`): detrás del hombro, con el ratón (clic para capturarlo) o arrastrando el dedo. Si una fachada tapa, se acerca; las vallas no cuentan (se ve a través). V o 👁 cambia entre hombro, lejos y ojos. Tiene ya el gancho de la vaca: si hay una cerca fuera de la imagen y no se toca la cámara, gira hacia ella (`fiestas.ponVaca`).
+- **Controles** (`entrada.js`, `CONTROLES.teclasFiestas`): mapa de teclas por modo; en fiestas E, F y Espacio dejan de ser bajarse y freno de mano. Táctil: joystick a la izquierda y, a la derecha, Recorte y Especial abajo, Salto y Quiebro encima, y sobre ellos «Subir/Bajar» (solo aparece junto a un refugio) y la cámara. Los mandos del coche y el velocímetro se ocultan en fiestas.
+- **Marcador mínimo** (`src/hud/fiestas.js`): barra de energía y aviso «F: subir a la valla». El completo es de la F4.
+- **Prueba automática** (`tools/prueba_personaje.mjs`), en calidad baja, escritorio y móvil emulado (844×390 táctil):
+  | Qué | Resultado |
+  |---|---|
+  | Recorrido plaza → final de la calle → plaza con los mandos | 16 de 16 puntos, 337 m en 63 s, sin atascos |
+  | Subir y bajar en cada refugio | 20 de 20 (18 tramos de tablones, burladero y valla gris) |
+  | Suertes | quiebro 3,1 m; recorte 2,7 m; salto 0,78 m; especial 1,34 m; combo vuelve a 0,9 m del origen; salto + recorte = especial |
+  | Cámara | de 3,85 m libre a 3,0 m de espaldas a una fachada; con una vaca a la espalda gira 2,3 rad hasta dejarla dentro |
+  | Táctil | los cuatro botones hacen su suerte, el joystick mueve (7,9 m), «Subir» aparece y sube, y pasa a «Bajar» |
+  | Al salir | sin restos, teclas y mandos del coche otra vez |
+  Sin errores de consola.
+- Encontrado con las capturas y corregido: los giros de huesos se acumulaban de un fotograma a otro (el jugador acababa con los brazos en alto), porque el mezclador de animación no reescribe los huesos que no cambian.
+
+### Pendiente de F2 / para más adelante
+- Rubén: probar cómo se siente (velocidades, quiebro, salto, cámara) en PC y móvil; todo se ajusta en `src/config/fiestas.js`. Aquí no se puede juzgar la sensación: el navegador de pruebas va a menos de un fotograma por segundo.
+- Las animaciones de verdad (correr, quiebro, salto, trepar, caída) en Blender: F6.
+- La tecla M para el sonido no se ha puesto (no hay sonido hasta la F6 y M ya gira el minimapa).
+- La pantalla de controles de la pausa sigue siendo la del coche; al entrar a fiestas sale un aviso con las teclas.
 
 ### Hecho en F1
 - **Entrar y salir** (`src/fiestas/modoFiestas.js`, enganchado en `juego.js`): con `?fiestas=plaza|calle|encierro` o desde la pausa (desplegable «Fiestas»; dentro ofrece «Volver al pueblo»). Fundido a negro; se retira el tráfico, se ocultan los peatones, se pone la hora de «Día» sin cambiar la que el jugador tenía guardada, y el jugador queda a pie dentro del recinto (plaza: en el ruedo mirando al tablado; calle: a 45 m de la puerta; encierro: en el ruedo mirando a la puerta). Al salir se libera todo y vuelve al coche. El código de fiestas va en un archivo aparte (30 kB) que solo se descarga al entrar.

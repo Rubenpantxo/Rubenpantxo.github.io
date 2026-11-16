@@ -88,7 +88,9 @@ export function creaVallado(recinto, { terreno, fisica, sombras = true }) {
   const punto = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
   const largoDe = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]);
 
-  function colision(a, b, { alto = V.altoColisionM, grueso = V.gruesoColisionM } = {}) {
+  // Colisiones que no tapan la vista (vallas): la cámara del jugador las ignora
+  const transparentes = new Set();
+  function colision(a, b, { alto = V.altoColisionM, grueso = V.gruesoColisionM, opaco = false } = {}) {
     const largo = largoDe(a, b);
     if (largo < 0.05) return null;
     const giro = Math.atan2(-(b[1] - a[1]), b[0] - a[0]);
@@ -98,6 +100,7 @@ export function creaVallado(recinto, { terreno, fisica, sombras = true }) {
     const collider = mundo.createCollider(RAPIER.ColliderDesc.cuboid(largo / 2, alto / 2 + 0.5, grueso / 2)
       .setTranslation(cx, y + alto / 2 - 0.5, cz).setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }).setFriction(0.4));
     colisiones.push(collider);
+    if (!opaco) transparentes.add(collider.handle);
     return collider;
   }
 
@@ -219,7 +222,7 @@ export function creaVallado(recinto, { terreno, fisica, sombras = true }) {
   };
   function bloque(esquinas) {
     // Colisión del bloque entero: cuatro caras
-    for (let i = 0; i < 4; i++) colision(esquinas[i], esquinas[(i + 1) % 4], { grueso: 0.3 });
+    for (let i = 0; i < 4; i++) colision(esquinas[i], esquinas[(i + 1) % 4], { grueso: 0.3, opaco: true });
   }
 
   // Tablado: frente en la valla (esquinas 0 → 1), fondo hacia el Ayuntamiento
@@ -318,6 +321,7 @@ export function creaVallado(recinto, { terreno, fisica, sombras = true }) {
   return {
     raiz,
     sitiosGradas,
+    transparentes,
     ponPuerta,
     get puertaAbierta() { return abierta; },
     libera() {

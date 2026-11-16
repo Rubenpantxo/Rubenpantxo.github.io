@@ -6,7 +6,10 @@
 import { CALIDAD } from '../config/calidad.js';
 import { FIESTAS } from '../config/fiestas.js';
 import { RECINTO_FIESTAS } from '../datos/fiestas.js';
+import { creaHudFiestas } from '../hud/fiestas.js';
 import { creaAmbiente } from './ambiente.js';
+import { creaCamaraPersonaje } from './camaraPersonaje.js';
+import { creaPersonaje } from './personaje.js';
 import { creaVallado } from './vallado.js';
 
 export const NOMBRES_MODO = { plaza: 'Vacas en la plaza', calle: 'Vacas en la calle', encierro: 'Encierro' };
@@ -39,13 +42,18 @@ function dentroDe(poligono, x, z) {
   return dentro;
 }
 
-export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, farolas }) {
+export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, farolas, peaton, camara }) {
   const recinto = RECINTO_FIESTAS;
   let vallado = null;
   let ambiente = null;
   let modo = null;
   let horaAnterior = null;
   let farolasQuitadas = 0;
+  let personaje = null;
+  let camaraJugador = null;
+  let hud = null;
+  let vaca = null;               // posición de la vaca más cercana (la pondrá la F3)
+  const ACCIONES = ['quiebro', 'recorte', 'salto', 'especial', 'refugio'];
 
   // Fundido a negro
   const velo = document.createElement('div');
@@ -81,6 +89,11 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       escena.add(vallado.raiz, ambiente.raiz);
       // Fuera las farolas que caen en el ruedo o en el recorrido (las de las aceras se quedan)
       farolasQuitadas = farolas?.oculta((x, z) => dentroDe(recinto.plaza.ruedo, x, z) || dentroDe(recinto.calle.recorrido, x, z)) ?? 0;
+      // El jugador en tercera persona, su cámara y su marcador
+      personaje = creaPersonaje({ peaton, terreno, recinto, personas, sombras: CALIDAD.sombras });
+      escena.add(personaje.objeto);
+      camaraJugador = creaCamaraPersonaje({ camara, fisica, terreno, colliderJugador: peaton.collider, transparentes: vallado.transparentes });
+      hud = creaHudFiestas();
       // Hora de «Día», sin tocar lo que el jugador tenía elegido (se repone al salir)
       if (ciclo) {
         horaAnterior = ciclo.modo;
@@ -99,6 +112,11 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
 
   function desmonta() {
     if (!vallado) return;
+    personaje.libera();
+    hud.quita();
+    personaje = null;
+    camaraJugador = null;
+    hud = null;
     ambiente.libera();
     vallado.libera();
     farolas?.repone();
@@ -121,14 +139,41 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     // «alMontar» se llama con la pantalla en negro, ya montado el festejo (para colocar al jugador)
     entra(cual, alMontar) {
       if (!FIESTAS.modos.includes(cual)) return Promise.resolve(false);
-      return conFundido(() => { monta(cual); alMontar?.(salida(cual)); }).then(() => true);
+      return conFundido(() => {
+        monta(cual);
+        const s = salida(cual);
+        alMontar?.(s);                 // juego.js pone la cápsula del jugador en su sitio
+        personaje.reinicia(s.guinada);
+        camaraJugador.reinicia(s.guinada);
+      }).then(() => true);
     },
     sale(alDesmontar) {
       if (modo === null) return Promise.resolve(false);
       return conFundido(() => { desmonta(); alDesmontar?.(); }).then(() => true);
     },
-    actualiza(dt, camara) {
-      ambiente?.actualiza(dt, camara);
+    actualiza(dt, camaraEscena) {
+      ambiente?.actualiza(dt, camaraEscena);
     },
+    get personaje() { return personaje; },
+    get camaraJugador() { return camaraJugador; },
+    // Acciones pulsadas (teclado o botones táctiles): se llama una vez por fotograma
+    atiende(entrada) {
+      if (!personaje) return;
+      for (const a of ACCIONES) if (entrada.consume(a)) personaje.pide(a);
+      if (entrada.consume('camaraFiestas')) personaje.objeto.visible = camaraJugador.cambiaVista() !== 'ojos';
+    },
+    // Paso de física del jugador
+    paso(mandos, dt) { personaje?.paso(mandos, camaraJugador.guinada, dt); },
+    // Cámara, animación y marcador: una vez por fotograma
+    fotograma(dt, mirada, mandos) {
+      if (!personaje) return;
+      camaraJugador.mira(mirada.dx, mirada.dy, mandos.giro, dt);
+      personaje.anima(dt);
+      camaraJugador.coloca(personaje.posicion(), dt, vaca);
+      hud.actualiza({ energia: personaje.energia, agotado: personaje.agotado, pista: personaje.pista });
+    },
+    ponVaca(posicion) { vaca = posicion; },
+    mostrarHud(visible) { hud?.mostrar(visible); },
+    estadoJugador() { return personaje?.paraHud() ?? null; },
   };
 }

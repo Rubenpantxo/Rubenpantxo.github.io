@@ -294,7 +294,7 @@ function elige(sitios, cuantos, azar) {
 // tools/build_personas.py: thigh, calf, upperarm, lowerarm). Devuelve los huesos tocados con su
 // giro, para volver a ponerlos después de cada paso de la animación, y la altura de la cadera.
 const EJE_X = new THREE.Vector3(1, 0, 0);
-function sienta(objeto) {
+export function sienta(objeto) {
   const S = FIESTAS.publico.sentado;
   objeto.updateMatrixWorld(true);
   const qObjeto = objeto.getWorldQuaternion(new THREE.Quaternion());

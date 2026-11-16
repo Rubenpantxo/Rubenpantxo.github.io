@@ -151,7 +151,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     try {
       if (!fiestas) {
         const { creaModoFiestas } = await import('../fiestas/modoFiestas.js');
-        fiestas = creaModoFiestas({ escena, terreno: mundo.terreno, fisica, personas, ciclo, farolas });
+        fiestas = creaModoFiestas({ escena, terreno: mundo.terreno, fisica, personas, ciclo, farolas, peaton, camara });
       }
       const { NOMBRES_MODO } = await import('../fiestas/modoFiestas.js');
       const entro = await fiestas.entra(modo, (salida) => {
@@ -163,10 +163,14 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
         colisiones.fuerza({ x: salida.x, z: salida.z });
         aPie = true;
         botonBajar.hidden = true;
-        camara.fov = PEATON.fov;
-        camara.updateProjectionMatrix();
+        entrada.ponModo('fiestas');
+        document.getElementById('hud').classList.add('fiestas');       // sin velocímetro
       });
-      if (entro) avisa(`Fiestas · ${NOMBRES_MODO[modo]} · en la pausa, «Volver al pueblo»`, 5);
+      if (entro) {
+        avisa(matchMedia('(pointer: coarse)').matches
+          ? `Fiestas · ${NOMBRES_MODO[modo]} · joystick a fondo: esprint · ☰: volver al pueblo`
+          : `Fiestas · ${NOMBRES_MODO[modo]} · WASD y ratón · Mayús esprint · Q quiebro · E recorte · Espacio salto · F refugio · V cámara`, 9);
+      }
       return entro;
     } finally {
       cambiandoFiestas = false;
@@ -179,6 +183,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     try {
       return await fiestas.sale(() => {
         subirseYa();
+        entrada.ponModo('pueblo');
+        document.getElementById('hud').classList.remove('fiestas');
         document.exitPointerLock?.();
         trafico.raiz.visible = true;
         peatones.raiz.visible = true;
@@ -311,12 +317,14 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     if (aPie) otros.push({ x: centro.x, z: centro.z, radio: 0.6 });
     otros.push(...obstaculosPeatones);
     const fiesta = enFiestas();
+    if (fiesta) fiestas.atiende(entrada);
     if (!fiesta) trafico.actualiza(dt, { jugador: centro, camara, otros });
     acumulado += Math.min(dt, PASO_FISICA * MAX_PASOS_POR_FOTOGRAMA);
     while (acumulado >= PASO_FISICA) {
       coche.aplicaEntrada(aPie ? PARADO : mandos, PASO_FISICA);
       coche.paso(PASO_FISICA);
-      if (aPie) peaton.paso(mandos, PASO_FISICA);
+      if (fiesta) fiestas.paso(mandos, PASO_FISICA);
+      else if (aPie) peaton.paso(mandos, PASO_FISICA);
       fisica.mundo.step();
       acumulado -= PASO_FISICA;
     }
@@ -336,7 +344,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     if (!aPie && e.posicion.y < suelo - VEHICULO.reinicio.caidaMaxima) recolocaCerca();
     tiempoVolcado = !aPie && e.volcado ? tiempoVolcado + dt : 0;
 
-    if (aPie) {
+    if (fiesta) {
+      fiestas.fotograma(dt, mirada, mandos);
+    } else if (aPie) {
       peaton.mira(mirada.dx, mirada.dy, mandos.giro, dt);
       peaton.colocaCamara(camara);
     } else {
@@ -369,7 +379,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
           + `calidad ${CALIDAD.nivel} · resolución ${Math.round((ui.proporcionPixeles?.() ?? 1) * 100)} %`;
       }
     }
-    hud.actualiza(aPie ? peaton.estado() : e, dt, fiesta ? [] : trafico.posiciones());
+    hud.actualiza(fiesta ? fiestas.estadoJugador() : aPie ? peaton.estado() : e, dt, fiesta ? [] : trafico.posiciones());
     luces.actualiza(ciclo ? ciclo.estado.oscuridad : 0);
     farolas.actualiza(ciclo ? ciclo.estado.oscuridad : 0, camara, dt);
     let texto = textoDepuracion;
@@ -390,6 +400,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
       pausado = valor;
       acumulado = 0;
       hud.mostrar(!valor);
+      fiestas?.mostrarHud(!valor);
     },
   };
   if (import.meta.env.DEV) window.__juego = Object.assign(api, { THREE, renderer, camara, escena, colocaEn });

@@ -89,9 +89,10 @@ export function creaPeaton(fisica, terreno) {
     },
     // --- Para el personaje del modo fiestas (src/fiestas/personaje.js), que decide él la velocidad:
     // velocidad horizontal en el mundo (m/s), con gravedad, colisiones y salto (impulso vertical, m/s)
-    mueve(vx, vz, dt, impulsoY = 0) {
+    // «forzar»: el impulso vale también en el aire (el salto que se convierte en especial)
+    mueve(vx, vz, dt, impulsoY = 0, forzar = false) {
       if (!activo) return;
-      if (impulsoY > 0 && enSuelo) { vy = impulsoY; enSuelo = false; }
+      if (impulsoY > 0 && (enSuelo || forzar)) { vy = impulsoY; enSuelo = false; }
       else vy = enSuelo ? -1 : Math.max(vy - 9.81 * dt, -30);
       velocidad.set(vx, 0, vz);
       deseado.x = vx * dt;

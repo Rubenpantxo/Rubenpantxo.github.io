@@ -9,6 +9,9 @@ Material de referencia de `PLAN_FIESTAS.md`.
 - `f1_*.jpg`: capturas de la F1 sacadas por `tools/prueba_fiestas.mjs` (calidad media las de la plaza y baja la de la calle, sin tarjeta gráfica): la plaza
   hacia la puerta, el tablado con el Ayuntamiento, las gradas del nº 2, el nº 5 sin farola ni montón y la puerta desde la calle.
 
+- `f2_*.jpg`: capturas de la F2 sacadas por `tools/prueba_personaje.mjs` (calidad media): el jugador corriendo, saltando
+  y sentado en la valla, visto con la cámara del hombro.
+
 En la foto aérea los tejados salen desplazados uno o dos metros respecto al suelo (no es una ortofoto verdadera).
 Lo que cuenta para colocar las vallas es la línea blanca de fachadas, que es la del Catastro y la que usa el juego.
 

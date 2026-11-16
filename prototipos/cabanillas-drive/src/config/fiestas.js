@@ -46,6 +46,44 @@ export const FIESTAS = {
 
   ambulancia: { altoM: 2.5, blanco: 0xf3f3f0, franja: 0xe2792a },
 
+  // Jugador en tercera persona (F2). Velocidades en m/s, tiempos en s, energía de 0 a 1.
+  personaje: {
+    modelo: 'h_joven',               // persona de MakeHuman que hace de jugador (si falta, la primera)
+    andarMs: 2.2, correrMs: 4.6, esprintMs: 6.6,
+    joystickAndar: 0.5,              // con el joystick por debajo de esto se anda; a fondo se esprinta
+    joystickEsprint: 0.93,
+    aceleracion: 14,                 // lo rápido que coge la velocidad pedida (1/s)
+    giroRad: 13,                     // giro del cuerpo hacia donde se mueve (rad/s)
+    // Energía: el esprint gasta y cada suerte cuesta; se recupera sola, y más deprisa en el refugio
+    energia: { esprintPorS: 0.1, recuperaPorS: 0.07, recuperaRefugio: 3, minimoEsprint: 0.05, vuelveEsprint: 0.22,
+      quiebro: 0.07, recorte: 0.11, salto: 0.18, especial: 0.32 },
+    quiebro: { duracionS: 0.26, distanciaM: 2.3, inclinacionRad: 0.38, comboS: 0.5 },
+    recorte: { duracionS: 0.44, velocidadMs: 5.6, giroRad: 2.7, inclinacionRad: 0.3 },
+    salto: { altoM: 0.75, empujeMs: 1.0 },
+    especial: { altoM: 1.3, empujeMs: 3.2, ventanaS: 0.16 },   // E y Espacio «a la vez»: dentro de esta ventana
+    // Refugio (F): valla de tablones, burladero o valla gris a menos de esta distancia
+    refugio: { vallaM: 1.5, burladeroM: 2.0, grisM: 2.4, subirS: 0.42, bajarS: 0.34, separaM: 0.85 },
+    // Postura al correr (se suma a la animación de andar, que es la única que hay)
+    correr: { inclinacionRad: 0.3, codoRad: 1.25, zancadaMax: 1.9 },
+  },
+
+  // Cámara del personaje: detrás del hombro; V o 👁 cambia de vista
+  camara: {
+    vistas: [
+      { nombre: 'hombro', distanciaM: 3.9, alturaM: 1.62, hombroM: 0.5 },
+      { nombre: 'lejos', distanciaM: 7.0, alturaM: 1.9, hombroM: 0.0 },
+      { nombre: 'ojos', distanciaM: 0, alturaM: 1.65, hombroM: 0 },
+    ],
+    fov: 66,
+    cabeceo: [-0.55, 1.1],           // límites al mirar arriba y abajo (rad)
+    cabeceoInicial: 0.2,
+    distanciaMinimaM: 0.7,           // si una fachada tapa, se acerca hasta aquí
+    margenM: 0.3,
+    suavizado: 12,
+    // Vaca más cercana (F3): si queda fuera de la vista y no se está moviendo la cámara, gira hacia ella
+    vaca: { hastaM: 28, giroRad: 1.6, esperaS: 0.7, margenRad: 0.75 },
+  },
+
   // Público (personas de MakeHuman en postura de quieto). Cantidad por calidad.
   publico: {
     // Cada persona son ~11 000 triángulos y una malla con esqueleto: en «bajo», pocas. Un
