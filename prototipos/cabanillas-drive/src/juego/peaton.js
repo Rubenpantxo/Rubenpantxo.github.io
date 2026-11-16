@@ -87,6 +87,40 @@ export function creaPeaton(fisica, terreno) {
       const suelo = terreno.alturaEn(p.x + mov.x, p.z + mov.z) + mitad + radio;
       cuerpo.setNextKinematicTranslation({ x: p.x + mov.x, y: Math.max(p.y + mov.y, suelo - 0.02), z: p.z + mov.z });
     },
+    // --- Para el personaje del modo fiestas (src/fiestas/personaje.js), que decide él la velocidad:
+    // velocidad horizontal en el mundo (m/s), con gravedad, colisiones y salto (impulso vertical, m/s)
+    mueve(vx, vz, dt, impulsoY = 0) {
+      if (!activo) return;
+      if (impulsoY > 0 && enSuelo) { vy = impulsoY; enSuelo = false; }
+      else vy = enSuelo ? -1 : Math.max(vy - 9.81 * dt, -30);
+      velocidad.set(vx, 0, vz);
+      deseado.x = vx * dt;
+      deseado.y = vy * dt;
+      deseado.z = vz * dt;
+      control.computeColliderMovement(collider, deseado);
+      const mov = control.computedMovement();
+      enSuelo = vy <= 0 && control.computedGrounded();
+      const p = cuerpo.translation();
+      const suelo = terreno.alturaEn(p.x + mov.x, p.z + mov.z) + mitad + radio;
+      cuerpo.setNextKinematicTranslation({ x: p.x + mov.x, y: Math.max(p.y + mov.y, suelo - 0.02), z: p.z + mov.z });
+    },
+    // Lleva la cápsula a un punto sin mirar colisiones (subirse a una valla): «pies» es la altura de los pies
+    llevaA(x, pies, z) {
+      const y = pies + mitad + radio;
+      cuerpo.setTranslation({ x, y, z }, true);
+      cuerpo.setNextKinematicTranslation({ x, y, z });
+      velocidad.set(0, 0, 0);
+      vy = 0;
+    },
+    ponColision(valor) { collider.setEnabled(valor && activo); },
+    get enSuelo() { return enSuelo; },
+    get velocidadY() { return vy; },
+    // Posición de los pies
+    pies() {
+      const p = cuerpo.translation();
+      return { x: p.x, y: p.y - mitad - radio, z: p.z };
+    },
+    collider,
     colocaCamara(camara) {
       const p = cuerpo.translation();
       camara.position.set(p.x, p.y - (mitad + radio) + PEATON.ojosM, p.z);

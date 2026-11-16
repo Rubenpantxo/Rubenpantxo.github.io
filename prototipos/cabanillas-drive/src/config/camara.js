@@ -30,6 +30,15 @@ export const CONTROLES = {
     correr: ['ShiftLeft', 'ShiftRight'],
     hora: ['KeyT'],                   // adelantar una hora
   },
+  // Modo fiestas (PLAN_FIESTAS.md §4b): mismas teclas de movimiento (WASD y Mayús) y estas acciones.
+  // E, F y Espacio dejan de ser «bajarse» y «freno de mano» mientras dura el modo.
+  teclasFiestas: {
+    quiebro: ['KeyQ'],
+    recorte: ['KeyE'],
+    salto: ['Space'],
+    refugio: ['KeyF'],                // subir a la valla o meterse en el burladero, y bajar
+    camaraFiestas: ['KeyV'],
+  },
   joystick: {
     radio: 60,                // px de recorrido del mando
     zonaMuerta: 0.08,

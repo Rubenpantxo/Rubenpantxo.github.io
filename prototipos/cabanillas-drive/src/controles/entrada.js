@@ -8,20 +8,28 @@ export function creaEntrada(raizTactil) {
   const estado = { acelerador: 0, freno: 0, direccion: 0, frenoMano: false, analogica: false,
     avance: 0, lateral: 0, giro: 0, correr: false };
   const pendientes = { reiniciar: false, camara: false, bajar: false, hora: false };
+  // Mapa de teclas por modo: en «fiestas» valen las de CONTROLES.teclasFiestas en vez de bajar,
+  // reiniciar, cámara y freno de mano
+  let modo = 'pueblo';
+  const teclasFiestas = CONTROLES.teclasFiestas;
   const mirada = { dx: 0, dy: 0 };
   const pulsadas = new Set();
   const teclas = CONTROLES.teclas;
   const algunaDe = (lista) => lista.some((c) => pulsadas.has(c));
-  const todasLasTeclas = new Set(Object.values(teclas).flat());
+  const todasLasTeclas = new Set([...Object.values(teclas).flat(), ...Object.values(teclasFiestas).flat()]);
 
   // --- Teclado
   window.addEventListener('keydown', (e) => {
     if (!todasLasTeclas.has(e.code)) return;
     e.preventDefault();
     if (!e.repeat) {
-      if (teclas.reiniciar.includes(e.code)) pendientes.reiniciar = true;
-      if (teclas.camara.includes(e.code)) pendientes.camara = true;
-      if (teclas.bajar.includes(e.code)) pendientes.bajar = true;
+      if (modo === 'fiestas') {
+        for (const [accion, codigos] of Object.entries(teclasFiestas)) if (codigos.includes(e.code)) pendientes[accion] = true;
+      } else {
+        if (teclas.reiniciar.includes(e.code)) pendientes.reiniciar = true;
+        if (teclas.camara.includes(e.code)) pendientes.camara = true;
+        if (teclas.bajar.includes(e.code)) pendientes.bajar = true;
+      }
       if (teclas.hora.includes(e.code)) pendientes.hora = true;
     }
     pulsadas.add(e.code);
@@ -177,6 +185,8 @@ export function creaEntrada(raizTactil) {
     estado.lateral = (pulsada('KeyD') ? 1 : 0) - (pulsada('KeyA') ? 1 : 0) || (tactil.activo ? tactil.direccion : 0);
     estado.giro = (pulsada('ArrowRight') ? 1 : 0) - (pulsada('ArrowLeft') ? 1 : 0);
     estado.correr = algunaDe(teclas.correr) || tactil.acelerador;
+    // Para el modo fiestas: con el joystick, cuánto se inclina (0…1); con teclado, siempre 1
+    estado.conJoystick = tactil.activo && (tactil.direccion !== 0 || tactil.avance !== 0);
     return estado;
   }
 
@@ -186,5 +196,12 @@ export function creaEntrada(raizTactil) {
     return valor;
   }
 
-  return { estado, actualiza, consume, consumeMirada };
+  // Cambia el mapa de teclas y los botones táctiles («pueblo» o «fiestas»); descarta lo pendiente
+  function ponModo(nuevo) {
+    modo = nuevo;
+    for (const k of Object.keys(pendientes)) pendientes[k] = false;
+    raizTactil.classList.toggle('fiestas', nuevo === 'fiestas');
+  }
+
+  return { estado, actualiza, consume, consumeMirada, ponModo, get modo() { return modo; } };
 }

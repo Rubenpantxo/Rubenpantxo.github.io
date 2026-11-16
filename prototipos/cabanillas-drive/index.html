@@ -172,6 +172,15 @@
       .boton-tactil.grande { width: 96px; height: 96px; }
       .boton-tactil.pulsado { background: rgba(255, 224, 0, .55); }
       .boton-tactil.pequeno { width: 52px; height: 52px; font-size: 18px; }
+      /* Modo fiestas: fuera los mandos del coche y dentro las acciones del recortador */
+      .botones-fiestas { display: none; position: fixed; right: max(16px, env(safe-area-inset-right));
+        bottom: max(16px, env(safe-area-inset-bottom)); width: 168px; height: 236px; }
+      #tactil.fiestas .botones, #tactil.fiestas .botones-superiores { display: none; }
+      #tactil.fiestas .botones-fiestas { display: block; }
+      .botones-fiestas .boton-tactil { position: absolute; }
+      .botones-fiestas .boton-tactil[hidden] { display: none; }
+      .boton-tactil.accion { width: 76px; height: 76px; font-size: 13px; }
+      .boton-tactil.listo { border-color: var(--acento); box-shadow: 0 0 10px var(--acento); }
       /* Joystick fijo (Ajustes): siempre visible en su sitio; solo responde al tocarlo */
       [data-joystick="fijo"] .zona-joystick { pointer-events: none; }
       [data-joystick="fijo"] .joystick-base, [data-joystick="fijo"] .joystick-base[hidden] { display: block; pointer-events: auto;
@@ -225,6 +234,15 @@
         <button class="boton-tactil pequeno" type="button" data-pulsar="bajar" aria-label="Bajarse del coche o subir">🚶</button>
         <button class="boton-tactil pequeno" type="button" data-pulsar="camara" aria-label="Cambiar cámara">👁</button>
         <button class="boton-tactil pequeno" type="button" data-pulsar="reiniciar" aria-label="Recolocar el coche">↺</button>
+      </div>
+      <!-- Modo fiestas (PLAN_FIESTAS.md §4b): cuatro acciones en abanico y, encima, subir y cámara -->
+      <div class="botones-fiestas">
+        <button class="boton-tactil accion" type="button" data-pulsar="recorte" style="left: 0; bottom: 0">Recorte</button>
+        <button class="boton-tactil accion" type="button" data-pulsar="especial" style="right: 0; bottom: 0">Especial</button>
+        <button class="boton-tactil accion" type="button" data-pulsar="salto" style="left: 8px; bottom: 84px">Salto</button>
+        <button class="boton-tactil accion" type="button" data-pulsar="quiebro" style="right: 0; bottom: 92px">Quiebro</button>
+        <button class="boton-tactil pequeno" type="button" data-pulsar="refugio" style="left: 30px; bottom: 172px; width: 64px" hidden>Subir</button>
+        <button class="boton-tactil pequeno" type="button" data-pulsar="camaraFiestas" style="right: 12px; bottom: 180px" aria-label="Cambiar cámara">👁</button>
       </div>
     </div>
 
