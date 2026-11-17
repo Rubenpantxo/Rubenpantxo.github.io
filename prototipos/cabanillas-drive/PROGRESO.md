@@ -199,7 +199,26 @@
 
 ## Fiestas (PLAN_FIESTAS.md)
 
-**Fase actual: F7 — entradas desde el pueblo. Hecha el 2026-11-17 salvo el frontón (falta su sitio, D14); parada hasta que Rubén la pruebe y dé el visto bueno para la F8.** F0 aprobada; F1 a F6 hechas y en `main`.
+**Fase actual: F8 — rendimiento, móvil y publicación. Hecha el 2026-11-17 salvo la medición en el Pixel 10, que tiene que hacer Rubén. Es la última fase del plan de fiestas.** F0 aprobada; F1 a F7 hechas y en `main`.
+
+### Hecho en F8
+- **Presupuesto medido** (`tools/mide_fiestas.mjs`; llamadas de dibujo, contando el mapa de sombras, y miles de triángulos; desde el centro de la plaza en el concurso y desde la calle en el encierro):
+
+  | Calidad | Modo | Total | Público | Mozos | Vallado | Vacas | Lógica (ms/fotograma) |
+  |---|---|---|---|---|---|---|---|
+  | baja | concurso | 483 / 1472k | 19 / 214k (16 personas) | 4 / 49k | 10 / 21k | 14 / 6k | 1,1 |
+  | baja | encierro | 288 / 1013k | 8 / 93k | 3 / 36k | 7 / 21k | 42 / 17k (6) | 0,7 |
+  | alta | concurso | 1278 / 4712k | 67 / 788k (70 personas) | 15 / 169k | 9 / 31k | 21 / 8k | 3,7 |
+  | alta | encierro | 959 / 2868k | 53 / 625k | 13 / 158k | 7 / 21k | 42 / 17k | 2,6 |
+
+  Lo que más pesa es el público (unos 11 000 triángulos por persona). Cambio: **el público y los mozos solo dan sombra cerca de la cámara** (alta 40 m, media 28 m, baja 18 m; `FIESTAS.publico.sombraHastaM`); en alta el público bajó de 1042k a 788k triángulos en la plaza y de 925k a 625k en el encierro. Cantidades por calidad sin cambios (público 70/40/16, mozos 8/6/3). La lógica queda por debajo de 4 ms en el ordenador de pruebas. En el Pixel 10 (PowerVR) no hay sombras 3D, así que el público cuesta solo la pasada principal.
+- **Pantalla táctil en apaisado** (`tools/prueba_disposicion.mjs`): en 667×375, 740×360, 844×390, 915×412 y 1024×600 el marcador, el aviso, el consejo, el minimapa, ☰ y los botones de las suertes no se pisan ni se salen.
+- **Controles**: pestaña nueva «Fiestas» con capturas propias del ordenador y del móvil (`tools/capturas_controles.mjs` las rehace y dice dónde van los números) y la tecla E de los aros en «Teclado y ratón». **Créditos** del juego con el apartado de las fiestas; `CREDITOS.md` ya estaba al día desde la F6.
+- **Publicado** con `npm run publica` en `juegos/cabanillas-drive/` (en esta copia `public/assets` es un enlace a esa carpeta: se comprobó que `dist/` llevaba los mismos archivos y se quitaron los dos paquetes viejos que arrastraba el enlace). Comprobado sirviendo la carpeta como en GitHub Pages: carga, «Ir a las fiestas» y el encierro, sin errores ni archivos que falten.
+
+### Pendiente tras F8
+- **Medir en el Pixel 10** (Rubén): FPS en calidad baja en la plaza (concurso) y en el encierro. Si va justo, se bajan el público (`FIESTAS.publico.cantidad.bajo`) y los mozos (`FIESTAS.mozos.cantidad.bajo`). Con esos datos se decide también lo del muñeco articulado en la cogida.
+- Un público lejano simplificado (impostores) no ha hecho falta con estas cifras; si en el móvil va justo, es lo siguiente.
 
 ### Hecho en F7
 - `src/config/entradas.js`: los puntos de entrada, una línea por lugar (id, nombre, icono, sitio y acción: abrir las fiestas o ir a otro juego de la web). `src/juego/entradas.js` los pone en el mundo: un aro dorado que gira en el suelo y un rótulo encima.
