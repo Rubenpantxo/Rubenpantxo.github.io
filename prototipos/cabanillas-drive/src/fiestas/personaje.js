@@ -107,7 +107,7 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     const t = recinto.tramos.find((x) => x.zona === b.zona && x.lado === b.lado && x.clase === 'fachada');
     const p = proyecta(t.a, t.b, b.en[0], b.en[1], 0);
     const d = Math.hypot(p[0] - b.en[0], p[1] - b.en[1]);
-    return { en: b.en, n: [(p[0] - b.en[0]) / d, (p[1] - b.en[1]) / d] };       // n: hacia la valla
+    return { en: b.en, n: [(p[0] - b.en[0]) / d, (p[1] - b.en[1]) / d], hueco: d };       // n: hacia la valla
   });
   const grises = recinto.refugios.map((r) => {
     const [f0, f1, s1, s0] = r.esquinas;
@@ -136,7 +136,7 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     }
     for (const b of burladeros) {
       const d = Math.hypot(x - b.en[0], z - b.en[1]);
-      const punto = [b.en[0] + b.n[0] * 0.5, b.en[1] + b.n[1] * 0.5];
+      const punto = [b.en[0] + b.n[0] * b.hueco / 2, b.en[1] + b.n[1] * b.hueco / 2];   // en medio del hueco
       prueba(d, R.burladeroM, {
         tipo: 'burladero', texto: 'meterse en el burladero', punto, pies: terreno.alturaEn(punto[0], punto[1]),
         rumbo: Math.atan2(-b.n[0], -b.n[1]), sentado: false, vuelve: [b.en[0] - b.n[0] * R.separaM, b.en[1] - b.n[1] * R.separaM],

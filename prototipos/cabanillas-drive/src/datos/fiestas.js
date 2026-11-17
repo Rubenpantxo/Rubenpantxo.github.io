@@ -46,6 +46,7 @@ export const PASO_TRAS_TABLADO = 3.0;
 //   ninguna   sin valla: el límite es la tapia o la fachada (las puertas, con valla gris)
 const T = 'tablones';
 const S = SEPARACION_VALLA;
+export const SEPARACION_BURLADERO = 0.5;   // del burladero a la valla (m); Rubén pidió acercarlo (antes 0,9)
 
 // --- Bordes del recinto: polígonos de la línea de fachadas. Cada entrada es un vértice (p) y
 // el lado que va de él al siguiente (el último vuelve al primero), con la clase del lado, el
@@ -311,8 +312,9 @@ export const RECINTO_FIESTAS = {
   // Centrada en el callejón, que mide 3,7 m entre el Ayuntamiento y las casas del lado sur
   ambulancia: { en: [201.2, 349.75], direccion: [0.933, 0.359], largo: 5.6, ancho: 2.1 },
 
-  // Burladeros: panel rojo estrecho separado de la valla. Solo el que se ve en la foto 1, a ojo (D6)
-  burladeros: [{ en: enPares(35.0, S + 0.9), lado: 'sur', zona: 'plaza', aprox: true, visto: 'foto 1' }],
+  // Burladeros: panel rojo estrecho, pegado a la valla con el hueco justo para una persona
+  // (SEPARACION_BURLADERO). Solo el que se ve en la foto 1, a ojo (D6)
+  burladeros: [{ en: enPares(35.0, S + SEPARACION_BURLADERO), lado: 'sur', zona: 'plaza', aprox: true, visto: 'foto 1' }],
 
   // Vallas grises que protegen una puerta donde no hay valla seguida (foto 2). Sitio a ojo:
   // la puerta está en el extremo de la casa que toca la tapia
