@@ -5,6 +5,7 @@
 //   3. En coche corriendo no se entra; parado, sí.
 //   4. «Ir a las fiestas» de la pantalla de inicio abre el menú.
 //   5. ?aparece=<entrada> (de vuelta de otro juego) pone el coche allí y limpia la dirección.
+//   6. Fuera de los aros, E sigue siendo bajarse del coche.
 // Saca capturas. Hace falta el servidor de desarrollo (npm run dev) y Playwright.
 // Uso: node tools/prueba_entradas.mjs <carpeta de capturas> [bajo|medio|alto] [movil|no]
 import { createRequire } from 'node:module';
@@ -96,6 +97,16 @@ const p3 = await abre('&aparece=fiestas_sanroque');
 await fotogramas(p3, 3);
 const vuelta = await p3.evaluate(() => { const c = window.__juego.coche.estado().posicion; return { d: Math.hypot(c.x - 117.3, c.z - 317.2), url: location.search }; });
 comprueba(vuelta.d < 10 && !vuelta.url.includes('aparece'), `coche a ${vuelta.d.toFixed(1)} m de San Roque; dirección «${vuelta.url}»`);
+console.log('6. Fuera de los aros, E baja del coche');
+await p3.evaluate(() => window.__juego.irA('Ayuntamiento de Cabanillas'));
+// Hasta que el coche se asienta (con el coche en marcha no deja bajarse)
+for (let i = 0; i < 20 && await p3.evaluate(() => Math.abs(window.__juego.coche.estado().velocidadKmh) > 2); i++) await fotogramas(p3, 2);
+if (!movil) {
+  await p3.keyboard.press('KeyE');
+  await fotogramas(p3, 3);
+  const baja = await p3.evaluate(() => ({ aPie: window.__juego.aPie, modo: window.__juego.modoFiestas, aviso: document.getElementById('estado').textContent, kmh: Math.round(window.__juego.coche.estado().velocidadKmh) }));
+  comprueba(baja.aPie && baja.modo === null, `E en el Ayuntamiento: ${JSON.stringify(baja)}`);
+}
 await p3.close();
 comprueba(errores.length === 0, `errores de consola: ${JSON.stringify(errores.slice(0, 6))}`);
 console.log(fallos ? `\n${fallos} comprobaciones fallan` : '\nTodo bien');
