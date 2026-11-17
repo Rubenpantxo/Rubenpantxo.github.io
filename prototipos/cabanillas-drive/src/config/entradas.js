@@ -8,8 +8,13 @@ export const ENTRADAS = [
   { id: 'fiestas_plaza', nombre: 'Fiestas · Plaza', icono: '🐂', en: [177.2, 335.6], accion: { fiestas: 'menu' } },
   // Calle San Roque, a 45 m de la puerta de la plaza por el eje del recorrido (src/datos/fiestas.js)
   { id: 'fiestas_sanroque', nombre: 'Fiestas · San Roque', icono: '🐂', en: [117.3, 317.2], accion: { fiestas: 'menu' } },
-  // Frontón → juego de cesta punta. Sin sitio todavía: no está en el Catastro ni en OSM (D14)
-  { id: 'fronton', nombre: 'Frontón', icono: '🥎', en: null, accion: { juego: '/juegos/cesta-punta/' } },
+  // Frontones → juego de cesta punta. Son los edificios 532 (frontón 1, el que prefiere Rubén para
+  // jugar) y 538 (frontón 2) del Catastro, sin rótulo de frontón. Las dos entradas son el principio
+  // de los dos caminos que marcó Rubén en su captura (2026-11-17): el naranja sale de la calle San
+  // Isidro por el pasillo entre el edificio 548 y la piscina; el azul, de la calle Bardenas Reales
+  // frente a la calle las Planas. Sitio medido sobre la captura con los edificios como referencia
+  { id: 'fronton_sanisidro', nombre: 'Frontón · San Isidro', icono: '🥎', en: [-155.5, 10.5], accion: { juego: '/juegos/cesta-punta/' } },
+  { id: 'fronton_bardenas', nombre: 'Frontón · Bardenas Reales', icono: '🥎', en: [-49.5, -65.5], accion: { juego: '/juegos/cesta-punta/' } },
 ];
 
 export const ENTRADA = {

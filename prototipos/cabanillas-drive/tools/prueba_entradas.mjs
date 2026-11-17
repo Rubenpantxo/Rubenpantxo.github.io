@@ -39,8 +39,8 @@ console.log('1. Lugares');
 const p = await abre();
 const lugares = await p.evaluate(() => window.__juego.lugares.map((l) => l.nombre));
 const opciones = await p.evaluate(() => [...document.querySelectorAll('#ir-a option')].map((o) => o.textContent));
-comprueba(lugares.includes('Fiestas · Plaza') && lugares.includes('Fiestas · San Roque') && !lugares.includes('Frontón'),
-  `«Ir a…»: ${lugares.filter((l) => l.startsWith('Fiestas') || l === 'Frontón').join(', ')} (${opciones.length - 1} lugares en la lista)`);
+comprueba(['Fiestas · Plaza', 'Fiestas · San Roque', 'Frontón · San Isidro', 'Frontón · Bardenas Reales'].every((l) => lugares.includes(l)),
+  `«Ir a…»: ${lugares.filter((l) => l.startsWith('Fiestas') || l.startsWith('Frontón')).join(', ')} (${opciones.length - 1} lugares en la lista)`);
 
 console.log('2. Ir a la plaza y entrar');
 await p.evaluate(() => window.__juego.irA('Fiestas · Plaza'));
@@ -82,6 +82,24 @@ await p.evaluate(() => window.__juego.irA('Fiestas · San Roque'));
 await fotogramas(p, 3);
 const parado = await p.evaluate(() => ({ kmh: Math.abs(window.__juego.coche.estado().velocidadKmh), boton: !document.querySelector('[data-pulsar="entrar"]').hidden }));
 comprueba(!conPrisa.boton && parado.boton, `a ${conPrisa.kmh.toFixed(0)} km/h no deja (botón ${conPrisa.boton}); parado (${parado.kmh.toFixed(0)} km/h), sí (botón ${parado.boton})`);
+
+console.log('3b. Frontón: lleva a la cesta punta y, al volver atrás, aparece allí');
+if (!movil) {
+  await p.evaluate(() => window.__juego.irA('Frontón · Bardenas Reales'));
+  for (let i = 0; i < 20 && await p.evaluate(() => Math.abs(window.__juego.coche.estado().velocidadKmh) > 2); i++) await fotogramas(p, 2);
+  await fotogramas(p, 6);
+  await p.screenshot({ path: `${S}/f7_aro_fronton.jpg`, quality: 85, timeout: 120000 });
+  await Promise.all([p.waitForURL('**/juegos/cesta-punta/**', { timeout: 120000 }), p.keyboard.press('KeyE')]);
+  const fuera = new URL(p.url()).pathname;
+  await p.goBack({ timeout: 120000 });
+  await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 240000 });
+  await p.evaluate(() => document.getElementById('jugar').click());
+  await fotogramas(p, 3);
+  const vuelta = await p.evaluate(() => { const c = window.__juego.coche.estado().posicion; return { d: Math.hypot(c.x + 49.5, c.z + 65.5), url: location.search }; });
+  comprueba(fuera === '/juegos/cesta-punta/' && vuelta.d < 10 && !vuelta.url.includes('aparece'),
+    `E en el frontón → ${fuera}; atrás → coche a ${vuelta.d.toFixed(1)} m de la entrada; dirección «${vuelta.url}»`);
+}
+
 await p.close();
 
 console.log('4. Desde la pantalla de inicio');
