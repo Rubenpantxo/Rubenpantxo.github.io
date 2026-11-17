@@ -92,6 +92,8 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
   let pide = { quiebro: false, recorte: false, salto: false, especial: false, refugio: false };
   const sucesos = [];                // lo último que ha hecho (para la F4): { tipo, t }
   let balanceo = 0;                  // inclinación lateral que se ve (rad)
+  let dirCogida = [1, 0];
+  let cogidas = 0;
 
   const E = P.energia;
   const impulsoDe = (alto) => Math.sqrt(2 * 9.81 * alto);
@@ -115,8 +117,9 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     return { c, n: [d[0] / l, d[1] / l], fondo: l };                              // n: hacia la calle
   });
 
-  function buscaRefugio(x, z) {
-    const R = P.refugio;
+  // «lejos»: la valla más cercana esté donde esté (adonde se lleva al jugador tras una cogida)
+  function buscaRefugio(x, z, lejos = false) {
+    const R = lejos ? { ...P.refugio, vallaM: 500, burladeroM: 0, grisM: 0 } : P.refugio;
     let mejor = null;
     const prueba = (d, alcance, datos) => {
       if (d < alcance && (!mejor || d / alcance < mejor.proporcion)) mejor = { proporcion: d / alcance, ...datos };
@@ -160,6 +163,20 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     const ordenes = pide;
     pide = { quiebro: false, recorte: false, salto: false, especial: false, refugio: false };
 
+    // Cogida (F3): volteo sencillo. Por los aires en la dirección de la vaca y, al caer, a la valla más cercana
+    if (estado === 'cogido') {
+      const G = FIESTAS.cogida;
+      const t = Math.min(1, tEstado / G.vueloS);
+      peaton.llevaA(desde.x + dirCogida[0] * G.lejosM * t, desde.y + Math.sin(Math.PI * t) * G.altoM, desde.z + dirCogida[1] * G.lejosM * t);
+      vx = 0; vz = 0;
+      if (t >= 1) {
+        enUso = buscaRefugio(desde.x, desde.z, true);
+        Object.assign(desde, peaton.pies());
+        enAire = false;
+        cambia('subiendo');
+      }
+      return;
+    }
     // Refugio: subir, estar y bajar (la cápsula va sin colisión)
     if (estado === 'subiendo' || estado === 'bajando') {
       const dura = estado === 'subiendo' ? P.refugio.subirS : P.refugio.bajarS;
@@ -334,7 +351,10 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     else if (estado === 'recorte') inclina = lado * P.recorte.inclinacionRad * Math.sin(Math.PI * Math.min(1, tEstado / P.recorte.duracionS));
     balanceo += (inclina - balanceo) * Math.min(1, dt * 22);
     objeto.position.set(pies.x, pies.y, pies.z);
-    objeto.rotation.set(0, rumbo, balanceo, 'YXZ');
+    // En la cogida da una vuelta entera en el aire
+    const vuelta = estado === 'cogido' ? Math.min(1, tEstado / FIESTAS.cogida.vueloS) * Math.PI * 2 : 0;
+    objeto.rotation.set(vuelta, rumbo, balanceo, 'YXZ');
+    if (vuelta) objeto.position.y += 0.9 * Math.sin(vuelta / 2);       // gira sobre la cintura, no sobre los pies
     objeto.updateMatrixWorld(true);
 
     const enRefugio = estado === 'refugiado' || (estado === 'subiendo' && tEstado > P.refugio.subirS * 0.6);
@@ -349,7 +369,7 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
       // Agachado tras el burladero o la valla gris
       gira(H.columna, 0.3);
       for (const i of [0, 1]) { gira(H.muslo[i], -0.55); gira(H.pierna[i], 0.95); }
-    } else if (enAire || estado === 'subiendo' || estado === 'bajando') {
+    } else if (enAire || estado === 'subiendo' || estado === 'bajando' || estado === 'cogido') {
       // En el aire: piernas recogidas y brazos arriba
       const t = estado === 'libre' ? suave(tAire, 0, 0.12) : 1;
       const alto = saltoEspecial ? 1.25 : 1;
@@ -374,7 +394,7 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     // Coloca al jugador mirando hacia «guinada» (0 = norte) y lo deja como recién llegado
     reinicia(guinada) {
       rumbo = Math.atan2(-Math.sin(guinada), -Math.cos(guinada));
-      vx = 0; vz = 0; energia = 1; sinFuelle = false; enAire = false; enUso = null; sentado = null; refugio = null;
+      vx = 0; vz = 0; energia = 1; sinFuelle = false; enAire = false; enUso = null; sentado = null; refugio = null; cogidas = 0;
       peaton.ponColision(true);
       cambia('libre');
     },
@@ -386,6 +406,19 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     get enAire() { return enAire; },
     get rumbo() { return rumbo; },
     get combo() { return combo; },
+    get cogidas() { return cogidas; },
+    // La vaca lo coge: sale despedido hacia (dx, dz). No hace nada si ya está a salvo o por los aires
+    cogida(dx, dz) {
+      if (estado === 'cogido' || estado === 'refugiado' || estado === 'subiendo') return false;
+      dirCogida = [dx, dz];
+      Object.assign(desde, peaton.pies());
+      peaton.ponColision(false);
+      sentado = null;
+      cogidas++;
+      cambia('cogido');
+      anota('cogida');
+      return true;
+    },
     // A salvo de las vacas (F3): subido a la valla o tras un burladero
     get seguro() { return estado === 'refugiado' || (estado === 'subiendo' && tEstado > P.refugio.subirS * 0.5); },
     // Refugio al alcance (para el aviso y el botón) o el que se está usando

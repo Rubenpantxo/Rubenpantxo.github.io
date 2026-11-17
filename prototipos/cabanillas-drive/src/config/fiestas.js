@@ -67,6 +67,33 @@ export const FIESTAS = {
     correr: { inclinacionRad: 0.3, codoRad: 1.25, zancadaMax: 1.9 },
   },
 
+  // La vaca (F3). La clave del recorte: corre más que el jugador (6,6 m/s a esprint) pero gira
+  // peor cuanto más deprisa va. Velocidades en m/s, giros en rad/s, tiempos en s.
+  vaca: {
+    activa: true,                    // ?vacas=0 entra al modo sin vaca
+    salidaS: 4,                      // segundos desde que se entra hasta que sale del corral
+    capas: ['colorada', 'negra', 'berrenda'],
+    radioM: 0.55,                    // para no atravesar vallas (el cuerpo mide 1,9 × 0,6 m)
+    troteMs: 2.6, galopeMs: 8.6,
+    aceleracion: 6.5, frenada: 9,
+    // Giro máximo: giroParado / (1 + (v / giroVelRef)²). Parada gira en el sitio; a galope, casi nada
+    giroParado: 3.4, giroVelRef: 4.2,
+    reaccionS: 0.22,                 // persigue adonde estaba el jugador hace este tiempo
+    fijaS: [0.7, 1.5],               // se para y mira antes de arrancarse
+    reconoceS: [2.0, 4.5],           // trota a su aire entre embestidas
+    embisteMaxS: 6,                  // si no llega, deja la embestida
+    pasaDeLargoM: 3.5,               // tras cruzarse con el jugador sigue recta esto antes de frenar
+    veHastaM: 45,                    // no se arranca a nadie más lejos
+    derroteS: 1.1,                   // parada tras rematar en la valla
+    cogidaM: 0.95,                   // distancia a la que coge
+    saltoLibraM: 0.95,               // con los pies por encima de esto, pasa por debajo
+    // Se va cansando: pierde fuerza con el tiempo y con cada embestida, y con ella velocidad
+    cansancio: { porS: 0.0025, porEmbestida: 0.035, minimo: 0.45 },
+    colores: { colorada: 0x8a4526, negra: 0x1c1816, berrendaClaro: 0xe9e2d2, berrendaOscuro: 0x1e1a18,
+      cuerno: 0xd9cfb4, pezuna: 0x2a2420, morro: 0x3a2a26 },
+  },
+  cogida: { vueloS: 0.9, altoM: 1.6, lejosM: 3.2 },   // volteo sencillo: por los aires y al refugio
+
   // Cámara del personaje: detrás del hombro; V o 👁 cambia de vista
   camara: {
     vistas: [

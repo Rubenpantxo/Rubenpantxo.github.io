@@ -7,7 +7,7 @@
 - **R2 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/09_tejados.py` ajusta 1–4 faldones por RANSAC al MDS (tejado = mínimo de los planos, cumbreras exactas) o, si no cuadra, malla de rejilla del MDS; aleros de 0,3 m con canto; muros con la altura real del borde del tejado. 1 313 tejados de planos, 496 de rejilla, 3 planos por defecto. Error medio tejado − MDS 0,107 m (mediana 0,061). `tejados.json` + `tejados.bin` (2,6 MB, 1,1 MB comprimido). R2 aprobado.
 - **R3 hecho (2026-10-05), pendiente del OK de Rubén:** `tools/10_sol.py` estima el sol del vuelo de la ortofoto correlacionando sombras del nDSM con lo oscuro de la foto (acimut 201°, elevación 65°). `src/escena/render.js`: sombras del sol en una caja que sigue a la cámara, oclusión ambiental N8AO + SMAA + OutputPass; reflejos del propio cielo (sin RoomEnvironment). `suelo.js`: el terreno recibe sombras 3D solo donde la foto está al sol, y detalle de cerca (`tools/11_suelo.py`: calzada/acera/tierra + texturas de asfalto, baldosa y tierra dibujadas). Calidad alto/medio/bajo en `src/config/calidad.js` (`?calidad=`; móvil → bajo). Render completo ≈ 7 ms a 1280×720. Rubén autorizó las descargas: cielo HDRI de Poly Haven (`tools/12_cielo.py`, girado para que su sol coincida con el de la ortofoto) y texturas de ambientCG para el suelo (`tools/11_suelo.py` las usa si están). 09_tejados: sin copas de árbol (píxeles verdes) y techo plano en edificios estrechos o con rejilla mala (error medio 0,090 m). Siguiente: R4 (splats, necesita capturas).
 
-**Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, **F0 aprobada; F1 (el pueblo en fiestas) y F2 (personaje en tercera persona) hechas el 2026-11-17, pendientes de que Rubén las pruebe**. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
+**Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, **F0 aprobada; F1 (el pueblo en fiestas), F2 (personaje en tercera persona) y F3 (la vaca) hechas el 2026-11-17, pendientes de que Rubén las pruebe**. Portada nueva («Cabanillas · El Juego · by Rubenpantxo», imagen de Rubén) el 2026-11-17. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
 
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
@@ -199,7 +199,34 @@
 
 ## Fiestas (PLAN_FIESTAS.md)
 
-**Fase actual: F2 — personaje en tercera persona. Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno.** La F0 quedó aprobada el 2026-11-17 y la F1 está hecha y subida a `main` (Rubén pidió seguir con la F2 sin esperar a probarla).
+**Fase actual: F3 — la vaca. Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno.** F0 aprobada; F1 y F2 hechas y en `main` (Rubén pidió seguir sin esperar a probarlas).
+
+### Hecho en F3
+- **Vaca** (`src/fiestas/vaca.js`, parámetros en `FIESTAS.vaca`): modelo propio de primitivas (tronco, cabeza con cuernos, cuatro patas y rabo que se animan por código) en tres capas: colorada, negra y berrenda (`?capa=`; si no, al azar). No hay Blender en esta sesión, así que `tools/build_vaca.py` no se ha hecho: queda para la F6 junto con las animaciones de las personas.
+- **Comportamiento**: espera 4 s en el corral → sale por la manga → reconoce (trota a su aire) → se fija en el jugador → embiste → pasa de largo o remata en la valla → frena y vuelve a mirar. Galopa a 8,6 m/s (el jugador esprinta a 6,6) pero su giro máximo es 3,4 / (1 + (v / 4,2)²) rad/s: parada gira en el sitio y a galope casi nada. Persigue adonde estaba el jugador hace 0,22 s. Se cansa: pierde fuerza con el tiempo y con cada embestida, y con ella velocidad (hasta el 45 %).
+- **No sale del recinto** sin física: se la mantiene a 0,55 m de los bordes del ruedo y, con la puerta abierta, también de los de la calle. Si no ve al jugador (una esquina de la calle) va por el eje del recorrido en vez de en línea recta.
+- **No se arranca** a quien está a salvo (subido a la valla o tras un burladero). Si el jugador salta con los pies a más de 0,95 m, pasa por debajo.
+- **Cogida** (volteo sencillo, sin sangre): si lo alcanza de frente a menos de 0,95 m, el jugador sale por los aires dando una vuelta y acaba sentado en la valla más cercana; aviso «¡Cogida! A la valla». La vida y la puntuación son de la F4.
+- En los tres modos sale una vaca (los modos de verdad y la manada son de la F5). `?vacas=0` entra sin vaca.
+- **Pruebas**:
+  - `tools/prueba_vaca.mjs` (sin navegador, con un jugador de mentira que usa las medidas del de verdad). Seis sueltas de 5 minutos (tres con la puerta cerrada y tres abierta): 0 pasos fuera del recinto, parada más larga 4,5 s (la espera del corral), entre 31 y 71 embestidas cada una. Embestidas medidas con la vaca a 15 m:
+    | Qué hace el jugador | Resultado |
+    |---|---|
+    | Se queda quieto | lo coge |
+    | Quiebro con la vaca a 3,5 m | pasa de largo a 2,25 m |
+    | Quiebro con la vaca a 2,5 m | pasa de largo a 1,76 m |
+    | Quiebro demasiado pronto, a 11 m | lo coge (le da tiempo a corregir) |
+    | Huye en recta a esprint | lo alcanza y lo coge |
+    | Salto alto (especial) con la vaca a 3 m | pasa por debajo |
+    | Subido a la valla 90 s | ninguna embestida |
+  - `tools/prueba_cogida.mjs` (en el juego, navegador sin ventana): la vaca sale del corral a los 5,1 s; con el jugador quieto lo coge y acaba «refugiado»; subido 20 s, ninguna embestida; con el quiebro a 3,2 m, pasa de largo. Sin errores de consola.
+- Encontrado con la prueba y corregido: con la puerta abierta la vaca iba en línea recta hacia su destino y se quedaba hasta 18 s contra las vallas de la calle.
+
+### Pendiente de F3 / para más adelante
+- Rubén: probar la sensación (¿corre demasiado?, ¿gira demasiado poco?, ¿cuánto tarda en arrancarse?). Todo son números en `FIESTAS.vaca`.
+- La valla no vibra cuando la vaca remata (el vallado es una sola malla); irá con el sonido en la F6.
+- El modelo de Blender con esqueleto y las animaciones de verdad (parada, trote, galope, embestida, derrote, frenada).
+- Las pruebas de F1 y F2 (`prueba_fiestas.mjs`, `prueba_personaje.mjs`) entran ahora con `vacas=0`.
 
 ### Hecho en F2
 - **Jugador** (`src/fiestas/personaje.js`, parámetros en `FIESTAS.personaje`): una persona de MakeHuman (`h_joven`) con el cuerpo visible sobre la cápsula de `juego/peaton.js`, que gana tres métodos para esto (`mueve`: velocidad en el mundo con gravedad y salto; `llevaA`: colocar sin colisión; `ponColision`). Se mueve respecto a la cámara y el cuerpo gira hacia donde va.

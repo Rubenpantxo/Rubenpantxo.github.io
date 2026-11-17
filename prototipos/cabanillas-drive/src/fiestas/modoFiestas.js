@@ -10,6 +10,7 @@ import { creaHudFiestas } from '../hud/fiestas.js';
 import { creaAmbiente } from './ambiente.js';
 import { creaCamaraPersonaje } from './camaraPersonaje.js';
 import { creaPersonaje } from './personaje.js';
+import { creaVaca } from './vaca.js';
 import { creaVallado } from './vallado.js';
 
 export const NOMBRES_MODO = { plaza: 'Vacas en la plaza', calle: 'Vacas en la calle', encierro: 'Encierro' };
@@ -42,7 +43,7 @@ function dentroDe(poligono, x, z) {
   return dentro;
 }
 
-export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, farolas, peaton, camara }) {
+export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, farolas, peaton, camara, avisa = () => {} }) {
   const recinto = RECINTO_FIESTAS;
   let vallado = null;
   let ambiente = null;
@@ -52,7 +53,10 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
   let personaje = null;
   let camaraJugador = null;
   let hud = null;
-  let vaca = null;               // posición de la vaca más cercana (la pondrá la F3)
+  let vaca = null;               // posición de la vaca más cercana, para la cámara
+  let vacas = [];                // por ahora, una (la manada es de la F5)
+  const parametros = new URLSearchParams(location.search);
+  const conVacas = FIESTAS.vaca.activa && parametros.get('vacas') !== '0';
   const ACCIONES = ['quiebro', 'recorte', 'salto', 'especial', 'refugio'];
 
   // Fundido a negro
@@ -108,10 +112,23 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     }
     // Cerrada solo en «Vacas en la plaza»
     vallado.ponPuerta(cual !== 'plaza');
+    // La vaca: sale del corral a los pocos segundos. Capa con ?capa=colorada|negra|berrenda o al azar
+    for (const v of vacas) v.libera();
+    vacas = [];
+    if (conVacas) {
+      const capas = FIESTAS.vaca.capas;
+      const capa = capas.includes(parametros.get('capa')) ? parametros.get('capa') : capas[Math.floor(Math.random() * capas.length)];
+      const una = creaVaca({ recinto, terreno, puertaAbierta: cual !== 'plaza', capa, semilla: Date.now() % 100000, sombras: CALIDAD.sombras });
+      escena.add(una.objeto);
+      vacas.push(una);
+    }
   }
 
   function desmonta() {
     if (!vallado) return;
+    for (const v of vacas) v.libera();
+    vacas = [];
+    vaca = null;
     personaje.libera();
     hud.quita();
     personaje = null;
@@ -163,12 +180,26 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       if (entrada.consume('camaraFiestas')) personaje.objeto.visible = camaraJugador.cambiaVista() !== 'ojos';
     },
     // Paso de física del jugador
-    paso(mandos, dt) { personaje?.paso(mandos, camaraJugador.guinada, dt); },
+    paso(mandos, dt) {
+      if (!personaje) return;
+      personaje.paso(mandos, camaraJugador.guinada, dt);
+      if (!vacas.length) return;
+      const p = personaje.posicion();
+      const suelo = terreno.alturaEn(p.x, p.z) + (dentroDe(recinto.plaza.ruedo, p.x, p.z) ? FIESTAS.arena.gruesoM : 0);
+      const objetivo = { x: p.x, z: p.z, seguro: personaje.seguro || personaje.estado === 'cogido', alto: p.y - suelo };
+      for (const v of vacas) {
+        const suceso = v.paso(objetivo, dt);
+        if (suceso?.tipo === 'cogida' && personaje.cogida(suceso.dx, suceso.dz)) avisa('¡Cogida! A la valla', 3);
+      }
+    },
+    get vacas() { return vacas; },
     // Cámara, animación y marcador: una vez por fotograma
     fotograma(dt, mirada, mandos) {
       if (!personaje) return;
       camaraJugador.mira(mirada.dx, mirada.dy, mandos.giro, dt);
       personaje.anima(dt);
+      for (const v of vacas) v.anima(dt);
+      if (vacas.length) vaca = vacas[0].estado === 'corral' ? null : vacas[0].posicion();
       camaraJugador.coloca(personaje.posicion(), dt, vaca);
       hud.actualiza({ energia: personaje.energia, agotado: personaje.agotado, pista: personaje.pista });
     },

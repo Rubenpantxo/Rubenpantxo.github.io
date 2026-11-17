@@ -12,6 +12,8 @@ Material de referencia de `PLAN_FIESTAS.md`.
 - `f2_*.jpg`: capturas de la F2 sacadas por `tools/prueba_personaje.mjs` (calidad media): el jugador corriendo, saltando
   y sentado en la valla, visto con la cámara del hombro.
 
+- `f3_*.jpg`: capturas de la F3 sacadas por `tools/prueba_cogida.mjs`: la vaca colorada fijándose en el jugador y la cogida.
+
 En la foto aérea los tejados salen desplazados uno o dos metros respecto al suelo (no es una ortofoto verdadera).
 Lo que cuenta para colocar las vallas es la línea blanca de fachadas, que es la del Catastro y la que usa el juego.
 

@@ -2,7 +2,7 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo fiestas**: el mismo pueblo, transformado como en las fiestas (vallas, arena, banderines, público, sin tráfico), con tres minijuegos de vacas. Complementa a `PLAN.md` y `PLAN_REALISMO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias (una fase cada vez, parada al final de cada fase, no inventar datos geográficos, español, escritorio y móvil siempre).
 
-Fecha: 2026-11-15. Estado: **F0 aprobada; F1 y F2 hechas (2026-11-17), pendientes de que Rubén las pruebe**. Detalle en `PROGRESO.md`, apartado «Fiestas».
+Fecha: 2026-11-15. Estado: **F0 aprobada; F1, F2 y F3 hechas (2026-11-17), pendientes de que Rubén las pruebe**. Detalle en `PROGRESO.md`, apartado «Fiestas».
 
 > **Correcciones del 2026-11-15 y 16 (respuestas, fotos y croquis de Rubén), que mandan sobre el texto de abajo:**
 > - No hay camión de ganado. Las vacas salen de los **corrales**, el patio de detrás del nº 8 de la plaza, por el portón del nº 8 y una manga de tablas. La **ambulancia** (obligatoria) va en el callejón sur del Ayuntamiento.

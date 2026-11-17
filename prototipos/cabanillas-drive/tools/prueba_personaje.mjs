@@ -32,7 +32,7 @@ const foto = async (nombre) => {
   });
   writeFileSync(`${S}/f2_${nombre}.jpg`, Buffer.from(url.split(',')[1], 'base64'));
 };
-await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1`);
+await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1&vacas=0`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 await p.evaluate(() => document.getElementById('jugar').click());
 await p.waitForTimeout(1000);
