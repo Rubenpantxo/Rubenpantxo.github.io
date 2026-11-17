@@ -24,7 +24,7 @@ for (const [ancho, alto] of TAMANOS) {
   });
   await p.waitForFunction(() => window.__juego.fiestas?.partida, null, { timeout: 120000 });
   // La vaca embistiendo cerca (botones encendidos), un aviso grande y el refugio a mano
-  const cajas = await p.evaluate(() => {
+  await p.evaluate(() => {
     const j = window.__juego; const f = j.fiestas;
     j.ponPausa(true); f.mostrarHud(true);
     const q = { avance: 0, lateral: 0, correr: false, conJoystick: false, giro: 0 };
@@ -35,6 +35,12 @@ for (const [ancho, alto] of TAMANOS) {
     f.recortes.avisa('¡Olé! Quiebro ceñido +300', 'ole', 5);
     f.fotograma(0.016, { dx: 0, dy: 0 }, { giro: 0 });
     document.querySelector('[data-pulsar="refugio"]').hidden = false;
+    j.ponPausa(false);                       // en la pausa no se ven el minimapa ni ☰
+  });
+  await p.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  const cajas = await p.evaluate(() => {
+    document.querySelector('[data-pulsar="refugio"]').hidden = false;
+    window.__juego.fiestas.recortes.avisa('¡Olé! Quiebro ceñido +300', 'ole', 5);
     const r = (sel, nombre) => [...document.querySelectorAll(sel)].filter((e) => e.offsetParent !== null && getComputedStyle(e).visibility !== 'hidden')
       .map((e) => { const b = e.getBoundingClientRect(); return { nombre: nombre ?? sel, x0: b.left, y0: b.top, x1: b.right, y1: b.bottom }; })
       .filter((b) => b.x1 - b.x0 > 0);
