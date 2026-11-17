@@ -199,7 +199,7 @@
 
 ## Fiestas (PLAN_FIESTAS.md)
 
-**Fase actual: F8 — rendimiento, móvil y publicación. Hecha el 2026-11-17 salvo la medición en el Pixel 10, que tiene que hacer Rubén. Es la última fase del plan de fiestas.** F0 aprobada; F1 a F7 hechas y en `main`.
+**Fase actual: F8 — rendimiento, móvil y publicación. Hecha el 2026-11-17 y en `main`, salvo la medición en el Pixel 10, que Rubén deja para más adelante (junto con una revisión general y una lista de correcciones). Es la última fase del plan de fiestas.** Después de la F8: entradas al frontón (D14), en la rama.
 
 ### Hecho en F8
 - **Presupuesto medido** (`tools/mide_fiestas.mjs`; llamadas de dibujo, contando el mapa de sombras, y miles de triángulos; desde el centro de la plaza en el concurso y desde la calle en el encierro):
@@ -227,8 +227,8 @@
 - **Pantalla de inicio**: botón «🐂 Ir a las fiestas» bajo «Jugar». **«Ir a…»** de la pausa y **minimapa**: las entradas salen con su icono; «Ir a…» deja el coche en el aro.
 - Prueba: `tools/prueba_entradas.mjs` (escritorio y móvil). Capturas en `docs/fiestas/f7_*.jpg`.
 
-### D14 — ¿Dónde está el frontón?
-El plan decía que el frontón es un edificio de tipo `fronton` en `buildings.geojson`, pero el Catastro no tiene ninguno con ese rótulo, y en OSM no hay ni frontón ni cancha de pelota (solo el campo de fútbol y una de baloncesto). No me invento el sitio: hace falta que Rubén diga dónde está (dirección, o un punto en el mapa) y dónde está la puerta. Con eso es cambiar `en: null` por las coordenadas en `src/config/entradas.js`.
+### D14 — Frontón (resuelta el 2026-11-17)
+Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Los frontones sí están en el Catastro, sin rótulo de frontón: el 1 (el que prefiere para jugar) es el edificio 532 y el 2, el 538. Hay dos entradas, al principio de cada camino: **Frontón · San Isidro** (camino naranja, por el pasillo entre el edificio 548 y la piscina) y **Frontón · Bardenas Reales** (camino azul, frente a la calle las Planas). Las dos llevan a `juegos/cesta-punta/`; al volver atrás, el coche aparece en la entrada por la que se fue. Sitio medido sobre la captura con los edificios como referencia. Captura: `docs/fiestas/f7_aro_fronton.jpg`.
 
 ### Pendiente tras F7
 - El juego de cesta punta no tiene botón de «Volver a Cabanillas»: se vuelve con «atrás» del navegador (no he tocado ese juego).
