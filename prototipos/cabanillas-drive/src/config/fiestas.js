@@ -131,6 +131,39 @@ export const FIESTAS = {
       descuelga: { cadaS: [6, 14], duraS: [2, 4], metros: 6 } },
   },
 
+  // Mozos (F6): gente del pueblo que corre delante de las vacas, las cita y se sube a la valla.
+  // Cantidad por calidad; en la plaza, menos. Velocidades en m/s.
+  mozos: {
+    cantidad: { alto: 8, medio: 6, bajo: 3 },
+    enPlaza: 0.6,
+    andarMs: 1.3, troteMs: 3.4, correrMs: 6.4,
+    giroRad: 9,
+    radioM: 0.32,
+    // Habilidad de cada mozo (0 a 1, al azar en este margen): a qué distancia reacciona a la embestida
+    habilidad: [0.35, 0.95], reaccionaM: [3.2, 6.5],
+    citaHastaM: 24, citaDistanciaM: [6.5, 10], citaS: [2.5, 6], citandoMax: 2, citaCadaS: [3, 10],
+    vallaCercaM: 3.6,                // si la valla queda más cerca que esto al huir, se sube
+    huyeS: 1.0,
+    subidoMinS: 2.5, bajaSiVacaLejosM: 9,
+    tendidoS: 1.3,                   // tras la cogida, en el suelo antes de levantarse
+    // Encierro: corren delante de la manada a esta distancia y se apartan si se les echa encima
+    encierro: { delanteM: [3.5, 10], apartarseM: 2.6, empiezanM: 26, bajanTrasM: 12, detrasM: 14 },
+    // La vaca elige a quién se arranca: la distancia de cada uno por esto (el jugador, 1)
+    preferenciaMozo: 1.35, preferenciaCitando: 0.7,
+  },
+
+  // Sonido (F6), sintetizado en sonido.js. Ganancias de 0 a 1
+  sonido: {
+    volumen: 0.8, murmullo: 0.32, ole: 0.85, aplauso: 0.55, uy: 0.75, cohete: 0.9,
+    cencerro: 0.55, pezuna: 0.7, pisada: 0.22, golpe: 1.0,
+    cencerros: [430, 515, 600, 690],  // tono (Hz) de cada cencerro: cada vaca, el suyo
+    referenciaM: 4, caida: 1.3,       // a esta distancia suena entero; luego baja con la distancia
+    pisadaCadaM: 1.15,               // un paso cada tantos metros (a la carrera, zancada más larga)
+  },
+
+  // Vibración de la valla al rematar la vaca (F6)
+  vibracion: { radioM: 3.5, amplitudM: 0.07, hz: 6, amortigua: 5, duraS: 1.2 },
+
   // Cámara del personaje: detrás del hombro; V o 👁 cambia de vista
   camara: {
     vistas: [
@@ -155,6 +188,13 @@ export const FIESTAS = {
     cantidad: { alto: 70, medio: 40, bajo: 16 },
     // Reparto: fracción en el tablado y las gradas, en los balcones y el resto en las aceras
     enGradas: 0.3, enBalcones: 0.12,
+    enValla: 0.1,                    // sentados encima de la valla de tablones de la plaza (F6)
+    apoyados: 0.45,                  // de los de la primera fila, cuántos se apoyan en la valla
+    // Reacciones (F6): cuántos reaccionan según la distancia al lance, y cuánto dura cada cosa (s)
+    reaccion: { alcanceM: 60, retrasoS: 0.45, aplausoS: [2.2, 3.6], oleS: [1.6, 2.4], uyS: [1.4, 2.0], entraS: 0.22, saleS: 0.35,
+      // De vez en cuando alguien aplaude por su cuenta (probabilidad por persona y segundo)
+      espontaneo: 0.004 },
+    animadosHastaM: 35,              // más lejos no se mueven los brazos (no se aprecia)
     visibleHastaM: { alto: 95, medio: 70, bajo: 45 },
     separacionM: 0.62,
     semilla: 20261116,

@@ -454,6 +454,11 @@ export function creaVaca({ recinto, terreno, puertaAbierta, capa = 'colorada', s
   return {
     objeto: modelo.grupo,
     capa,
+    numero: semilla,
+    // A quién va (lo pone quien elige el objetivo: «jugador» o el id de un mozo)
+    persigue: 'jugador',
+    // ¿Ve ese punto? (ninguna valla en medio)
+    ve: (tx, tz) => seVe(tx, tz),
     paso,
     anima,
     get estado() { return estado; },

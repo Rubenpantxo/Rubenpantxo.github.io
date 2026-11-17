@@ -97,7 +97,8 @@ export function creaRecortes({ sinFin = false } = {}) {
   function pasoDeVaca(jugador, vaca, suceso, cogido, nuevas) {
     const c = vaca.cuernos();
     const distancia = Math.hypot(jugador.x - c.x, jugador.z - c.z);
-    if (vaca.estado === 'embiste' && !lance) lance = { minimo: Infinity, suerte: null, fuera: false };
+    // Solo cuentan las embestidas que van al jugador (no las que van a un mozo)
+    if (vaca.estado === 'embiste' && !lance && (vaca.persigue ?? 'jugador') === 'jugador') lance = { minimo: Infinity, suerte: null, fuera: false };
     // Cogida (también fuera de una embestida: la manada del encierro)
     if (suceso?.tipo === 'cogida') {
       if (cogido) {
@@ -137,7 +138,7 @@ export function creaRecortes({ sinFin = false } = {}) {
   // Qué botones se iluminan: la vaca viene y está a distancia buena para esa suerte
   function listos(jugador, vaca) {
     const r = { quiebro: false, recorte: false, salto: false, especial: false };
-    if (acabada || !vaca || vaca.estado !== 'embiste' || vaca.cruzado || jugador.seguro) return r;
+    if (acabada || !vaca || vaca.estado !== 'embiste' || vaca.cruzado || jugador.seguro || (vaca.persigue ?? 'jugador') !== 'jugador') return r;
     const c = vaca.cuernos();
     const d = Math.hypot(jugador.x - c.x, jugador.z - c.z);
     for (const s of SUERTES) r[s] = d >= R.valida[s][0] && d <= R.valida[s][1];

@@ -174,7 +174,7 @@
       .boton-tactil.pequeno { width: 52px; height: 52px; font-size: 18px; }
       /* Modo fiestas: fuera los mandos del coche y dentro las acciones del recortador */
       .botones-fiestas { display: none; position: fixed; right: max(16px, env(safe-area-inset-right));
-        bottom: max(16px, env(safe-area-inset-bottom)); width: 168px; height: 236px; }
+        bottom: max(16px, env(safe-area-inset-bottom)); width: 168px; height: 296px; }
       #tactil.fiestas .botones, #tactil.fiestas .botones-superiores { display: none; }
       #tactil.fiestas .botones-fiestas { display: block; }
       .botones-fiestas .boton-tactil { position: absolute; }
@@ -244,6 +244,7 @@
         <button class="boton-tactil accion" type="button" data-pulsar="quiebro" style="right: 0; bottom: 92px">Quiebro</button>
         <button class="boton-tactil pequeno" type="button" data-pulsar="refugio" style="left: 30px; bottom: 172px; width: 64px" hidden>Subir</button>
         <button class="boton-tactil pequeno" type="button" data-pulsar="camaraFiestas" style="right: 12px; bottom: 180px" aria-label="Cambiar cámara">👁</button>
+        <button class="boton-tactil pequeno" type="button" data-pulsar="sonido" style="right: 12px; bottom: 240px" aria-label="Quitar o poner el sonido">🔊</button>
       </div>
     </div>
 

@@ -79,7 +79,7 @@ export function creaPartida({ modo, variante = 'libre', recortes, suelta, retira
     if (fase === 'jugando') {
       if (vaca.estado !== 'corral' && vaca.estado !== 'saliendo') queda -= dt;
       recortes.ponTiempo(Math.max(0, queda));
-      if (modo === 'calle' && vaca.estado === 'embiste' && !vaca.cruzado && !jugador.seguro && corre > P.calle.correMs) {
+      if (modo === 'calle' && vaca.estado === 'embiste' && (vaca.persigue ?? 'jugador') === 'jugador' && !vaca.cruzado && !jugador.seguro && corre > P.calle.correMs) {
         // Metros corridos delante: la vaca viene detrás y el jugador se aleja de ella
         const q = vaca.posicion();
         const dx = jugador.x - q.x; const dz = jugador.z - q.z; const d = Math.hypot(dx, dz);

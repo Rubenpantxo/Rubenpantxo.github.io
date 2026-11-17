@@ -3,6 +3,7 @@
 // hace el quiebro a tiempo, y no se arranca mientras está subido. Saca capturas de las tres capas.
 // Hace falta el servidor de desarrollo (npm run dev) y Playwright (PLAYWRIGHT_RAIZ si no está en el proyecto).
 // Uso: node tools/prueba_cogida.mjs <carpeta de capturas> [bajo|medio|alto] [colorada|negra|berrenda]
+// Sin mozos (?mozos=0): aquí se mide la vaca contra el jugador solo.
 import { writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 const requiere = createRequire(process.env.PLAYWRIGHT_RAIZ ? `${process.env.PLAYWRIGHT_RAIZ}/` : import.meta.url);
@@ -24,7 +25,7 @@ const foto = async (nombre) => {
   });
   writeFileSync(`${S}/f3_${nombre}.jpg`, Buffer.from(url.split(',')[1], 'base64'));
 };
-await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1&capa=${capa}`);
+await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1&capa=${capa}&mozos=0`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 await p.evaluate(() => document.getElementById('jugar').click());
 await p.waitForTimeout(1000);

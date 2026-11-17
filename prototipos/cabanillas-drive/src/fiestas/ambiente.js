@@ -7,8 +7,10 @@ import { CALIDAD } from '../config/calidad.js';
 import { FIESTAS } from '../config/fiestas.js';
 import { FILAS_AYUNTAMIENTO } from '../datos/casasAyuntamiento.js';
 import { FILAS_PLAZA } from '../datos/casasPlaza.js';
+import { POSTURAS, POSTURA_NULA, creaCapa, mezclaPosturas, sienta } from './pose.js';
 import { Lote, azarCon } from './vallado.js';
 
+export { sienta };
 const largoDe = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]);
 
 // ---------------------------------------------------------------- arena
@@ -290,58 +292,47 @@ function elige(sitios, cuantos, azar) {
   return lista.slice(0, cuantos).map((e) => e.s);
 }
 
-// Sienta a una persona doblando los huesos de su postura de quieto (esqueleto de MakeHuman de
-// tools/build_personas.py: thigh, calf, upperarm, lowerarm). Devuelve los huesos tocados con su
-// giro, para volver a ponerlos después de cada paso de la animación, y la altura de la cadera.
-const EJE_X = new THREE.Vector3(1, 0, 0);
-export function sienta(objeto) {
-  const S = FIESTAS.publico.sentado;
-  objeto.updateMatrixWorld(true);
-  const qObjeto = objeto.getWorldQuaternion(new THREE.Quaternion());
-  // Giro sobre el eje transversal de la persona (su X), expresado en el mundo
-  const giro = (rad) => qObjeto.clone().multiply(new THREE.Quaternion().setFromAxisAngle(EJE_X, rad)).multiply(qObjeto.clone().invert());
-  const mundo = (h) => h.getWorldQuaternion(new THREE.Quaternion());
-  const fijados = [];
-  let cadera = null;
-  // Gira «hueso» en el mundo (a partir de la orientación «desde») sin tocar a su padre
-  const pon = (hueso, rad, desde = mundo(hueso)) => {
-    hueso.quaternion.copy(mundo(hueso.parent).invert().multiply(giro(rad).multiply(desde)));
-    hueso.updateMatrixWorld(true);
-    fijados.push([hueso, hueso.quaternion.clone()]);
-  };
-  for (const lado of ['l', 'r']) {
-    const muslo = objeto.getObjectByName(`thigh_${lado}`);
-    const pierna = objeto.getObjectByName(`calf_${lado}`);
-    const brazo = objeto.getObjectByName(`upperarm_${lado}`);
-    const antebrazo = objeto.getObjectByName(`lowerarm_${lado}`);
-    if (!muslo || !pierna) return null;
-    cadera ??= muslo.getWorldPosition(new THREE.Vector3()).y - objeto.position.y;
-    const piernaDePie = mundo(pierna);
-    pon(muslo, -S.musloRad);
-    pon(pierna, S.piernaRad, piernaDePie);          // la pierna, casi vertical como de pie
-    if (brazo && antebrazo) {
-      const antebrazoDePie = mundo(antebrazo);
-      pon(brazo, -S.brazoRad);
-      pon(antebrazo, -S.antebrazoRad, antebrazoDePie);
+// Sitios encima de la valla de tablones de la plaza: gente sentada en el tablón de arriba,
+// mirando al ruedo (F6). Lejos de la manga del corral y de la puerta
+function sitiosValla(recinto, terreno) {
+  const sitios = [];
+  const alto = FIESTAS.valla.tablones.alturasM.at(-1) + FIESTAS.valla.tablones.tablonAltoM;
+  const manga = recinto.corral.salida;
+  for (const t of recinto.tramos) {
+    if (t.zona !== 'plaza' || t.clase !== 'fachada' || t.tipo !== 'tablones' || t.largo < 2) continue;
+    const fondo = [(t.fachada[0][0] + t.fachada[1][0] - t.a[0] - t.b[0]) / 2, (t.fachada[0][1] + t.fachada[1][1] - t.a[1] - t.b[1]) / 2];
+    const l = Math.hypot(fondo[0], fondo[1]);
+    const rumbo = Math.atan2(-fondo[0] / l, -fondo[1] / l);
+    const cuantos = Math.floor((t.largo - 0.8) / 0.9);
+    for (let i = 0; i < cuantos; i++) {
+      const k = (0.4 + (i + 0.5) * (t.largo - 0.8) / cuantos) / t.largo;
+      const x = t.a[0] + (t.b[0] - t.a[0]) * k; const z = t.a[1] + (t.b[1] - t.a[1]) * k;
+      if (Math.hypot(x - manga[0], z - manga[1]) < 3) continue;
+      sitios.push({ x, z, y: terreno.alturaEn(x, z) + alto, rumbo, sentado: true, enValla: true, peso: 1 });
     }
   }
-  return { fijados, cadera };
+  return sitios;
 }
 
 function creaPublico(recinto, terreno, personas, sitiosGradas, sombras) {
   const P = FIESTAS.publico;
+  const RE = P.reaccion;
   const grupo = new THREE.Group();
   grupo.name = 'fiestas_publico';
   const variantes = personas?.modelos ?? [];
   const total = variantes.length ? (P.cantidad[CALIDAD.nivel] ?? P.cantidad.medio) : 0;
   const azar = azarCon(P.semilla);
+  const entre = ([a, b]) => a + (b - a) * azar();
   const enGradas = Math.min(sitiosGradas.length, Math.round(total * P.enGradas));
   const balcones = sitiosBalcones(terreno);
   const enBalcones = Math.min(balcones.length, Math.round(total * P.enBalcones));
+  const valla = sitiosValla(recinto, terreno);
+  const enValla = Math.min(valla.length, Math.round(total * P.enValla));
   const sitios = [
     ...elige(sitiosGradas.map((s) => ({ ...s, peso: 1 })), enGradas, azar),
-    ...elige(balcones, enBalcones, azar),
-    ...elige(sitiosAceras(recinto), total - enGradas - enBalcones, azar),
+    ...elige(balcones, enBalcones, azar).map((s) => ({ ...s, balcon: true })),
+    ...elige(valla, enValla, azar),
+    ...elige(sitiosAceras(recinto), total - enGradas - enBalcones - enValla, azar),
   ];
   const gente = sitios.map((s, i) => {
     const v = variantes[Math.floor(azar() * variantes.length)];
@@ -354,6 +345,8 @@ function creaPublico(recinto, terreno, personas, sitiosGradas, sombras) {
     objeto.position.set(s.x, s.y ?? terreno.alturaEn(s.x, s.z), s.z);
     objeto.rotation.y = s.rumbo + (azar() - 0.5) * (s.sentado ? 0.3 : 0.7);
     objeto.scale.setScalar(0.94 + azar() * 0.1);
+    objeto.updateMatrixWorld(true);
+    const capa = creaCapa(objeto);
     let fijados = null;
     if (s.sentado) {
       const sentado = sienta(objeto);
@@ -369,26 +362,89 @@ function creaPublico(recinto, terreno, personas, sitiosGradas, sombras) {
       o.frustumCulled = true;
     });
     grupo.add(objeto);
-    return { objeto, mezclador, fijados, turno: i % 4, pendiente: 0 };
+    // Los de la primera fila de la acera se apoyan en la valla; el resto, de pie o sentados
+    const apoyado = !s.sentado && !s.balcon && s.peso >= 1 && azar() < P.apoyados;
+    if (apoyado) {
+      // Pegado a la valla
+      const n = [Math.sin(s.rumbo), Math.cos(s.rumbo)];
+      objeto.position.x += n[0] * 0.15; objeto.position.z += n[1] * 0.15;
+      objeto.rotation.y = s.rumbo + (azar() - 0.5) * 0.25;
+    }
+    if (apoyado) capa.pon(POSTURAS.apoyado());
+    return { objeto, mezclador, capa, fijados, apoyado, enValla: Boolean(s.enValla), turno: i % 4, pendiente: 0,
+      reaccion: null, ritmo: 2.6 + azar() * 1.4, base: apoyado ? POSTURAS.apoyado() : POSTURA_NULA, movido: true };
   });
   const visibleM = P.visibleHastaM[CALIDAD.nivel] ?? 75;
+  const animadosM = Math.min(visibleM, P.animadosHastaM);
   let contador = 0;
+  let reloj = 0;
+  const postura = { brazoX: [0, 0], brazoY: [0, 0], antebrazoX: [0, 0], antebrazoY: [0, 0] };
+
+  function empieza(g, tipo, fuerza, retraso = 0) {
+    const dura = tipo === 'ole' ? entre(RE.oleS) : tipo === 'uy' ? entre(RE.uyS) : entre(RE.aplausoS);
+    g.reaccion = { tipo, t: -retraso, dura, fuerza };
+  }
+
   return {
     grupo,
     cantidad: gente.length,
-    reparto: { gradas: enGradas, balcones: enBalcones, aceras: gente.length - enGradas - enBalcones },
+    reparto: { gradas: enGradas, balcones: enBalcones, valla: enValla, aceras: gente.length - enGradas - enBalcones - enValla,
+      apoyados: gente.filter((g) => g.apoyado).length },
+    // Reacción a lo que pasa en (x, z): «aplauso», «ole» o «uy»; «fuerza» de 0 a 1. Reaccionan
+    // más cuanto más cerca, cada uno con su pequeño retraso
+    reacciona(tipo, fuerza, x, z) {
+      let n = 0;
+      for (const g of gente) {
+        const d = Math.hypot(g.objeto.position.x - x, g.objeto.position.z - z);
+        const p = fuerza * (1.15 - d / RE.alcanceM);
+        if (azar() > p) continue;
+        // Tras el olé, aplauden
+        empieza(g, tipo, fuerza, azar() * RE.retrasoS + d / 90);
+        if (tipo === 'ole') g.luego = 'aplauso';
+        n++;
+      }
+      return n;
+    },
+    get reaccionando() { return gente.filter((g) => g.reaccion && g.reaccion.t >= 0).length; },
     actualiza(dt, camara) {
       contador++;
+      reloj += dt;
       for (const g of gente) {
         const d = g.objeto.position.distanceTo(camara.position);
         g.objeto.visible = d < visibleM;
         g.pendiente += dt;
+        // Reacción en curso (también fuera de la vista: así no se queda a medias)
+        let k = 0; let pose = null;
+        if (g.reaccion) {
+          const r = g.reaccion;
+          r.t += dt;
+          if (r.t >= r.dura) {
+            g.reaccion = null;
+            if (g.luego) { empieza(g, g.luego, r.fuerza); g.reaccion.t = 0; g.luego = null; }
+          } else if (r.t >= 0) {
+            k = Math.min(1, r.t / RE.entraS, (r.dura - r.t) / RE.saleS);
+            pose = r.tipo === 'ole' ? POSTURAS.ole(r.t) : r.tipo === 'uy' ? POSTURAS.uy(r.t) : POSTURAS.aplauso(r.t, g.ritmo);
+          }
+        } else if (azar() < RE.espontaneo * dt) {
+          empieza(g, 'aplauso', 0.5, 0);
+        }
+        if (!g.objeto.visible) continue;
+        const cerca = d < animadosM;
         // La respiración de la postura de quieto, solo cerca y un fotograma de cada cuatro
-        if (d < 30 && (contador + g.turno) % 4 === 0) {
+        const toca = d < 30 && (contador + g.turno) % 4 === 0;
+        if (toca) {
+          g.capa.antes();
           g.mezclador.update(g.pendiente);
+          g.capa.despues();
           g.pendiente = 0;
-          // Los sentados: la animación de quieto les pondría las piernas de pie
-          if (g.fijados) for (const [hueso, q] of g.fijados) hueso.quaternion.copy(q);
+        }
+        if (k > 0 && cerca) {
+          g.capa.pon(mezclaPosturas(g.base, pose, k, postura), g.fijados);
+          g.movido = true;
+        } else if (toca || g.movido) {
+          // Sin reacción: su postura de siempre (apoyado, sentado o la de la animación)
+          g.capa.pon(g.apoyado ? g.base : null, g.fijados);
+          g.movido = false;
         }
       }
     },

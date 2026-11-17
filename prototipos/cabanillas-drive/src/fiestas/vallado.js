@@ -79,6 +79,35 @@ export function creaVallado(recinto, { terreno, fisica, sombras = true }) {
   const V = FIESTAS.valla;
   const azar = azarCon(20261116);
   const mat = materialesFiestas();
+  // Vibración (F6): cuando la vaca remata, la valla de alrededor tiembla un momento. Se hace en
+  // el sombreador (las vallas son unas pocas mallas grandes): hasta tres golpes a la vez
+  const VB = FIESTAS.vibracion;
+  const vibracion = {
+    uVibT: { value: 0 },
+    uGolpe: { value: [0, 1, 2].map(() => new THREE.Vector4(0, 0, 0, -99)) },
+    uGolpeDir: { value: [0, 1, 2].map(() => new THREE.Vector4()) },
+  };
+  let siguienteGolpe = 0;
+  const vibra = (shader) => {
+    Object.assign(shader.uniforms, vibracion);
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nuniform float uVibT;\nuniform vec4 uGolpe[3];\nuniform vec4 uGolpeDir[3];')
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+        {
+          vec4 wp = modelMatrix * vec4(transformed, 1.0);
+          vec2 desp = vec2(0.0);
+          for (int i = 0; i < 3; i++) {
+            float dt = uVibT - uGolpe[i].w;
+            if (dt < 0.0 || dt > ${VB.duraS.toFixed(2)}) continue;
+            float caida = max(0.0, 1.0 - distance(wp.xz, uGolpe[i].xy) / ${VB.radioM.toFixed(2)});
+            float alto = clamp((wp.y - uGolpe[i].z) / 1.6, 0.0, 1.0);
+            desp += uGolpeDir[i].xy * uGolpeDir[i].z * ${VB.amplitudM.toFixed(3)} * exp(-dt * ${VB.amortigua.toFixed(2)})
+              * sin(dt * ${(VB.hz * Math.PI * 2).toFixed(3)}) * caida * caida * alto;
+          }
+          transformed += transpose(mat3(modelMatrix)) * vec3(desp.x, 0.0, desp.y);
+        }`);
+  };
+  for (const m of [mat.rojo, mat.madera, mat.gris]) m.onBeforeCompile = vibra;
   const lote = new Lote(azar);
   const lotePuerta = new Lote(azar);
   const raiz = new THREE.Group();
@@ -324,6 +353,14 @@ export function creaVallado(recinto, { terreno, fisica, sombras = true }) {
     transparentes,
     ponPuerta,
     get puertaAbierta() { return abierta; },
+    // La vaca da en la valla en (x, z) yendo hacia (dx, dz); «fuerza» de 0 a 1
+    vibra(x, z, dx, dz, fuerza = 1) {
+      const i = siguienteGolpe++ % 3;
+      vibracion.uGolpe.value[i].set(x, z, terreno.alturaEn(x, z), vibracion.uVibT.value);
+      const l = Math.hypot(dx, dz) || 1;
+      vibracion.uGolpeDir.value[i].set(dx / l, dz / l, fuerza, 0);
+    },
+    avanza(dt) { vibracion.uVibT.value += dt; },
     libera() {
       for (const c of colisiones) mundo.removeCollider(c, false);
       colisiones.length = 0;

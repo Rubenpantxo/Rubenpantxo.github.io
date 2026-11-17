@@ -3,6 +3,7 @@
 // buena, la cogida quita vida y puntos, y el marcador escribe todo ello. Saca capturas de pantalla.
 // Hace falta el servidor de desarrollo (npm run dev) y Playwright (PLAYWRIGHT_RAIZ si no está en el proyecto).
 // Uso: node tools/prueba_marcador.mjs <carpeta de capturas> [bajo|medio|alto] [movil|no]
+// Sin mozos (?mozos=0): aquí se mide la vaca contra el jugador solo.
 import { createRequire } from 'node:module';
 const requiere = createRequire(process.env.PLAYWRIGHT_RAIZ ? `${process.env.PLAYWRIGHT_RAIZ}/` : import.meta.url);
 const { chromium } = requiere('playwright');
@@ -35,7 +36,7 @@ const foto = async (nombre) => {
   });
   await p.screenshot({ path: `${S}/f4_${nombre}${movil ? '_movil' : ''}.jpg`, quality: 85, timeout: 120000 });
 };
-await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1&capa=colorada`);
+await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1&capa=colorada&mozos=0`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 await p.evaluate(() => document.getElementById('jugar').click());
 await p.waitForTimeout(1000);

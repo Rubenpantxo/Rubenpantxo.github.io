@@ -24,7 +24,7 @@ export async function creaHud(mundo, { lugares = [] } = {}) {
   document.getElementById('minimapa').addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('cabanillas:mapa'));
   });
-  window.addEventListener('keydown', (e) => { if (e.code === 'KeyM' && !contenedor.hidden) minimapa.alternaGiro(); });
+  window.addEventListener('keydown', (e) => { if (e.code === 'KeyM' && !contenedor.hidden && !contenedor.classList.contains('fiestas')) minimapa.alternaGiro(); });
 
   // --- Mapa ampliado: arrastrar para mover, rueda o pellizco para acercar
   const lienzoGrande = document.getElementById('mapa-lienzo');

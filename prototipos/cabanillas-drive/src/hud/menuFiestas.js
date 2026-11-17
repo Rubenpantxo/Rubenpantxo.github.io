@@ -114,9 +114,9 @@ export function creaMenuFiestas() {
       const lista = crea('ul', '', controles);
       const lineas = tactil
         ? ['Joystick: moverse; a fondo, esprint', 'Botones: Quiebro, Recorte, Salto y Especial', 'Quiebro dos veces seguidas: ida y vuelta',
-          'Subir: aparece junto a la valla o el burladero', '👁: cámara · ☰: pausa']
+          'Subir: aparece junto a la valla o el burladero', '👁: cámara · 🔊: sonido · ☰: pausa']
         : ['WASD y ratón: moverse y mirar · Mayús: esprint', 'Q quiebro · E recorte · Espacio salto', 'E y Espacio a la vez: salto al trascuerno',
-          'Q dos veces seguidas: quiebro de ida y vuelta', 'F: subir a la valla o al burladero, y bajar · V: cámara'];
+          'Q dos veces seguidas: quiebro de ida y vuelta', 'F: subir a la valla o al burladero, y bajar', 'V: cámara · M: sonido'];
       for (const l of lineas) crea('li', '', lista, l);
       const consejos = crea('div', 'consejos', ayuda);
       crea('h3', '', consejos, 'Consejos');

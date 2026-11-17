@@ -32,6 +32,13 @@ condiciones de cada web antes de publicar el juego.
   `data/raw/externos/makehuman/`. Generadas con MPFB2 (GPL-3.0, solo en el pipeline; no se distribuye).
 - Animaciones de andar y de estar quieto: hechas por `tools/build_personas.py`.
 
+## Modo fiestas
+- Vacas, vallas, tablado, gradas, ambulancia y banderines: hechos con primitivas por `src/fiestas/`.
+- Posturas del público y de los mozos (aplaudir, olé, manos a la cabeza, apoyarse, sentarse, correr):
+  giros de huesos encima de las animaciones de andar y de quieto (`src/fiestas/pose.js`).
+- Sonido (murmullo, olé, aplausos, «¡uy!», cencerros, pezuñas, pisadas, golpe en la valla y cohete):
+  sintetizado en el navegador por `src/fiestas/sonido.js` (Web Audio). No hay grabaciones de terceros.
+
 ## Render
 - Cielo: HDRI «Kloofendal 48d Partly Cloudy (Pure Sky)», de Poly Haven (CC0), en `data/raw/externos/cielo/`.
 - Detalle del suelo: Asphalt031, PavingStones136 y Ground109, de ambientCG (CC0), en `data/raw/externos/texturas/`.

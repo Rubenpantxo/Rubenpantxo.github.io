@@ -199,7 +199,25 @@
 
 ## Fiestas (PLAN_FIESTAS.md)
 
-**Fase actual: F5 — los tres modos y el menú. Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno para la F6.** F0 aprobada; F1 a F4 hechas y en `main` (Rubén dio el visto bueno a la F5 sin esperar a probarlas).
+**Fase actual: F6 — ambiente de fiestas. Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno para la F7.** F0 aprobada; F1 a F5 hechas y en `main` (Rubén dio el visto bueno a la F6 sin esperar a probarlas).
+
+### Hecho en F6
+- **Mozos** (`src/fiestas/mozos.js`): gente del pueblo en el recorrido con el jugador (en calidad alta 8, media 6, baja 3; en la plaza, el 60 %). Pasean, citan a la vaca agitando el brazo, y cuando se les arranca quiebran de lado o corren a la valla y se suben; bajan cuando la vaca se aleja. La vaca también se les arranca a ellos (elige al más cercano que ve; el jugador tiene algo de preferencia y el mozo que cita, más) y los puede coger: vuelan, quedan tendidos un momento y se van a la valla. En el encierro corren delante de la manada, se apartan a la valla cuando se les echa encima y la siguen por detrás para la segunda carrera. `?mozos=0` los quita.
+- Las embestidas que van a un mozo no puntúan para el jugador (ni pases ni metros delante).
+- **Público con posturas y reacciones** (`src/fiestas/pose.js`, `ambiente.js`): gente sentada encima de la valla de tablones de la plaza, apoyada en la valla en la primera fila, y en las gradas, el tablado y los balcones como antes. Reacciona al lance, más cuanto más cerca: aplauso, «¡olé!» con los brazos arriba (y luego aplausos) en las suertes ceñidas y a los mozos que la dejan pasar cerca, manos a la cabeza en las cogidas, aplausos al salir la vaca y al acabar el festejo; y alguno aplaude de vez en cuando por su cuenta.
+- **Sonido** (`src/fiestas/sonido.js`), todo sintetizado con Web Audio (sin grabaciones): murmullo de la gente que sube cuando hay embestida, cohete al salir la primera vaca, cencerros (cada vaca el suyo) y pezuñas que suenan desde donde está la vaca, pisadas del jugador, golpe en la valla, olé, aplausos y «¡uy!». **M** o el botón **🔊** lo quitan y lo ponen (se recuerda); en la pausa calla. En fiestas, M ya no gira el minimapa.
+- **La valla vibra** cuando la vaca remata (en el sombreador, alrededor del golpe; pendiente de la F3).
+- Valores en `FIESTAS.mozos`, `FIESTAS.sonido`, `FIESTAS.vibracion` y `FIESTAS.publico` (`src/config/fiestas.js`). Créditos en `CREDITOS.md`.
+- Pruebas: `tools/prueba_mozos.mjs` (sin navegador: plaza y calle 5 minutos, encierro entero) y `tools/prueba_ambiente.mjs` (dentro del juego: sonido, mozos, reacciones, golpe, M, encierro; escritorio y móvil). Capturas en `docs/fiestas/f6_*.jpg`.
+
+### No hecho en F6, y por qué
+- **Cogida con muñeco articulado (Rapier)**: el plan la pedía «si el rendimiento lo permite». Aquí no puedo medir el rendimiento (el navegador de pruebas va a menos de 1 FPS), así que se queda el volteo de la F3. Propuesta: Rubén mide los FPS en su móvil con la F6 y, si sobran, se hace.
+- **Animaciones de Blender** (correr, saltar, sentarse, aplaudir): siguen siendo giros de huesos encima de andar y quieto; aquí no hay Blender.
+
+### Pendiente tras F6
+- Los mozos no chocan con el jugador ni con las vacas (se apartan del jugador, pero la vaca los puede atravesar si no los coge).
+- Sonido: no lo he podido escuchar (no hay altavoces aquí); los volúmenes y los tonos son una primera propuesta en `FIESTAS.sonido`.
+- Rendimiento con 70 personas y 8 mozos en calidad alta, sin medir.
 
 ### Hecho en F5
 - **Menú de fiestas** (`src/hud/menuFiestas.js`): Recorte libre · Concurso · Vacas en la calle · Encierro · Volver al pueblo, con la mejor marca de cada uno, los controles y los consejos (la «pantalla previa» del §4b). Se abre desde la pausa («Fiestas → Menú de fiestas») o con `?fiestas=menu`. La pausa sigue dejando entrar directo a cada modo y añade «Dejar la partida (ver resultado)».

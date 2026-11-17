@@ -11,8 +11,10 @@ import { apuntaMarca, creaMenuFiestas } from '../hud/menuFiestas.js';
 import { creaAmbiente } from './ambiente.js';
 import { creaCamaraPersonaje } from './camaraPersonaje.js';
 import { creaPersonaje } from './personaje.js';
+import { creaMozos, eligeObjetivos } from './mozos.js';
 import { creaPartida } from './partida.js';
 import { creaRecortes } from './recortes.js';
+import { creaSonido } from './sonido.js';
 import { creaCamino, creaVaca } from './vaca.js';
 import { creaVallado } from './vallado.js';
 
@@ -74,9 +76,21 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
   let menu = null;
   let coloca = null;             // de juego.js: pone la cápsula del jugador en la salida
   let cambiando = false;
+  let mozos = null;              // F6
+  let sonido = null;
+  let objetivosAntes = new Map(); // vaca → id de a quién iba
+  let seguimiento = new Map();   // vaca → lo que hace falta para los sonidos y las reacciones
+  let historialVisto = 0;
+  let hayCohete = false;
+  let pisadaM = 0;
+  let emocion = -1;
   const camino = creaCamino(recinto);
+  const sueloEn = (x, z) => terreno.alturaEn(x, z) + (dentroDe(recinto.plaza.ruedo, x, z) ? FIESTAS.arena.gruesoM : 0);
+  const conMozos = (p) => p.get('mozos') !== '0';
   const parametros = new URLSearchParams(location.search);
   const conVacas = FIESTAS.vaca.activa && parametros.get('vacas') !== '0';
+  const botonSonido = document.querySelector('[data-pulsar="sonido"]');
+  const pintaBotonSonido = () => { if (botonSonido) botonSonido.textContent = sonido?.activo ? '🔊' : '🔇'; };
   const ACCIONES = ['quiebro', 'recorte', 'salto', 'especial', 'refugio'];
 
   // Fundido a negro
@@ -126,6 +140,8 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       hud = creaHudFiestas();
       recortes = creaRecortes({ sinFin: true });
       menu = creaMenuFiestas();
+      sonido = creaSonido();
+      pintaBotonSonido();
       // Hora de «Día», sin tocar lo que el jugador tenía elegido (se repone al salir)
       if (ciclo) {
         horaAnterior = ciclo.modo;
@@ -146,6 +162,11 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     vaca = null;
     recortes.reinicia();
     partida = null;
+    quitaMozos();
+    objetivosAntes = new Map();
+    seguimiento = new Map();
+    historialVisto = 0;
+    hayCohete = false;
     if (conVacas && variante) {
       const capas = FIESTAS.vaca.capas;
       partida = creaPartida({
@@ -163,6 +184,61 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
           vacas = vacas.filter((v) => v !== una);
         },
       });
+      // Los mozos (F6): en la plaza, menos
+      const cuantos = Math.round((FIESTAS.mozos.cantidad[CALIDAD.nivel] ?? FIESTAS.mozos.cantidad.medio) * (cual === 'plaza' ? FIESTAS.mozos.enPlaza : 1));
+      if (conMozos(parametros) && cuantos > 0 && personas?.modelos?.length) {
+        mozos = creaMozos({ recinto, modo: cual, puertaAbierta: cual !== 'plaza', camino, alturaSuelo: sueloEn, personas, cantidad: cuantos,
+          semilla: Math.floor(Math.random() * 100000), sombras: CALIDAD.sombras, excluye: FIESTAS.personaje.modelo });
+        escena.add(mozos.grupo);
+      }
+    }
+  }
+  function quitaMozos() { mozos?.libera(); mozos = null; }
+
+  // Lo que pasa con cada vaca y lo que provoca: cohete, golpes en la valla, olés a los mozos
+  function sigueVaca(v, antes, suceso, objetivo) {
+    let t = seguimiento.get(v);
+    if (!t) { t = { n: seguimiento.size, cencerro: Math.random(), pezuna: 0, minimo: Infinity }; seguimiento.set(v, t); }
+    const q = v.posicion();
+    if (antes === 'corral' && v.estado === 'saliendo' && !hayCohete) {
+      hayCohete = true;
+      sonido?.cohete();
+      sonido?.aplauso(0.6);
+      ambiente.publico.reacciona('aplauso', 0.75, q.x, q.z);
+    }
+    if (suceso?.tipo === 'golpe') {
+      const fuerza = Math.min(1, suceso.velocidad / FIESTAS.vaca.galopeMs);
+      sonido?.golpe({ x: q.x, y: sueloEn(q.x, q.z) + 1, z: q.z }, 0.5 + fuerza * 0.5);
+      vallado.vibra(q.x, q.z, Math.sin(v.rumbo), Math.cos(v.rumbo), 0.4 + fuerza * 0.6);
+    }
+    // Un mozo que la deja pasar cerca: olé
+    if (v.estado === 'embiste' && objetivo.mozo) t.minimo = Math.min(t.minimo, Math.hypot(objetivo.x - q.x, objetivo.z - q.z));
+    if (antes === 'embiste' && v.estado !== 'embiste') {
+      if (objetivo.mozo && suceso?.tipo !== 'cogida' && v.cruzado && t.minimo < 2.4) {
+        ambiente.publico.reacciona('ole', 0.45, q.x, q.z);
+        sonido?.ole(0.45);
+      }
+      t.minimo = Infinity;
+    }
+  }
+
+  // El público y el sonido responden a lo que puntúa el jugador
+  function reaccionaAlJugador(p) {
+    const h = recortes.historial;
+    for (; historialVisto < h.length; historialVisto++) {
+      const e = h[historialVisto];
+      if (e.tipo.startsWith('cogida')) continue;              // ya respondido al cogerlo
+      if (e.tipo === 'pase') {
+        if (e.riesgo >= 0.5) { ambiente.publico.reacciona('aplauso', 0.35, p.x, p.z); sonido?.aplauso(0.35); }
+      } else if (e.riesgo >= 0.4) {
+        const fuerza = 0.5 + 0.5 * e.riesgo;
+        ambiente.publico.reacciona('ole', fuerza, p.x, p.z);
+        sonido?.ole(fuerza);
+        sonido?.aplauso(fuerza * 0.6);
+      } else {
+        ambiente.publico.reacciona('aplauso', 0.45, p.x, p.z);
+        sonido?.aplauso(0.45);
+      }
     }
   }
 
@@ -189,11 +265,48 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     const marca = apuntaMarca(entrada, resultado.puntos);
     partida = null;
     vaca = null;
+    quitaMozos();
+    if (resultado.motivo !== 'abandono') {
+      sonido?.aplauso(0.9);
+      const p = personaje.posicion();
+      ambiente.publico.reacciona('aplauso', 0.9, p.x, p.z);
+    }
     menu.resultados({ ...resultado, id: entrada, ...marca }, {
       repetir: () => empieza(entrada),
       menu: () => empieza('menu'),
       salir: () => elige('salir'),
     });
+  }
+
+  // Cencerros y pezuñas de las vacas, pisadas del jugador y el murmullo, que sube con la emoción
+  function sonidos(dt, p) {
+    if (!sonido) return;
+    sonido.escucha(camara);
+    let nivel = 0.15;
+    for (const v of vacas) {
+      if (v.guardada || v.estado === 'corral') continue;
+      let t = seguimiento.get(v);
+      if (!t) { t = { n: seguimiento.size, cencerro: Math.random(), pezuna: 0, minimo: Infinity }; seguimiento.set(v, t); }
+      const q = v.posicion(); const vel = v.velocidad;
+      const y = sueloEn(q.x, q.z);
+      if (vel > 0.3) {
+        t.cencerro += dt * (0.7 + vel * 0.32);
+        if (t.cencerro >= 1) { t.cencerro -= 1 + Math.random() * 0.25; sonido.cencerro(t.n, { x: q.x, y: y + 1.1, z: q.z }, Math.min(1, 0.35 + vel / 7)); }
+      }
+      const lejos = Math.hypot(q.x - camara.position.x, q.z - camara.position.z);
+      if (vel > 3 && lejos < 35) {
+        t.pezuna += dt * vel * 0.55;
+        if (t.pezuna >= 1) { t.pezuna -= 1; sonido.pezuna({ x: q.x, y, z: q.z }, Math.min(1, vel / FIESTAS.vaca.galopeMs)); }
+      }
+      if (v.estado === 'embiste' && Math.hypot(q.x - p.x, q.z - p.z) < 25) nivel = Math.max(nivel, 0.65);
+    }
+    if (Math.abs(nivel - emocion) > 0.05) { emocion = nivel; sonido.ambiente(nivel); }
+    // Pisadas del jugador en el suelo
+    const vj = personaje.velocidad(); const rapidez = Math.hypot(vj.x, vj.z);
+    if (personaje.estado !== 'refugiado' && personaje.estado !== 'cogido' && !personaje.enAire && rapidez > 0.6) {
+      pisadaM += rapidez * dt;
+      if (pisadaM >= Math.max(FIESTAS.sonido.pisadaCadaM, rapidez * 0.3)) { pisadaM = 0; sonido.pisada(Math.min(1, 0.4 + rapidez / 7)); }
+    }
   }
 
   function desmonta() {
@@ -202,6 +315,9 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     vacas = [];
     vaca = null;
     personaje.libera();
+    quitaMozos();
+    sonido?.libera();
+    sonido = null;
     hud.quita();
     personaje = null;
     camaraJugador = null;
@@ -248,6 +364,11 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     atiende(entrada) {
       if (!personaje) return;
       for (const a of ACCIONES) if (entrada.consume(a) && !menu.visible) personaje.pide(a);
+      if (entrada.consume('sonido') && sonido) {
+        const si = sonido.alterna();
+        pintaBotonSonido();
+        avisa(si ? 'Sonido: sí' : 'Sonido: no', 1.5);
+      }
       if (entrada.consume('camaraFiestas')) personaje.objeto.visible = camaraJugador.cambiaVista() !== 'ojos';
     },
     // Paso de física del jugador
@@ -260,14 +381,33 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       const vel = personaje.velocidad();
       partida.paso({ x: p.x, z: p.z, seguro: personaje.seguro || personaje.estado === 'cogido', vx: vel.x, vz: vel.z }, dt);
       if (partida.resultado) { termina(partida.resultado); return; }
-      const suelo = terreno.alturaEn(p.x, p.z) + (dentroDe(recinto.plaza.ruedo, p.x, p.z) ? FIESTAS.arena.gruesoM : 0);
-      const objetivo = { x: p.x, z: p.z, seguro: personaje.seguro || personaje.estado === 'cogido', alto: p.y - suelo };
+      const objetivo = { id: 'jugador', x: p.x, z: p.z, seguro: personaje.seguro || personaje.estado === 'cogido', alto: p.y - sueloEn(p.x, p.z) };
+      mozos?.paso(dt, { vacas, jugador: objetivo, manada: partida.manada });
+      // A quién va cada vaca: el jugador o un mozo (en el encierro, la manada va a lo suyo)
+      const elegidos = mozos && !partida.manada ? eligeObjetivos(vacas, objetivo, mozos.objetivos(), objetivosAntes) : null;
       const lista = vacas.map((v) => {
-        const suceso = v.paso(objetivo, dt);
-        return { vaca: v, suceso, cogido: suceso?.tipo === 'cogida' && personaje.cogida(suceso.dx, suceso.dz) };
+        const elegido = elegidos?.get(v);
+        const o = !elegido || elegido.id === 'jugador' ? objetivo : (mozos.objetivo(elegido.id) ?? objetivo);
+        v.persigue = o.id;
+        const antes = v.estado;
+        const suceso = v.paso(o, dt);
+        let cogido = false;
+        if (suceso?.tipo === 'cogida') {
+          const q = v.posicion();
+          if (o === objetivo) cogido = personaje.cogida(suceso.dx, suceso.dz);
+          else if (o.mozo) mozos.cogida(o.mozo, suceso.dx, suceso.dz);
+          if (cogido || o.mozo) {
+            ambiente.publico.reacciona('uy', o.mozo ? 0.7 : 1, q.x, q.z);
+            sonido?.uy(o.mozo ? 0.7 : 1);
+          }
+        }
+        sigueVaca(v, antes, suceso, o);
+        return { vaca: v, suceso: o === objetivo ? suceso : null, cogido };
       });
+      objetivosAntes = new Map(vacas.map((v) => [v, v.persigue]));
       objetivo.sucesos = personaje.sucesos;
       recortes.paso({ jugador: objetivo, vacas: lista }, dt);
+      reaccionaAlJugador(p);
     },
     get vacas() { return vacas; },
     get recortes() { return recortes; },
@@ -283,7 +423,10 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       const dt = dtReal * recortes.ritmo;
       personaje.anima(dt);
       for (const v of vacas) v.anima(dt);
+      mozos?.anima(dt, camara);
+      vallado.avanza(dt);
       const p = personaje.posicion();
+      sonidos(dt, p);
       // La vaca más cercana de las que andan sueltas: para la cámara y para el panel de la vaquilla
       let una = null; let cerca = Infinity;
       for (const v of vacas) {
@@ -303,7 +446,10 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       });
     },
     ponVaca(posicion) { vaca = posicion; },
-    mostrarHud(visible) { hud?.mostrar(visible); },
+    mostrarHud(visible) { hud?.mostrar(visible); sonido?.silencia(!visible); },
+    get mozos() { return mozos; },
+    get sonido() { return sonido; },
+    get publico() { return ambiente?.publico ?? null; },
     estadoJugador() { return personaje?.paraHud() ?? null; },
   };
 }

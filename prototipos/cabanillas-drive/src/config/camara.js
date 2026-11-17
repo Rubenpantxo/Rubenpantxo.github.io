@@ -38,6 +38,7 @@ export const CONTROLES = {
     salto: ['Space'],
     refugio: ['KeyF'],                // subir a la valla o meterse en el burladero, y bajar
     camaraFiestas: ['KeyV'],
+    sonido: ['KeyM'],                 // quitar y poner el sonido (en fiestas, M no gira el minimapa)
   },
   joystick: {
     radio: 60,                // px de recorrido del mando
