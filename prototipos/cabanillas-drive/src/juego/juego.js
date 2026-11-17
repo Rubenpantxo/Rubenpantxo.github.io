@@ -22,6 +22,8 @@ import { cargaMarcas, creaMarcas } from '../escena/marcas.js';
 import { cargaFarolas, creaFarolas } from '../escena/farolas.js';
 import { creaSingulares, sinArbolesSustituidos, sinMurosSustituidos } from '../escena/singulares.js';
 import { creaCasas } from '../escena/casas.js';
+import { ENTRADA } from '../config/entradas.js';
+import { creaEntradas } from './entradas.js';
 import { creaTrafico } from './trafico.js';
 import { creaPeaton } from './peaton.js';
 import { creaLuces } from './luces.js';
@@ -214,15 +216,10 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   // Ir a un lugar (menú de pausa): el coche aparece en la calle más cercana, a lo largo de la
   // calle y en el sentido que más se acerca al sitio
   function irA(nombre) {
-    const lugar = carteles.lugares.find((l) => l.nombre === nombre);
+    const lugar = lugares.find((l) => l.nombre === nombre);
     if (!lugar) return;
     if (enFiestas()) { avisa('Estás en las fiestas: en la pausa, «Volver al pueblo»', 4); return; }
-    if (aPie) subirseYa();
-    const n = nodoMasCercano(nodos, lugar.x, lugar.z, { excluirServicio: true });
-    const haciaX = lugar.x - n.x;
-    const haciaZ = lugar.z - n.z;
-    const signo = n.dx * haciaX + n.dz * haciaZ >= 0 ? 1 : -1;
-    colocaEn({ ...n, dx: n.dx * signo, dz: n.dz * signo });
+    llevaA(lugar.x, lugar.z, Boolean(lugar.entrada));
     avisa(`${lugar.icono} ${lugar.nombre}`, 3);
   }
   function subirseYa() {
@@ -249,7 +246,48 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   mundo.edificios.actualiza({ x: salida.x, z: salida.z }, { todo: true });
   const carteles = creaCarteles({ poi: geoPoi, calles: geoCalles, edificios: mundo.geoEdificios, terreno: mundo.terreno });
   escena.add(carteles.raiz);
-  const hud = await creaHud(mundo, { lugares: carteles.lugares });
+  // Puntos de entrada (F7): las fiestas en la plaza y en San Roque, otros juegos…
+  const entradas = creaEntradas({ terreno: mundo.terreno });
+  escena.add(entradas.raiz);
+  const lugares = [...carteles.lugares, ...entradas.lugares];
+  const hud = await creaHud(mundo, { lugares });
+  const botonEntrar = document.querySelector('[data-pulsar="entrar"]');
+  const tactil = matchMedia('(pointer: coarse)').matches;
+  let entradaAqui = null;
+  // La entrada en la que está el jugador (a pie, o en coche casi parado)
+  function entradaCerca() {
+    if (enFiestas()) return null;
+    if (aPie) { const p = peaton.estado().posicion; return entradas.en(p.x, p.z); }
+    const e = coche.estado();
+    return Math.abs(e.velocidadKmh) <= ENTRADA.cocheMaxKmh ? entradas.en(e.posicion.x, e.posicion.z) : null;
+  }
+  function entraPor(e) {
+    if (e.accion.fiestas) { entraFiestas(e.accion.fiestas); return; }
+    if (e.accion.juego) {
+      // Al volver (atrás en el navegador) se reaparece aquí
+      const p = new URLSearchParams(location.search);
+      p.set('aparece', e.id);
+      p.delete('fiestas');
+      history.replaceState(null, '', `${location.pathname}?${p}`);
+      avisa(`${e.icono} ${e.nombre}…`, 3);
+      location.href = e.accion.juego;
+    }
+  }
+  // Llega a un sitio (de «Ir a…» o al volver de otro juego): en coche, en la calle más cercana
+  // mirando hacia él. «encima»: en el sitio mismo (las entradas están en la calle o la plaza)
+  function llevaA(x, z, encima = false) {
+    if (aPie) subirseYa();
+    const n = nodoMasCercano(nodos, x, z, { excluirServicio: true });
+    const signo = n.dx * (x - n.x) + n.dz * (z - n.z) >= 0 ? 1 : -1;
+    colocaEn({ ...n, ...(encima ? { x, z } : {}), dx: n.dx * signo, dz: n.dz * signo });
+  }
+  function aparece(id) {
+    const e = entradas.porId(id);
+    if (!e?.en) return false;
+    llevaA(e.en[0], e.en[1], true);
+    avisa(`${e.icono} ${e.nombre}`, 3);
+    return true;
+  }
   ui.estado.textContent = '';
 
   let acumulado = 0;
@@ -299,6 +337,18 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     }
     const mandos = entrada.actualiza();
     const mirada = entrada.consumeMirada();
+    // Entradas: E (o «Entrar») dentro del aro. Se mira siempre, para no dejar la pulsación pendiente
+    const quiereEntrar = entrada.consume('entrar');
+    const aqui = entradaCerca();
+    if (aqui !== entradaAqui) {
+      entradaAqui = aqui;
+      if (aqui) avisa(`${aqui.icono} ${aqui.nombre} · ${tactil ? 'toca «Entrar»' : 'E: entrar'}`, 5);
+      if (botonEntrar) botonEntrar.hidden = !aqui;
+    }
+    if (aqui && quiereEntrar) {
+      entrada.consume('bajar');               // E también es bajarse del coche: aquí manda entrar
+      entraPor(aqui);
+    }
     if (entrada.consume('bajar') && !enFiestas()) {
       if (aPie) subirse(); else bajarse();
     }
@@ -356,6 +406,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     arboles.avanza(dt);
     hierba.avanza(dt);
     avanzaAgua(dt);
+    entradas.mostrar(!fiesta);
+    entradas.actualiza(dt);
     hierba.actualiza(camara.position);
     tiempoReparto -= dt;
     if (tiempoReparto <= 0) {
@@ -393,7 +445,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     get aPie() { return aPie; }, bajarse, subirse, irA, avisa, entraFiestas, saleFiestas,
     get fiestas() { return fiestas; },
     get modoFiestas() { return enFiestas() ? fiestas.modo : null; }, carteles, luces, ciclo, peatones, muros, elementos, farolas,
-    lugares: carteles.lugares.map(({ nombre, icono }) => ({ nombre, icono })),
+    lugares: lugares.map(({ nombre, icono }) => ({ nombre, icono })),
+    entradas, aparece,
     get fps() { return fps; },
     get pausado() { return pausado; },
     // Al volver de la pausa no se recupera el tiempo parado (la física no da un salto)

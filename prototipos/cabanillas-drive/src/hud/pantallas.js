@@ -65,6 +65,11 @@ export function creaPantallas({ alCambiar }) {
   }));
 
   jugar.addEventListener('click', () => cambia('jugando'));
+  // Ir directo al menú de las fiestas (main.js escucha el aviso)
+  $('jugar-fiestas').addEventListener('click', () => {
+    cambia('jugando');
+    window.dispatchEvent(new CustomEvent('cabanillas:inicioFiestas'));
+  });
   document.querySelectorAll('[data-abre]').forEach((b) => b.addEventListener('click', () => {
     $(b.dataset.abre).hidden = false;
     $(b.dataset.abre).querySelector('button')?.focus();
@@ -187,6 +192,7 @@ export function creaPantallas({ alCambiar }) {
       clearInterval(reloj);
       inicio.querySelector('.carga').hidden = true;
       jugar.hidden = false;
+      $('jugar-fiestas').hidden = false;
       jugar.focus();
     },
     // Visores de comprobación: sin pantalla de inicio

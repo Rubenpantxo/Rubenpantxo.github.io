@@ -214,6 +214,15 @@ modo({ renderer, escena, camara, ui, ciclo })
       }, (que) => (que === 'partida' ? Boolean(api.fiestas?.partida) : api.modoFiestas !== null));
       // ?fiestas=plaza|calle|encierro entra directamente al modo
       if (parametros.get('fiestas')) api.entraFiestas(parametros.get('fiestas'));
+      // Desde la pantalla de inicio, «Ir a las fiestas»
+      window.addEventListener('cabanillas:inicioFiestas', () => api.entraFiestas('menu'));
+      // ?aparece=<entrada>: de vuelta de otro juego (el frontón…), aparece allí
+      if (parametros.get('aparece')) {
+        api.aparece(parametros.get('aparece'));
+        const p = new URLSearchParams(location.search);
+        p.delete('aparece');
+        history.replaceState(null, '', `${location.pathname}${p.toString() ? `?${p}` : ''}`);
+      }
       pantallas.listo();
     }
   })

@@ -199,7 +199,21 @@
 
 ## Fiestas (PLAN_FIESTAS.md)
 
-**Fase actual: F6 — ambiente de fiestas. Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno para la F7.** F0 aprobada; F1 a F5 hechas y en `main` (Rubén dio el visto bueno a la F6 sin esperar a probarlas).
+**Fase actual: F7 — entradas desde el pueblo. Hecha el 2026-11-17 salvo el frontón (falta su sitio, D14); parada hasta que Rubén la pruebe y dé el visto bueno para la F8.** F0 aprobada; F1 a F6 hechas y en `main`.
+
+### Hecho en F7
+- `src/config/entradas.js`: los puntos de entrada, una línea por lugar (id, nombre, icono, sitio y acción: abrir las fiestas o ir a otro juego de la web). `src/juego/entradas.js` los pone en el mundo: un aro dorado que gira en el suelo y un rótulo encima.
+- **Fiestas · Plaza** (centro del ruedo) y **Fiestas · San Roque** (en la calle, a 45 m de la puerta de la plaza): dentro del aro, a pie o en coche casi parado (≤ 12 km/h), sale el aviso «E: entrar» (en táctil, el botón «Entrar») y abre el menú de fiestas. E también es bajarse del coche: dentro del aro manda entrar.
+- **Frontón → `juegos/cesta-punta/`**: preparado (al entrar guarda en la dirección `?aparece=fronton` y, al volver atrás en el navegador, el coche aparece en el frontón), pero apagado hasta saber dónde está (D14).
+- **Pantalla de inicio**: botón «🐂 Ir a las fiestas» bajo «Jugar». **«Ir a…»** de la pausa y **minimapa**: las entradas salen con su icono; «Ir a…» deja el coche en el aro.
+- Prueba: `tools/prueba_entradas.mjs` (escritorio y móvil). Capturas en `docs/fiestas/f7_*.jpg`.
+
+### D14 — ¿Dónde está el frontón?
+El plan decía que el frontón es un edificio de tipo `fronton` en `buildings.geojson`, pero el Catastro no tiene ninguno con ese rótulo, y en OSM no hay ni frontón ni cancha de pelota (solo el campo de fútbol y una de baloncesto). No me invento el sitio: hace falta que Rubén diga dónde está (dirección, o un punto en el mapa) y dónde está la puerta. Con eso es cambiar `en: null` por las coordenadas en `src/config/entradas.js`.
+
+### Pendiente tras F7
+- El juego de cesta punta no tiene botón de «Volver a Cabanillas»: se vuelve con «atrás» del navegador (no he tocado ese juego).
+- En el servidor de desarrollo `/juegos/cesta-punta/` no existe; solo funciona en la web publicada.
 
 ### Hecho en F6
 - **Mozos** (`src/fiestas/mozos.js`): gente del pueblo en el recorrido con el jugador (en calidad alta 8, media 6, baja 3; en la plaza, el 60 %). Pasean, citan a la vaca agitando el brazo, y cuando se les arranca quiebran de lado o corren a la valla y se suben; bajan cuando la vaca se aleja. La vaca también se les arranca a ellos (elige al más cercano que ve; el jugador tiene algo de preferencia y el mozo que cita, más) y los puede coger: vuelan, quedan tendidos un momento y se van a la valla. En el encierro corren delante de la manada, se apartan a la valla cuando se les echa encima y la siguen por detrás para la segunda carrera. `?mozos=0` los quita.

@@ -19,8 +19,7 @@ function lineasDe(geometria) {
 }
 
 // --- Rótulo de un lugar (sprite con su textura)
-function rotulo(nombre, tipo) {
-  const icono = ICONOS[tipo] ?? '📍';
+export function rotulo(nombre, tipo, icono = ICONOS[tipo] ?? '📍') {
   const lienzo = document.createElement('canvas');
   const ctx = lienzo.getContext('2d');
   const alto = 96;

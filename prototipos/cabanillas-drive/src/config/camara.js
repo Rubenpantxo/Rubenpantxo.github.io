@@ -29,6 +29,7 @@ export const CONTROLES = {
     bajar: ['KeyE', 'KeyF'],          // bajarse del coche / volver a subir
     correr: ['ShiftLeft', 'ShiftRight'],
     hora: ['KeyT'],                   // adelantar una hora
+    entrar: ['KeyE'],                 // en un punto de entrada (fiestas, frontón…): entrar
   },
   // Modo fiestas (PLAN_FIESTAS.md §4b): mismas teclas de movimiento (WASD y Mayús) y estas acciones.
   // E, F y Espacio dejan de ser «bajarse» y «freno de mano» mientras dura el modo.

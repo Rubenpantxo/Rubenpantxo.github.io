@@ -208,6 +208,9 @@
       .ajustes .acciones .boton { width: auto; flex: 1; min-width: 160px; }
       .botones-superiores { position: fixed; right: max(12px, env(safe-area-inset-right)); top: max(12px, env(safe-area-inset-top));
         display: flex; gap: 10px; }
+      .botones-superiores .boton-tactil[hidden] { display: none; }
+      .boton-tactil.entrar { width: auto; padding: 0 14px; font-size: 15px; border-color: var(--acento); box-shadow: 0 0 10px var(--acento); }
+      #inicio .acciones-inicio { display: grid; gap: 8px; }
     </style>
   </head>
   <body>
@@ -235,6 +238,7 @@
         <button class="boton-tactil pequeno" type="button" data-pulsar="bajar" aria-label="Bajarse del coche o subir">🚶</button>
         <button class="boton-tactil pequeno" type="button" data-pulsar="camara" aria-label="Cambiar cámara">👁</button>
         <button class="boton-tactil pequeno" type="button" data-pulsar="reiniciar" aria-label="Recolocar el coche">↺</button>
+        <button class="boton-tactil pequeno entrar" type="button" data-pulsar="entrar" hidden>Entrar</button>
       </div>
       <!-- Modo fiestas (PLAN_FIESTAS.md §4b): cuatro acciones en abanico y, encima, subir y cámara -->
       <div class="botones-fiestas">
@@ -275,7 +279,10 @@
             <button class="boton discreto" type="button" data-recarga="bajo">Probar con calidad baja</button>
           </div>
         </div>
-        <button id="jugar" class="boton" type="button" hidden>Jugar</button>
+        <div class="acciones-inicio">
+          <button id="jugar" class="boton" type="button" hidden>Jugar</button>
+          <button id="jugar-fiestas" class="boton secundario" type="button" hidden>🐂 Ir a las fiestas</button>
+        </div>
         <div class="fila">
           <label class="calidad">Calidad <select data-calidad>
             <option value="alto">Alta</option><option value="medio">Media</option><option value="bajo">Baja (móvil)</option>
