@@ -46,13 +46,17 @@ for (const v of VISTAS) {
     const c = r.plaza.ruedo.reduce((s, p) => [s[0] + p[0] / r.plaza.ruedo.length, s[1] + p[1] / r.plaza.ruedo.length], [0, 0]);
     const l = Math.hypot(c[0] - m[0], c[1] - m[1]); const n = [(c[0] - m[0]) / l, (c[1] - m[1]) / l];
     const x = m[0] + n[0] * 1.0; const z = m[1] + n[1] * 1.0;
-    // Mirando al ruedo, con la vaca entrando por la derecha
-    const guinada = Math.atan2(-n[0], -n[1]) + 0.35;
+    // Mirando a lo largo de la valla, un poco hacia el ruedo (la cámara queda dentro)
+    const d = [(t.b[0] - t.a[0]) / t.largo, (t.b[1] - t.a[1]) / t.largo];
+    const mira = [d[0] * 0.8 + n[0] * 0.6, d[1] * 0.8 + n[1] * 0.6];
+    const guinada = Math.atan2(-mira[0], -mira[1]);
     j.peaton.activa(x, z, guinada); j.colisiones.fuerza({ x, z });
     f.personaje.reinicia(guinada); f.camaraJugador.reinicia(guinada);
     for (let i = 0; i < 4; i++) { f.paso(q, 1 / 60); j.fisica.mundo.step(); }
     const v = f.vacas[0];
-    v.pon(x + n[0] * 6.5 - n[1] * 2, z + n[1] * 6.5 + n[0] * 2, Math.atan2(-n[0] * 6.5 + n[1] * 2, -n[1] * 6.5 - n[0] * 2), 'embiste', 0);
+    // La vaca delante, viniendo hacia el jugador
+    const vx = x + mira[0] * 9; const vz = z + mira[1] * 9;
+    v.pon(vx, vz, Math.atan2(x - vx, z - vz), 'embiste', 0);
     for (let i = 0; i < 12; i++) { f.paso(q, 1 / 60); j.fisica.mundo.step(); }
     f.recortes.suma(1250);
     f.recortes.avisa('¡Olé! Quiebro ceñido +300', 'ole', 30);
@@ -62,17 +66,15 @@ for (const v of VISTAS) {
   await p.evaluate(() => new Promise((r) => { let i = 0; const f = () => (++i >= 4 ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); }));
   await p.evaluate(() => {
     const j = window.__juego;
-    j.ponPausa(true); j.fiestas.mostrarHud(true);
-    document.getElementById('hud').hidden = false;
-    document.getElementById('tactil').hidden = !matchMedia('(pointer: coarse)').matches;
     document.getElementById('panel').style.display = 'none';
-    const boton = document.querySelector('[data-pulsar="refugio"]'); boton.hidden = false; boton.textContent = 'Subir';
-    window.__render.render();
-    // El bucle sigue: se fija este fotograma debajo de la interfaz
+    j.ponPausa(true); window.__render.render();
+    // El juego sigue (para que se vean el minimapa, ☰ y los botones), pero la escena se queda en
+    // este fotograma: una imagen justo encima del lienzo y debajo de toda la interfaz
     const fijo = Object.assign(document.createElement('img'), { id: 'fotograma-fijo' });
-    fijo.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:4';
+    fijo.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none';
     fijo.src = j.renderer.domElement.toDataURL('image/png');
-    document.body.append(fijo);
+    j.renderer.domElement.after(fijo);
+    j.ponPausa(false);
   });
   await p.waitForTimeout(500);
   const marcas = await p.evaluate((lista) => lista.map(([sel, nombre]) => {
