@@ -95,21 +95,19 @@
         border: 1px solid rgba(255, 255, 255, .25); font: 15px system-ui, sans-serif; text-transform: none; letter-spacing: 0; cursor: pointer; }
 
       /* Inicio: portada, barra de carga, Jugar, calidad y hora */
-      /* La portada ocupa toda la pantalla; los mandos van abajo sobre un degradado oscuro.
-         En horizontal, la imagen recortada (cover). En vertical, recortarla cortaría el título:
-         va a lo ancho arriba y el resto lo llena la misma imagen desenfocada */
+      /* La portada es una imagen vertical (768 × 1376) con el título arriba. En horizontal se ve
+         entera a lo alto, centrada sobre ella misma desenfocada. En vertical llena la pantalla
+         desde arriba, para no cortar el título. Los mandos van abajo sobre un degradado oscuro */
       #inicio { background: #10161e; overflow: hidden auto; place-items: end center;
         padding-bottom: max(24px, env(safe-area-inset-bottom)); }
       #inicio::before, #inicio::after { content: ""; position: fixed; pointer-events: none; }
       #inicio::before { inset: -40px; background: url(ui/portada.webp) center / cover; filter: blur(22px) brightness(.6); }
       #inicio::after { inset: 0;
-        background: linear-gradient(to bottom, rgba(8, 12, 18, 0) 50%, rgba(8, 12, 18, .78) 82%, rgba(8, 12, 18, .92)),
-          url(ui/portada.webp) center 32% / cover no-repeat; }
+        background: linear-gradient(to bottom, rgba(8, 12, 18, 0) 55%, rgba(8, 12, 18, .78) 84%, rgba(8, 12, 18, .92)),
+          url(ui/portada.webp) center / contain no-repeat; }
       @media (max-aspect-ratio: 1/1) {
-        #inicio::after { background: url(ui/portada.webp) center 28% / 100% auto no-repeat;
-          --borde: linear-gradient(to bottom, transparent calc((28vh - 25.72vw)), #000 calc((28vh - 25.72vw) + 10vw),
-            #000 calc((28vh - 25.72vw) + 76vw), transparent calc((28vh - 25.72vw) + 91.87vw));
-          -webkit-mask-image: var(--borde); mask-image: var(--borde); }
+        #inicio::after { background: linear-gradient(to bottom, rgba(8, 12, 18, 0) 55%, rgba(8, 12, 18, .78) 84%, rgba(8, 12, 18, .92)),
+          url(ui/portada.webp) center top / cover no-repeat; }
       }
       .portada { position: relative; z-index: 1; display: grid; justify-items: center; gap: clamp(8px, 2.2vh, 16px); width: min(440px, 100%); }
       .portada > :not(h1) { width: min(360px, 100%); }
