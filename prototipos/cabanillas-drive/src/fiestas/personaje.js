@@ -10,6 +10,7 @@ import * as THREE from 'three';
 import { clone as clonaConEsqueleto } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { FIESTAS } from '../config/fiestas.js';
 import { sienta } from './ambiente.js';
+import { POSTURAS, creaCapa } from './pose.js';
 
 const EJE_X = new THREE.Vector3(1, 0, 0);
 const suave = THREE.MathUtils.smoothstep;
@@ -50,6 +51,7 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
   // Huesos que se retocan a mano. El mezclador de animación solo reescribe un hueso cuando su
   // valor cambia, así que un giro puesto encima se quedaría y se iría sumando fotograma a
   // fotograma: antes de animar se devuelve cada hueso a lo que dejó la animación.
+  const capa = creaCapa(objeto);
   const retocados = [H.columna, ...H.muslo, ...H.pierna, ...H.brazo, ...H.antebrazo].filter(Boolean)
     .map((h) => ({ h, q: h.quaternion.clone() }));
 
@@ -343,8 +345,10 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     quieto.setEffectiveWeight(1 - k);
     andar.timeScale = Math.min(P.correr.zancadaMax, Math.max(0.4, v) / (metrosPorCiclo / variante.andar.duration));
     for (const r of retocados) r.h.quaternion.copy(r.q);
+    capa.antes();
     mezclador.update(dt);
     for (const r of retocados) r.q.copy(r.h.quaternion);
+    capa.despues();
 
     let inclina = 0;
     if (estado === 'quiebro') inclina = lado * P.quiebro.inclinacionRad * Math.sin(Math.PI * Math.min(1, tEstado / P.quiebro.duracionS));
@@ -379,10 +383,11 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
         gira(H.brazo[i], -1.1 * t);
       }
     } else {
-      // Correr: tronco echado hacia delante y codos doblados, más cuanto más deprisa
+      // Correr: tronco hacia delante, codos doblados y braceo al paso de las piernas, más cuanto
+      // más deprisa (src/fiestas/pose.js)
       const c = suave(v, P.andarMs + 0.3, P.esprintMs) * (estado === 'libre' ? 1 : 0.6);
-      gira(H.columna, P.correr.inclinacionRad * c + (estado === 'quiebro' ? 0.25 : 0));
-      for (const i of [0, 1]) gira(H.antebrazo[i], -P.correr.codoRad * c);
+      if (c > 0.01) capa.pon(POSTURAS.corre(c, andar.time / variante.andar.duration));
+      if (estado === 'quiebro') gira(H.columna, 0.25);
     }
     objeto.updateMatrixWorld(true);
   }

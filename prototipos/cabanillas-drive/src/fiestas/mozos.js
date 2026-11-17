@@ -406,7 +406,7 @@ export function creaMozos({ recinto, modo, puertaAbierta, camino, alturaSuelo, p
       } else if (m.estado === 'cita' && m.t > m.dura * 0.3) {
         m.capa.pon(POSTURAS.cita(m.t));
       } else if (m.v > FIESTAS.personaje.andarMs + 0.3) {
-        m.capa.pon(POSTURAS.corre(limita((m.v - 2.5) / 3.5, 0, 1)));
+        m.capa.pon(POSTURAS.corre(limita((m.v - 2.5) / 3.5, 0, 1), m.andar.time / m.duracionPaso));
       } else m.capa.pon(null);
     }
   }

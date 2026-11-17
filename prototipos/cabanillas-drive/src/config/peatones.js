@@ -24,4 +24,10 @@ export const PEATONES = {
   // Reacción a los coches: se apartan si uno se acerca rápido
   apartarseM: 3.0,
   distanciaCocheM: 9,
+  // Correcciones de los modelos al cargarlos (src/juego/corrigePersonas.js)
+  correccion: {
+    tobilloDentroM: 0.02,          // el tobillo, este poco por dentro de la cadera (de pie)
+    dedosRad: [0.45, 0.6, 0.45],   // flexión de cada falange (mano relajada, medio cerrada)
+    pulgar: 0.35,                  // el pulgar, menos
+  },
 };

@@ -15,6 +15,7 @@ import { clone as clonaConEsqueleto } from 'three/examples/jsm/utils/SkeletonUti
 import { CALIDAD } from '../config/calidad.js';
 import { PEATONES } from '../config/peatones.js';
 import { limitaTexturas } from '../escena/texturas.js';
+import { corrigePersona } from './corrigePersonas.js';
 
 const CELDA = 10;
 const clave = (x, z) => `${Math.round(x * 10)},${Math.round(z * 10)}`;
@@ -184,8 +185,10 @@ export async function cargaPersonas(ruta) {
       o.material.roughness = 0.85;
       o.material.metalness = 0;
     });
+    // Piernas juntas y manos relajadas (el reposo de MakeHuman las tiene abiertas)
+    const correccion = corrigePersona(gltf.scene, gltf.animations);
     const clip = (nombre) => gltf.animations.find((a) => a.name === nombre);
-    return { id: p.id, escena: gltf.scene, andar: clip('andar'), quieto: clip('quieto') };
+    return { correccion, id: p.id, escena: gltf.scene, andar: clip('andar'), quieto: clip('quieto') };
   }));
   return { metrosPorCiclo: manifiesto.metros_por_ciclo, modelos: modelos.filter((m) => m.andar && m.quieto) };
 }

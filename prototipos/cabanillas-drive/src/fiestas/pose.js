@@ -104,7 +104,9 @@ export function creaCapa(objeto) {
       giraHueso(objeto, H.columna, postura.columna);
       const brazos = [H.brazoI, H.brazoD]; const antebrazos = [H.antebrazoI, H.antebrazoD];
       for (const i of [0, 1]) {
-        const dentro = (i === 0 ? 1 : -1) * signoLado;
+        // Girar sobre el eje vertical en positivo lleva lo que apunta adelante hacia +X: hacia dentro
+        // es en negativo para el brazo que está en +X
+        const dentro = (i === 0 ? -1 : 1) * signoLado;
         giraHueso(objeto, brazos[i], postura.brazoX[i]);
         giraHueso(objeto, brazos[i], postura.brazoY[i] * dentro, EJES.y);
         giraHueso(objeto, antebrazos[i], postura.antebrazoX[i]);
@@ -120,7 +122,7 @@ export const POSTURAS = {
   // Aplaudir: brazos hacia delante, codos doblados y antebrazos que se juntan y se separan
   aplauso: (t, ritmo = 3.2) => {
     const s = Math.sin(t * ritmo * Math.PI * 2) * 0.16;
-    return P(0.04, [-0.75, -0.75], [0.5, 0.5], [-1.3, -1.3], [0.32 + s, 0.32 + s]);
+    return P(0.04, [-0.6, -0.6], [0.18, 0.18], [-1.35, -1.35], [0.3 + s, 0.3 + s]);
   },
   // ¡Olé!: los dos brazos arriba, con un poco de vaivén
   ole: (t) => {
@@ -130,12 +132,20 @@ export const POSTURAS = {
   // ¡Uy!: las manos a la cabeza y el cuerpo un poco hacia delante
   uy: () => P(0.16, [-2.05, -2.05], [-0.45, -0.45], [-2.2, -2.2], [0.25, 0.25]),
   // Apoyado en la valla: los antebrazos cruzados en el tablón de arriba
-  apoyado: () => P(0.24, [-1.25, -1.25], [0.35, 0.35], [-1.35, -1.35], [0.55, 0.55]),
+  apoyado: () => P(0.22, [-0.85, -0.85], [0.12, 0.12], [-0.95, -0.95], [0.75, 0.75]),
   // Mozo citando a la vaca: un brazo arriba agitándose y el otro abierto
   cita: (t) => {
     const s = Math.sin(t * 9);
     return P(0.06, [-2.4 + s * 0.25, -0.5], [-0.2, -0.6], [-0.5 + s * 0.35, -0.3], [0, 0]);
   },
-  // Correr: tronco hacia delante y codos doblados («fuerza» de 0 a 1)
-  corre: (fuerza) => P(0.32 * fuerza, [0, 0], [0, 0], [-1.25 * fuerza, -1.25 * fuerza], [0, 0]),
+  // Correr («fuerza» de 0 a 1; «fase»: la del paso de la animación de andar, de 0 a 1): tronco
+  // hacia delante, codos a 90° con los antebrazos hacia arriba y algo hacia dentro, y los brazos
+  // que van y vienen al revés que las piernas (en «andar», con la fase en 0,25 la pierna izquierda
+  // va delante: el brazo izquierdo, detrás)
+  corre: (fuerza, fase = 0) => {
+    const C = FIESTAS.personaje.correr;
+    const s = Math.sin(fase * Math.PI * 2) * C.braceoRad * fuerza;
+    return P(C.inclinacionRad * fuerza, [s, -s], [0, 0], [-C.codoRad * fuerza, -C.codoRad * fuerza],
+      [C.manoDentroRad * fuerza, C.manoDentroRad * fuerza]);
+  },
 };

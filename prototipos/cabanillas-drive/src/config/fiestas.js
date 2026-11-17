@@ -66,7 +66,9 @@ export const FIESTAS = {
     // Refugio (F): valla de tablones, burladero o valla gris a menos de esta distancia
     refugio: { vallaM: 1.5, burladeroM: 2.0, grisM: 2.4, subirS: 0.42, bajarS: 0.34, separaM: 0.85 },
     // Postura al correr (se suma a la animación de andar, que es la única que hay)
-    correr: { inclinacionRad: 0.3, codoRad: 1.25, zancadaMax: 1.9 },
+    // codoRad: lo que se dobla el codo sobre la animación (que ya lo lleva algo doblado);
+    // braceoRad: lo que van y vienen los brazos; manoDentroRad: los antebrazos hacia el centro
+    correr: { inclinacionRad: 0.28, codoRad: 1.15, braceoRad: 0.45, manoDentroRad: 0.3, zancadaMax: 1.9 },
   },
 
   // La vaca (F3). La clave del recorte: corre más que el jugador (6,6 m/s a esprint) pero gira
