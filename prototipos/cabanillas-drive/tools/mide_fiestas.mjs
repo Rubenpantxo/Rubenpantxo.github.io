@@ -41,8 +41,24 @@ for (const calidad of calidades) {
         if (o.isSkinnedMesh) { mallasPersonas++; }
       });
       for (const g of f.publico ? j.escena.getObjectByName('fiestas_publico').children : []) { personas++; if (g.visible) visibles++; }
+      // Lo que cuesta cada parte: se apaga y se vuelve a dibujar
+      const mide = () => { j.renderer.info.reset(); window.__render.render(); return { c: j.renderer.info.render.calls, t: j.renderer.info.render.triangles }; };
+      const total = mide();
+      const partes = {};
+      const grupos = { publico: 'fiestas_publico', mozos: 'fiestas_mozos', vallado: 'fiestas_vallado', arena: 'fiestas_arena',
+        banderines: 'fiestas_banderines', ambulancia: 'fiestas_ambulancia', jugador: 'fiestas_jugador' };
+      for (const [k, nombre] of Object.entries(grupos)) {
+        const o = j.escena.getObjectByName(nombre);
+        if (!o) continue;
+        const antes = o.visible; o.visible = false;
+        const m = mide(); o.visible = antes;
+        partes[k] = `${total.c - m.c}/${Math.round((total.t - m.t) / 1000)}k`;
+      }
+      const vis = f.vacas.map((v) => v.objeto.visible); f.vacas.forEach((v) => { v.objeto.visible = false; });
+      const sv = mide(); f.vacas.forEach((v, i) => { v.objeto.visible = vis[i]; });
+      partes.vacas = `${total.c - sv.c}/${Math.round((total.t - sv.t) / 1000)}k`;
       j.renderer.info.autoReset = true;
-      return { llamadas: info.calls, triangulos: Math.round(info.triangles / 1000), personas, visibles, mallasPersonas,
+      return { partes, llamadas: info.calls, triangulos: Math.round(info.triangles / 1000), personas, visibles, mallasPersonas,
         mozos: f.mozos?.mozos.length ?? 0, vacas: f.vacas.length, pasoMs: +(pasoMs * 4).toFixed(2), fotogramaMs: +fotogramaMs.toFixed(2) };
     });
     // pasoMs ×4: a 60 FPS con física a 240 Hz hay 4 pasos por fotograma
@@ -53,6 +69,7 @@ for (const calidad of calidades) {
 }
 console.log('\ncalidad  modo       llamadas  ktriáng  público(vis)  mozos vacas  lógica/fotograma (ms)');
 for (const f of filas) {
+  console.log(`         partes (llamadas/triángulos): ${Object.entries(f.partes).map(([k, v]) => `${k} ${v}`).join(' · ')}`);
   console.log(`${f.calidad.padEnd(8)} ${f.modo.padEnd(10)} ${String(f.llamadas).padStart(8)} ${String(f.triangulos).padStart(8)}  ${String(f.personas).padStart(5)} (${String(f.visibles).padStart(3)})  ${String(f.mozos).padStart(5)} ${String(f.vacas).padStart(5)}  ${(f.pasoMs + f.fotogramaMs).toFixed(1).padStart(6)} (paso ${f.pasoMs}, dibujo-lógica ${f.fotogramaMs})`);
 }
 await b.close();
