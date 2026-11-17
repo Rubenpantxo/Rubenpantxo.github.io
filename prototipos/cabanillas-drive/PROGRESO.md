@@ -201,6 +201,12 @@
 
 **Fase actual: F8 — rendimiento, móvil y publicación. Hecha el 2026-11-17 y en `main`, salvo la medición en el Pixel 10, que Rubén deja para más adelante (junto con una revisión general y una lista de correcciones). Es la última fase del plan de fiestas.** Después de la F8: entradas al frontón (D14), en la rama.
 
+### Después de la F8: posturas más naturales (2026-11-17, a petición de Rubén)
+- **Piernas abiertas al andar** (jugador, peatones, público y mozos): el reposo de MakeHuman tiene las piernas abiertas (tobillos a ±0,20 m con las caderas a ±0,11 m) y las animaciones de `tools/build_personas.py` parten de ahí. Sin rehacer los GLB (aquí no hay Blender), `src/juego/corrigePersonas.js` gira cada muslo hacia dentro (6–9° según la persona) en el reposo y en todas las animaciones al cargarlas: el tobillo queda 2 cm por dentro de la cadera. También cierra un poco los dedos (estaban estirados). Valores en `PEATONES.correccion`. Pendiente en `build_personas.py`: hacerlo allí la próxima vez que se generen los GLB.
+- **Carrera** del jugador y de los mozos: antes los antebrazos iban rectos hacia delante con las manos abiertas; ahora codos doblados, antebrazos hacia arriba y algo hacia dentro, y braceo al paso de las piernas (`POSTURAS.corre` en `src/fiestas/pose.js`, valores en `FIESTAS.personaje.correr`).
+- El giro «hacia dentro» de las posturas del público estaba al revés (el aplauso abría los brazos); corregido, y ajustados aplauso y apoyado.
+- Para revisarlo a ojo: `node tools/vista_posturas.mjs <carpeta>` (de frente y de lado: quieto, andar, correr, aplauso, olé, uy, apoyado, cita).
+
 ### Hecho en F8
 - **Presupuesto medido** (`tools/mide_fiestas.mjs`; llamadas de dibujo, contando el mapa de sombras, y miles de triángulos; desde el centro de la plaza en el concurso y desde la calle en el encierro):
 
