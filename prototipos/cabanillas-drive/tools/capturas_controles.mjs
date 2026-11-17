@@ -79,7 +79,7 @@ for (const v of VISTAS) {
   await p.waitForTimeout(500);
   const marcas = await p.evaluate((lista) => lista.map(([sel, nombre]) => {
     const e = document.querySelector(sel);
-    if (!e || e.offsetParent === null) return [nombre, null];
+    if (!e || !e.getClientRects().length || getComputedStyle(e).visibility === 'hidden') return [nombre, null];
     const r = e.getBoundingClientRect();
     return [nombre, [+(100 * (r.left + r.width / 2) / innerWidth).toFixed(1), +(100 * (r.top + r.height / 2) / innerHeight).toFixed(1)]];
   }), v.marcas);

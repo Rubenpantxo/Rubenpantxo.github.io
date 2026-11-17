@@ -324,6 +324,7 @@
         <div class="pestanas" role="tablist">
           <button type="button" role="tab" data-vista="teclado" aria-selected="true">Teclado y ratón</button>
           <button type="button" role="tab" data-vista="tactil" aria-selected="false">Pantalla táctil</button>
+          <button type="button" role="tab" data-vista="fiestas" aria-selected="false">Fiestas</button>
           <button type="button" role="tab" data-vista="ajustes" aria-selected="false">Ajustes</button>
         </div>
 
@@ -344,7 +345,7 @@
             <li><span class="num">5</span><span><b>Lugares:</b> carteles; «Ir a…» en la pausa te lleva</span></li>
           </ol>
           <p class="extra"><kbd>R</kbd> recolocar el coche · <kbd>C</kbd> cambiar cámara · <kbd>T</kbd> adelantar una hora ·
-            <kbd>E</kbd> bajarse o subir</p>
+            <kbd>E</kbd> bajarse o subir · dentro de un aro dorado, <kbd>E</kbd> entrar (fiestas)</p>
           <details class="extra">
             <summary>A pie</summary>
             <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> andar · ratón (haz clic) o flechas para mirar · <kbd>Mayús</kbd> correr ·
@@ -380,6 +381,49 @@
             <summary>A pie</summary>
             <p>Joystick (mitad izquierda) para andar · arrastra a la derecha para mirar · ▲ correr · 🚗 subir al coche</p>
           </details>
+        </div>
+
+        <div class="vista" data-vista="fiestas" hidden>
+          <p class="extra">Fiestas: el menú, desde la pausa, desde «Ir a las fiestas» al empezar o en los aros dorados de la plaza y de San Roque.</p>
+          <figure class="captura" style="--proporcion: 1.778">
+            <img src="ui/controles_fiestas_teclado.webp" alt="Las fiestas en el ordenador" width="1280" height="720" loading="lazy" />
+            <span class="marca" style="left: 43%; top: 7.3%">1</span>
+            <span class="marca" style="left: 57%; top: 7.3%">2</span>
+            <span class="marca" style="left: 50%; top: 17.7%">3</span>
+            <span class="marca" style="left: 50%; top: 96.4%">4</span>
+            <span class="marca" style="left: 9%; top: 84%">5</span>
+          </figure>
+          <ol class="leyenda">
+            <li><span class="num">1</span><span><b>Tú:</b> puntos, tiempo, pases, vida y energía</span></li>
+            <li><span class="num">2</span><span><b>La vaquilla:</b> lo que hace, a cuántos metros está y su fuerza</span></li>
+            <li><span class="num">3</span><span><b>Avisos:</b> la suerte y su nota, las cogidas</span></li>
+            <li><span class="num">4</span><span><b>Suertes:</b> se encienden cuando la vaca está a distancia buena · <kbd>Q</kbd> quiebro (dos veces: ida y vuelta) ·
+              <kbd>E</kbd> recorte · <kbd>Espacio</kbd> salto · <kbd>E</kbd>+<kbd>Espacio</kbd> salto al trascuerno</span></li>
+            <li><span class="num">5</span><span><b>Minimapa</b></span></li>
+          </ol>
+          <p class="extra"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> y ratón · <kbd>Mayús</kbd> esprint · <kbd>F</kbd> subir a la valla o al burladero
+            (y bajar) · <kbd>V</kbd> cámara · <kbd>M</kbd> sonido · <kbd>Esc</kbd> pausa (dejar la partida o volver al pueblo)</p>
+          <figure class="captura" style="--proporcion: 2.164">
+            <img src="ui/controles_fiestas_tactil.webp" alt="Las fiestas en el móvil" width="1266" height="585" loading="lazy" />
+            <span class="marca" style="left: 14%; top: 73.5%">1</span>
+            <span class="marca" style="left: 93.6%; top: 62.6%">2</span>
+            <span class="marca" style="left: 82.7%; top: 86.2%">3</span>
+            <span class="marca" style="left: 82.7%; top: 64.6%">4</span>
+            <span class="marca" style="left: 93.6%; top: 86.2%">5</span>
+            <span class="marca" style="left: 82%; top: 45.1%">6</span>
+            <span class="marca" style="left: 93.6%; top: 43.1%">7</span>
+            <span class="marca" style="left: 93.6%; top: 27.7%">8</span>
+          </figure>
+          <ol class="leyenda">
+            <li><span class="num">1</span><span><b>Joystick:</b> moverse; a fondo, esprint · arrastra a la derecha para mirar</span></li>
+            <li><span class="num">2</span><span><b>Quiebro</b> (dos veces seguidas: ida y vuelta)</span></li>
+            <li><span class="num">3</span><span><b>Recorte</b></span></li>
+            <li><span class="num">4</span><span><b>Salto</b></span></li>
+            <li><span class="num">5</span><span><b>Especial:</b> salto al trascuerno</span></li>
+            <li><span class="num">6</span><span><b>Subir / Bajar:</b> sale junto a la valla o el burladero</span></li>
+            <li><span class="num">7</span><span><b>👁</b> cambiar cámara</span></li>
+            <li><span class="num">8</span><span><b>🔊</b> quitar o poner el sonido</span></li>
+          </ol>
         </div>
 
         <div class="vista ajustes" data-vista="ajustes" hidden>
@@ -424,6 +468,12 @@
           <li>Cielo: HDRI «Kloofendal 48d Partly Cloudy», de Poly Haven (CC0).</li>
           <li>Asfalto, baldosa y tierra: ambientCG (CC0).</li>
           <li>Personas: recursos de la comunidad MakeHuman (CC0), generadas con MPFB2.</li>
+        </ul>
+        <h3>Fiestas</h3>
+        <ul>
+          <li>Recinto, vallas y tablado: a partir de las fotos y croquis de Rubén.</li>
+          <li>Vacas, vallas, ambulancia y banderines: hechos con primitivas. Posturas del público y los mozos: giros de huesos sobre las animaciones propias.</li>
+          <li>Sonido (gente, olé, aplausos, cencerros, cohete…): sintetizado en el navegador, sin grabaciones.</li>
         </ul>
         <h3>Programas</h3>
         <ul>
