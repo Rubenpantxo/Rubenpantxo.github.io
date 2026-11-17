@@ -55,7 +55,7 @@ export function eligeObjetivos(vacas, jugador, candidatos, anteriores = new Map(
 
 // modo: plaza | calle | encierro. alturaSuelo(x, z): donde pisan
 export function creaMozos({ recinto, modo, puertaAbierta, camino, alturaSuelo, personas = null, cantidad = null,
-  semilla = 1, sombras = true, excluye = null }) {
+  semilla = 1, sombras = true, excluye = null, nivel = 'medio' }) {
   const M = FIESTAS.mozos;
   const azar = azarCon(semilla);
   const entre = ([a, b]) => a + (b - a) * azar();
@@ -373,6 +373,8 @@ export function creaMozos({ recinto, modo, puertaAbierta, camino, alturaSuelo, p
       const lejos = camara ? Math.hypot(camara.position.x - m.x, camara.position.z - m.z) : 0;
       o.visible = lejos < 95;
       if (!o.visible) continue;
+      const sombra = sombras && lejos < (FIESTAS.publico.sombraHastaM[nivel] ?? 28);
+      if (sombra !== m.conSombra) { m.conSombra = sombra; o.traverse((x) => { if (x.isMesh) x.castShadow = sombra; }); }
       let y = alturaSuelo(m.x, m.z);
       if (EN_ALTO.has(m.estado)) {
         const pie = alturaSuelo(m.valla.ap[0], m.valla.ap[1]);

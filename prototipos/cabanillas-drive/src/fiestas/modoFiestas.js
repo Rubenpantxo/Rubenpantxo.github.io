@@ -188,7 +188,7 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       const cuantos = Math.round((FIESTAS.mozos.cantidad[CALIDAD.nivel] ?? FIESTAS.mozos.cantidad.medio) * (cual === 'plaza' ? FIESTAS.mozos.enPlaza : 1));
       if (conMozos(parametros) && cuantos > 0 && personas?.modelos?.length) {
         mozos = creaMozos({ recinto, modo: cual, puertaAbierta: cual !== 'plaza', camino, alturaSuelo: sueloEn, personas, cantidad: cuantos,
-          semilla: Math.floor(Math.random() * 100000), sombras: CALIDAD.sombras, excluye: FIESTAS.personaje.modelo });
+          semilla: Math.floor(Math.random() * 100000), sombras: CALIDAD.sombras, excluye: FIESTAS.personaje.modelo, nivel: CALIDAD.nivel });
         escena.add(mozos.grupo);
       }
     }

@@ -195,6 +195,10 @@ export const FIESTAS = {
       // De vez en cuando alguien aplaude por su cuenta (probabilidad por persona y segundo)
       espontaneo: 0.004 },
     animadosHastaM: 35,              // más lejos no se mueven los brazos (no se aprecia)
+    // Sombra solo de los cercanos (F8): cada persona son ~11 000 triángulos y con sombra se dibuja
+    // dos veces. Medido en la plaza (tools/mide_fiestas.mjs): el público era el 17 % de los
+    // triángulos en «alto» y el 16 % en «bajo»
+    sombraHastaM: { alto: 40, medio: 28, bajo: 18 },
     visibleHastaM: { alto: 95, medio: 70, bajo: 45 },
     separacionM: 0.62,
     semilla: 20261116,

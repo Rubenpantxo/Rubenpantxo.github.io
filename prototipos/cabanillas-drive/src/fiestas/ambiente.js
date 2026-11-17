@@ -355,11 +355,13 @@ function creaPublico(recinto, terreno, personas, sitiosGradas, sombras) {
         objeto.position.y = s.y + P.sentado.caderaSobreAsientoM - sentado.cadera;
       }
     }
+    const mallas = [];
     objeto.traverse((o) => {
       if (!o.isMesh) return;
       o.castShadow = sombras;
       o.receiveShadow = false;
       o.frustumCulled = true;
+      mallas.push(o);
     });
     grupo.add(objeto);
     // Los de la primera fila de la acera se apoyan en la valla; el resto, de pie o sentados
@@ -371,11 +373,12 @@ function creaPublico(recinto, terreno, personas, sitiosGradas, sombras) {
       objeto.rotation.y = s.rumbo + (azar() - 0.5) * 0.25;
     }
     if (apoyado) capa.pon(POSTURAS.apoyado());
-    return { objeto, mezclador, capa, fijados, apoyado, enValla: Boolean(s.enValla), turno: i % 4, pendiente: 0,
+    return { objeto, mezclador, capa, fijados, apoyado, mallas, conSombra: sombras, enValla: Boolean(s.enValla), turno: i % 4, pendiente: 0,
       reaccion: null, ritmo: 2.6 + azar() * 1.4, base: apoyado ? POSTURAS.apoyado() : POSTURA_NULA, movido: true };
   });
   const visibleM = P.visibleHastaM[CALIDAD.nivel] ?? 75;
   const animadosM = Math.min(visibleM, P.animadosHastaM);
+  const sombraM = P.sombraHastaM[CALIDAD.nivel] ?? 28;
   let contador = 0;
   let reloj = 0;
   const postura = { brazoX: [0, 0], brazoY: [0, 0], antebrazoX: [0, 0], antebrazoY: [0, 0] };
@@ -412,6 +415,9 @@ function creaPublico(recinto, terreno, personas, sitiosGradas, sombras) {
       for (const g of gente) {
         const d = g.objeto.position.distanceTo(camara.position);
         g.objeto.visible = d < visibleM;
+        // Sombra solo cerca de la cámara
+        const sombra = sombras && d < sombraM;
+        if (sombra !== g.conSombra) { g.conSombra = sombra; for (const m of g.mallas) m.castShadow = sombra; }
         g.pendiente += dt;
         // Reacción en curso (también fuera de la vista: así no se queda a medias)
         let k = 0; let pose = null;
