@@ -20,6 +20,8 @@
         background: var(--fondo-ui); font-size: 13px; pointer-events: none; text-align: center;
       }
       #panel:has(#estado:empty) { display: none; }
+      /* En fiestas el marcador va arriba en el centro: los avisos del juego bajan */
+      body:has(#hud.fiestas) #panel { top: calc(max(10px, env(safe-area-inset-top)) + 140px); }
       #panel p { margin: 0; }
       #panel button {
         pointer-events: auto; margin-top: 6px; padding: 5px 10px; border: 1px solid #ffe000; border-radius: 6px;

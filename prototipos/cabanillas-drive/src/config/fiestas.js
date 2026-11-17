@@ -86,13 +86,35 @@ export const FIESTAS = {
     veHastaM: 45,                    // no se arranca a nadie más lejos
     derroteS: 1.1,                   // parada tras rematar en la valla
     cogidaM: 0.95,                   // distancia a la que coge
-    saltoLibraM: 0.95,               // con los pies por encima de esto, pasa por debajo
+    saltoLibraM: 0.6,                // con los pies por encima de esto, pasa por debajo (el salto normal sube 0,75)
     // Se va cansando: pierde fuerza con el tiempo y con cada embestida, y con ella velocidad
     cansancio: { porS: 0.0025, porEmbestida: 0.035, minimo: 0.45 },
     colores: { colorada: 0x8a4526, negra: 0x1c1816, berrendaClaro: 0xe9e2d2, berrendaOscuro: 0x1e1a18,
       cuerno: 0xd9cfb4, pezuna: 0x2a2420, morro: 0x3a2a26 },
   },
   cogida: { vueloS: 0.9, altoM: 1.6, lejosM: 3.2 },   // volteo sencillo: por los aires y al refugio
+
+  // Recortes y puntuación (F4). Las distancias son del jugador a los cuernos, en metros.
+  recortes: {
+    tandaS: 120,                     // duración de la tanda
+    otraTandaS: 7,                   // al acabar, segundos hasta que empieza otra (el menú es de la F5)
+    // Distancia buena para cada suerte: [mínima, máxima] al pulsar, con la vaca embistiendo
+    valida: { quiebro: [1.2, 5.0], recorte: [1.8, 6.0], salto: [1.8, 3.4], especial: [1.8, 5.5] },
+    puntos: { pase: 20, quiebro: 100, recorte: 150, salto: 200, combo: 250, especial: 350 },
+    // Riesgo: 0 si la vaca pasa a lejosM o más, 1 si pasa a cenidoM o menos. Multiplica por 1 + extra × riesgo
+    cenidoM: 1.1, lejosM: 3.6, extraRiesgo: 2,
+    notas: [[0.75, 'ceñido'], [0.4, 'bueno'], [0, 'lejano']],   // riesgo mínimo de cada nota
+    paseHastaM: 4.5,                 // la vaca tiene que pasar a menos de esto para contar como pase
+    rozadoM: 1.05, rozado: 0.8,      // si pasa rozando (sin salto), no es limpio: multiplica por esto
+    repetida: 0.7, variada: 1.2,     // misma suerte que la anterior / distinta de las dos anteriores
+    // Cogidas: fuerte si la vaca venía a más de esta velocidad
+    cogida: { fuerteMs: 6.5, leve: { vida: 0.2, puntos: 150 }, fuerte: { vida: 0.35, puntos: 300 } },
+    lenta: { riesgo: 0.75, ritmo: 0.35, duraS: 0.55 },   // cámara lenta en los recortes ceñidos
+    avisoS: 2.2,
+    fuerza: [[0.8, 'Con fuerza'], [0.6, 'Se va cansando'], [0, 'Cansada']],
+    consejos: ['Espera a que se arranque y calcula su paso', 'Cuanto más cerca pase, más puntos', 'No repitas siempre la misma suerte',
+      'Sin energía no hay suerte: súbete a la valla a recuperar', 'A galope casi no gira: quiébrala al final'],
+  },
 
   // Cámara del personaje: detrás del hombro; V o 👁 cambia de vista
   camara: {

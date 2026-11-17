@@ -401,6 +401,9 @@ export function creaVaca({ recinto, terreno, puertaAbierta, capa = 'colorada', s
     get velocidad() { return v; },
     get rumbo() { return rumbo; },
     get embestidas() { return embestidas; },
+    get cruzado() { return cruzado; },
+    // Punta de los cuernos (para medir lo ceñido de un pase)
+    cuernos() { return { x: x + Math.sin(rumbo) * 0.95, z: z + Math.cos(rumbo) * 0.95 }; },
     get sucesos() { return sucesos; },
     get dentro() { return limites.dentro(x, z); },
     posicion() { return { x, z }; },

@@ -10,6 +10,7 @@ import { creaHudFiestas } from '../hud/fiestas.js';
 import { creaAmbiente } from './ambiente.js';
 import { creaCamaraPersonaje } from './camaraPersonaje.js';
 import { creaPersonaje } from './personaje.js';
+import { creaRecortes } from './recortes.js';
 import { creaVaca } from './vaca.js';
 import { creaVallado } from './vallado.js';
 
@@ -55,6 +56,7 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
   let hud = null;
   let vaca = null;               // posición de la vaca más cercana, para la cámara
   let vacas = [];                // por ahora, una (la manada es de la F5)
+  let recortes = null;           // puntuación y marcador (F4)
   const parametros = new URLSearchParams(location.search);
   const conVacas = FIESTAS.vaca.activa && parametros.get('vacas') !== '0';
   const ACCIONES = ['quiebro', 'recorte', 'salto', 'especial', 'refugio'];
@@ -98,6 +100,7 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       escena.add(personaje.objeto);
       camaraJugador = creaCamaraPersonaje({ camara, fisica, terreno, colliderJugador: peaton.collider, transparentes: vallado.transparentes });
       hud = creaHudFiestas();
+      recortes = creaRecortes();
       // Hora de «Día», sin tocar lo que el jugador tenía elegido (se repone al salir)
       if (ciclo) {
         horaAnterior = ciclo.modo;
@@ -115,6 +118,7 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     // La vaca: sale del corral a los pocos segundos. Capa con ?capa=colorada|negra|berrenda o al azar
     for (const v of vacas) v.libera();
     vacas = [];
+    recortes.reinicia();
     if (conVacas) {
       const capas = FIESTAS.vaca.capas;
       const capa = capas.includes(parametros.get('capa')) ? parametros.get('capa') : capas[Math.floor(Math.random() * capas.length)];
@@ -134,6 +138,7 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     personaje = null;
     camaraJugador = null;
     hud = null;
+    recortes = null;
     ambiente.libera();
     vallado.libera();
     farolas?.repone();
@@ -180,8 +185,9 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       if (entrada.consume('camaraFiestas')) personaje.objeto.visible = camaraJugador.cambiaVista() !== 'ojos';
     },
     // Paso de física del jugador
-    paso(mandos, dt) {
+    paso(mandos, dtReal) {
       if (!personaje) return;
+      const dt = dtReal * recortes.ritmo;          // cámara lenta en los recortes ceñidos
       personaje.paso(mandos, camaraJugador.guinada, dt);
       if (!vacas.length) return;
       const p = personaje.posicion();
@@ -189,19 +195,31 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       const objetivo = { x: p.x, z: p.z, seguro: personaje.seguro || personaje.estado === 'cogido', alto: p.y - suelo };
       for (const v of vacas) {
         const suceso = v.paso(objetivo, dt);
-        if (suceso?.tipo === 'cogida' && personaje.cogida(suceso.dx, suceso.dz)) avisa('¡Cogida! A la valla', 3);
+        const cogido = suceso?.tipo === 'cogida' && personaje.cogida(suceso.dx, suceso.dz);
+        objetivo.sucesos = personaje.sucesos;
+        recortes.paso({ jugador: objetivo, vaca: v, suceso, cogido }, dt);
       }
     },
     get vacas() { return vacas; },
+    get recortes() { return recortes; },
     // Cámara, animación y marcador: una vez por fotograma
-    fotograma(dt, mirada, mandos) {
+    fotograma(dtReal, mirada, mandos) {
       if (!personaje) return;
-      camaraJugador.mira(mirada.dx, mirada.dy, mandos.giro, dt);
+      camaraJugador.mira(mirada.dx, mirada.dy, mandos.giro, dtReal);
+      const dt = dtReal * recortes.ritmo;
       personaje.anima(dt);
       for (const v of vacas) v.anima(dt);
       if (vacas.length) vaca = vacas[0].estado === 'corral' ? null : vacas[0].posicion();
-      camaraJugador.coloca(personaje.posicion(), dt, vaca);
-      hud.actualiza({ energia: personaje.energia, agotado: personaje.agotado, pista: personaje.pista });
+      const p = personaje.posicion();
+      camaraJugador.coloca(p, dtReal, vaca);
+      const una = vacas[0] ?? null;
+      const yo = { x: p.x, z: p.z, seguro: personaje.seguro };
+      const c = una?.cuernos();
+      hud.actualiza({
+        energia: personaje.energia, agotado: personaje.agotado, pista: personaje.pista, marcador: recortes,
+        vaca: una && { estado: una.estado, fuerza: una.fuerza, distancia: Math.hypot(p.x - c.x, p.z - c.z) },
+        listos: recortes.listos(yo, una),
+      });
     },
     ponVaca(posicion) { vaca = posicion; },
     mostrarHud(visible) { hud?.mostrar(visible); },

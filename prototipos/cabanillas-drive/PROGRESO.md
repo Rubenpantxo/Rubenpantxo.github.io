@@ -199,7 +199,20 @@
 
 ## Fiestas (PLAN_FIESTAS.md)
 
-**Fase actual: F3 — la vaca. Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno.** F0 aprobada; F1 y F2 hechas y en `main` (Rubén pidió seguir sin esperar a probarlas).
+**Fase actual: F4 — recortes y puntuación. Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno para la F5.** F0 aprobada; F1, F2 y F3 hechas y en `main` (Rubén dio el visto bueno a la F4 sin esperar a probarlas).
+
+### Hecho en F4
+- `src/fiestas/recortes.js`: mira cada embestida y la puntúa al acabar. Pase (la vaca cruza a menos de 4,5 m sin coger), suertes (quiebro 100, recorte 150, salto 200, combo 250, especial 350) hechas con la vaca a distancia válida, multiplicadas por el riesgo (×1 a ×3 según lo cerca que pasan los cuernos: lejano, bueno, ceñido), ×0,8 si pasa rozando, ×0,7 si se repite la suerte y ×1,2 si es distinta de las dos anteriores. Cogida leve o fuerte (según la velocidad de la vaca): quita vida y puntos. La tanda dura 120 s desde que sale la vaca o hasta quedarse sin vida.
+- Marcador (`src/hud/fiestas.js`): panel del jugador (puntos, tiempo, pases, vida, energía), panel de la vaquilla (fuerza y su estado, lo que hace, metros), aviso grande («¡Olé! Quiebro ceñido +300», «¡Cogida fuerte!»), consejo abajo, y teclas/botones táctiles que se encienden cuando la vaca está a distancia buena.
+- Cámara lenta breve (0,55 s al 35 %) en las suertes ceñidas.
+- Todos los valores en `FIESTAS.recortes` (`src/config/fiestas.js`).
+- Cambios sobre F3: el burladero está a 0,5 m de la valla (antes 0,9; lo pidió Rubén); el salto normal (0,75 m) ya libra a la vaca si se hace a tiempo (`saltoLibraM` 0,95 → 0,6), porque antes solo valía el especial.
+- Pruebas: `tools/prueba_recortes.mjs` (sin navegador: tabla de casos con la puntuación esperada, variedad, vida y tiempo) y `tools/prueba_marcador.mjs` (dentro del juego, escritorio y móvil). Capturas en `docs/fiestas/f4_*.jpg`.
+
+### Pendiente tras F4
+- Al acabar la tanda solo sale un aviso y a los 7 s empieza otra: la pantalla de resultados, el menú y la pantalla previa con controles y consejos son de la F5.
+- El «olé» es solo el aviso en pantalla: el público no reacciona ni suena hasta la F6.
+- El recorte (E) puntúa como suerte pero no se ha medido que libre a la vaca tan bien como el quiebro: ajustar al probarlo Rubén.
 
 ### Hecho en F3
 - **Vaca** (`src/fiestas/vaca.js`, parámetros en `FIESTAS.vaca`): modelo propio de primitivas (tronco, cabeza con cuernos, cuatro patas y rabo que se animan por código) en tres capas: colorada, negra y berrenda (`?capa=`; si no, al azar). No hay Blender en esta sesión, así que `tools/build_vaca.py` no se ha hecho: queda para la F6 junto con las animaciones de las personas.
