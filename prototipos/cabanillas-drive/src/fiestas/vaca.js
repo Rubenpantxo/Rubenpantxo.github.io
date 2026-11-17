@@ -137,9 +137,47 @@ export function bordesDelRecinto(recinto, puertaAbierta) {
   return { bordes, zonas, dentro: (x, z) => zonas.some((p) => dentroDe(p, x, z)) };
 }
 
+// Eje de todo el recorrido: del final de la calle (s = 0) a la puerta y de la puerta al fondo de
+// la plaza. s: metros a lo largo del eje del punto más cercano a (x, z); punto(s) y direccion(s).
+export function creaCamino(recinto) {
+  const camino = [...recinto.calle.eje.slice().reverse(), ...recinto.plaza.eje.slice(1)];
+  const largos = camino.slice(1).map((p, i) => Math.hypot(p[0] - camino[i][0], p[1] - camino[i][1]));
+  const largo = largos.reduce((a, b) => a + b, 0);
+  function tramoEn(sBuscado) {
+    let resto = limita(sBuscado, 0, largo);
+    for (let i = 0; i < largos.length; i++) {
+      if (resto <= largos[i] || i === largos.length - 1) return { i, t: Math.min(1, resto / largos[i]) };
+      resto -= largos[i];
+    }
+    return { i: largos.length - 1, t: 1 };
+  }
+  return {
+    largo,
+    s(px, pz) {
+      let mejor = { d: Infinity, s: 0 }; let acumulado = 0;
+      for (let i = 0; i < largos.length; i++) {
+        const a = camino[i]; const b = camino[i + 1];
+        const t = limita(((px - a[0]) * (b[0] - a[0]) + (pz - a[1]) * (b[1] - a[1])) / (largos[i] ** 2), 0, 1);
+        const d = Math.hypot(px - a[0] - (b[0] - a[0]) * t, pz - a[1] - (b[1] - a[1]) * t);
+        if (d < mejor.d) mejor = { d, s: acumulado + largos[i] * t };
+        acumulado += largos[i];
+      }
+      return mejor.s;
+    },
+    punto(sBuscado) {
+      const { i, t } = tramoEn(sBuscado);
+      return [camino[i][0] + (camino[i + 1][0] - camino[i][0]) * t, camino[i][1] + (camino[i + 1][1] - camino[i][1]) * t];
+    },
+    direccion(sBuscado) {
+      const { i } = tramoEn(sBuscado);
+      return [(camino[i + 1][0] - camino[i][0]) / largos[i], (camino[i + 1][1] - camino[i][1]) / largos[i]];
+    },
+  };
+}
+
 // ---------------------------------------------------------------- la vaca
 
-export function creaVaca({ recinto, terreno, puertaAbierta, capa = 'colorada', semilla = 7, sombras = true, alturaSuelo = null }) {
+export function creaVaca({ recinto, terreno, puertaAbierta, capa = 'colorada', semilla = 7, sombras = true, alturaSuelo = null, esperaS = null }) {
   const V = FIESTAS.vaca;
   const azar = azarCon(semilla);
   const entre = ([a, b]) => a + (b - a) * azar();
@@ -162,7 +200,9 @@ export function creaVaca({ recinto, terreno, puertaAbierta, capa = 'colorada', s
   let v = 0;
   let estado = 'corral';
   let tEstado = 0;
-  let dura = V.salidaS;
+  let dura = esperaS ?? V.salidaS;
+  let guia = null;                  // { x, z, velocidad }: la lleva la manada (F5)
+  let guardada = false;             // ha vuelto al corral
   let fuerza = 1;
   let reloj = 0;
   let destino = null;               // adonde trota al reconocer
@@ -171,6 +211,7 @@ export function creaVaca({ recinto, terreno, puertaAbierta, capa = 'colorada', s
   let golpe = 0;                    // sacudida del derrote (se va apagando)
   let fase = 0;                     // ciclo de las patas
   let embestidas = 0;
+  let ultimaCogida = -10;
   const historia = [];              // posiciones del jugador (para el tiempo de reacción)
   const sucesos = [];
   const anota = (tipo, datos = {}) => { sucesos.push({ tipo, t: reloj, ...datos }); if (sucesos.length > 20) sucesos.shift(); };
@@ -214,31 +255,7 @@ export function creaVaca({ recinto, terreno, puertaAbierta, capa = 'colorada', s
     return o(ax, az, bx, bz, c[0], c[1]) !== o(ax, az, bx, bz, d[0], d[1]) && o(c[0], c[1], d[0], d[1], ax, az) !== o(c[0], c[1], d[0], d[1], bx, bz);
   };
   const seVe = (tx, tz) => !limites.bordes.some((borde) => cruza(x, z, tx, tz, borde));
-  // Eje de todo el recorrido: del final de la calle a la puerta y de la puerta al fondo de la plaza
-  const camino = [...recinto.calle.eje.slice().reverse(), ...recinto.plaza.eje.slice(1)];
-  const largos = camino.slice(1).map((p, i) => Math.hypot(p[0] - camino[i][0], p[1] - camino[i][1]));
-  function enCamino(px, pz) {                      // metros a lo largo del eje del punto más cercano
-    let mejor = { d: Infinity, s: 0 }; let acumulado = 0;
-    for (let i = 0; i < largos.length; i++) {
-      const a = camino[i]; const b = camino[i + 1];
-      const t = limita(((px - a[0]) * (b[0] - a[0]) + (pz - a[1]) * (b[1] - a[1])) / (largos[i] ** 2), 0, 1);
-      const d = Math.hypot(px - a[0] - (b[0] - a[0]) * t, pz - a[1] - (b[1] - a[1]) * t);
-      if (d < mejor.d) mejor = { d, s: acumulado + largos[i] * t };
-      acumulado += largos[i];
-    }
-    return mejor.s;
-  }
-  function puntoDelCamino(sBuscado) {
-    let resto = limita(sBuscado, 0, largos.reduce((a, b) => a + b, 0));
-    for (let i = 0; i < largos.length; i++) {
-      if (resto <= largos[i] || i === largos.length - 1) {
-        const t = Math.min(1, resto / largos[i]);
-        return [camino[i][0] + (camino[i + 1][0] - camino[i][0]) * t, camino[i][1] + (camino[i + 1][1] - camino[i][1]) * t];
-      }
-      resto -= largos[i];
-    }
-    return camino[camino.length - 1];
-  }
+  const { s: enCamino, punto: puntoDelCamino } = creaCamino(recinto);
   // Hacia dónde tirar para llegar a (tx, tz): derecho si se ve; si no, por el eje hacia allí
   function rumboA(tx, tz) {
     if (seVe(tx, tz)) return [tx, tz];
@@ -298,6 +315,48 @@ export function creaVaca({ recinto, terreno, puertaAbierta, capa = 'colorada', s
       if (Math.hypot(x - corral.salida[0], z - corral.salida[1]) > 3 && dentroDe(ruedo, x, z)) cambia('reconoce', entre(V.reconoceS));
       fase += v * dt;
       return null;
+    }
+
+    if (estado === 'recogiendo') {
+      // De vuelta: hasta delante de la manga y, de ahí, adentro
+      const m = [corral.salida[0] + dirSalida[0] * 1.6, corral.salida[1] + dirSalida[1] * 1.6];
+      const hacia = rumboA(m[0], m[1]);
+      const giro = giraHacia(Math.atan2(hacia[0] - x, hacia[1] - z), dt, 1.6);
+      v += limita((giro > 1.2 ? 0.8 : V.recogeMs) - v, -V.frenada * dt, V.aceleracion * dt);
+      avanza(dt);
+      if (Math.hypot(x - m[0], z - m[1]) < 1.1 || tEstado > 60) cambia('entrando');
+      fase += v * dt;
+      return null;
+    }
+    if (estado === 'entrando') {
+      rumbo += limita(anguloCorto(Math.atan2(-dirSalida[0], -dirSalida[1]) - rumbo), -5 * dt, 5 * dt);
+      v = V.troteMs;
+      const lejos = Math.hypot(x - corral.salida[0], z - corral.salida[1]);
+      // Se centra en la manga mientras entra
+      const k = Math.min(1, dt * 3);
+      const dentro = (x - corral.salida[0]) * dirSalida[0] + (z - corral.salida[1]) * dirSalida[1] - v * dt;
+      x += (corral.salida[0] + dirSalida[0] * dentro - x) * k + 0 * lejos;
+      z += (corral.salida[1] + dirSalida[1] * dentro - z) * k;
+      if (dentro < -1.8 || tEstado > 6) { guardada = true; v = 0; cambia('corral', Infinity); anota('guardada'); }
+      fase += v * dt;
+      return null;
+    }
+    if (guia) {
+      // En manada: va adonde le dicen, a la velocidad que le dicen, y se lleva por delante a quien pille
+      if (estado !== 'guiada') cambia('guiada');
+      const hacia = rumboA(guia.x, guia.z);
+      const giro = giraHacia(Math.atan2(hacia[0] - x, hacia[1] - z), dt, 1.6);
+      const quiere = Math.hypot(guia.x - x, guia.z - z) < 0.6 ? 0 : giro > 1.2 ? 1 : guia.velocidad;
+      v += limita(quiere - v, -V.frenada * dt, V.aceleracion * dt);
+      avanza(dt);
+      const delante = dx * Math.sin(rumbo) + dz * Math.cos(rumbo);
+      if (!objetivo.seguro && distancia < V.cogidaM && delante > -0.2 && objetivo.alto < V.saltoLibraM && v > 2 && reloj - ultimaCogida > 1.5) {
+        suceso = { tipo: 'cogida', dx: Math.sin(rumbo), dz: Math.cos(rumbo), velocidad: v };
+        ultimaCogida = reloj;
+        anota('cogida');
+      }
+      fase += v * dt;
+      return suceso;
     }
 
     if (estado === 'reconoce') {
@@ -371,6 +430,7 @@ export function creaVaca({ recinto, terreno, puertaAbierta, capa = 'colorada', s
   function anima(dt) {
     const g = modelo.grupo;
     const y = suelo(x, z);
+    g.visible = !guardada;
     g.position.set(x, y, z);
     // El modelo mira a +X: rumbo (sin, cos) → giro en Y
     g.rotation.set(0, rumbo - Math.PI / 2, 0);
@@ -402,6 +462,14 @@ export function creaVaca({ recinto, terreno, puertaAbierta, capa = 'colorada', s
     get rumbo() { return rumbo; },
     get embestidas() { return embestidas; },
     get cruzado() { return cruzado; },
+    get guardada() { return guardada; },
+    // La manada la lleva a un punto (null: la suelta y vuelve a ir a su aire)
+    guia(objetivo) {
+      guia = objetivo;
+      if (!objetivo && estado === 'guiada') cambia('reconoce', entre(V.reconoceS));
+    },
+    // Al corral: va hasta la manga y entra
+    recoge() { guia = null; if (!guardada && estado !== 'entrando') cambia('recogiendo'); },
     // Punta de los cuernos (para medir lo ceñido de un pase)
     cuernos() { return { x: x + Math.sin(rumbo) * 0.95, z: z + Math.cos(rumbo) * 0.95 }; },
     get sucesos() { return sucesos; },

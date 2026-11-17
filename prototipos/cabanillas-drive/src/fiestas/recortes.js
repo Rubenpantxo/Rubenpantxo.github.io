@@ -10,10 +10,13 @@ import { FIESTAS } from '../config/fiestas.js';
 const SUERTES = ['quiebro', 'recorte', 'salto', 'especial'];
 const NOMBRES = { quiebro: 'Quiebro', recorte: 'Recorte', salto: 'Salto', especial: 'Salto al trascuerno', combo: 'Quiebro de ida y vuelta', pase: 'Pase' };
 
-export function creaRecortes() {
+// «sinFin»: el tiempo y el final los lleva la partida (F5); aquí solo se acaba al quedarse sin vida
+export function creaRecortes({ sinFin = false } = {}) {
   const R = FIESTAS.recortes;
   let puntos; let pases; let vida; let tiempo; let acabada; let espera; let cogidas;
   let lance;                 // la embestida en curso: { minimo, suerte, distancia, fuera }
+  const lances = new Map();  // una por vaca
+  let mostrado = null;       // tiempo que enseña el marcador cuando lo lleva la partida
   let ultimas;               // suertes puntuadas, para la variedad
   let vistoHasta;            // reloj del último suceso del jugador ya leído
   let lenta;                 // segundos de cámara lenta que quedan
@@ -23,12 +26,12 @@ export function creaRecortes() {
 
   function reinicia() {
     puntos = 0; pases = 0; vida = 1; tiempo = R.tandaS; acabada = null; espera = 0; cogidas = 0;
-    lance = null; ultimas = []; vistoHasta = -1; lenta = 0; aviso = null; consejo = 0; tConsejo = 0;
+    lance = null; lances.clear(); mostrado = null; ultimas = []; vistoHasta = -1; lenta = 0; aviso = null; consejo = 0; tConsejo = 0;
     historial.length = 0;
   }
   reinicia();
 
-  const avisa = (texto, clase = '') => { aviso = { texto, clase, t: R.avisoS }; };
+  const avisa = (texto, clase = '', segundos = R.avisoS) => { aviso = { texto, clase, t: segundos }; };
   const riesgoDe = (minimo) => Math.min(1, Math.max(0, (R.lejosM - minimo) / (R.lejosM - R.cenidoM)));
   const notaDe = (riesgo) => R.notas.find(([minimo]) => riesgo >= minimo)[1];
 
@@ -57,14 +60,17 @@ export function creaRecortes() {
     } else avisa(fuera ? `Fuera de distancia · pase +${valor}` : `Pase +${valor}`);
   }
 
-  // Un paso de física. jugador: { x, z, seguro, sucesos }; vaca: la de vaca.js (o null); suceso: lo
-  // que devolvió vaca.paso en este paso, y si la cogida ha llegado a ser (el jugador no estaba ya por los aires)
-  function paso({ jugador, vaca, suceso = null, cogido = false }, dt) {
+  // Un paso de física. jugador: { x, z, seguro, sucesos }; vacas: [{ vaca, suceso, cogido }] con lo
+  // que devolvió vaca.paso en este paso y si la cogida ha llegado a ser (el jugador no estaba ya
+  // por los aires). También vale una sola: { jugador, vaca, suceso, cogido }
+  function paso({ jugador, vacas = null, vaca = null, suceso = null, cogido = false }, dt) {
+    const lista = vacas ?? (vaca ? [{ vaca, suceso, cogido }] : []);
     if (aviso && (aviso.t -= dt) <= 0) aviso = null;
     if (lenta > 0) lenta -= dt;
     tConsejo += dt;
     if (tConsejo > 9) { tConsejo = 0; consejo = (consejo + 1) % R.consejos.length; }
     if (acabada) {
+      if (sinFin) return;
       espera -= dt;
       if (espera <= 0) reinicia();
       return;
@@ -72,48 +78,59 @@ export function creaRecortes() {
     // Suertes nuevas del jugador
     const nuevas = jugador.sucesos.filter((s) => s.t > vistoHasta);
     if (jugador.sucesos.length) vistoHasta = jugador.sucesos.at(-1).t;
-    if (!vaca || vaca.estado === 'corral' || vaca.estado === 'saliendo') return;   // el reloj corre desde que sale
-    tiempo = Math.max(0, tiempo - dt);
+    const fuera = lista.filter((v) => v.vaca.estado !== 'corral' && v.vaca.estado !== 'saliendo');
+    if (!fuera.length) return;                                   // el reloj corre desde que sale la vaca
+    if (!sinFin) tiempo = Math.max(0, tiempo - dt);
+    for (const una of fuera) {
+      lance = lances.get(una.vaca) ?? null;
+      pasoDeVaca(jugador, una.vaca, una.suceso, una.cogido, nuevas);
+      if (lance) lances.set(una.vaca, lance); else lances.delete(una.vaca);
+    }
+    if (vida <= 0 || (!sinFin && tiempo <= 0)) {
+      acabada = vida <= 0 ? 'vida' : 'tiempo';
+      espera = R.otraTandaS;
+      lances.clear();
+      if (!sinFin) aviso = { texto: `${vida <= 0 ? 'Sin vida' : 'Fin de la tanda'}: ${puntos} puntos, ${pases} pases`, clase: 'fin', t: R.otraTandaS };
+    }
+  }
 
+  function pasoDeVaca(jugador, vaca, suceso, cogido, nuevas) {
     const c = vaca.cuernos();
     const distancia = Math.hypot(jugador.x - c.x, jugador.z - c.z);
     if (vaca.estado === 'embiste' && !lance) lance = { minimo: Infinity, suerte: null, fuera: false };
-    if (lance) {
-      if (!jugador.seguro) lance.minimo = Math.min(lance.minimo, distancia);
-      for (const s of nuevas) {
-        const tipo = s.tipo === 'combo' ? 'quiebro' : s.tipo;
-        if (!SUERTES.includes(tipo) || vaca.cruzado) continue;
-        const [desde, hasta] = R.valida[tipo];
-        if (distancia < desde || distancia > hasta) { if (!lance.suerte) lance.fuera = true; continue; }
-        // Se queda la que más vale (un combo o un salto convertido en especial sustituyen a lo anterior)
-        if (!lance.suerte || R.puntos[s.tipo] > R.puntos[lance.suerte]) { lance.suerte = s.tipo; lance.fuera = false; }
+    // Cogida (también fuera de una embestida: la manada del encierro)
+    if (suceso?.tipo === 'cogida') {
+      if (cogido) {
+        const fuerte = suceso.velocidad > R.cogida.fuerteMs;
+        const G = fuerte ? R.cogida.fuerte : R.cogida.leve;
+        vida = Math.max(0, vida - G.vida);
+        puntos = Math.max(0, puntos - G.puntos);
+        cogidas++;
+        ultimas = [];
+        historial.push({ tipo: fuerte ? 'cogida fuerte' : 'cogida leve', puntos: -G.puntos, vida: +vida.toFixed(2) });
+        avisa(fuerte ? '¡Cogida fuerte!' : '¡Cogida!', 'cogida');
       }
-      if (suceso?.tipo === 'cogida') {
-        if (cogido) {
-          const fuerte = suceso.velocidad > R.cogida.fuerteMs;
-          const G = fuerte ? R.cogida.fuerte : R.cogida.leve;
-          vida = Math.max(0, vida - G.vida);
-          puntos = Math.max(0, puntos - G.puntos);
-          cogidas++;
-          ultimas = [];
-          historial.push({ tipo: fuerte ? 'cogida fuerte' : 'cogida leve', puntos: -G.puntos, vida: +vida.toFixed(2) });
-          avisa(fuerte ? '¡Cogida fuerte!' : '¡Cogida!', 'cogida');
-        }
-        lance = null;
-      } else if (vaca.estado !== 'embiste') {
-        if (vaca.cruzado && !jugador.seguro) {
-          puntua();
-          const ultimo = historial.at(-1);
-          if (ultimo && ultimo.tipo !== 'pase' && ultimo.riesgo >= R.lenta.riesgo) lenta = R.lenta.duraS;
-        }
-        lance = null;
-      }
-    }
-    if (vida <= 0 || tiempo <= 0) {
-      acabada = vida <= 0 ? 'vida' : 'tiempo';
-      espera = R.otraTandaS;
       lance = null;
-      aviso = { texto: `${vida <= 0 ? 'Sin vida' : 'Fin de la tanda'}: ${puntos} puntos, ${pases} pases`, clase: 'fin', t: R.otraTandaS };
+      return;
+    }
+    if (!lance) return;
+    if (!jugador.seguro) lance.minimo = Math.min(lance.minimo, distancia);
+    for (const s of nuevas) {
+      const tipo = s.tipo === 'combo' ? 'quiebro' : s.tipo;
+      if (!SUERTES.includes(tipo) || vaca.cruzado) continue;
+      const [desde, hasta] = R.valida[tipo];
+      if (distancia < desde || distancia > hasta) { if (!lance.suerte) lance.fuera = true; continue; }
+      // Se queda la que más vale (un combo o un salto convertido en especial sustituyen a lo anterior)
+      if (!lance.suerte || R.puntos[s.tipo] > R.puntos[lance.suerte]) { lance.suerte = s.tipo; lance.fuera = false; }
+    }
+    if (vaca.estado !== 'embiste') {
+      if (vaca.cruzado && !jugador.seguro) {
+        const antes = historial.length;
+        puntua();
+        const ultimo = historial.length > antes ? historial.at(-1) : null;
+        if (ultimo && ultimo.tipo !== 'pase' && ultimo.riesgo >= R.lenta.riesgo) lenta = R.lenta.duraS;
+      }
+      lance = null;
     }
   }
 
@@ -134,7 +151,10 @@ export function creaRecortes() {
     get puntos() { return puntos; },
     get pases() { return pases; },
     get vida() { return vida; },
-    get tiempo() { return tiempo; },
+    get tiempo() { return mostrado ?? (sinFin ? Infinity : tiempo); },
+    ponTiempo(segundos) { mostrado = segundos; },
+    suma(cuantos) { puntos += cuantos; },
+    avisa,
     get cogidas() { return cogidas; },
     get acabada() { return acabada; },
     get historial() { return historial; },

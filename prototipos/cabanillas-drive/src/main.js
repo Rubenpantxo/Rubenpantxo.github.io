@@ -207,8 +207,11 @@ modo({ renderer, escena, camara, ui, ciclo })
         ui.tactil.hidden = true;
       }
       pantallas.ponLugares(api.lugares ?? [], (nombre) => api.irA(nombre));
-      pantallas.ponFiestas((valor) => (valor === 'salir' ? api.saleFiestas() : api.entraFiestas(valor)),
-        () => api.modoFiestas !== null);
+      pantallas.ponFiestas((valor) => {
+        if (valor === 'salir') return api.saleFiestas();
+        if (valor === 'dejar') return api.fiestas.abandona();
+        return api.entraFiestas(valor);
+      }, (que) => (que === 'partida' ? Boolean(api.fiestas?.partida) : api.modoFiestas !== null));
       // ?fiestas=plaza|calle|encierro entra directamente al modo
       if (parametros.get('fiestas')) api.entraFiestas(parametros.get('fiestas'));
       pantallas.listo();

@@ -5,6 +5,8 @@
 export const FIESTAS = {
   // Dónde aparece el jugador al entrar, según el modo (?fiestas=plaza|calle|encierro)
   modos: ['plaza', 'calle', 'encierro'],
+  // Lo que se puede pedir al entrar: los modos, el concurso de la plaza y el menú
+  entradas: ['menu', 'plaza', 'concurso', 'calle', 'encierro'],
   fundidoS: 0.45,                    // fundido a negro al entrar y al salir
 
   valla: {
@@ -74,7 +76,7 @@ export const FIESTAS = {
     salidaS: 4,                      // segundos desde que se entra hasta que sale del corral
     capas: ['colorada', 'negra', 'berrenda'],
     radioM: 0.55,                    // para no atravesar vallas (el cuerpo mide 1,9 × 0,6 m)
-    troteMs: 2.6, galopeMs: 8.6,
+    troteMs: 2.6, galopeMs: 8.6, recogeMs: 4.5,
     aceleracion: 6.5, frenada: 9,
     // Giro máximo: giroParado / (1 + (v / giroVelRef)²). Parada gira en el sitio; a galope, casi nada
     giroParado: 3.4, giroVelRef: 4.2,
@@ -114,6 +116,19 @@ export const FIESTAS = {
     fuerza: [[0.8, 'Con fuerza'], [0.6, 'Se va cansando'], [0, 'Cansada']],
     consejos: ['Espera a que se arranque y calcula su paso', 'Cuanto más cerca pase, más puntos', 'No repitas siempre la misma suerte',
       'Sin energía no hay suerte: súbete a la valla a recuperar', 'A galope casi no gira: quiébrala al final'],
+  },
+
+  // Los modos (F5). Tiempos en s, distancias en m.
+  partida: {
+    salidaSiguienteS: 2.5,           // espera en el corral de la vaca siguiente
+    // Vacas en la plaza, concurso: rondas con tiempo, cada una con su vaca; nota sobre 10
+    concurso: { rondas: 3, rondaS: 60, notaDiez: 3000 },
+    // Vacas en la calle: de una en una; además de los recortes, puntos por metros corridos delante
+    calle: { vacas: 3, vacaS: 75, puntosPorMetro: 2, delanteHastaM: 14, correMs: 3 },
+    // Encierro: la manada sale del corral, va al final de la calle y vuelve, dos veces, y entra al corral
+    encierro: { vacas: 6, cadaS: 0.9, velocidadMs: 5.6, filaM: 2.3, ladoM: 0.9, margenFinalM: 8, vueltas: 2,
+      puntosPorS: 12, delanteHastaM: 14, correMs: 3, liderDelanteM: 4, salidaJugadorM: 14,
+      descuelga: { cadaS: [6, 14], duraS: [2, 4], metros: 6 } },
   },
 
   // Cámara del personaje: detrás del hombro; V o 👁 cambia de vista

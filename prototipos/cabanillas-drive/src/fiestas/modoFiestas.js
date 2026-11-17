@@ -7,14 +7,26 @@ import { CALIDAD } from '../config/calidad.js';
 import { FIESTAS } from '../config/fiestas.js';
 import { RECINTO_FIESTAS } from '../datos/fiestas.js';
 import { creaHudFiestas } from '../hud/fiestas.js';
+import { apuntaMarca, creaMenuFiestas } from '../hud/menuFiestas.js';
 import { creaAmbiente } from './ambiente.js';
 import { creaCamaraPersonaje } from './camaraPersonaje.js';
 import { creaPersonaje } from './personaje.js';
+import { creaPartida } from './partida.js';
 import { creaRecortes } from './recortes.js';
-import { creaVaca } from './vaca.js';
+import { creaCamino, creaVaca } from './vaca.js';
 import { creaVallado } from './vallado.js';
 
-export const NOMBRES_MODO = { plaza: 'Vacas en la plaza', calle: 'Vacas en la calle', encierro: 'Encierro' };
+export const NOMBRES_MODO = { plaza: 'Vacas en la plaza', concurso: 'Concurso en la plaza', calle: 'Vacas en la calle', encierro: 'Encierro',
+  menu: 'Menú' };
+// Lo que se pide al entrar → modo (dónde y con qué puerta) y variante
+const ENTRADAS = {
+  menu: { modo: 'plaza', variante: null },
+  plaza: { modo: 'plaza', variante: 'libre' },
+  concurso: { modo: 'plaza', variante: 'concurso' },
+  calle: { modo: 'calle', variante: 'libre' },
+  encierro: { modo: 'encierro', variante: 'libre' },
+};
+const QUIETO = { avance: 0, lateral: 0, correr: false, conJoystick: false, giro: 0 };
 
 function centroide(poligono) {
   let x = 0; let z = 0;
@@ -44,7 +56,7 @@ function dentroDe(poligono, x, z) {
   return dentro;
 }
 
-export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, farolas, peaton, camara, avisa = () => {} }) {
+export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, farolas, peaton, camara, avisa = () => {}, salir = () => {} }) {
   const recinto = RECINTO_FIESTAS;
   let vallado = null;
   let ambiente = null;
@@ -57,6 +69,12 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
   let vaca = null;               // posición de la vaca más cercana, para la cámara
   let vacas = [];                // por ahora, una (la manada es de la F5)
   let recortes = null;           // puntuación y marcador (F4)
+  let partida = null;            // el festejo en curso (F5); null en el menú o con ?vacas=0
+  let entrada = null;            // lo último que se pidió: menu | plaza | concurso | calle | encierro
+  let menu = null;
+  let coloca = null;             // de juego.js: pone la cápsula del jugador en la salida
+  let cambiando = false;
+  const camino = creaCamino(recinto);
   const parametros = new URLSearchParams(location.search);
   const conVacas = FIESTAS.vaca.activa && parametros.get('vacas') !== '0';
   const ACCIONES = ['quiebro', 'recorte', 'salto', 'especial', 'refugio'];
@@ -79,13 +97,19 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       const { p, d } = enEje(recinto.calle.eje, 45);
       return { x: p[0], z: p[1], guinada: mirando([-d[0], -d[1]]) };       // hacia la plaza
     }
+    if (cual === 'encierro') {
+      // En la calle, cerca de la puerta y de espaldas a la plaza: la manada viene por detrás
+      const { p, d } = enEje(recinto.calle.eje, FIESTAS.partida.encierro.salidaJugadorM);
+      return { x: p[0], z: p[1], guinada: mirando(d) };
+    }
     const c = centroide(recinto.plaza.ruedo);
     const { d } = enEje(recinto.plaza.eje, 5);
-    // En la plaza, mirando al tablado; en el encierro, mirando a la puerta
-    return { x: c[0], z: c[1], guinada: mirando(cual === 'encierro' ? [-d[0], -d[1]] : d) };
+    return { x: c[0], z: c[1], guinada: mirando(d) };                      // mirando al tablado
   }
 
-  function monta(cual) {
+  function monta(pedido) {
+    entrada = pedido;
+    const { modo: cual, variante } = ENTRADAS[pedido];
     modo = cual;
     if (!vallado) {
       vallado = creaVallado(recinto, { terreno, fisica, sombras: CALIDAD.sombras });
@@ -100,7 +124,8 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       escena.add(personaje.objeto);
       camaraJugador = creaCamaraPersonaje({ camara, fisica, terreno, colliderJugador: peaton.collider, transparentes: vallado.transparentes });
       hud = creaHudFiestas();
-      recortes = creaRecortes();
+      recortes = creaRecortes({ sinFin: true });
+      menu = creaMenuFiestas();
       // Hora de «Día», sin tocar lo que el jugador tenía elegido (se repone al salir)
       if (ciclo) {
         horaAnterior = ciclo.modo;
@@ -115,17 +140,60 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     }
     // Cerrada solo en «Vacas en la plaza»
     vallado.ponPuerta(cual !== 'plaza');
-    // La vaca: sale del corral a los pocos segundos. Capa con ?capa=colorada|negra|berrenda o al azar
+    // Las vacas las suelta y las recoge la partida. Capa con ?capa=colorada|negra|berrenda
     for (const v of vacas) v.libera();
     vacas = [];
+    vaca = null;
     recortes.reinicia();
-    if (conVacas) {
+    partida = null;
+    if (conVacas && variante) {
       const capas = FIESTAS.vaca.capas;
-      const capa = capas.includes(parametros.get('capa')) ? parametros.get('capa') : capas[Math.floor(Math.random() * capas.length)];
-      const una = creaVaca({ recinto, terreno, puertaAbierta: cual !== 'plaza', capa, semilla: Date.now() % 100000, sombras: CALIDAD.sombras });
-      escena.add(una.objeto);
-      vacas.push(una);
+      partida = creaPartida({
+        modo: cual, variante, recortes, camino, corral: recinto.corral,
+        suelta: (opciones) => {
+          const capa = capas.includes(parametros.get('capa')) ? parametros.get('capa') : opciones.capa;
+          const una = creaVaca({ recinto, terreno, puertaAbierta: cual !== 'plaza', semilla: Math.floor(Math.random() * 100000),
+            sombras: CALIDAD.sombras, ...opciones, capa });
+          escena.add(una.objeto);
+          vacas.push(una);
+          return una;
+        },
+        retira: (una) => {
+          una.libera();
+          vacas = vacas.filter((v) => v !== una);
+        },
+      });
     }
+  }
+
+  // Monta lo pedido con la pantalla en negro y deja al jugador en su salida
+  function empieza(pedido) {
+    if (cambiando) return Promise.resolve(false);
+    cambiando = true;
+    return conFundido(() => {
+      monta(pedido);
+      const s = salida(modo);
+      coloca?.(s);
+      personaje.reinicia(s.guinada);
+      camaraJugador.reinicia(s.guinada);
+      personaje.objeto.visible = true;
+      if (pedido === 'menu') abreMenu(); else menu.oculta();
+    }).then(() => true).finally(() => { cambiando = false; });
+  }
+  function elige(id) {
+    if (id === 'salir') { menu.oculta(); salir(); } else empieza(id);
+  }
+  function abreMenu() { menu.menu(elige); }
+  // Fin de la partida: resultados, con la mejor marca
+  function termina(resultado) {
+    const marca = apuntaMarca(entrada, resultado.puntos);
+    partida = null;
+    vaca = null;
+    menu.resultados({ ...resultado, id: entrada, ...marca }, {
+      repetir: () => empieza(entrada),
+      menu: () => empieza('menu'),
+      salir: () => elige('salir'),
+    });
   }
 
   function desmonta() {
@@ -138,6 +206,9 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     personaje = null;
     camaraJugador = null;
     hud = null;
+    menu.quita();
+    menu = null;
+    partida = null;
     recortes = null;
     ambiente.libera();
     vallado.libera();
@@ -160,14 +231,9 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     salida,
     // «alMontar» se llama con la pantalla en negro, ya montado el festejo (para colocar al jugador)
     entra(cual, alMontar) {
-      if (!FIESTAS.modos.includes(cual)) return Promise.resolve(false);
-      return conFundido(() => {
-        monta(cual);
-        const s = salida(cual);
-        alMontar?.(s);                 // juego.js pone la cápsula del jugador en su sitio
-        personaje.reinicia(s.guinada);
-        camaraJugador.reinicia(s.guinada);
-      }).then(() => true);
+      if (!FIESTAS.entradas.includes(cual)) return Promise.resolve(false);
+      coloca = alMontar;               // juego.js pone la cápsula del jugador en su sitio
+      return empieza(cual);
     },
     sale(alDesmontar) {
       if (modo === null) return Promise.resolve(false);
@@ -181,27 +247,35 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
     // Acciones pulsadas (teclado o botones táctiles): se llama una vez por fotograma
     atiende(entrada) {
       if (!personaje) return;
-      for (const a of ACCIONES) if (entrada.consume(a)) personaje.pide(a);
+      for (const a of ACCIONES) if (entrada.consume(a) && !menu.visible) personaje.pide(a);
       if (entrada.consume('camaraFiestas')) personaje.objeto.visible = camaraJugador.cambiaVista() !== 'ojos';
     },
     // Paso de física del jugador
     paso(mandos, dtReal) {
       if (!personaje) return;
       const dt = dtReal * recortes.ritmo;          // cámara lenta en los recortes ceñidos
-      personaje.paso(mandos, camaraJugador.guinada, dt);
-      if (!vacas.length) return;
+      personaje.paso(menu.visible ? QUIETO : mandos, camaraJugador.guinada, dt);   // con el menú delante no se mueve
+      if (!partida) return;
       const p = personaje.posicion();
+      const vel = personaje.velocidad();
+      partida.paso({ x: p.x, z: p.z, seguro: personaje.seguro || personaje.estado === 'cogido', vx: vel.x, vz: vel.z }, dt);
+      if (partida.resultado) { termina(partida.resultado); return; }
       const suelo = terreno.alturaEn(p.x, p.z) + (dentroDe(recinto.plaza.ruedo, p.x, p.z) ? FIESTAS.arena.gruesoM : 0);
       const objetivo = { x: p.x, z: p.z, seguro: personaje.seguro || personaje.estado === 'cogido', alto: p.y - suelo };
-      for (const v of vacas) {
+      const lista = vacas.map((v) => {
         const suceso = v.paso(objetivo, dt);
-        const cogido = suceso?.tipo === 'cogida' && personaje.cogida(suceso.dx, suceso.dz);
-        objetivo.sucesos = personaje.sucesos;
-        recortes.paso({ jugador: objetivo, vaca: v, suceso, cogido }, dt);
-      }
+        return { vaca: v, suceso, cogido: suceso?.tipo === 'cogida' && personaje.cogida(suceso.dx, suceso.dz) };
+      });
+      objetivo.sucesos = personaje.sucesos;
+      recortes.paso({ jugador: objetivo, vacas: lista }, dt);
     },
     get vacas() { return vacas; },
     get recortes() { return recortes; },
+    get partida() { return partida; },
+    get menu() { return menu; },
+    get entrada() { return entrada; },
+    // Dejar la partida a medias (desde la pausa): enseña el resultado con lo que se lleve
+    abandona() { if (partida) termina(partida.abandona()); },
     // Cámara, animación y marcador: una vez por fotograma
     fotograma(dtReal, mirada, mandos) {
       if (!personaje) return;
@@ -209,14 +283,21 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
       const dt = dtReal * recortes.ritmo;
       personaje.anima(dt);
       for (const v of vacas) v.anima(dt);
-      if (vacas.length) vaca = vacas[0].estado === 'corral' ? null : vacas[0].posicion();
       const p = personaje.posicion();
+      // La vaca más cercana de las que andan sueltas: para la cámara y para el panel de la vaquilla
+      let una = null; let cerca = Infinity;
+      for (const v of vacas) {
+        if (v.guardada) continue;
+        const q = v.posicion();
+        const d = (v.estado === 'corral' ? 1000 : 0) + Math.hypot(q.x - p.x, q.z - p.z);
+        if (d < cerca) { cerca = d; una = v; }
+      }
+      if (vacas.length || partida) vaca = una && una.estado !== 'corral' ? una.posicion() : null;
       camaraJugador.coloca(p, dtReal, vaca);
-      const una = vacas[0] ?? null;
       const yo = { x: p.x, z: p.z, seguro: personaje.seguro };
       const c = una?.cuernos();
       hud.actualiza({
-        energia: personaje.energia, agotado: personaje.agotado, pista: personaje.pista, marcador: recortes,
+        energia: personaje.energia, agotado: personaje.agotado, pista: personaje.pista, marcador: partida ? recortes : null,
         vaca: una && { estado: una.estado, fuerza: una.fuerza, distancia: Math.hypot(p.x - c.x, p.z - c.z) },
         listos: recortes.listos(yo, una),
       });

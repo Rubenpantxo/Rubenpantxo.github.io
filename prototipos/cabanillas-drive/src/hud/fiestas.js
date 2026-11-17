@@ -34,7 +34,8 @@ const ESTILO = `
   #hud-fiestas .cifra b { font-size: 15px; }
   #hud-fiestas .aviso { top: calc(max(10px, env(safe-area-inset-top)) + 82px); }
 }`;
-const HACE = { corral: 'En el corral', saliendo: '¡Sale!', reconoce: 'A su aire', fija: 'Te mira', embiste: 'Embestida', frena: 'Pasa de largo', derrote: 'Remata en la valla' };
+const HACE = { corral: 'En el corral', saliendo: '¡Sale!', reconoce: 'A su aire', fija: 'Te mira', embiste: 'Embestida', frena: 'Pasa de largo', derrote: 'Remata en la valla',
+  guiada: 'En manada', recogiendo: 'Vuelve al corral', entrando: 'Vuelve al corral' };
 const SUERTES = [['quiebro', 'Q', 'Quiebro'], ['recorte', 'E', 'Recorte'], ['salto', 'Espacio', 'Salto'], ['especial', 'E+Espacio', 'Especial']];
 
 export function creaHudFiestas() {
@@ -96,9 +97,11 @@ export function creaHudFiestas() {
     actualiza({ energia: e, agotado, pista: p, marcador = null, vaca = null, listos = {} }) {
       ancho(energia, e);
       energia.style.background = agotado ? '#e2553f' : e < 0.3 ? '#f0a23a' : '#ffd54a';
+      jugador.style.display = 'grid';
+      for (const e of [puntos, tiempo, pases, vida]) e.closest('.cifras, .fila').style.display = marcador ? '' : 'none';
       if (marcador) {
         pon(puntos, String(marcador.puntos));
-        pon(tiempo, String(Math.ceil(marcador.tiempo)));
+        pon(tiempo, Number.isFinite(marcador.tiempo) ? String(Math.ceil(marcador.tiempo)) : '∞');
         pon(pases, String(marcador.pases));
         ancho(vida, marcador.vida);
         vida.style.background = marcador.vida < 0.36 ? '#e2553f' : '#5fd068';

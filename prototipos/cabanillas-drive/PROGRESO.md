@@ -199,7 +199,26 @@
 
 ## Fiestas (PLAN_FIESTAS.md)
 
-**Fase actual: F4 — recortes y puntuación. Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno para la F5.** F0 aprobada; F1, F2 y F3 hechas y en `main` (Rubén dio el visto bueno a la F4 sin esperar a probarlas).
+**Fase actual: F5 — los tres modos y el menú. Hecha el 2026-11-17; parada hasta que Rubén la pruebe y dé el visto bueno para la F6.** F0 aprobada; F1 a F4 hechas y en `main` (Rubén dio el visto bueno a la F5 sin esperar a probarlas).
+
+### Hecho en F5
+- **Menú de fiestas** (`src/hud/menuFiestas.js`): Recorte libre · Concurso · Vacas en la calle · Encierro · Volver al pueblo, con la mejor marca de cada uno, los controles y los consejos (la «pantalla previa» del §4b). Se abre desde la pausa («Fiestas → Menú de fiestas») o con `?fiestas=menu`. La pausa sigue dejando entrar directo a cada modo y añade «Dejar la partida (ver resultado)».
+- **Pantalla de resultados**: puntos, pases, cogidas, nota (concurso), metros delante de la vaca (calle) o segundos delante de la manada (encierro), mejor marca (guardada en el navegador, `cabanillas.fiestas.marcas`) y Repetir / Menú de fiestas / Volver al pueblo.
+- `src/fiestas/partida.js` lleva cada festejo de principio a fin:
+  - *Recorte libre*: una vaca, sin tiempo; acaba al quedarse sin vida o al dejarlo.
+  - *Concurso*: 3 rondas de 60 s, cada una con su vaca (al acabar el tiempo vuelve sola al corral); nota sobre 10 (3000 puntos = 10).
+  - *Vacas en la calle*: puerta abierta, 3 vacas de una en una, 75 s cada una; además de los recortes, 2 puntos por metro corrido delante de la vaca que embiste.
+  - *Encierro*: 6 vacas en manada (`src/fiestas/manada.js`): salen del corral, van al final de la calle y vuelven, dos veces, y entran al corral (como dijo Rubén). Van de dos en fondo y de vez en cuando una se descuelga. Puntos por segundo corrido delante y cerca (más cuanto más cerca); cogen a quien pillen por delante. El jugador empieza en la calle, a 14 m de la puerta, de espaldas a la plaza.
+- La vaca sabe ir guiada (manada) y recogerse al corral por la manga. `recortes.js` lleva una embestida por vaca.
+- Valores en `FIESTAS.partida` (`src/config/fiestas.js`).
+- Pruebas: `tools/prueba_modos.mjs` (sin navegador: cada modo de principio a fin) y `tools/prueba_menu.mjs` (dentro del juego: menú → concurso → resultados → repetir → dejar → menú → calle → encierro → pueblo; escritorio y móvil). Capturas en `docs/fiestas/f5_*.jpg`.
+- Fallo encontrado por la prueba y corregido: el menú no se ocultaba (el `display: grid` del estilo anulaba `hidden`).
+
+### Pendiente tras F5
+- Las vacas no chocan entre sí (en la manada se pueden solapar un poco).
+- En «Vacas en la calle» y el encierro no hay mozos ni más gente corriendo: F6.
+- El acceso al menú es por la pausa; la entrada desde la plaza del pueblo es la F7.
+- Duraciones, número de vacas, velocidad de la manada y puntos: a ajustar cuando Rubén lo juegue.
 
 ### Hecho en F4
 - `src/fiestas/recortes.js`: mira cada embestida y la puntúa al acabar. Pase (la vaca cruza a menos de 4,5 m sin coger), suertes (quiebro 100, recorte 150, salto 200, combo 250, especial 350) hechas con la vaca a distancia válida, multiplicadas por el riesgo (×1 a ×3 según lo cerca que pasan los cuernos: lejano, bueno, ceñido), ×0,8 si pasa rozando, ×0,7 si se repite la suerte y ×1,2 si es distinta de las dos anteriores. Cogida leve o fuerte (según la velocidad de la vaca): quita vida y puntos. La tanda dura 120 s desde que sale la vaca o hasta quedarse sin vida.

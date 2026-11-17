@@ -165,7 +165,8 @@ export function creaPantallas({ alCambiar }) {
   function ponFiestas(alElegir, enFiestas) {
     const sel = $('fiestas');
     const salir = sel.querySelector('[value="salir"]');
-    new MutationObserver(() => { salir.hidden = !enFiestas(); sel.value = ''; })
+    const dejar = sel.querySelector('[value="dejar"]');
+    new MutationObserver(() => { salir.hidden = !enFiestas(); dejar.hidden = !enFiestas('partida'); sel.value = ''; })
       .observe(pausa, { attributes: true, attributeFilter: ['hidden'] });
     sel.addEventListener('change', () => {
       if (!sel.value) return;

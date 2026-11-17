@@ -151,7 +151,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     try {
       if (!fiestas) {
         const { creaModoFiestas } = await import('../fiestas/modoFiestas.js');
-        fiestas = creaModoFiestas({ escena, terreno: mundo.terreno, fisica, personas, ciclo, farolas, peaton, camara, avisa });
+        fiestas = creaModoFiestas({ escena, terreno: mundo.terreno, fisica, personas, ciclo, farolas, peaton, camara, avisa,
+          salir: () => saleFiestas() });
       }
       const { NOMBRES_MODO } = await import('../fiestas/modoFiestas.js');
       const entro = await fiestas.entra(modo, (salida) => {
@@ -166,7 +167,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
         entrada.ponModo('fiestas');
         document.getElementById('hud').classList.add('fiestas');       // sin velocímetro
       });
-      if (entro) {
+      if (entro && modo !== 'menu') {
         avisa(matchMedia('(pointer: coarse)').matches
           ? `Fiestas · ${NOMBRES_MODO[modo]} · joystick a fondo: esprint · ☰: volver al pueblo`
           : `Fiestas · ${NOMBRES_MODO[modo]} · WASD y ratón · Mayús esprint · Q quiebro · E recorte · Espacio salto · F refugio · V cámara`, 9);
