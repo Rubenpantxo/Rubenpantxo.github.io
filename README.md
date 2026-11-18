@@ -46,7 +46,7 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios.
 │   ├── escenas/            # Control de cámara: blocking 3D + generador de prompts
 │   ├── format-explorer.html  # Escritorio estilo Vista que abre todas las apps
 │   ├── instagram-downloader/   # (no listada, noindex) server.js local + pruebas/ (npm test)
-│   └── pantxiko-notes.html # Notas con dictado y copia de seguridad
+│   └── pantxiko-notes.html # Notas con dictado, copia de seguridad y máquina de escribir (.txt)
 └── juegos/                 # Juegos
     ├── Chess3D/
     ├── cabanillas-drive/   # Compilado de prototipos/cabanillas-drive (npm run publica)

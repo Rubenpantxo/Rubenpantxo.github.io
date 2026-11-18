@@ -49,7 +49,8 @@ const PRECARGA = [
     '/img/apps/labstudio-512.png',
     '/js/app.js',
     '/js/consentimiento.js',
-    '/CSS/fuentes/fuentes.css'
+    '/CSS/fuentes/fuentes.css',
+    '/CSS/fuentes/special-elite-latin.woff2'
 ];
 
 self.addEventListener('install', e => {

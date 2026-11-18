@@ -7,7 +7,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Pantxiko Notes · bloc de notas con dictado</title>
-  <meta name="description" content="Bloc de notas con dictado por voz, formato y paso a PDF. Las notas se guardan solo en tu dispositivo; puedes descargar una copia cuando quieras.">
+  <meta name="description" content="Bloc de notas con dictado por voz, formato, paso a PDF y máquina de escribir que guarda en .txt. Las notas se guardan solo en tu dispositivo; puedes descargar una copia cuando quieras.">
   <link rel="canonical" href="https://rubenpantxo.com/apps/pantxiko-notes.html">
   <meta name="theme-color" content="#b84000">
   <link rel="manifest" href="pantxiko-notes.webmanifest">
@@ -369,6 +369,259 @@
       white-space: nowrap;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .header-btns { display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* ===== MÁQUINA DE ESCRIBIR ===== */
+    /* Capa a pantalla completa. Su alto sigue al visualViewport (JS pone --tw-h y
+       --tw-top) para que el rodillo quede por encima del teclado del móvil. */
+    .tw {
+      --tw-bg: radial-gradient(120% 80% at 50% 30%, #f3e7d3 0%, #e4d2b6 60%, #cdb592 100%);
+      --tw-ink: #1f1b17;
+      --tw-paper: #fbf7ee;
+      --tw-ui: rgba(255,250,240,0.78);
+      --tw-ui-text: #2a1800;
+      --tw-ui-border: rgba(120,80,30,0.3);
+      --tw-cw: 10px;   /* ancho de cada letra (lo mide el JS) */
+      --tw-lh: 26px;   /* alto de cada renglón */
+      --tw-fs: 17px;
+      position: fixed; left: 0; right: 0;
+      top: var(--tw-top, 0px);
+      height: var(--tw-h, 100dvh);
+      z-index: 150;
+      display: none;
+      flex-direction: column;
+      background: var(--tw-bg);
+      color: var(--tw-ui-text);
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tw.open { display: flex; }
+    .tw.lampara {
+      --tw-bg: radial-gradient(120% 80% at 50% 35%, #2a1d14 0%, #120c08 55%, #070504 100%);
+      --tw-ui: rgba(60,44,32,0.72);
+      --tw-ui-text: #f6e6cf;
+      --tw-ui-border: rgba(255,210,150,0.18);
+    }
+
+    .tw-top {
+      display: flex; align-items: center; gap: 8px;
+      padding: max(10px, env(safe-area-inset-top)) 12px 6px;
+      flex-shrink: 0; position: relative; z-index: 6;
+    }
+    .tw-ico {
+      width: 40px; height: 40px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px; border: 1.5px solid var(--tw-ui-border);
+      background: var(--tw-ui); color: var(--tw-ui-text);
+      font-size: 18px; cursor: pointer; backdrop-filter: blur(8px);
+    }
+    .tw-ico[aria-pressed="true"] { background: #ffd27a; color: #2a1800; border-color: #c98a20; }
+    .tw-count {
+      margin-left: auto; font: 500 12.5px 'Inter', sans-serif; letter-spacing: .02em;
+      font-variant-numeric: tabular-nums; opacity: .8; white-space: nowrap;
+    }
+    .tw-count.lleno { color: #c0392b; opacity: 1; font-weight: 700; }
+    .tw.lampara .tw-count.lleno { color: #ff8a7a; }
+
+    .tw-stage { flex: 1; position: relative; overflow: hidden; cursor: text; touch-action: manipulation; }
+
+    /* El folio: sube un renglón cada vez que se pasa de línea */
+    .tw-paper {
+      position: absolute; top: 0; left: 50%;
+      width: calc(var(--tw-cols, 30) * var(--tw-cw) + 2 * var(--tw-padx, 22px));
+      padding: 46px var(--tw-padx, 22px) 0;
+      background:
+        repeating-linear-gradient(0deg, rgba(120,90,50,0.018) 0 2px, transparent 2px 4px),
+        radial-gradient(140% 90% at 50% 0%, #fffdf7 0%, var(--tw-paper) 55%, #f1e9d8 100%);
+      border-radius: 4px 4px 0 0;
+      box-shadow: 0 10px 30px rgba(60,35,10,0.22), 0 1px 3px rgba(60,35,10,0.18);
+      transform: translate(-50%, var(--tw-py, 0px));
+      transition: transform .18s cubic-bezier(.3,.7,.3,1);
+      will-change: transform;
+      z-index: 1;
+    }
+    .tw-paper.fuera { transition: transform .5s cubic-bezier(.6,0,.8,.4); transform: translate(-50%, -120%); }
+    .tw-paper.sin-anim { transition: none; }
+    .tw-fecha {
+      position: absolute; top: 16px; left: 0; right: 0; text-align: center;
+      font: 11px 'Special Elite', 'Courier New', monospace; letter-spacing: .14em;
+      color: rgba(60,40,20,0.42); text-transform: uppercase; pointer-events: none;
+    }
+    .tw-texto {
+      font-family: 'Special Elite', 'Courier New', Courier, monospace;
+      font-size: var(--tw-fs); line-height: var(--tw-lh);
+      color: var(--tw-ink);
+      white-space: pre; min-height: var(--tw-lh);
+      padding-bottom: 60vh; /* papel que queda por debajo del rodillo */
+    }
+    .tw-l { height: var(--tw-lh); display: block; }
+    /* Cada letra en su casilla, como en una máquina de verdad, con un pelín de
+       baile e irregularidad de tinta (la clase la elige un hash fijo). */
+    .tw-c {
+      display: inline-block; width: var(--tw-cw); text-align: center;
+      text-shadow: 0 0 .6px rgba(20,15,10,0.55);
+    }
+    .tw-c.j1 { transform: translateY(.6px) rotate(-1.2deg); opacity: .9; }
+    .tw-c.j2 { transform: translateY(-.5px) rotate(.8deg); }
+    .tw-c.j3 { transform: translateY(.3px); opacity: .78; }
+    .tw-c.j4 { transform: rotate(1.6deg); opacity: .95; }
+    .tw-c.j5 { transform: translateY(-.7px) rotate(-.6deg); opacity: .86; }
+    .tw-c.j6 { transform: translateX(.4px); }
+    .tw-c.j7 { transform: translateY(.8px) rotate(.5deg); opacity: .82; }
+    .tw-c.nuevo { animation: tw-golpe .12s ease-out; }
+    @keyframes tw-golpe { from { opacity: 0; transform: translateY(-3px) scale(1.25); filter: blur(.6px); } }
+    .tw-vacio { color: rgba(70,50,30,0.32); }
+
+    /* Rodillo, cabezal y cuerpo de la máquina */
+    .tw-maquina {
+      position: absolute; left: 0; right: 0; top: var(--tw-platen, 60%); bottom: 0;
+      z-index: 3; pointer-events: none;
+    }
+    .tw-rodillo {
+      position: absolute; left: 50%; top: 0; transform: translate(-50%, -50%);
+      width: min(calc(100% - 16px), calc(var(--tw-cols, 30) * var(--tw-cw) + 110px)); height: 22px;
+      border-radius: 11px;
+      background: linear-gradient(180deg, #4a4440 0%, #1b1816 30%, #0c0a09 60%, #2e2926 85%, #55504b 100%);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
+    }
+    .tw-rodillo::before, .tw-rodillo::after {
+      content: ''; position: absolute; top: -5px; width: 14px; height: 32px; border-radius: 6px;
+      background: linear-gradient(90deg, #8c8178, #e9e1d6 45%, #8c8178);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.35);
+    }
+    .tw-rodillo::before { left: -6px; }
+    .tw-rodillo::after { right: -6px; }
+    .tw-cuerpo {
+      position: absolute; left: 50%; top: 11px; bottom: -20px; transform: translateX(-50%);
+      width: min(calc(100% - 28px), calc(var(--tw-cols, 30) * var(--tw-cw) + 80px));
+      border-radius: 0 0 26px 26px;
+      background:
+        radial-gradient(90% 60% at 50% 0%, rgba(255,255,255,0.07), transparent 70%),
+        linear-gradient(180deg, #2b2420 0%, #1a1512 100%);
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.05);
+    }
+    .tw-cuerpo::after { /* placa con el nombre */
+      content: 'PANTXIKO · 3000'; position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+      font: 10px 'Special Elite', monospace; letter-spacing: .3em; color: #c9a86a; opacity: .7;
+      padding: 3px 10px; border: 1px solid rgba(201,168,106,0.35); border-radius: 4px;
+    }
+    .tw-cabezal {
+      position: absolute; top: -9px; left: var(--tw-hx, 50%);
+      width: 34px; height: 30px; margin-left: -17px;
+      transition: left .07s linear;
+      z-index: 4;
+    }
+    .tw-cabezal.retorno { transition: left .32s cubic-bezier(.5,0,.2,1); }
+    .tw-cabezal::before { /* guía de letra (latón) */
+      content: ''; position: absolute; left: 50%; top: -14px; transform: translateX(-50%);
+      width: 16px; height: 16px;
+      background: linear-gradient(180deg, #f3d898, #b88a3a);
+      clip-path: polygon(0 0, 100% 0, 100% 35%, 62% 35%, 62% 100%, 38% 100%, 38% 35%, 0 35%);
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.4));
+    }
+    .tw-cabezal::after { /* cinta de tinta */
+      content: ''; position: absolute; left: 0; right: 0; top: 4px; height: 13px; border-radius: 7px;
+      background: linear-gradient(180deg, #3a3532, #1d1a18);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+    .tw-cinta {
+      position: absolute; left: 7px; right: 7px; top: 8px; height: 5px; z-index: 1; border-radius: 3px;
+      background: linear-gradient(180deg, #1a1a1a 0 50%, #b3261e 50% 100%);
+    }
+    .tw-tipo { /* el martillo que golpea */
+      position: absolute; left: 50%; top: 14px; width: 2px; height: 14px; margin-left: -1px;
+      background: #c9c1b6; border-radius: 1px; transform-origin: 50% 100%;
+      opacity: 0; z-index: 2;
+    }
+    .tw-cabezal.golpe .tw-tipo { animation: tw-martillo .1s ease-out; }
+    @keyframes tw-martillo { 0% { opacity: 1; transform: translateY(-12px) scaleY(1.4); } 100% { opacity: 0; transform: none; } }
+
+    /* Modo lámpara: la habitación a oscuras y un foco cálido que sale del cabezal */
+    .tw-luz { position: absolute; inset: 0; z-index: 2; pointer-events: none; display: none; }
+    .tw.lampara .tw-luz {
+      display: block;
+      background:
+        radial-gradient(ellipse 150px 190px at var(--tw-hx, 50%) var(--tw-platen-px, 60%),
+          rgba(255,196,130,0.10) 0%, rgba(255,170,100,0.06) 35%, rgba(12,8,5,0.80) 100%);
+    }
+    .tw.lampara .tw-luz::after { /* resplandor junto al cabezal */
+      content: ''; position: absolute; left: var(--tw-hx, 50%); top: var(--tw-platen-px, 60%);
+      width: 90px; height: 50px; transform: translate(-50%, -85%);
+      background: radial-gradient(closest-side, rgba(255,210,150,0.35), transparent);
+      transition: left .07s linear;
+    }
+    .tw.lampara .tw-fecha { color: rgba(60,40,20,0.55); }
+
+    /* Barra de botones (encima del teclado) */
+    .tw-barra {
+      flex-shrink: 0; position: relative; z-index: 6;
+      display: flex; gap: 6px; justify-content: center;
+      padding: 8px 10px max(10px, env(safe-area-inset-bottom));
+    }
+    .tw-btn {
+      flex: 1 1 0; max-width: 110px; min-height: 50px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+      border-radius: 14px; border: 1.5px solid var(--tw-ui-border);
+      background: var(--tw-ui); color: var(--tw-ui-text); backdrop-filter: blur(8px);
+      font: 500 11px 'Inter', sans-serif; cursor: pointer; padding: 4px 2px;
+    }
+    .tw-btn span { font-size: 18px; line-height: 1; }
+    .tw-ico:focus-visible, .tw-btn:focus-visible { outline: 3px solid #ffd27a; outline-offset: 2px; }
+    @media (max-height: 430px) { .tw-btn { min-height: 38px; flex-direction: row; } .tw-btn span { font-size: 15px; } }
+
+    /* Entrada real: invisible sobre el folio, para que el teclado del móvil salga al tocar */
+    .tw-entrada {
+      position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5;
+      opacity: 0; color: transparent; caret-color: transparent; background: transparent;
+      border: 0; outline: 0; resize: none; font-size: 16px; padding: 0;
+    }
+
+    /* Panel de hojas guardadas */
+    .tw-hojas {
+      position: absolute; inset: 0; z-index: 20; display: none;
+      align-items: flex-end; justify-content: center;
+      background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
+    }
+    .tw-hojas.open { display: flex; }
+    .tw-hojas-box {
+      width: 100%; max-width: 480px; max-height: 85%; overflow: auto;
+      background: linear-gradient(135deg, #fdf8e8, #f0e8d0); color: #2a1800;
+      border-radius: 18px 18px 0 0; padding: 18px 16px max(16px, env(safe-area-inset-bottom));
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.4);
+    }
+    .tw-hojas-box h2 { font-family: 'Kalam', cursive; font-size: 20px; margin-bottom: 10px; }
+    .tw-guardar { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+    .tw-guardar label { display: flex; flex: 1; align-items: center; min-width: 0;
+      border: 1.5px solid rgba(120,80,30,0.45); border-radius: 10px; background: #fffaf0; padding: 0 10px; }
+    .tw-guardar input { flex: 1; min-width: 0; border: 0; background: transparent; height: 42px;
+      font: 15px 'Special Elite', 'Courier New', monospace; color: #2a1800; outline: none; }
+    .tw-guardar label:focus-within { outline: 3px solid #b84000; outline-offset: 1px; }
+    .tw-ext { font: 14px 'Special Elite', monospace; color: #7a5b38; }
+    .tw-mini {
+      min-height: 42px; padding: 0 14px; border-radius: 10px; cursor: pointer;
+      border: 1.5px solid #8a3000; background: #b84000; color: #fff; font: 600 13px 'Inter', sans-serif;
+    }
+    .tw-lista { list-style: none; margin: 12px 0 4px; display: flex; flex-direction: column; gap: 8px; }
+    .tw-lista li {
+      display: flex; align-items: center; gap: 8px; padding: 10px;
+      background: #fffaf0; border: 1px solid rgba(120,80,30,0.25); border-radius: 12px;
+    }
+    .tw-doc { flex: 1; min-width: 0; }
+    .tw-doc b { display: block; font: 15px 'Special Elite', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tw-doc small { font-size: 11.5px; color: #6a4b2a; }
+    .tw-lista button {
+      width: 38px; height: 38px; flex-shrink: 0; border-radius: 9px; cursor: pointer; font-size: 16px;
+      border: 1.5px solid rgba(120,80,30,0.35); background: #fff; color: #2a1800;
+    }
+    .tw-nada { font-size: 13px; color: #6a4b2a; padding: 8px 2px; }
+    .tw-cerrar { margin-top: 12px; width: 100%; }
+    .tw-hojas button:focus-visible { outline: 3px solid #b84000; outline-offset: 2px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tw-paper, .tw-cabezal, .tw-cabezal.retorno, .tw.lampara .tw-luz::after { transition: none; }
+      .tw-c.nuevo, .tw-cabezal.golpe .tw-tipo { animation: none; }
+    }
   </style>
 </head>
 <body>
@@ -378,7 +631,10 @@
   <div class="header-title-wrap">
     <h1>🎙️ Pantxiko Notes 📝</h1>
   </div>
-  <button class="btn-settings" id="btnSettings" title="Configuración y copia de seguridad" aria-label="Configuración y copia de seguridad" aria-haspopup="dialog">⚙️</button>
+  <div class="header-btns">
+    <button class="btn-settings" id="btnMaquina" title="Máquina de escribir" aria-label="Abrir la máquina de escribir">⌨️</button>
+    <button class="btn-settings" id="btnSettings" title="Configuración y copia de seguridad" aria-label="Configuración y copia de seguridad" aria-haspopup="dialog">⚙️</button>
+  </div>
 </header>
 
 <!-- NOTE CONTAINER -->
@@ -471,6 +727,51 @@
     <button class="settings-close" id="settingsClose">Cerrar</button>
   </div>
 </div>
+
+<!-- MÁQUINA DE ESCRIBIR -->
+<section class="tw" id="tw" role="dialog" aria-modal="true" aria-label="Máquina de escribir">
+  <div class="tw-top">
+    <button class="tw-ico" id="twVolver" title="Volver a la nota" aria-label="Volver a la nota">←</button>
+    <span class="tw-count" id="twCount" aria-hidden="true">0 / 3.000</span>
+    <button class="tw-ico" id="twLampara" title="Modo lámpara" aria-label="Modo lámpara" aria-pressed="false">💡</button>
+    <button class="tw-ico" id="twSonido" title="Sonido de teclas" aria-label="Sonido de teclas" aria-pressed="true">🔊</button>
+  </div>
+
+  <div class="tw-stage" id="twStage">
+    <div class="tw-paper" id="twPaper" aria-hidden="true">
+      <div class="tw-fecha" id="twFecha"></div>
+      <div class="tw-texto" id="twTexto"></div>
+    </div>
+    <div class="tw-luz" aria-hidden="true"></div>
+    <div class="tw-maquina" aria-hidden="true">
+      <div class="tw-cuerpo"></div>
+      <div class="tw-rodillo"></div>
+      <div class="tw-cabezal" id="twCabezal"><div class="tw-cinta"></div><div class="tw-tipo"></div></div>
+    </div>
+    <textarea class="tw-entrada" id="twEntrada" maxlength="3000" aria-label="Hoja de la máquina de escribir (máximo 3.000 caracteres)"
+      autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="enter"></textarea>
+  </div>
+
+  <div class="tw-barra">
+    <button class="tw-btn" id="twNueva"><span>📄</span>Hoja nueva</button>
+    <button class="tw-btn" id="twAbrirHojas" aria-haspopup="dialog"><span>🗂️</span>Hojas .txt</button>
+    <button class="tw-btn" id="twDescargar"><span>⬇️</span>Descargar</button>
+    <button class="tw-btn" id="twANota"><span>📝</span>A la nota</button>
+  </div>
+
+  <div class="tw-hojas" id="twHojas">
+    <div class="tw-hojas-box" role="dialog" aria-modal="true" aria-labelledby="twHojasTitulo">
+      <h2 id="twHojasTitulo">🗂️ Hojas guardadas</h2>
+      <form class="tw-guardar" id="twFormGuardar">
+        <label><input id="twNombre" maxlength="60" aria-label="Nombre del archivo" placeholder="mi-nota"><span class="tw-ext">.txt</span></label>
+        <button class="tw-mini" type="submit">Guardar</button>
+      </form>
+      <p class="settings-note">Se guardan como archivos .txt en este navegador. Descárgalos para tenerlos en tu dispositivo.</p>
+      <ul class="tw-lista" id="twLista"></ul>
+      <button class="settings-close tw-cerrar" id="twCerrarHojas" type="button">Cerrar</button>
+    </div>
+  </div>
+</section>
 
 <!-- TOAST -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -862,6 +1163,389 @@
     btnDictate.title = 'Tu navegador no permite dictar por voz (prueba con Chrome, Edge o Safari)';
     btnDictate.querySelector('.dictate-label').textContent = 'Dictado no disponible';
   }
+
+  // =====================================================================
+  // ---- Máquina de escribir ----
+  // El texto vive en un <textarea> invisible (así sale el teclado del móvil y
+  // funcionan el pegado y el autocorrector); lo que se ve es un folio que se
+  // repinta letra a letra y sube un renglón al cambiar de línea.
+  // =====================================================================
+  (function maquina() {
+    const MAX = 3000;
+    const CLAVE_HOJA = 'pantxiko-notes-maquina';
+    const CLAVE_HOJAS = 'pantxiko-notes-hojas';
+    const CLAVE_PREFS = 'pantxiko-notes-maquina-ajustes';
+    const $ = id => document.getElementById(id);
+    const tw = $('tw'), stage = $('twStage'), paper = $('twPaper'), texto = $('twTexto');
+    const entrada = $('twEntrada'), cabezal = $('twCabezal'), contador = $('twCount');
+    const btnLampara = $('twLampara'), btnSonido = $('twSonido');
+    const panelHojas = $('twHojas'), lista = $('twLista'), inpNombre = $('twNombre');
+    const numero = n => n.toLocaleString('es-ES');
+
+    let cols = 30, cw = 10, lh = 26, padx = 22, platenY = 300;
+    let anterior = '';          // texto pintado la última vez (para saber qué ha cambiado)
+    let campanaLinea = -1;      // renglón en el que ya sonó la campana
+    let abierta = false;
+
+    // ---- Preferencias (lámpara y sonido) ----
+    let prefs = { lampara: false, sonido: true };
+    try { Object.assign(prefs, JSON.parse(leer(CLAVE_PREFS)) || {}); } catch (e) { /* de serie */ }
+    function aplicarPrefs() {
+      tw.classList.toggle('lampara', !!prefs.lampara);
+      btnLampara.setAttribute('aria-pressed', String(!!prefs.lampara));
+      btnSonido.setAttribute('aria-pressed', String(!!prefs.sonido));
+      btnSonido.textContent = prefs.sonido ? '🔊' : '🔇';
+    }
+    aplicarPrefs();
+    btnLampara.addEventListener('click', () => { prefs.lampara = !prefs.lampara; aplicarPrefs(); escribir(CLAVE_PREFS, JSON.stringify(prefs)); entrada.focus(); });
+    btnSonido.addEventListener('click', () => { prefs.sonido = !prefs.sonido; aplicarPrefs(); escribir(CLAVE_PREFS, JSON.stringify(prefs)); entrada.focus(); });
+
+    // ---- Sonido: se sintetiza con Web Audio, sin archivos ----
+    let ac = null, ruido = null;
+    function audio() {
+      if (!prefs.sonido) return null;
+      try {
+        if (!ac) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return null;
+          ac = new AC();
+          ruido = ac.createBuffer(1, ac.sampleRate * 0.4, ac.sampleRate);
+          const d = ruido.getChannelData(0);
+          for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        }
+        if (ac.state === 'suspended') ac.resume();
+        return ac;
+      } catch (e) { return null; }
+    }
+    function chasquido(t0, frec, vol, dur) {
+      const src = ac.createBufferSource(); src.buffer = ruido;
+      const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = frec; f.Q.value = 1.4;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0008, t0 + dur);
+      src.connect(f).connect(g).connect(ac.destination);
+      src.start(t0, Math.random() * 0.3, dur + 0.02);
+    }
+    function golpe(f0, vol, t0) {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.frequency.setValueAtTime(f0, t0); o.frequency.exponentialRampToValueAtTime(f0 * 0.5, t0 + 0.05);
+      g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.06);
+      o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + 0.07);
+    }
+    function sonarTecla(espacio) {
+      if (!audio()) return;
+      const t = ac.currentTime;
+      if (espacio) { chasquido(t, 900, 0.18, 0.05); golpe(90, 0.25, t); return; }
+      chasquido(t, 2400 + Math.random() * 1400, 0.42, 0.035);
+      chasquido(t + 0.012, 5200, 0.12, 0.02);
+      golpe(140 + Math.random() * 40, 0.32, t);
+    }
+    function sonarCampana() {
+      if (!audio()) return;
+      const t = ac.currentTime;
+      [[2093, 0.16], [4186, 0.05], [3136, 0.04]].forEach(([fr, v]) => {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = 'sine'; o.frequency.value = fr;
+        g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0005, t + 1.4);
+        o.connect(g).connect(ac.destination); o.start(t); o.stop(t + 1.5);
+      });
+    }
+    function sonarRetorno() {
+      if (!audio()) return;
+      const t = ac.currentTime;
+      for (let i = 0; i < 7; i++) chasquido(t + i * 0.028, 1800 + i * 220, 0.08, 0.02); // trinquete
+      chasquido(t + 0.22, 700, 0.35, 0.08); golpe(110, 0.35, t + 0.22);           // tope del carro
+    }
+    function vibrar() { if (prefs.sonido && navigator.vibrate) try { navigator.vibrate(4); } catch (e) {} }
+
+    // ---- Partir el texto en renglones de «cols» letras (corte por palabras) ----
+    function renglones(t) {
+      const out = [];
+      for (const parrafo of t.split('\n')) {
+        let linea = '';
+        for (const ch of parrafo) {
+          if (linea.length < cols) { linea += ch; continue; }
+          if (ch === ' ') { out.push(linea); linea = ''; continue; }
+          const corte = linea.lastIndexOf(' ');
+          if (corte > 0) { out.push(linea.slice(0, corte)); linea = linea.slice(corte + 1) + ch; }
+          else { out.push(linea); linea = ch; }
+        }
+        out.push(linea);
+      }
+      return out;
+    }
+    const jitter = (l, c, code) => ((l * 131 + c * 31 + code * 17) * 2654435761 >>> 0) % 11;
+
+    function pintar(animar) {
+      const t = entrada.value;
+      const lineas = renglones(t);
+      const nueva = animar && t.length === anterior.length + 1 && t.startsWith(anterior) && t.slice(-1) !== '\n';
+      let html = '';
+      if (!t) {
+        html = '<span class="tw-l tw-vacio">' + escaparTexto('Escribe aquí…'.slice(0, cols)) + '</span>';
+      } else {
+        lineas.forEach((ln, li) => {
+          let fila = '';
+          const ultima = li === lineas.length - 1;
+          [...ln].forEach((ch, ci) => {
+            const j = jitter(li, ci, ch.charCodeAt(0));
+            const cls = 'tw-c' + (j < 8 && j ? ' j' + j : '') + (nueva && ultima && ci === ln.length - 1 ? ' nuevo' : '');
+            fila += '<span class="' + cls + '">' + (ch === ' ' ? ' ' : escaparTexto(ch)) + '</span>';
+          });
+          html += '<span class="tw-l">' + fila + '</span>';
+        });
+      }
+      texto.innerHTML = html;
+
+      // Posición: el renglón actual queda justo encima del rodillo
+      const fila = lineas.length - 1;
+      const col = t ? lineas[fila].length : 0;
+      const py = platenY - 46 - (fila + 1) * lh - 6;
+      paper.style.setProperty('--tw-py', py + 'px');
+      const paperLeft = stage.clientWidth / 2 - (cols * cw + 2 * padx) / 2;
+      const hx = paperLeft + padx + Math.min(col, cols - 0.5) * cw + cw / 2;
+      tw.style.setProperty('--tw-hx', hx + 'px');
+
+      contador.textContent = numero(t.length) + ' / ' + numero(MAX);
+      contador.classList.toggle('lleno', t.length >= MAX);
+      return { fila, col, lineas };
+    }
+
+    // ---- Medidas: casilla de letra, columnas que caben y altura del rodillo ----
+    function medir() {
+      const ancho = stage.clientWidth, alto = stage.clientHeight;
+      const fs = ancho < 380 ? 16 : ancho < 700 ? 17 : 19;
+      tw.style.setProperty('--tw-fs', fs + 'px');
+      lh = Math.round(fs * 1.55);
+      tw.style.setProperty('--tw-lh', lh + 'px');
+      const m = document.createElement('span');
+      m.className = 'tw-texto';
+      m.style.cssText = 'position:absolute;visibility:hidden;padding:0;min-height:0;font-size:' + fs + 'px';
+      m.textContent = 'MWmwOQ@#'.repeat(4);
+      tw.appendChild(m);
+      cw = Math.ceil(m.getBoundingClientRect().width / 32 * 10) / 10 || fs * 0.6;
+      m.remove();
+      padx = ancho < 380 ? 16 : 24;
+      cols = Math.max(18, Math.min(52, Math.floor((ancho - 24 - 2 * padx) / cw)));
+      tw.style.setProperty('--tw-cw', cw + 'px');
+      tw.style.setProperty('--tw-cols', cols);
+      tw.style.setProperty('--tw-padx', padx + 'px');
+      // Con poco alto (teclado abierto) el rodillo baja para que se vean más renglones
+      platenY = Math.round(alto * (alto < 360 ? 0.78 : 0.64));
+      tw.style.setProperty('--tw-platen', platenY + 'px');
+      tw.style.setProperty('--tw-platen-px', platenY + 'px');
+      pintar(false);
+    }
+
+    // La capa sigue al área visible (con el teclado del móvil abierto, encoge)
+    function ajustarViewport() {
+      const vv = window.visualViewport;
+      tw.style.setProperty('--tw-h', (vv ? vv.height : innerHeight) + 'px');
+      tw.style.setProperty('--tw-top', (vv ? vv.offsetTop : 0) + 'px');
+      if (abierta) medir();
+    }
+    if (window.visualViewport) {
+      visualViewport.addEventListener('resize', ajustarViewport);
+      visualViewport.addEventListener('scroll', ajustarViewport);
+    }
+    addEventListener('resize', ajustarViewport);
+
+    // ---- Escribir ----
+    let guardarTimer;
+    function guardarHoja() { clearTimeout(guardarTimer); escribir(CLAVE_HOJA, entrada.value); }
+    const alFinal = () => { const n = entrada.value.length; if (entrada.selectionStart !== n || entrada.selectionEnd !== n) entrada.setSelectionRange(n, n); };
+
+    entrada.addEventListener('input', e => {
+      const antes = anterior;
+      const r = pintar(true);
+      const t = entrada.value;
+      if (t.length > antes.length) {
+        const ult = t.slice(-1);
+        if (ult === '\n') { cabezal.classList.add('retorno'); sonarRetorno(); }
+        else {
+          const saltoLinea = renglones(antes).length < r.lineas.length;
+          if (saltoLinea) { cabezal.classList.add('retorno'); sonarRetorno(); }
+          else { cabezal.classList.remove('retorno'); sonarTecla(ult === ' '); }
+          cabezal.classList.remove('golpe'); void cabezal.offsetWidth; cabezal.classList.add('golpe');
+          if (r.col === cols - 6 && campanaLinea !== r.fila) { campanaLinea = r.fila; sonarCampana(); }
+        }
+        vibrar();
+        if (t.length >= MAX && antes.length < MAX) showToast('📄 Hoja llena: 3.000 caracteres');
+      } else {
+        cabezal.classList.toggle('retorno', renglones(antes).length !== r.lineas.length);
+        if (t.length < antes.length) sonarTecla(true);
+      }
+      anterior = t;
+      clearTimeout(guardarTimer);
+      guardarTimer = setTimeout(guardarHoja, 600);
+    });
+    // Como en una máquina de verdad, se escribe siempre al final del folio
+    ['select', 'click', 'keyup', 'focus'].forEach(ev => entrada.addEventListener(ev, alFinal));
+    entrada.addEventListener('keydown', e => {
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(e.key)) e.preventDefault();
+      if (e.key === 'Escape') { e.preventDefault(); cerrar(); }
+    });
+    stage.addEventListener('pointerdown', () => { audio(); }); // desbloquea el audio en iOS
+
+    // ---- Abrir / cerrar (el botón Atrás del móvil también cierra) ----
+    function fechaBonita() {
+      return new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+    function abrir(desdeHistorial) {
+      if (abierta) return;
+      abierta = true;
+      tw.classList.add('open');
+      document.getElementById('twFecha').textContent = fechaBonita();
+      entrada.value = (leer(CLAVE_HOJA) || '').slice(0, MAX);
+      anterior = entrada.value;
+      if (!desdeHistorial && location.hash !== '#maquina') history.pushState({ maquina: 1 }, '', '#maquina');
+      paper.classList.add('sin-anim');
+      ajustarViewport(); medir();
+      requestAnimationFrame(() => paper.classList.remove('sin-anim'));
+      entrada.focus({ preventScroll: true });
+      alFinal();
+      evento('maquina_abierta');
+    }
+    function cerrar(desdeHistorial) {
+      if (!abierta) return;
+      guardarHoja();
+      abierta = false;
+      cerrarHojas(true);
+      tw.classList.remove('open');
+      entrada.blur();
+      if (!desdeHistorial && history.state && history.state.maquina) history.back();
+      else if (!desdeHistorial && location.hash === '#maquina') history.replaceState(null, '', location.pathname + location.search);
+      document.getElementById('btnMaquina').focus({ preventScroll: true });
+    }
+    document.getElementById('btnMaquina').addEventListener('click', () => abrir());
+    $('twVolver').addEventListener('click', () => cerrar());
+    addEventListener('popstate', () => { if (location.hash === '#maquina') abrir(true); else cerrar(true); });
+    addEventListener('pagehide', guardarHoja);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) guardarHoja(); });
+    if (location.hash === '#maquina') abrir(true);
+    if (document.fonts && document.fonts.load) document.fonts.load('17px "Special Elite"').then(() => { if (abierta) medir(); });
+
+    // ---- Archivos .txt ----
+    const sello = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes()); };
+    function nombreSugerido(t) {
+      const base = (t || '').trim().split(/\s+/).slice(0, 4).join(' ')
+        .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+        .replace(/[^a-z0-9ñ]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+      return base || 'maquina-' + sello();
+    }
+    const limpiarNombre = n => String(n || '').replace(/\.txt$/i, '').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, '-').trim().slice(0, 60);
+    // Saltos de línea de Windows: así el .txt se ve bien también en el Bloc de notas antiguo
+    const comoTxt = t => t.replace(/\r?\n/g, '\r\n');
+    function bajarTxt(nombre, t) {
+      descargar(nombre + '.txt', '﻿' + comoTxt(t), 'text/plain;charset=utf-8');
+    }
+
+    $('twDescargar').addEventListener('click', () => {
+      const t = entrada.value;
+      if (!t.trim()) { showToast('La hoja está en blanco'); entrada.focus(); return; }
+      bajarTxt(nombreSugerido(t), t);
+      showToast('⬇️ Archivo .txt descargado');
+      evento('maquina_txt');
+      entrada.focus({ preventScroll: true });
+    });
+
+    $('twANota').addEventListener('click', () => {
+      const t = entrada.value.trim();
+      if (!t) { showToast('La hoja está en blanco'); entrada.focus(); return; }
+      const html = escaparTexto(t).replace(/\r?\n/g, '<br>');
+      editor.innerHTML += (editor.textContent.trim() ? '<br><br>' : '') + html;
+      saveNote(true);
+      showToast('📝 Añadido al final de tu nota');
+      evento('maquina_a_nota');
+      entrada.focus({ preventScroll: true });
+    });
+
+    $('twNueva').addEventListener('click', () => {
+      if (entrada.value.trim() && !confirm('¿Sacar esta hoja y empezar una nueva? Si no la has guardado o descargado, se perderá.')) { entrada.focus(); return; }
+      paper.classList.add('fuera');
+      sonarRetorno();
+      setTimeout(() => {
+        entrada.value = ''; anterior = ''; campanaLinea = -1;
+        paper.classList.add('sin-anim'); paper.classList.remove('fuera');
+        pintar(false); guardarHoja();
+        requestAnimationFrame(() => requestAnimationFrame(() => paper.classList.remove('sin-anim')));
+      }, 480);
+      entrada.focus({ preventScroll: true });
+    });
+
+    // ---- Hojas guardadas (en este navegador) ----
+    function leerHojas() { try { const a = JSON.parse(leer(CLAVE_HOJAS)); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+    function pintarHojas() {
+      const hojas = leerHojas();
+      lista.textContent = '';
+      if (!hojas.length) {
+        const li = document.createElement('li');
+        li.className = 'tw-nada'; li.style.background = 'none'; li.style.border = '0';
+        li.textContent = 'Todavía no hay hojas guardadas.';
+        lista.appendChild(li);
+        return;
+      }
+      hojas.forEach(h => {
+        const li = document.createElement('li');
+        const doc = document.createElement('div'); doc.className = 'tw-doc';
+        const b = document.createElement('b'); b.textContent = h.nombre + '.txt';
+        const sm = document.createElement('small');
+        sm.textContent = new Date(h.fecha).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }) + ' · ' + numero(h.texto.length) + ' car.';
+        doc.append(b, sm);
+        const boton = (ico, titulo, fn) => { const x = document.createElement('button'); x.type = 'button'; x.textContent = ico; x.title = titulo; x.setAttribute('aria-label', titulo + ' ' + h.nombre + '.txt'); x.addEventListener('click', fn); return x; };
+        li.append(doc,
+          boton('✏️', 'Abrir en la máquina', () => {
+            if (entrada.value.trim() && entrada.value !== h.texto && !confirm('¿Cambiar la hoja de la máquina por «' + h.nombre + '.txt»? Lo que hay ahora se perderá si no lo has guardado.')) return;
+            entrada.value = h.texto.slice(0, MAX); anterior = entrada.value; guardarHoja();
+            cerrarHojas(); pintar(false);
+          }),
+          boton('⬇️', 'Descargar', () => { bajarTxt(h.nombre, h.texto); evento('maquina_txt'); }),
+          boton('🗑️', 'Borrar', () => {
+            if (!confirm('¿Borrar «' + h.nombre + '.txt»?')) return;
+            escribir(CLAVE_HOJAS, JSON.stringify(leerHojas().filter(x => x.id !== h.id)));
+            pintarHojas();
+          }));
+        lista.appendChild(li);
+      });
+    }
+    function abrirHojas() {
+      pintarHojas();
+      inpNombre.value = entrada.value.trim() ? nombreSugerido(entrada.value) : '';
+      panelHojas.classList.add('open');
+      (entrada.value.trim() ? inpNombre : $('twCerrarHojas')).focus();
+    }
+    function cerrarHojas(sinFoco) {
+      if (!panelHojas.classList.contains('open')) return;
+      panelHojas.classList.remove('open');
+      if (!sinFoco) entrada.focus({ preventScroll: true });
+    }
+    $('twAbrirHojas').addEventListener('click', abrirHojas);
+    $('twCerrarHojas').addEventListener('click', () => cerrarHojas());
+    panelHojas.addEventListener('click', e => { if (e.target === panelHojas) cerrarHojas(); });
+    panelHojas.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.stopPropagation(); cerrarHojas(); }
+      if (e.key !== 'Tab') return;
+      const f = [...panelHojas.querySelectorAll('input, button')];
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    });
+    $('twFormGuardar').addEventListener('submit', e => {
+      e.preventDefault();
+      const t = entrada.value;
+      if (!t.trim()) { showToast('La hoja está en blanco'); return; }
+      const nombre = limpiarNombre(inpNombre.value) || nombreSugerido(t);
+      const hojas = leerHojas();
+      const ya = hojas.find(h => h.nombre.toLowerCase() === nombre.toLowerCase());
+      if (ya && !confirm('Ya hay una hoja «' + nombre + '.txt». ¿Sustituirla?')) return;
+      const nueva = { id: ya ? ya.id : Date.now().toString(36), nombre, texto: t, fecha: Date.now() };
+      const resto = hojas.filter(h => h !== ya);
+      if (!escribir(CLAVE_HOJAS, JSON.stringify([nueva, ...resto]))) {
+        showToast('⚠️ No se pudo guardar aquí (modo privado o sin espacio). Usa Descargar', 5000); return;
+      }
+      pintarHojas();
+      showToast('💾 Guardada como ' + nombre + '.txt');
+      evento('maquina_guardada');
+    });
+  })();
 </script>
 </body>
 </html>
