@@ -480,32 +480,199 @@
     }
     .tw-rodillo {
       position: absolute; left: 50%; top: 0; transform: translate(-50%, -50%);
-      width: min(calc(100% - 16px), calc(var(--tw-cols, 30) * var(--tw-cw) + 110px)); height: 22px;
-      border-radius: 11px;
-      background: linear-gradient(180deg, #4a4440 0%, #1b1816 30%, #0c0a09 60%, #2e2926 85%, #55504b 100%);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
-    }
-    .tw-rodillo::before, .tw-rodillo::after {
-      content: ''; position: absolute; top: -5px; width: 14px; height: 32px; border-radius: 6px;
-      background: linear-gradient(90deg, #8c8178, #e9e1d6 45%, #8c8178);
-      box-shadow: 0 3px 6px rgba(0,0,0,0.35);
-    }
-    .tw-rodillo::before { left: -6px; }
-    .tw-rodillo::after { right: -6px; }
-    .tw-cuerpo {
-      position: absolute; left: 50%; top: 11px; bottom: -20px; transform: translateX(-50%);
-      width: min(calc(100% - 28px), calc(var(--tw-cols, 30) * var(--tw-cw) + 80px));
-      border-radius: 0 0 26px 26px;
+      width: min(calc(100% - 40px), calc(var(--tw-cols, 30) * var(--tw-cw) + 90px)); height: 24px;
+      border-radius: 12px; z-index: 3;
       background:
-        radial-gradient(90% 60% at 50% 0%, rgba(255,255,255,0.07), transparent 70%),
-        linear-gradient(180deg, #2b2420 0%, #1a1512 100%);
-      box-shadow: inset 0 2px 0 rgba(255,255,255,0.05);
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px),
+        linear-gradient(180deg, #57504a 0%, #1d1a18 28%, #0b0908 58%, #2e2926 84%, #625a53 100%);
+      box-shadow: 0 7px 14px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
     }
-    .tw-cuerpo::after { /* placa con el nombre */
-      content: 'PANTXIKO · 3000'; position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
-      font: 10px 'Special Elite', monospace; letter-spacing: .3em; color: #c9a86a; opacity: .7;
-      padding: 3px 10px; border: 1px solid rgba(201,168,106,0.35); border-radius: 4px;
+    /* Pomos del rodillo, estriados y cromados */
+    .tw-pomo {
+      position: absolute; top: 50%; width: 20px; height: 40px; margin-top: -20px; border-radius: 7px;
+      background:
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.28) 0 1.5px, transparent 1.5px 4px),
+        linear-gradient(90deg, #6e655d, #f4eee5 40%, #b9b0a5 60%, #6e655d);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(0,0,0,0.25);
     }
+    .tw-pomo.i { left: -18px; } .tw-pomo.d { right: -18px; }
+    .tw-pomo::after { /* eje */
+      content: ''; position: absolute; top: 50%; width: 6px; height: 10px; margin-top: -5px;
+      background: linear-gradient(90deg, #888, #ddd, #888);
+    }
+    .tw-pomo.i::after { right: -5px; } .tw-pomo.d::after { left: -5px; }
+    /* Palanca de retorno de carro: cromo, a la izquierda; se mueve al cambiar de línea */
+    .tw-palanca {
+      position: absolute; top: -8px; left: calc(50% - min(calc(50% - 20px), calc(var(--tw-cols, 30) * var(--tw-cw) / 2 + 45px)) + 8px);
+      width: 46px; height: 7px; border-radius: 4px; z-index: 4;
+      background: linear-gradient(180deg, #fbf7f0, #a69c90 60%, #6f675e);
+      box-shadow: 0 3px 5px rgba(0,0,0,0.4);
+      transform-origin: 100% 50%; transform: rotate(-24deg);
+      transition: transform .12s ease-out;
+    }
+    .tw-palanca::before { /* bola del extremo */
+      content: ''; position: absolute; left: -7px; top: -4px; width: 14px; height: 14px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff, #bdb3a7 45%, #5d554d);
+    }
+    .tw.retornando .tw-palanca { transform: rotate(-4deg) translateX(10px); }
+    /* Sujetapapeles: varilla cromada con dos rodillos de goma, por delante del folio */
+    .tw-sujeta {
+      position: absolute; left: 50%; top: calc(-1 * var(--tw-lh) - 9px); transform: translateX(-50%); z-index: 2;
+      width: calc(var(--tw-cols, 30) * var(--tw-cw) + 2 * var(--tw-padx, 22px) + 16px); max-width: calc(100% - 30px);
+      height: 3px; border-radius: 2px;
+      background: linear-gradient(180deg, #fff, #9a9086);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.35);
+    }
+    .tw-sujeta::before, .tw-sujeta::after {
+      content: ''; position: absolute; top: -2px; width: 12px; height: 7px; border-radius: 3px;
+      background: linear-gradient(180deg, #3a3330, #141110);
+    }
+    .tw-sujeta::before { left: 6px; } .tw-sujeta::after { right: 6px; }
+    .tw-cuerpo {
+      position: absolute; left: 50%; top: 10px; bottom: -24px; transform: translateX(-50%);
+      width: var(--tw-body-w, 90%);
+      border-radius: 18px 18px 30px 30px;
+      background:
+        radial-gradient(80% 40% at 50% 0%, rgba(255,255,255,0.09), transparent 70%),
+        linear-gradient(180deg, #2f2722 0%, #1c1613 55%, #120e0c 100%);
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.06), inset 0 0 0 1px rgba(201,168,106,0.12), 0 -2px 18px rgba(0,0,0,0.25);
+    }
+    /* Filete dorado alrededor del cuerpo */
+    .tw-cuerpo::before {
+      content: ''; position: absolute; inset: 7px; border-radius: 13px 13px 24px 24px;
+      border: 1px solid rgba(201,168,106,0.28); pointer-events: none;
+    }
+    /* Tornillos en las esquinas */
+    .tw-tornillo {
+      position: absolute; width: 8px; height: 8px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #f1e7d4, #8d8173 60%, #3c352f);
+    }
+    .tw-tornillo::after { content: ''; position: absolute; left: 1px; right: 1px; top: 3.5px; height: 1px; background: rgba(0,0,0,0.5); transform: rotate(35deg); }
+    .tw-tornillo.a { left: 14px; top: 14px; } .tw-tornillo.b { right: 14px; top: 14px; }
+    .tw-tornillo.c { left: 14px; bottom: 34px; } .tw-tornillo.d { right: 14px; bottom: 34px; }
+    /* Regla de margen bajo el rodillo */
+    .tw-regla {
+      position: absolute; left: 50%; top: 18px; transform: translateX(-50%); z-index: 2;
+      width: calc(var(--tw-cols, 30) * var(--tw-cw)); max-width: calc(100% - 60px); height: 11px;
+      border-radius: 2px;
+      background:
+        repeating-linear-gradient(90deg, rgba(40,30,20,0.75) 0 1px, transparent 1px calc(var(--tw-cw) * 5)),
+        repeating-linear-gradient(90deg, rgba(40,30,20,0.45) 0 1px, transparent 1px var(--tw-cw)),
+        linear-gradient(180deg, #efe6d3, #cdbfa4);
+      background-size: auto 100%, auto 45%, auto;
+      background-repeat: repeat-x;
+      background-color: #e6dac2;
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.4);
+    }
+    .tw-regla::after { /* indicador de posición, sigue al cabezal */
+      content: ''; position: absolute; top: -4px; left: calc(var(--tw-col, 0) * var(--tw-cw) + var(--tw-cw) / 2 - 4px);
+      border: 4px solid transparent; border-top: 5px solid #b3261e; border-bottom: 0;
+      transition: left .07s linear;
+    }
+    /* Bobinas de cinta a izquierda y derecha; giran un poco con cada letra */
+    .tw-bobina {
+      position: absolute; top: 36px; width: 40px; height: 40px; border-radius: 50%; z-index: 2;
+      background:
+        radial-gradient(circle, #d9cfc2 0 4px, #3b3431 4.5px 7px, transparent 7.5px),
+        repeating-conic-gradient(from var(--tw-giro, 0deg), #1a1414 0 20deg, #2a201e 20deg 40deg),
+        radial-gradient(circle, #b3261e 0 60%, #1a1414 61%);
+      box-shadow: 0 0 0 3px #8f857a, 0 0 0 4px #3d3631, 0 4px 8px rgba(0,0,0,0.5);
+    }
+    .tw-bobina.i { left: calc(50% - var(--tw-body-w, 90%) / 2 + 20px); } .tw-bobina.d { right: calc(50% - var(--tw-body-w, 90%) / 2 + 20px); }
+    .tw-bobina::after { /* aspas del carrete */
+      content: ''; position: absolute; inset: 6px; border-radius: 50%;
+      background: conic-gradient(from var(--tw-giro, 0deg), rgba(220,210,195,0.85) 0 8deg, transparent 8deg 120deg, rgba(220,210,195,0.85) 120deg 128deg, transparent 128deg 240deg, rgba(220,210,195,0.85) 240deg 248deg, transparent 248deg);
+      -webkit-mask: radial-gradient(circle, transparent 5px, #000 5.5px); mask: radial-gradient(circle, transparent 5px, #000 5.5px);
+    }
+    /* Cesta de tipos: abanico de varillas en el centro */
+    .tw-cesta {
+      position: absolute; left: 50%; top: 32px; transform: translateX(-50%); z-index: 1;
+      height: var(--tw-cesta-h, 68px); width: calc(var(--tw-cesta-h, 68px) * 2); border-radius: 200px 200px 0 0;
+      background:
+        radial-gradient(circle at 50% 100%, #120e0c 0 26%, transparent 26.5%),
+        repeating-conic-gradient(from -90deg at 50% 100%, rgba(214,204,190,0.55) 0 1.2deg, transparent 1.2deg 4.5deg);
+      -webkit-mask: linear-gradient(90deg, transparent, #000 12% 88%, transparent);
+      mask: linear-gradient(90deg, transparent, #000 12% 88%, transparent);
+      opacity: .75;
+    }
+    .tw-placa {
+      position: absolute; left: 50%; transform: translateX(-50%); z-index: 2;
+      top: calc(32px + var(--tw-cesta-h, 68px) - 9px);
+      font: 10px 'Special Elite', monospace; letter-spacing: .32em; color: #e2c88d; white-space: nowrap;
+      padding: 3px 10px 3px 13px; border-radius: 4px;
+      background: linear-gradient(180deg, #3b2f22, #241c15);
+      border: 1px solid rgba(226,200,141,0.5);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 4px rgba(0,0,0,0.45);
+    }
+    .tw.sin-teclas .tw-cesta, .tw.sin-teclas .tw-bobina, .tw.sin-teclas .tw-placa { top: 34px; }
+    .tw.bajo .tw-cesta, .tw.bajo .tw-placa, .tw.bajo .tw-bobina { display: none; }
+
+    /* ===== Teclado de la máquina ===== */
+    .tw-teclado {
+      --k: 30px;            /* diámetro de la tecla (lo calcula el JS) */
+      --g: 4px;
+      position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: calc(var(--g) + 3px);
+      z-index: 6; pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none;
+      padding: 8px 10px 4px;
+    }
+    .tw.sin-teclas .tw-teclado { display: none; }
+    .tw-fila { display: flex; gap: var(--g); }
+    .tw-fila:nth-child(2) { margin-left: calc(var(--k) * .35); }
+    .tw-fila:nth-child(3) { margin-left: calc(var(--k) * .7); }
+    .tw-fila:nth-child(4) { margin-left: calc(var(--k) * .35); }
+    .tw-k {
+      position: relative; width: var(--k); height: calc(var(--k) + 5px); padding: 0; border: 0;
+      background: none; cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+    }
+    .tw-k::before { /* varilla de la tecla, se ve al hundirse */
+      content: ''; position: absolute; left: 50%; top: 40%; width: 4px; margin-left: -2px; height: 60%;
+      background: linear-gradient(90deg, #4b433d, #a59a8e, #4b433d); border-radius: 2px;
+    }
+    .tw-cap {
+      position: absolute; left: 0; top: 0; width: var(--k); height: var(--k); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font: calc(var(--k) * .46) / 1 'Special Elite', 'Courier New', monospace; color: #f5eee2;
+      background: radial-gradient(circle at 38% 30%, #5a5450 0%, #1b1817 55%, #0b0a09 100%);
+      box-shadow:
+        inset 0 0 0 calc(var(--k) * .08) #d8d1c6,
+        inset 0 0 0 calc(var(--k) * .11) #6c645c,
+        inset 0 2px 3px calc(var(--k) * .11) rgba(255,255,255,0.12),
+        0 4px 0 #050404, 0 6px 8px rgba(0,0,0,0.55);
+      transition: transform .06s ease-out, box-shadow .06s ease-out;
+      text-transform: lowercase;
+    }
+    .tw-teclado.mayus .tw-k[data-l] .tw-cap { text-transform: uppercase; }
+    .tw-k small { position: absolute; top: 15%; right: 22%; font-size: .55em; opacity: .65; }
+    .tw-k.esp .tw-cap { /* teclas de función: crema */
+      color: #2a1d12; font-family: 'Inter', sans-serif; font-weight: 700; font-size: calc(var(--k) * .36);
+      background: radial-gradient(circle at 38% 30%, #fffaf0 0%, #e8dcc4 55%, #bfae90 100%);
+    }
+    .tw-k.roja .tw-cap { color: #fff; background: radial-gradient(circle at 38% 30%, #e46a5e 0%, #a5241b 60%, #6e140e 100%); }
+    .tw-k.activa .tw-cap { box-shadow:
+        inset 0 0 0 calc(var(--k) * .08) #ffd27a, inset 0 0 0 calc(var(--k) * .11) #8a5a10,
+        0 4px 0 #050404, 0 6px 8px rgba(0,0,0,0.55), 0 0 10px rgba(255,200,110,0.6); }
+    .tw-k.fija .tw-cap::after { content: ''; position: absolute; bottom: 18%; width: 5px; height: 5px; border-radius: 50%; background: #ffd27a; }
+    /* Al pulsar, la tecla se hunde y la varilla se acorta */
+    .tw-k.abajo .tw-cap {
+      transform: translateY(4px);
+      box-shadow:
+        inset 0 0 0 calc(var(--k) * .08) #d8d1c6, inset 0 0 0 calc(var(--k) * .11) #6c645c,
+        inset 0 2px 5px calc(var(--k) * .11) rgba(0,0,0,0.25),
+        0 0 0 #050404, 0 1px 2px rgba(0,0,0,0.6);
+    }
+    .tw-k.esp.abajo .tw-cap, .tw-k.roja.abajo .tw-cap { filter: brightness(.88); }
+    /* Barra espaciadora cromada */
+    .tw-k.espacio { width: calc(var(--k) * 5.6); }
+    .tw-k.espacio::before { left: 20%; box-shadow: calc(var(--k) * 3.36) 0 0 #7d736a; }
+    .tw-k.espacio .tw-cap {
+      width: 100%; height: calc(var(--k) * .5); top: calc(var(--k) * .25); border-radius: 999px;
+      background: linear-gradient(180deg, #fffdf8, #c8beb1 50%, #8a8075);
+      box-shadow: 0 4px 0 #050404, 0 6px 8px rgba(0,0,0,0.55), inset 0 1px 0 #fff;
+    }
+    .tw-k.espacio.abajo .tw-cap { transform: translateY(4px); box-shadow: 0 0 0 #050404, 0 1px 2px rgba(0,0,0,0.6), inset 0 1px 0 #fff; }
+    .tw-k:focus-visible { outline: none; }
+    .tw-k:focus-visible .tw-cap { outline: 3px solid #ffd27a; outline-offset: 2px; }
     .tw-cabezal {
       position: absolute; top: -9px; left: var(--tw-hx, 50%);
       width: 34px; height: 30px; margin-left: -17px;
@@ -572,7 +739,7 @@
 
     /* Entrada real: invisible sobre el folio, para que el teclado del móvil salga al tocar */
     .tw-entrada {
-      position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5;
+      position: absolute; left: 0; top: 0; width: 100%; height: var(--tw-platen, 60%); z-index: 5;
       opacity: 0; color: transparent; caret-color: transparent; background: transparent;
       border: 0; outline: 0; resize: none; font-size: 16px; padding: 0;
     }
@@ -733,6 +900,7 @@
   <div class="tw-top">
     <button class="tw-ico" id="twVolver" title="Volver a la nota" aria-label="Volver a la nota">←</button>
     <span class="tw-count" id="twCount" aria-hidden="true">0 / 3.000</span>
+    <button class="tw-ico" id="twTeclas" title="Usar el teclado del dispositivo" aria-label="Usar el teclado del dispositivo" aria-pressed="false">Aa</button>
     <button class="tw-ico" id="twLampara" title="Modo lámpara" aria-label="Modo lámpara" aria-pressed="false">💡</button>
     <button class="tw-ico" id="twSonido" title="Sonido de teclas" aria-label="Sonido de teclas" aria-pressed="true">🔊</button>
   </div>
@@ -743,10 +911,17 @@
       <div class="tw-texto" id="twTexto"></div>
     </div>
     <div class="tw-luz" aria-hidden="true"></div>
-    <div class="tw-maquina" aria-hidden="true">
-      <div class="tw-cuerpo"></div>
-      <div class="tw-rodillo"></div>
-      <div class="tw-cabezal" id="twCabezal"><div class="tw-cinta"></div><div class="tw-tipo"></div></div>
+    <div class="tw-maquina">
+      <div class="tw-cuerpo" aria-hidden="true"><i class="tw-tornillo a"></i><i class="tw-tornillo b"></i><i class="tw-tornillo c"></i><i class="tw-tornillo d"></i></div>
+      <div class="tw-bobina i" aria-hidden="true"></div><div class="tw-bobina d" aria-hidden="true"></div>
+      <div class="tw-cesta" aria-hidden="true"></div>
+      <div class="tw-placa" aria-hidden="true">PANTXIKO · 3000</div>
+      <div class="tw-regla" aria-hidden="true"></div>
+      <div class="tw-sujeta" aria-hidden="true"></div>
+      <div class="tw-palanca" aria-hidden="true"></div>
+      <div class="tw-rodillo" aria-hidden="true"><i class="tw-pomo i"></i><i class="tw-pomo d"></i></div>
+      <div class="tw-teclado" id="twTeclado" role="group" aria-label="Teclado de la máquina"></div>
+      <div class="tw-cabezal" id="twCabezal" aria-hidden="true"><div class="tw-cinta"></div><div class="tw-tipo"></div></div>
     </div>
     <textarea class="tw-entrada" id="twEntrada" maxlength="3000" aria-label="Hoja de la máquina de escribir (máximo 3.000 caracteres)"
       autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="enter"></textarea>
@@ -1188,17 +1363,31 @@
     let abierta = false;
 
     // ---- Preferencias (lámpara y sonido) ----
-    let prefs = { lampara: false, sonido: true };
+    // «sistema»: escribir con el teclado del dispositivo en vez del de la máquina
+    let prefs = { lampara: false, sonido: true, sistema: false };
+    const tactil = matchMedia('(pointer: coarse)').matches;
+    const btnTeclas = $('twTeclas');
     try { Object.assign(prefs, JSON.parse(leer(CLAVE_PREFS)) || {}); } catch (e) { /* de serie */ }
     function aplicarPrefs() {
       tw.classList.toggle('lampara', !!prefs.lampara);
       btnLampara.setAttribute('aria-pressed', String(!!prefs.lampara));
       btnSonido.setAttribute('aria-pressed', String(!!prefs.sonido));
       btnSonido.textContent = prefs.sonido ? '🔊' : '🔇';
+      tw.classList.toggle('sin-teclas', !!prefs.sistema);
+      btnTeclas.setAttribute('aria-pressed', String(!!prefs.sistema));
+      const t = tactil ? 'Usar el teclado del dispositivo' : 'Ocultar el teclado de la máquina';
+      btnTeclas.title = t; btnTeclas.setAttribute('aria-label', t);
+      // En el móvil, con el teclado de la máquina a la vista no sale el del sistema
+      entrada.setAttribute('inputmode', tactil && !prefs.sistema ? 'none' : 'text');
     }
     aplicarPrefs();
     btnLampara.addEventListener('click', () => { prefs.lampara = !prefs.lampara; aplicarPrefs(); escribir(CLAVE_PREFS, JSON.stringify(prefs)); entrada.focus(); });
     btnSonido.addEventListener('click', () => { prefs.sonido = !prefs.sonido; aplicarPrefs(); escribir(CLAVE_PREFS, JSON.stringify(prefs)); entrada.focus(); });
+    btnTeclas.addEventListener('click', () => {
+      prefs.sistema = !prefs.sistema; aplicarPrefs(); escribir(CLAVE_PREFS, JSON.stringify(prefs));
+      entrada.blur(); medir();
+      setTimeout(() => entrada.focus({ preventScroll: true }), 30); // el cambio de inputmode se aplica al volver a enfocar
+    });
 
     // ---- Sonido: se sintetiza con Web Audio, sin archivos ----
     let ac = null, ruido = null;
@@ -1304,6 +1493,7 @@
       const paperLeft = stage.clientWidth / 2 - (cols * cw + 2 * padx) / 2;
       const hx = paperLeft + padx + Math.min(col, cols - 0.5) * cw + cw / 2;
       tw.style.setProperty('--tw-hx', hx + 'px');
+      tw.style.setProperty('--tw-col', Math.min(col, cols - 1));
 
       contador.textContent = numero(t.length) + ' / ' + numero(MAX);
       contador.classList.toggle('lleno', t.length >= MAX);
@@ -1329,8 +1519,27 @@
       tw.style.setProperty('--tw-cw', cw + 'px');
       tw.style.setProperty('--tw-cols', cols);
       tw.style.setProperty('--tw-padx', padx + 'px');
-      // Con poco alto (teclado abierto) el rodillo baja para que se vean más renglones
-      platenY = Math.round(alto * (alto < 360 ? 0.78 : 0.64));
+      // Teclado de la máquina: tecla tan grande como quepa (11 teclas y media por fila)
+      const conTeclas = !prefs.sistema && alto >= 330;
+      tw.classList.toggle('sin-teclas', !conTeclas);
+      let alturaTeclado = 0, anchoTeclado = 0;
+      if (conTeclas) {
+        const g = ancho < 400 ? 3 : 6;
+        let k = Math.floor((Math.min(ancho, 760) - 34 - 10 * g) / 11.7);
+        k = Math.max(22, Math.min(k, 50, Math.floor((alto * 0.42 - 30) / 5.7)));
+        teclado.style.setProperty('--k', k + 'px');
+        teclado.style.setProperty('--g', g + 'px');
+        alturaTeclado = 5 * (k + 5) + 4 * (g + 3) + 22;
+        anchoTeclado = 11.7 * k + 10 * g + 20;
+      }
+      // Hueco bajo el rodillo para la regla, las bobinas y la cesta de tipos
+      const adornos = conTeclas ? (alto - alturaTeclado > 330 ? 112 : 40) : 0;
+      tw.classList.toggle('bajo', conTeclas && adornos < 100);
+      tw.style.setProperty('--tw-cesta-h', (conTeclas ? adornos - 46 : 60) + 'px');
+      if (conTeclas) platenY = Math.round(alto - alturaTeclado - adornos);
+      // Sin teclado de la máquina (o con el del móvil abierto) el rodillo baja para ver más renglones
+      else platenY = Math.round(alto * (alto < 360 ? 0.78 : 0.64));
+      tw.style.setProperty('--tw-body-w', Math.min(ancho - 16, Math.max(cols * cw + 2 * padx + 40, anchoTeclado + 16)) + 'px');
       tw.style.setProperty('--tw-platen', platenY + 'px');
       tw.style.setProperty('--tw-platen-px', platenY + 'px');
       pintar(false);
@@ -1360,10 +1569,12 @@
       const t = entrada.value;
       if (t.length > antes.length) {
         const ult = t.slice(-1);
-        if (ult === '\n') { cabezal.classList.add('retorno'); sonarRetorno(); }
+        girarBobinas();
+        if (!origenTeclado) destellar(ult);
+        if (ult === '\n') { cabezal.classList.add('retorno'); sonarRetorno(); palanca(); }
         else {
           const saltoLinea = renglones(antes).length < r.lineas.length;
-          if (saltoLinea) { cabezal.classList.add('retorno'); sonarRetorno(); }
+          if (saltoLinea) { cabezal.classList.add('retorno'); sonarRetorno(); palanca(); }
           else { cabezal.classList.remove('retorno'); sonarTecla(ult === ' '); }
           cabezal.classList.remove('golpe'); void cabezal.offsetWidth; cabezal.classList.add('golpe');
           if (r.col === cols - 6 && campanaLinea !== r.fila) { campanaLinea = r.fila; sonarCampana(); }
@@ -1372,8 +1583,9 @@
         if (t.length >= MAX && antes.length < MAX) showToast('📄 Hoja llena: 3.000 caracteres');
       } else {
         cabezal.classList.toggle('retorno', renglones(antes).length !== r.lineas.length);
-        if (t.length < antes.length) sonarTecla(true);
+        if (t.length < antes.length) { sonarTecla(true); if (!origenTeclado) destellar('\b'); }
       }
+      origenTeclado = false;
       anterior = t;
       clearTimeout(guardarTimer);
       guardarTimer = setTimeout(guardarHoja, 600);
@@ -1384,6 +1596,155 @@
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(e.key)) e.preventDefault();
       if (e.key === 'Escape') { e.preventDefault(); cerrar(); }
     });
+    // Si el foco se ha ido a un botón de la máquina, las letras vuelven al folio
+    tw.addEventListener('keydown', e => {
+      if (e.target === entrada || panelHojas.contains(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.target.tagName === 'BUTTON' && (e.key === ' ' || e.key === 'Enter')) return;
+      if (e.key.length === 1 || e.key === 'Backspace') entrada.focus({ preventScroll: true });
+    });
+
+    // =====================================================================
+    // ---- Teclado de la máquina ----
+    // Distribución española. Cada tecla: [valor, etiqueta, valor con mayúsculas, clase]
+    // =====================================================================
+    const teclado = $('twTeclado');
+    const FILAS = [
+      [['1'], ['2'], ['3'], ['4'], ['5'], ['6'], ['7'], ['8'], ['9'], ['0'], ['\b', '⌫', null, 'esp roja']],
+      ['qwertyuiop', [['´', '´', '¨', 'esp']]],
+      ['asdfghjklñ', [['\n', '⏎', null, 'esp roja']]],
+      [[['⇧', '⇧', null, 'esp']], 'zxcvbnm', [[',', ',', ';'], ['.', '.', ':'], ['-', '-', '_']]],
+      [[['¿', '¿', '?']], [['¡', '¡', '!']], [[' ', '', null, 'espacio']], [['?', '?', '"']], [['!', '!', "'"]]]
+    ];
+    const SHIFT_NUM = { '1': '!', '2': '"', '3': '·', '4': '$', '5': '%', '6': '&', '7': '/', '8': '(', '9': ')', '0': '=' };
+    const porValor = new Map(); // carácter (o tecla) → botón, para animar lo tecleado con el teclado físico
+    FILAS.forEach(fila => {
+      const div = document.createElement('div'); div.className = 'tw-fila';
+      const teclas = [];
+      fila.forEach(trozo => {
+        if (typeof trozo === 'string') [...trozo].forEach(l => teclas.push([l, l, l.toUpperCase(), '', true]));
+        else if (Array.isArray(trozo[0])) trozo.forEach(t => teclas.push(t));
+        else teclas.push(trozo);
+      });
+      teclas.forEach(([v, etiqueta = v, conMayus = SHIFT_NUM[v] || null, clase = '', letra = false]) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'tw-k' + (clase ? ' ' + clase : '');
+        b.dataset.v = v; if (letra) b.dataset.l = '1';
+        if (conMayus && conMayus !== v.toUpperCase()) b.dataset.s = conMayus;
+        const cap = document.createElement('span'); cap.className = 'tw-cap'; cap.textContent = etiqueta;
+        if (b.dataset.s && !letra) { const sm = document.createElement('small'); sm.textContent = conMayus; cap.appendChild(sm); }
+        b.appendChild(cap);
+        b.setAttribute('aria-label', { '\b': 'Borrar', '\n': 'Retorno de carro', '⇧': 'Mayúsculas', ' ': 'Espacio', '´': 'Tilde' }[v] || etiqueta);
+        b.tabIndex = -1;
+        div.appendChild(b);
+        porValor.set(v, b);
+        if (b.dataset.s) porValor.set(b.dataset.s, b);
+        if (letra) porValor.set(v.toUpperCase(), b);
+      });
+      teclado.appendChild(div);
+    });
+    const teclaShift = porValor.get('⇧'), teclaTilde = porValor.get('´');
+
+    // Mayúsculas: un toque = la siguiente letra; doble toque = fijas. Al empezar frase se ponen solas.
+    let mayus = 'auto', tilde = null, origenTeclado = false;
+    const mayusActiva = () => mayus === 'una' || mayus === 'fija' || (mayus === 'auto' && /(^|[.!?]\s+|[¡¿]|\n)$/.test(entrada.value));
+    function pintarMayus() {
+      const on = mayusActiva();
+      teclado.classList.toggle('mayus', on);
+      teclaShift.classList.toggle('activa', on);
+      teclaShift.classList.toggle('fija', mayus === 'fija');
+      teclaTilde.classList.toggle('activa', !!tilde);
+    }
+    const ACENTOS = { '´': { a: 'á', e: 'é', i: 'í', o: 'ó', u: 'ú' }, '¨': { u: 'ü', i: 'ï', e: 'ë' } };
+
+    function teclear(v) {
+      if (v === '⇧') {
+        const ahora = Date.now();
+        mayus = mayus === 'fija' ? 'no' : (ahora - (teclear.ultShift || 0) < 350 ? 'fija' : (mayusActiva() ? 'no' : 'una'));
+        teclear.ultShift = ahora;
+        if (audio()) chasquido(ac.currentTime, 1200, 0.2, 0.04);
+        pintarMayus(); return;
+      }
+      if (v === '´') { tilde = tilde ? null : (mayusActiva() ? '¨' : '´'); if (audio()) chasquido(ac.currentTime, 1600, 0.2, 0.03); pintarMayus(); return; }
+      const t = entrada.value;
+      let nuevo;
+      if (v === '\b') nuevo = [...t].slice(0, -1).join('');
+      else {
+        const b = porValor.get(v);
+        let ch = mayusActiva() ? (b && b.dataset.l ? v.toUpperCase() : (b && b.dataset.s) || v) : v;
+        if (tilde) {
+          const base = ch.toLowerCase(), acc = ACENTOS[tilde][base];
+          ch = acc ? (ch === base ? acc : acc.toUpperCase()) : tilde + ch;
+          tilde = null;
+        }
+        if (t.length + ch.length > MAX) { showToast('📄 Hoja llena: 3.000 caracteres'); return; }
+        nuevo = t + ch;
+        if (mayus === 'una') mayus = 'auto';
+        if (mayus === 'no' && b && b.dataset.l) mayus = 'auto';
+      }
+      if (nuevo === t) return;
+      entrada.value = nuevo;
+      origenTeclado = true;
+      entrada.dispatchEvent(new Event('input'));
+      pintarMayus();
+    }
+
+    // Pulsar con el dedo o el ratón; el foco se queda en el folio (y en el móvil no sale el teclado del sistema)
+    let repetir = null;
+    const soltar = b => { b.classList.remove('abajo'); clearTimeout(repetir); clearInterval(repetir); repetir = null; };
+    teclado.addEventListener('pointerdown', e => {
+      const b = e.target.closest('.tw-k'); if (!b) return;
+      e.preventDefault();
+      audio();
+      b.classList.add('abajo');
+      try { b.setPointerCapture(e.pointerId); } catch (err) {}
+      teclear(b.dataset.v);
+      if (b.dataset.v === '\b') repetir = setTimeout(() => { repetir = setInterval(() => teclear('\b'), 70); }, 420);
+      if (document.activeElement !== entrada && !tactil) entrada.focus({ preventScroll: true });
+    });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => teclado.addEventListener(ev, e => {
+      const b = e.target.closest && e.target.closest('.tw-k'); if (b) soltar(b);
+    }));
+    teclado.addEventListener('contextmenu', e => e.preventDefault());
+
+    // Teclado físico: la tecla de la máquina se hunde mientras la tienes pulsada
+    const teclaDe = e => {
+      if (e.key === 'Backspace') return porValor.get('\b');
+      if (e.key === 'Enter') return porValor.get('\n');
+      if (e.key === 'Shift') return teclaShift;
+      if (e.key === 'Dead' || e.key === '´' || e.key === '¨') return teclaTilde;
+      if (e.key.length !== 1) return null;
+      const base = e.key.normalize('NFD')[0];
+      return porValor.get(e.key) || porValor.get(base) || porValor.get(base.toLowerCase()) || null;
+    };
+    const fisicas = new Map();
+    entrada.addEventListener('keydown', e => {
+      const b = teclaDe(e); if (!b) return;
+      b.classList.add('abajo'); fisicas.set(e.code || e.key, b);
+      if (b === teclaShift) teclado.classList.add('mayus');
+    });
+    addEventListener('keyup', e => {
+      const b = fisicas.get(e.code || e.key); if (b) { b.classList.remove('abajo'); fisicas.delete(e.code || e.key); }
+      if (e.key === 'Shift') pintarMayus();
+    });
+    addEventListener('blur', () => { fisicas.forEach(b => b.classList.remove('abajo')); fisicas.clear(); });
+    // Lo que llega sin tecla conocida (teclado del móvil, dictado, autocorrector): destello breve
+    function destellar(ch) {
+      const b = ch === '\b' ? porValor.get('\b') : porValor.get(ch) || porValor.get(ch.normalize('NFD')[0]) || porValor.get(ch.normalize('NFD')[0].toLowerCase());
+      if (!b || [...fisicas.values()].includes(b)) return;
+      b.classList.add('abajo');
+      setTimeout(() => b.classList.remove('abajo'), 110);
+    }
+    entrada.addEventListener('input', () => { if (mayus === 'una' && !origenTeclado) mayus = 'auto'; pintarMayus(); });
+
+    // Bobinas de cinta y palanca de retorno
+    let giro = 0;
+    function girarBobinas() { giro = (giro + 7) % 360; tw.style.setProperty('--tw-giro', giro + 'deg'); }
+    let palancaTimer;
+    function palanca() {
+      tw.classList.add('retornando');
+      clearTimeout(palancaTimer);
+      palancaTimer = setTimeout(() => tw.classList.remove('retornando'), 260);
+    }
     stage.addEventListener('pointerdown', () => { audio(); }); // desbloquea el audio en iOS
 
     // ---- Abrir / cerrar (el botón Atrás del móvil también cierra) ----
