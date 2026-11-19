@@ -76,7 +76,7 @@ export async function abreEditor({ renderer, apariencia: inicial, alTerminar, pr
   ap.herencia ??= { madre: PERSONAJE.padres.madres[0], padre: PERSONAJE.padres.padres[0], parecido: 0.5 };
   await personaje.aplica(ap);
   espera.hidden = true;
-  if (import.meta.env.DEV) window.__editorPersonaje = { personaje, estudio, fabrica, get ap() { return ap; } };
+  if (import.meta.env.DEV) window.__editorPersonaje = { personaje, estudio, fabrica, renderer, get ap() { return ap; } };
 
   // --- Animación de reposo, parpadeo y gestos
   const mezclador = new THREE.AnimationMixer(personaje.raiz);

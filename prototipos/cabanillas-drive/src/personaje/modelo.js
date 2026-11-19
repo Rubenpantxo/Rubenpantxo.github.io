@@ -16,6 +16,15 @@ import { creaMotor } from './motor.js';
 import { creaMaterialOjos, creaMaterialPiel, creaMaterialPrenda, ponColor, textura } from './materiales.js';
 
 const HUECOS_ROPA = ['conjunto', 'arriba', 'abajo', 'calzado', 'sombrero'];
+// Metros hacia fuera de cada capa de ropa (la parte de arriba va por encima del pantalón)
+const HINCHADO = { abajo: 0.003, conjunto: 0.004, arriba: 0.006, calzado: 0.002 };
+// Ropa que tapa la piel que tiene debajo (el pelo y el sombrero no: dejan huecos)
+const TAPAN = new Set(['arriba', 'abajo', 'conjunto']);
+const CERCA_PIEL_M = 0.025;         // tela a menos de esto de la piel: la piel de debajo no se dibuja
+const ANILLOS_BORDE = 4;            // anillos de la prenda junto a sus bordes que no ocultan piel
+const DENTRO_DE_ARRIBA = -0.008;     // el pantalón bajo la camiseta: hacia dentro (m)
+const SECTORES = 48;                 // sectores alrededor del cuerpo para medir el bajo de la camiseta
+const RADIO_TRONCO_M = 0.24;         // lo que queda más lejos del eje de la pelvis son las mangas
 
 // Normales por vértice original (sin costuras) a partir de triángulos en índices originales
 function normales(pos, tris, salida) {
@@ -184,6 +193,42 @@ export async function creaFabricaPersonajes() {
         }
       }
       normales(posOrig, tris, norOrig);
+      // La ropa, unos milímetros hacia fuera: la piel y la tela no se deforman igual en las
+      // articulaciones y, pegadas, la piel asoma al andar o saltar (la de encima, más fuera)
+      const hinchado = HINCHADO[p.hueco] ?? 0;
+      // El pantalón, por dentro de la parte de arriba donde esta lo tapa (si no, la cinturilla
+      // asoma por la camiseta)
+      const bajo = p.hueco === 'abajo' ? bajoDeArriba() : null;
+      if (hinchado) {
+        for (let i = 0; i < n; i++) {
+          let h = hinchado;
+          if (bajo) {
+            const x = posOrig[i * 3] - bajo.cx; const z = posOrig[i * 3 + 2] - bajo.cz;
+            const sector = Math.floor(((Math.atan2(x, z) / (2 * Math.PI)) + 0.5) * SECTORES) % SECTORES;
+            const dentro = posOrig[i * 3 + 1] > bajo.minY[sector] + 0.004;
+            if (dentro) {
+              h = DENTRO_DE_ARRIBA;
+              // Nunca más fuera que la camiseta a esa altura y en esa dirección (costuras y
+              // trabillas de la cinturilla que, si no, la atraviesan)
+              const k = sector * 1000 + Math.floor(posOrig[i * 3 + 1] / 0.02);
+              const tope = Math.min(bajo.radio.get(k) ?? Infinity, bajo.radio.get(k - 1) ?? Infinity, bajo.radio.get(k + 1) ?? Infinity) - 0.008;
+              const r = Math.hypot(x, z);
+              if (Number.isFinite(tope) && r > tope && tope > 0.03) {
+                posOrig[i * 3] = bajo.cx + (x * tope) / r;
+                posOrig[i * 3 + 2] = bajo.cz + (z * tope) / r;
+              }
+            }
+            // Bien por encima del bajo, la camiseta lo tapa: no se dibuja (trabillas y cinturillas
+            // que, si no, asoman por la tela)
+            // 1: bajo la camiseta; 2: bien por encima de su bajo
+            p.oculto[i] = posOrig[i * 3 + 1] > bajo.minY[sector] + 0.03 ? 2 : dentro ? 1 : 0;
+          }
+          posOrig[i * 3] += norOrig[i * 3] * h;
+          posOrig[i * 3 + 1] += norOrig[i * 3 + 1] * h;
+          posOrig[i * 3 + 2] += norOrig[i * 3 + 2] * h;
+        }
+      }
+      if (p.hueco === 'abajo') ocultaBajoArriba(p, Boolean(bajo));
       esparce(posOrig, mapaP, pos.array);
       esparce(norOrig, mapaP, nor.array);
       pos.needsUpdate = true;
@@ -197,6 +242,8 @@ export async function creaFabricaPersonajes() {
       if (!id) {
         if (actual) { raiz.remove(actual.malla); actual.malla.geometry.dispose(); actual.malla.material.dispose(); }
         puestas.delete(hueco);
+        if (actual) ocultaCuerpo();          // vuelve a verse la piel que tapaba
+        if (actual && hueco === 'arriba' && puestas.get('abajo')) ajustaPrenda(puestas.get('abajo'));
         return;
       }
       const item = prendasCat.get(id);
@@ -283,22 +330,118 @@ export async function creaFabricaPersonajes() {
         id, hueco, malla, refs, pesos, despl: vista(pb, pm.despl), escalas: pm.escalas, n, tris, mapaP, pos, nor,
         posOrig: new Float32Array(n * 3), norOrig: new Float32Array(n * 3),
         borrar: pm.borrar ? vista(pb, pm.borrar) : null,
+        cubre: TAPAN.has(hueco) ? pielCubierta(refs, pesos, vista(pb, pm.despl), tris, n) : null,
+        ind, oculto: new Uint8Array(n), firmaOculto: '',
       };
       puestas.set(hueco, p);
       raiz.add(malla);
       malla.bind(esqueleto, new THREE.Matrix4());
       ajustaPrenda(p);
+      if (hueco === 'arriba' && puestas.get('abajo')) ajustaPrenda(puestas.get('abajo'));
       aplicaColores();
       ocultaCuerpo();
     }
 
-    // Lo que tapa la ropa no se dibuja (evita que la piel atraviese la tela)
+    // Piel que queda bajo una prenda ceñida: los vértices del cuerpo a los que se enganchan los de
+    // la prenda que no son de su borde y van a menos de CERCA_PIEL_M (los de las mangas o el
+    // bajo, que dejan ver la piel, no cuentan). Muchas prendas de MakeHuman no traen su lista de
+    // «delete_verts», o la traen corta, y la piel asomaba al moverse.
+    function pielCubierta(refs, pesos, despl, tris, n) {
+      const aristas = new Map();
+      for (let i = 0; i < tris.length; i += 3) {
+        for (const [a, b] of [[tris[i], tris[i + 1]], [tris[i + 1], tris[i + 2]], [tris[i + 2], tris[i]]]) {
+          const k = a < b ? a * 65536 + b : b * 65536 + a;
+          aristas.set(k, (aristas.get(k) ?? 0) + 1);
+        }
+      }
+      const borde = new Uint8Array(n);
+      for (const [k, c] of aristas) if (c === 1) { borde[Math.floor(k / 65536)] = 1; borde[k % 65536] = 1; }
+      // El borde se ensancha unos anillos: cerca del cuello, las mangas o el bajo la piel se queda
+      // (si no, por la abertura se ve a través de la prenda)
+      for (let anillo = 0; anillo < ANILLOS_BORDE; anillo++) {
+        const nuevo = borde.slice();
+        for (const k of aristas.keys()) {
+          const a = Math.floor(k / 65536); const b = k % 65536;
+          if (borde[a] || borde[b]) { nuevo[a] = 1; nuevo[b] = 1; }
+        }
+        borde.set(nuevo);
+      }
+      const cubre = new Uint8Array(motor.n);
+      for (let i = 0; i < n; i++) {
+        if (borde[i]) continue;
+        // El desplazamiento de MakeHuman va en decímetros (más o menos: luego se escala por ejes)
+        const d = Math.hypot(despl[i * 3], despl[i * 3 + 1], despl[i * 3 + 2]) * 0.1;
+        if (d > CERCA_PIEL_M) continue;
+        for (let r = 0; r < 3; r++) if (pesos[i * 3 + r] > 0.05 && refs[i * 3 + r] < motor.cuerpo) cubre[refs[i * 3 + r]] = 1;
+      }
+      return cubre;
+    }
+
+    // Triángulos del pantalón que tapa la parte de arriba: fuera
+    function ocultaBajoArriba(p, hayArriba) {
+      const firma = hayArriba ? p.oculto.join('') : '';
+      if (firma === p.firmaOculto) return;
+      p.firmaOculto = firma;
+      const quedan = [];
+      for (let i = 0; i < p.ind.length; i += 3) {
+        const a = p.mapaP[p.ind[i]]; const b = p.mapaP[p.ind[i + 1]]; const c = p.mapaP[p.ind[i + 2]];
+        // Fuera si está entero bajo la camiseta y alguno de sus vértices queda bien por encima del
+        // bajo: al andar, la cinturilla (que sigue a la pelvis) atravesaría la tela
+        const o = p.oculto;
+        if (hayArriba && o[a] && o[b] && o[c] && (o[a] === 2 || o[b] === 2 || o[c] === 2)) continue;
+        quedan.push(p.ind[i], p.ind[i + 1], p.ind[i + 2]);
+      }
+      p.malla.geometry.setIndex(new THREE.BufferAttribute(Uint32Array.from(quedan), 1));
+    }
+
+    // Bajo de la parte de arriba alrededor del cuerpo: por cada sector (visto desde arriba, desde
+    // el eje de la pelvis) la altura más baja de la tela del tronco (sin las mangas). Lo que el
+    // pantalón tenga por encima queda tapado por ella
+    function bajoDeArriba() {
+      const arriba = puestas.get('arriba');
+      if (!arriba) return null;
+      const pel = motor.huesos.findIndex((h) => h.nombre === 'pelvis');
+      const { cabezas } = motor.articulaciones(P);
+      const cx = cabezas[pel * 3]; const cz = cabezas[pel * 3 + 2];
+      const minY = new Float32Array(SECTORES).fill(Infinity);
+      const q = arriba.posOrig;
+      for (let i = 0; i < arriba.n; i++) {
+        const x = q[i * 3] - cx; const z = q[i * 3 + 2] - cz;
+        if (Math.hypot(x, z) > RADIO_TRONCO_M) continue;
+        const sector = Math.floor(((Math.atan2(x, z) / (2 * Math.PI)) + 0.5) * SECTORES) % SECTORES;
+        if (q[i * 3 + 1] < minY[sector]) minY[sector] = q[i * 3 + 1];
+      }
+      // Sectores sin vértices del bajo (la malla es dispersa): el más bajo de los dos vecinos
+      const suave = minY.map((_, k) => Math.min(minY[(k + SECTORES - 2) % SECTORES], minY[(k + SECTORES - 1) % SECTORES],
+        minY[k], minY[(k + 1) % SECTORES], minY[(k + 2) % SECTORES]));
+      minY.set(suave);
+      // Radio de la tela por sector y por franjas de 2 cm de alto (lo más cerca del eje)
+      const radio = new Map();
+      for (let i = 0; i < arriba.n; i++) {
+        const x = q[i * 3] - cx; const z = q[i * 3 + 2] - cz;
+        const r = Math.hypot(x, z);
+        if (r > RADIO_TRONCO_M) continue;
+        const sector = Math.floor(((Math.atan2(x, z) / (2 * Math.PI)) + 0.5) * SECTORES) % SECTORES;
+        const k = sector * 1000 + Math.floor(q[i * 3 + 1] / 0.02);
+        if (!(radio.get(k) <= r)) radio.set(k, r);
+      }
+      return { cx, cz, minY, radio };
+    }
+
+    // Lo que tapa la ropa no se dibuja (evita que la piel atraviese la tela): lo que dice la
+    // prenda (delete_verts) y los triángulos con sus tres vértices bajo tela ceñida
     function ocultaCuerpo() {
       const tapado = new Uint8Array(motor.n);
-      for (const p of puestas.values()) if (p.borrar) for (const v of p.borrar) tapado[v] = 1;
+      const cubierto = new Uint8Array(motor.n);
+      for (const p of puestas.values()) {
+        if (p.borrar) for (const v of p.borrar) tapado[v] = 1;
+        if (p.cubre) for (let v = 0; v < p.cubre.length; v++) if (p.cubre[v]) cubierto[v] = 1;
+      }
       const quedan = [];
       for (let i = 0; i < indices.length; i += 3) {
-        if (tapado[trisOrig[i]] || tapado[trisOrig[i + 1]] || tapado[trisOrig[i + 2]]) continue;
+        const a = trisOrig[i]; const b = trisOrig[i + 1]; const c = trisOrig[i + 2];
+        if (tapado[a] || tapado[b] || tapado[c]) continue;
+        if (cubierto[a] && cubierto[b] && cubierto[c]) continue;
         quedan.push(indices[i], indices[i + 1], indices[i + 2]);
       }
       geo.setIndex(new THREE.BufferAttribute(Uint32Array.from(quedan), 1));
@@ -394,7 +537,9 @@ export async function creaFabricaPersonajes() {
       });
       const pelvis = huesos.findIndex((b) => b.name === 'pelvis');
       alturaCadera = cabezas[pelvis * 3 + 1];
-      for (const pr of puestas.values()) if (pr.hueco !== 'calzado') ajustaPrenda(pr);
+      // La parte de arriba antes que el pantalón (que mira dónde acaba ella)
+      const orden = [...puestas.values()].filter((pr) => pr.hueco !== 'calzado').sort((x, y) => (x.hueco === 'abajo') - (y.hueco === 'abajo'));
+      for (const pr of orden) ajustaPrenda(pr);
       version++;
     }
 
@@ -443,6 +588,7 @@ export async function creaFabricaPersonajes() {
         if (i !== undefined) cuerpo.morphTargetInfluences[i] = valor;
       },
       posicionCuerpo: P,
+      prendasPuestas: puestas,          // para pruebas (hueco → prenda ajustada)
     };
   }
 

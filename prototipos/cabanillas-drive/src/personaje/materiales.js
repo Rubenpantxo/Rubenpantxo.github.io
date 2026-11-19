@@ -182,7 +182,7 @@ export function creaMaterialPrenda(hueco, texColor, texNormal, { msaa = false } 
   const m = new THREE.MeshPhysicalMaterial({
     map: texColor ?? null, normalMap: texNormal ?? null, metalness: 0,
     roughness: pelo ? 0.5 : 0.82, sheen: pelo ? 0.7 : 0.35, sheenRoughness: pelo ? 0.3 : 0.7,
-    sheenColor: new THREE.Color(0.6, 0.55, 0.5), side: pelo ? THREE.DoubleSide : THREE.FrontSide,
+    sheenColor: new THREE.Color(0.6, 0.55, 0.5), side: THREE.DoubleSide,   // la ropa: por dentro también (cuello, mangas)
     alphaTest: pelo ? (hueco === 'pelo' ? 0.42 : 0.28) : 0.5, alphaToCoverage: pelo && msaa,
     specularIntensity: pelo ? 0.6 : 0.3,
   });

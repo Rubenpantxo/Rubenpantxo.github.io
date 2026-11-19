@@ -11,7 +11,7 @@
 //   colgado — con el paracaídas: manos arriba en los mandos y piernas colgando
 //   posarse — mandos tirados hasta la cadera, piernas juntas y rodillas algo dobladas
 // La mochila va pegada a la espalda (se mide la superficie del cuerpo o de la ropa) y sigue al
-// pecho cuando el cuerpo se arquea. El grupo mira a −Z (como el resto del salto), pies en y = 0.
+// centro de la espalda cuando el cuerpo se arquea. El grupo mira a −Z (como el resto del salto), pies en y = 0.
 import * as THREE from 'three';
 import { clone as clonaConEsqueleto } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { FIESTAS } from '../config/fiestas.js';
@@ -90,7 +90,7 @@ export function creaPersonaSalto(personas) {
     manos: [hueso('hand_l'), hueso('hand_r')],
     muslos: [hueso('thigh_l'), hueso('thigh_r')], piernas: [hueso('calf_l'), hueso('calf_r')],
     pies: [hueso('foot_l'), hueso('foot_r')],
-    columna: hueso('spine_01'), pecho: hueso('spine_03'), cabeza: hueso('head'),
+    columna: hueso('spine_01'), lomo: hueso('spine_02'), pecho: hueso('spine_03'), cabeza: hueso('head'),
   };
   // Hacia qué lado (±X de la persona) queda cada brazo y cada pierna, para abrirlos hacia fuera
   grupo.updateMatrixWorld(true);
@@ -105,9 +105,11 @@ export function creaPersonaSalto(personas) {
   const zEspalda = fondo !== null ? -fondo + 0.012 : pecho.z + SALTO.persona.fondoEspaldaM;
   grupo.userData.espalda = new THREE.Vector3(0, pecho.y - 0.05, zEspalda);
   grupo.userData.cuerpo = objeto;
-  // Dónde queda ese punto (y el giro del grupo) respecto al pecho, para que la mochila lo siga
-  const anclaEnPecho = H.pecho ? H.pecho.worldToLocal(grupo.localToWorld(grupo.userData.espalda.clone())) : null;
-  const giroEnPecho = H.pecho ? H.pecho.getWorldQuaternion(new THREE.Quaternion()).invert()
+  // Dónde queda ese punto (y el giro del grupo) respecto a la mitad de la columna, para que la
+  // mochila la siga (con el pecho se despegaba abajo al arquearse)
+  const ancla = H.lomo ?? H.pecho;
+  const anclaEnPecho = ancla ? ancla.worldToLocal(grupo.localToWorld(grupo.userData.espalda.clone())) : null;
+  const giroEnPecho = ancla ? ancla.getWorldQuaternion(new THREE.Quaternion()).invert()
     .multiply(grupo.getWorldQuaternion(new THREE.Quaternion())) : null;
 
   const actual = copia(POSTURAS_SALTO.caida);
@@ -136,9 +138,9 @@ export function creaPersonaSalto(personas) {
   function pegaMochila() {
     mochila ??= grupo.getObjectByName('salto_mochila');
     if (!mochila || !anclaEnPecho) return;
-    H.pecho.updateMatrixWorld(true);
-    mochila.position.copy(grupo.worldToLocal(H.pecho.localToWorld(vA.copy(anclaEnPecho))));
-    mochila.quaternion.copy(grupo.getWorldQuaternion(qO).invert().multiply(H.pecho.getWorldQuaternion(qW)).multiply(giroEnPecho));
+    ancla.updateMatrixWorld(true);
+    mochila.position.copy(grupo.worldToLocal(ancla.localToWorld(vA.copy(anclaEnPecho))));
+    mochila.quaternion.copy(grupo.getWorldQuaternion(qO).invert().multiply(ancla.getWorldQuaternion(qW)).multiply(giroEnPecho));
   }
 
   // Un fotograma: «objetivo» es una postura (o la mezcla de dos); «rapidez» (1/s), lo que tarda en llegar

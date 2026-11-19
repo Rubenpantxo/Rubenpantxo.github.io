@@ -9,6 +9,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { SALTO } from '../config/salto.js';
+import { rehaceMochila } from './mochilaNueva.js';
 
 const suave = (t) => t * t * (3 - 2 * t);
 const tramo = (k, a, b) => suave(THREE.MathUtils.clamp((k - a) / (b - a), 0, 1));
@@ -51,6 +52,7 @@ export function preparaAvion(modelo) {
 export function preparaMochila(modelo) {
   const mochila = modelo.clone(true);
   mochila.name = 'salto_mochila';
+  rehaceMochila(mochila);              // piezas redondeadas en vez de las cajas (mochilaNueva.js)
   const nodo = (nombre) => mochila.getObjectByName(nombre);
   mochila.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } });
 
