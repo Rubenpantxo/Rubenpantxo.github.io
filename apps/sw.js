@@ -35,6 +35,7 @@ const PRECARGA = [
     '/apps/lab-studio/js/core/redes.js',
     '/apps/lab-studio/js/core/ruta.js',
     '/apps/lab-studio/js/datos/componentes.js',
+    '/apps/lab-studio/js/datos/ejemplos.js',
     '/apps/lab-studio/js/datos/proyectos.js',
     '/apps/lab-studio/js/datos/recursos.js',
     '/apps/lab-studio/js/main.js',

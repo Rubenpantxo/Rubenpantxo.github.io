@@ -6,6 +6,7 @@ import { CATEGORIAS, COMPONENTES, TIPOS_PIN } from '../datos/componentes.js';
 import { clavePin, buscarParte, U } from '../core/modelo.js';
 import { formato } from '../core/erc.js';
 import { listaMateriales, cabeceraPines, platformioDe } from '../core/exportar.js';
+import { ejemploDe } from '../datos/proyectos.js';
 import { longitudRuta } from '../core/ruta.js';
 import { miniatura } from './dibujos.js';
 import { colorCable } from './lienzo.js';
@@ -185,7 +186,8 @@ ${bom.lista.map(f => `<tr class="${f.propio ? 'propio' : ''}"><td>${esc(f.refs.j
 // -------------------------------------------------------------------- código
 export function pintarCodigo(el, app) {
     const cabecera = cabeceraPines(app.doc, app.catalogo, app.analisis);
-    const pio = platformioDe(app.doc);
+    const ej = ejemploDe(app.doc);
+    const pio = platformioDe(app.doc, ej ? ej.libs : []);
     el.innerHTML = `
 <h4>pines.h <span class="tenue">según el cableado</span></h4>
 <pre class="codigo" data-codigo="pines">${esc(cabecera)}</pre>
@@ -193,5 +195,9 @@ export function pintarCodigo(el, app) {
 ${pio.map((x, i) => `<h4>platformio.ini <span class="tenue">${esc(x.titulo)}</span></h4>
 <pre class="codigo" data-codigo="pio-${i}">${esc(x.ini)}</pre>
 <div class="fila-botones"><button type="button" data-copiar="pio-${i}">${ico('copiar')}Copiar</button><button type="button" data-exportar="pio-${i}">${ico('exportar')}Descargar</button></div>`).join('')}
+${ej ? ej.archivos.map(([nombre, texto], i) => `<h4>${esc(nombre)} <span class="tenue">ejemplo del proyecto</span></h4>
+<pre class="codigo" data-codigo="ejm-${i}">${esc(texto)}</pre>
+<div class="fila-botones"><button type="button" data-copiar="ejm-${i}">${ico('copiar')}Copiar</button><button type="button" data-exportar="ejm-${i}">${ico('exportar')}Descargar</button></div>`).join('') +
+        '<p class="nota">El ejemplo usa las macros PIN_… de pines.h: si mueves un cable a otro GPIO sigue valiendo; si cambias la pieza o su referencia, cambia también el nombre en el código.</p>' : ''}
 <p class="nota">La cabecera se regenera con cada cable: cambia un GPIO en la mesa y el firmware se queda sincronizado al volver a compilar.</p>`;
 }

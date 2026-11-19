@@ -2,7 +2,8 @@
 // de pines para el firmware. Todo sale del documento y del análisis, no de
 // plantillas: lo que se exporta es lo que está cableado.
 
-import { clavePin } from './modelo.js';
+import { clavePin, docDesdePlantilla } from './modelo.js';
+import { analizar } from './erc.js';
 
 export function listaMateriales(doc, catalogo, inventario = {}) {
     const filas = new Map();
@@ -136,6 +137,7 @@ build_flags =
   -DLOAD_GLCD
   -DLOAD_FONT2
   -DLOAD_FONT4
+  -DLOAD_FONT7
   -DSMOOTH_FONT
   -DSPI_FREQUENCY=55000000
   -DSPI_READ_FREQUENCY=20000000
@@ -180,14 +182,36 @@ const PLATFORMIO_POR_PLACA = [
     [t => t === 'm5stamp-s3', 'M5StampS3', () => PLATFORMIO_STAMP]
 ];
 
+// Añade librerías al lib_deps de un platformio.ini (o crea la sección).
+export function conLibrerias(ini, libs = []) {
+    if (!libs.length) return ini;
+    const extra = libs.map(l => '  ' + l + '\n').join('');
+    if (/^lib_deps =$/m.test(ini)) return ini.replace(/^lib_deps =\n(?: {2}.+\n)*/m, m => m + extra);
+    return ini.replace(/^(monitor_speed = .+\n)/m, `$1\nlib_deps =\n${extra}`);
+}
+
 // platformio.ini de cada placa que lo tiene, en el orden en que aparecen.
-export function platformioDe(doc) {
+// `libs`: las librerías que pide el código de ejemplo del proyecto.
+export function platformioDe(doc, libs = []) {
     const vistos = [];
     for (const p of doc.partes) {
         const e = PLATFORMIO_POR_PLACA.find(([es]) => es(p.tipo));
         if (e && !vistos.includes(e)) vistos.push(e);
     }
-    return vistos.map(([, titulo, ini]) => ({ titulo, ini: ini() }));
+    return vistos.map(([, titulo, ini]) => ({ titulo, ini: conLibrerias(ini(), libs) }));
+}
+
+// Proyecto PlatformIO completo de un ejemplo: platformio.ini con sus
+// librerías, include/pines.h sacado del montaje y el código.
+export function archivosEjemplo(p, catalogo) {
+    if (!p.ejemplo || !p.montaje) return [];
+    const doc = docDesdePlantilla(p.montaje, catalogo, p.titulo);
+    const pio = platformioDe(doc, p.ejemplo.libs);
+    return [
+        ...pio.map(x => ({ nombre: 'platformio.ini', texto: x.ini })),
+        { nombre: 'include/pines.h', texto: cabeceraPines(doc, catalogo, analizar(doc, catalogo)) },
+        ...p.ejemplo.archivos.map(([nombre, texto]) => ({ nombre, texto }))
+    ];
 }
 
 export const PLATFORMIO_INI = `; ESP32-S3 DevKitC-1 N16R8 (16 MB Flash QIO + 8 MB PSRAM Octal)
