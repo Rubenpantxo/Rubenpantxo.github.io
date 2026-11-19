@@ -40,6 +40,33 @@ export function puntoDeCalle(tramos, x, z) {
   return mejor;
 }
 
+// Calle adonde desviar el planeo si el aterrizaje previsto («hasta») no sirve (tejado, agua…):
+// la más cercana a ese punto entre las de varios puntos del camino desde «desde» ({x, y, z}),
+// siempre que se llegue en línea recta bajando sin pasar por debajo de ningún tejado.
+// techoEn(x, z): altura del tejado o null. Devuelve {x, z} o null si no hace falta desviarse.
+export function calleDesvio(desde, hasta, { tramos, esValido, techoEn, sueloEn }) {
+  if (esValido(hasta.x, hasta.z)) return null;
+  const candidatos = [];
+  for (const f of [1, 0.75, 0.5, 0.25, 0]) {
+    const c = puntoDeCalle(tramos, desde.x + (hasta.x - desde.x) * f, desde.z + (hasta.z - desde.z) * f);
+    if (c) candidatos.push(c);
+  }
+  if (!candidatos.length) return null;
+  candidatos.sort((a, b) => Math.hypot(a.x - hasta.x, a.z - hasta.z) - Math.hypot(b.x - hasta.x, b.z - hasta.z));
+  const libre = (c) => {
+    const d = Math.hypot(c.x - desde.x, c.z - desde.z);
+    const yFin = sueloEn(c.x, c.z);
+    for (let i = 1, n = Math.ceil(d / 2); i <= n; i++) {
+      const f = i / n;
+      const techo = techoEn(desde.x + (c.x - desde.x) * f, desde.z + (c.z - desde.z) * f);
+      if (techo !== null && techo > desde.y + (yFin - desde.y) * f - 1) return false;
+    }
+    return esValido(c.x, c.z);
+  };
+  const c = candidatos.find(libre) ?? candidatos[0];
+  return { x: c.x, z: c.z };
+}
+
 // «toque»: donde ha tocado el suelo ({x, z}); «rumbo»: hacia dónde iba (guiñada).
 // esValido(x, z): libre de edificios y coches y fuera del agua.
 // Devuelve { persona: {x, z, guinada, movido}, coche: {x, z, dx, dz} }

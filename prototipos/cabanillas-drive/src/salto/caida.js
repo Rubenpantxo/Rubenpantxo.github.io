@@ -43,6 +43,43 @@ export function pasoPlaneo(c, entrada, dt, alturaSuelo) {
   giraYAvanza(c, entrada, dt, P.giroRad, bajada, avance, P.respuesta);
 }
 
+// Peso del desvío automático a la calle según la altura: 0 arriba … 1 en los últimos metros
+export function pesoDesvio(alturaSuelo) {
+  const D = SALTO.planeo.desvio;
+  const t = Math.max(0, Math.min(1, (D.alturaInicioM - alturaSuelo) / (D.alturaInicioM - D.alturaPlenoM)));
+  return t * t * (3 - 2 * t);
+}
+
+// Desvío hacia «objetivo» ({x, z}) con peso 0…1: lleva la velocidad horizontal a la que hace
+// falta para llegar justo al tocar el suelo y vuelve el rumbo hacia allí. Va después de pasoPlaneo.
+export function pasoDesvio(c, objetivo, peso, dt, alturaSuelo) {
+  if (peso <= 0) return;
+  const D = SALTO.planeo.desvio;
+  const dx = objetivo.x - c.x;
+  const dz = objetivo.z - c.z;
+  const d = Math.hypot(dx, dz);
+  const tiempo = Math.max(0.4, alturaSuelo / Math.max(0.5, -c.vy));
+  const v = Math.min(D.vMaxMs, d / tiempo);
+  const vx = d > 1e-3 ? (dx / d) * v : 0;
+  const vz = d > 1e-3 ? (dz / d) * v : 0;
+  // Mezcla directa con lo que ha decidido el jugador: el peso ya sube poco a poco con la bajada
+  const k = peso;
+  const vxAntes = c.vx;
+  const vzAntes = c.vz;
+  c.vx = acerca(c.vx, vx, k);
+  c.vz = acerca(c.vz, vz, k);
+  // pasoPlaneo ya ha movido con la velocidad de antes: se añade la diferencia
+  c.x += (c.vx - vxAntes) * dt;
+  c.z += (c.vz - vzAntes) * dt;
+  // El personaje mira hacia donde le lleva (si aún está a unos metros)
+  if (d > 2) {
+    const rumbo = Math.atan2(-dx, -dz);
+    let giro = rumbo - c.rumbo;
+    giro = Math.atan2(Math.sin(giro), Math.cos(giro));
+    c.rumbo += giro * Math.min(1, peso * dt * 3);
+  }
+}
+
 // Apertura: de la caída al planeo en «duracionS» (k: 0 → 1)
 export function pasoApertura(c, entrada, dt) {
   const P = SALTO.planeo;

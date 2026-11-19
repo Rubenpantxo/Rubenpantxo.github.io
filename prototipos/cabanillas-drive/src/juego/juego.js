@@ -37,7 +37,7 @@ import { cargaGeoJSON } from '../visor/lineas.js';
 import { creaSalto } from '../salto/salto.js';
 import { cargaModelosSalto } from '../salto/modelos.js';
 import { cargaHorizonte } from '../escena/horizonte.js';
-import { creaIndiceTejados, eligeAterrizaje, tramosDeCalles } from '../salto/aterrizaje.js';
+import { calleDesvio, creaIndiceTejados, eligeAterrizaje, tramosDeCalles } from '../salto/aterrizaje.js';
 
 const MAX_PASOS_POR_FOTOGRAMA = 4;
 const CAMARA_FOV_COCHE = CAMARA.persecucion.fov;
@@ -397,6 +397,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       centro: { x: salida.x, z: salida.z },
       suelo: sueloSalto,
       avisa,
+      // Desvío en los últimos metros: a la calle más cercana si donde va a caer no sirve
+      buscaCalle: (desde, hasta) => calleDesvio(desde, hasta, { tramos: tramosCalles, esValido: esSitioValido,
+        techoEn: (x, z) => indiceTejados.techoEn(x, z), sueloEn: (x, z) => mundo.terreno.alturaEn(x, z) }),
       alTocarSuelo(toque, rumbo) {
         const r = eligeAterrizaje(toque, rumbo, { tramos: tramosCalles, esValido: esSitioValido });
         // El coche no te sigue: se queda aparcado donde estaba y hay que ir a buscarlo (el
@@ -606,6 +609,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       return salto.fase;
     };
     api.esSitioValido = esSitioValido;
+    api.techoEn = (x, z) => indiceTejados.techoEn(x, z);
   }
   if (import.meta.env.DEV) window.__juego = Object.assign(api, { THREE, renderer, camara, escena, colocaEn });
   return { actualiza, api };

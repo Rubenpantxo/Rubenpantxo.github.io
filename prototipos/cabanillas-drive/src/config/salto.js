@@ -56,6 +56,9 @@ export const SALTO = {
     giroRad: 1.05,
     // Últimos metros: frena la bajada para posarse
     alturaFrenadaM: 4, bajadaPosarseMs: 1.6,
+    // Si debajo hay un tejado o agua, el paracaídas se desvía hacia la calle más cercana, poco a
+    // poco: nada por encima de «alturaInicioM» y del todo a «alturaPlenoM» (más arriba manda el jugador)
+    desvio: { alturaInicioM: 28, alturaPlenoM: 6, cadaS: 0.25, vMaxMs: 16 },
   },
   aterrizaje: {
     duracionS: 1.2,           // la cámara entra en los ojos del personaje
