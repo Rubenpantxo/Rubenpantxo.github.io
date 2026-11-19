@@ -9,6 +9,8 @@
 
 **Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, **F0 aprobada; F1 (el pueblo en fiestas), F2 (personaje en tercera persona) y F3 (la vaca) hechas el 2026-11-17, pendientes de que Rubén las pruebe**. Portada nueva («Cabanillas · El Juego · by Rubenpantxo», imagen de Rubén) el 2026-11-17. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
 
+**Salto en paracaídas (2026-11-19):** plan en `PLAN_SALTO.md` (S0 prototipo con `?salto` → S1 horizonte de 6 × 6 km → S2 avión, paracaídas y personaje → S3 juego completo, móvil y sonido). Decidido por Rubén: cae el personaje, no el coche, y todo en Three.js dentro del juego. **S0 sin empezar, pendiente del OK de Rubén**; las dudas de la sección 3 del plan se resuelven en S0. S1 necesita permiso para descargar el MDT y la ortofoto del horizonte.
+
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
 ## Fases
