@@ -96,6 +96,7 @@ input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--acento);
 .nombre-doc:hover { border-color: var(--borde) !important; }
 .nombre-doc:focus { background: var(--fondo) !important; border-color: var(--acento) !important; text-align: left; }
 .chip-reglas { height: 26px; border-radius: 13px; font-weight: 600; font-size: 12px; }
+.chip-reglas .chip-num { display: none; }
 .chip-reglas.ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); background: color-mix(in srgb, var(--ok) 10%, transparent); }
 .chip-reglas.aviso { color: var(--aviso); border-color: color-mix(in srgb, var(--aviso) 45%, transparent); background: color-mix(in srgb, var(--aviso) 10%, transparent); }
 .chip-reglas.error { color: var(--error); border-color: color-mix(in srgb, var(--error) 50%, transparent); background: color-mix(in srgb, var(--error) 12%, transparent); }
@@ -436,7 +437,9 @@ h3.grupo { margin: 26px 0 10px; font-size: 11px; text-transform: uppercase; lett
 }
 @media (max-width: 520px) {
     .marca span { display: none; }
-    .chip-reglas { width: 40px; padding: 0 11px; justify-content: flex-start; overflow: hidden; }
+    .chip-reglas { padding: 0 11px; gap: 5px; }
+    .chip-reglas .chip-txt { display: none; }
+    .chip-reglas .chip-num { display: inline; }
     .cinta-fin { gap: 4px; }
     .calc-campos { grid-template-columns: 1fr; }
     .cab-area h2, .ficha-intro h2, .proyecto-cab h2 { font-size: 22px; }

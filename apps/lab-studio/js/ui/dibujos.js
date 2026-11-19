@@ -20,6 +20,7 @@ export const DEFS = `
 <linearGradient id="ls-rele" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f9bf5"/><stop offset="1" stop-color="#1d5fc2"/></linearGradient>
 <linearGradient id="ls-servo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f6ff0"/><stop offset="1" stop-color="#1836a8"/></linearGradient>
 <radialGradient id="ls-bombilla" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#fffbe0"/><stop offset=".6" stop-color="#ffd95a"/><stop offset="1" stop-color="#f0a92a"/></radialGradient>
+<linearGradient id="ls-cyd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b5fd9"/><stop offset="1" stop-color="#0d2a78"/></linearGradient>
 <linearGradient id="ls-pantalla" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d2a44"/><stop offset="1" stop-color="#0b1020"/></linearGradient>
 <pattern id="ls-malla" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="#15171a"/><circle cx="1.5" cy="1.5" r=".8" fill="#4a4f57"/></pattern>
 <filter id="ls-sombra" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.8" flood-color="#000" flood-opacity=".32"/></filter>`;
@@ -117,6 +118,59 @@ const ARTE = {
         s += def.pines.filter(p => p.fisico).map(p => rect(p.x * U - 1.8, p.y * U - 1.8, 3.6, 3.6, 'url(#ls-oro)')).join('');
         s += `<text transform="translate(188 30) rotate(90)" font-size="4.6" fill="#dff3e6" ${FUENTE}>GPIO · pin 1</text>`;
         s += `<text transform="translate(176 96) rotate(90)" font-size="5" fill="#dff3e6" ${FUENTE}>Raspberry Pi 4 Model B</text>`;
+        return s;
+    },
+
+    cyd(def) {
+        // Placa amarilla de 86 × 50 mm con el TFT de 2,8" apaisado delante.
+        let s = placa(340, 200, '#e6a019', 6);
+        for (const [x, y] of [[12, 12], [328, 12], [12, 188], [328, 188]]) s += circ(x, y, 8, '#f6e7b8') + circ(x, y, 4.6, '#0c0d0f');
+        s += rect(24, 36, 12, 112, '#c47d12', 'rx="2"') + `<path d="M28 44v96M32 44v96" stroke="#f0c56a" stroke-width=".7" opacity=".7"/>`;
+        s += rect(34, 6, 278, 164, 'url(#ls-metal)', 'rx="3" stroke="#8b9199" stroke-width=".6"') + rect(39, 10, 266, 156, '#07080a', 'rx="2"');
+        s += rect(48, 16, 248, 144, 'url(#ls-cyd)');
+        // Interfaz de ejemplo: dos filas de iconos.
+        const iconos = ['#9aa1ab', '#38bdf8', '#34d399', '#f8fafc', '#fb923c', '#a78bfa', '#fde68a', '#f472b6'];
+        iconos.forEach((c, i) => {
+            const x = 66 + (i % 4) * 58, y = 30 + Math.floor(i / 4) * 64;
+            s += rect(x, y, 38, 38, c, 'rx="9"') + rect(x + 11, y + 11, 16, 16, '#ffffff', 'rx="3" opacity=".55"') + rect(x + 4, y + 44, 30, 4, '#dbe4ff', 'rx="2" opacity=".7"');
+        });
+        // Lateral derecho: LED RGB, LDR y micro-USB.
+        s += rect(316, 30, 12, 12, '#f4f4f0', 'rx="1.5"') + circ(322, 36, 3.6, '#f9c5c5') + txt(322, 50, 'RGB', 4, '#5a3a06', 'text-anchor="middle" font-weight="700"');
+        s += circ(322, 62, 5, '#c4532c', 'stroke="#7a2e14" stroke-width=".8"') + `<path d="M319 60h6M319 62.5h6M319 65h6" stroke="#f2c08a" stroke-width=".6"/>` + txt(322, 74, 'LDR', 4, '#5a3a06', 'text-anchor="middle" font-weight="700"');
+        s += rect(318, 89, 24, 22, 'url(#ls-metal)', 'rx="2" stroke="#6a7078" stroke-width=".6"') + rect(324, 96, 14, 8, '#22252a', 'rx="1.5"');
+        s += txt(322, 124, 'USB', 4, '#5a3a06', 'text-anchor="middle" font-weight="700"') + txt(256, 182, 'ESP32-2432S028R', 6, '#5a3a06', 'font-weight="700"');
+        s += txt(256, 190, 'ESP32-WROOM-32 · microSD', 4.4, '#5a3a06');
+        s += wifi(14, 100, '#5a3a06', 1);
+        // Conectores P1, P3 y CN1 (JST de 1,25 mm) con sus rótulos.
+        const conectores = [['P1', 3, ['VIN', 'TX', 'RX', 'GND']], ['P3', 10, ['GND', '35', '22', '21']], ['CN1', 17, ['GND', '22', '27', '3V3']]];
+        for (const [nombre, x0, nombres] of conectores) {
+            s += rect(x0 * U - 6, 183, 42, 15, '#f3efe2', 'rx="1.5" stroke="#b8ad8c" stroke-width=".6"') + txt(x0 * U - 8, 194, nombre, 5, '#5a3a06', 'text-anchor="end" font-weight="700"');
+            nombres.forEach((n, i) => { s += txt((x0 + i) * U, 180, n, 3.6, '#3d2804', 'text-anchor="middle" font-weight="600"') + rect((x0 + i) * U - 2.2, 188, 4.4, 4.4, 'url(#ls-oro)'); });
+        }
+        return s;
+    },
+
+    c3mini(def) {
+        // Placa azul oscuro: USB-C arriba, ESP32-C3 en el centro y antena cerámica abajo.
+        let s = placa(80, 90, '#16233f', 3);
+        s += rect(28, -4, 24, 16, 'url(#ls-metal)', 'rx="3" stroke="#6a7078" stroke-width=".6"') + rect(32, 1, 16, 5, '#22252a', 'rx="2.5"');
+        s += chip(26, 30, 28, 28, 'C3', 6) + txt(40, 54, 'ESP32', 3.4, '#8b9199', 'text-anchor="middle"');
+        s += rect(27, 61, 9, 7, 'url(#ls-metal)', 'rx="1"') + rect(44, 61, 9, 7, 'url(#ls-metal)', 'rx="1"') + txt(31.5, 73, 'BOOT', 3, '#c9cdd3', 'text-anchor="middle"') + txt(48.5, 73, 'RST', 3, '#c9cdd3', 'text-anchor="middle"');
+        s += rect(30, 16, 4, 3, '#4aa3ff') + rect(46, 16, 4, 3, '#ff5a4d') + smd(36, 20, '#2a2c30');
+        s += rect(27, 77, 26, 8, '#e9e4d6', 'rx="1"') + txt(40, 83, 'ANT', 4, '#6a5e3e', 'text-anchor="middle" font-weight="700"');
+        s += pads(def, pad, p => p.lado === 'izq' || p.lado === 'der') + rotulos(def, '#e8eaed', 3.8, p => p.lado === 'izq' || p.lado === 'der');
+        return s;
+    },
+
+    stamps3(def) {
+        // Sello negro: antena 3D arriba, ESP32-S3 blindado y USB-C abajo.
+        let s = placa(80, 100, '#17181b', 4);
+        s += rect(22, 3, 36, 10, '#2a2d33', 'rx="2"') + `<path d="M25 8h6l2-4 3 8 3-8 3 8 3-8 3 8 2-4h5" fill="none" stroke="#c9a23a" stroke-width="1.4"/>`;
+        s += rect(27, 18, 26, 38, 'url(#ls-metal)', 'rx="2" stroke="#70767e" stroke-width=".6"') + txt(40, 33, 'STAMP', 5, '#3b4047', 'text-anchor="middle" font-weight="700"') + txt(40, 45, 'S3', 9, '#c0392b', 'text-anchor="middle" font-weight="800"');
+        s += rect(29, 60, 8, 8, '#f4f4f0', 'rx="1.5"') + circ(33, 64, 2.6, '#c7d2fe') + txt(33, 74, 'RGB', 3, '#a9adb3', 'text-anchor="middle"');
+        s += circ(46, 64, 5, '#e2b93b', 'stroke="#8a6a12" stroke-width=".8"') + circ(46, 64, 2.4, '#f6dc7a') + txt(46, 74, 'G0', 3.2, '#a9adb3', 'text-anchor="middle"');
+        s += rect(28, 84, 24, 18, 'url(#ls-metal)', 'rx="3" stroke="#6a7078" stroke-width=".6"') + rect(32, 87, 16, 5, '#22252a', 'rx="2.5"');
+        s += pads(def, pad, p => p.lado === 'izq' || p.lado === 'der') + rotulos(def, '#e8eaed', 3.8, p => p.lado === 'izq' || p.lado === 'der');
         return s;
     },
 

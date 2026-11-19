@@ -207,6 +207,59 @@ export function validarDoc(obj, catalogo) {
 // Construye un documento a partir de una plantilla de proyecto:
 // { partes: [{ k, tipo, x, y, rot }], cables: [['k.PIN', 'k.PIN', etiqueta?]] }
 // con x/y en unidades de rejilla.
+// Pliega una plantilla apaisada en bandas apiladas para que se lea en una
+// pantalla vertical (móvil). Solo corta por columnas libres de piezas, de
+// modo que ninguna pieza se parte ni se pisa; los cables se vuelven a
+// enrutar solos. `ancho` y `alto` son el hueco disponible en píxeles.
+// Devuelve la misma plantilla si plegarla no mejora claramente el encuadre.
+export function plegarPlantilla(plantilla, catalogo, ancho, alto, { hueco = 4, maxBandas = 3 } = {}) {
+    if (!ancho || !alto || alto < ancho * 1.15 || !plantilla.partes.length) return plantilla;
+    const cajas = plantilla.partes.map(p => {
+        const t = tamano(catalogo.get(p.tipo), p.rot);
+        return { p, x0: p.x, x1: p.x + t.w, y0: p.y, y1: p.y + t.h };
+    });
+    const extension = lista => ({
+        x0: Math.min(...lista.map(c => c.x0)), x1: Math.max(...lista.map(c => c.x1)),
+        y0: Math.min(...lista.map(c => c.y0)), y1: Math.max(...lista.map(c => c.y1))
+    });
+    const total = extension(cajas);
+    const ajuste = (w, h) => Math.min(ancho / (w * U), alto / (h * U));
+    // Columnas en las que ninguna pieza queda cortada.
+    const cortes = [...new Set(cajas.map(c => c.x1))].sort((a, b) => a - b)
+        .filter(x => x < total.x1 && cajas.every(c => c.x1 <= x || c.x0 >= x));
+    const bandasDe = lista => {
+        const limites = [-Infinity, ...lista, Infinity];
+        return limites.slice(1).map((fin, i) => cajas.filter(c => c.x0 >= limites[i] && c.x1 <= fin)).filter(b => b.length);
+    };
+    // Cada cable que salta de una banda a otra resta: alarga el recorrido.
+    const medir = bandas => {
+        const ext = bandas.map(extension);
+        const banda = new Map(bandas.flatMap((b, i) => b.map(c => [c.p.k, i])));
+        const cruces = plantilla.cables.filter(([a, b]) => banda.get(a.split('.')[0]) !== banda.get(b.split('.')[0])).length;
+        const w = Math.max(...ext.map(e => e.x1 - e.x0)), h = ext.reduce((s, e) => s + e.y1 - e.y0, 0) + hueco * (bandas.length - 1);
+        return { bandas, ext, w, h, nota: ajuste(w, h) / (1 + 0.04 * cruces) };
+    };
+    let mejor = medir([cajas]);
+    const combinar = (desde, elegidos) => {
+        if (elegidos.length) {
+            const m = medir(bandasDe(elegidos));
+            if (m.nota > mejor.nota) mejor = m;
+        }
+        if (elegidos.length >= maxBandas - 1) return;
+        for (let i = desde; i < cortes.length; i++) combinar(i + 1, [...elegidos, cortes[i]]);
+    };
+    combinar(0, []);
+    if (mejor.bandas.length < 2 || mejor.nota < medir([cajas]).nota * 1.2) return plantilla;
+    const sitio = new Map();
+    let y = total.y0;
+    mejor.bandas.forEach((banda, i) => {
+        const e = mejor.ext[i];
+        for (const c of banda) sitio.set(c.p, { x: c.x0 - e.x0 + total.x0, y: c.y0 - e.y0 + y });
+        y += e.y1 - e.y0 + hueco;
+    });
+    return { ...plantilla, partes: plantilla.partes.map(p => ({ ...p, ...sitio.get(p) })) };
+}
+
 export function docDesdePlantilla(plantilla, catalogo, nombre) {
     const doc = nuevoDoc(nombre);
     const ids = new Map();

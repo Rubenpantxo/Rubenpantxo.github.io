@@ -5,7 +5,7 @@
 import { CATEGORIAS, COMPONENTES, TIPOS_PIN } from '../datos/componentes.js';
 import { clavePin, buscarParte, U } from '../core/modelo.js';
 import { formato } from '../core/erc.js';
-import { listaMateriales, cabeceraPines, PLATFORMIO_INI } from '../core/exportar.js';
+import { listaMateriales, cabeceraPines, platformioDe } from '../core/exportar.js';
 import { longitudRuta } from '../core/ruta.js';
 import { miniatura } from './dibujos.js';
 import { colorCable } from './lienzo.js';
@@ -185,13 +185,13 @@ ${bom.lista.map(f => `<tr class="${f.propio ? 'propio' : ''}"><td>${esc(f.refs.j
 // -------------------------------------------------------------------- código
 export function pintarCodigo(el, app) {
     const cabecera = cabeceraPines(app.doc, app.catalogo, app.analisis);
-    const hayS3 = app.doc.partes.some(p => p.tipo.startsWith('esp32-s3'));
+    const pio = platformioDe(app.doc);
     el.innerHTML = `
 <h4>pines.h <span class="tenue">según el cableado</span></h4>
 <pre class="codigo" data-codigo="pines">${esc(cabecera)}</pre>
 <div class="fila-botones"><button type="button" data-copiar="pines">${ico('copiar')}Copiar</button><button type="button" data-exportar="pines">${ico('exportar')}Descargar</button></div>
-${hayS3 ? `<h4>platformio.ini <span class="tenue">ESP32-S3 N16R8</span></h4>
-<pre class="codigo" data-codigo="pio">${esc(PLATFORMIO_INI)}</pre>
-<div class="fila-botones"><button type="button" data-copiar="pio">${ico('copiar')}Copiar</button><button type="button" data-exportar="pio">${ico('exportar')}Descargar</button></div>` : ''}
+${pio.map((x, i) => `<h4>platformio.ini <span class="tenue">${esc(x.titulo)}</span></h4>
+<pre class="codigo" data-codigo="pio-${i}">${esc(x.ini)}</pre>
+<div class="fila-botones"><button type="button" data-copiar="pio-${i}">${ico('copiar')}Copiar</button><button type="button" data-exportar="pio-${i}">${ico('exportar')}Descargar</button></div>`).join('')}
 <p class="nota">La cabecera se regenera con cada cable: cambia un GPIO en la mesa y el firmware se queda sincronizado al volver a compilar.</p>`;
 }

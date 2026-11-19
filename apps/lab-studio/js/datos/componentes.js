@@ -117,6 +117,105 @@ function pinesPi() {
     ];
 }
 
+// ------------------------------------------ ESP32-2432S028R («Cheap Yellow Display»)
+// Solo salen a conectores P1 (serie), P3 y CN1; el resto de GPIO van a la
+// pantalla, el táctil, la microSD, el LED RGB, la LDR y el altavoz.
+const CYD_FIJOS = [
+    ['Pantalla ILI9341 (HSPI)', [[2, 'TFT_DC'], [12, 'TFT_MISO'], [13, 'TFT_MOSI'], [14, 'TFT_SCK'], [15, 'TFT_CS'], [21, 'TFT_BL']]],
+    ['Táctil XPT2046', [[25, 'TOUCH_CLK'], [32, 'TOUCH_MOSI'], [33, 'TOUCH_CS'], [36, 'TOUCH_IRQ'], [39, 'TOUCH_MISO']]],
+    ['microSD (VSPI)', [[5, 'SD_CS'], [18, 'SD_SCK'], [19, 'SD_MISO'], [23, 'SD_MOSI']]],
+    ['LED RGB, activo a nivel bajo', [[4, 'LED_R'], [16, 'LED_G'], [17, 'LED_B']]],
+    ['Otros', [[34, 'LDR'], [26, 'ALTAVOZ'], [0, 'BOTON_BOOT']]]
+];
+function pinesCyd() {
+    const io = (g, n, x, tipo, extra = {}) => pin('GPIO' + g, n, x, 19, 'aba', tipo, { gpio: g, v: 3.3, vmax: 3.6, red: 'GPIO' + g, ...extra });
+    return [
+        // P1 · serie
+        pin('VIN', 'VIN', 3, 19, 'aba', 'fuente', { v: 5, imax: 500, bi: true, nota: '5 V del micro-USB. También sirve para alimentar la placa con 5 V externos (no uses los dos a la vez).' }),
+        io(1, 'TX', 4, 'es', { fn: ['U0TXD'], nota: 'Va al CH340 del USB: si lo usas, choca con el monitor serie.' }),
+        io(3, 'RX', 5, 'es', { fn: ['U0RXD'], nota: 'Va al CH340 del USB: si lo usas, choca con la programación y el monitor serie.' }),
+        gnd('GND_1', 6, 19, 'aba'),
+        // P3
+        gnd('GND_2', 10, 19, 'aba'),
+        io(35, '35', 11, 'ent', { fn: ['ADC1_CH7'], nota: 'GPIO35 es solo entrada y no tiene pull-up interno.' }),
+        io(21, '21', 13, 'es', { fn: ['TFT_BL'], nota: 'GPIO21 es también la retroiluminación de la pantalla: si lo usas, la pantalla parpadea o se apaga.' }),
+        // CN1
+        gnd('GND_3', 17, 19, 'aba'),
+        io(22, '22', 18, 'es', { fn: ['I2C SCL'], nota: 'GPIO22 sale por CN1 y por P3. Es el SCL habitual del I²C en esta placa.' }),
+        io(27, '27', 19, 'es', { fn: ['I2C SDA'], nota: 'GPIO27 es el SDA habitual del I²C en esta placa. Algunas unidades traen una resistencia de 10 kΩ a 3,3 V.' }),
+        pin('3V3', '3V3', 20, 19, 'aba', 'fuente', { v: 3.3, imax: 300, bi: true, nota: '3,3 V del regulador AMS1117 del ESP32, compartido con el módulo: deja unos 300 mA para periféricos.' }),
+        pin('USB', 'micro-USB', 34, 10, 'der', 'usb_dev', { i: 300, puerto: 'microusb', nota: 'Alimentación y puente serie CH340: programación y monitor serie.' }),
+        pin('WIFI', 'Wi-Fi', 0, 10, 'izq', 'red', { puerto: 'wifi', nota: 'Enlace lógico Wi-Fi: HTTP, MQTT o ESP-NOW hacia la red local.' })
+    ];
+}
+
+// ------------------------------------------------- ESP32-C3 SuperMini
+// Vista desde arriba (cara de los componentes) con el USB-C arriba, según el
+// diagrama de espboards.dev. Los de arranque son 2, 8 y 9.
+const C3_IZQ = [5, 6, 7, 8, 9, 10, 20, 21];
+const C3_DER = ['5V', 'GND', '3V3', 4, 3, 2, 1, 0];
+const C3_FN = {
+    0: ['ADC1_CH0'], 1: ['ADC1_CH1'], 2: ['ADC1_CH2'], 3: ['ADC1_CH3'], 4: ['ADC1_CH4', 'SPI SCK', 'MTMS'], 5: ['ADC2_CH0', 'SPI MISO', 'MTDI'],
+    6: ['SPI MOSI', 'MTCK'], 7: ['SPI SS', 'MTDO'], 8: ['I2C SDA', 'LED'], 9: ['I2C SCL', 'BOOT'], 10: [], 20: ['U0RXD'], 21: ['U0TXD']
+};
+const C3_NOTA = {
+    2: 'GPIO2 es de arranque: debe estar a nivel alto en el reset (no lo lleves a GND).',
+    5: 'GPIO5 está en el ADC2, que no se puede leer con la Wi-Fi activa.',
+    8: 'GPIO8 lleva el LED azul (activo a nivel bajo) y es de arranque: debe estar alto en el reset para poder programar.',
+    9: 'GPIO9 es el botón BOOT: a nivel bajo en el reset entra en modo descarga.',
+    20: 'GPIO20 es el RX de la UART0.',
+    21: 'GPIO21 es el TX de la UART0.'
+};
+function pinesC3() {
+    const uno = (v, x, y, lado) => {
+        if (typeof v === 'number') {
+            return pin('GPIO' + v, String(v), x, y, lado, 'es', {
+                gpio: v, v: 3.3, vmax: 3.6, fn: C3_FN[v] || [], red: 'GPIO' + v,
+                ...([2, 8, 9].includes(v) ? { strap: true } : {}), ...(C3_NOTA[v] ? { nota: C3_NOTA[v] } : {})
+            });
+        }
+        if (v === 'GND') return gnd('GND', x, y, lado);
+        if (v === '3V3') return pin('3V3', '3V3', x, y, lado, 'fuente', { v: 3.3, imax: 500, bi: true, nota: 'Salida del regulador de 3,3 V (hasta 500 mA, compartidos con el ESP32-C3). También admite 3,3 V externos.' });
+        return pin('5V', '5V', x, y, lado, 'fuente', { v: 5, imax: 500, bi: true, nota: '5 V del USB-C. También sirve para alimentar la placa con 5 V externos, pero no a la vez que el USB.' });
+    };
+    return [
+        ...C3_IZQ.map((v, i) => uno(v, 1, 1 + i, 'izq')),
+        ...C3_DER.map((v, i) => uno(v, 7, 1 + i, 'der')),
+        pin('USB', 'USB-C', 4, 0, 'arr', 'usb_dev', { i: 350, puerto: 'usbc', nota: 'USB nativo del ESP32-C3 (GPIO18/19): programación y monitor serie USB CDC.' }),
+        pin('WIFI', 'Wi-Fi', 4, 9, 'aba', 'red', { puerto: 'wifi', nota: 'Enlace lógico Wi-Fi o ESP-NOW. La antena cerámica es pequeña: el alcance es menor que en otras placas.' })
+    ];
+}
+
+// ------------------------------------------- M5StampS3 (cabecera de 2,54 mm)
+// Versión PIN2.54: de la doble fila de 1,27 mm solo salen los pines alternos.
+const STAMP_IZQ = [1, 3, 5, 7, 9, 'GND', '5V', 13, 15];
+const STAMP_DER = [null, null, null, '3V3', 43, 44, 'EN', 0, 'GND'];
+function pinesStamp() {
+    let tierras = 0;
+    const uno = (v, x, y, lado) => {
+        if (typeof v === 'number') {
+            const fn = { 1: ['ADC1_CH0', 'TOUCH1'], 3: ['ADC1_CH2', 'TOUCH3'], 5: ['ADC1_CH4', 'TOUCH5'], 7: ['ADC1_CH6', 'TOUCH7'], 9: ['ADC1_CH8', 'TOUCH9'], 13: ['I2C SDA', 'ADC2_CH2'], 15: ['I2C SCL', 'ADC2_CH4'], 43: ['U0TXD'], 44: ['U0RXD'], 0: ['BOOT', 'Botón'] }[v];
+            const nota = {
+                0: 'G0 es también el botón de la placa y pin de arranque: a nivel bajo en el reset entra en modo descarga.',
+                3: 'G3 elige la fuente del JTAG en el arranque: no lo fuerces durante el reset.',
+                13: 'G13 es el SDA por defecto del I²C en la StampS3.', 15: 'G15 es el SCL por defecto del I²C en la StampS3.',
+                43: 'G43 es el TX de la UART0: lleva los mensajes de arranque.', 44: 'G44 es el RX de la UART0.'
+            }[v];
+            return pin('GPIO' + v, 'G' + v, x, y, lado, 'es', { gpio: v, v: 3.3, vmax: 3.6, fn, red: 'GPIO' + v, ...(v === 0 || v === 3 ? { strap: true } : {}), ...(nota ? { nota } : {}) });
+        }
+        if (v === 'GND') return gnd('GND_' + ++tierras, x, y, lado);
+        if (v === '3V3') return pin('3V3', '3V3', x, y, lado, 'fuente', { v: 3.3, imax: 500, bi: true, nota: '3,3 V del convertidor MUN3CAD01 de 1 A, compartido con el módulo.' });
+        if (v === 'EN') return pin('EN', 'EN', x, y, lado, 'ent', { vmax: 3.6, nota: 'Reset, activo a nivel bajo.' });
+        return pin('5V', '5V', x, y, lado, 'fuente', { v: 5, imax: 500, bi: true, nota: '5 V del USB-C o entrada de 5 V para alimentar la placa (no a la vez que el USB).' });
+    };
+    return [
+        ...STAMP_IZQ.map((v, i) => uno(v, 1, 1 + i, 'izq')),
+        ...STAMP_DER.map((v, i) => v != null && uno(v, 7, 1 + i, 'der')).filter(Boolean),
+        pin('USB', 'USB-C', 4, 10, 'aba', 'usb_dev', { i: 350, puerto: 'usbc', nota: 'USB nativo del ESP32-S3 (G19/G20): programación, monitor serie, HID y MIDI.' }),
+        pin('WIFI', 'Wi-Fi', 4, 0, 'arr', 'red', { puerto: 'wifi', nota: 'Enlace lógico Wi-Fi o ESP-NOW con la antena 3D de la placa.' })
+    ];
+}
+
 // Fila de pines en el borde inferior de un módulo genérico.
 const fila = (lista, h, x0 = 1) => lista.map(([id, n, tipo, extra], i) => pin(id, n, x0 + i, h - 1, 'aba', tipo, extra));
 const I2C = { vmax: 5.5 };
@@ -174,6 +273,95 @@ export const COMPONENTES = [
             hoja('Hoja de datos Raspberry Pi 4', 'https://datasheets.raspberrypi.com/rpi4/raspberry-pi-4-datasheet.pdf'),
             doc('Pinout interactivo', 'https://pinout.xyz/'),
             repo('raspberrypi/linux', 'https://github.com/raspberrypi/linux')
+        ]
+    },
+    {
+        id: 'esp32-2432s028r', nombre: 'ESP32-2432S028R · pantalla táctil de 2,8"', corto: 'ESP32 CYD 2,8"', fabricante: 'Sunton (genérica, «Cheap Yellow Display»)',
+        categoria: 'placas', propio: true, precio: 15, ref: 'U', mcu: true, w: 34, h: 20, dibujo: 'cyd',
+        fijos: CYD_FIJOS, placaCodigo: 'cyd',
+        resumen: 'ESP32 de doble núcleo LX6 · TFT de 2,8" 240 × 320 táctil · Wi-Fi + BLE · microSD · LED RGB',
+        descripcion: 'Placa todo en uno con el módulo ESP32-WROOM-32 detrás de una pantalla de 2,8" de 65 000 colores con táctil resistivo. Trae ranura microSD, LED RGB, sensor de luz (LDR), salida de altavoz y tres conectores con los pocos GPIO que quedan libres: ideal para paneles de control, monitores y mandos con interfaz gráfica (LVGL o TFT_eSPI).',
+        aviso: 'Casi todos los GPIO están ocupados por la pantalla, el táctil y la microSD: solo quedan libres el 22 y el 27 (CN1), el 35 (solo entrada) y el 21, que es la retroiluminación. Todo trabaja a 3,3 V. Hay una variante con dos USB (micro-USB y USB-C) que monta el controlador ST7789 en lugar del ILI9341: mira la etiqueta del dorso.',
+        alimPor: [['USB'], ['VIN']],
+        alimNota: 'conecta el micro-USB a un host o un cargador, o entra con 5 V por VIN (conector P1).',
+        specs: [
+            ['Procesador', 'ESP32-D0WD (módulo ESP32-WROOM-32), Xtensa LX6 de doble núcleo a 240 MHz'],
+            ['Memoria', '520 KB SRAM · 4 MB Flash · sin PSRAM'],
+            ['Pantalla', 'TFT de 2,8" · 240 × 320 · 65 K colores · ILI9341 por SPI (ST7789 en la variante de dos USB)'],
+            ['Táctil', 'Resistivo, controlador XPT2046 por SPI'],
+            ['Radio', 'Wi-Fi 802.11 b/g/n (2,4 GHz) · Bluetooth 4.2 y BLE'],
+            ['Integrados', 'microSD · LED RGB · LDR en GPIO34 · altavoz por GPIO26 con amplificador · botones BOOT y RST'],
+            ['GPIO libres', '22 y 27 en CN1 (I²C), 35 solo entrada y 21 compartido con la retroiluminación en P3, TX/RX en P1'],
+            ['Alimentación', '5 V por micro-USB (CH340) o por VIN · dos reguladores AMS1117 de 3,3 V'],
+            ['Consumo', '≈ 115 mA con la retroiluminación al máximo; el ESP32 añade picos de unos 240 mA al transmitir por Wi-Fi'],
+            ['Dimensiones', '86 × 50 mm · ≈ 50 g']
+        ],
+        pines: pinesCyd(),
+        enlaces: [
+            doc('Patillaje y ejemplos de la comunidad', 'https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display'),
+            doc('Patillaje de la CYD (Random Nerd Tutorials)', 'https://randomnerdtutorials.com/esp32-cheap-yellow-display-cyd-pinout-esp32-2432s028r/'),
+            doc('Especificaciones y esquema (Mischianti)', 'https://mischianti.org/esp32-2432s028-cheap-yellow-display-high-resolution-pinout-datasheet-schema-and-specs'),
+            hoja('Módulo ESP32-WROOM-32', 'https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf'),
+            repo('Bodmer/TFT_eSPI', 'https://github.com/Bodmer/TFT_eSPI'),
+            repo('PaulStoffregen/XPT2046_Touchscreen', 'https://github.com/PaulStoffregen/XPT2046_Touchscreen'),
+            repo('lvgl/lvgl', 'https://github.com/lvgl/lvgl')
+        ]
+    },
+    {
+        id: 'esp32-c3-supermini', nombre: 'ESP32-C3 SuperMini', corto: 'ESP32-C3 SuperMini', fabricante: 'Genérica (Nologo / Tenstar)',
+        categoria: 'placas', precio: 3.5, ref: 'U', mcu: true, w: 8, h: 9, dibujo: 'c3mini',
+        fijos: [['Integrados', [[8, 'LED_AZUL'], [9, 'BOTON_BOOT']]]], placaCodigo: 'c3',
+        resumen: 'RISC-V de un núcleo a 160 MHz · 4 MB Flash · Wi-Fi 4 + BLE 5 · USB-C nativo · 22,5 × 18 mm',
+        descripcion: 'La placa más pequeña y barata de la familia: un ESP32-C3 con 13 GPIO, USB-C nativo y antena cerámica. Encaja donde no cabe otra: el receptor de un dron o un coche, un pulsador inalámbrico, un sensor a pilas o una tira de LED con WLED.',
+        aviso: 'Todo a 3,3 V. GPIO2, GPIO8 y GPIO9 deciden el arranque: no los lleves a GND durante el reset. GPIO8 lleva el LED azul, activo a nivel bajo. El orden de los pines cambia en algunas copias: compáralo con la serigrafía de la tuya. No uses a la vez el USB-C y una fuente en el pin 5V.',
+        alimPor: [['USB'], ['5V'], ['3V3']],
+        alimNota: 'conecta el USB-C a un host o entra con 5 V por el pin 5V.',
+        specs: [
+            ['Procesador', 'ESP32-C3FN4, RISC-V de un núcleo a 160 MHz'],
+            ['Memoria', '400 KB SRAM · 4 MB Flash integrada'],
+            ['Radio', 'Wi-Fi 802.11 b/g/n (2,4 GHz) · Bluetooth 5 LE · antena cerámica'],
+            ['E/S', '13 GPIO en dos tiras de 8 pines · 6 ADC · I²C, SPI, UART, PWM'],
+            ['Por defecto', 'I²C: SDA 8, SCL 9 · SPI: SCK 4, MISO 5, MOSI 6, SS 7 · UART0: TX 21, RX 20'],
+            ['USB', 'USB-C nativo (CDC y JTAG): activa «USB CDC On Boot» en Arduino'],
+            ['Integrados', 'LED azul en GPIO8 (activo a nivel bajo) · LED rojo de alimentación · botones BOOT (GPIO9) y RST'],
+            ['Alimentación', '5 V por USB-C o pin 5V · regulador de 3,3 V de 500 mA'],
+            ['Dimensiones', '22,5 × 18 mm']
+        ],
+        pines: pinesC3(),
+        enlaces: [
+            doc('Primeros pasos (Random Nerd Tutorials)', 'https://randomnerdtutorials.com/getting-started-esp32-c3-super-mini/'),
+            doc('Patillaje y pines seguros (espboards.dev)', 'https://www.espboards.dev/esp32/esp32-c3-super-mini/'),
+            doc('Configuración en ESPHome (sudo.is)', 'https://www.sudo.is/docs/esphome/boards/esp32c3supermini/'),
+            hoja('Hoja de datos ESP32-C3', 'https://www.espressif.com/sites/default/files/documentation/esp32-c3_datasheet_en.pdf'),
+            repo('espressif/arduino-esp32', 'https://github.com/espressif/arduino-esp32')
+        ]
+    },
+    {
+        id: 'm5stamp-s3', nombre: 'M5StampS3 (cabecera de 2,54 mm)', corto: 'M5StampS3', fabricante: 'M5Stack',
+        categoria: 'placas', precio: 8.9, ref: 'U', mcu: true, w: 8, h: 10, dibujo: 'stamps3',
+        fijos: [['Integrados', [[21, 'LED_RGB'], [0, 'BOTON']]]], placaCodigo: 'stamp',
+        resumen: 'ESP32-S3 de doble núcleo LX7 · 8 MB Flash · Wi-Fi 4 + BLE 5 · USB-C nativo · LED RGB · 26 × 18 mm',
+        descripcion: 'Módulo sello de M5Stack con un ESP32-S3FN8, antena 3D, USB-C nativo, un botón programable y un LED RGB WS2812B. La versión con cabecera de 2,54 mm saca 10 GPIO, alimentación y el reset: cabe en una protoboard y tiene USB HID, MIDI y las instrucciones vectoriales del S3.',
+        aviso: 'Todo a 3,3 V. No lleva PSRAM, así que los modelos de voz o visión grandes no caben. G0 es el botón y el pin de arranque; G43 y G44 son la UART0 de los mensajes de arranque. La versión de 1,27 mm tiene 23 GPIO en otro orden.',
+        alimPor: [['USB'], ['5V'], ['3V3']],
+        alimNota: 'conecta el USB-C a un host o entra con 5 V por el pin 5V.',
+        specs: [
+            ['Procesador', 'ESP32-S3FN8, Xtensa LX7 de doble núcleo a 240 MHz, instrucciones vectoriales'],
+            ['Memoria', '512 KB SRAM · 8 MB Flash · sin PSRAM'],
+            ['Radio', 'Wi-Fi 802.11 b/g/n (2,4 GHz) · Bluetooth 5 LE · antena 3D'],
+            ['E/S', 'Cabecera de 2,54 mm: G1, G3, G5, G7, G9, G13, G15, G43, G44 y G0'],
+            ['Por defecto', 'I²C: SDA G13, SCL G15 · UART0: TX G43, RX G44'],
+            ['USB', 'USB-C nativo (G19/G20): CDC, HID, MIDI y JTAG'],
+            ['Integrados', 'LED RGB WS2812B-2020 en G21 · botón en G0 · conector FPC para pantalla SPI en el dorso'],
+            ['Alimentación', '5 V por USB-C o pin 5V · convertidor de 3,3 V MUN3CAD01 (1 A)'],
+            ['Dimensiones', '26 × 18 × 4,6 mm · 3,4 g']
+        ],
+        pines: pinesStamp(),
+        enlaces: [
+            doc('Documentación y mapa de pines (M5Stack)', 'https://docs.m5stack.com/en/core/Stamp-S3_PIN2.54'),
+            hoja('Hoja de datos ESP32-S3', 'https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf'),
+            repo('m5stack/M5Unified', 'https://github.com/m5stack/M5Unified'),
+            repo('FastLED/FastLED', 'https://github.com/FastLED/FastLED')
         ]
     },
     {
