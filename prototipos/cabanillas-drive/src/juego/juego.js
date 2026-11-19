@@ -382,7 +382,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     botonBajar.hidden = true;
     entrada.ponModo('salto');
     salto = creaSalto({
-      escena, camara, terreno: mundo.terreno, render, semilla, tactil, detalles: [casas.userData.ponDetalle], modelos: modelosSalto,
+      escena, camara, terreno: mundo.terreno, render, semilla, tactil, detalles: [casas.userData.ponDetalle], modelos: modelosSalto, personas,
       zona: { mitadAncho: mundo.rejilla.ancho / 2, mitadAlto: mundo.rejilla.alto / 2 },
       centro: { x: salida.x, z: salida.z },
       suelo: sueloSalto,

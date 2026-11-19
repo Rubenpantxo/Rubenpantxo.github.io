@@ -8,6 +8,7 @@ import { creaRuta } from './ruta.js';
 import { alturaApertura, dentroDeZona, pasoApertura, pasoCaida, pasoPlaneo, prediceAterrizaje } from './caida.js';
 import { creaAvion, creaParacaidas, creaPersonaje, liberaFigura } from './figuras.js';
 import { preparaAvion, preparaMochila } from './modelos.js';
+import { POSTURAS_SALTO, creaPersonaSalto } from './persona.js';
 import { creaCamaraSalto } from './camaraSalto.js';
 import { creaAlturaRender } from './alturaRender.js';
 
@@ -21,18 +22,25 @@ const suave = (t) => t * t * (3 - 2 * t);
 // detalles: funciones (valor) => … para ocultar detalle en lo alto (src/salto/alturaRender.js)
 // modelos: { avion, mochila } de modelos.js (null: figuras provisionales)
 export function creaSalto({ escena, camara, terreno, render, zona, centro, semilla, suelo, tactil = false, detalles = [],
-  modelos = null,
+  modelos = null, personas = null,
   avisa = () => {}, alTocarSuelo, alTerminar }) {
   const ruta = creaRuta({ semilla, centro, alturaSuelo: terreno.alturaEn(centro.x, centro.z) });
   const camaraSalto = creaCamaraSalto({ camara, terreno });
   const alturaRender = creaAlturaRender({ camara, escena, render, detalles });
   const avion = modelos?.avion ? preparaAvion(modelos.avion) : creaAvion();
-  const personaje = creaPersonaje();
+  // La persona de MakeHuman con sus posturas (o, si no hay personas cargadas, la cápsula)
+  const persona = creaPersonaSalto(personas);
+  const personaje = persona ?? creaPersonaje();
+  const cuerpoVisible = (v) => {
+    if (persona) persona.userData.cuerpo.visible = v;
+    else for (const h of personaje.children.slice(0, 2)) h.visible = v;
+  };
   // Mochila-paracaídas en la espalda (o, sin el modelo, la lona provisional sobre los hombros)
   const mochila = modelos?.mochila ? preparaMochila(modelos.mochila) : null;
   const paracaidas = mochila ? null : creaParacaidas();
   if (mochila) {
-    mochila.position.set(...SALTO.modelos.mochilaEnEspalda);
+    if (persona) mochila.position.copy(persona.userData.espalda);
+    else mochila.position.set(...SALTO.modelos.mochilaEnEspalda);
     personaje.add(mochila);
   } else {
     paracaidas.position.y = 1.45;
@@ -153,6 +161,12 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     // En la caída gira alrededor del centro del cuerpo, no de los pies
     const centroY = enCaida ? -0.9 : 0;
     personaje.position.set(cuerpo.x, cuerpo.y + centroY, cuerpo.z);
+    if (persona) {
+      const a = entrada.avance ?? 0;
+      const postura = enCaida ? (a > 0 ? POSTURAS_SALTO.picado : a < 0 ? POSTURAS_SALTO.frenado : POSTURAS_SALTO.caida)
+        : alturaJugador < SALTO.persona.alturaPosarseM ? POSTURAS_SALTO.posarse : POSTURAS_SALTO.colgado;
+      persona.userData.actualiza(dt, postura, fase === 'apertura' ? 3 : 5);
+    }
   }
 
   // Un fotograma. «entrada»: mandos del juego; «mirada»: px de ratón o dedo; «paracaidas»: pulsado
@@ -221,7 +235,7 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
       camara.quaternion.slerpQuaternions(desde.giro, destino.quaternion, e);
       camara.fov = THREE.MathUtils.lerp(desde.fov, fovDestino, e);
       camara.updateProjectionMatrix();
-      if (k >= 0.35) personaje.children[0].visible = personaje.children[1].visible = false;
+      if (k >= 0.35) cuerpoVisible(false);
       alturaCamara = camara.position.y - terreno.alturaEn(camara.position.x, camara.position.z);
       alturaRender.actualiza(alturaCamara);
       if (k >= 1) termina();

@@ -445,7 +445,7 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 ### Pendiente
 - S1 (horizonte): necesita permiso para descargar el MDT y la ortofoto; misma capa y año del WMS que `02_ortho.py`. Desde el aire se ve el borde de la zona (fondo marrón) y, fuera de ella, contornos sueltos de parcelas.
 - Hecho (2026-11-19): los materiales de las casas a mano que solo cambian de color (enfoscados, persianas y lisos de igual aspereza y brillo) se juntan en uno con color por vértice; el detalle de fachada sigue aparte. Mallas de 176 a 135; casas en vista de 114 a 94 en la plaza y de 132 a 99 desde el aire; mismo aspecto. Quedan 111 materiales distintos: tejas, ladrillos, sillares, tablas… llevan el color pintado en la textura.
-- S2: falta el personaje (sigue la cápsula naranja).
+- Hecho (2026-11-19): la cápsula del salto es ya la persona de MakeHuman del jugador de fiestas (`src/salto/persona.js`), con posturas que siguen a los mandos: caída en cruz (rodillas dobladas, brazos abiertos), picado (W, brazos atrás), frenado (S, más abierto), colgado del paracaídas (brazos arriba a los mandos) y posarse por debajo de 7 m. La mochila se coloca en su espalda a partir del hueso del pecho. Sin personas cargadas, sigue la cápsula. Prueba del salto: todo bien en «bajo».
 
 ## Pendiente de Rubén (lo hará más adelante; no recordárselo en cada informe)
 - R4: capturas de Scaniverse de 3–5 edificios en `data/raw/splats/<nombre>/` (instrucciones en `PLAN_REALISMO.md`).

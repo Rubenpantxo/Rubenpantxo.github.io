@@ -14,6 +14,9 @@ export const SALTO = {
     // 3,7 m por debajo)
     salidaAtrasM: 9.5, salidaBajoM: 4,
   },
+  // Persona de MakeHuman (src/salto/persona.js): la mochila va este fondo por detrás del pecho;
+  // por debajo de esta altura se pone en postura de posarse
+  persona: { fondoEspaldaM: 0.13, alturaPosarseM: 7 },
   // Modelos de Rubén (modelos/salto/ → npm run salto). La mochila va en la espalda del personaje:
   // posición de su centro respecto a los pies (Z+ = detrás)
   modelos: {

@@ -161,7 +161,7 @@ Aceptación: Rubén revisa la vista previa y salta: no hay costura visible y el 
 
 Objetivo: cambiar las cajas de S0 por modelos propios.
 
-> **Hecho el 2026-11-19 con los modelos de Rubén** (sustituye a lo de abajo para el avión y el paracaídas): `modelos/salto/avion.glb` y `modelos/salto/mochila_paracaidas.glb` → `npm run salto` (`tools/optimiza_salto.mjs`) → `public/assets/salto/`, y `src/salto/modelos.js` los prepara. La mochila va cerrada en la espalda y se abre en la fase de apertura: solapas, pilotillo, bandas, cuerdas y cúpula de 9 celdas. Al aterrizar, la lona cae y se pliega. Su script paramétrico, `tools/build_activos_salto.py` (Blender), genera una versión más sencilla de los dos. **Falta el personaje** (sigue la cápsula).
+> **Hecho el 2026-11-19 con los modelos de Rubén** (sustituye a lo de abajo para el avión y el paracaídas): `modelos/salto/avion.glb` y `modelos/salto/mochila_paracaidas.glb` → `npm run salto` (`tools/optimiza_salto.mjs`) → `public/assets/salto/`, y `src/salto/modelos.js` los prepara. La mochila va cerrada en la espalda y se abre en la fase de apertura: solapas, pilotillo, bandas, cuerdas y cúpula de 9 celdas. Al aterrizar, la lona cae y se pliega. Su script paramétrico, `tools/build_activos_salto.py` (Blender), genera una versión más sencilla de los dos. El personaje es la persona de MakeHuman con sus posturas de caída, picado, frenado, colgado y posarse (`src/salto/persona.js`). **S2 hecho.**
 
 - **Avión**: `tools/build_avion.py` (Blender sin ventana, como `build_scene.py`).
   - Avión de carga de diseño propio, sin marcas reales: ala alta, rampa trasera abierta y 2 o 4 hélices como nodos aparte (`helice_*`) que se giran desde el código.
