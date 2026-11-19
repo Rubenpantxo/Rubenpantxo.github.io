@@ -122,7 +122,11 @@ renderer.domElement.addEventListener('webglcontextlost', (ev) => {
 const sol = await fetch(ESCENA.rutaSol).then((r) => (r.ok ? r.json() : null)).catch(() => null);
 const escena = new THREE.Scene();
 const { luzSol, direccion } = creaEntorno(escena, ESCENA, sol);
-if (CALIDAD.niebla) Object.assign(escena.fog, CALIDAD.niebla);   // móvil: recorta lo lejano
+// Móvil: niebla más cerca para recortar lo lejano (THREE.Fog usa near y far, no cerca y lejos)
+if (CALIDAD.niebla && escena.fog) {
+  escena.fog.near = CALIDAD.niebla.cerca;
+  escena.fog.far = CALIDAD.niebla.lejos;
+}
 const camara = new THREE.PerspectiveCamera(
   CAMARA.persecucion.fov, window.innerWidth / window.innerHeight, CALIDAD.camaraCerca, CALIDAD.camaraLejos,
 );

@@ -483,6 +483,6 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - Resuelto en la fase 5: `vite.config.js` quita de `dist/` las teselas de `assets/orto/` y `terrain.f32` (solo los usa el pipeline).
 - El JS del juego pesa 2,7 MB (939 KB gzip), casi todo Rapier con el wasm incrustado (`-compat`). Se puede revisar en la fase 5.
 - El modelo del coche es sencillo (primitivas); mejorable si Rubén quiere.
-- Niebla de la calidad «bajo» sin efecto (visto el 2026-11-19 en S0 del salto): `main.js` hace `Object.assign(escena.fog, CALIDAD.niebla)` con `{ cerca, lejos }`, pero `THREE.Fog` usa `near` y `far`. En «bajo» la niebla sigue de 1200 a 4000 m y la cámara corta a 1400 m. Arreglarlo cambia el aspecto en el móvil (mucha más niebla): pendiente de que Rubén decida.
+- Resuelto el 2026-11-19 (pedido por Rubén): la niebla de la calidad «bajo» no se aplicaba, porque `main.js` copiaba `{ cerca, lejos }` a `THREE.Fog`, que usa `near` y `far`. Ahora va de 450 a 1300 m, como dice `calidad.js`, y tapa el corte de la cámara a 1400 m. Alta y media no cambian (1200–4000 m). La prueba del salto pasa en «bajo».
 - `npm audit`: 3 vulnerabilidades altas, solo en dependencias de desarrollo (`@gltf-transform/cli`). Las de ejecución están limpias.
 - Si se publica esta carpeta tal cual en GitHub Pages, `prototipos/cabanillas-drive/index.html` no funciona sin compilar (imports de npm). El juego se publica desde `dist/` (PLAN §8).
