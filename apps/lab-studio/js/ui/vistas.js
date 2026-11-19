@@ -93,7 +93,7 @@ export function pintarProyectos(el, app, id) {
     const lista = PROYECTOS.filter(x => (!f.ambito || x.ambito === f.ambito) && (!f.montaje || x.montaje) &&
         (!texto || (x.titulo + ' ' + x.resumen + ' ' + (x.modelo || '') + ' ' + x.ambito).toLowerCase().includes(texto)));
     el.innerHTML = `
-<header class="cab-area"><div><h2>Proyectos</h2><p>${PROYECTOS.length} proyectos con ESP32-S3, Coral, Raspberry Pi y la pantalla táctil CYD: ${PROYECTOS.filter(x => x.montaje).length} se abren ya cableados en la mesa, con su material y los repositorios de partida.</p></div>
+<header class="cab-area"><div><h2>Proyectos</h2><p>${PROYECTOS.length} proyectos con ESP32-S3, ESP32-C3 SuperMini, M5StampS3, Coral, Raspberry Pi y la pantalla táctil CYD: ${PROYECTOS.filter(x => x.montaje).length} se abren ya cableados en la mesa, con su material y los repositorios de partida.</p></div>
   <label class="buscador">${ico('buscar')}<input type="search" data-buscar-proyecto placeholder="Buscar proyecto, modelo o ámbito" value="${esc(f.texto || '')}"></label></header>
 <div class="filtros" role="group" aria-label="Filtrar proyectos">
   <button type="button" data-filtro-montaje aria-pressed="${!!f.montaje}" class="${f.montaje ? 'activo' : ''}">${ico('mesa')}Con montaje</button>
