@@ -11,6 +11,8 @@
 
 **Salto en paracaídas (2026-11-19):** plan en `PLAN_SALTO.md` (S0 prototipo con `?salto` → S1 horizonte de 6 × 6 km → S2 avión, paracaídas y personaje → S3 juego completo, móvil y sonido). Decidido por Rubén: cae el personaje, no el coche, y todo en Three.js dentro del juego. **S0 hecho; desde el 2026-11-19 el juego empieza por el salto (se puede omitir) con el avión y la mochila-paracaídas de Rubén; pendiente de que Rubén lo pruebe**; ver el apartado «Salto en paracaídas». S1 necesita permiso para descargar el MDT y la ortofoto del horizonte.
 
+**Editor de personaje (2026-11-19, pedido por Rubén):** `PLAN_PERSONAJE.md`. P1 hecho: editor tipo Sims/GTA con MakeHuman en el navegador (macros, 200 rasgos, escultura directa, herencia, piel, ojos, pelo, ropa), al empezar la sesión; el personaje es el jugador de fiestas y salto. Datos: `python tools/40_editor_personaje.py` → `npm run personaje`. Prueba: `?personaje`. Pendiente de que Rubén lo pruebe.
+
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
 ## Fases

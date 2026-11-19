@@ -166,10 +166,11 @@
   #editor-personaje .ep-panel { left: 8px; right: 8px; top: auto; width: auto; height: 44vh; bottom: max(8px, env(safe-area-inset-bottom)); border-radius: 18px; }
   #editor-personaje .ep-panel header { padding: 10px 14px 2px; }
   #editor-personaje .ep-panel header p { display: none; }
-  #editor-personaje .ep-cabecera { left: 14px; top: max(10px, env(safe-area-inset-top)); }
-  #editor-personaje .ep-cabecera h2 { font-size: 19px; }
+  #editor-personaje .ep-cabecera { left: 10px; top: calc(max(10px, env(safe-area-inset-top)) + 46px); }
+  #editor-personaje .ep-cabecera h2 { display: none; }
+  #editor-personaje .ep-medidas { flex-direction: column; align-items: flex-start; gap: 4px; }
   #editor-personaje .ep-cabecera p { display: none; }
-  #editor-personaje .ep-zonas { top: max(10px, env(safe-area-inset-top)); right: 8px; }
+  #editor-personaje .ep-zonas { top: max(10px, env(safe-area-inset-top)); right: 8px; left: 8px; justify-content: space-between; }
   #editor-personaje .ep-zonas button { padding: 6px 8px; font-size: 12px !important; }
   #editor-personaje .ep-acciones { top: calc(max(10px, env(safe-area-inset-top)) + 46px); bottom: auto; right: 8px; flex-direction: column; align-items: flex-end; }
   #editor-personaje .ep-acciones .ep-boton { padding: 7px 10px; }

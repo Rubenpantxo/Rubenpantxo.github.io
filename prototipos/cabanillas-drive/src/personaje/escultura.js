@@ -47,9 +47,11 @@ export function creaEscultura({ motor, categorias }) {
       if (deltaEn(inf.pos, v, d)) m = Math.max(m, d.length());
       if (deltaEn(inf.neg, v, d)) m = Math.max(m, d.length());
       const rel = m / (maximo.get(id) || 1);
-      if (rel > 0.3 && m > 0.0008) lista.push({ id, rel, m });
+      // Mejor los rasgos locales (pocos vértices) que los que mueven media figura
+      const n = Math.max(inf.pos?.v.length ?? 0, inf.neg?.v.length ?? 0);
+      if (rel > 0.3 && m > 0.0008) lista.push({ id, rel, m, puntos: (rel * m) / Math.log(2 + n) });
     }
-    return lista.sort((a, b) => b.rel * b.m - a.rel * a.m).slice(0, 8);
+    return lista.sort((a, b) => b.puntos - a.puntos).slice(0, 8);
   }
 
   const pa = new THREE.Vector3();

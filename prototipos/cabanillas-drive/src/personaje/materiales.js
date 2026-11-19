@@ -200,6 +200,9 @@ export function creaMaterialOjos(texIris) {
   const m = new THREE.MeshPhysicalMaterial({
     map: texIris ?? null, roughness: 0.25, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04,
     specularIntensity: 0.8,
+    // La córnea (la capa de fuera) usa una zona transparente de la textura: se recorta y el
+    // barniz del iris hace de brillo húmedo
+    alphaTest: 0.5,
   });
   m.name = 'personaje_ojos';
   return m;

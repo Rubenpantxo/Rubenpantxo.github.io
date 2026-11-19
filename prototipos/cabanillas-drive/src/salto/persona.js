@@ -26,7 +26,8 @@ const CLAVES = Object.keys(POSTURAS_SALTO.caida);
 // Devuelve el grupo de la persona o null si no hay personas cargadas
 export function creaPersonaSalto(personas) {
   const modelos = personas?.modelos ?? [];
-  const variante = modelos.find((m) => m.id === FIESTAS.personaje.modelo) ?? modelos[0];
+  // El personaje del editor si lo hay; si no, la persona de las fiestas
+  const variante = personas?.jugador ?? modelos.find((m) => m.id === FIESTAS.personaje.modelo) ?? modelos[0];
   if (!variante) return null;
   const grupo = new THREE.Group();
   grupo.name = 'salto_personaje';

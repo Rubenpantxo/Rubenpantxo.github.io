@@ -546,6 +546,7 @@ export async function abreEditor({ renderer, apariencia: inicial, alTerminar, pr
     contenido.querySelectorAll('.ep-deslizador').forEach((c) => c.classList.toggle('ep-esculpe', ids.has(c.dataset.id)));
   };
 
+  if (import.meta.env.DEV) Object.assign(window.__editorPersonaje, { tocaCuerpo, escultura, aPantalla });
   capa.addEventListener('pointerdown', (e) => {
     capa.setPointerCapture(e.pointerId);
     punteros.set(e.pointerId, { x: e.clientX, y: e.clientY });

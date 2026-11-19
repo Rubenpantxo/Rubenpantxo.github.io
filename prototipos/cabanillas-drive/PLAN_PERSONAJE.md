@@ -13,7 +13,15 @@ Pipeline: `python tools/40_editor_personaje.py` → `npm run personaje` (textura
   herencia, azar, deshacer/rehacer, guardado local. Integrado en el inicio (botón «Crea tu personaje»
   y antes de cualquier «Jugar»).
 
+- Ojos: la córnea usa una zona transparente de la textura → alphaTest 0,5 (antes salían negros).
+- El personaje es el jugador de las fiestas y el del salto (`api.ponJugador`, `src/personaje/jugador.js`).
+  Con el editor pendiente, el salto espera a que el jugador esté montado. Sin editor (`?personaje=0`
+  o `?aparece`) se usa el último guardado.
+- Probado: escritorio y móvil (375 × 812, hoja inferior), calidad baja, escultura (el punto sigue al
+  ratón: 15 px pedidos → 13,9 px), fiestas andando con el personaje.
+
 ## Pendiente
-- Ojos salen negros (la malla de ojos high-poly se dibuja negra; revisar normales/UV o usar low-poly).
-- Usar la apariencia en el jugador de fiestas y en el salto (`window.__aparienciaJugador` / localStorage).
-- Probar móvil y calidad baja; medir tiempos.
+- Medir en un móvil real (memoria y tiempo de montaje del personaje).
+- Altura: el editor limita la macro a 0,15–0,72 (≈1,45–2,05 m); MakeHuman llega a 2,45 m.
+- Más adelante: gimnasio (complexión), peluquería (pelo) y tienda de ropa del pueblo reutilizando el editor
+  con solo su pestaña.

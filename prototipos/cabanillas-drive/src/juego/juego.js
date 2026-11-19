@@ -556,6 +556,18 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     get modoFiestas() { return enFiestas() ? fiestas.modo : null; }, carteles, luces, ciclo, peatones, muros, elementos, farolas,
     lugares: lugares.map(({ nombre, icono }) => ({ nombre, icono })),
     entradas, aparece, empiezaSalto, omiteSalto,
+    // El personaje del editor (PLAN_PERSONAJE.md) hace de jugador en las fiestas y en el salto
+    async ponJugador(apariencia) {
+      if (!apariencia || !personas) return false;
+      try {
+        const { creaVarianteJugador } = await import('../personaje/jugador.js');
+        personas.jugador = await creaVarianteJugador(apariencia, { renderer, sombras: CALIDAD.sombras, texturaMax: CALIDAD.texturaMax ?? 2048 });
+        return true;
+      } catch (error) {
+        console.warn('[personaje] no se pudo preparar el jugador; se usa la persona por defecto', error);
+        return false;
+      }
+    },
     get salto() { return salto; },
     get puedeOmitirSalto() { return Boolean(salto?.omitible); },
     get fps() { return fps; },

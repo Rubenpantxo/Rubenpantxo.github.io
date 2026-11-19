@@ -159,6 +159,7 @@ ajustaTamano();
 // jugar si aún no se ha hecho. Una vez en el juego no se vuelve a abrir. Comparte el renderer.
 // ?personaje=0 lo salta (pruebas); al volver de otro juego (?aparece) tampoco sale.
 let editor = null;
+let saltoPendiente = null;
 let personajeElegido = parametros.get('personaje') === '0' || Boolean(parametros.get('aparece'));
 async function abrePersonaje(boton) {
   if (editor) return;
@@ -180,10 +181,14 @@ async function abrePersonaje(boton) {
   }
   const apariencia = await editor.terminado;
   window.__aparienciaJugador = apariencia;
-  if (!esJuego) { api?.avisa?.('Guardado'); return; }
+  if (!esJuego) return;
   personajeElegido = true;
   editor = null;
   document.body.classList.remove('editando-personaje');
+  // El juego ya ha cargado (el botón del editor espera): se monta el jugador y se empieza
+  await api?.ponJugador(apariencia);
+  saltoPendiente?.();
+  saltoPendiente = null;
   (boton ?? document.getElementById('jugar')).click();
 }
 if (esJuego) {
@@ -275,9 +280,19 @@ modo({ renderer, escena, camara, ui, ciclo, render })
       // inicio, «Empezar en la calle» lo omite; en la pausa, «Saltarse el salto»
       if (parametros.get('salto') !== '0' && !parametros.get('fiestas') && !parametros.get('aparece')) {
         const semilla = Number.parseInt(parametros.get('salto'), 10);
-        api.empiezaSalto(Number.isFinite(semilla) ? semilla : undefined);
+        const arranca = () => api.empiezaSalto(Number.isFinite(semilla) ? semilla : undefined);
+        // Con el editor pendiente, el salto espera al personaje (lo monta abrePersonaje)
+        if (personajeElegido) arranca();
+        else saltoPendiente = arranca;
       }
       pantallas.ponSalto(() => api.puedeOmitirSalto, () => api.omiteSalto());
+      // Sin pasar por el editor (?personaje=0 o de vuelta de otro juego): el último personaje guardado
+      if (personajeElegido) {
+        import('./personaje/estado.js').then(({ cargaGuardada }) => {
+          const guardada = cargaGuardada();
+          if (guardada) api.ponJugador(guardada);
+        });
+      }
       window.addEventListener('cabanillas:inicioCalle', () => api.omiteSalto());
       // ?fiestas=plaza|calle|encierro entra directamente al modo
       if (parametros.get('fiestas')) api.entraFiestas(parametros.get('fiestas'));

@@ -27,7 +27,7 @@ function proyecta(a, b, x, z, margen) {
 
 export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = true }) {
   const P = FIESTAS.personaje;
-  const variante = personas.modelos.find((m) => m.id === P.modelo) ?? personas.modelos[0];
+  const variante = personas.jugador ?? personas.modelos.find((m) => m.id === P.modelo) ?? personas.modelos[0];
   const objeto = clonaConEsqueleto(variante.escena);
   objeto.name = 'fiestas_jugador';
   objeto.traverse((o) => {
