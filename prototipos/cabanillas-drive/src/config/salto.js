@@ -17,6 +17,12 @@ export const SALTO = {
   // Persona de MakeHuman (src/salto/persona.js): la mochila va este fondo por detrás del pecho;
   // por debajo de esta altura se pone en postura de posarse
   persona: { fondoEspaldaM: 0.13, alturaPosarseM: 7 },
+  // Pelo al viento (src/salto/persona.js): cuánto se mueven las puntas (m) a plena velocidad, el
+  // temblor, y cómo se reparte desde el cráneo (centro de la cabeza: este alto sobre el cuello)
+  pelo: {
+    empujeM: 0.07, temblorM: 0.009, velocidadPlenaMs: 45,
+    centroSobreCuelloM: 0.1, radioCraneoM: 0.1, largoM: 0.22, minimo: 0.18,
+  },
   // Modelos de Rubén (modelos/salto/ → npm run salto). La mochila va en la espalda del personaje:
   // posición de su centro respecto a los pies (Z+ = detrás)
   modelos: {

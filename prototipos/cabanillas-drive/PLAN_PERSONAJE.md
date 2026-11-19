@@ -45,8 +45,8 @@ Por mechones siguiendo la luminancia de la textura del pelo (los más claros enc
 cambios de un píxel al de al lado. Antes, `fract(lum · 37)` salía moteado.
 
 ## En el salto
-El personaje del editor salta con posturas por dirección, la mochila redibujada y un arnés medido
-sobre su cuerpo y su ropa: ver `PROGRESO.md`, «Salto en paracaídas», 2026-11-19 (noche).
+El personaje del editor salta con posturas por dirección, la mochila redibujada, un arnés medido
+sobre su cuerpo y su ropa y el pelo moviéndose con el aire: ver `PROGRESO.md`, «Salto en paracaídas», 2026-11-19 (noche).
 
 ## Pendiente
 - Medir en un móvil real (memoria y tiempo de montaje del personaje).

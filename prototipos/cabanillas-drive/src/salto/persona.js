@@ -18,6 +18,7 @@ import { FIESTAS } from '../config/fiestas.js';
 import { SALTO } from '../config/salto.js';
 import { creaCapa, giraHueso } from '../fiestas/pose.js';
 import { creaArnes } from './arnes.js';
+import { clonaMaterialPelo } from '../personaje/materiales.js';
 
 // Direcciones [fuera, arriba, delante] de cada tramo y giros (rad) de columna y cabeza (− = atrás)
 export const POSTURAS_SALTO = {
@@ -65,6 +66,35 @@ function fondoEspalda(objeto, alturaPecho) {
   return Number.isFinite(minZ) ? minZ : null;
 }
 
+// Pelo al viento: material propio (para no mover el del jugador de las fiestas) y, por vértice,
+// cuánto se puede mover («flexion»): 0 pegado al cuero cabelludo … 1 en las puntas, según lo lejos
+// que quede del centro de la cabeza. El pelo corto apenas se mueve; la melena, mucho
+function preparaPeloAlViento(objeto) {
+  let malla = null;
+  objeto.traverse((o) => { if (o.isSkinnedMesh && o.name === 'personaje_pelo') malla = o; });
+  if (!malla) return null;
+  const esqueleto = malla.skeleton;
+  const i = esqueleto.bones.findIndex((b) => b.name === 'head');
+  if (i < 0) return null;
+  const cabeza = new THREE.Vector3().setFromMatrixPosition(new THREE.Matrix4().copy(esqueleto.boneInverses[i]).invert());
+  const centro = cabeza.add(new THREE.Vector3(0, SALTO.pelo.centroSobreCuelloM, 0.01));
+  const pos = malla.geometry.attributes.position;
+  const flex = new Float32Array(pos.count);
+  const v = new THREE.Vector3();
+  const P = SALTO.pelo;
+  for (let k = 0; k < pos.count; k++) {
+    const d = v.fromBufferAttribute(pos, k).distanceTo(centro);
+    const largo = THREE.MathUtils.clamp((d - P.radioCraneoM) / P.largoM, 0, 1) ** 1.2;
+    const suelto = P.minimo * THREE.MathUtils.smoothstep(d, P.radioCraneoM - 0.005, P.radioCraneoM + 0.03);
+    flex[k] = Math.max(largo, suelto);
+  }
+  // La geometría se comparte con el personaje de las fiestas: copia con el atributo nuevo
+  malla.geometry = malla.geometry.clone();
+  malla.geometry.setAttribute('flexion', new THREE.BufferAttribute(flex, 1));
+  malla.material = clonaMaterialPelo(malla.material);
+  return { malla, u: malla.material.userData.uniformes };
+}
+
 // Devuelve el grupo de la persona o null si no hay personas cargadas
 export function creaPersonaSalto(personas) {
   const modelos = personas?.modelos ?? [];
@@ -83,6 +113,7 @@ export function creaPersonaSalto(personas) {
   grupo.add(objeto);
   // Arnés ajustado a este cuerpo (antes de animar: se mide en reposo)
   try { creaArnes(objeto); } catch (error) { console.warn('[salto] sin arnés', error); }
+  const pelo = preparaPeloAlViento(objeto);
   const mezclador = new THREE.AnimationMixer(objeto);
   mezclador.clipAction(variante.quieto).play();
   mezclador.update(0);
@@ -136,6 +167,29 @@ export function creaPersonaSalto(personas) {
     h.quaternion.copy(qP.multiply(qW));
     h.updateMatrixWorld(true);
   }
+  // Viento en el pelo: el aire viene de donde va el personaje (velocidad medida entre fotogramas).
+  // Se pasa al espacio de la malla del pelo, que es donde lo empuja el shader
+  const antes = new THREE.Vector3(); const ahora = new THREE.Vector3(); const aire = new THREE.Vector3();
+  const giroMalla = new THREE.Quaternion();
+  let velocidad = 0; let primera = true;
+  function sopla(dt) {
+    if (!pelo || dt <= 0) return;
+    grupo.getWorldPosition(ahora);
+    if (primera) { antes.copy(ahora); primera = false; return; }
+    aire.subVectors(antes, ahora).divideScalar(dt);     // aire relativo = −velocidad
+    antes.copy(ahora);
+    const v = aire.length();
+    velocidad += (v - velocidad) * Math.min(1, dt * 4);   // sin tirones entre fotogramas
+    const P = SALTO.pelo;
+    // Raíz: con el paracaídas (≈ 13 m/s) ya se nota, y en la caída llega al máximo
+    const k = Math.sqrt(THREE.MathUtils.clamp(velocidad / P.velocidadPlenaMs, 0, 1));
+    if (v > 1e-3) aire.divideScalar(v); else aire.set(0, 1, 0);
+    pelo.malla.getWorldQuaternion(giroMalla).invert();
+    pelo.u.uViento.value.copy(aire.applyQuaternion(giroMalla)).multiplyScalar(P.empujeM * k);
+    pelo.u.uRafaga.value = P.temblorM * (0.25 + 0.75 * k);
+    pelo.u.uTiempo.value += dt * (0.6 + 1.4 * k);
+  }
+
   // La mochila (la añade salto.js a este grupo) sigue al pecho
   let mochila = null;
   function pegaMochila() {
@@ -168,6 +222,7 @@ export function creaPersonaSalto(personas) {
       apunta(H.piernas[i], H.pies[i], actual.pierna, ladoPierna[i]);
     }
     pegaMochila();
+    sopla(dt);
   };
   grupo.userData.ponPostura = (postura) => {
     for (const c of CLAVES) actual[c] = Array.isArray(postura[c]) ? [...postura[c]] : postura[c];

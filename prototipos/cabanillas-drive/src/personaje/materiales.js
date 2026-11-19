@@ -146,10 +146,28 @@ export function creaMaterialPiel() {
 
 // --- Pelo, cejas, pestañas y ropa: recoloreado por luminancia
 function recolorea(m, clave) {
-  const u = { uColor: { value: new THREE.Color(1, 1, 1) }, uMezcla: { value: 0 }, uLumRef: { value: 0.5 }, uCanas: { value: 0 } };
+  const u = {
+    uColor: { value: new THREE.Color(1, 1, 1) }, uMezcla: { value: 0 }, uLumRef: { value: 0.5 }, uCanas: { value: 0 },
+    // Viento en el pelo (salto): desplazamiento en el espacio de la malla, temblor y tiempo
+    uViento: { value: new THREE.Vector3() }, uRafaga: { value: 0 }, uTiempo: { value: 0 },
+  };
   m.userData.uniformes = u;
   m.onBeforeCompile = (s) => {
     Object.assign(s.uniforms, u);
+    if (clave === 'pelo') {
+      // Cada vértice se mueve según su atributo «flexion» (0 en la raíz … 1 en las puntas; sin el
+      // atributo, como en las cejas, vale 0): empujado por el aire y con un temblor que cambia a lo
+      // largo del mechón. Después del esqueleto: la dirección va en el espacio de la malla
+      s.vertexShader = s.vertexShader
+        .replace('#include <common>', '#include <common>\nattribute float flexion; uniform vec3 uViento; uniform float uRafaga; uniform float uTiempo;')
+        .replace('#include <skinning_vertex>', `#include <skinning_vertex>
+        if ( flexion > 0.0 ) {
+          float fase = position.y * 23.0 + position.x * 17.0 + position.z * 11.0;
+          float onda = 0.78 + 0.22 * sin( uTiempo * 7.0 + fase );
+          vec3 temblor = vec3( sin( uTiempo * 23.0 + fase * 2.7 ), sin( uTiempo * 19.0 + fase * 3.1 ), sin( uTiempo * 29.0 + fase * 2.3 ) );
+          transformed += ( uViento * onda + temblor * uRafaga ) * flexion;
+        }`);
+    }
     s.fragmentShader = s.fragmentShader
       .replace('#include <common>', '#include <common>\nuniform vec3 uColor; uniform float uMezcla; uniform float uLumRef; uniform float uCanas;')
       .replace('#include <map_fragment>', `#include <map_fragment>
@@ -198,6 +216,22 @@ export function creaMaterialPrenda(hueco, texColor, texNormal, { msaa = false } 
   if (texColor) m.userData.uniformes.uLumRef.value = texColor.userData.luminancia ?? 0.5;
   m.name = `personaje_${hueco}`;
   return m;
+}
+
+// Copia de un material de pelo con sus propios uniformes (el salto mueve el pelo con el viento sin
+// tocar el del personaje de las fiestas, que comparte material). Material.clone no copia
+// onBeforeCompile, así que se crea otro igual
+export function clonaMaterialPelo(m) {
+  const n = creaMaterialPrenda('pelo', m.map, m.normalMap, { msaa: m.alphaToCoverage });
+  const a = m.userData.uniformes; const b = n.userData.uniformes;
+  if (a && b) {
+    b.uColor.value.copy(a.uColor.value);
+    b.uMezcla.value = a.uMezcla.value;
+    b.uLumRef.value = a.uLumRef.value;
+    b.uCanas.value = a.uCanas.value;
+  }
+  n.sheenColor.copy(m.sheenColor);
+  return n;
 }
 
 export function creaMaterialOjos(texIris) {
