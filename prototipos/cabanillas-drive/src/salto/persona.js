@@ -9,7 +9,7 @@
 //   picado  — brazos pegados atrás, piernas estiradas (para bajar más rápido)
 //   frenado — más abierto y más arqueado (para frenar)
 //   colgado — con el paracaídas: manos arriba en los mandos y piernas colgando
-//   posarse — tirando de los mandos hacia abajo, rodillas delante para tocar el suelo
+//   posarse — mandos tirados hasta la cadera, piernas juntas y rodillas algo dobladas
 // La mochila va pegada a la espalda (se mide la superficie del cuerpo o de la ropa) y sigue al
 // pecho cuando el cuerpo se arquea. El grupo mira a −Z (como el resto del salto), pies en y = 0.
 import * as THREE from 'three';
@@ -36,9 +36,11 @@ export const POSTURAS_SALTO = {
     columna: 0.04, cabeza: 0.12,
     brazo: [0.22, 1, 0.1], antebrazo: [-0.04, 1, 0.16], muslo: [0.1, -1, 0.16], pierna: [0.06, -1, 0.02],
   },
+  // Frenada: mandos tirados hasta la cadera (codos atrás, manos delante de la cadera), piernas
+  // juntas un poco adelantadas y rodillas algo dobladas, mirando al suelo
   posarse: {
-    columna: 0.18, cabeza: 0.28,
-    brazo: [0.38, -0.45, 0.5], antebrazo: [0.14, -0.2, 1], muslo: [0.12, -0.65, 0.75], pierna: [0.08, -1, 0.18],
+    columna: 0.08, cabeza: 0.2,
+    brazo: [0.28, -1, -0.12], antebrazo: [0.18, -0.55, 0.8], muslo: [0.05, -1, 0.3], pierna: [0.03, -1, -0.08],
   },
 };
 const CLAVES = Object.keys(POSTURAS_SALTO.caida);
