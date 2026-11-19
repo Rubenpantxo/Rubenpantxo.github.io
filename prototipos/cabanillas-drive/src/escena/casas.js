@@ -1299,10 +1299,45 @@ function creaFila(fila, terreno, fisica) {
 // se ven y cada uno es una llamada de dibujo por fila. El salto en paracaídas los oculta en lo alto.
 const DETALLE_FACHADA = /vidrio|aluminio|hierro|marco|puerta|persiana|cortina|plastico|negr|oscuro|marmol|rotulo|farol/;
 
+// Las mallas de todas las filas se juntan por material dentro de celdas de este tamaño: una
+// llamada de dibujo por material y celda (antes, una por material y fila: 519 mallas). Medido el
+// 2026-11-19: con 150 m las rayas de las celdas partían la plaza en seis y apenas mejoraba; con
+// 400 m quedan 176 mallas y en vista pasan de 142 a 114 en la plaza y de 271 a 132 desde el aire.
+const CELDA_CASAS_M = 400;
+
+function juntaPorCeldas(raiz, filas, celdaM) {
+  const grupos = new Map();
+  for (const fila of filas) {
+    fila.updateMatrixWorld(true);
+    const celda = `${Math.floor(fila.position.x / celdaM)},${Math.floor(fila.position.z / celdaM)}`;
+    fila.traverse((m) => {
+      if (!m.isMesh) return;
+      const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
+      m.geometry.dispose();
+      // Solo se juntan geometrías con los mismos atributos (y todas con índice o todas sin él)
+      const firma = `${Object.keys(g.attributes).sort().join(',')}${g.index ? '|i' : ''}`;
+      const clave = `${celda}|${m.material.uuid}|${firma}`;
+      if (!grupos.has(clave)) grupos.set(clave, { material: m.material, geos: [], celda });
+      grupos.get(clave).geos.push(g);
+    });
+  }
+  for (const { material: mat, geos, celda } of grupos.values()) {
+    const unida = geos.length === 1 ? geos[0] : mergeGeometries(geos);
+    for (const g of unida ? [unida] : geos) {
+      const malla = new THREE.Mesh(g, mat);
+      malla.name = mat.name;
+      malla.userData.celda = celda;
+      raiz.add(malla);
+    }
+    if (unida && geos.length > 1) for (const g of geos) g.dispose();
+  }
+  sombras(raiz);
+}
+
 export function creaCasas(terreno, fisica) {
   const raiz = new THREE.Group();
   raiz.name = 'casas';
-  for (const fila of FILAS_CASAS) raiz.add(creaFila(fila, terreno, fisica));
+  juntaPorCeldas(raiz, FILAS_CASAS.map((fila) => creaFila(fila, terreno, fisica)), CELDA_CASAS_M);
   const detalles = [];
   raiz.traverse((o) => { if (o.isMesh && DETALLE_FACHADA.test(o.material?.name ?? '')) detalles.push(o); });
   let conDetalle = true;
