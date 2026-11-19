@@ -9,7 +9,7 @@ import { Historial } from '../js/core/historial.js';
 import { construirRedes } from '../js/core/redes.js';
 import { analizar } from '../js/core/erc.js';
 import { crearEnrutador, rutaSimple, simplificar, caminoSvg } from '../js/core/ruta.js';
-import { listaMateriales, materialesCsv, cabeceraPines, listaRedesTexto } from '../js/core/exportar.js';
+import { listaMateriales, materialesCsv, cabeceraPines, listaRedesTexto, platformioDe } from '../js/core/exportar.js';
 
 const ESP = 'esp32-s3-devkitc-1-n16r8';
 const def = id => CATALOGO.get(id);
@@ -291,7 +291,7 @@ test('exportación: materiales, redes y cabecera de pines', () => {
 
 test('proyectos: toda plantilla carga y pasa el ERC sin errores', () => {
     const conMontaje = PROYECTOS.filter(p => p.montaje);
-    assert.ok(conMontaje.length >= 4);
+    assert.equal(conMontaje.length, PROYECTOS.length, 'todo proyecto lleva montaje');
     const ids = new Set();
     for (const p of PROYECTOS) {
         assert.ok(!ids.has(p.id), 'proyecto repetido ' + p.id);
@@ -302,8 +302,9 @@ test('proyectos: toda plantilla carga y pasa el ERC sin errores', () => {
     for (const p of conMontaje) {
         const doc = M.docDesdePlantilla(p.montaje, CATALOGO, p.titulo);
         const a = analizar(doc, CATALOGO);
-        const errores = a.problemas.filter(x => x.nivel === 'error');
+        const errores = a.problemas.filter(x => x.nivel !== 'info');
         assert.deepEqual(errores.map(x => `${x.codigo}: ${x.detalle}`), [], p.id);
+        assert.ok(!a.problemas.some(x => x.codigo === 'I-SUELTA'), p.id + ': pieza sin conectar');
         // Las piezas no se solapan.
         const cajas = doc.partes.map(q => M.cajaParte(q, CATALOGO.get(q.tipo)));
         for (let i = 0; i < cajas.length; i++) for (let j = i + 1; j < cajas.length; j++) {
@@ -323,4 +324,53 @@ test('ERC: límite conjunto de 1,2 A en los USB de la Raspberry Pi 4', () => {
     const pasado = analizar(montaje([pi, coral, una, otra], [['pi.USB3_1', 'c.USB'], ['pi.USB2_1', 'w1.USB'], ['pi.USB2_2', 'w2.USB']]), CATALOGO);
     assert.ok(codigos(pasado).includes('A-USB-TOTAL'));
     assert.ok(!codigos(pasado).includes('A-CORRIENTE'));
+});
+
+test('CYD 2,8": conectores, pines.h con los periféricos fijos y platformio.ini', () => {
+    const d = def('esp32-2432s028r');
+    assert.deepEqual(d.pines.filter(p => p.gpio != null).map(p => p.gpio).sort((a, b) => a - b), [1, 3, 21, 22, 27, 35]);
+    assert.equal(d.pines.find(p => p.id === 'GPIO35').tipo, 'ent');
+    const doc = montaje([{ k: 'u', tipo: 'esp32-2432s028r', x: 0, y: 0 }, { k: 's', tipo: 'bme280', x: 20, y: 30 }, { k: 'pc', tipo: 'pc-host', x: 50, y: 0 }],
+        [['pc.USB2', 'u.USB'], ['u.GPIO27', 's.SDA'], ['u.GPIO22', 's.SCL'], ['u.3V3', 's.VIN'], ['u.GND_3', 's.GND']]);
+    const a = analizar(doc, CATALOGO);
+    assert.deepEqual(a.problemas.filter(x => x.nivel !== 'info').map(x => x.codigo), []);
+    const h = cabeceraPines(doc, CATALOGO, a);
+    assert.match(h, /#define PIN_S1_SDA\s+27 /);
+    assert.match(h, /#define CYD_TFT_DC\s+2$/m);
+    assert.match(h, /#define CYD_TOUCH_CS\s+33$/m);
+    const pio = platformioDe(doc);
+    assert.equal(pio.length, 1);
+    assert.match(pio[0].ini, /board = esp32dev/);
+    assert.equal(platformioDe(M.docDesdePlantilla({ partes: [{ k: 'e', tipo: ESP, x: 0, y: 0 }], cables: [] }, CATALOGO, 'x'))[0].titulo, 'ESP32-S3 N16R8');
+});
+
+test('ESP32-C3 SuperMini y M5StampS3: cabeceras, arranque y platformio.ini', () => {
+    const c3 = def('esp32-c3-supermini');
+    assert.equal(c3.pines.filter(p => p.lado === 'izq').length, 8);
+    assert.equal(c3.pines.filter(p => p.lado === 'der').length, 8);
+    assert.deepEqual(c3.pines.filter(p => p.strap).map(p => p.gpio).sort((a, b) => a - b), [2, 8, 9]);
+    const st = def('m5stamp-s3');
+    assert.deepEqual(st.pines.filter(p => p.gpio != null).map(p => p.gpio).sort((a, b) => a - b), [0, 1, 3, 5, 7, 9, 13, 15, 43, 44]);
+    const doc = montaje([{ k: 'a', tipo: 'esp32-c3-supermini', x: 0, y: 0 }, { k: 'b', tipo: 'm5stamp-s3', x: 200, y: 0 }], []);
+    assert.deepEqual(platformioDe(doc).map(x => x.titulo), ['ESP32-C3 SuperMini', 'M5StampS3']);
+    assert.match(platformioDe(doc)[1].ini, /board = m5stack-stamps3/);
+});
+
+test('modelo: plegar un montaje apaisado para una pantalla vertical', () => {
+    for (const p of PROYECTOS) {
+        const pl = M.plegarPlantilla(p.montaje, CATALOGO, 335, 640);
+        assert.equal(pl.partes.length, p.montaje.partes.length, p.id);
+        assert.deepEqual(pl.cables, p.montaje.cables, p.id);
+        const doc = M.docDesdePlantilla(pl, CATALOGO, p.titulo);
+        assert.deepEqual(analizar(doc, CATALOGO).problemas.filter(x => x.nivel !== 'info').map(x => x.codigo), [], p.id);
+        const cajas = doc.partes.map(q => M.cajaParte(q, CATALOGO.get(q.tipo)));
+        for (let i = 0; i < cajas.length; i++) for (let j = i + 1; j < cajas.length; j++) {
+            const A = cajas[i], B = cajas[j];
+            assert.ok(A.x + A.w <= B.x || B.x + B.w <= A.x || A.y + A.h <= B.y || B.y + B.h <= A.y, `${p.id}: ${doc.partes[i].ref} pisa a ${doc.partes[j].ref}`);
+        }
+    }
+    // En horizontal no se toca nada.
+    const p = PROYECTOS.find(x => x.id === 'cyd-shelly');
+    assert.equal(M.plegarPlantilla(p.montaje, CATALOGO, 1200, 700), p.montaje);
+    assert.ok(M.plegarPlantilla(p.montaje, CATALOGO, 335, 640) !== p.montaje);
 });

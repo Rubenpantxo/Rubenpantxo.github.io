@@ -252,11 +252,20 @@ export class Lienzo {
         this.aplicarVista();
     }
 
+    // Caja de piezas y cables: un cable que rodea el montaje también cuenta.
+    extension() {
+        const l = limites(this.doc, this.catalogo);
+        if (l.vacio) return l;
+        let x0 = l.x, y0 = l.y, x1 = l.x + l.w, y1 = l.y + l.h;
+        for (const r of this.rutas.values()) for (const [x, y] of r) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+        return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+    }
+
     encuadrar() {
         const r = this.svg.getBoundingClientRect();
-        const l = limites(this.doc, this.catalogo);
+        const l = this.extension();
         if (l.vacio || !r.width) { this.vista = { x: r.width / 2 - 200, y: 80, z: 1 }; this.aplicarVista(); return; }
-        const m = 60;
+        const m = r.width < 520 ? 20 : 60;
         const z = Math.min(2.2, Math.max(ZMIN, Math.min((r.width - 2 * m) / l.w, (r.height - 2 * m) / l.h)));
         this.vista = { z, x: (r.width - l.w * z) / 2 - l.x * z, y: (r.height - l.h * z) / 2 - l.y * z };
         this.aplicarVista();
@@ -578,9 +587,8 @@ export class Lienzo {
     // ---------------------------------------------------------- exportación
     // SVG autónomo del montaje (sin rejilla ni marcas de edición).
     exportarSvg({ fondo = '#f4f2ec' } = {}) {
-        const l = limites(this.doc, this.catalogo), m = 40;
-        let x0 = l.x, y0 = l.y, x1 = l.x + l.w, y1 = l.y + l.h;
-        for (const r of this.rutas.values()) for (const [x, y] of r) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+        const l = this.extension(), m = 40;
+        const x0 = l.x, y0 = l.y, x1 = l.x + l.w, y1 = l.y + l.h;
         const w = x1 - x0 + 2 * m, h = y1 - y0 + 2 * m;
         let cuerpo = '';
         for (const p of this.doc.partes) {

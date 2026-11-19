@@ -7,10 +7,10 @@
 
 import { CATALOGO } from './datos/componentes.js';
 import { PROYECTOS } from './datos/proyectos.js';
-import { nuevoDoc, validarDoc, docDesdePlantilla, buscarParte, U, FORMATO } from './core/modelo.js';
+import { nuevoDoc, validarDoc, docDesdePlantilla, plegarPlantilla, buscarParte, U, FORMATO } from './core/modelo.js';
 import { Historial } from './core/historial.js';
 import { analizar } from './core/erc.js';
-import { materialesCsv, listaRedesTexto, cabeceraPines, PLATFORMIO_INI } from './core/exportar.js';
+import { materialesCsv, listaRedesTexto, cabeceraPines, platformioDe } from './core/exportar.js';
 import { Lienzo } from './ui/lienzo.js';
 import { DEFS } from './ui/dibujos.js';
 import { pintarBiblioteca, pintarPropiedades, pintarReglas, pintarRedes, pintarMateriales, pintarCodigo } from './ui/paneles.js';
@@ -84,8 +84,11 @@ function pintarBarra() {
     $('#cuenta-doc').textContent = `${app.doc.partes.length} piezas · ${app.doc.cables.length} cables · ${app.analisis.redes.length} redes`;
     const chip = $('#chip-reglas');
     chip.className = 'chip-reglas ' + (c.error ? 'error' : c.aviso ? 'aviso' : 'ok');
-    chip.innerHTML = c.error ? `${ico('error')}${c.error} error${c.error > 1 ? 'es' : ''}${c.aviso ? ` · ${c.aviso} aviso${c.aviso > 1 ? 's' : ''}` : ''}`
-        : c.aviso ? `${ico('alerta')}${c.aviso} aviso${c.aviso > 1 ? 's' : ''}` : `${ico('ok')}Sin errores`;
+    const texto = c.error ? `${c.error} error${c.error > 1 ? 'es' : ''}${c.aviso ? ` · ${c.aviso} aviso${c.aviso > 1 ? 's' : ''}` : ''}`
+        : c.aviso ? `${c.aviso} aviso${c.aviso > 1 ? 's' : ''}` : 'Sin errores';
+    // En pantallas estrechas solo se ven el icono y la cifra (CSS).
+    chip.innerHTML = ico(c.error ? 'error' : c.aviso ? 'alerta' : 'ok') + (c.error || c.aviso ? `<span class="chip-num">${c.error || c.aviso}</span>` : '') + `<span class="chip-txt">${texto}</span>`;
+    chip.setAttribute('aria-label', 'Diagnóstico eléctrico: ' + texto);
     $('#mesa-vacia').hidden = app.doc.partes.length > 0;
 }
 
@@ -139,10 +142,18 @@ async function reemplazar(crear, motivo) {
     catch (e) { avisar(e.message || 'No se pudo abrir.', 'error'); return false; }
 }
 
+// Montaje de un proyecto adaptado a la pantalla: en un móvil en vertical los
+// montajes apaisados se pliegan en bandas para no quedar diminutos.
+function docDeProyecto(p) {
+    const estrecho = window.innerWidth <= 900;
+    const plantilla = estrecho ? plegarPlantilla(p.montaje, app.catalogo, window.innerWidth - (window.innerWidth < 520 ? 40 : 120), window.innerHeight - 170) : p.montaje;
+    return docDesdePlantilla(plantilla, app.catalogo, p.titulo);
+}
+
 function abrirProyecto(id) {
     const p = PROYECTOS.find(x => x.id === id);
     if (!p || !p.montaje) return;
-    reemplazar(() => docDesdePlantilla(p.montaje, app.catalogo, p.titulo), 'Abrir el montaje del proyecto').then(ok => {
+    reemplazar(() => docDeProyecto(p), 'Abrir el montaje del proyecto').then(ok => {
         if (ok) { location.hash = '#montaje'; avisar('Montaje cargado: revisa el diagnóstico y el mapa de pines.', 'ok'); }
     });
 }
@@ -189,15 +200,15 @@ function exportarPng() {
 
 function exportar(que) {
     const base = nombreArchivo(app.doc.nombre);
-    if (que !== 'pio' && !app.doc.partes.length) { avisar('La mesa está vacía.', 'aviso'); return; }
+    if (!que.startsWith('pio') && !app.doc.partes.length) { avisar('La mesa está vacía.', 'aviso'); return; }
     switch (que) {
         case 'svg': descargar(base + '.svg', app.lienzo.exportarSvg().svg, 'image/svg+xml'); break;
         case 'png': exportarPng(); break;
         case 'materiales': descargar(base + '-materiales.csv', materialesCsv(app.doc, app.catalogo, app.inventario), 'text/csv;charset=utf-8'); break;
         case 'redes': descargar(base + '-redes.txt', listaRedesTexto(app.doc, app.analisis)); break;
         case 'pines': descargar('pines.h', cabeceraPines(app.doc, app.catalogo, app.analisis)); break;
-        case 'pio': descargar('platformio.ini', PLATFORMIO_INI); break;
     }
+    if (que.startsWith('pio-')) { const x = platformioDe(app.doc)[+que.slice(4)]; if (x) descargar('platformio.ini', x.ini); }
 }
 
 // ---------------------------------------------------------------- acciones
@@ -336,7 +347,7 @@ function iniciar() {
     let doc = null;
     const guardado = almacen.leer('doc');
     if (guardado) { try { doc = validarDoc(guardado, app.catalogo).doc; } catch { doc = null; } }
-    if (!doc) { const p = PROYECTOS[0]; doc = docDesdePlantilla(p.montaje, app.catalogo, p.titulo); }
+    if (!doc) doc = docDeProyecto(PROYECTOS[0]);
     cargar(doc, { encuadrar: false });
     pintarArea();
 
