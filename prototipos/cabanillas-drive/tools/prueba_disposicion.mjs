@@ -8,7 +8,7 @@ const requiere = createRequire(process.env.PLAYWRIGHT_RAIZ ? `${process.env.PLAY
 const { chromium } = requiere('playwright');
 const S = process.argv[2];
 const TAMANOS = [[667, 375], [740, 360], [844, 390], [915, 412], [1024, 600]];
-const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const b = await chromium.launch({ channel: process.env.CANAL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 let fallos = 0;
 const comprueba = (ok, texto) => { console.log(`  ${ok ? 'bien ' : 'FALLO'}  ${texto}`); if (!ok) fallos++; };
 for (const [ancho, alto] of TAMANOS) {

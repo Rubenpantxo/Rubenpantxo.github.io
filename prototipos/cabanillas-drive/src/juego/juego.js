@@ -35,6 +35,7 @@ import { PASO_FISICA, creaFisica, creaGestorColisiones } from '../fisica/fisica.
 import { creaCoche } from '../vehiculo/coche.js';
 import { cargaGeoJSON } from '../visor/lineas.js';
 import { creaSalto } from '../salto/salto.js';
+import { cargaModelosSalto } from '../salto/modelos.js';
 import { creaIndiceTejados, eligeAterrizaje, tramosDeCalles } from '../salto/aterrizaje.js';
 
 const MAX_PASOS_POR_FOTOGRAMA = 4;
@@ -46,7 +47,7 @@ const DISTANCIAS_COCHES = {
 export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render = null }) {
   ui.estado.textContent = 'Cargando Cabanillas…';
   creaReflejos(renderer, escena);
-  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos, murosLidar, personas, datosElementos] = await Promise.all([
+  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos, murosLidar, personas, datosElementos, modelosSalto] = await Promise.all([
     cargaMundo(renderer, ESCENA, {
       alProgresar: (f) => { ui.estado.textContent = `Cargando escena… ${Math.round(f * 100)} %`; },
     }),
@@ -61,6 +62,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     cargaMuros(ESCENA.rutaMuros),
     cargaPersonas(ESCENA.rutaPersonas),
     cargaElementos(ESCENA.rutaElementos),
+    cargaModelosSalto(),                       // avión y mochila-paracaídas (nunca falla: null si no están)
   ]);
   const datosMuros = sinMurosSustituidos(murosLidar);
   escena.add(mundo.raiz);
@@ -380,7 +382,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     botonBajar.hidden = true;
     entrada.ponModo('salto');
     salto = creaSalto({
-      escena, camara, terreno: mundo.terreno, render, semilla, tactil, detalles: [casas.userData.ponDetalle],
+      escena, camara, terreno: mundo.terreno, render, semilla, tactil, detalles: [casas.userData.ponDetalle], modelos: modelosSalto,
       zona: { mitadAncho: mundo.rejilla.ancho / 2, mitadAlto: mundo.rejilla.alto / 2 },
       centro: { x: salida.x, z: salida.z },
       suelo: sueloSalto,

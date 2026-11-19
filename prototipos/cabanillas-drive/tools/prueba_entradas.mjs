@@ -14,7 +14,7 @@ const { chromium } = requiere('playwright');
 const S = process.argv[2];
 const calidad = process.argv[3] ?? 'bajo';
 const movil = process.argv[4] === 'movil';
-const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const b = await chromium.launch({ channel: process.env.CANAL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const contexto = await b.newContext(movil ? { viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true } : { viewport: { width: 1100, height: 620 } });
 let fallos = 0;
 const comprueba = (ok, texto) => { console.log(`  ${ok ? 'bien ' : 'FALLO'}  ${texto}`); if (!ok) fallos++; };
@@ -23,7 +23,7 @@ async function abre(consulta = '', boton = 'jugar') {
   const p = await contexto.newPage();
   p.on('console', (m) => { if (m.type() === 'error') errores.push(m.text()); });
   p.on('pageerror', (e) => errores.push('PAGEERROR ' + e.message));
-  await p.goto(`http://localhost:5173/?salto=0&calidad=${calidad}&debug=1${consulta}`);
+  await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&calidad=${calidad}&debug=1${consulta}`);
   await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 240000 });
   await p.evaluate((id) => document.getElementById(id).click(), boton);
   await p.waitForTimeout(800);

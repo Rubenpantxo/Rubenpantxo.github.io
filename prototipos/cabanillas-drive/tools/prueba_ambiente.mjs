@@ -12,7 +12,7 @@ const { chromium } = requiere('playwright');
 const S = process.argv[2];
 const calidad = process.argv[3] ?? 'bajo';
 const movil = process.argv[4] === 'movil';
-const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist',
+const b = await chromium.launch({ channel: process.env.CANAL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist',
   '--autoplay-policy=no-user-gesture-required'] });
 const contexto = await b.newContext(movil ? { viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true } : { viewport: { width: 1100, height: 620 } });
 const p = await contexto.newPage();
@@ -45,7 +45,7 @@ const foto = async (nombre, vista = null) => {
   }, vista);
   await p.screenshot({ path: `${S}/f6_${nombre}${movil ? '_movil' : ''}.jpg`, quality: 85, timeout: 120000 });
 };
-await p.goto(`http://localhost:5173/?salto=0&calidad=${calidad}&debug=1&capa=colorada`);
+await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&calidad=${calidad}&debug=1&capa=colorada`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 await p.evaluate(() => { try { localStorage.removeItem('cabanillas.sonido'); } catch { /* nada */ } document.getElementById('jugar').click(); });
 await p.waitForTimeout(1000);

@@ -11,7 +11,7 @@ const { chromium } = requiere('playwright');
 const S = process.argv[2];
 const calidad = process.argv[3] ?? 'bajo';
 const capa = process.argv[4] ?? 'colorada';
-const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const b = await chromium.launch({ channel: process.env.CANAL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const p = await (await b.newContext({ viewport: { width: 1100, height: 620 } })).newPage();
 const errores = [];
 p.on('console', (m) => { if (m.type() === 'error') errores.push(m.text()); });
@@ -25,7 +25,7 @@ const foto = async (nombre) => {
   });
   writeFileSync(`${S}/f3_${nombre}.jpg`, Buffer.from(url.split(',')[1], 'base64'));
 };
-await p.goto(`http://localhost:5173/?salto=0&calidad=${calidad}&debug=1&capa=${capa}&mozos=0`);
+await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&calidad=${calidad}&debug=1&capa=${capa}&mozos=0`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 await p.evaluate(() => document.getElementById('jugar').click());
 await p.waitForTimeout(1000);

@@ -8,8 +8,22 @@ export const SALTO = {
     saltoForzosoM: 450,       // …y te tira cuando lo ha pasado esta distancia
     finM: 1600,               // después sigue volando hasta aquí y desaparece
     desvioCentroM: 220,       // la ruta pasa a esta distancia (como mucho) del centro del casco
-    // Figura provisional (S0): una caja con alas
+    // Figura provisional (si no carga avion.glb): una caja con alas
     largoM: 30, fuselajeM: 4.2, envergaduraM: 36,
+    // Se sale por el final de la rampa trasera (avion.glb: llega a 8,5 m por detrás del centro y
+    // 3,7 m por debajo)
+    salidaAtrasM: 9.5, salidaBajoM: 4,
+  },
+  // Modelos de Rubén (modelos/salto/ → npm run salto). La mochila va en la espalda del personaje:
+  // posición de su centro respecto a los pies (Z+ = detrás)
+  modelos: {
+    ruta: 'assets/salto/', avion: 'avion.glb', mochila: 'mochila_paracaidas.glb',
+    mochilaEnEspalda: [0, 1.22, 0.3],
+    // Giro de cada solapa abierta (eje x, y, z y grados): el de mochila_paracaidas.glb, para los
+    // modelos que vienen cerrados
+    aperturaSolapas: {
+      Solapa_Izq: [0, -1, 0, 111.7], Solapa_Der: [0, 1, 0, 111.7], Solapa_Inf: [1, 0, 0, 100.3],
+    },
   },
   caida: {
     gravedad: 9.81,

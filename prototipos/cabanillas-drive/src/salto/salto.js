@@ -7,6 +7,7 @@ import { SALTO } from '../config/salto.js';
 import { creaRuta } from './ruta.js';
 import { alturaApertura, dentroDeZona, pasoApertura, pasoCaida, pasoPlaneo, prediceAterrizaje } from './caida.js';
 import { creaAvion, creaParacaidas, creaPersonaje, liberaFigura } from './figuras.js';
+import { preparaAvion, preparaMochila } from './modelos.js';
 import { creaCamaraSalto } from './camaraSalto.js';
 import { creaAlturaRender } from './alturaRender.js';
 
@@ -18,17 +19,38 @@ const suave = (t) => t * t * (3 - 2 * t);
 // alTocarSuelo(toque, rumbo) → { colocaDestino(objeto3D), fov } : el juego pone al jugador a pie
 // alTerminar(omitido): el juego vuelve a su modo normal (omitido: se ha saltado el salto antes de tocar el suelo)
 // detalles: funciones (valor) => … para ocultar detalle en lo alto (src/salto/alturaRender.js)
+// modelos: { avion, mochila } de modelos.js (null: figuras provisionales)
 export function creaSalto({ escena, camara, terreno, render, zona, centro, semilla, suelo, tactil = false, detalles = [],
+  modelos = null,
   avisa = () => {}, alTocarSuelo, alTerminar }) {
   const ruta = creaRuta({ semilla, centro, alturaSuelo: terreno.alturaEn(centro.x, centro.z) });
   const camaraSalto = creaCamaraSalto({ camara, terreno });
   const alturaRender = creaAlturaRender({ camara, escena, render, detalles });
-  const avion = creaAvion();
+  const avion = modelos?.avion ? preparaAvion(modelos.avion) : creaAvion();
   const personaje = creaPersonaje();
-  const paracaidas = creaParacaidas();
-  personaje.add(paracaidas);
-  paracaidas.position.y = 1.45;
-  paracaidas.visible = false;
+  // Mochila-paracaídas en la espalda (o, sin el modelo, la lona provisional sobre los hombros)
+  const mochila = modelos?.mochila ? preparaMochila(modelos.mochila) : null;
+  const paracaidas = mochila ? null : creaParacaidas();
+  if (mochila) {
+    mochila.position.set(...SALTO.modelos.mochilaEnEspalda);
+    personaje.add(mochila);
+  } else {
+    paracaidas.position.y = 1.45;
+    paracaidas.visible = false;
+    personaje.add(paracaidas);
+  }
+  // k: 0 = cerrado … 1 = abierto del todo
+  const ponApertura = (k) => {
+    if (mochila) { mochila.userData.ponApertura(k); return; }
+    paracaidas.visible = k > 0;
+    paracaidas.userData.ponInflado(k);
+  };
+  // Al aterrizar: k 0 … 1 = la lona cae y se pliega
+  const ponPliegue = (k) => {
+    if (mochila) { mochila.userData.ponPliegue(k); return; }
+    paracaidas.userData.ponInflado(1 - k);
+    paracaidas.position.y = 1.45 - 1.4 * k;
+  };
   personaje.visible = false;
   personaje.rotation.order = 'YXZ';
   // Marca en el suelo del punto previsto de aterrizaje
@@ -67,10 +89,10 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
   }
 
   function salta() {
-    // Por la rampa trasera, con la velocidad del avión
-    const atras = SALTO.avion.largoM / 2 + 2;
+    // Por el final de la rampa trasera, con la velocidad del avión
+    const atras = SALTO.avion.salidaAtrasM;
     cuerpo.x = posAvion.x - ruta.dx * atras;
-    cuerpo.y = posAvion.y - 3;
+    cuerpo.y = posAvion.y - SALTO.avion.salidaBajoM;
     cuerpo.z = posAvion.z - ruta.dz * atras;
     cuerpo.vx = ruta.dx * SALTO.avion.velocidadMs;
     cuerpo.vz = ruta.dz * SALTO.avion.velocidadMs;
@@ -84,7 +106,6 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
   }
 
   function abre() {
-    paracaidas.visible = true;
     cambia('apertura');
   }
 
@@ -114,7 +135,8 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     s += SALTO.avion.velocidadMs * dt;
     ruta.punto(s, posAvion);
     avion.position.copy(posAvion);
-    for (const h of avion.userData.helices) h.rotation.z += dt * 40;
+    if (avion.userData.giraHelices) avion.userData.giraHelices(dt * 40);
+    else for (const h of avion.userData.helices) h.rotation.z += dt * 40;
     if (s > ruta.fin && fase !== 'avion') liberaFigura(avion);
   }
 
@@ -166,7 +188,7 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
       } else if (fase === 'apertura') {
         pasoApertura(cuerpo, entrada, dt);
         const k = Math.min(1, tiempoFase / SALTO.apertura.duracionS);
-        paracaidas.userData.ponInflado(suave(k));
+        ponApertura(k);
         if (k >= 1) {
           cambia('planeo');
           camaraSalto.reiniciaMirada();
@@ -192,8 +214,7 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
 
     if (fase === 'aterrizaje') {
       const k = Math.min(1, tiempoFase / SALTO.aterrizaje.duracionS);
-      paracaidas.userData.ponInflado(1 - k);
-      paracaidas.position.y = 1.45 - 1.4 * k;
+      ponPliegue(k);
       colocaDestino?.(destino);
       const e = suave(k);
       camara.position.lerpVectors(desde.posicion, destino.position, e);

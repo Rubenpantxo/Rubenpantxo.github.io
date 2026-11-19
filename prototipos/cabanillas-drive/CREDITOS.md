@@ -39,6 +39,12 @@ condiciones de cada web antes de publicar el juego.
 - Sonido (murmullo, olé, aplausos, «¡uy!», cencerros, pezuñas, pisadas, golpe en la valla y cohete):
   sintetizado en el navegador por `src/fiestas/sonido.js` (Web Audio). No hay grabaciones de terceros.
 
+## Salto en paracaídas
+- Avión de carga y mochila-paracaídas (`modelos/salto/`): modelos propios de Rubén, sin texturas.
+  `tools/build_activos_salto.py` (script CAD paramétrico de Rubén para Blender) genera una versión
+  más sencilla de los dos.
+- Figuras provisionales (si no cargan los modelos): hechas por `src/salto/figuras.js`.
+
 ## Render
 - Cielo: HDRI «Kloofendal 48d Partly Cloudy (Pure Sky)», de Poly Haven (CC0), en `data/raw/externos/cielo/`.
 - Detalle del suelo: Asphalt031, PavingStones136 y Ground109, de ambientCG (CC0), en `data/raw/externos/texturas/`.

@@ -9,7 +9,7 @@
 
 **Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, **F0 aprobada; F1 (el pueblo en fiestas), F2 (personaje en tercera persona) y F3 (la vaca) hechas el 2026-11-17, pendientes de que Rubén las pruebe**. Portada nueva («Cabanillas · El Juego · by Rubenpantxo», imagen de Rubén) el 2026-11-17. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
 
-**Salto en paracaídas (2026-11-19):** plan en `PLAN_SALTO.md` (S0 prototipo con `?salto` → S1 horizonte de 6 × 6 km → S2 avión, paracaídas y personaje → S3 juego completo, móvil y sonido). Decidido por Rubén: cae el personaje, no el coche, y todo en Three.js dentro del juego. **S0 hecho el 2026-11-19 (`?salto`), pendiente de que Rubén lo pruebe**; ver el apartado «Salto en paracaídas». S1 necesita permiso para descargar el MDT y la ortofoto del horizonte.
+**Salto en paracaídas (2026-11-19):** plan en `PLAN_SALTO.md` (S0 prototipo con `?salto` → S1 horizonte de 6 × 6 km → S2 avión, paracaídas y personaje → S3 juego completo, móvil y sonido). Decidido por Rubén: cae el personaje, no el coche, y todo en Three.js dentro del juego. **S0 hecho; desde el 2026-11-19 el juego empieza por el salto (se puede omitir) con el avión y la mochila-paracaídas de Rubén; pendiente de que Rubén lo pruebe**; ver el apartado «Salto en paracaídas». S1 necesita permiso para descargar el MDT y la ortofoto del horizonte.
 
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
@@ -427,8 +427,15 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 
   El salto nunca cuesta más que ir a pie por la calle. Antes de ocultar el detalle de fachadas, a ~370 m en «bajo» salían 809 llamadas (519 de las casas a mano: 29 filas × ~18 materiales). **FPS sin medir**: el navegador de pruebas va a menos de 2 FPS; Rubén puede verlos con `?salto&debug`.
 
+### 2026-11-19 (tarde) — Inicio con salto, casas juntas y modelos de Rubén
+- **Recursos desactualizados en esta copia** (lo vio Rubén en la acera de San Isidro): `public/assets/` no está en git y la copia `Rubenpantxo.github.io` tenía el suelo del 11-nov a las 17:33, de antes de las correcciones de asfalto, acera y bordillo; le faltaba `suelo/bordillo.png`, y `suelo/tipos.png`, `osm/marcas.json` y `coches_aparcados.json` eran distintos. Copiados de `bifurcaciones/feat-cabanillas-drive` (los más nuevos, idénticos a los del juego publicado). En git no había nada sin fusionar: `main` = `origin/main` y la rama `feat/cabanillas-ayuntamiento` de esa otra copia está fusionada (va 36 commits por detrás). **Los datos del pipeline (`data/processed/`) siguen solo en esa otra copia.**
+- **El juego empieza por el salto.** En la pantalla de inicio: «🪂 Jugar» (salto), «🚗 Empezar en la calle» (como antes) e «🐂 Ir a las fiestas». En la pausa, mientras se vuela, «⏭ Saltarse el salto». `?salto=0` lo omite; `?salto=N` repite la ruta N. Entrar a las fiestas o «Ir a…» lo cancelan. Las pruebas antiguas abren con `?salto=0`, y todas aceptan `PUERTO` y `CANAL=chrome`.
+- **Casas a mano juntas por material y celda de 400 m** (`casas.js`, `juntaPorCeldas`): de 519 mallas a 176. Llamadas de dibujo: plaza de 1756 a 1480 (alta) y de 793 a 657 (baja); desde el aire a 370 m, de 670 a 442 y de 514 a 355. Con celdas de 150 m apenas mejoraba (las rayas partían la plaza en seis).
+- **Avión y mochila-paracaídas de Rubén** (`modelos/salto/`, versionados) → `npm run salto` (`tools/optimiza_salto.mjs`) → `public/assets/salto/` (55 y 42 KB). Los GLB venían de `THREE.GLTFExporter` con **todas las mallas guardadas como líneas** (material en «wireframe»: el exportador deja el índice de triángulos pero marca LINES): el script las devuelve a triángulos sin perder nada (86 + 43), deja las cuerdas de verdad como líneas y quita 139 KB de `extras` sobrantes. `src/salto/modelos.js`: hélices que giran sobre su eje; mochila **cerrada** en la espalda (venía exportada abierta) que se abre en la fase de apertura (solapas → pilotillo → bandas y cuerdas → cúpula de 9 celdas) y se pliega al aterrizar. Salida por el final de la rampa trasera. Si no cargan, se usan las figuras provisionales.
+- **Script CAD paramétrico de Rubén** en `tools/build_activos_salto.py`: adaptado a Blender 5.0 (los materiales nuevos ya no traen «Principled BSDF»), lee `config.json` y escribe en `data/processed/salto_blender/` sin pisar nada (con `--out modelos/salto` sustituye los del juego). Ejecutado y comprobado: sus modelos (más sencillos: celdas sueltas, sin cuerdas) también cargan y se animan en el juego.
+
 ### Decisiones provisionales de S0 (las dudas de la sección 3 del plan, a confirmar por Rubén)
-1. El salto solo con `?salto`; Jugar sigue empezando en la calle.
+1. ~~El salto solo con `?salto`~~ Decidido por Rubén (2026-11-19): el juego empieza por el salto, con forma de saltárselo.
 2. Tras aterrizar, a pie en primera persona (la de siempre).
 3. No se aterriza en tejados: se baja a la calle (en S3, desvío progresivo por debajo de 25–30 m).
 4. Avión siempre a 550 m sobre el centro.
@@ -436,7 +443,8 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 
 ### Pendiente
 - S1 (horizonte): necesita permiso para descargar el MDT y la ortofoto; misma capa y año del WMS que `02_ortho.py`. Desde el aire se ve el borde de la zona (fondo marrón) y, fuera de ella, contornos sueltos de parcelas.
-- S3: juntar las mallas de las casas a mano entre filas (mismo material → una llamada) bajaría las llamadas también en la calle.
+- Las casas a mano siguen siendo ~114 llamadas en la plaza: hay un material por color (persianas, enfoscados…). Juntar colores en un material con color por vértice las bajaría más.
+- S2: falta el personaje (sigue la cápsula naranja).
 
 ## Pendiente de Rubén (lo hará más adelante; no recordárselo en cada informe)
 - R4: capturas de Scaniverse de 3–5 edificios en `data/raw/splats/<nombre>/` (instrucciones en `PLAN_REALISMO.md`).

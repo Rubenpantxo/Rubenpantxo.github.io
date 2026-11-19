@@ -2,7 +2,7 @@
 
 Plan por hitos para que Cabanillas Drive empiece como un *battle royale*: el personaje va en un avión que cruza el pueblo, salta, cae viendo todo Cabanillas, abre el paracaídas y aterriza en una calle, donde le espera su coche aparcado. Complementa a `PLAN.md`, `PLAN_REALISMO.md` y `PLAN_FIESTAS.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: un hito cada vez, parada al final de cada uno, no inventar datos geográficos, todo en español, y escritorio y móvil siempre.
 
-Fecha: 2026-11-19. Estado: **S0 hecho (`?salto`), pendiente de que Rubén lo pruebe**. Detalle en `PROGRESO.md`, apartado «Salto en paracaídas».
+Fecha: 2026-11-19. Estado: **S0 hecho; el juego empieza por el salto (se puede omitir); de S2, el avión y la mochila-paracaídas de Rubén ya están (falta el personaje)**. Detalle en `PROGRESO.md`, apartado «Salto en paracaídas».
 
 Origen: el documento de arquitectura de Rubén (`arquitectura_salto_battle_royale_cabanillas_drive.html`), contrastado con lo que el juego ya tiene. Tomamos de él la máquina de estados de seis fases, la altura de salto, la apertura automática según la velocidad y los planos de recorte que cambian con la altura. **No** tomamos la reconstrucción del pueblo desde el Catastro de IDENA con QGIS (el juego ya tiene algo mejor), ni el paso a KTX2 o Meshopt, ni WebGPU, ni Git LFS.
 
@@ -161,6 +161,8 @@ Aceptación: Rubén revisa la vista previa y salta: no hay costura visible y el 
 
 Objetivo: cambiar las cajas de S0 por modelos propios.
 
+> **Hecho el 2026-11-19 con los modelos de Rubén** (sustituye a lo de abajo para el avión y el paracaídas): `modelos/salto/avion.glb` y `modelos/salto/mochila_paracaidas.glb` → `npm run salto` (`tools/optimiza_salto.mjs`) → `public/assets/salto/`, y `src/salto/modelos.js` los prepara. La mochila va cerrada en la espalda y se abre en la fase de apertura: solapas, pilotillo, bandas, cuerdas y cúpula de 9 celdas. Al aterrizar, la lona cae y se pliega. Su script paramétrico, `tools/build_activos_salto.py` (Blender), genera una versión más sencilla de los dos. **Falta el personaje** (sigue la cápsula).
+
 - **Avión**: `tools/build_avion.py` (Blender sin ventana, como `build_scene.py`).
   - Avión de carga de diseño propio, sin marcas reales: ala alta, rampa trasera abierta y 2 o 4 hélices como nodos aparte (`helice_*`) que se giran desde el código.
   - De 3000 a 5000 triángulos, colores por vértice sin texturas. 1 unidad = 1 m, Y arriba.
@@ -192,7 +194,7 @@ Objetivo: que el salto sea el inicio de verdad y funcione igual de bien en el m�
 - Carga anticipada: las celdas de detalle y los coches aparcados alrededor del punto previsto, durante el planeo.
 - Avisos cortos: «Espacio: saltar», «Espacio: abrir el paracaídas», «Tu coche está aparcado ahí · E para subir».
 - Aterrizaje mejorado según la duda 3: si el punto cae en un tejado o en el agua, el planeo se desvía hacia la calle más cercana. **Solo por debajo de 25–30 m y de forma progresiva**; más arriba, el control es 100 % del jugador, para que no sienta que el juego se lo quita (indicación de Rubén).
-- Juntar las mallas de las casas a mano entre filas (mismo material, una llamada): desde el aire se ven las 29 filas a la vez (medido en S0).
+- ~~Juntar las mallas de las casas a mano entre filas~~: hecho el 2026-11-19 (por material y celda de 400 m).
 - Medición final en calidad baja con pantalla de móvil y, si Rubén puede, en un Android real. `npm run publica` y el tamaño nuevo apuntados en `PROGRESO.md`.
 
 Aceptación: Rubén juega varias partidas empezando por el salto, en escritorio y en el móvil.
