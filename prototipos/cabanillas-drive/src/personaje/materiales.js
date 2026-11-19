@@ -158,9 +158,13 @@ function recolorea(m, clave) {
         float rel = lum / max( uLumRef, 1e-3 );
         vec3 tinte = uColor * clamp( pow( rel, 0.85 ), 0.0, 3.0 );
         diffuseColor.rgb = mix( diffuseColor.rgb, tinte, uMezcla );
-        // Canas: mechones al azar (por la luminancia) hacia gris claro
-        float mecha = smoothstep( 0.35, 0.9, fract( lum * 37.0 ) );
-        diffuseColor.rgb = mix( diffuseColor.rgb, vec3( 0.62, 0.61, 0.6 ) * clamp( rel, 0.4, 1.6 ), uCanas * mix( 0.55, 1.0, mecha ) );
+        // Canas: por mechones, siguiendo el dibujo de la textura (los mechones más claros se
+        // vuelven grises antes). Antes se usaba fract(lum · 37), que cambia de un píxel al de al
+        // lado y salía moteado. Aquí todo varía suave con la luminancia, que ya va por mechones
+        float claro = clamp( rel - 1.0, -0.6, 0.6 );
+        float cuanto = uCanas * smoothstep( 0.0, 1.0, uCanas * 1.35 + claro * 0.55 );
+        vec3 gris = vec3( 0.74, 0.73, 0.71 ) * clamp( 0.82 + claro * 0.4, 0.55, 1.1 );
+        diffuseColor.rgb = mix( diffuseColor.rgb, gris, clamp( cuanto, 0.0, 1.0 ) );
       }`);
   };
   m.customProgramCacheKey = () => `personaje_${clave}`;

@@ -17,6 +17,7 @@ import { clone as clonaConEsqueleto } from 'three/examples/jsm/utils/SkeletonUti
 import { FIESTAS } from '../config/fiestas.js';
 import { SALTO } from '../config/salto.js';
 import { creaCapa, giraHueso } from '../fiestas/pose.js';
+import { creaArnes } from './arnes.js';
 
 // Direcciones [fuera, arriba, delante] de cada tramo y giros (rad) de columna y cabeza (− = atrás)
 export const POSTURAS_SALTO = {
@@ -52,7 +53,7 @@ function fondoEspalda(objeto, alturaPecho) {
   let minZ = Infinity;
   objeto.updateMatrixWorld(true);
   objeto.traverse((o) => {
-    if (!o.isMesh || /pelo|ojos|cejas|pestanas|sombrero/.test(o.name)) return;
+    if (!o.isMesh || /pelo|ojos|cejas|pestanas|sombrero|arnes/.test(o.name)) return;
     const pos = o.geometry.attributes.position;
     const paso = Math.max(1, Math.floor(pos.count / 6000));
     for (let i = 0; i < pos.count; i += paso) {
@@ -80,6 +81,8 @@ export function creaPersonaSalto(personas) {
     o.frustumCulled = false;                       // el esqueleto se mueve: la caja de la malla no vale
   });
   grupo.add(objeto);
+  // Arnés ajustado a este cuerpo (antes de animar: se mide en reposo)
+  try { creaArnes(objeto); } catch (error) { console.warn('[salto] sin arnés', error); }
   const mezclador = new THREE.AnimationMixer(objeto);
   mezclador.clipAction(variante.quieto).play();
   mezclador.update(0);
