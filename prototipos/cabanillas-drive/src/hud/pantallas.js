@@ -204,6 +204,11 @@ export function creaPantallas({ alCambiar }) {
     ponHoras,
     get estado() { return estado; },
     textoCarga: etapaCarga,
+    // Para el editor de personaje, que se puede abrir mientras carga el pueblo
+    progreso() {
+      const error = etapa.startsWith('Error') || etapa.startsWith('La gráfica');
+      return { fraccion: cargando ? fraccion : 1, texto: cargando ? textoCarga.textContent : '', listo: !cargando, error };
+    },
     listo() {
       cargando = false;
       clearInterval(reloj);

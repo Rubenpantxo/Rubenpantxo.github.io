@@ -217,6 +217,8 @@
       .botones-superiores .boton-tactil[hidden] { display: none; }
       .boton-tactil.entrar { width: auto; padding: 0 14px; font-size: 15px; border-color: var(--acento); box-shadow: 0 0 10px var(--acento); }
       #inicio .acciones-inicio { display: grid; gap: 8px; }
+      /* Con el editor de personaje abierto, la portada se aparta y se ve el lienzo 3D */
+      body.editando-personaje #inicio { display: none; }
     </style>
   </head>
   <body>
@@ -290,6 +292,7 @@
           </div>
         </div>
         <div class="acciones-inicio">
+          <button id="crear-personaje" class="boton secundario" type="button">👤 Crea tu personaje</button>
           <button id="jugar" class="boton" type="button" hidden>🪂 Jugar</button>
           <button id="jugar-calle" class="boton secundario" type="button" hidden>🚗 Empezar en la calle</button>
           <button id="jugar-fiestas" class="boton secundario" type="button" hidden>🐂 Ir a las fiestas</button>

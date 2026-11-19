@@ -1,5 +1,5 @@
 // Cabanillas Drive — arranque. Por defecto el juego; con ?visor, el visor de comprobación;
-// con ?arboles, la galería de modelos de árbol.
+// con ?arboles, la galería de modelos de árbol; con ?personaje, solo el editor de personaje.
 // Convención: 1 unidad = 1 m, Y arriba, norte = −Z.
 import * as THREE from 'three';
 import { CALIDAD } from './config/calidad.js';
@@ -17,7 +17,8 @@ import { iniciaVisorArboles } from './visor/visorArboles.js';
 vigilaDescargas();   // antes de la primera descarga: la barra de inicio cuenta todos los bytes
 const parametros = new URLSearchParams(location.search);
 if (parametros.has('debug')) console.info(`[calidad] nivel ${CALIDAD.nivel}`, CALIDAD);
-const esJuego = !parametros.has('visor') && !parametros.has('arboles');
+const soloPersonaje = parametros.has('personaje');     // ?personaje: solo el editor de personaje
+const esJuego = !parametros.has('visor') && !parametros.has('arboles') && !soloPersonaje;
 const ui = {
   panel: document.getElementById('panel'),
   estado: document.getElementById('estado'),
@@ -153,7 +154,54 @@ function ajustaTamano() {
 window.addEventListener('resize', ajustaTamano);
 ajustaTamano();
 
-const modo = parametros.has('visor') ? iniciaVisor : parametros.has('arboles') ? iniciaVisorArboles : iniciaJuego;
+// --- Editor de personaje (PLAN_PERSONAJE.md). Al empezar la sesión se elige la apariencia: se
+// abre con «Crea tu personaje» (también mientras carga el pueblo) o al pulsar cualquier botón de
+// jugar si aún no se ha hecho. Una vez en el juego no se vuelve a abrir. Comparte el renderer.
+// ?personaje=0 lo salta (pruebas); al volver de otro juego (?aparece) tampoco sale.
+let editor = null;
+let personajeElegido = parametros.get('personaje') === '0' || Boolean(parametros.get('aparece'));
+async function abrePersonaje(boton) {
+  if (editor) return;
+  document.body.classList.add('editando-personaje');
+  const { abreEditor } = await import('./personaje/editor.js');
+  try {
+    editor = await abreEditor({
+      renderer,
+      progresoJuego: esJuego ? () => pantallas.progreso() : null,
+      calidad: { sombras: CALIDAD.sombras, texturaMax: CALIDAD.texturaMax ?? 2048 },
+    });
+  } catch (error) {
+    console.error('[personaje] no se pudo abrir el editor', error);
+    document.body.classList.remove('editando-personaje');
+    document.getElementById('editor-personaje')?.remove();
+    editor = null;
+    personajeElegido = true;
+    return;
+  }
+  const apariencia = await editor.terminado;
+  window.__aparienciaJugador = apariencia;
+  if (!esJuego) { api?.avisa?.('Guardado'); return; }
+  personajeElegido = true;
+  editor = null;
+  document.body.classList.remove('editando-personaje');
+  (boton ?? document.getElementById('jugar')).click();
+}
+if (esJuego) {
+  document.getElementById('crear-personaje').addEventListener('click', () => abrePersonaje(null));
+  // Antes que los manejadores de pantallas.js: sin personaje, primero el editor
+  for (const id of ['jugar', 'jugar-calle', 'jugar-fiestas']) {
+    document.getElementById(id).addEventListener('click', (e) => {
+      if (personajeElegido) return;
+      e.stopImmediatePropagation();
+      abrePersonaje(e.currentTarget);
+    }, { capture: true });
+  }
+} else {
+  document.getElementById('crear-personaje').hidden = true;
+}
+
+const modo = parametros.has('visor') ? iniciaVisor : parametros.has('arboles') ? iniciaVisorArboles
+  : soloPersonaje ? async () => { abrePersonaje(null); return { actualiza() {} }; } : iniciaJuego;
 const reloj = new THREE.Clock();
 let actualiza = () => {};
 
@@ -190,10 +238,16 @@ renderer.setAnimationLoop(() => {
   const dt = Math.min(dtReal, 0.1);
   ajustaTamano();
   if (!tamanoAplicado) return;          // aún sin tamaño (panel oculto): no se dibuja
+  renderer.info.reset();
+  // Editor de personaje abierto: se dibuja su estudio (el juego espera en la pantalla de inicio)
+  if (editor?.abierto) {
+    editor.actualiza(dt);
+    editor.render();
+    return;
+  }
   gobiernaResolucion(dtReal);
   actualiza(dt);
   ciclo.actualiza(dt);
-  renderer.info.reset();
   render.render();
 });
 
