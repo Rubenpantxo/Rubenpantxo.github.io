@@ -193,7 +193,7 @@ renderer.setAnimationLoop(() => {
   render.render();
 });
 
-modo({ renderer, escena, camara, ui, ciclo })
+modo({ renderer, escena, camara, ui, ciclo, render })
   .then((m) => {
     configuraSombras(escena);
     fase = 'jugando';
@@ -212,6 +212,11 @@ modo({ renderer, escena, camara, ui, ciclo })
         if (valor === 'dejar') return api.fiestas.abandona();
         return api.entraFiestas(valor);
       }, (que) => (que === 'partida' ? Boolean(api.fiestas?.partida) : api.modoFiestas !== null));
+      // ?salto (o ?salto=semilla, para repetir la misma ruta): empieza saltando del avión (PLAN_SALTO.md)
+      if (parametros.has('salto') && !parametros.get('fiestas') && !parametros.get('aparece')) {
+        const semilla = Number.parseInt(parametros.get('salto'), 10);
+        api.empiezaSalto(Number.isFinite(semilla) ? semilla : undefined);
+      }
       // ?fiestas=plaza|calle|encierro entra directamente al modo
       if (parametros.get('fiestas')) api.entraFiestas(parametros.get('fiestas'));
       // Desde la pantalla de inicio, «Ir a las fiestas»

@@ -9,7 +9,7 @@
 
 **Fiestas (2026-11-15):** modo fiestas de `PLAN_FIESTAS.md`, **F0 aprobada; F1 (el pueblo en fiestas), F2 (personaje en tercera persona) y F3 (la vaca) hechas el 2026-11-17, pendientes de que Rubén las pruebe**. Portada nueva («Cabanillas · El Juego · by Rubenpantxo», imagen de Rubén) el 2026-11-17. No se modela nada hasta que la apruebe. Ver el apartado «Fiestas» más abajo.
 
-**Salto en paracaídas (2026-11-19):** plan en `PLAN_SALTO.md` (S0 prototipo con `?salto` → S1 horizonte de 6 × 6 km → S2 avión, paracaídas y personaje → S3 juego completo, móvil y sonido). Decidido por Rubén: cae el personaje, no el coche, y todo en Three.js dentro del juego. **S0 sin empezar, pendiente del OK de Rubén**; las dudas de la sección 3 del plan se resuelven en S0. S1 necesita permiso para descargar el MDT y la ortofoto del horizonte.
+**Salto en paracaídas (2026-11-19):** plan en `PLAN_SALTO.md` (S0 prototipo con `?salto` → S1 horizonte de 6 × 6 km → S2 avión, paracaídas y personaje → S3 juego completo, móvil y sonido). Decidido por Rubén: cae el personaje, no el coche, y todo en Three.js dentro del juego. **S0 hecho el 2026-11-19 (`?salto`), pendiente de que Rubén lo pruebe**; ver el apartado «Salto en paracaídas». S1 necesita permiso para descargar el MDT y la ortofoto del horizonte.
 
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
@@ -407,6 +407,37 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - La ortofoto del juego pilló montadas las gradas del nº 2 (por eso salía un «tejado» en medio de la calle junto al nudo). En F1 habrá que ver si se nota en el suelo del modo de conducción; en fiestas queda debajo de las gradas.
 - La F0 se hizo en sesiones en la nube sin `public/assets/` ni `data/raw/`: los datos se leyeron del juego publicado (`juegos/cabanillas-drive/assets`).
 
+## Salto en paracaídas (PLAN_SALTO.md)
+
+**Hito actual: S0 hecho (2026-11-19), pendiente de que Rubén lo pruebe.** Se juega con `?salto` (o `?salto=7` para repetir la misma ruta); sin el parámetro, el inicio no cambia.
+
+### S0 — Prototipo sin modelos (hecho)
+- `src/salto/`: `salto.js` (máquina de estados avión → salida → caída → apertura → planeo → aterrizaje), `ruta.js` (recta al azar con semilla, pasa a ≤ 220 m del centro del casco), `caida.js` (física sin Rapier, apertura automática a `70 + 1,5·max(0, |vy| − 35)` m), `camaraSalto.js`, `alturaRender.js`, `aterrizaje.js`, `figuras.js` (avión de cajas, cápsula y lona en arco roja y blanca: provisionales hasta S2). Ajustes en `src/config/salto.js`.
+- Render según la altura: `near = clamp(0,015·h, 0,5, 2)` (techo de 2 m por la indicación de Rubén, para no recortar al personaje), far 6000 m (3200 en «bajo») y niebla del aire; sin N8AO por encima de 150 m (`render.ponAo`); sin carpintería, cristales ni rejas de las casas a mano por encima de 120 m (`casas.userData.ponDetalle`); hierba, coches y detalle de edificios no se generan bajo la cámara si va alta, y las celdas del sitio de aterrizaje se cargan desde que se abre el paracaídas. Al aterrizar todo vuelve a los valores de la calidad.
+- Aterrizaje: lo que hay debajo es el terreno o el tejado del Catastro. Si cae en un tejado, en el agua o encima de algo, baja a la calle más cercana. El coche queda aparcado en esa calle a ~7 m (si cae en el campo, a su lado mirando hacia la calle) y se sigue a pie (primera persona).
+- Mandos: modo «salto» en `entrada.js` (`CONTROLES.teclasSalto`: Espacio salta y abre). En táctil, un botón 🪂 en lugar de los del coche.
+- Prueba: `tools/prueba_salto.mjs` (avión, salto con Espacio o 🪂, no abre por encima de 500 m, se abre solo a ~90 m, near ≤ 2 m, aterrizaje válido con el coche a < 15 m, salto forzoso y 5 rutas al azar). **Todo bien** en «bajo», «medio», «alto» y móvil. Uso con el Chrome instalado: `$env:PUERTO=5180; $env:CANAL="chrome"; $env:PLAYWRIGHT_RAIZ=<carpeta node_modules con playwright>; node tools/prueba_salto.mjs <capturas> bajo`. Capturas en `data/processed/previews/salto/`.
+- Medido (llamadas de dibujo, contando la pasada de sombras; triángulos), ruta 7:
+
+  | | 550 m | 200 m | 50 m | a pie al aterrizar |
+  |---|---|---|---|---|
+  | alto 1280×720 | 192 · 1,2 M | 661 · 1,3 M | 1149 · 2,1 M | 1354 · 3,7 M |
+  | bajo 1280×720 | 175 · 0,9 M | 515 · 0,9 M | 527 · 1,1 M | 594 · 2,0 M |
+  | bajo 375×812 | 139 · 0,8 M | 272 · 0,7 M | 234 · 0,8 M | 277 · 1,1 M |
+
+  El salto nunca cuesta más que ir a pie por la calle. Antes de ocultar el detalle de fachadas, a ~370 m en «bajo» salían 809 llamadas (519 de las casas a mano: 29 filas × ~18 materiales). **FPS sin medir**: el navegador de pruebas va a menos de 2 FPS; Rubén puede verlos con `?salto&debug`.
+
+### Decisiones provisionales de S0 (las dudas de la sección 3 del plan, a confirmar por Rubén)
+1. El salto solo con `?salto`; Jugar sigue empezando en la calle.
+2. Tras aterrizar, a pie en primera persona (la de siempre).
+3. No se aterriza en tejados: se baja a la calle (en S3, desvío progresivo por debajo de 25–30 m).
+4. Avión siempre a 550 m sobre el centro.
+5. Paracaídas rojo y blanco.
+
+### Pendiente
+- S1 (horizonte): necesita permiso para descargar el MDT y la ortofoto; misma capa y año del WMS que `02_ortho.py`. Desde el aire se ve el borde de la zona (fondo marrón) y, fuera de ella, contornos sueltos de parcelas.
+- S3: juntar las mallas de las casas a mano entre filas (mismo material → una llamada) bajaría las llamadas también en la calle.
+
 ## Pendiente de Rubén (lo hará más adelante; no recordárselo en cada informe)
 - R4: capturas de Scaniverse de 3–5 edificios en `data/raw/splats/<nombre>/` (instrucciones en `PLAN_REALISMO.md`).
 - Probar en su Android: `npm run dev:red` y abrir `http://<IP del PC>:5173/?debug=1` (objetivo ≥ 30 FPS en «bajo»).
@@ -452,5 +483,6 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - Resuelto en la fase 5: `vite.config.js` quita de `dist/` las teselas de `assets/orto/` y `terrain.f32` (solo los usa el pipeline).
 - El JS del juego pesa 2,7 MB (939 KB gzip), casi todo Rapier con el wasm incrustado (`-compat`). Se puede revisar en la fase 5.
 - El modelo del coche es sencillo (primitivas); mejorable si Rubén quiere.
+- Niebla de la calidad «bajo» sin efecto (visto el 2026-11-19 en S0 del salto): `main.js` hace `Object.assign(escena.fog, CALIDAD.niebla)` con `{ cerca, lejos }`, pero `THREE.Fog` usa `near` y `far`. En «bajo» la niebla sigue de 1200 a 4000 m y la cámara corta a 1400 m. Arreglarlo cambia el aspecto en el móvil (mucha más niebla): pendiente de que Rubén decida.
 - `npm audit`: 3 vulnerabilidades altas, solo en dependencias de desarrollo (`@gltf-transform/cli`). Las de ejecución están limpias.
 - Si se publica esta carpeta tal cual en GitHub Pages, `prototipos/cabanillas-drive/index.html` no funciona sin compilar (imports de npm). El juego se publica desde `dist/` (PLAN §8).

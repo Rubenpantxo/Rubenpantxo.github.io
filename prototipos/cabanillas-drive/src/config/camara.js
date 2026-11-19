@@ -41,6 +41,11 @@ export const CONTROLES = {
     camaraFiestas: ['KeyV'],
     sonido: ['KeyM'],                 // quitar y poner el sonido (en fiestas, M no gira el minimapa)
   },
+  // Salto en paracaídas (PLAN_SALTO.md): mientras dura, Espacio no es el freno de mano.
+  // W picar / adelantar, S frenar, A y D girar (son las mismas teclas de siempre)
+  teclasSalto: {
+    paracaidas: ['Space'],            // saltar del avión y, en la caída, abrir el paracaídas
+  },
   joystick: {
     radio: 60,                // px de recorrido del mando
     zonaMuerta: 0.08,

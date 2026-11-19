@@ -2,7 +2,7 @@
 
 Plan por hitos para que Cabanillas Drive empiece como un *battle royale*: el personaje va en un avión que cruza el pueblo, salta, cae viendo todo Cabanillas, abre el paracaídas y aterriza en una calle, donde le espera su coche aparcado. Complementa a `PLAN.md`, `PLAN_REALISMO.md` y `PLAN_FIESTAS.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: un hito cada vez, parada al final de cada uno, no inventar datos geográficos, todo en español, y escritorio y móvil siempre.
 
-Fecha: 2026-11-19. Estado: **plan escrito; S0 sin empezar, pendiente del OK de Rubén**.
+Fecha: 2026-11-19. Estado: **S0 hecho (`?salto`), pendiente de que Rubén lo pruebe**. Detalle en `PROGRESO.md`, apartado «Salto en paracaídas».
 
 Origen: el documento de arquitectura de Rubén (`arquitectura_salto_battle_royale_cabanillas_drive.html`), contrastado con lo que el juego ya tiene. Tomamos de él la máquina de estados de seis fases, la altura de salto, la apertura automática según la velocidad y los planos de recorte que cambian con la altura. **No** tomamos la reconstrucción del pueblo desde el Catastro de IDENA con QGIS (el juego ya tiene algo mejor), ni el paso a KTX2 o Meshopt, ni WebGPU, ni Git LFS.
 
@@ -48,8 +48,8 @@ Mientras dura el vuelo se sigue cargando lo que falte (celdas de detalle, coches
 ### Datos de partida que condicionan el diseño
 
 - **La zona termina a ±750 m del centro.** Desde 550 m de altura se vería el borde del mundo. Por eso S1 añade el horizonte.
-- En calidad **alta** y **media** no hay niebla (`niebla: null`, `camaraLejos: 6000`). En **baja**, la niebla va de 450 a 1300 m y la cámara llega a 1400 m. Durante el salto hace falta niebla en las tres calidades, porque es lo que esconde el borde exterior del horizonte.
-- `cicloDia.js` solo cambia el color de la niebla si la escena tiene niebla al crearse. Hay que crearla siempre, con una distancia enorme en las calidades que no la usan, para que el color siga al día y a la noche.
+- En calidad **alta** y **media** la niebla es la de `config/escena.js` (de 1200 a 4000 m) y la cámara llega a 6000 m. En **baja**, la niebla va de 450 a 1300 m y la cámara llega a 1400 m. En el aire, la niebla se aleja según la altura en las tres calidades; es lo que esconde el borde exterior del horizonte.
+- `cicloDia.js` solo cambia el color de la niebla; las distancias las puede mover el salto sin pelearse con él.
 - La cámara tiene hoy `near` 0,5 m. Con 6000 m de `far`, la precisión de profundidad no da para 550 m de altura y los tejados parpadearían (*z-fighting*). Por eso `near` y `far` cambian con la altura.
 
 ---
@@ -103,7 +103,7 @@ src/config/salto.js
 
 ### Render según la altura (`alturaRender.js`)
 
-- `near = clamp(0,015 · h, 0,5, 8)` y `far` de unos 6000 m en el aire. Cerca del suelo se recuperan los valores de `CALIDAD`.
+- `near = clamp(0,015 · h, 0,5, 2)` y `far` de unos 6000 m en el aire (relación 3000:1). El techo de 2 m queda por debajo de la distancia entre la cámara y el personaje, para no recortarlo a él ni al avión (corrección de Rubén, 2026-11-19). Cerca del suelo se recuperan los valores de `CALIDAD`.
 - La niebla de altura esconde el borde del horizonte (a unos 3 km) y se funde con la de la calidad por debajo de unos 150 m.
 - Sombras 3D y N8AO apagados por encima de unos 150 m, porque la ortofoto ya trae las sombras pintadas. Se encienden de forma gradual al bajar.
 - Tráfico y peatones parados y ocultos durante el vuelo y la caída. Aparecen al aterrizar.
@@ -145,7 +145,7 @@ Objetivo: que desde el avión no se vea el borde del mundo, sino la vega del Ebr
 
 - **Datos nuevos: hace falta el permiso de Rubén antes de descargar nada.** Fuentes posibles:
   - Relieve: MDT de 5 m (MDT05) o de 25 m (MDT25) del IGN, por su servicio WCS o descargado del CNIG y puesto por Rubén en `data/raw/`.
-  - Color: ortofoto PNOA del mismo WMS que ya usa `02_ortho.py` (`config.json`), a unos 4 m por píxel, para que el color case con el de la zona.
+  - Color: ortofoto PNOA del mismo WMS que ya usa `02_ortho.py` (`config.json`), a unos 4 m por píxel. **Exactamente la misma capa y el mismo año (vuelo)** que la zona, y con el mismo desplazamiento de `origin.json`: si el pueblo es de un vuelo de verano y el anillo de otro de primavera, se notaría un escalón de color en el borde de ±750 m (indicación de Rubén).
   - Las descargas se guardan en `data/processed/` y no se repiten. **Si falta algo o un dato no cuadra, se para y se pregunta.**
 - `tools/40_horizonte.py` (idempotente, parámetros en `config.json`): un anillo de unos 6 × 6 km alrededor del origen, con un hueco del tamaño de la zona actual.
   - Rejilla de unos 20 m, simplificada donde el terreno es llano.
@@ -191,7 +191,8 @@ Objetivo: que el salto sea el inicio de verdad y funcione igual de bien en el m�
   - Se respeta la tecla M y el sonido apagado.
 - Carga anticipada: las celdas de detalle y los coches aparcados alrededor del punto previsto, durante el planeo.
 - Avisos cortos: «Espacio: saltar», «Espacio: abrir el paracaídas», «Tu coche está aparcado ahí · E para subir».
-- Aterrizaje mejorado según la duda 3: si el punto cae en un tejado o en el agua, el planeo se desvía de forma suave hacia la calle más cercana en los últimos metros.
+- Aterrizaje mejorado según la duda 3: si el punto cae en un tejado o en el agua, el planeo se desvía hacia la calle más cercana. **Solo por debajo de 25–30 m y de forma progresiva**; más arriba, el control es 100 % del jugador, para que no sienta que el juego se lo quita (indicación de Rubén).
+- Juntar las mallas de las casas a mano entre filas (mismo material, una llamada): desde el aire se ven las 29 filas a la vez (medido en S0).
 - Medición final en calidad baja con pantalla de móvil y, si Rubén puede, en un Android real. `npm run publica` y el tamaño nuevo apuntados en `PROGRESO.md`.
 
 Aceptación: Rubén juega varias partidas empezando por el salto, en escritorio y en el móvil.

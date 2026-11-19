@@ -82,12 +82,16 @@ export function creaRender(renderer, escena, camara, luzSol, calidad) {
     luzSol.updateMatrixWorld();
   }
 
+  // Sin oclusión ambiental (desde el aire no se ve y cuesta igual): render directo, como en la
+  // calidad que no la usa
+  let conAo = true;
   return {
     render() {
       sigueCamara();
-      if (compositor) compositor.render();
+      if (compositor && conAo) compositor.render();
       else renderer.render(escena, camara);
     },
+    ponAo(valor) { conAo = valor; },
     redimensiona(ancho, alto) {
       if (compositor) compositor.setSize(ancho, alto);
     },

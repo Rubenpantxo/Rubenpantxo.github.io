@@ -12,11 +12,13 @@ export function creaEntrada(raizTactil) {
   // reiniciar, cámara y freno de mano
   let modo = 'pueblo';
   const teclasFiestas = CONTROLES.teclasFiestas;
+  const teclasSalto = CONTROLES.teclasSalto;
   const mirada = { dx: 0, dy: 0 };
   const pulsadas = new Set();
   const teclas = CONTROLES.teclas;
   const algunaDe = (lista) => lista.some((c) => pulsadas.has(c));
-  const todasLasTeclas = new Set([...Object.values(teclas).flat(), ...Object.values(teclasFiestas).flat()]);
+  const todasLasTeclas = new Set([...Object.values(teclas).flat(), ...Object.values(teclasFiestas).flat(),
+    ...Object.values(teclasSalto).flat()]);
 
   // --- Teclado
   window.addEventListener('keydown', (e) => {
@@ -25,6 +27,8 @@ export function creaEntrada(raizTactil) {
     if (!e.repeat) {
       if (modo === 'fiestas') {
         for (const [accion, codigos] of Object.entries(teclasFiestas)) if (codigos.includes(e.code)) pendientes[accion] = true;
+      } else if (modo === 'salto') {
+        for (const [accion, codigos] of Object.entries(teclasSalto)) if (codigos.includes(e.code)) pendientes[accion] = true;
       } else {
         if (teclas.reiniciar.includes(e.code)) pendientes.reiniciar = true;
         if (teclas.camara.includes(e.code)) pendientes.camara = true;
@@ -197,11 +201,12 @@ export function creaEntrada(raizTactil) {
     return valor;
   }
 
-  // Cambia el mapa de teclas y los botones táctiles («pueblo» o «fiestas»); descarta lo pendiente
+  // Cambia el mapa de teclas y los botones táctiles («pueblo», «fiestas» o «salto»); descarta lo pendiente
   function ponModo(nuevo) {
     modo = nuevo;
     for (const k of Object.keys(pendientes)) pendientes[k] = false;
     raizTactil.classList.toggle('fiestas', nuevo === 'fiestas');
+    raizTactil.classList.toggle('salto', nuevo === 'salto');
   }
 
   return { estado, actualiza, consume, consumeMirada, ponModo, get modo() { return modo; } };

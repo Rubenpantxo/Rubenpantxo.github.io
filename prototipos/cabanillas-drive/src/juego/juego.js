@@ -34,6 +34,8 @@ import { cargaMundo } from '../escena/mundo.js';
 import { PASO_FISICA, creaFisica, creaGestorColisiones } from '../fisica/fisica.js';
 import { creaCoche } from '../vehiculo/coche.js';
 import { cargaGeoJSON } from '../visor/lineas.js';
+import { creaSalto } from '../salto/salto.js';
+import { creaIndiceTejados, eligeAterrizaje, tramosDeCalles } from '../salto/aterrizaje.js';
 
 const MAX_PASOS_POR_FOTOGRAMA = 4;
 const CAMARA_FOV_COCHE = CAMARA.persecucion.fov;
@@ -41,7 +43,7 @@ const DISTANCIAS_COCHES = {
   detalle: CALIDAD.distanciaCochesDetalle, lejos: CALIDAD.distanciaCochesLejos, max: CALIDAD.distanciaCochesMax,
 };
 
-export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
+export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render = null }) {
   ui.estado.textContent = 'Cargando Cabanillas…';
   creaReflejos(renderer, escena);
   const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos, murosLidar, personas, datosElementos] = await Promise.all([
@@ -86,7 +88,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     { mallasTerreno: mundo.mallasTerreno, fisica });
   escena.add(marcas.raiz);
   escena.add(creaSingulares(mundo.terreno, fisica));
-  escena.add(creaCasas(mundo.terreno, fisica));
+  const casas = creaCasas(mundo.terreno, fisica);
+  escena.add(casas);
   const farolas = creaFarolas(await cargaFarolas(ESCENA.rutaFarolas), { terreno: mundo.terreno, fisica, luces: CALIDAD.lucesFarolas });
   escena.add(farolas.raiz);
   const colisiones = creaGestorColisiones(fisica, { radio: CALIDAD.radioColisiones });
@@ -114,6 +117,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
   let fiestas = null;
   let cambiandoFiestas = false;
   const enFiestas = () => Boolean(fiestas?.activo);
+  // Salto en paracaídas al empezar (PLAN_SALTO.md), con ?salto
+  let salto = null;
+  const enSalto = () => Boolean(salto?.activo);
   let avisoHasta = 0;
   let aviso = '';
   const PARADO = { acelerador: 0, freno: 0, direccion: 0, frenoMano: true, analogica: false };
@@ -230,7 +236,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
 
   // Con ratón: clic sobre la escena para capturar el puntero y mirar alrededor andando
   renderer.domElement.addEventListener('click', (ev) => {
-    if (aPie && !pausado && ev.pointerType !== 'touch' && document.pointerLockElement !== renderer.domElement) {
+    if ((aPie || enSalto()) && !pausado && ev.pointerType !== 'touch' && document.pointerLockElement !== renderer.domElement) {
       renderer.domElement.requestPointerLock?.();
     }
   });
@@ -318,25 +324,136 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     camara.lookAt(centroOrbita.x, centroOrbita.y + 1.2, centroOrbita.z);
   }
 
+  // Detalle cerca de la cámara (hierba, árboles 3D, coches, tejados del LiDAR). Durante el salto,
+  // lo que diga el salto: nada bajo la cámara si va alta y las celdas del sitio de aterrizaje
+  function repartoDetalle(dt) {
+    const foco = enSalto() ? salto.focoDetalle() : camara.position;
+    hierba.actualiza(foco);
+    tiempoReparto -= dt;
+    if (tiempoReparto <= 0) {
+      cochesAparcados.actualiza(foco, DISTANCIAS_COCHES);
+      arboles.actualiza(camara.position, CALIDAD.distanciaArbolesDetalle);
+      mundo.edificios.actualiza(enSalto() ? salto.focoEdificios() : camara.position);
+      carteles.actualiza(camara.position);
+      tiempoReparto = ESCENA.segundosRepartoCoches;
+    }
+  }
+
+  function cuentaFps(dt) {
+    fotogramas++;
+    tiempoFps += dt;
+    if (tiempoFps >= 0.5) {
+      fps = Math.round(fotogramas / tiempoFps);
+      msFotograma = (tiempoFps / fotogramas) * 1000;
+      fotogramas = 0;
+      tiempoFps = 0;
+      if (ui.mostrarFps) {
+        const r = renderer.info.render;
+        textoDepuracion = `${fps} FPS · ${msFotograma.toFixed(1)} ms · ${r.calls} llamadas · `
+          + `${Math.round(r.triangles / 1000)} k triángulos · ${colisiones.activos}/${colisiones.total} colisiones · `
+          + `calidad ${CALIDAD.nivel} · resolución ${Math.round((ui.proporcionPixeles?.() ?? 1) * 100)} %`;
+      }
+    }
+  }
+
+  // --- Salto en paracaídas (PLAN_SALTO.md)
+  const indiceTejados = creaIndiceTejados(mundo.geoEdificios);
+  let tramosCalles = null;
+  // Lo que hay debajo: el terreno o, dentro de la huella de un edificio, su tejado
+  const sueloSalto = (x, z) => Math.max(mundo.terreno.alturaEn(x, z), indiceTejados.techoEn(x, z) ?? -Infinity);
+  function esSitioValido(x, z) {
+    if (indiceTejados.techoEn(x, z) !== null) return false;
+    const y = mundo.terreno.alturaEn(x, z);
+    if (canal.userData.bajoAgua?.(x, z, y + 0.3)) return false;
+    return peaton.libre(x, z);
+  }
+  function empiezaSalto(semilla = Math.floor(Math.random() * 1e9)) {
+    if (enFiestas() || enSalto()) return false;
+    if (aPie) subirseYa();
+    tramosCalles ??= tramosDeCalles(geoCalles);
+    trafico.retira();
+    trafico.raiz.visible = false;
+    peatones.raiz.visible = false;
+    obstaculosPeatones = [];
+    botonBajar.hidden = true;
+    entrada.ponModo('salto');
+    salto = creaSalto({
+      escena, camara, terreno: mundo.terreno, render, semilla, tactil, detalles: [casas.userData.ponDetalle],
+      zona: { mitadAncho: mundo.rejilla.ancho / 2, mitadAlto: mundo.rejilla.alto / 2 },
+      centro: { x: salida.x, z: salida.z },
+      suelo: sueloSalto,
+      avisa,
+      alTocarSuelo(toque, rumbo) {
+        const r = eligeAterrizaje(toque, rumbo, { tramos: tramosCalles, esValido: esSitioValido });
+        if (r.coche) {
+          const y = mundo.terreno.alturaEn(r.coche.x, r.coche.z) + VEHICULO.reinicio.alturaSobreSuelo;
+          coche.recoloca(r.coche.x, y, r.coche.z, r.coche.dx, r.coche.dz);
+        }
+        peaton.activa(r.persona.x, r.persona.z, r.persona.guinada);
+        colisiones.fuerza({ x: r.persona.x, z: r.persona.z });
+        aPie = true;
+        botonBajar.textContent = '🚗';
+        if (r.persona.movido) avisa('Has caído en un tejado: bajas a la calle', 3);
+        return { colocaDestino: (objeto) => peaton.colocaCamara(objeto), fov: PEATON.fov };
+      },
+      alTerminar() {
+        entrada.ponModo('pueblo');
+        trafico.raiz.visible = true;
+        peatones.raiz.visible = true;
+        botonBajar.hidden = false;
+        camara.fov = PEATON.fov;
+        camara.updateProjectionMatrix();
+        avisa(`Tu coche está aparcado ahí · ${tactil ? '🚗' : 'E'} cerca de él para subir`, 6);
+      },
+    });
+    if (import.meta.env.DEV) window.__salto = salto;
+    return true;
+  }
+
+  // Un fotograma del salto: sin tráfico ni peatones; el coche, quieto donde esté
+  function actualizaSalto(dt, mandos, mirada) {
+    if (entrada.consume('hora') && ciclo) {
+      ciclo.adelanta(1);
+      avisa(`🕒 ${textoHora(ciclo.estado.hora)}`, 2);
+    }
+    salto.actualiza(dt, mandos, mirada, entrada.consume('paracaidas'));
+    colisiones.actualiza(enSalto() ? salto.prevision : peaton.estado().posicion, { x: 0, z: 0 }, dt);
+    acumulado += Math.min(dt, PASO_FISICA * MAX_PASOS_POR_FOTOGRAMA);
+    while (acumulado >= PASO_FISICA) {
+      coche.aplicaEntrada(PARADO, PASO_FISICA);
+      coche.paso(PASO_FISICA);
+      fisica.mundo.step();
+      acumulado -= PASO_FISICA;
+    }
+    coche.sincroniza();
+    arboles.avanza(dt);
+    hierba.avanza(dt);
+    avanzaAgua(dt);
+    entradas.mostrar(true);
+    entradas.actualiza(dt);
+    repartoDetalle(dt);
+    cuentaFps(dt);
+    hud.actualiza(enSalto() ? salto.estadoHud() : peaton.estado(), dt, []);
+    luces.actualiza(ciclo ? ciclo.estado.oscuridad : 0);
+    farolas.actualiza(ciclo ? ciclo.estado.oscuridad : 0, camara, dt);
+    let texto = enSalto() ? `${salto.texto()}${textoDepuracion ? ` · ${textoDepuracion}` : ''}` : textoDepuracion;
+    if (performance.now() < avisoHasta) texto = aviso;
+    ui.estado.textContent = texto;
+  }
+
   function actualiza(dt) {
     if (pausado) {
-      orbita(dt);
+      if (enSalto()) salto.colocaCamara(0);
+      else orbita(dt);
       arboles.avanza(dt);
       hierba.avanza(dt);
       avanzaAgua(dt);
-      hierba.actualiza(camara.position);
-      tiempoReparto -= dt;
-      if (tiempoReparto <= 0) {
-        cochesAparcados.actualiza(camara.position, DISTANCIAS_COCHES);
-        arboles.actualiza(camara.position, CALIDAD.distanciaArbolesDetalle);
-        mundo.edificios.actualiza(camara.position);
-        carteles.actualiza(camara.position);
-        tiempoReparto = ESCENA.segundosRepartoCoches;
-      }
+      repartoDetalle(dt);
       return;
     }
     const mandos = entrada.actualiza();
     const mirada = entrada.consumeMirada();
+    if (enSalto()) { actualizaSalto(dt, mandos, mirada); return; }
     // Entradas: E (o «Entrar») dentro del aro. Se mira siempre, para no dejar la pulsación pendiente
     const quiereEntrar = entrada.consume('entrar');
     const aqui = entradaCerca();
@@ -408,30 +525,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     avanzaAgua(dt);
     entradas.mostrar(!fiesta);
     entradas.actualiza(dt);
-    hierba.actualiza(camara.position);
-    tiempoReparto -= dt;
-    if (tiempoReparto <= 0) {
-      cochesAparcados.actualiza(camara.position, DISTANCIAS_COCHES);
-      arboles.actualiza(camara.position, CALIDAD.distanciaArbolesDetalle);
-      mundo.edificios.actualiza(camara.position);
-      carteles.actualiza(camara.position);
-      tiempoReparto = ESCENA.segundosRepartoCoches;
-    }
-
-    fotogramas++;
-    tiempoFps += dt;
-    if (tiempoFps >= 0.5) {
-      fps = Math.round(fotogramas / tiempoFps);
-      msFotograma = (tiempoFps / fotogramas) * 1000;
-      fotogramas = 0;
-      tiempoFps = 0;
-      if (ui.mostrarFps) {
-        const r = renderer.info.render;
-        textoDepuracion = `${fps} FPS · ${msFotograma.toFixed(1)} ms · ${r.calls} llamadas · `
-          + `${Math.round(r.triangles / 1000)} k triángulos · ${colisiones.activos}/${colisiones.total} colisiones · `
-          + `calidad ${CALIDAD.nivel} · resolución ${Math.round((ui.proporcionPixeles?.() ?? 1) * 100)} %`;
-      }
-    }
+    repartoDetalle(dt);
+    cuentaFps(dt);
     hud.actualiza(fiesta ? fiestas.estadoJugador() : aPie ? peaton.estado() : e, dt, fiesta ? [] : trafico.posiciones());
     luces.actualiza(ciclo ? ciclo.estado.oscuridad : 0);
     farolas.actualiza(ciclo ? ciclo.estado.oscuridad : 0, camara, dt);
@@ -446,7 +541,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
     get fiestas() { return fiestas; },
     get modoFiestas() { return enFiestas() ? fiestas.modo : null; }, carteles, luces, ciclo, peatones, muros, elementos, farolas,
     lugares: lugares.map(({ nombre, icono }) => ({ nombre, icono })),
-    entradas, aparece,
+    entradas, aparece, empiezaSalto,
+    get salto() { return salto; },
     get fps() { return fps; },
     get pausado() { return pausado; },
     // Al volver de la pausa no se recupera el tiempo parado (la física no da un salto)
@@ -457,6 +553,22 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo }) {
       fiestas?.mostrarHud(!valor);
     },
   };
+  if (import.meta.env.DEV) {
+    // Para las pruebas (tools/prueba_salto.mjs): avanza el salto sin dibujar, a 30 pasos por
+    // segundo, con unos mandos fijos (el navegador sin ventana va a menos de 2 FPS)
+    api.simulaSalto = (segundos, mandos = {}, pulsaParacaidas = false) => {
+      const m = { ...entrada.actualiza(), ...mandos };
+      let pulsa = pulsaParacaidas || entrada.consume('paracaidas');
+      for (let t = 0; t < segundos && enSalto(); t += 1 / 30) {
+        salto.actualiza(1 / 30, m, { dx: 0, dy: 0 }, pulsa);
+        pulsa = false;
+        colisiones.actualiza(enSalto() ? salto.prevision : peaton.estado().posicion, { x: 0, z: 0 }, 1 / 30);
+        fisica.mundo.step();
+      }
+      return salto.fase;
+    };
+    api.esSitioValido = esSitioValido;
+  }
   if (import.meta.env.DEV) window.__juego = Object.assign(api, { THREE, renderer, camara, escena, colocaEn });
   return { actualiza, api };
 }

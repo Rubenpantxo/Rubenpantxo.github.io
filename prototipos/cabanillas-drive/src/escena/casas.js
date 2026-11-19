@@ -1295,9 +1295,21 @@ function creaFila(fila, terreno, fisica) {
   return raiz;
 }
 
+// Materiales de detalle de fachada (carpintería, cristal, rejas, persianas…): desde el aire no
+// se ven y cada uno es una llamada de dibujo por fila. El salto en paracaídas los oculta en lo alto.
+const DETALLE_FACHADA = /vidrio|aluminio|hierro|marco|puerta|persiana|cortina|plastico|negr|oscuro|marmol|rotulo|farol/;
+
 export function creaCasas(terreno, fisica) {
   const raiz = new THREE.Group();
   raiz.name = 'casas';
   for (const fila of FILAS_CASAS) raiz.add(creaFila(fila, terreno, fisica));
+  const detalles = [];
+  raiz.traverse((o) => { if (o.isMesh && DETALLE_FACHADA.test(o.material?.name ?? '')) detalles.push(o); });
+  let conDetalle = true;
+  raiz.userData.ponDetalle = (valor) => {
+    if (valor === conDetalle) return;
+    conDetalle = valor;
+    for (const m of detalles) m.visible = valor;
+  };
   return raiz;
 }
