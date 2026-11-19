@@ -45,7 +45,7 @@ const foto = async (nombre, vista = null) => {
   }, vista);
   await p.screenshot({ path: `${S}/f6_${nombre}${movil ? '_movil' : ''}.jpg`, quality: 85, timeout: 120000 });
 };
-await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1&capa=colorada`);
+await p.goto(`http://localhost:5173/?salto=0&calidad=${calidad}&debug=1&capa=colorada`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 await p.evaluate(() => { try { localStorage.removeItem('cabanillas.sonido'); } catch { /* nada */ } document.getElementById('jugar').click(); });
 await p.waitForTimeout(1000);

@@ -216,11 +216,15 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         if (valor === 'dejar') return api.fiestas.abandona();
         return api.entraFiestas(valor);
       }, (que) => (que === 'partida' ? Boolean(api.fiestas?.partida) : api.modoFiestas !== null));
-      // ?salto (o ?salto=semilla, para repetir la misma ruta): empieza saltando del avión (PLAN_SALTO.md)
-      if (parametros.has('salto') && !parametros.get('fiestas') && !parametros.get('aparece')) {
+      // Se empieza saltando del avión (PLAN_SALTO.md), salvo con ?salto=0, al entrar directo a las
+      // fiestas o al volver de otro juego. ?salto=semilla repite la misma ruta. Desde la pantalla de
+      // inicio, «Empezar en la calle» lo omite; en la pausa, «Saltarse el salto»
+      if (parametros.get('salto') !== '0' && !parametros.get('fiestas') && !parametros.get('aparece')) {
         const semilla = Number.parseInt(parametros.get('salto'), 10);
         api.empiezaSalto(Number.isFinite(semilla) ? semilla : undefined);
       }
+      pantallas.ponSalto(() => api.puedeOmitirSalto, () => api.omiteSalto());
+      window.addEventListener('cabanillas:inicioCalle', () => api.omiteSalto());
       // ?fiestas=plaza|calle|encierro entra directamente al modo
       if (parametros.get('fiestas')) api.entraFiestas(parametros.get('fiestas'));
       // Desde la pantalla de inicio, «Ir a las fiestas»

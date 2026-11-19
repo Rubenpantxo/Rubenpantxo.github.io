@@ -10,7 +10,7 @@ const S = process.argv[2];
 mkdirSync(S, { recursive: true });
 const b = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
 const p = await b.newPage();
-await p.goto('http://localhost:5173/');
+await p.goto('http://localhost:5173/?salto=0');
 const sonidos = await p.evaluate(async () => {
   const { creaSonido } = await import('/src/fiestas/sonido.js');
   const s = creaSonido();

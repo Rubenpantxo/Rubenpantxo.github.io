@@ -12,7 +12,7 @@ const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftsha
 const filas = [];
 for (const calidad of calidades) {
   const p = await b.newPage({ viewport: { width: 960, height: 540 } });
-  await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1`);
+  await p.goto(`http://localhost:5173/?salto=0&calidad=${calidad}&debug=1`);
   await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 300000 });
   await p.evaluate(() => document.getElementById('jugar').click());
   for (const modo of ['concurso', 'encierro']) {

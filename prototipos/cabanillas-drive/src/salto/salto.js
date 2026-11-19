@@ -16,7 +16,7 @@ const suave = (t) => t * t * (3 - 2 * t);
 // zona: { mitadAncho, mitadAlto }; centro: punto del casco {x, z}
 // suelo(x, z): altura de lo que hay debajo (terreno o tejado)
 // alTocarSuelo(toque, rumbo) → { colocaDestino(objeto3D), fov } : el juego pone al jugador a pie
-// alTerminar(): el juego vuelve a su modo normal
+// alTerminar(omitido): el juego vuelve a su modo normal (omitido: se ha saltado el salto antes de tocar el suelo)
 // detalles: funciones (valor) => … para ocultar detalle en lo alto (src/salto/alturaRender.js)
 export function creaSalto({ escena, camara, terreno, render, zona, centro, semilla, suelo, tactil = false, detalles = [],
   avisa = () => {}, alTocarSuelo, alTerminar }) {
@@ -101,12 +101,12 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     cambia('aterrizaje');
   }
 
-  function termina() {
+  function termina(omitido = false) {
     if (terminado) return;
     terminado = true;
     alturaRender.restaura();
     for (const f of [avion, personaje, marca]) liberaFigura(f);
-    alTerminar?.();
+    alTerminar?.(omitido);
   }
 
   function mueveAvion(dt) {
@@ -138,7 +138,7 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     if (terminado) return;
     if (!avisado) {
       avisado = true;
-      avisa(`✈️ Sobre Cabanillas · ${tactil ? '🪂' : 'Espacio'}: saltar · ${tactil ? 'arrastra para mirar' : 'clic y ratón: mirar'}`, 7);
+      avisa(`✈️ Sobre Cabanillas · ${tactil ? '🪂' : 'Espacio'}: saltar · ${tactil ? 'arrastra para mirar · ☰' : 'clic y ratón: mirar · Esc'}: saltarse el salto`, 8);
     }
     tiempoFase += dt;
     mueveAvion(dt);
@@ -230,7 +230,9 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     ruta,
     actualiza,
     colocaCamara,
-    termina,
+    // Saltarse el salto (pausa, «Empezar en la calle», fiestas…): solo antes de tocar el suelo
+    get omitible() { return !terminado && fase !== 'aterrizaje'; },
+    omite() { if (fase !== 'aterrizaje') termina(true); },
     // Para el HUD (velocímetro y minimapa)
     estadoHud() {
       const enAvion = fase === 'avion';

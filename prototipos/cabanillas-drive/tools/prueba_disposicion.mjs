@@ -14,7 +14,7 @@ const comprueba = (ok, texto) => { console.log(`  ${ok ? 'bien ' : 'FALLO'}  ${t
 for (const [ancho, alto] of TAMANOS) {
   const c = await b.newContext({ viewport: { width: ancho, height: alto }, hasTouch: true, isMobile: true });
   const p = await c.newPage();
-  await p.goto('http://localhost:5173/?calidad=bajo&debug=0&mozos=0');
+  await p.goto('http://localhost:5173/?salto=0&calidad=bajo&debug=0&mozos=0');
   await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 300000 });
   await p.evaluate(() => document.getElementById('jugar').click());
   await p.evaluate(async () => {

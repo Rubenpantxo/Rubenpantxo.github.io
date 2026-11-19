@@ -6,6 +6,8 @@
 //      aparcado cerca; near, far y niebla vuelven a los de la calidad; los mandos, a los del pueblo.
 //   4. Sin pulsar nada, el avión te tira al final de la ruta.
 //   5. Varias rutas al azar (semillas) aterrizan bien.
+//   6. Sin ?salto se empieza saltando; «Empezar en la calle», «Ir a las fiestas», «Saltarse el
+//      salto» (pausa) y ?salto=0 llevan al juego de siempre.
 // El bucle del juego va a menos de 2 FPS sin gráfica: el salto se avanza con
 // window.__juego.simulaSalto() (solo en desarrollo), a 30 pasos por segundo sin dibujar.
 // Saca capturas de cada fase. Hace falta el servidor de desarrollo (npm run dev) y Playwright.
@@ -23,13 +25,13 @@ const contexto = await b.newContext(movil ? { viewport: { width: 844, height: 39
 let fallos = 0;
 const comprueba = (ok, texto) => { console.log(`  ${ok ? 'bien ' : 'FALLO'}  ${texto}`); if (!ok) fallos++; };
 const errores = [];
-async function abre(semilla) {
+async function abre(semilla, boton = 'jugar') {
   const p = await contexto.newPage();
   p.on('console', (m) => { if (m.type() === 'error' && !/favicon/.test(m.location()?.url ?? '')) errores.push(m.text()); });
   p.on('pageerror', (e) => errores.push('PAGEERROR ' + e.message));
-  await p.goto(`http://localhost:${puerto}/?calidad=${calidad}&debug=1&salto=${semilla}`);
+  await p.goto(`http://localhost:${puerto}/?calidad=${calidad}&debug=1${semilla === null ? '' : `&salto=${semilla}`}`);
   await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 240000 });
-  await p.evaluate(() => document.getElementById('jugar').click());
+  await p.evaluate((id) => document.getElementById(id).click(), boton);
   await p.waitForTimeout(800);
   return p;
 }
@@ -129,6 +131,41 @@ for (const semilla of [11, 23, 42, 77, 1234]) {
   comprueba(!v.activo && v.valido && v.coche < 15, `semilla ${semilla}: en (${v.x.toFixed(0)}, ${v.z.toFixed(0)}), coche a ${v.coche.toFixed(1)} m`);
   await w.close();
 }
+
+console.log('6. Empezar con o sin salto');
+const enCoche = (pagina) => pagina.evaluate(() => {
+  const j = window.__juego;
+  return { salto: Boolean(j.salto?.activo), aPie: j.aPie, modo: j.entrada.modo, near: j.camara.near, fov: Math.round(j.camara.fov),
+    trafico: j.trafico.raiz.visible, boton: !document.querySelector('[data-pulsar="bajar"]').hidden };
+});
+let w = await abre(null);
+let e = await w.evaluate(() => ({ salto: window.__juego.salto?.activo, fase: window.__juego.salto?.fase }));
+comprueba(e.salto && e.fase === 'avion', `sin ?salto, «Jugar» empieza en el avión (${e.fase})`);
+await w.evaluate(() => document.getElementById('boton-menu').click());
+await w.waitForTimeout(300);
+const visible = await w.evaluate(() => !document.getElementById('omitir-salto').hidden);
+await w.evaluate(() => document.getElementById('omitir-salto').click());
+await fotogramas(w, 3);
+e = await enCoche(w);
+comprueba(visible && !e.salto && !e.aPie && e.modo === 'pueblo' && e.near === 0.5 && e.trafico && e.boton,
+  `pausa → «Saltarse el salto» (${visible ? 'a la vista' : 'oculto'}): en el coche, mandos «${e.modo}», near ${e.near}, fov ${e.fov}`);
+await captura(w, '7_saltado');
+await w.close();
+w = await abre(null, 'jugar-calle');
+await fotogramas(w, 3);
+e = await enCoche(w);
+comprueba(!e.salto && !e.aPie && e.modo === 'pueblo' && e.trafico, `«Empezar en la calle»: en el coche, sin salto, mandos «${e.modo}»`);
+await w.close();
+w = await abre(null, 'jugar-fiestas');
+await w.waitForFunction(() => window.__juego.fiestas, null, { timeout: 120000 });
+await w.waitForTimeout(1500);
+e = await w.evaluate(() => ({ salto: Boolean(window.__juego.salto?.activo), menu: !document.getElementById('menu-fiestas')?.hidden, modo: window.__juego.entrada.modo }));
+comprueba(!e.salto && e.menu, `«Ir a las fiestas»: sin salto, menú de fiestas ${e.menu ? 'abierto' : 'cerrado'}`);
+await w.close();
+w = await abre(0);
+e = await enCoche(w);
+comprueba(!e.salto && !e.aPie && e.modo === 'pueblo', `?salto=0: en el coche, sin salto`);
+await w.close();
 
 comprueba(errores.length === 0, `errores de consola: ${errores.length}${errores.length ? ` (${errores.slice(0, 3).join(' | ')})` : ''}`);
 await b.close();

@@ -65,6 +65,11 @@ export function creaPantallas({ alCambiar }) {
   }));
 
   jugar.addEventListener('click', () => cambia('jugando'));
+  // Empezar sin el salto en paracaídas, en el coche como siempre (main.js escucha el aviso)
+  $('jugar-calle').addEventListener('click', () => {
+    cambia('jugando');
+    window.dispatchEvent(new CustomEvent('cabanillas:inicioCalle'));
+  });
   // Ir directo al menú de las fiestas (main.js escucha el aviso)
   $('jugar-fiestas').addEventListener('click', () => {
     cambia('jugando');
@@ -181,9 +186,21 @@ export function creaPantallas({ alCambiar }) {
     });
   }
 
+  // «Saltarse el salto» en la pausa: solo mientras se puede (en el avión, cayendo o planeando)
+  function ponSalto(puedeOmitir, alOmitir) {
+    const boton = $('omitir-salto');
+    new MutationObserver(() => { boton.hidden = !puedeOmitir(); })
+      .observe(pausa, { attributes: true, attributeFilter: ['hidden'] });
+    boton.addEventListener('click', () => {
+      alOmitir();
+      cambia('jugando');
+    });
+  }
+
   return {
     ponLugares,
     ponFiestas,
+    ponSalto,
     ponHoras,
     get estado() { return estado; },
     textoCarga: etapaCarga,
@@ -192,6 +209,7 @@ export function creaPantallas({ alCambiar }) {
       clearInterval(reloj);
       inicio.querySelector('.carga').hidden = true;
       jugar.hidden = false;
+      $('jugar-calle').hidden = false;
       $('jugar-fiestas').hidden = false;
       jugar.focus();
     },

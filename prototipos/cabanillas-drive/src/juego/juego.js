@@ -155,6 +155,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
   // Entrar al modo fiestas: sin tráfico ni peatones, el festejo montado y el jugador a pie dentro
   async function entraFiestas(modo) {
     if (cambiandoFiestas) return false;
+    if (enSalto()) omiteSalto();
     cambiandoFiestas = true;
     try {
       if (!fiestas) {
@@ -282,6 +283,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
   // Llega a un sitio (de «Ir a…» o al volver de otro juego): en coche, en la calle más cercana
   // mirando hacia él. «encima»: en el sitio mismo (las entradas están en la calle o la plaza)
   function llevaA(x, z, encima = false) {
+    if (enSalto()) omiteSalto();
     if (aPie) subirseYa();
     const n = nodoMasCercano(nodos, x, z, { excluirServicio: true });
     const signo = n.dx * (x - n.x) + n.dz * (z - n.z) >= 0 ? 1 : -1;
@@ -396,17 +398,24 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
         if (r.persona.movido) avisa('Has caído en un tejado: bajas a la calle', 3);
         return { colocaDestino: (objeto) => peaton.colocaCamara(objeto), fov: PEATON.fov };
       },
-      alTerminar() {
+      alTerminar(omitido) {
         entrada.ponModo('pueblo');
         trafico.raiz.visible = true;
         peatones.raiz.visible = true;
         botonBajar.hidden = false;
-        camara.fov = PEATON.fov;
+        camara.fov = omitido ? CAMARA_FOV_COCHE : PEATON.fov;
         camara.updateProjectionMatrix();
-        avisa(`Tu coche está aparcado ahí · ${tactil ? '🚗' : 'E'} cerca de él para subir`, 6);
+        if (!omitido) avisa(`Tu coche está aparcado ahí · ${tactil ? '🚗' : 'E'} cerca de él para subir`, 6);
       },
     });
     if (import.meta.env.DEV) window.__salto = salto;
+    return true;
+  }
+
+  // Saltarse el salto: se empieza en el coche, en la salida de siempre (como sin salto)
+  function omiteSalto() {
+    if (!salto?.omitible) return false;
+    salto.omite();
     return true;
   }
 
@@ -541,8 +550,9 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     get fiestas() { return fiestas; },
     get modoFiestas() { return enFiestas() ? fiestas.modo : null; }, carteles, luces, ciclo, peatones, muros, elementos, farolas,
     lugares: lugares.map(({ nombre, icono }) => ({ nombre, icono })),
-    entradas, aparece, empiezaSalto,
+    entradas, aparece, empiezaSalto, omiteSalto,
     get salto() { return salto; },
+    get puedeOmitirSalto() { return Boolean(salto?.omitible); },
     get fps() { return fps; },
     get pausado() { return pausado; },
     // Al volver de la pausa no se recupera el tiempo parado (la física no da un salto)

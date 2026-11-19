@@ -29,7 +29,7 @@ const foto = async (nombre) => {
   const url = await p.evaluate(() => { const j = window.__juego; j.peaton.colocaCamara(j.camara); window.__render.render(); return j.renderer.domElement.toDataURL('image/jpeg', 0.85); });
   writeFileSync(`${S}/f1_${modo}_${nombre}.jpg`, Buffer.from(url.split(',')[1], 'base64'));
 };
-await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1&vacas=0`);
+await p.goto(`http://localhost:5173/?salto=0&calidad=${calidad}&debug=1&vacas=0`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 // Estado del pueblo antes de entrar
 const cuenta = () => p.evaluate(() => {
