@@ -48,7 +48,7 @@ const menu = () => p.evaluate(() => {
     cifras: m ? [...m.querySelectorAll('.cifras div')].map((x) => `${x.querySelector('span').textContent} ${x.querySelector('b').textContent}`) : [],
     record: m?.querySelector('.record')?.textContent ?? null };
 });
-await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&calidad=${calidad}&debug=1`);
+await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&personaje=0&calidad=${calidad}&debug=1`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 await p.evaluate(() => { try { localStorage.removeItem('cabanillas.fiestas.marcas'); } catch { /* nada */ } document.getElementById('jugar').click(); });
 await p.waitForTimeout(1000);

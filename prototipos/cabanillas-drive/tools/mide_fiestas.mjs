@@ -12,7 +12,7 @@ const b = await chromium.launch({ channel: process.env.CANAL, args: ['--use-gl=a
 const filas = [];
 for (const calidad of calidades) {
   const p = await b.newPage({ viewport: { width: 960, height: 540 } });
-  await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&calidad=${calidad}&debug=1`);
+  await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&personaje=0&calidad=${calidad}&debug=1`);
   await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 300000 });
   await p.evaluate(() => document.getElementById('jugar').click());
   for (const modo of ['concurso', 'encierro']) {

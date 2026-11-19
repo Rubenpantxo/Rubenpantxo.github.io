@@ -36,7 +36,7 @@ const foto = async (nombre) => {
   });
   await p.screenshot({ path: `${S}/f4_${nombre}${movil ? '_movil' : ''}.jpg`, quality: 85, timeout: 120000 });
 };
-await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&calidad=${calidad}&debug=1&capa=colorada&mozos=0`);
+await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&personaje=0&calidad=${calidad}&debug=1&capa=colorada&mozos=0`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 await p.evaluate(() => document.getElementById('jugar').click());
 await p.waitForTimeout(1000);

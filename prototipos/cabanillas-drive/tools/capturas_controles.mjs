@@ -26,7 +26,7 @@ const VISTAS = [
 for (const v of VISTAS) {
   const c = await b.newContext(v.contexto);
   const p = await c.newPage();
-  await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&calidad=${calidad}&mozos=0&capa=colorada`);
+  await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&personaje=0&calidad=${calidad}&mozos=0&capa=colorada`);
   await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 300000 });
   await p.evaluate(() => { document.documentElement.dataset.joystick = 'fijo'; document.getElementById('jugar').click(); });
   await p.evaluate(async () => {

@@ -574,6 +574,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     get salto() { return salto; },
     get puedeOmitirSalto() { return Boolean(salto?.omitible); },
     get fps() { return fps; },
+    get ultimoAviso() { return aviso; },     // para las pruebas (el aviso dura segundos y ellas van lentas)
     get pausado() { return pausado; },
     // Al volver de la pausa no se recupera el tiempo parado (la física no da un salto)
     ponPausa(valor) {

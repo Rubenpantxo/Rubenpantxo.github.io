@@ -11,7 +11,7 @@ const persona = process.argv[3] ?? 'h_joven';
 const b = await chromium.launch({ channel: process.env.CANAL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const p = await b.newPage({ viewport: { width: 400, height: 300 } });
 p.on('pageerror', (e) => console.log('ERROR', e.message));
-await p.goto('http://localhost:5173/?calidad=alto&visor=1');
+await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?calidad=alto&visor=1`);
 await p.waitForTimeout(2000);
 const salida = await p.evaluate(async (id) => {
   const THREE = await import('/node_modules/.vite/deps/three.js');
