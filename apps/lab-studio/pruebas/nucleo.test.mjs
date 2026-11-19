@@ -9,7 +9,7 @@ import { Historial } from '../js/core/historial.js';
 import { construirRedes } from '../js/core/redes.js';
 import { analizar } from '../js/core/erc.js';
 import { crearEnrutador, rutaSimple, simplificar, caminoSvg } from '../js/core/ruta.js';
-import { listaMateriales, materialesCsv, cabeceraPines, listaRedesTexto, platformioDe } from '../js/core/exportar.js';
+import { listaMateriales, materialesCsv, cabeceraPines, listaRedesTexto, platformioDe, archivosEjemplo, conLibrerias } from '../js/core/exportar.js';
 
 const ESP = 'esp32-s3-devkitc-1-n16r8';
 const def = id => CATALOGO.get(id);
@@ -342,6 +342,31 @@ test('CYD 2,8": conectores, pines.h con los periféricos fijos y platformio.ini'
     assert.equal(pio.length, 1);
     assert.match(pio[0].ini, /board = esp32dev/);
     assert.equal(platformioDe(M.docDesdePlantilla({ partes: [{ k: 'e', tipo: ESP, x: 0, y: 0 }], cables: [] }, CATALOGO, 'x'))[0].titulo, 'ESP32-S3 N16R8');
+});
+
+test('ejemplos de la CYD: el código usa las macros del pines.h de su montaje', () => {
+    const cyd = PROYECTOS.filter(p => p.placa && p.montaje.partes.some(x => x.tipo === 'esp32-2432s028r'));
+    assert.equal(cyd.length, 6);
+    for (const p of cyd) {
+        assert.ok(p.ejemplo, `${p.id}: sin código de ejemplo`);
+        const archivos = archivosEjemplo(p, CATALOGO);
+        assert.deepEqual(archivos.slice(0, 3).map(a => a.nombre), ['platformio.ini', 'include/pines.h', 'src/main.cpp'], p.id);
+        const [ini, h, main] = archivos.map(a => a.texto);
+        for (const l of p.ejemplo.libs) assert.ok(ini.includes('\n  ' + l + '\n'), `${p.id}: falta ${l} en lib_deps`);
+        assert.match(ini, /XPT2046_Touchscreen/);
+        const definidas = new Set([...h.matchAll(/^#define (\w+)/gm)].map(m => m[1]));
+        const usadas = new Set(main.match(/\b(?:PIN|CYD)_[A-Z0-9_]+\b/g));
+        for (const u of usadas) assert.ok(definidas.has(u), `${p.id}: ${u} no está en pines.h`);
+        // Todo lo cableado a un GPIO se usa en el código.
+        for (const d of definidas) if (d.startsWith('PIN_')) assert.ok(usadas.has(d), `${p.id}: ${d} cableado pero sin usar`);
+        assert.match(main, /#include "pines\.h"/);
+        assert.equal((main.match(/\{/g) || []).length, (main.match(/\}/g) || []).length, `${p.id}: llaves desparejadas`);
+        assert.equal((main.match(/\(/g) || []).length, (main.match(/\)/g) || []).length, `${p.id}: paréntesis desparejados`);
+        assert.match(main, /void setup\(\)[\s\S]*void loop\(\)/);
+    }
+    // Sin ejemplo, el platformio.ini no cambia; con librerías se crea lib_deps si no lo había.
+    assert.equal(conLibrerias('x\n', []), 'x\n');
+    assert.match(conLibrerias('monitor_speed = 115200\n', ['a/b']), /monitor_speed = 115200\n\nlib_deps =\n {2}a\/b\n/);
 });
 
 test('ESP32-C3 SuperMini y M5StampS3: cabeceras, arranque y platformio.ini', () => {

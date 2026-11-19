@@ -4,7 +4,9 @@
 // unidades de rejilla). Las pruebas cargan cada plantilla y exigen que pase
 // la comprobación eléctrica sin errores y que las piezas no se pisen. Las
 // fichas de ideas guardan su circuito aparte, en MONTAJES, y el material que
-// no está en la biblioteca en `extra`.
+// no está en la biblioteca en `extra`. El código de ejemplo está en ejemplos.js.
+
+import { EJEMPLOS } from './ejemplos.js';
 
 const ESP = 'esp32-s3-devkitc-1-n16r8';
 const PI = 'raspberry-pi-4b';
@@ -415,7 +417,7 @@ export const PROYECTOS = [
     {
         id: 'cyd-meteo', placa: CYD_NOMBRE, titulo: 'Estación meteorológica con pantalla táctil', ambito: 'Pantalla táctil CYD', nivel: 'Inicial', tiempo: '1 h 30 min', modelo: 'Sin modelo de IA',
         resumen: 'Temperatura, humedad y presión con gráficas de las últimas horas en la pantalla de 2,8", brillo automático por la LDR y publicación por MQTT para Home Assistant.',
-        esp32: 'Lee el BME280 por I²C en el conector CN1 (SDA = GPIO27, SCL = GPIO22), dibuja la interfaz con LVGL y ajusta la retroiluminación según la LDR (GPIO34).',
+        esp32: 'Lee el BME280 por I²C en el conector CN1 (SDA = GPIO27, SCL = GPIO22), dibuja la interfaz con TFT_eSPI y ajusta la retroiluminación según la LDR (GPIO34).',
         material: [{ id: CYD }, { id: 'bme280' }, { id: 'fuente-5v' }, { id: 'router' }],
         pasos: [
             'Carga un ejemplo de la CYD con TFT_eSPI y comprueba la pantalla y el táctil (usa el platformio.ini del panel Código).',
@@ -487,15 +489,15 @@ export const PROYECTOS = [
     {
         id: 'cyd-mando-ir', placa: CYD_NOMBRE, titulo: 'Mando universal infrarrojo con pantalla táctil', ambito: 'Pantalla táctil CYD', nivel: 'Intermedio', tiempo: '2 h', modelo: 'Sin modelo de IA',
         resumen: 'Aprende los códigos de los mandos de casa y los repite con botones dibujados en la pantalla, agrupados por aparato.',
-        esp32: 'Captura las tramas con el receptor en GPIO35 (solo entrada), las guarda en la microSD y las emite con el LED infrarrojo en GPIO22 mediante el periférico RMT.',
+        esp32: 'Captura las tramas con el receptor en GPIO35 (solo entrada), las guarda en la flash (NVS) y las emite con el LED infrarrojo en GPIO22.',
         material: [{ id: CYD }, { id: 'ir-receptor' }, { id: 'ir-emisor' }, { id: 'fuente-5v' }],
         pasos: [
             'Apunta un mando al receptor y vuelca los códigos con el ejemplo IRrecvDumpV2.',
-            'Guarda cada código con su nombre en un JSON de la microSD.',
+            'Guarda cada código en la flash con Preferences, por aparato y botón.',
             'Crea una página de botones por aparato y emite el código al tocar cada uno.',
             'Alimenta el emisor a 5 V para ganar alcance: la señal de 3,3 V del GPIO basta para su transistor.'
         ],
-        aprendizaje: ['GPIO35 no tiene salida ni pull-up: sirve para el receptor, que ya entrega la señal limpia.', 'La microSD de la placa evita perder los códigos al reprogramar.'],
+        aprendizaje: ['GPIO35 no tiene salida ni pull-up: sirve para el receptor, que ya entrega la señal limpia.', 'Preferences guarda los códigos en la NVS de la flash: sobreviven a apagar y a reprogramar. La microSD usaría el mismo periférico VSPI que el táctil en este ejemplo.'],
         repos: [R.cyd, gh('crankyoldgit/IRremoteESP8266', 'Captura y envío de infrarrojos'), R.lvgl], docs: [],
         montaje: {
             partes: [{ k: 'u', tipo: CYD, x: 2, y: 2 }, { k: 'ps', tipo: 'fuente-5v', x: 2, y: 26 }, { k: 'r', tipo: 'ir-receptor', x: 14, y: 26 }, { k: 't', tipo: 'ir-emisor', x: 22, y: 26 }],
@@ -912,6 +914,12 @@ const MONTAJES = {
         ]
     }
 };
-for (const p of PROYECTOS) if (!p.montaje && MONTAJES[p.id]) p.montaje = MONTAJES[p.id];
+for (const p of PROYECTOS) {
+    if (!p.montaje && MONTAJES[p.id]) p.montaje = MONTAJES[p.id];
+    if (EJEMPLOS[p.id]) p.ejemplo = EJEMPLOS[p.id];
+}
+
+// Ejemplo del proyecto del que sale el montaje abierto en la mesa (por nombre).
+export const ejemploDe = doc => PROYECTOS.find(p => p.ejemplo && p.titulo === doc.nombre)?.ejemplo || null;
 
 export const AMBITOS = [...new Set(PROYECTOS.map(p => p.ambito))];

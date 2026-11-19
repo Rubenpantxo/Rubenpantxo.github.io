@@ -6,11 +6,11 @@
 // navegador; «Guardar» descarga un archivo .labstudio.json.
 
 import { CATALOGO } from './datos/componentes.js';
-import { PROYECTOS } from './datos/proyectos.js';
+import { PROYECTOS, ejemploDe } from './datos/proyectos.js';
 import { nuevoDoc, validarDoc, docDesdePlantilla, plegarPlantilla, buscarParte, U, FORMATO } from './core/modelo.js';
 import { Historial } from './core/historial.js';
 import { analizar } from './core/erc.js';
-import { materialesCsv, listaRedesTexto, cabeceraPines, platformioDe } from './core/exportar.js';
+import { materialesCsv, listaRedesTexto, cabeceraPines, platformioDe, archivosEjemplo } from './core/exportar.js';
 import { Lienzo } from './ui/lienzo.js';
 import { DEFS } from './ui/dibujos.js';
 import { pintarBiblioteca, pintarPropiedades, pintarReglas, pintarRedes, pintarMateriales, pintarCodigo } from './ui/paneles.js';
@@ -200,7 +200,7 @@ function exportarPng() {
 
 function exportar(que) {
     const base = nombreArchivo(app.doc.nombre);
-    if (!que.startsWith('pio') && !app.doc.partes.length) { avisar('La mesa está vacía.', 'aviso'); return; }
+    if (!/^(pio|ejm)-/.test(que) && !app.doc.partes.length) { avisar('La mesa está vacía.', 'aviso'); return; }
     switch (que) {
         case 'svg': descargar(base + '.svg', app.lienzo.exportarSvg().svg, 'image/svg+xml'); break;
         case 'png': exportarPng(); break;
@@ -208,7 +208,16 @@ function exportar(que) {
         case 'redes': descargar(base + '-redes.txt', listaRedesTexto(app.doc, app.analisis)); break;
         case 'pines': descargar('pines.h', cabeceraPines(app.doc, app.catalogo, app.analisis)); break;
     }
-    if (que.startsWith('pio-')) { const x = platformioDe(app.doc)[+que.slice(4)]; if (x) descargar('platformio.ini', x.ini); }
+    const ej = ejemploDe(app.doc);
+    if (que.startsWith('pio-')) { const x = platformioDe(app.doc, ej ? ej.libs : [])[+que.slice(4)]; if (x) descargar('platformio.ini', x.ini); }
+    if (que.startsWith('ejm-') && ej) { const a = ej.archivos[+que.slice(4)]; if (a) descargar(a[0].split('/').pop(), a[1]); }
+}
+
+function descargarEjemplo(ref) {
+    const [id, i] = ref.split(':');
+    const p = PROYECTOS.find(x => x.id === id);
+    const a = p && archivosEjemplo(p, app.catalogo)[+i];
+    if (a) descargar(a.nombre.split('/').pop(), a.texto);
 }
 
 // ---------------------------------------------------------------- acciones
@@ -386,6 +395,7 @@ function enlazar() {
         if (d.anadir) { location.hash = '#montaje'; requestAnimationFrame(() => app.lienzo.colocarEnCentro(app.catalogo.get(d.anadir))); return; }
         if (d.tengoAlternar) { fijarInventario(d.tengoAlternar, !app.tengo(app.catalogo.get(d.tengoAlternar))); return; }
         if (d.abrirProyecto) { abrirProyecto(d.abrirProyecto); return; }
+        if (d.descargarEjemplo) { descargarEjemplo(d.descargarEjemplo); return; }
         if ('filtroPin' in d) {
             for (const b of $$('[data-filtro-pin]')) b.classList.toggle('activo', b === t);
             for (const tr of $$('.pinout tbody tr')) tr.hidden = !!d.filtroPin && tr.dataset.tipo !== d.filtroPin;

@@ -6,6 +6,7 @@ import { CATEGORIAS, COMPONENTES, TIPOS_PIN } from '../datos/componentes.js';
 import { PROYECTOS, AMBITOS } from '../datos/proyectos.js';
 import { RECURSOS, HOJA_DE_RUTA } from '../datos/recursos.js';
 import { formato } from '../core/erc.js';
+import { archivosEjemplo } from '../core/exportar.js';
 import { miniatura } from './dibujos.js';
 import { esc, eur, mm, ico, enlace } from './util.js';
 
@@ -110,6 +111,17 @@ ${lista.length ? `<div class="rejilla-proyectos">${lista.map(x => {
     }).join('')}</div>` : '<p class="vacio">Ningún proyecto coincide con el filtro.</p>'}`;
 }
 
+function seccionEjemplo(p, app) {
+    const archivos = archivosEjemplo(p, app.catalogo);
+    const lineas = t => t.split('\n').length - (t.endsWith('\n') ? 1 : 0);
+    return `<section class="ejemplo"><h3>${ico('codigo')}Código de ejemplo</h3>
+<p>Proyecto PlatformIO listo para compilar: pon cada archivo en su carpeta, rellena la Wi-Fi si la pide y súbelo. <code>pines.h</code> sale del cableado del montaje; si cambias cables en la mesa, descárgalo de nuevo desde el panel Código.</p>
+<div class="archivos">${archivos.map((a, i) => `<details class="archivo"${a.nombre.startsWith('src/') ? ' open' : ''}><summary><code>${esc(a.nombre)}</code><small>${lineas(a.texto)} líneas</small></summary>
+<pre class="codigo" data-codigo="ejp-${i}">${esc(a.texto)}</pre>
+<div class="fila-botones"><button type="button" data-copiar="ejp-${i}">${ico('copiar')}Copiar</button><button type="button" data-descargar-ejemplo="${p.id}:${i}">${ico('exportar')}Descargar</button></div></details>`).join('')}</div>
+</section>`;
+}
+
 function pintarProyecto(el, app, p) {
     const c = costeProyecto(p, app);
     const material = (p.material || []).map(m => {
@@ -142,6 +154,7 @@ function pintarProyecto(el, app, p) {
       ${!p.pasos && p.coral ? `<h3>Por dónde empezar</h3><ol class="pasos"><li>Prueba el modelo en el host con el ejemplo del repositorio de Coral que corresponda.</li><li>Abre el montaje en la mesa, cambia lo que necesites y deja el diagnóstico sin errores.</li><li>Une ambos lados por el puerto serie USB o por MQTT.</li></ol>` : ''}
     </section>
   </div>
+  ${p.ejemplo ? seccionEjemplo(p, app) : ''}
   <section><h3>Repositorios de partida</h3><div class="rejilla-enlaces">${p.repos.map(r => tarjetaEnlace({ ...r, tipo: 'repo' })).join('')}</div></section>
   ${p.docs && p.docs.length ? `<section><h3>Documentación</h3><div class="rejilla-enlaces">${p.docs.map(d => tarjetaEnlace({ ...d, tipo: 'doc' })).join('')}</div></section>` : ''}
 </article>`;
