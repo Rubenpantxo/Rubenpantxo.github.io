@@ -182,6 +182,12 @@
       .boton-tactil.accion { width: 76px; height: 76px; font-size: 13px; }
       .boton-tactil.listo { border-color: var(--acento); box-shadow: 0 0 10px var(--acento); }
       #hud.fiestas #velocimetro { display: none; }
+      /* Salto en paracaídas (PLAN_SALTO.md): un solo botón, saltar y luego abrir */
+      .botones-salto { display: none; position: fixed; right: max(16px, env(safe-area-inset-right));
+        bottom: max(24px, env(safe-area-inset-bottom)); }
+      #tactil.salto .botones, #tactil.salto .botones-superiores { display: none; }
+      #tactil.salto .botones-salto { display: block; }
+      .boton-tactil.paracaidas { width: 104px; height: 104px; font-size: 40px; border-color: var(--acento); }
       /* Joystick fijo (Ajustes): siempre visible en su sitio; solo responde al tocarlo */
       [data-joystick="fijo"] .zona-joystick { pointer-events: none; }
       [data-joystick="fijo"] .joystick-base, [data-joystick="fijo"] .joystick-base[hidden] { display: block; pointer-events: auto;
@@ -211,10 +217,14 @@
       .botones-superiores .boton-tactil[hidden] { display: none; }
       .boton-tactil.entrar { width: auto; padding: 0 14px; font-size: 15px; border-color: var(--acento); box-shadow: 0 0 10px var(--acento); }
       #inicio .acciones-inicio { display: grid; gap: 8px; }
+      /* Con el editor de personaje abierto, la portada se aparta y se ve el lienzo 3D */
+      body.editando-personaje #inicio { display: none; }
     </style>
-    <script type="module" crossorigin src="./assets/index-DthY1FLa.js"></script>
-    <link rel="modulepreload" crossorigin href="./assets/librerias-UqkWfpv_.js">
+    <script type="module" crossorigin src="./assets/index-CDxQ9Qn0.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/librerias-DzWsnmLO.js">
     <link rel="modulepreload" crossorigin href="./assets/rapier-DpxwuBBO.js">
+    <link rel="modulepreload" crossorigin href="./assets/personaje-0Dt6zHpz.js">
+    <link rel="modulepreload" crossorigin href="./assets/materiales-DHlUK2ii.js">
   </head>
   <body>
     <canvas id="escena"></canvas>
@@ -242,6 +252,10 @@
         <button class="boton-tactil pequeno" type="button" data-pulsar="camara" aria-label="Cambiar cámara">👁</button>
         <button class="boton-tactil pequeno" type="button" data-pulsar="reiniciar" aria-label="Recolocar el coche">↺</button>
         <button class="boton-tactil pequeno entrar" type="button" data-pulsar="entrar" hidden>Entrar</button>
+      </div>
+      <!-- Salto en paracaídas (PLAN_SALTO.md) -->
+      <div class="botones-salto">
+        <button class="boton-tactil paracaidas" type="button" data-pulsar="paracaidas" aria-label="Saltar del avión o abrir el paracaídas">🪂</button>
       </div>
       <!-- Modo fiestas (PLAN_FIESTAS.md §4b): cuatro acciones en abanico y, encima, subir y cámara -->
       <div class="botones-fiestas">
@@ -283,7 +297,9 @@
           </div>
         </div>
         <div class="acciones-inicio">
-          <button id="jugar" class="boton" type="button" hidden>Jugar</button>
+          <button id="crear-personaje" class="boton secundario" type="button">👤 Crea tu personaje</button>
+          <button id="jugar" class="boton" type="button" hidden>🪂 Jugar</button>
+          <button id="jugar-calle" class="boton secundario" type="button" hidden>🚗 Empezar en la calle</button>
           <button id="jugar-fiestas" class="boton secundario" type="button" hidden>🐂 Ir a las fiestas</button>
         </div>
         <div class="fila">
@@ -299,6 +315,7 @@
       <div class="tarjeta pila">
         <h2 id="titulo-pausa">Pausa</h2>
         <button class="boton" type="button" data-cierra="pausa">Continuar</button>
+        <button id="omitir-salto" class="boton secundario" type="button" hidden>⏭ Saltarse el salto</button>
         <button class="boton secundario" type="button" data-abre="controles">Controles y ajustes</button>
         <label class="calidad ir-a" hidden>Ir a <select id="ir-a"><option value="">Elige un lugar…</option></select></label>
         <label class="calidad">Fiestas <select id="fiestas">
@@ -459,6 +476,7 @@
         <ul>
           <li>LiDAR (MDT y MDS 2024) y Catastro: © Gobierno de Navarra.</li>
           <li>Ortofoto: PNOA cedido por © Instituto Geográfico Nacional.</li>
+          <li>Relieve de alrededor (horizonte): MDT05 cedido por © Instituto Geográfico Nacional.</li>
           <li>Calles, caminos, agua, usos del suelo, muros, vallas, mobiliario, señales y números de portal: © colaboradores de OpenStreetMap (ODbL).</li>
           <li>Fachadas de referencia: fotos de Mapillary de avaldeon (CC-BY-SA 4.0).</li>
         </ul>
@@ -502,6 +520,6 @@
         <p id="fallo-detalle" class="extra"></p>
       </div>
     </section>
-
+
   </body>
 </html>
