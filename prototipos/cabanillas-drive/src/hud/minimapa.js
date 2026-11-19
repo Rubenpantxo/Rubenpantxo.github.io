@@ -100,6 +100,42 @@ function creaMapa({ calles, caminos, agua, usos, edificios }, zona) {
   return lienzo;
 }
 
+// Ruta del avión (discontinua, con el punto donde te tira) y aterrizaje previsto, en el contexto ya
+// trasladado al mapa: (mx − x, mz − z) · ppm; «u» = unidades del contexto por px de pantalla
+function dibujaSalto(ctx, extra, x, z, ppm, u) {
+  const a = (p) => [(p.x - x) * ppm, (p.z - z) * ppm];
+  if (extra.ruta) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(...a(extra.ruta.a));
+    ctx.lineTo(...a(extra.ruta.b));
+    ctx.setLineDash([9 * u, 6 * u]);
+    ctx.lineWidth = 3.2 * u;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.stroke();
+    if (extra.ruta.salto) {
+      const [sx, sz] = a(extra.ruta.salto);
+      ctx.setLineDash([]);
+      ctx.lineWidth = 2.6 * u;
+      ctx.strokeStyle = '#ff5a4e';
+      const k = 6 * u;
+      ctx.beginPath();
+      ctx.moveTo(sx - k, sz - k); ctx.lineTo(sx + k, sz + k);
+      ctx.moveTo(sx + k, sz - k); ctx.lineTo(sx - k, sz + k);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  if (extra.marca) {
+    const [mx, mz] = a(extra.marca);
+    ctx.beginPath();
+    ctx.arc(mx, mz, 7 * u, 0, Math.PI * 2);
+    ctx.lineWidth = 3 * u;
+    ctx.strokeStyle = '#ffe000';
+    ctx.stroke();
+  }
+}
+
 export function creaMinimapa(lienzo, datos, zona, lugares = []) {
   const cfg = HUD.minimapa;
   const mapa = creaMapa(datos, zona);
@@ -116,9 +152,12 @@ export function creaMinimapa(lienzo, datos, zona, lugares = []) {
     }
   }
 
-  function actualiza({ x, z, rumbo, kmh, otros = [] }, dt) {
+  // extra (salto en paracaídas): { ruta: {a, b, salto}, marca: {x, z}, radioM } — ruta del avión,
+  // punto donde te tira, sitio previsto de aterrizaje y radio visible (más grande en lo alto)
+  function actualiza({ x, z, rumbo, kmh, otros = [], extra = null }, dt) {
     ajusta();
-    const objetivo = cfg.radioVisibleM + (cfg.radioVisibleRapidoM - cfg.radioVisibleM) * Math.min(1, Math.abs(kmh) / 90);
+    const objetivo = extra?.radioM
+      ?? cfg.radioVisibleM + (cfg.radioVisibleRapidoM - cfg.radioVisibleM) * Math.min(1, Math.abs(kmh) / 90);
     radioActual += (objetivo - radioActual) * Math.min(1, dt * 1.5);
     const t = tamano;
     const c = t / 2;
@@ -148,6 +187,7 @@ export function creaMinimapa(lienzo, datos, zona, lugares = []) {
       ctx.strokeStyle = '#1b2430';
       ctx.stroke();
     }
+    if (extra) dibujaSalto(ctx, extra, x, z, cfg.pixelesPorMetro, (t / 200) / (escala / cfg.pixelesPorMetro));
     ctx.restore();
 
     // Lugares: icono derecho aunque el mapa gire

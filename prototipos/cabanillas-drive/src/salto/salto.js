@@ -9,6 +9,7 @@ import { alturaApertura, dentroDeZona, pasoApertura, pasoCaida, pasoPlaneo, pred
 import { creaAvion, creaParacaidas, creaPersonaje, liberaFigura } from './figuras.js';
 import { preparaAvion, preparaMochila } from './modelos.js';
 import { POSTURAS_SALTO, creaPersonaSalto } from './persona.js';
+import { creaSonidoSalto } from './sonidoSalto.js';
 import { creaCamaraSalto } from './camaraSalto.js';
 import { creaAlturaRender } from './alturaRender.js';
 
@@ -22,11 +23,12 @@ const suave = (t) => t * t * (3 - 2 * t);
 // detalles: funciones (valor) => … para ocultar detalle en lo alto (src/salto/alturaRender.js)
 // modelos: { avion, mochila } de modelos.js (null: figuras provisionales)
 export function creaSalto({ escena, camara, terreno, render, zona, centro, semilla, suelo, tactil = false, detalles = [],
-  modelos = null, personas = null,
+  modelos = null, personas = null, conSonido = true,
   avisa = () => {}, alTocarSuelo, alTerminar }) {
   const ruta = creaRuta({ semilla, centro, alturaSuelo: terreno.alturaEn(centro.x, centro.z) });
   const camaraSalto = creaCamaraSalto({ camara, terreno });
   const alturaRender = creaAlturaRender({ camara, escena, render, detalles });
+  const sonido = conSonido ? creaSonidoSalto() : creaSonidoSalto.nulo;
   const avion = modelos?.avion ? preparaAvion(modelos.avion) : creaAvion();
   // La persona de MakeHuman con sus posturas (o, si no hay personas cargadas, la cápsula)
   const persona = creaPersonaSalto(personas);
@@ -115,6 +117,7 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
 
   function abre() {
     cambia('apertura');
+    sonido.golpe();
   }
 
   function tocaSuelo() {
@@ -134,6 +137,7 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     if (terminado) return;
     terminado = true;
     alturaRender.restaura();
+    sonido.libera();
     for (const f of [avion, personaje, marca]) liberaFigura(f);
     alTerminar?.(omitido);
   }
@@ -178,6 +182,12 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     }
     tiempoFase += dt;
     mueveAvion(dt);
+    sonido.actualiza({
+      velocidad: fase === 'avion' ? 0 : Math.hypot(cuerpo.vx, cuerpo.vy, cuerpo.vz),
+      distanciaAvion: !avion.parent ? Infinity : fase === 'avion' ? 0
+        : Math.hypot(posAvion.x - cuerpo.x, posAvion.y - cuerpo.y, posAvion.z - cuerpo.z),
+      enAvion: fase === 'avion',
+    });
     const enAvion = fase === 'avion';
     camaraSalto.mira(mirada.dx, mirada.dy, enAvion);
     // El ratón en horizontal gira el rumbo fuera del avión
@@ -265,6 +275,8 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     ruta,
     actualiza,
     colocaCamara,
+    sonido,
+    ponPausa(valor) { sonido.ponPausa(valor); },
     // Saltarse el salto (pausa, «Empezar en la calle», fiestas…): solo antes de tocar el suelo
     get omitible() { return !terminado && fase !== 'aterrizaje'; },
     omite() { if (fase !== 'aterrizaje') termina(true); },
@@ -278,6 +290,17 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
         adelante: new THREE.Vector3(-Math.sin(r), 0, -Math.cos(r)),
         velocidadKmh: v * 3.6,
         volcado: false,
+        minimapa: this.minimapa(),
+      };
+    },
+    // Minimapa: ruta del avión (mientras vuela), punto de salto forzoso, aterrizaje previsto y radio
+    minimapa() {
+      const M = SALTO.minimapa;
+      const enAvion = fase === 'avion';
+      return {
+        ruta: avion.parent ? { a: ruta.punto(ruta.inicio, {}), b: ruta.punto(ruta.fin, {}), salto: enAvion ? ruta.punto(ruta.saltoForzoso, {}) : null } : null,
+        marca: enAvion || fase === 'aterrizaje' ? null : prevision,
+        radioM: enAvion ? M.radioAvionM : Math.max(M.radioMinM, Math.min(M.radioAvionM, alturaJugador * M.radioPorAltura)),
       };
     },
     // Dónde generar el detalle (hierba, árboles 3D, celdas con tejados del LiDAR):

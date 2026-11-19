@@ -29,7 +29,7 @@ async function abre(semilla, boton = 'jugar') {
   const p = await contexto.newPage();
   p.on('console', (m) => { if (m.type() === 'error' && !/favicon/.test(m.location()?.url ?? '')) errores.push(m.text()); });
   p.on('pageerror', (e) => errores.push('PAGEERROR ' + e.message));
-  await p.goto(`http://localhost:${puerto}/?calidad=${calidad}&debug=1${semilla === null ? '' : `&salto=${semilla}`}`);
+  await p.goto(`http://localhost:${puerto}/?calidad=${calidad}&debug=1&personaje=0${semilla === null ? '' : `&salto=${semilla}`}`);
   await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 240000 });
   await p.evaluate((id) => document.getElementById(id).click(), boton);
   await p.waitForTimeout(800);
@@ -89,6 +89,20 @@ await captura(p, '3_picado');
 const caida = await avanza(p, 60, {}, 'planeo');
 comprueba(caida.alturaApertura !== null && caida.alturaApertura > 55 && caida.alturaApertura < 140,
   `se abre solo a ${caida.alturaApertura?.toFixed(0)} m`);
+const s3 = await p.evaluate(() => {
+  const j = window.__juego; const m = j.salto.minimapa();
+  return { golpes: j.salto.sonido.cuenta.golpe, ruta: Boolean(m.ruta), marca: Boolean(m.marca), radio: m.radioM };
+});
+comprueba(s3.golpes === 1 && s3.ruta && s3.marca, `al abrir suena el golpe de tela (${s3.golpes}); minimapa con ruta ${s3.ruta}, aterrizaje previsto ${s3.marca}, radio ${Math.round(s3.radio)} m`);
+if (!movil) {
+  await p.keyboard.press('KeyM');
+  await fotogramas(p, 2);                 // M la lee el bucle del juego, no simulaSalto
+  const sinSonido = await p.evaluate(() => !window.__juego.salto.sonido.activo);
+  await p.keyboard.press('KeyM');
+  await fotogramas(p, 2);
+  const conSonido = await p.evaluate(() => window.__juego.salto.sonido.activo);
+  comprueba(sinSonido && conSonido, 'M quita y vuelve a poner el sonido');
+}
 await captura(p, '4_planeo');
 const planeo = await avanza(p, 120, { lateral: 0.3 }, 'casiSuelo');
 await captura(p, '5_casi_en_el_suelo');

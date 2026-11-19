@@ -384,6 +384,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     obstaculosPeatones = [];
     botonBajar.hidden = true;
     entrada.ponModo('salto');
+    document.getElementById('hud').classList.add('salto');      // M: sonido, no girar el minimapa
     salto = creaSalto({
       escena, camara, terreno: mundo.terreno, render, semilla, tactil, detalles: [casas.userData.ponDetalle], modelos: modelosSalto, personas,
       zona: { mitadAncho: mundo.rejilla.ancho / 2, mitadAlto: mundo.rejilla.alto / 2 },
@@ -405,6 +406,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       },
       alTerminar(omitido) {
         entrada.ponModo('pueblo');
+        document.getElementById('hud').classList.remove('salto');
         trafico.raiz.visible = true;
         peatones.raiz.visible = true;
         botonBajar.hidden = false;
@@ -430,6 +432,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       ciclo.adelanta(1);
       avisa(`🕒 ${textoHora(ciclo.estado.hora)}`, 2);
     }
+    if (entrada.consume('sonido')) avisa(salto.sonido.alterna() ? '🔊 Sonido' : '🔇 Sin sonido', 2);
     salto.actualiza(dt, mandos, mirada, entrada.consume('paracaidas'));
     colisiones.actualiza(enSalto() ? salto.prevision : peaton.estado().posicion, { x: 0, z: 0 }, dt);
     acumulado += Math.min(dt, PASO_FISICA * MAX_PASOS_POR_FOTOGRAMA);
@@ -578,6 +581,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       acumulado = 0;
       hud.mostrar(!valor);
       fiestas?.mostrarHud(!valor);
+      salto?.ponPausa?.(valor);
     },
   };
   if (import.meta.env.DEV) {

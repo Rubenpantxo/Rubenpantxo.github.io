@@ -17,7 +17,8 @@ import { iniciaVisorArboles } from './visor/visorArboles.js';
 vigilaDescargas();   // antes de la primera descarga: la barra de inicio cuenta todos los bytes
 const parametros = new URLSearchParams(location.search);
 if (parametros.has('debug')) console.info(`[calidad] nivel ${CALIDAD.nivel}`, CALIDAD);
-const soloPersonaje = parametros.has('personaje');     // ?personaje: solo el editor de personaje
+// ?personaje: solo el editor de personaje (?personaje=0, en cambio, se lo salta y carga el juego)
+const soloPersonaje = parametros.has('personaje') && parametros.get('personaje') !== '0';
 const esJuego = !parametros.has('visor') && !parametros.has('arboles') && !soloPersonaje;
 const ui = {
   panel: document.getElementById('panel'),

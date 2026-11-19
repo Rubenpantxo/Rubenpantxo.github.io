@@ -65,6 +65,16 @@ export const SALTO = {
     suavizado: 3.0,
     alturaMinimaM: 2,         // sobre el terreno
   },
+  // Sonido (src/salto/sonidoSalto.js). Volúmenes de 0 a 1
+  sonido: {
+    volumen: 0.55,
+    motorHz: 78, helicesHz: 21,        // tono del motor y batir de las hélices
+    motorDentro: 0.32, motorRefM: 60,  // volumen dentro del avión; a esta distancia suena la mitad
+    vientoAvion: 0.06, vientoMin: 0.03, vientoMax: 0.5, vientoMaxMs: 65,
+    golpe: 0.9,                        // golpe de tela al abrir
+  },
+  // Minimapa durante el salto: radio visible según la altura (m)
+  minimapa: { radioAvionM: 1100, radioPorAltura: 1.7, radioMinM: 180 },
   // Render según la altura de la cámara sobre el suelo (src/salto/alturaRender.js)
   render: {
     alturaSueloM: 60,         // por debajo, los valores normales de la calidad

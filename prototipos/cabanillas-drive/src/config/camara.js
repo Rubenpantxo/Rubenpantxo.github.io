@@ -45,6 +45,7 @@ export const CONTROLES = {
   // W picar / adelantar, S frenar, A y D girar (son las mismas teclas de siempre)
   teclasSalto: {
     paracaidas: ['Space'],            // saltar del avión y, en la caída, abrir el paracaídas
+    sonido: ['KeyM'],                 // quitar y poner el sonido (en el salto, M no gira el minimapa)
   },
   joystick: {
     radio: 60,                // px de recorrido del mando
