@@ -116,10 +116,10 @@ export async function creaHud(mundo, { lugares = [] } = {}) {
     actualiza(estado, dt, otros = []) {
       // Rumbo desde el norte en sentido horario (norte = −Z, este = +X)
       const rumbo = Math.atan2(estado.adelante.x, -estado.adelante.z);
-      ultimo = { x: estado.posicion.x, z: estado.posicion.z, rumbo, otros };
+      ultimo = { x: estado.posicion.x, z: estado.posicion.z, rumbo, otros, miCoche: estado.miCoche ?? null };
       if (contenedor.hidden) return;
       minimapa.actualiza({ x: estado.posicion.x, z: estado.posicion.z, rumbo, kmh: estado.velocidadKmh, otros,
-        extra: estado.minimapa ?? null }, dt);
+        extra: estado.minimapa ?? null, miCoche: estado.miCoche ?? null }, dt);
       velocimetro.actualiza(estado.velocidadKmh, dt);
     },
   };

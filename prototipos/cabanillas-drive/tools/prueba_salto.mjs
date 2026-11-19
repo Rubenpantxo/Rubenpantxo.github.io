@@ -3,7 +3,8 @@
 //   2. Espacio salta; abrir por encima de la altura máxima no abre; el paracaídas se abre solo a
 //      una altura razonable; near nunca pasa de 2 m (no recorta al personaje).
 //   3. Al tocar el suelo: a pie, en un sitio libre (no en un tejado ni en el agua), con el coche
-//      aparcado cerca; near, far y niebla vuelven a los de la calidad; los mandos, a los del pueblo.
+//      donde estaba (no te sigue: hay que ir a buscarlo, «Mi coche» en el minimapa); near, far y
+//      niebla vuelven a los de la calidad; los mandos, a los del pueblo.
 //   4. Sin pulsar nada, el avión te tira al final de la ruta.
 //   5. Varias rutas al azar (semillas) aterrizan bien.
 //   6. Sin ?salto se empieza saltando; «Empezar en la calle», «Ir a las fiestas», «Saltarse el
@@ -75,6 +76,8 @@ if (movil) comprueba(inicio.boton === 'block' && inicio.conducir === 'none', `bo
 await avanza(p, 4);
 await captura(p, '1_avion');
 
+const dondeCoche = (pagina) => pagina.evaluate(() => { const c = window.__juego.coche.estado().posicion; return { x: c.x, z: c.z }; });
+const cocheAntes = await dondeCoche(p);
 console.log('2. Salto y caída');
 if (movil) await p.tap('[data-pulsar="paracaidas"]');
 else await p.keyboard.press('Space');
@@ -116,11 +119,12 @@ const suelo = await p.evaluate(() => {
   const pe = j.peaton.estado().posicion;
   const co = j.coche.estado().posicion;
   return { activo: j.salto.activo, aPie: j.aPie, modo: j.entrada.modo, valido: j.esSitioValido(pe.x, pe.z),
-    coche: Math.hypot(pe.x - co.x, pe.z - co.z), near: j.camara.near, far: j.camara.far, niebla: [j.escena.fog.near, j.escena.fog.far] };
+    coche: Math.hypot(pe.x - co.x, pe.z - co.z), cocheEn: { x: co.x, z: co.z }, near: j.camara.near, far: j.camara.far, niebla: [j.escena.fog.near, j.escena.fog.far] };
 });
 comprueba(!suelo.activo && suelo.aPie && suelo.modo === 'pueblo', `salto acabado, a pie, mandos «${suelo.modo}»`);
 comprueba(suelo.valido, 'el personaje está en un sitio libre (ni tejado, ni agua, ni dentro de algo)');
-comprueba(suelo.coche < 15, `coche aparcado a ${suelo.coche.toFixed(1)} m`);
+comprueba(Math.hypot(suelo.cocheEn.x - cocheAntes.x, suelo.cocheEn.z - cocheAntes.z) < 1.5,
+  `el coche sigue donde estaba (a ${suelo.coche.toFixed(0)} m del personaje: hay que ir a buscarlo)`);
 comprueba(suelo.near === 0.5, `near ${suelo.near} m, far ${suelo.far} m, niebla ${suelo.niebla.map(Math.round).join('–')} m`);
 await fotogramas(p, 3);
 await captura(p, '6_a_pie');
@@ -135,14 +139,16 @@ await q.close();
 console.log('5. Varias rutas');
 for (const semilla of [11, 23, 42, 77, 1234]) {
   const w = await abre(semilla);
+  const antes = await dondeCoche(w);
   await w.evaluate(() => window.__juego.simulaSalto(6 + Math.random() * 10));
   await w.evaluate(() => window.__juego.simulaSalto(0.1, {}, true));
   await avanza(w, 200, { lateral: 0.2 });
   const v = await w.evaluate(() => {
     const j = window.__juego; const pe = j.peaton.estado().posicion; const co = j.coche.estado().posicion;
-    return { activo: j.salto.activo, valido: j.esSitioValido(pe.x, pe.z), coche: Math.hypot(pe.x - co.x, pe.z - co.z), x: pe.x, z: pe.z };
+    return { activo: j.salto.activo, valido: j.esSitioValido(pe.x, pe.z), coche: Math.hypot(pe.x - co.x, pe.z - co.z), x: pe.x, z: pe.z, cx: co.x, cz: co.z };
   });
-  comprueba(!v.activo && v.valido && v.coche < 15, `semilla ${semilla}: en (${v.x.toFixed(0)}, ${v.z.toFixed(0)}), coche a ${v.coche.toFixed(1)} m`);
+  const quieto = Math.hypot(v.cx - antes.x, v.cz - antes.z) < 1.5;
+  comprueba(!v.activo && v.valido && quieto, `semilla ${semilla}: en (${v.x.toFixed(0)}, ${v.z.toFixed(0)}), coche donde estaba, a ${v.coche.toFixed(0)} m`);
   await w.close();
 }
 

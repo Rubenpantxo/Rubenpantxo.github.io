@@ -136,6 +136,59 @@ function dibujaSalto(ctx, extra, x, z, ppm, u) {
   }
 }
 
+// «Mi coche»: el coche aparcado, para ir a buscarlo. Dentro del minimapa, el icono en un círculo
+// amarillo; fuera, una flecha amarilla en el borde que apunta hacia él con la distancia
+function dibujaMiCoche(ctx, coche, x, z, escala, giro, c, r, f) {
+  const dx0 = (coche.x - x) * escala;
+  const dz0 = (coche.z - z) * escala;
+  const dx = dx0 * Math.cos(giro) - dz0 * Math.sin(giro);
+  const dy = dx0 * Math.sin(giro) + dz0 * Math.cos(giro);
+  const d = Math.hypot(dx, dy);
+  ctx.save();
+  if (d < r - 14 * f) {
+    ctx.beginPath();
+    ctx.arc(c + dx, c + dy, 11 * f, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffd54a';
+    ctx.strokeStyle = '#1b2430';
+    ctx.lineWidth = 2 * f;
+    ctx.fill();
+    ctx.stroke();
+    ctx.font = `${Math.round(13 * f)}px system-ui, "Segoe UI Emoji", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🚗', c + dx, c + dy + 0.5 * f);
+  } else {
+    const a = Math.atan2(dy, dx);
+    const rb = r - 11 * f;
+    ctx.translate(c + Math.cos(a) * rb, c + Math.sin(a) * rb);
+    ctx.rotate(a);
+    ctx.beginPath();
+    ctx.moveTo(9 * f, 0);
+    ctx.lineTo(-6 * f, 7 * f);
+    ctx.lineTo(-3 * f, 0);
+    ctx.lineTo(-6 * f, -7 * f);
+    ctx.closePath();
+    ctx.fillStyle = '#ffd54a';
+    ctx.strokeStyle = '#1b2430';
+    ctx.lineWidth = 1.6 * f;
+    ctx.fill();
+    ctx.stroke();
+    ctx.rotate(-a);
+    const metros = d / escala;
+    ctx.font = `700 ${Math.round(10 * f)}px system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 3 * f;
+    ctx.strokeStyle = 'rgba(16, 22, 30, 0.9)';
+    const texto = metros >= 1000 ? `${(metros / 1000).toFixed(1).replace('.', ',')} km` : `${Math.round(metros / 10) * 10} m`;
+    const ox = -Math.cos(a) * 18 * f; const oy = -Math.sin(a) * 18 * f;
+    ctx.strokeText(`🚗 ${texto}`, ox, oy);
+    ctx.fillStyle = '#ffd54a';
+    ctx.fillText(`🚗 ${texto}`, ox, oy);
+  }
+  ctx.restore();
+}
+
 export function creaMinimapa(lienzo, datos, zona, lugares = []) {
   const cfg = HUD.minimapa;
   const mapa = creaMapa(datos, zona);
@@ -154,7 +207,8 @@ export function creaMinimapa(lienzo, datos, zona, lugares = []) {
 
   // extra (salto en paracaídas): { ruta: {a, b, salto}, marca: {x, z}, radioM } — ruta del avión,
   // punto donde te tira, sitio previsto de aterrizaje y radio visible (más grande en lo alto)
-  function actualiza({ x, z, rumbo, kmh, otros = [], extra = null }, dt) {
+  // miCoche: {x, z} del coche aparcado (a pie o saltando): icono 🚗 o, si queda fuera, flecha en el borde
+  function actualiza({ x, z, rumbo, kmh, otros = [], extra = null, miCoche = null }, dt) {
     ajusta();
     const objetivo = extra?.radioM
       ?? cfg.radioVisibleM + (cfg.radioVisibleRapidoM - cfg.radioVisibleM) * Math.min(1, Math.abs(kmh) / 90);
@@ -208,6 +262,8 @@ export function creaMinimapa(lienzo, datos, zona, lugares = []) {
     }
     ctx.restore();
 
+    if (miCoche) dibujaMiCoche(ctx, miCoche, x, z, escala, giro, c, r, t / 200);
+
     // Jugador: flecha en el centro (arriba si el mapa gira; si no, según el rumbo)
     ctx.save();
     ctx.translate(c, c);
@@ -248,7 +304,7 @@ export function creaMinimapa(lienzo, datos, zona, lugares = []) {
 
   // Mapa ampliado: todo el pueblo con el norte arriba; vista = { zoom, cx, cz } (centro en metros).
   // Con zoom 1 cabe la zona entera en el lienzo.
-  function dibujaGrande(destino, { x, z, rumbo, otros = [] }, vista) {
+  function dibujaGrande(destino, { x, z, rumbo, otros = [], miCoche = null }, vista) {
     const r = Math.min(window.devicePixelRatio, 2);
     const w = Math.round(destino.clientWidth * r);
     const h = Math.round(destino.clientHeight * r);
@@ -285,6 +341,24 @@ export function creaMinimapa(lienzo, datos, zona, lugares = []) {
         const [lx, ly] = aPx(l.x, l.z);
         g.fillText(l.nombre, lx, ly + 18 * f);
       }
+    }
+    if (miCoche) {
+      const [mx, my] = aPx(miCoche.x, miCoche.z);
+      g.beginPath();
+      g.arc(mx, my, 13 * f, 0, Math.PI * 2);
+      g.fillStyle = '#ffd54a';
+      g.strokeStyle = '#1b2430';
+      g.lineWidth = 2 * f;
+      g.fill();
+      g.stroke();
+      g.font = `${Math.round(15 * f)}px system-ui, "Segoe UI Emoji", sans-serif`;
+      g.fillText('🚗', mx, my + 0.5 * f);
+      g.font = `700 ${Math.round(12 * f)}px system-ui, sans-serif`;
+      g.lineWidth = 3 * f;
+      g.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+      g.strokeText('Mi coche', mx, my + 22 * f);
+      g.fillStyle = '#1b2430';
+      g.fillText('Mi coche', mx, my + 22 * f);
     }
     const [jx, jy] = aPx(x, z);
     g.save();
