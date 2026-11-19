@@ -444,7 +444,7 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 
 ### Pendiente
 - S1 (horizonte): necesita permiso para descargar el MDT y la ortofoto; misma capa y año del WMS que `02_ortho.py`. Desde el aire se ve el borde de la zona (fondo marrón) y, fuera de ella, contornos sueltos de parcelas.
-- Las casas a mano siguen siendo ~114 llamadas en la plaza: hay un material por color (persianas, enfoscados…). Juntar colores en un material con color por vértice las bajaría más.
+- Hecho (2026-11-19): los materiales de las casas a mano que solo cambian de color (enfoscados, persianas y lisos de igual aspereza y brillo) se juntan en uno con color por vértice; el detalle de fachada sigue aparte. Mallas de 176 a 135; casas en vista de 114 a 94 en la plaza y de 132 a 99 desde el aire; mismo aspecto. Quedan 111 materiales distintos: tejas, ladrillos, sillares, tablas… llevan el color pintado en la textura.
 - S2: falta el personaje (sigue la cápsula naranja).
 
 ## Pendiente de Rubén (lo hará más adelante; no recordárselo en cada informe)
