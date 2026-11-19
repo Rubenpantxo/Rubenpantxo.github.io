@@ -19,3 +19,5 @@ dependencies:
   - pip:
       # Detector de coches de la ortofoto (07_coches_orto.py); solo se usa en el pipeline
       - ultralytics
+      # Certificados del almacén de Windows para las descargas (tools/40_horizonte.py)
+      - truststore

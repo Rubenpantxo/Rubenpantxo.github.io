@@ -77,9 +77,11 @@ export const SALTO = {
     alturaFachadasM: 120,     // por encima, sin carpintería, cristales ni rejas en las casas a mano
     // Lejos de la cámara y niebla en el aire, por calidad
     aire: {
-      alto: { lejos: 6000, niebla: { cerca: 1400, lejos: 4200 } },
-      medio: { lejos: 6000, niebla: { cerca: 1400, lejos: 4200 } },
-      bajo: { lejos: 3200, niebla: { cerca: 900, lejos: 3000 } },
+      // El borde del horizonte (tools/40_horizonte.py) está a 4 km: ahí acaba la niebla
+      // (lejos de 12 km: así se dibuja la falda casi hasta el horizonte; con near 2 m, 6000:1)
+      alto: { lejos: 12000, niebla: { cerca: 1400, lejos: 4000 } },
+      medio: { lejos: 12000, niebla: { cerca: 1400, lejos: 4000 } },
+      bajo: { lejos: 12000, niebla: { cerca: 900, lejos: 3000 } },
     },
   },
 };

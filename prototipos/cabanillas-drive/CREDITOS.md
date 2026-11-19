@@ -3,6 +3,7 @@
 ## Datos geográficos
 - LiDAR (MDT y MDS 2024) y Catastro: © Gobierno de Navarra.
 - Ortofoto: PNOA cedido por © Instituto Geográfico Nacional.
+- Horizonte de 8 × 8 km (`tools/40_horizonte.py`): relieve MDT05 y ortofoto PNOA cedidos por © Instituto Geográfico Nacional.
 - Calles, caminos, agua y usos del suelo: © colaboradores de OpenStreetMap (ODbL).
 
 ## Modelos de coche (`data/raw/coches/`, aportados por Rubén)

@@ -2,7 +2,7 @@
 
 Plan por hitos para que Cabanillas Drive empiece como un *battle royale*: el personaje va en un avión que cruza el pueblo, salta, cae viendo todo Cabanillas, abre el paracaídas y aterriza en una calle, donde le espera su coche aparcado. Complementa a `PLAN.md`, `PLAN_REALISMO.md` y `PLAN_FIESTAS.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: un hito cada vez, parada al final de cada uno, no inventar datos geográficos, todo en español, y escritorio y móvil siempre.
 
-Fecha: 2026-11-19. Estado: **S0 hecho; el juego empieza por el salto (se puede omitir); de S2, el avión y la mochila-paracaídas de Rubén ya están (falta el personaje)**. Detalle en `PROGRESO.md`, apartado «Salto en paracaídas».
+Fecha: 2026-11-19. Estado: **S0, S1 y S2 hechos; el juego empieza por el salto (se puede omitir); de S2, el avión y la mochila-paracaídas de Rubén ya están (falta el personaje)**. Detalle en `PROGRESO.md`, apartado «Salto en paracaídas».
 
 Origen: el documento de arquitectura de Rubén (`arquitectura_salto_battle_royale_cabanillas_drive.html`), contrastado con lo que el juego ya tiene. Tomamos de él la máquina de estados de seis fases, la altura de salto, la apertura automática según la velocidad y los planos de recorte que cambian con la altura. **No** tomamos la reconstrucción del pueblo desde el Catastro de IDENA con QGIS (el juego ya tiene algo mejor), ni el paso a KTX2 o Meshopt, ni WebGPU, ni Git LFS.
 
@@ -142,6 +142,8 @@ Aceptación: Rubén salta con `?salto` en escritorio y en móvil y opina sobre l
 ### S1 — Horizonte (Capa 0)
 
 Objetivo: que desde el avión no se vea el borde del mundo, sino la vega del Ebro, los campos y el relieve.
+
+> **Hecho el 2026-11-19 (permiso de Rubén).** `tools/40_horizonte.py`: cuadrado de **8 × 8 km** (no 6: con 6 km el borde quedaba antes del final de la niebla, a 4 km), MDT05 del IGN por WCS promediado a 20 m (desfase con el terreno del juego: −0,01 m) y ortofoto del mismo WMS y capa que la zona (correlación 0,977 con la del juego: el mismo vuelo). `src/escena/horizonte.js` lo carga en todas las calidades (en baja, 40 m y textura de 1024 px) con una falda lisa a 15 km que la niebla funde con el cielo. En el aire, la cámara llega a 12 km.
 
 - **Datos nuevos: hace falta el permiso de Rubén antes de descargar nada.** Fuentes posibles:
   - Relieve: MDT de 5 m (MDT05) o de 25 m (MDT25) del IGN, por su servicio WCS o descargado del CNIG y puesto por Rubén en `data/raw/`.

@@ -36,6 +36,7 @@ import { creaCoche } from '../vehiculo/coche.js';
 import { cargaGeoJSON } from '../visor/lineas.js';
 import { creaSalto } from '../salto/salto.js';
 import { cargaModelosSalto } from '../salto/modelos.js';
+import { cargaHorizonte } from '../escena/horizonte.js';
 import { creaIndiceTejados, eligeAterrizaje, tramosDeCalles } from '../salto/aterrizaje.js';
 
 const MAX_PASOS_POR_FOTOGRAMA = 4;
@@ -47,7 +48,7 @@ const DISTANCIAS_COCHES = {
 export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render = null }) {
   ui.estado.textContent = 'Cargando Cabanillas…';
   creaReflejos(renderer, escena);
-  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos, murosLidar, personas, datosElementos, modelosSalto] = await Promise.all([
+  const [mundo, geoCalles, modelosCoches, aparcados, modelosArboles, datosArboles, vegetacion, geoPoi, geoCaminos, murosLidar, personas, datosElementos, modelosSalto, horizonte] = await Promise.all([
     cargaMundo(renderer, ESCENA, {
       alProgresar: (f) => { ui.estado.textContent = `Cargando escena… ${Math.round(f * 100)} %`; },
     }),
@@ -63,9 +64,11 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     cargaPersonas(ESCENA.rutaPersonas),
     cargaElementos(ESCENA.rutaElementos),
     cargaModelosSalto(),                       // avión y mochila-paracaídas (nunca falla: null si no están)
+    cargaHorizonte(ESCENA.rutaHorizonte),      // relieve y ortofoto de alrededor (null si no está)
   ]);
   const datosMuros = sinMurosSustituidos(murosLidar);
   escena.add(mundo.raiz);
+  if (horizonte) escena.add(horizonte);
   const cochesAparcados = creaCochesAparcados(modelosCoches, aparcados, mundo.terreno, { excluir: [VEHICULO.modelo] });
   escena.add(cochesAparcados.raiz);
   const arboles = creaArboles(renderer, modelosArboles, sinArbolesSustituidos(datosArboles), mundo.terreno, { entorno: escena });

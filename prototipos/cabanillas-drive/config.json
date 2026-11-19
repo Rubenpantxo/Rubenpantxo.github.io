@@ -14,5 +14,16 @@
   "building_height_default_m": 6.0,
   "building_height_min_m": 2.5,
   "building_height_max_m": 40.0,
-  "osm_overpass_url": "https://overpass-api.de/api/interpreter"
+  "osm_overpass_url": "https://overpass-api.de/api/interpreter",
+  "horizonte": {
+    "lado_m": 8000,
+    "paso_m": 20,
+    "mdt_wcs_url": "https://servicios.idee.es/wcs-inspire/mdt",
+    "mdt_cobertura": "Elevacion25830_5",
+    "mdt_bloque_m": 2000,
+    "textura_px": 2048,
+    "textura_bajo_px": 1024,
+    "hundido_borde_m": 0.3,
+    "minima_correlacion_orto": 0.85
+  }
 }
