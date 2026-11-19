@@ -374,6 +374,12 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     if (canal.userData.bajoAgua?.(x, z, y + 0.3)) return false;
     return peaton.libre(x, z);
   }
+  const zonaTactil = document.getElementById('tactil');
+  // Dónde está aparcado el coche (para «Mi coche» en el minimapa cuando vas a pie o saltando)
+  function posicionCoche() {
+    const t = coche.cuerpo.translation();
+    return { x: t.x, z: t.z };
+  }
   function empiezaSalto(semilla = Math.floor(Math.random() * 1e9)) {
     if (enFiestas() || enSalto()) return false;
     if (aPie) subirseYa();
@@ -393,10 +399,8 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       avisa,
       alTocarSuelo(toque, rumbo) {
         const r = eligeAterrizaje(toque, rumbo, { tramos: tramosCalles, esValido: esSitioValido });
-        if (r.coche) {
-          const y = mundo.terreno.alturaEn(r.coche.x, r.coche.z) + VEHICULO.reinicio.alturaSobreSuelo;
-          coche.recoloca(r.coche.x, y, r.coche.z, r.coche.dx, r.coche.dz);
-        }
+        // El coche no te sigue: se queda aparcado donde estaba y hay que ir a buscarlo (el
+        // minimapa lo marca como «Mi coche»)
         peaton.activa(r.persona.x, r.persona.z, r.persona.guinada);
         colisiones.fuerza({ x: r.persona.x, z: r.persona.z });
         aPie = true;
@@ -412,7 +416,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
         botonBajar.hidden = false;
         camara.fov = omitido ? CAMARA_FOV_COCHE : PEATON.fov;
         camara.updateProjectionMatrix();
-        if (!omitido) avisa(`Tu coche está aparcado ahí · ${tactil ? '🚗' : 'E'} cerca de él para subir`, 6);
+        if (!omitido) avisa('Ve a buscar tu coche: está donde lo dejaste (🚗 en el mapa)', 7);
       },
     });
     if (import.meta.env.DEV) window.__salto = salto;
@@ -450,7 +454,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     entradas.actualiza(dt);
     repartoDetalle(dt);
     cuentaFps(dt);
-    hud.actualiza(enSalto() ? salto.estadoHud() : peaton.estado(), dt, []);
+    hud.actualiza({ ...(enSalto() ? salto.estadoHud() : peaton.estado()), miCoche: posicionCoche() }, dt, []);
     luces.actualiza(ciclo ? ciclo.estado.oscuridad : 0);
     farolas.actualiza(ciclo ? ciclo.estado.oscuridad : 0, camara, dt);
     let texto = enSalto() ? `${salto.texto()}${textoDepuracion ? ` · ${textoDepuracion}` : ''}` : textoDepuracion;
@@ -542,9 +546,11 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     avanzaAgua(dt);
     entradas.mostrar(!fiesta);
     entradas.actualiza(dt);
+    // A pie, los mandos táctiles sin el freno de mano (no hay coche que frenar)
+    zonaTactil?.classList.toggle('a-pie', aPie && !fiesta);
     repartoDetalle(dt);
     cuentaFps(dt);
-    hud.actualiza(fiesta ? fiestas.estadoJugador() : aPie ? peaton.estado() : e, dt, fiesta ? [] : trafico.posiciones());
+    hud.actualiza(fiesta ? fiestas.estadoJugador() : aPie ? { ...peaton.estado(), miCoche: posicionCoche() } : e, dt, fiesta ? [] : trafico.posiciones());
     luces.actualiza(ciclo ? ciclo.estado.oscuridad : 0);
     farolas.actualiza(ciclo ? ciclo.estado.oscuridad : 0, camara, dt);
     let texto = textoDepuracion;

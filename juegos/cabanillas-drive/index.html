@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#1b2430" />
     <link rel="preload" as="image" href="ui/portada.webp" fetchpriority="high" />
     <title>Cabanillas Drive</title>
+    <link rel="icon" href="data:,">  <!-- sin icono: así el navegador no pide /favicon.ico (404) -->
     <style>
       :root { --tinta: #fff; --tenue: #c9d3de; --acento: #ffd54a; --fondo-ui: rgba(16, 22, 30, .78); }
       html, body { margin: 0; height: 100%; overflow: hidden; background: #1b2430; overscroll-behavior: none; }
@@ -186,6 +187,8 @@
       .botones-salto { display: none; position: fixed; right: max(16px, env(safe-area-inset-right));
         bottom: max(24px, env(safe-area-inset-bottom)); }
       #tactil.salto .botones, #tactil.salto .botones-superiores { display: none; }
+      /* A pie no hay freno de mano: el botón se esconde sin mover los demás */
+      #tactil.a-pie [data-mantener="frenoMano"] { visibility: hidden; pointer-events: none; }
       #tactil.salto .botones-salto { display: block; }
       .boton-tactil.paracaidas { width: 104px; height: 104px; font-size: 40px; border-color: var(--acento); }
       /* Joystick fijo (Ajustes): siempre visible en su sitio; solo responde al tocarlo */
@@ -220,7 +223,7 @@
       /* Con el editor de personaje abierto, la portada se aparta y se ve el lienzo 3D */
       body.editando-personaje #inicio { display: none; }
     </style>
-    <script type="module" crossorigin src="./assets/index-CDxQ9Qn0.js"></script>
+    <script type="module" crossorigin src="./assets/index-XfP088ef.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/librerias-DzWsnmLO.js">
     <link rel="modulepreload" crossorigin href="./assets/rapier-DpxwuBBO.js">
     <link rel="modulepreload" crossorigin href="./assets/personaje-0Dt6zHpz.js">
