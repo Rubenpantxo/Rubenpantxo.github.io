@@ -59,7 +59,12 @@ function cargaPlantilla() {
         reposo.set(b.name, { mundo: q.clone(), posicion: p.clone(), local: b.position.clone() });
       });
       const clip = (n) => gltf.animations.find((a) => a.name === n);
-      return { reposo, clips: { andar: clip('andar'), quieto: clip('quieto') } };
+      // Altura de la cadera en la escena (las matrices de reposo están en el espacio de la malla, que
+      // en el GLB va girado: no valen para medir alturas)
+      gltf.scene.updateMatrixWorld(true);
+      const pelvis = gltf.scene.getObjectByName('pelvis');
+      const alturaCadera = pelvis ? gltf.scene.worldToLocal(pelvis.getWorldPosition(new THREE.Vector3())).y : 1;
+      return { reposo, alturaCadera, clips: { andar: clip('andar'), quieto: clip('quieto') } };
     });
   return promesaPlantilla;
 }
@@ -421,7 +426,7 @@ export async function creaFabricaPersonajes() {
 
     // Animaciones de la plantilla preparadas para este cuerpo
     function animacion(nombre) {
-      const proporcion = alturaCadera / (plantilla.reposo.get('pelvis')?.posicion.y || alturaCadera);
+      const proporcion = alturaCadera / (plantilla.alturaCadera || alturaCadera);
       return adaptaClip(plantilla.clips[nombre], plantilla, restoLocal, proporcion);
     }
 

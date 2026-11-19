@@ -258,7 +258,7 @@ renderer.setAnimationLoop(() => {
 });
 
 modo({ renderer, escena, camara, ui, ciclo, render })
-  .then((m) => {
+  .then(async (m) => {
     configuraSombras(escena);
     fase = 'jugando';
     actualiza = m.actualiza;
@@ -276,6 +276,16 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         if (valor === 'dejar') return api.fiestas.abandona();
         return api.entraFiestas(valor);
       }, (que) => (que === 'partida' ? Boolean(api.fiestas?.partida) : api.modoFiestas !== null));
+      // Sin pasar por el editor (?personaje=0 o de vuelta de otro juego): el último personaje
+      // guardado, montado antes del salto para que caiga él y no la persona por defecto
+      let promesaJugador = null;
+      const jugadorGuardado = () => (promesaJugador ??= personajeElegido
+        ? import('./personaje/estado.js').then(({ cargaGuardada }) => {
+          const guardada = cargaGuardada();
+          return guardada ? api.ponJugador(guardada) : false;
+        })
+        : Promise.resolve(false));
+      jugadorGuardado();
       // Se empieza saltando del avión (PLAN_SALTO.md), salvo con ?salto=0, al entrar directo a las
       // fiestas o al volver de otro juego. ?salto=semilla repite la misma ruta. Desde la pantalla de
       // inicio, «Empezar en la calle» lo omite; en la pausa, «Saltarse el salto»
@@ -283,17 +293,10 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         const semilla = Number.parseInt(parametros.get('salto'), 10);
         const arranca = () => api.empiezaSalto(Number.isFinite(semilla) ? semilla : undefined);
         // Con el editor pendiente, el salto espera al personaje (lo monta abrePersonaje)
-        if (personajeElegido) arranca();
-        else saltoPendiente = arranca;
+        if (personajeElegido) { await jugadorGuardado(); arranca(); } else saltoPendiente = arranca;
       }
       pantallas.ponSalto(() => api.puedeOmitirSalto, () => api.omiteSalto());
-      // Sin pasar por el editor (?personaje=0 o de vuelta de otro juego): el último personaje guardado
-      if (personajeElegido) {
-        import('./personaje/estado.js').then(({ cargaGuardada }) => {
-          const guardada = cargaGuardada();
-          if (guardada) api.ponJugador(guardada);
-        });
-      }
+
       window.addEventListener('cabanillas:inicioCalle', () => api.omiteSalto());
       // ?fiestas=plaza|calle|encierro entra directamente al modo
       if (parametros.get('fiestas')) api.entraFiestas(parametros.get('fiestas'));

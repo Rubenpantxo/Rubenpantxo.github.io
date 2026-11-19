@@ -57,10 +57,11 @@ export const SALTO = {
     margenZonaM: 60,          // no se puede salir de la zona del juego
   },
   camara: {
-    fovAvion: 60, fovCaida: 70, fovPlaneo: 66,
-    distanciaAvion: 40, distanciaCaida: 9, distanciaPlaneo: 15,
-    cabeceoAvion: 0.3, cabeceoCaida: 0.7, cabeceoPlaneo: 0.35,   // rad hacia abajo
-    alturaObjetivoPlaneo: 3,  // mira algo por encima del personaje (para ver la lona)
+    fovAvion: 60, fovCaida: 64, fovPlaneo: 64,
+    // Cerca del personaje para que se vea quién salta (antes 9 y 15 m: salía diminuto)
+    distanciaAvion: 40, distanciaCaida: 4.6, distanciaPlaneo: 9,
+    cabeceoAvion: 0.3, cabeceoCaida: 0.42, cabeceoPlaneo: 0.28,   // rad hacia abajo
+    alturaObjetivoPlaneo: 2.4,  // mira algo por encima del personaje (para ver la lona)
     sensibilidad: 0.0024,     // rad por píxel de ratón o de dedo
     suavizado: 3.0,
     alturaMinimaM: 2,         // sobre el terreno
