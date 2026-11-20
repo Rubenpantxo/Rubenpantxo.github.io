@@ -2,7 +2,7 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo agricultura**: parcelas reales del término de Cabanillas, delimitadas con el Catastro de Navarra y la ortofoto, que se trabajan con tractores, aperos y cosechadora hechos en 3D. El suelo cambia de aspecto por donde pasa el apero (arado, gradeado, abonado, sembrado, regado, cosechado) y las plantas nacen, crecen, maduran y se cosechan. Complementa a `PLAN.md`, `PLAN_REALISMO.md`, `PLAN_FIESTAS.md` y `PLAN_SALTO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: una fase cada vez, parada al final de cada fase, no inventar datos geográficos, todo en español, escritorio y móvil siempre.
 
-Fecha: 2026-11-20. Estado: **A0 hecha el 2026-11-20, pendiente de la revisión de Rubén** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
+Fecha: 2026-11-20. Estado: **A0 aprobada por Rubén (2026-11-20)**; A1 no hace falta mientras la parcela de pruebas esté en la zona del juego; **siguiente: A2**, cuando Rubén lo confirme (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
 
 ### Inspiración y límites
 
@@ -19,7 +19,7 @@ Se toman **solo ideas y mecánicas**. No se copia ni se descarga nada de esos ju
 
 ## 1. Objetivo
 
-1. Desde el pueblo, el jugador llega en coche a una **nave agrícola** (punto de entrada) y cambia el coche por un **tractor** o una **cosechadora**.
+1. Desde el pueblo, el jugador llega en coche a la **COPE** (Sociedad Cooperativa del Campo San Isidro, en la calle San Isidro), cambia el coche por un **tractor** o una **cosechadora**, compra semilla, plantel, abono y aperos, y vende lo que cosecha.
 2. **Todas las parcelas rústicas del término** están registradas con su contorno catastral, su superficie y su referencia (polígono-parcela): se pueden consultar, comprar, vender o trabajar. **Cualquiera se puede labrar** en cuanto el tractor entra en ella con el apero (decisión de Rubén, 2026-11-20).
 3. Por los caminos reales llega a la parcela, engancha el **apero** que toca y trabaja la tierra. El suelo cambia **solo por donde pasa el apero bajado**, con la anchura de trabajo real:
    - rastrojo → **arado** (tierra volteada, surcos en la dirección de la pasada) → **gradeado/preparado** (tierra mullida y lisa) → **abonado** (granulado) → **sembrado** (líneas de siembra).
@@ -60,18 +60,19 @@ Al salir del modo, todo vuelve a la conducción normal.
 Tomadas (2026-11-20):
 
 - **Qué parcelas: todas.** Las 1 797 parcelas rústicas y mixtas del término quedan registradas con contorno, superficie y referencia. No hace falta sembrarlas ni animarlas todas: solo se crea el estado (máscaras, plantas, agua) de la parcela que se empieza a trabajar.
+- **A0 aprobada:** contornos y entradas bien.
 - **Datos:** autorizada la descarga del Catastro rústico, el SIGPAC, el regadío (WFS de IDENA) y la ortofoto PNOA de la zona de parcelas.
+- **Cultivos:** **trigo, cebada, cebolla, brócoli, alcachofa y espárrago** (ver §5.4).
+- **La COPE** (Sociedad Cooperativa del Campo San Isidro) es la nave agrícola. Rubén la marcó sobre una foto aérea y coincide con la **parcela urbana 2-1031 del Catastro** (2,29 ha: la nave grande y el patio, entre el camino del oeste, el campo de fútbol y la calle San Isidro). Funciona como una cooperativa de verdad: se compran semillas, plantel, abono, herramientas y aperos, y se vende la cosecha.
+- **Parcela de pruebas:** una de regadío junto al pueblo. Candidatas enseñadas a Rubén (vista `cope_y_parcelas_prueba.jpg`): A **2-650** (0,49 ha, llana), B **2-700** (0,44 ha), al norte de la COPE, y C **1-1100** (1,36 ha, Campo de San Roque, junto al canal, al sur del pueblo). Falta que elija una.
 - **Entrega:** la rama `feat/cabanillas-agricultura` se sube a GitHub (excepción a la regla de no hacer push, pedida por Rubén); `main` no se toca.
 
 Pendientes:
 
-- **Primera parcela de pruebas** para A2–A8 (cualquiera vale, pero conviene una para las capturas y la prueba automática). Propuesta: una de tierra arable y regadío dentro de la zona del juego, junto a un camino (por ejemplo del polígono 2 al norte del pueblo, que ya se puede recorrer en coche).
-- **Qué cultivos.** Propuesta: **cereal (trigo o cebada)** primero, después **maíz** y uno **hortícola** de la Ribera que elija Rubén.
-- **Riego.** Propuesta: **a manta desde la acequia**. El regadío de IDENA dice que casi toda la vega es de la comunidad «Canal de Tauste (Tauste)»; Rubén indica qué acequia o brazal y dónde está la boquera de la parcela de pruebas.
-- **Nave agrícola.** Candidata: la Cooperativa San Isidro (la COPE). Rubén confirma el sitio.
+- **Boquera de la parcela de pruebas:** la abertura de la acequia o del brazal por donde entra el agua del riego a manta, que se abre y se cierra con una tajadera (compuerta). Rubén dice por dónde entra el agua a la parcela elegida, o se busca en A7 con las acequias de OSM y la ortofoto y él lo confirma.
 - **Maquinaria.** Colores y tipo de tractor (genérico, sin marca). Fotos de tractores y aperos del pueblo como referencia, si las tiene.
-- **Tiempo agrícola.** Cuántos minutos reales dura un día de cultivo y si hay botón de «pasar días».
-- **Comprar y vender parcelas:** si se quiere, precio por hectárea según uso y regadío (A9 o después).
+- **Tiempo agrícola.** Cuántos minutos reales dura un día de cultivo y si hay botón de «pasar días». Con espárrago y alcachofa (plurianuales) hará falta pasar estaciones o años.
+- **Dinero:** precios de compra y venta en la COPE y si se pueden comprar y vender parcelas (A9).
 
 ---
 
@@ -159,7 +160,19 @@ Bordes suaves entre estados (muestreo bilineal y ruido), y fundido con la ortofo
 ### 5.4 Cultivos y crecimiento (A6)
 
 - **Reloj agrícola** (`crecimiento.js`): días de cultivo acelerados respecto al ciclo de día y noche (`cicloDia.js`), con opción de pasar días. Parámetro en `src/config/agricultura.js`.
-- **Modelo de cultivo** (`src/config/cultivos.js`), por cultivo: etapas (nascencia, ahijado, encañado, espigado, madurez, seco), días de cada una, altura y color por etapa, densidad, necesidad de agua y abono, rendimiento por hectárea.
+- **Modelo de cultivo** (`src/config/cultivos.js`), por cultivo: etapas, días de cada una, altura y color por etapa, marco de plantación (líneas, caballones), necesidad de agua y abono, rendimiento por hectárea y cómo se cosecha.
+- **Los seis cultivos de Rubén** (calendario orientativo de la Ribera, a afinar en A6/A10 con fuentes agronómicas):
+
+  | Cultivo | Cómo se pone | Ciclo | Cosecha | Notas para el juego |
+  |---|---|---|---|---|
+  | Trigo | Siembra con sembradora | Siembra en otoño, cosecha a principios de verano | Cosechadora | Franjas verde → dorado, escalón al cortar (vídeos 1 y 2) |
+  | Cebada | Siembra con sembradora | Como el trigo, algo más corto | Cosechadora | Espiga con barbas; color más claro |
+  | Cebolla | Siembra o trasplante en líneas | Primavera → verano | Arrancadora (deja la cebolla en hileras) y recogida | Bulbo que asoma; hojas que se tumban al madurar |
+  | Brócoli | Trasplante de plantel (plantadora) | Verano → otoño-invierno | A mano, en cajas al remolque | Plantas sueltas en líneas; cabeza verde |
+  | Alcachofa (Blanca de Tudela) | Plantación de zuecas en verano | Plurianual; cortes en otoño y sobre todo de marzo a junio en Navarra | A mano | Matas grandes grisáceas; parada en lo más frío del invierno |
+  | Espárrago blanco | Plantación de garras | Plurianual (vida productiva de varios años); recolección de primavera | A mano, de madrugada, abriendo el caballón | **Caballones** con acaballonadora; el turión crece bajo tierra; en verano crece la mata (frondes) |
+
+- Cereales primero (A6–A8, como estaba); los hortícolas en una fase propia (A10), porque piden aperos y una forma de cosechar distintos.
 - **Vigor por celda** (rejilla de 2 m en CPU): sube con humedad y abono dentro de rango, baja con sequía, encharcamiento largo o siembra sin labrar. Se guarda en el canal A de la máscara B. Así salen **rodales** más altos y más bajos, como en un campo de verdad.
 - **Dibujo por distancia (presupuesto por calidad):**
   - **Cerca (< 40–60 m):** matas instanciadas (cereal: haces de hojas y espigas; maíz: plantas sueltas) con viento, como `hierba.js`. Altura, color y presencia leídas de las máscaras en el vertex shader (cortado = no se dibuja).
@@ -185,7 +198,10 @@ Medidas aproximadas de máquinas genéricas, ajustables en `src/config/maquinari
 | Cultivador / grada | ~3–4 m | Suspendido | Arado → gradeado |
 | Abonadora centrífuga | 12–24 m de reparto | Suspendida, toma de fuerza | Abono |
 | Sembradora (con tolva de abono) | ~3–4 m | Arrastrada o suspendida | Preparado → sembrado |
-| Remolque | ~6 m de caja | Arrastrado (enganche de bola) | Llevar grano |
+| Remolque | ~6 m de caja | Arrastrado (enganche de bola) | Llevar grano, cajas de verdura |
+| Plantadora / trasplantadora | 2–4 líneas | Arrastrada, con asientos | Preparado → plantado (brócoli, cebolla, alcachofa, espárrago) |
+| Acaballonadora / aporcadora | 1–3 caballones | Suspendida | Caballones del espárrago; aporcar |
+| Arrancadora de cebolla | ~1,5–2 m | Arrastrada | Saca la cebolla y la deja en hileras |
 | Cosechadora | ~9 m de largo; cabezal ~6 m; **dirección trasera** | Vehículo | Maduro → cosechado |
 
 - **Modelos** con `tools/build_maquinaria.py` (Blender en consola, como `build_coches.py`): piezas con nombre (`rueda_*`, `cabina`, `tripuntal`, `brazo_elevador`, `toma_fuerza`, `rotativo`, `luces_*`, `molinete`, `tubo_descarga`), materiales de pintura recoloreables y vistas de comprobación. Optimizados con `gltf-transform` (`npm run maquinaria`). Opción B, si Rubén aporta modelos con licencia libre: pasan por el mismo script y se anotan en `CREDITOS.md`.
@@ -196,7 +212,8 @@ Medidas aproximadas de máquinas genéricas, ajustables en `src/config/maquinari
 
 ### 5.7 Juego y HUD (A9)
 
-- **Entrada:** aro de `entradas.js` en la nave agrícola → menú: elegir máquina, apero, semilla; ver el estado de las parcelas.
+- **Entrada:** aro de `entradas.js` en la COPE (parcela urbana 2-1031, calle San Isidro) → menú: elegir máquina, comprar semilla, plantel, abono y aperos, vender la cosecha, ver el estado de las parcelas.
+- **Recolección a mano** (espárrago, alcachofa, brócoli): se baja del tractor y se cosecha a pie con el personaje (el de fiestas y salto), llenando cajas que van al remolque.
 - **Panel de parcela** (al entrar en ella): referencia catastral, paraje, superficie (ha), uso SIGPAC, secano/regadío, cultivo, etapa, días hasta la siguiente, humedad, abono, % de la labor actual.
 - **Indicadores de máquina:** apero subido/bajado, toma de fuerza, velocidad de trabajo correcta (verde/ámbar/rojo), nivel de la tolva de semilla, abono o grano.
 - **Avisos:** «Hay que labrar antes de sembrar», «La parcela pide agua», «El cereal está maduro».
@@ -237,7 +254,7 @@ Aceptación: los estados se distinguen bien de cerca y de lejos, los surcos sigu
 
 - `tools/build_maquinaria.py` (tractor primero), `npm run maquinaria`, `maquina.js`, `src/config/maquinaria.js`.
 - Cámara de tractor (detrás y alta) y vista de cabina. Controles de teclado y táctiles.
-- Entrada «Nave agrícola» en `src/config/entradas.js` (sitio que confirme Rubén): cambiar coche ↔ tractor.
+- Entrada «COPE» en `src/config/entradas.js` (parcela urbana 2-1031, en la calle San Isidro): cambiar coche ↔ tractor.
 
 Aceptación: conducir el tractor por el pueblo y los caminos, entrar en la parcela, sin vuelcos raros. Rubén aprueba el modelo.
 
@@ -251,13 +268,13 @@ Aceptación: arar media parcela deja la mitad arada con los surcos en la direcci
 ### A5 — Abonado y siembra
 
 - Abonadora centrífuga (toma de fuerza, abanico de grano, reparto ancho) y sembradora arrastrada (articulación, tolva que se vacía, líneas de siembra).
-- Cargar semilla y abono en la nave.
+- Cargar semilla y abono en la COPE.
 
 Aceptación: abonar y sembrar una parcela preparada; la máscara B guarda el día de siembra.
 
 ### A6 — Cultivos que crecen
 
-- `crecimiento.js`, `cultivo.js`, `src/config/cultivos.js` (cereal primero).
+- `crecimiento.js`, `cultivo.js`, `src/config/cultivos.js` (trigo y cebada).
 - Matas cercanas, dosel y color lejano; viento; vigor por celda (rodales).
 - Botón de pasar días y `?agricultura&dia=N` para pruebas.
 
@@ -279,13 +296,22 @@ Aceptación: cosechar una parcela madura deja rastrojo; la tolva se llena según
 
 ### A9 — Ciclo completo, HUD y guardado
 
-- `src/hud/agricultura.js`, panel de parcela, avisos, minimapa, menú de la nave, guardado y carga.
-- Segundo cultivo (maíz) y, si da tiempo, el hortícola elegido. Comprar y vender parcelas si Rubén lo quiere.
+- `src/hud/agricultura.js`, panel de parcela, avisos, minimapa, menú de la COPE (comprar y vender), guardado y carga.
+- Comprar y vender parcelas si Rubén lo quiere.
 - `tools/prueba_agricultura.mjs`: labra, abona, siembra, riega, pasa días y cosecha una parcela automáticamente y comprueba porcentajes y estado guardado.
 
 Aceptación: Rubén hace un ciclo completo en escritorio y en el móvil.
 
-### A10 — Rendimiento, móvil y publicación
+### A10 — Hortícolas: cebolla, brócoli, alcachofa y espárrago
+
+- Plantadora, acaballonadora y arrancadora (modelos y enganche como en A4–A5).
+- Plantas de cada cultivo (matas instanciadas y dosel) y sus etapas; espárrago y alcachofa plurianuales (la parcela guarda la edad de la plantación).
+- Recolección a mano con el personaje y cajas al remolque; arrancado de la cebolla en hileras.
+- Venta en la COPE.
+
+Aceptación: Rubén planta y cosecha cada uno de los cuatro, en escritorio y en el móvil.
+
+### A11 — Rendimiento, móvil y publicación
 
 - Presupuesto por calidad (resolución de máscaras, distancia de matas, partículas, rejilla de riego) y medición en el Pixel 10 (recordar: sin sombras 3D en PowerVR).
 - Repetir todas las pruebas existentes (`prueba_salto`, `prueba_fiestas`, `prueba_modos`…) para confirmar que el juego normal no ha cambiado.
@@ -304,7 +330,7 @@ Aceptación: Rubén hace un ciclo completo en escritorio y en el móvil.
   - `src/hud/minimapa.js`: dibujar parcelas si el modo las aporta.
   - `src/controles/entrada.js`: acciones nuevas (sin cambiar las que ya existen).
   - `config.json` y `package.json`: bloque `agricultura` y script `maquinaria`.
-- Con `AGRICULTURA.activo = false` el juego publicado es idéntico al de `main`. Se activa cuando A9 esté aprobada.
+- Con `AGRICULTURA.activo = false` el juego publicado es idéntico al de `main`. Se activa cuando A9 esté aprobada (los hortícolas de A10 pueden llegar después).
 
 ---
 
@@ -313,6 +339,7 @@ Aceptación: Rubén hace un ciclo completo en escritorio y en el móvil.
 - **Contornos catastrales que no casan con las lindes de la ortofoto:** en A0 casan bien en la zona revisada; si aparece alguno, se resuelve con Rubén, no a ojo.
 - **Parcelas fuera de la zona actual:** casi todas (1 468 de 1 797). Se trabajan con el MDT05 y la ortofoto del horizonte hasta que A1 añada detalle donde haga falta. Mitigación: detalle solo en el rectángulo de las parcelas que se trabajen, por calidad.
 - **Parcelas muy grandes en el secano:** máscaras por teselas, solo las que se pisan.
+- **Hortícolas:** cuatro cultivos con labores y cosecha distintas; si se alarga, se hacen de uno en uno (cebolla primero, que se parece más al cereal).
 - **Rendimiento del cultivo** en móvil: matas solo cerca, dosel barato, presupuesto por calidad.
 - **Física de aperos arrastrados** (sembradora, remolque) en marcha atrás y en giros cerrados: limitar el ángulo de la articulación y prueba automática.
 - **Animaciones y modelos de maquinaria:** es la parte más laboriosa. Si se alarga, A3–A5 pueden salir con modelos sencillos y detallarse en A10.
@@ -321,7 +348,7 @@ Aceptación: Rubén hace un ciclo completo en escritorio y en el móvil.
 
 ## 9. Registro
 
-`PROGRESO.md` tiene un apartado «Agricultura» con la fase actual (A0…A10), lo hecho, lo pendiente y las decisiones. Commits pequeños en español (`feat(agri-a4): arado reversible con surcos orientados`). Push de la rama de agricultura a GitHub permitido por Rubén (2026-11-20); `main` no se toca.
+`PROGRESO.md` tiene un apartado «Agricultura» con la fase actual (A0…A11), lo hecho, lo pendiente y las decisiones. Commits pequeños en español (`feat(agri-a4): arado reversible con surcos orientados`). Push de la rama de agricultura a GitHub permitido por Rubén (2026-11-20); `main` no se toca.
 
 ---
 

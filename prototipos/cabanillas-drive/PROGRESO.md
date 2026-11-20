@@ -469,7 +469,7 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 
 ## Agricultura (PLAN_AGRICULTURA.md)
 
-**Fase actual: A0 hecha (2026-11-20), pendiente de la revisión de Rubén.** Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar). No se modela nada hasta que apruebe las parcelas.
+**Fase actual: A0 aprobada por Rubén (2026-11-20).** Siguiente: A2 (parcela viva), cuando Rubén lo confirme y elija la parcela de pruebas; A1 no hace falta si esa parcela está en la zona del juego. Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
 
 ### Hecho en A0
 - **Todas las parcelas del término** (decisión de Rubén): 1 775 rústicas + 22 mixtas = **1 797 parcelas, 3 275 ha** de las 3 574 del término; 9 polígonos. 259 dentro de la zona del juego, 70 en parte y 1 468 fuera.
@@ -485,9 +485,16 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - Pendiente: la del plano ajustado al relieve (mediana 1,4 %) y la del SIGPAC (mediana 4,1 %, tomando `PENDIENTE` en décimas de %) se parecen (correlación 0,77) pero no coinciden; el SIGPAC sale más alto. Se guardan las dos.
 - Usos SIGPAC principales: tierra arable 2 285 ha, pasto arbustivo 576 ha, forestal 264 ha, viales 58 ha. Regadío: 983 parcelas en el SIGPAC; casi todo de la comunidad «Canal de Tauste (Tauste)».
 
-### Pendiente de Rubén (A0)
-- Revisar las vistas y decir si algún contorno o entrada no es como en la realidad.
-- Elegir la parcela de pruebas para A2–A8 y lo demás de §3 del plan (cultivos, boquera, nave agrícola, maquinaria, tiempo agrícola).
+### Decisiones de Rubén (2026-11-20, tras ver A0)
+- Contornos y entradas bien: **A0 aprobada**.
+- **Cultivos:** trigo, cebada, cebolla, brócoli, alcachofa y espárrago. Cereales en A6–A8; hortícolas en una fase nueva, A10 (la de rendimiento y publicación pasa a A11).
+- **COPE** (Sociedad Cooperativa del Campo San Isidro) = nave agrícola y tienda: se compran semillas, plantel, abono, herramientas y aperos y se vende la cosecha. La marcó en una foto aérea: coincide con la **parcela urbana 2-1031 del Catastro** (2,29 ha), en la calle San Isidro, al oeste del campo de fútbol.
+- Parcela de pruebas: de regadío junto al pueblo. Candidatas en `data/processed/previews/cope_y_parcelas_prueba.jpg`: A 2-650, B 2-700 (al norte de la COPE) y C 1-1100 (junto al canal). 2-701, la más cercana, es mixta (tiene construcción) y se descarta.
+
+### Pendiente de Rubén
+- Elegir A, B o C y decir por dónde le entra el agua (boquera), o dejar que se busque en A7.
+- Confirmar que se empieza A2.
+- Más adelante: maquinaria, tiempo agrícola y precios (§3 del plan).
 
 ### Notas
 - En el PC no hay `data/raw/` en `Rubenpantxo.github.io/prototipos/cabanillas-drive` (los datos del pipeline siguen en `bifurcaciones/feat-cabanillas-drive`, ver «Salto en paracaídas»): por eso A0 baja el Catastro del WFS. Si se copia el paquete de shapefiles a `data/raw/catastro/`, el script lo usa en lugar del WFS.
