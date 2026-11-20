@@ -13,6 +13,8 @@
 
 **Editor de personaje (2026-11-19, pedido por Rubén):** `PLAN_PERSONAJE.md`. P1 hecho: editor tipo Sims/GTA con MakeHuman en el navegador (macros, 200 rasgos, escultura directa, herencia, piel, ojos, pelo, ropa), al empezar la sesión; el personaje es el jugador de fiestas y salto (con su mochila redibujada y un arnés ajustado a su cuerpo; ver «Salto en paracaídas»). La ropa ya no deja asomar la piel al andar ni saltar y las canas salen por mechones. Datos: `python tools/40_editor_personaje.py` → `npm run personaje`. Prueba: `?personaje`. Pendiente de que Rubén lo pruebe.
 
+**Agricultura (2026-11-20, pedido por Rubén):** `PLAN_AGRICULTURA.md`, en la rama `feat/cabanillas-agricultura` (no toca el juego de `main`). Parcelas reales del Catastro de Navarra y el SIGPAC, tractor, aperos y cosechadora propios, suelo que cambia por donde pasa el apero, cultivos que crecen y riego a manta que sigue el relieve del MDT. Fases A0 (parcelas sobre plano) → A10 (publicación). **A0 sin empezar: Rubén tiene que elegir las parcelas (referencias catastrales) y los cultivos.**
+
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
 ## Fases
