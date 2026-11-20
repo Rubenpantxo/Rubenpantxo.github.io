@@ -46,7 +46,7 @@ Al salir del modo, todo vuelve a la conducción normal.
 | Suelo procedural | `src/escena/suelo.js`, `tools/11_suelo.py` (texturas de tierra, asfalto, baldosa) | Material de parcela con estados y surcos |
 | Rastrojo y cereal cerca de la cámara | `src/escena/hierba.js` (matas 3D a < 60 m con viento) | Cultivo que crece y se corta |
 | Agua | `src/escena/agua.js` | Lámina de riego que avanza |
-| Puntos de entrada | `src/juego/entradas.js` + `src/config/entradas.js` (F7 de fiestas) | Entrada «Nave agrícola» |
+| Puntos de entrada | `src/juego/entradas.js` + `src/config/entradas.js` (F7 de fiestas) | Entrada «COPE» |
 | Cámara con obstáculos | `src/camara/camaraCoche.js` | Distancias y alturas para tractor y cosechadora |
 | Controles | `src/controles/entrada.js` (teclado y joystick táctil) | Subir/bajar apero, toma de fuerza, enganchar, descargar |
 | Minimapa e «Ir a…» | `src/hud/minimapa.js`, `src/hud/pantallas.js` | Parcelas coloreadas por estado |
@@ -175,7 +175,7 @@ Bordes suaves entre estados (muestreo bilineal y ruido), y fundido con la ortofo
 - Cereales primero (A6–A8, como estaba); los hortícolas en una fase propia (A10), porque piden aperos y una forma de cosechar distintos.
 - **Vigor por celda** (rejilla de 2 m en CPU): sube con humedad y abono dentro de rango, baja con sequía, encharcamiento largo o siembra sin labrar. Se guarda en el canal A de la máscara B. Así salen **rodales** más altos y más bajos, como en un campo de verdad.
 - **Dibujo por distancia (presupuesto por calidad):**
-  - **Cerca (< 40–60 m):** matas instanciadas (cereal: haces de hojas y espigas; maíz: plantas sueltas) con viento, como `hierba.js`. Altura, color y presencia leídas de las máscaras en el vertex shader (cortado = no se dibuja).
+  - **Cerca (< 40–60 m):** matas instanciadas (cereal: haces de hojas y espigas; hortícolas: plantas sueltas en líneas) con viento, como `hierba.js`. Altura, color y presencia leídas de las máscaras en el vertex shader (cortado = no se dibuja).
   - **Media distancia:** **dosel** = malla de rejilla elevada a la altura del cultivo, con textura de espigas arriba y de tallos en los lados donde hay corte: da el «escalón» del vídeo 1 al cosechar.
   - **Lejos:** solo color en el material del suelo.
 - Todo el crecimiento se calcula en el shader con `uDia` y el día de siembra de cada píxel: **no hay que regenerar geometría** al pasar el tiempo.
@@ -227,7 +227,7 @@ Medidas aproximadas de máquinas genéricas, ajustables en `src/config/maquinari
 
 Cada fase termina en **parada** con: lo creado, cómo probarlo y qué se necesita de Rubén. Commits pequeños en español (`feat(agri-a2): máscara de laboreo y pincel`).
 
-### A0 — Parcelas sobre plano (datos) — HECHA (2026-11-20), pendiente de revisión
+### A0 — Parcelas sobre plano (datos) — HECHA y aprobada (2026-11-20)
 
 - `tools/50_parcelas.py` → `public/assets/agricultura/parcelas.json` (1 797 parcelas, 3 275 ha), `data/processed/agricultura/parcelas.csv` y vistas en `data/processed/previews/`: `parcelas.jpg` (término por uso), `parcelas_cotas.jpg` y `parcelas_cotas_vega.jpg` (cotas), `parcelas_zona_juego.jpg` (referencias en la zona del juego) y `parcelas_pol_01…09.jpg` (una hoja por polígono).
 - Bloque `agricultura` en `config.json`.
@@ -326,7 +326,7 @@ Aceptación: Rubén planta y cosecha cada uno de los cuatro, en escritorio y en 
 - **Archivos compartidos que se tocan** (solo ganchos, cada uno protegido por `AGRICULTURA.activo` o por `?agricultura`):
   - `src/main.js`: leer `?agricultura` y cargar el modo con `import()`.
   - `src/juego/juego.js`: cambiar el vehículo activo (coche ↔ máquina) y avisar al modo agricultura en cada fotograma.
-  - `src/config/entradas.js`: la entrada de la nave agrícola.
+  - `src/config/entradas.js`: la entrada de la COPE.
   - `src/hud/minimapa.js`: dibujar parcelas si el modo las aporta.
   - `src/controles/entrada.js`: acciones nuevas (sin cambiar las que ya existen).
   - `config.json` y `package.json`: bloque `agricultura` y script `maquinaria`.
@@ -342,7 +342,7 @@ Aceptación: Rubén planta y cosecha cada uno de los cuatro, en escritorio y en 
 - **Hortícolas:** cuatro cultivos con labores y cosecha distintas; si se alarga, se hacen de uno en uno (cebolla primero, que se parece más al cereal).
 - **Rendimiento del cultivo** en móvil: matas solo cerca, dosel barato, presupuesto por calidad.
 - **Física de aperos arrastrados** (sembradora, remolque) en marcha atrás y en giros cerrados: limitar el ángulo de la articulación y prueba automática.
-- **Animaciones y modelos de maquinaria:** es la parte más laboriosa. Si se alarga, A3–A5 pueden salir con modelos sencillos y detallarse en A10.
+- **Animaciones y modelos de maquinaria:** es la parte más laboriosa. Si se alarga, A3–A5 pueden salir con modelos sencillos y detallarse en A11.
 
 ---
 
