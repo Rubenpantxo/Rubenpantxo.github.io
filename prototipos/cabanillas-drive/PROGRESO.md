@@ -13,7 +13,7 @@
 
 **Editor de personaje (2026-11-19, pedido por Rubén):** `PLAN_PERSONAJE.md`. P1 hecho: editor tipo Sims/GTA con MakeHuman en el navegador (macros, 200 rasgos, escultura directa, herencia, piel, ojos, pelo, ropa), al empezar la sesión; el personaje es el jugador de fiestas y salto (con su mochila redibujada y un arnés ajustado a su cuerpo; ver «Salto en paracaídas»). La ropa ya no deja asomar la piel al andar ni saltar y las canas salen por mechones. Datos: `python tools/40_editor_personaje.py` → `npm run personaje`. Prueba: `?personaje`. Pendiente de que Rubén lo pruebe.
 
-**Agricultura (2026-11-20, pedido por Rubén):** `PLAN_AGRICULTURA.md`, en la rama `feat/cabanillas-agricultura` (no toca el juego de `main`). Parcelas reales del Catastro de Navarra y el SIGPAC, tractor, aperos y cosechadora propios, suelo que cambia por donde pasa el apero, cultivos que crecen y riego a manta que sigue el relieve del MDT. Fases A0 (parcelas sobre plano) → A10 (publicación). **A0 sin empezar: Rubén tiene que elegir las parcelas (referencias catastrales) y los cultivos.**
+**Agricultura (2026-11-20, pedido por Rubén):** `PLAN_AGRICULTURA.md`, en la rama `feat/cabanillas-agricultura` (no toca el juego de `main`). Parcelas reales del Catastro de Navarra y el SIGPAC, tractor, aperos y cosechadora propios, suelo que cambia por donde pasa el apero, cultivos que crecen y riego a manta que sigue el relieve del MDT. Fases A0 (parcelas sobre plano) → A10 (publicación). **A0 hecha** (las 1 797 parcelas del término con contorno, superficie y referencia), pendiente de que Rubén la revise. Ver el apartado «Agricultura».
 
 **Orden del pipeline:** `00_inspect_raw` → `01_origin_terrain` → `02_ortho` → `03_buildings` → `04_osm` → `05_superposicion` → `06_aspecto` → Blender `build_scene.py` → `npm run escena`.
 
@@ -466,6 +466,32 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - **El coche ya no te sigue** (pedido por Rubén): al aterrizar se queda aparcado donde estaba y hay que ir a buscarlo. El minimapa lo marca como «Mi coche» (🚗 en un círculo amarillo; si queda fuera, una flecha amarilla en el borde con la distancia), también durante el salto y a pie; en el mapa grande, 🚗 «Mi coche». Aviso al aterrizar: «Ve a buscar tu coche: está donde lo dejaste». `prueba_salto.mjs` comprueba que el coche no se mueve: todo bien en «bajo» (5 rutas, a 67–510 m).
 - **Sin botón «Mano» a pie**: los mandos táctiles llevan la clase `a-pie` mientras se anda y el freno de mano se esconde sin mover los demás botones.
 - Arreglo del modelo: el vaivén de la pelvis de las animaciones salía ×14 (la altura de la plantilla se medía en el espacio girado de la malla) y desplazaba el cuerpo 16 cm, también al andar en las fiestas.
+
+## Agricultura (PLAN_AGRICULTURA.md)
+
+**Fase actual: A0 hecha (2026-11-20), pendiente de la revisión de Rubén.** Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar). No se modela nada hasta que apruebe las parcelas.
+
+### Hecho en A0
+- **Todas las parcelas del término** (decisión de Rubén): 1 775 rústicas + 22 mixtas = **1 797 parcelas, 3 275 ha** de las 3 574 del término; 9 polígonos. 259 dentro de la zona del juego, 70 en parte y 1 468 fuera.
+- `tools/50_parcelas.py` + bloque `agricultura` en `config.json`. Datos del **WFS de IDENA** (permiso de Rubén): `CATAST_Pol_ParcelaRusti`, `CATAST_Pol_ParcelaMixta`, `CATAST_Pol_ParcelaVia`, `CATAST_Pol_CascoUrbano`, `CATAST_Pol_Poligono`, `CATAST_Pol_Municipio`, `SIGPAC_Pol_Recinto` y `REGADI_Pol_Parcelas` (Cabanillas = `CMUNICIPIO` 62). Catastro con fecha de alta 16/11/2026. El servidor da 1 000 elementos por petición y su paginación no sirve (el campo `FEATURE` es igual en toda la capa): se parte la caja en cuadrantes con `BBOX` dentro del `CQL_FILTER` y se comprueba el recuento.
+- Por parcela: referencia, paraje, superficie, perímetro, contorno en coordenadas locales (agujeros y trozos incluidos), cota media/mín/máx, pendiente y hacia dónde baja, dirección de labor, entrada y metros de frente a camino, uso SIGPAC y superficie cultivable, secano/regadío, comunidad de regantes, enlace a la ficha del Catastro y dudas.
+- Relieve: terreno del juego (LiDAR 1 m) dentro de la zona; fuera, MDT05 de la caché del horizonte + **4 bloques de 2 km al norte** del mismo WCS del IGN (el término llega 1,3 km más al norte que el cuadrado del horizonte). El MDT05 da metros enteros: vale para cota y pendiente medias, no para el riego (A1/A7).
+- Caminos para las entradas: huecos entre parcelas de ≥ 2,5 m, viales SIGPAC (CA), parcelas de vía y casco urbano. 136 parcelas quedan sin camino al lado (se entra por otra o falta el camino).
+- Salidas: `public/assets/agricultura/parcelas.json` (3,8 MB; 0,96 MB comprimido), `data/processed/agricultura/parcelas.csv` (para buscar en Excel), vistas en `data/processed/previews/`: `parcelas.jpg`, `parcelas_cotas.jpg`, `parcelas_cotas_vega.jpg`, `parcelas_zona_juego.jpg` y `parcelas_pol_01…09.jpg`. Re-ejecutado sin descargas: salida idéntica.
+
+### Comprobaciones
+- Catastro y SIGPAC: el mismo contorno en todas (coincidencia ≥ 99,7 %); superficie calculada = la del Catastro (< 2 %) en todas.
+- Contornos sobre la ortofoto de la zona del juego: casan con las lindes y los caminos que se ven.
+- Pendiente: la del plano ajustado al relieve (mediana 1,4 %) y la del SIGPAC (mediana 4,1 %, tomando `PENDIENTE` en décimas de %) se parecen (correlación 0,77) pero no coinciden; el SIGPAC sale más alto. Se guardan las dos.
+- Usos SIGPAC principales: tierra arable 2 285 ha, pasto arbustivo 576 ha, forestal 264 ha, viales 58 ha. Regadío: 983 parcelas en el SIGPAC; casi todo de la comunidad «Canal de Tauste (Tauste)».
+
+### Pendiente de Rubén (A0)
+- Revisar las vistas y decir si algún contorno o entrada no es como en la realidad.
+- Elegir la parcela de pruebas para A2–A8 y lo demás de §3 del plan (cultivos, boquera, nave agrícola, maquinaria, tiempo agrícola).
+
+### Notas
+- En el PC no hay `data/raw/` en `Rubenpantxo.github.io/prototipos/cabanillas-drive` (los datos del pipeline siguen en `bifurcaciones/feat-cabanillas-drive`, ver «Salto en paracaídas»): por eso A0 baja el Catastro del WFS. Si se copia el paquete de shapefiles a `data/raw/catastro/`, el script lo usa en lugar del WFS.
+- Atribución para `CREDITOS.md` cuando el modo se publique: © Gobierno de Navarra (Catastro, SIGPAC, regadío).
 
 ## Pendiente de Rubén (lo hará más adelante; no recordárselo en cada informe)
 - R4: capturas de Scaniverse de 3–5 edificios en `data/raw/splats/<nombre>/` (instrucciones en `PLAN_REALISMO.md`).

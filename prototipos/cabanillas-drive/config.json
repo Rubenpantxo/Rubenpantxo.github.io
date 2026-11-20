@@ -25,5 +25,28 @@
     "textura_bajo_px": 1024,
     "hundido_borde_m": 0.3,
     "minima_correlacion_orto": 0.85
+  },
+  "agricultura": {
+    "wfs_url": "https://idena.navarra.es/ogc/wfs",
+    "wfs_pagina": 1000,
+    "municipio": 62,
+    "capa_termino": "IDENA:CATAST_Pol_Municipio",
+    "capa_parcelas": "IDENA:CATAST_Pol_ParcelaRusti",
+    "capa_mixtas": "IDENA:CATAST_Pol_ParcelaMixta",
+    "capa_caminos": "IDENA:CATAST_Pol_ParcelaVia",
+    "capa_poligonos": "IDENA:CATAST_Pol_Poligono",
+    "capa_casco": "IDENA:CATAST_Pol_CascoUrbano",
+    "capa_sigpac": "IDENA:SIGPAC_Pol_Recinto",
+    "capa_regadio": "IDENA:REGADI_Pol_Parcelas",
+    "mdt_paso_muestreo_m": 2.0,
+    "entrada_max_m": 3.0,
+    "duda_area_rel": 0.02,
+    "duda_sigpac_rel": 0.1,
+    "orto_px_m": 1.0,
+    "vista_general_px_m": 0.35,
+    "hoja_px": 3000,
+    "parcelas_trabajo": "todas",
+    "entrada_ancho_min_m": 2.5,
+    "descargar_mdt_que_falte": true
   }
 }

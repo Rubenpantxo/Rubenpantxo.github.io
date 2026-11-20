@@ -2,7 +2,7 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo agricultura**: parcelas reales del término de Cabanillas, delimitadas con el Catastro de Navarra y la ortofoto, que se trabajan con tractores, aperos y cosechadora hechos en 3D. El suelo cambia de aspecto por donde pasa el apero (arado, gradeado, abonado, sembrado, regado, cosechado) y las plantas nacen, crecen, maduran y se cosechan. Complementa a `PLAN.md`, `PLAN_REALISMO.md`, `PLAN_FIESTAS.md` y `PLAN_SALTO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: una fase cada vez, parada al final de cada fase, no inventar datos geográficos, todo en español, escritorio y móvil siempre.
 
-Fecha: 2026-11-20. Estado: **plan redactado; A0 sin empezar**. Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`). Detalle en `PROGRESO.md`, apartado «Agricultura».
+Fecha: 2026-11-20. Estado: **A0 hecha el 2026-11-20, pendiente de la revisión de Rubén** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
 
 ### Inspiración y límites
 
@@ -20,13 +20,13 @@ Se toman **solo ideas y mecánicas**. No se copia ni se descarga nada de esos ju
 ## 1. Objetivo
 
 1. Desde el pueblo, el jugador llega en coche a una **nave agrícola** (punto de entrada) y cambia el coche por un **tractor** o una **cosechadora**.
-2. Por los caminos reales llega a sus **parcelas**, que son parcelas catastrales reales con su contorno sobre la ortofoto y su referencia (polígono-parcela).
-3. Engancha el **apero** que toca y trabaja la tierra. El suelo cambia **solo por donde pasa el apero bajado**, con la anchura de trabajo real:
+2. **Todas las parcelas rústicas del término** están registradas con su contorno catastral, su superficie y su referencia (polígono-parcela): se pueden consultar, comprar, vender o trabajar. **Cualquiera se puede labrar** en cuanto el tractor entra en ella con el apero (decisión de Rubén, 2026-11-20).
+3. Por los caminos reales llega a la parcela, engancha el **apero** que toca y trabaja la tierra. El suelo cambia **solo por donde pasa el apero bajado**, con la anchura de trabajo real:
    - rastrojo → **arado** (tierra volteada, surcos en la dirección de la pasada) → **gradeado/preparado** (tierra mullida y lisa) → **abonado** (granulado) → **sembrado** (líneas de siembra).
 4. Las **plantas nacen y crecen** con el tiempo del juego (tamaño, color, densidad) según el agua y el abono que hayan recibido.
 5. Al **regar**, el agua entra por la boquera de la acequia y **avanza sobre la parcela siguiendo el relieve real** del MDT, oscureciendo y encharcando la tierra.
 6. La **cosechadora** corta el cultivo maduro por donde pasa el cabezal, llena la tolva y deja rastrojo. Se puede descargar el grano a un remolque.
-7. Se ve el **ciclo completo** de la plantación mientras se trabaja: cada parcela guarda su estado y se conserva entre sesiones.
+7. Se ve el **ciclo completo** de la plantación mientras se trabaja: cada parcela trabajada guarda su estado y se conserva entre sesiones.
 
 Al salir del modo, todo vuelve a la conducción normal.
 
@@ -37,10 +37,10 @@ Al salir del modo, todo vuelve a la conducción normal.
 | Necesidad | Ya está en el proyecto | Qué falta |
 |---|---|---|
 | Sistema de coordenadas | `data/processed/origin.json` (1 u = 1 m, norte = −Z, `H_base`) | Nada: las parcelas se convierten con el mismo origen |
-| Catastro de Navarra | `data/raw/catastro/` (ya se leen `CATASTPolEdificacion`, `CATASTPolParcelaUrba`, `CATASTPolCascoUrbano` con `busca_capa()` de `tools/comun.py`) | La capa de **parcelas rústicas** del mismo paquete (nombre exacto a confirmar con `00_inspect_raw.py`) |
-| Terreno y ortofoto | `tools/01_origin_terrain.py`, `02_ortho.py`; zona de juego de 1 500 × 1 400 m | Detalle de terreno y ortofoto donde estén las parcelas si quedan fuera de esa zona (A1) |
-| Horizonte | `tools/40_horizonte.py` (8 km, paso 20 m) y S1 de `PLAN_SALTO.md` (6 × 6 km) | Hueco con detalle para la zona agrícola |
-| Caminos y acequias | `tools/04_osm.py` ya pide `highway` (incluye `track`) y `waterway` | Ampliar la consulta a la zona agrícola si sale de la actual |
+| Catastro de Navarra | **Hecho en A0:** `tools/50_parcelas.py` lo baja del WFS de IDENA (en el PC no está `data/raw/`); si algún día está el paquete en `data/raw/catastro/`, usa ese | — |
+| Terreno y ortofoto | `tools/01_origin_terrain.py`, `02_ortho.py`; zona de juego de 1 500 × 1 400 m | Detalle de terreno y ortofoto donde estén las parcelas que se trabajen fuera de esa zona (A1) |
+| Horizonte | `tools/40_horizonte.py` (8 km, paso 20 m; MDT05 cacheado) y S1 de `PLAN_SALTO.md` (6 × 6 km) | Hueco con detalle para la zona agrícola |
+| Caminos y acequias | `tools/04_osm.py` ya pide `highway` (incluye `track`) y `waterway`; A0 saca los caminos como huecos entre parcelas del Catastro + viales SIGPAC | Ampliar la consulta de OSM a la zona agrícola si sale de la actual |
 | Vehículo con física | `src/vehiculo/coche.js` (Rapier `DynamicRayCastVehicleController`), `src/config/vehiculo.js` | Tractor (4RM, ruedas distintas delante y detrás, marchas lentas de trabajo) y cosechadora (dirección trasera) |
 | Modelos 3D desde Blender | `tools/build_coches.py`, `build_activos_salto.py` → `gltf-transform` (`npm run coches`, `npm run salto`) | `tools/build_maquinaria.py` y `npm run maquinaria` |
 | Suelo procedural | `src/escena/suelo.js`, `tools/11_suelo.py` (texturas de tierra, asfalto, baldosa) | Material de parcela con estados y surcos |
@@ -55,15 +55,23 @@ Al salir del modo, todo vuelve a la conducción normal.
 
 ---
 
-## 3. Decisiones que tiene que tomar Rubén (antes o durante A0)
+## 3. Decisiones de Rubén
 
-- **Qué parcelas.** Lista de referencias catastrales (polígono-parcela) o marcarlas en la vista de A0. Recomendación: **3 a 6 parcelas contiguas** junto a un camino, de 0,5 a 3 ha cada una, para el primer prototipo.
-- **Dónde están respecto a la zona actual.** Si caen dentro de la zona de juego (bordes del casco), A1 se reduce a casi nada. Si están en la vega, fuera de los 1 500 × 1 400 m, A1 descarga terreno y ortofoto de detalle (necesita permiso de descarga, como S1 del salto).
-- **Qué cultivos.** Propuesta: **cereal (trigo o cebada)** primero (es el de los vídeos y el más sencillo de dibujar), después **maíz** (regadío, plantas grandes) y uno **hortícola** de la Ribera que elija Rubén.
-- **Riego.** Propuesta: **a manta desde la acequia** (es lo que deja ver el agua avanzar). Rubén indica qué acequia o brazal riega esas parcelas y dónde está la boquera. Aspersión o goteo, más adelante si quiere.
-- **Nave agrícola.** Sitio real donde se cambia de vehículo y se cargan semilla y abono. Candidata: la Cooperativa San Isidro (la COPE). Rubén confirma el sitio.
+Tomadas (2026-11-20):
+
+- **Qué parcelas: todas.** Las 1 797 parcelas rústicas y mixtas del término quedan registradas con contorno, superficie y referencia. No hace falta sembrarlas ni animarlas todas: solo se crea el estado (máscaras, plantas, agua) de la parcela que se empieza a trabajar.
+- **Datos:** autorizada la descarga del Catastro rústico, el SIGPAC, el regadío (WFS de IDENA) y la ortofoto PNOA de la zona de parcelas.
+- **Entrega:** la rama `feat/cabanillas-agricultura` se sube a GitHub (excepción a la regla de no hacer push, pedida por Rubén); `main` no se toca.
+
+Pendientes:
+
+- **Primera parcela de pruebas** para A2–A8 (cualquiera vale, pero conviene una para las capturas y la prueba automática). Propuesta: una de tierra arable y regadío dentro de la zona del juego, junto a un camino (por ejemplo del polígono 2 al norte del pueblo, que ya se puede recorrer en coche).
+- **Qué cultivos.** Propuesta: **cereal (trigo o cebada)** primero, después **maíz** y uno **hortícola** de la Ribera que elija Rubén.
+- **Riego.** Propuesta: **a manta desde la acequia**. El regadío de IDENA dice que casi toda la vega es de la comunidad «Canal de Tauste (Tauste)»; Rubén indica qué acequia o brazal y dónde está la boquera de la parcela de pruebas.
+- **Nave agrícola.** Candidata: la Cooperativa San Isidro (la COPE). Rubén confirma el sitio.
 - **Maquinaria.** Colores y tipo de tractor (genérico, sin marca). Fotos de tractores y aperos del pueblo como referencia, si las tiene.
 - **Tiempo agrícola.** Cuántos minutos reales dura un día de cultivo y si hay botón de «pasar días».
+- **Comprar y vender parcelas:** si se quiere, precio por hectárea según uso y regadío (A9 o después).
 
 ---
 
@@ -73,9 +81,10 @@ Al salir del modo, todo vuelve a la conducción normal.
 src/config/agricultura.js       Parámetros: resolución de las máscaras, tiempo agrícola, cantidades por calidad, activo
 src/config/maquinaria.js        Tractor y cosechadora (como vehiculo.js) y aperos (anchura, velocidades, qué labor hacen)
 src/config/cultivos.js          Etapas, duración, altura, colores, necesidades de agua y abono, rendimiento
-src/datos/parcelas.js           Carga public/assets/agricultura/parcelas.json
+src/datos/parcelas.js           Carga public/assets/agricultura/parcelas.json (1 797 parcelas; 3,8 MB, ~1 MB comprimido)
 src/agricultura/modoAgricultura.js  Entrar y salir del modo; crea y libera todo
-src/agricultura/parcela.js      Malla de la parcela sobre el MDT + máscaras de estado (CPU y textura)
+src/agricultura/registro.js     Busca la parcela bajo un punto (rejilla espacial) y su estado: libre, propia, trabajada
+src/agricultura/parcela.js      Malla de la parcela sobre el MDT + máscaras de estado (CPU y textura); solo para las parcelas activas
 src/agricultura/pincel.js       Pinta en la máscara el rectángulo barrido por el apero entre dos fotogramas
 src/agricultura/sueloParcela.js Material del suelo (estados, surcos orientados, humedad, abono, rodadas)
 src/agricultura/cultivo.js      Plantas: matas instanciadas cerca, dosel en medio, color en el suelo lejos
@@ -85,9 +94,9 @@ src/agricultura/maquina.js      Tractor y cosechadora sobre Rapier (a partir de 
 src/agricultura/enganche.js     Tripuntal (aperos suspendidos) y enganche de bola (arrastrados, con articulación)
 src/agricultura/aperos.js       Arado, cultivador, abonadora, sembradora, cabezal, remolque
 src/agricultura/particulas.js   Polvo, terrones, grano, paja, aves que siguen al arado
-src/agricultura/guardado.js     Estado de cada parcela en localStorage (máscaras comprimidas)
+src/agricultura/guardado.js     Estado de cada parcela trabajada en localStorage (máscaras comprimidas)
 src/hud/agricultura.js          Panel de parcela, apero, calendario, avisos
-tools/50_parcelas.py            Catastro + SIGPAC → parcelas.json + vista cenital para revisar
+tools/50_parcelas.py            Catastro + SIGPAC + regadío → parcelas.json + vistas para revisar (HECHO, A0)
 tools/51_zona_agricola.py       Terreno y ortofoto de detalle de la zona agrícola (si hace falta)
 tools/52_riego.py               Pendientes, boquera y orden de llenado por parcela (como el vídeo 3)
 tools/build_maquinaria.py       Tractor, cosechadora y aperos en Blender (consola), piezas con nombre
@@ -98,31 +107,35 @@ Principios:
 
 - **Un solo mundo.** Como fiestas: el modo añade un grupo (`raizAgricultura`) y sus colisiones al entrar y los libera al salir.
 - **Carga diferida.** Código y modelos de agricultura en un chunk aparte con `import()`: quien solo conduce no los descarga.
+- **Registro ligero, estado bajo demanda.** Las 1 797 parcelas son solo contornos y datos (para el minimapa, el panel y comprar/vender). La malla, las máscaras y las plantas se crean cuando el tractor entra en una parcela con el apero bajado, y se liberan al alejarse (el estado queda guardado).
 - **Sin tocar el juego.** Todo vive en `src/agricultura/`, `src/config/` y `public/assets/agricultura/`. Los únicos cambios en archivos compartidos son ganchos pequeños y protegidos por `AGRICULTURA.activo` (ver §7).
-- **Acceso directo para pruebas:** `?agricultura` entra al modo junto a las parcelas; `?agricultura=cosecha` empieza con el cereal maduro; `?agricultura=riego` con la parcela sembrada y la boquera al lado.
+- **Acceso directo para pruebas:** `?agricultura` entra al modo junto a la parcela de pruebas; `?agricultura=cosecha` empieza con el cereal maduro; `?agricultura=riego` con la parcela sembrada y la boquera al lado; `?agricultura=2-656` en una parcela concreta.
 - **La máscara manda.** El estado de cada metro de parcela está en memoria (CPU); las texturas, las plantas y el agua se dibujan a partir de ella. Así se puede medir el porcentaje trabajado, guardar y cargar.
 
 ---
 
 ## 5. Técnica de las piezas clave
 
-### 5.1 Parcelas reales (A0)
+### 5.1 Parcelas reales (A0, hecha)
 
-- **Fuente principal:** parcelas rústicas del Catastro de Navarra (`catastro.navarra.es/descargas`, el mismo paquete de shapefiles que ya usa el juego). Cada parcela con su **polígono y número de parcela**, su contorno exacto y su superficie.
-- **Fuente complementaria:** recintos del **SIGPAC de Navarra** (descarga por municipio en `sigpac.navarra.es/descargas/municipios/`), que dan el **uso agrícola** (tierra arable, regadío…), el **coeficiente de regadío** y la **pendiente media**. Sirve para saber qué parte de la parcela catastral se cultiva y si es de regadío.
-- `tools/50_parcelas.py` (re-ejecutable, parámetros en `config.json` → bloque `agricultura`):
-  - lee las capas, reproyecta si hace falta y se queda con las parcelas de la lista de Rubén;
-  - pasa los vértices al sistema local con `origin.json`;
-  - calcula superficie, cota media y pendiente con el MDT, **dirección de labor** (eje largo del rectángulo mínimo) y **entrada** (punto del contorno más cercano a un camino de OSM);
-  - escribe `public/assets/agricultura/parcelas.json` y la vista `data/processed/previews/parcelas.png`: ortofoto con los contornos numerados, superficie, referencia y entrada, y un mapa de cotas en color como el del vídeo 3.
-- Si el contorno catastral no coincide con la linde que se ve en la ortofoto (pasa a menudo), **no se corrige a ojo**: se marca como duda y Rubén decide (catastro, recinto SIGPAC o corrección manual guardada en `src/datos/correccionesParcelas.js`).
+- **Fuente:** WFS de IDENA (`https://idena.navarra.es/ogc/wfs`), Gobierno de Navarra, EPSG:25830 (el del juego), filtrado por `CMUNICIPIO = 62` (Cabanillas):
+  - `CATAST_Pol_ParcelaRusti` (1 775) y `CATAST_Pol_ParcelaMixta` (22): polígono, parcela, **paraje**, contorno y superficie. En el paquete de shapefiles la capa se llama `CATASTPolParcelaRusti`.
+  - `CATAST_Pol_ParcelaVia`, `CATAST_Pol_CascoUrbano`, `CATAST_Pol_Poligono` (9 polígonos), `CATAST_Pol_Municipio` (término, 3 574 ha).
+  - `SIGPAC_Pol_Recinto` (3 767 recintos): uso (`IDUSO26`), secano/regadío (`TIPOEXPLOT`), pendiente.
+  - `REGADI_Pol_Parcelas`: regadío y comunidad de regantes.
+  - El servidor da como mucho 1 000 elementos por petición y su paginación no funciona: el script parte la caja en cuadrantes con `BBOX` dentro del `CQL_FILTER` y comprueba el recuento.
+- **Relieve:** terreno del juego (LiDAR, 1 m) dentro de la zona; fuera, MDT05 del IGN (la caché de `40_horizonte.py` más 4 bloques al norte bajados por el mismo WCS).
+- `tools/50_parcelas.py` (re-ejecutable, parámetros en `config.json` → bloque `agricultura`) calcula por parcela: superficie, perímetro, cota media/mín/máx, pendiente y rumbo hacia el que baja (plano ajustado), **dirección de labor** (eje largo del rectángulo mínimo), **entrada** (centro del tramo de linde más largo junto a un camino) y su frente a camino, uso SIGPAC, superficie cultivable, regadío y dudas.
+- **Caminos:** el Catastro rústico casi no los dibuja como parcelas: son los huecos entre parcelas. Se toman los huecos de 2,5 m o más (apertura morfológica), los viales SIGPAC, las parcelas de vía y el casco urbano.
+- Catastro y SIGPAC coinciden en todas las parcelas (≥ 99,7 %). Si en otra versión no casaran, **no se corrige a ojo**: queda como duda y Rubén decide (catastro, recinto SIGPAC o corrección manual en `src/datos/correccionesParcelas.js`).
 
 ### 5.2 Malla y máscaras de estado (A2)
 
 - **Malla:** el polígono triangulado y subdividido en rejilla de 1 m que sigue el MDT, unos centímetros por encima del suelo (`polygonOffset`), con un borde de linde (ribazo de hierba) de 0,5–1 m.
-- **Dos máscaras por parcela**, a 0,5 m por píxel (1 m en calidad baja; máximo 1024 × 1024), en memoria como `Uint8Array` y en GPU como `DataTexture`:
+- **Dos máscaras por parcela activa**, a 0,5 m por píxel (1 m en calidad baja; máximo 1024 × 1024), en memoria como `Uint8Array` y en GPU como `DataTexture`:
   - **Máscara A (laboreo):** R = estado de la tierra (rastrojo, arado, gradeado, preparado), G = **dirección de la pasada** (ángulo del apero al pintar), B = abono, A = rodadas/compactación.
   - **Máscara B (cultivo):** R = humedad, G = día de siembra (0 = sin sembrar), B = cortado/cosechado, A = vigor.
+- Parcelas grandes del secano (hasta decenas de ha): se trocean en teselas de máscara de 512 × 512 y solo se crean las que pisa el apero.
 - **Pincel (`pincel.js`):** en cada fotograma, si el apero está **bajado, dentro de la parcela y a velocidad de trabajo**, se pinta el cuadrilátero barrido entre la posición anterior y la actual con la anchura real del apero (relleno por líneas, muy barato). Solo se sube a la GPU el trozo modificado, como mucho 10 veces por segundo.
 - **Recuento:** se lleva la cuenta de píxeles de cada estado dentro del polígono → «Arado: 63 %».
 
@@ -156,7 +169,7 @@ Bordes suaves entre estados (muestreo bilineal y ruido), y fundido con la ortofo
 
 ### 5.5 Riego a manta (A7)
 
-- `tools/52_riego.py` prepara, por parcela, una **rejilla de cotas de 1 m** del MDT (sin edificios ni árboles) y la boquera, y pinta la vista de cotas y escorrentía (como el vídeo 3) para que Rubén compruebe hacia dónde corre el agua.
+- `tools/52_riego.py` prepara, por parcela, una **rejilla de cotas de 1 m** del MDT (sin edificios ni árboles) y la boquera, y pinta la vista de cotas y escorrentía (como el vídeo 3) para que Rubén compruebe hacia dónde corre el agua. Fuera de la zona del juego el MDT05 da la cota en metros enteros: para regar ahí hace falta el LiDAR de detalle (A1).
 - **Simulación** (`riego.js`, en CPU a 10 Hz; parcela de 2 ha ≈ 20 000 celdas): cada celda tiene lámina de agua; pasa agua a sus 4 vecinas según la diferencia de (cota + lámina), con un caudal de entrada en la boquera (abrir la **tajadera**), infiltración y evaporación. El frente avanza siguiendo el microrrelieve real; en parcelas niveladas avanza casi recto, como en la realidad.
 - **Dibujo:** malla de agua sobre la parcela con la altura de la lámina y transparencia donde hay menos de 1 cm, con el material de `agua.js` y reflejo del cielo; espuma en el frente. La humedad del suelo (máscara B) toma el máximo de lámina y se seca con los días.
 - Cerrar la tajadera corta el caudal. Regar de más encharca (vigor baja) y deja el suelo blando: el tractor patina y deja rodadas profundas.
@@ -184,11 +197,11 @@ Medidas aproximadas de máquinas genéricas, ajustables en `src/config/maquinari
 ### 5.7 Juego y HUD (A9)
 
 - **Entrada:** aro de `entradas.js` en la nave agrícola → menú: elegir máquina, apero, semilla; ver el estado de las parcelas.
-- **Panel de parcela** (al entrar en ella): referencia catastral, superficie (ha), cultivo, etapa, días hasta la siguiente, humedad, abono, % de la labor actual.
+- **Panel de parcela** (al entrar en ella): referencia catastral, paraje, superficie (ha), uso SIGPAC, secano/regadío, cultivo, etapa, días hasta la siguiente, humedad, abono, % de la labor actual.
 - **Indicadores de máquina:** apero subido/bajado, toma de fuerza, velocidad de trabajo correcta (verde/ámbar/rojo), nivel de la tolva de semilla, abono o grano.
 - **Avisos:** «Hay que labrar antes de sembrar», «La parcela pide agua», «El cereal está maduro».
 - **Minimapa:** parcelas coloreadas por estado y la máquina con su anchura de trabajo.
-- **Guardado** por parcela en `localStorage` (máscaras comprimidas en RLE, unos pocos KB).
+- **Guardado** por parcela trabajada en `localStorage` (máscaras comprimidas en RLE, unos pocos KB).
 - **Controles nuevos** (teclado y táctil, con el joystick de siempre): subir/bajar apero, toma de fuerza, enganchar/desenganchar, abrir/cerrar tajadera, descargar grano, cambiar de máquina. Pantalla de Controles con capturas nuevas.
 
 ---
@@ -197,15 +210,14 @@ Medidas aproximadas de máquinas genéricas, ajustables en `src/config/maquinari
 
 Cada fase termina en **parada** con: lo creado, cómo probarlo y qué se necesita de Rubén. Commits pequeños en español (`feat(agri-a2): máscara de laboreo y pincel`).
 
-### A0 — Parcelas sobre plano (datos)
+### A0 — Parcelas sobre plano (datos) — HECHA (2026-11-20), pendiente de revisión
 
-- Confirmar con `00_inspect_raw.py` el nombre de la capa de parcelas rústicas del Catastro y descargar el SIGPAC de Cabanillas (pedir permiso de descarga).
-- `tools/50_parcelas.py` → `parcelas.json` + `previews/parcelas.png` (contornos numerados, referencia, ha, entrada, cotas).
-- Bloque `agricultura` en `config.json` con la lista de parcelas.
+- `tools/50_parcelas.py` → `public/assets/agricultura/parcelas.json` (1 797 parcelas, 3 275 ha), `data/processed/agricultura/parcelas.csv` y vistas en `data/processed/previews/`: `parcelas.jpg` (término por uso), `parcelas_cotas.jpg` y `parcelas_cotas_vega.jpg` (cotas), `parcelas_zona_juego.jpg` (referencias en la zona del juego) y `parcelas_pol_01…09.jpg` (una hoja por polígono).
+- Bloque `agricultura` en `config.json`.
 
-Aceptación: Rubén ve sus parcelas sobre la ortofoto y confirma contornos, entradas y cultivo de cada una. **Parada obligatoria: no se modela nada hasta aprobar las parcelas.**
+Aceptación: Rubén ve las parcelas sobre la ortofoto y confirma contornos y entradas, y elige la parcela de pruebas. **Parada obligatoria: no se modela nada hasta aprobar las parcelas.**
 
-### A1 — Zona agrícola con detalle (solo si las parcelas están fuera de la zona actual)
+### A1 — Zona agrícola con detalle (solo para las parcelas que se trabajen fuera de la zona actual)
 
 - `tools/51_zona_agricola.py`: recorte del MDT a 1 m y ortofoto a 4 px/m del rectángulo de las parcelas y sus caminos, con el mismo origen. Hueco correspondiente en el horizonte (coordinar con S1 de `PLAN_SALTO.md`).
 - Caminos (`highway=track`) y acequias (`waterway=ditch|canal`) de OSM en esa zona.
@@ -215,7 +227,7 @@ Aceptación: llegar en coche desde el pueblo a las parcelas por el camino real. 
 
 ### A2 — Parcela viva (sin máquinas)
 
-- `parcela.js`, `pincel.js`, `sueloParcela.js`, `src/config/agricultura.js`.
+- `registro.js`, `parcela.js`, `pincel.js`, `sueloParcela.js`, `src/config/agricultura.js`.
 - Pincel de depuración (`?agricultura&pincel`): con el ratón o el dedo se pinta cada estado para ver los ocho aspectos de la tabla 5.3.
 - Vista de comprobación: capturas de una parcela en cada estado, de cerca y de lejos.
 
@@ -268,7 +280,7 @@ Aceptación: cosechar una parcela madura deja rastrojo; la tolva se llena según
 ### A9 — Ciclo completo, HUD y guardado
 
 - `src/hud/agricultura.js`, panel de parcela, avisos, minimapa, menú de la nave, guardado y carga.
-- Segundo cultivo (maíz) y, si da tiempo, el hortícola elegido.
+- Segundo cultivo (maíz) y, si da tiempo, el hortícola elegido. Comprar y vender parcelas si Rubén lo quiere.
 - `tools/prueba_agricultura.mjs`: labra, abona, siembra, riega, pasa días y cosecha una parcela automáticamente y comprueba porcentajes y estado guardado.
 
 Aceptación: Rubén hace un ciclo completo en escritorio y en el móvil.
@@ -277,7 +289,7 @@ Aceptación: Rubén hace un ciclo completo en escritorio y en el móvil.
 
 - Presupuesto por calidad (resolución de máscaras, distancia de matas, partículas, rejilla de riego) y medición en el Pixel 10 (recordar: sin sombras 3D en PowerVR).
 - Repetir todas las pruebas existentes (`prueba_salto`, `prueba_fiestas`, `prueba_modos`…) para confirmar que el juego normal no ha cambiado.
-- `CREDITOS.md` al día, capturas de controles, `npm run publica`, fusión de la rama en `main` (lo hace Rubén).
+- `CREDITOS.md` al día (Catastro, SIGPAC y regadío del Gobierno de Navarra), capturas de controles, `npm run publica`, fusión de la rama en `main` (lo hace Rubén).
 
 ---
 
@@ -298,8 +310,9 @@ Aceptación: Rubén hace un ciclo completo en escritorio y en el móvil.
 
 ## 8. Riesgos
 
-- **Contornos catastrales que no casan con las lindes de la ortofoto:** se resuelven en A0 con Rubén, no a ojo.
-- **Parcelas fuera de la zona actual:** más descarga y más memoria (A1). Mitigación: solo el rectángulo de las parcelas, con detalle por calidad.
+- **Contornos catastrales que no casan con las lindes de la ortofoto:** en A0 casan bien en la zona revisada; si aparece alguno, se resuelve con Rubén, no a ojo.
+- **Parcelas fuera de la zona actual:** casi todas (1 468 de 1 797). Se trabajan con el MDT05 y la ortofoto del horizonte hasta que A1 añada detalle donde haga falta. Mitigación: detalle solo en el rectángulo de las parcelas que se trabajen, por calidad.
+- **Parcelas muy grandes en el secano:** máscaras por teselas, solo las que se pisan.
 - **Rendimiento del cultivo** en móvil: matas solo cerca, dosel barato, presupuesto por calidad.
 - **Física de aperos arrastrados** (sembradora, remolque) en marcha atrás y en giros cerrados: limitar el ángulo de la articulación y prueba automática.
 - **Animaciones y modelos de maquinaria:** es la parte más laboriosa. Si se alarga, A3–A5 pueden salir con modelos sencillos y detallarse en A10.
@@ -308,19 +321,14 @@ Aceptación: Rubén hace un ciclo completo en escritorio y en el móvil.
 
 ## 9. Registro
 
-`PROGRESO.md` gana un apartado «Agricultura» con la fase actual (A0…A10), lo hecho, lo pendiente y las decisiones. Commits pequeños en español (`feat(agri-a4): arado reversible con surcos orientados`). Sin push desde Claude Code (lo hace Rubén).
+`PROGRESO.md` tiene un apartado «Agricultura» con la fase actual (A0…A10), lo hecho, lo pendiente y las decisiones. Commits pequeños en español (`feat(agri-a4): arado reversible con surcos orientados`). Push de la rama de agricultura a GitHub permitido por Rubén (2026-11-20); `main` no se toca.
 
 ---
 
-## 10. Mensaje para empezar en Claude Code
+## 10. Cómo regenerar los datos de A0 en el PC
 
 ```
-Estamos en la rama feat/cabanillas-agricultura. Lee CLAUDE.md, PROGRESO.md y PLAN_AGRICULTURA.md.
-Resume en pocas líneas qué entiendes del modo agricultura y qué vas a reutilizar del proyecto.
-Después ejecuta solo la fase A0: confirma con 00_inspect_raw.py el nombre de la capa de parcelas
-rústicas del Catastro, pídeme permiso para descargar el SIGPAC de Cabanillas, crea
-tools/50_parcelas.py y la vista cenital de las parcelas, lista las dudas y párate para que
-revise la imagen. No modeles nada todavía.
+conda run -n cabdrive python tools/50_parcelas.py
 ```
 
-Antes, Rubén apunta las referencias catastrales (polígono-parcela) de las parcelas que quiere usar y, si las tiene, copia en `docs/agricultura/` fotos de esas parcelas, de la acequia y la boquera, y de tractores y aperos del pueblo.
+Usa las cachés de `data/processed/agricultura/` (WFS y MDT05), `data/processed/horizonte/` y `data/processed/orto_wms/`; si están, no descarga nada. La primera vez sin caché tarda unos minutos.
