@@ -2,7 +2,7 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo agricultura**: parcelas reales del término de Cabanillas, delimitadas con el Catastro de Navarra y la ortofoto, que se trabajan con tractores, aperos y cosechadora hechos en 3D. El suelo cambia de aspecto por donde pasa el apero (arado, gradeado, abonado, sembrado, regado, cosechado) y las plantas nacen, crecen, maduran y se cosechan. Complementa a `PLAN.md`, `PLAN_REALISMO.md`, `PLAN_FIESTAS.md` y `PLAN_SALTO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: una fase cada vez, parada al final de cada fase, no inventar datos geográficos, todo en español, escritorio y móvil siempre.
 
-Fecha: 2026-11-20. Estado: **A0 aprobada por Rubén (2026-11-20)**; A1 no hace falta mientras la parcela de pruebas esté en la zona del juego; **siguiente: A2**, cuando Rubén lo confirme (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
+Fecha: 2026-11-20. Estado: **A0 aprobada (2026-11-20); A1 omitida por Rubén; A2 hecha el 2026-11-21, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
 
 ### Inspiración y límites
 
@@ -64,7 +64,7 @@ Tomadas (2026-11-20):
 - **Datos:** autorizada la descarga del Catastro rústico, el SIGPAC, el regadío (WFS de IDENA) y la ortofoto PNOA de la zona de parcelas.
 - **Cultivos:** **trigo, cebada, cebolla, brócoli, alcachofa y espárrago** (ver §5.4).
 - **La COPE** (Sociedad Cooperativa del Campo San Isidro) es la nave agrícola. Rubén la marcó sobre una foto aérea y coincide con la **parcela urbana 2-1031 del Catastro** (2,29 ha: la nave grande y el patio, entre el camino del oeste, el campo de fútbol y la calle San Isidro). Funciona como una cooperativa de verdad: se compran semillas, plantel, abono, herramientas y aperos, y se vende la cosecha.
-- **Parcela de pruebas:** una de regadío junto al pueblo. Candidatas enseñadas a Rubén (vista `cope_y_parcelas_prueba.jpg`): A **2-650** (0,49 ha, llana), B **2-700** (0,44 ha), al norte de la COPE, y C **1-1100** (1,36 ha, Campo de San Roque, junto al canal, al sur del pueblo). Falta que elija una.
+- **Parcela de pruebas: 2-700** (0,44 ha, Cza las Planas, regadío, al norte de la COPE), elegida por Rubén el 2026-11-21 entre tres candidatas (vista `cope_y_parcelas_prueba.jpg`). Como está en la zona del juego, **A1 se omite**.
 - **Entrega:** la rama `feat/cabanillas-agricultura` se sube a GitHub (excepción a la regla de no hacer push, pedida por Rubén); `main` no se toca.
 
 Pendientes:
@@ -110,7 +110,7 @@ Principios:
 - **Carga diferida.** Código y modelos de agricultura en un chunk aparte con `import()`: quien solo conduce no los descarga.
 - **Registro ligero, estado bajo demanda.** Las 1 797 parcelas son solo contornos y datos (para el minimapa, el panel y comprar/vender). La malla, las máscaras y las plantas se crean cuando el tractor entra en una parcela con el apero bajado, y se liberan al alejarse (el estado queda guardado).
 - **Sin tocar el juego.** Todo vive en `src/agricultura/`, `src/config/` y `public/assets/agricultura/`. Los únicos cambios en archivos compartidos son ganchos pequeños y protegidos por `AGRICULTURA.activo` (ver §7).
-- **Acceso directo para pruebas:** `?agricultura` entra al modo junto a la parcela de pruebas; `?agricultura=cosecha` empieza con el cereal maduro; `?agricultura=riego` con la parcela sembrada y la boquera al lado; `?agricultura=2-656` en una parcela concreta.
+- **Acceso directo para pruebas:** `?agricultura` abre el pincel de pruebas en la parcela de pruebas (A2; desde A3, el modo con el tractor); `?agricultura=cosecha` empieza con el cereal maduro; `?agricultura=riego` con la parcela sembrada y la boquera al lado; `?agricultura=2-656` en una parcela concreta.
 - **La máscara manda.** El estado de cada metro de parcela está en memoria (CPU); las texturas, las plantas y el agua se dibujan a partir de ella. Así se puede medir el porcentaje trabajado, guardar y cargar.
 
 ---
@@ -234,7 +234,7 @@ Cada fase termina en **parada** con: lo creado, cómo probarlo y qué se necesit
 
 Aceptación: Rubén ve las parcelas sobre la ortofoto y confirma contornos y entradas, y elige la parcela de pruebas. **Parada obligatoria: no se modela nada hasta aprobar las parcelas.**
 
-### A1 — Zona agrícola con detalle (solo para las parcelas que se trabajen fuera de la zona actual)
+### A1 — Zona agrícola con detalle (solo para las parcelas que se trabajen fuera de la zona actual) — OMITIDA por ahora (2026-11-21)
 
 - `tools/51_zona_agricola.py`: recorte del MDT a 1 m y ortofoto a 4 px/m del rectángulo de las parcelas y sus caminos, con el mismo origen. Hueco correspondiente en el horizonte (coordinar con S1 de `PLAN_SALTO.md`).
 - Caminos (`highway=track`) y acequias (`waterway=ditch|canal`) de OSM en esa zona.
@@ -242,11 +242,12 @@ Aceptación: Rubén ve las parcelas sobre la ortofoto y confirma contornos y ent
 
 Aceptación: llegar en coche desde el pueblo a las parcelas por el camino real. Medir la memoria en calidad baja.
 
-### A2 — Parcela viva (sin máquinas)
+### A2 — Parcela viva (sin máquinas) — HECHA (2026-11-21), pendiente de que Rubén la pruebe
 
 - `registro.js`, `parcela.js`, `pincel.js`, `sueloParcela.js`, `src/config/agricultura.js`.
-- Pincel de depuración (`?agricultura&pincel`): con el ratón o el dedo se pinta cada estado para ver los ocho aspectos de la tabla 5.3.
-- Vista de comprobación: capturas de una parcela en cada estado, de cerca y de lejos.
+- Pincel de depuración (`?agricultura`, o `?agricultura=<ref>` para otra parcela): con el ratón o el dedo se pinta cada estado para ver los ocho aspectos de la tabla 5.3; 🧪 Muestrario pinta una franja por estado.
+- Vista de comprobación: `tools/vista_agricultura.mjs` → capturas de la parcela en cada estado, de cerca y de lejos, en `data/processed/previews/agricultura/`.
+- Hecho así: malla transparente (lo no trabajado deja ver la ortofoto de debajo); máscaras a 0,5 m/px; relieve de surcos, terrones y rodadas calculado en el shader y sombreado con el sol; la hierba 3D se quita de lo labrado.
 
 Aceptación: los estados se distinguen bien de cerca y de lejos, los surcos siguen la pasada y la linde funde con la ortofoto.
 

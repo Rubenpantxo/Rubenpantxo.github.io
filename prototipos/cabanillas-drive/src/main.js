@@ -289,7 +289,10 @@ modo({ renderer, escena, camara, ui, ciclo, render })
       // Se empieza saltando del avión (PLAN_SALTO.md), salvo con ?salto=0, al entrar directo a las
       // fiestas o al volver de otro juego. ?salto=semilla repite la misma ruta. Desde la pantalla de
       // inicio, «Empezar en la calle» lo omite; en la pausa, «Saltarse el salto»
-      if (parametros.get('salto') !== '0' && !parametros.get('fiestas') && !parametros.get('aparece')) {
+      // ?agricultura: pincel de pruebas del modo agricultura (PLAN_AGRICULTURA.md, fase A2). Su
+      // código se descarga solo entonces; sin el parámetro, el juego no cambia
+      const agricultura = parametros.has('agricultura');
+      if (parametros.get('salto') !== '0' && !parametros.get('fiestas') && !parametros.get('aparece') && !agricultura) {
         const semilla = Number.parseInt(parametros.get('salto'), 10);
         const arranca = () => api.empiezaSalto(Number.isFinite(semilla) ? semilla : undefined);
         // Con el editor pendiente, el salto espera al personaje (lo monta abrePersonaje)
@@ -308,6 +311,14 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         const p = new URLSearchParams(location.search);
         p.delete('aparece');
         history.replaceState(null, '', `${location.pathname}${p.toString() ? `?${p}` : ''}`);
+      }
+      if (agricultura) {
+        const { iniciaAgricultura } = await import('./agricultura/modoAgricultura.js');
+        const agri = await iniciaAgricultura({ api, escena, camara, renderer, refParcela: parametros.get('agricultura') || null });
+        pantallas.omite();
+        const actualizaJuego = actualiza;
+        actualiza = (dt) => { actualizaJuego(dt); agri.actualiza(dt); };
+        return;
       }
       pantallas.listo();
     }

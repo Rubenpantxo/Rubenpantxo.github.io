@@ -469,7 +469,7 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 
 ## Agricultura (PLAN_AGRICULTURA.md)
 
-**Fase actual: A0 aprobada por Rubén (2026-11-20).** Siguiente: A2 (parcela viva), cuando Rubén lo confirme y elija la parcela de pruebas; A1 no hace falta si esa parcela está en la zona del juego. Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
+**Fase actual: A2 (parcela viva) hecha el 2026-11-21, pendiente de que Rubén la pruebe.** A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
 
 ### Hecho en A0
 - **Todas las parcelas del término** (decisión de Rubén): 1 775 rústicas + 22 mixtas = **1 797 parcelas, 3 275 ha** de las 3 574 del término; 9 polígonos. 259 dentro de la zona del juego, 70 en parte y 1 468 fuera.
@@ -490,10 +490,21 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - **Cultivos:** trigo, cebada, cebolla, brócoli, alcachofa y espárrago. Cereales en A6–A8; hortícolas en una fase nueva, A10 (la de rendimiento y publicación pasa a A11).
 - **COPE** (Sociedad Cooperativa del Campo San Isidro) = nave agrícola y tienda: se compran semillas, plantel, abono, herramientas y aperos y se vende la cosecha. La marcó en una foto aérea: coincide con la **parcela urbana 2-1031 del Catastro** (2,29 ha), en la calle San Isidro, al oeste del campo de fútbol.
 - Parcela de pruebas: de regadío junto al pueblo. Candidatas en `data/processed/previews/cope_y_parcelas_prueba.jpg`: A 2-650, B 2-700 (al norte de la COPE) y C 1-1100 (junto al canal). 2-701, la más cercana, es mixta (tiene construcción) y se descarta.
+- (2026-11-21) **Parcela de pruebas: B, la 2-700** (0,44 ha, Cza las Planas, regadío). **A1 se omite.** Empezar A2.
+
+### Hecho en A2 (2026-11-21)
+- `src/agricultura/`: `registro.js` (las 1 797 parcelas en una rejilla de 100 m: qué parcela hay en un punto), `parcela.js` (malla de 1 m apoyada en el terreno, 3 cm por encima, solo en las celdas de la parcela; máscaras de laboreo y de cultivo en `Uint8Array` + `DataTexture`; máscara «dentro» con el fundido de la linde; recuento por estado), `pincel.js` (franja barrida por un apero entre dos puntos, con borde suave, solo dentro de la linde; ocho labores: rastrojo/borrar, arar, gradear, abonar, sembrar, regar, cosechar y rodadas), `sueloParcela.js` (material) y `modoAgricultura.js` (pincel de pruebas). `src/config/agricultura.js` y `src/datos/parcelas.js`.
+- **Material:** malla transparente; lo que no se ha trabajado no se dibuja y se ve la ortofoto de debajo tal cual (sin costuras). Arado: tiras de vertedera en la dirección de cada pasada y terrones, con relieve calculado en el shader y sombreado con el sol del juego. Gradeado: más claro y liso. Abono: moteado de granulado (de lejos, un velo). Sembrado: líneas cada 17 cm en la dirección de la pasada. Mojado: oscurece lo de debajo (también la foto) y encharca en los bajos con el agua a tope. Cosechado: rastrojo claro e hileras de paja cada 6 m. Rodadas: huella aplastada con tacos, hundida. Linde con borde irregular que se funde con la foto. De noche oscurece como la ortofoto (`LUZ_SUELO`) y recibe las sombras 3D.
+- La hierba 3D (`hierba.js`) se quita de lo labrado (`ponExclusion`).
+- Máscaras a 0,5 m/píxel en las tres calidades (en «bajo» con tope de 512 px de lado; en alta y media, 1 024). Parcela 2-700: 195 × 189 px, malla de 9 032 triángulos, una llamada de dibujo.
+- **Pincel de pruebas:** `?agricultura` (o `?agricultura=2-650` para otra parcela). Panel con las ocho labores (teclas 1–8), ancho de 0,5 a 12 m, 🖌️ Pintar / ✋ Mover (Espacio), vistas Cerca, Lejos y Arriba, 🧪 Muestrario (una franja por estado, con su nombre encima), Limpiar y el recuento en %. Ratón: botón izquierdo pinta, derecho gira, rueda acerca, Mayús+izquierdo desplaza. Táctil: un dedo pinta (o gira en ✋), dos dedos acercan y desplazan. El juego queda en pausa debajo; ✖ recarga sin el parámetro.
+- Único cambio en un archivo compartido: `src/main.js` (13 líneas: con `?agricultura` no hay salto, se carga el modo con `import()` y se salta la pantalla de inicio).
+- **Prueba:** `node tools/vista_agricultura.mjs <carpeta> [bajo|medio|alto] [movil]`: superficie de la máscara = la del Catastro (0,442 ha), recuentos del muestrario, trazos curvos con el ratón o el dedo (ara y siembra), nada fuera de la parcela, sin errores de consola y, sin `?agricultura`, no se descarga nada del modo. **Todo bien** en «bajo» escritorio, «bajo» móvil (412 × 860, táctil) y «alto». Capturas en `data/processed/previews/agricultura/`.
+- Arreglado por el camino: la malla sin normales hacía que la luz de Lambert diera NaN y la parcela salía negra.
 
 ### Pendiente de Rubén
-- Elegir A, B o C y decir por dónde le entra el agua (boquera), o dejar que se busque en A7.
-- Confirmar que se empieza A2.
+- Probar el pincel (`npm run dev` → `http://localhost:5173/?agricultura`, también en el móvil con `npm run dev:red`) y decir si los estados se distinguen y si los colores casan con la tierra de Cabanillas.
+- Por dónde le entra el agua a la 2-700 (boquera), o dejar que se busque en A7.
 - Más adelante: maquinaria, tiempo agrícola y precios (§3 del plan).
 
 ### Notas
