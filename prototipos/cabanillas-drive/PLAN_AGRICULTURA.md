@@ -133,16 +133,17 @@ Principios:
 ### 5.2 Malla y máscaras de estado (A2)
 
 - **Malla:** el polígono triangulado y subdividido en rejilla de 1 m que sigue el MDT, unos centímetros por encima del suelo (`polygonOffset`), con un borde de linde (ribazo de hierba) de 0,5–1 m.
-- **Dos máscaras por parcela activa**, a 0,5 m por píxel (1 m en calidad baja; máximo 1024 × 1024), en memoria como `Uint8Array` y en GPU como `DataTexture`:
-  - **Máscara A (laboreo):** R = estado de la tierra (rastrojo, arado, gradeado, preparado), G = **dirección de la pasada** (ángulo del apero al pintar), B = abono, A = rodadas/compactación.
-  - **Máscara B (cultivo):** R = humedad, G = día de siembra (0 = sin sembrar), B = cortado/cosechado, A = vigor.
+- **Dos máscaras por parcela activa**, a 0,5 m por píxel en todas las calidades (lado máximo 1024 px; 512 en «bajo»), en memoria como `Uint8Array` y en GPU como `DataTexture`. Como quedaron en A2:
+  - **Máscara A (laboreo):** R = arado, G = gradeado, B = abono, A = **dirección de la pasada** (0…π).
+  - **Máscara B (cultivo):** R = humedad, G = día de siembra (0 = sin sembrar), B = cosechado, A = rodadas. El vigor (A6) irá en una tercera máscara o en la rejilla de 2 m en CPU.
+  - Una tercera, «dentro» (R), con la distancia a la linde para el fundido.
 - Parcelas grandes del secano (hasta decenas de ha): se trocean en teselas de máscara de 512 × 512 y solo se crean las que pisa el apero.
 - **Pincel (`pincel.js`):** en cada fotograma, si el apero está **bajado, dentro de la parcela y a velocidad de trabajo**, se pinta el cuadrilátero barrido entre la posición anterior y la actual con la anchura real del apero (relleno por líneas, muy barato). Solo se sube a la GPU el trozo modificado, como mucho 10 veces por segundo.
 - **Recuento:** se lleva la cuenta de píxeles de cada estado dentro del polígono → «Arado: 63 %».
 
 ### 5.3 Aspecto del suelo (A2)
 
-`sueloParcela.js` amplía `MeshStandardMaterial` (`onBeforeCompile`) y mezcla según las máscaras:
+`sueloParcela.js` amplía `MeshLambertMaterial` (`onBeforeCompile`, con la luz del terreno `LUZ_SUELO`) y mezcla según las máscaras. Hecho en A2 sin texturas ni mapas de normales: todo es procedural en el shader, el relieve se sombrea con el sol del juego y la malla es transparente (lo que no se ha trabajado es la ortofoto de debajo):
 
 | Estado | Aspecto |
 |---|---|
