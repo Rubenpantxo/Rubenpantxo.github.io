@@ -32,6 +32,7 @@ const ESTILO = `
   #agri-panel .labores button { min-width: 60px; padding: 6px 4px; font-size: 12px; }
   #agri-panel .vistas button { padding: 6px 2px; font-size: 11px; }
 }
+@media (max-width: 480px) { #agri-panel .vistas button span { display: none; } #agri-panel .vistas button { font-size: 18px; } }
 `;
 
 // Franjas del muestrario: una por estado de la tabla 5.3 del plan, en el sentido de labor
@@ -179,8 +180,8 @@ export async function iniciaAgricultura({ api, escena, camara, renderer, refParc
       <span class="dato" data-ancho></span>
     </div>
     <div class="fila vistas">
-      <button data-vista="cerca">🔍 Cerca</button><button data-vista="lejos">🔭 Lejos</button><button data-vista="arriba">⬆️ Arriba</button>
-      <button data-muestrario>🧪 Muestrario</button><button data-limpia>🧹 Limpiar</button><button data-cierra>✖</button>
+      <button data-vista="cerca" title="Cerca">🔍<span> Cerca</span></button><button data-vista="lejos" title="Lejos">🔭<span> Lejos</span></button><button data-vista="arriba" title="Arriba">⬆️<span> Arriba</span></button>
+      <button data-muestrario title="Muestrario">🧪<span> Muestrario</span></button><button data-limpia title="Limpiar">🧹<span> Limpiar</span></button><button data-cierra title="Cerrar">✖</button>
     </div>
     <div class="fila dato" data-recuento></div>`;
   document.body.append(titulo, panel);
