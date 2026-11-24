@@ -1,0 +1,981 @@
+{
+ "fuente": "MakeHuman (recursos CC0 de la comunidad MakeHuman, vía MPFB2)",
+ "prendas": [
+  {
+   "id": "short02",
+   "carpeta": "hair/short02",
+   "hueco": "pelo",
+   "nombre": "Corto clásico",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "short04",
+   "carpeta": "hair/short04",
+   "hueco": "pelo",
+   "nombre": "Rapado",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "short01",
+   "carpeta": "hair/short01",
+   "hueco": "pelo",
+   "nombre": "Corto peinado",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "cortu_short_messy_hair",
+   "carpeta": "hair/cortu_short_messy_hair",
+   "hueco": "pelo",
+   "nombre": "Corto despeinado",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "culturalibre_hair_01",
+   "carpeta": "hair/culturalibre_hair_01",
+   "hueco": "pelo",
+   "nombre": "Media melena",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "culturalibre_hair_02",
+   "carpeta": "hair/culturalibre_hair_02",
+   "hueco": "pelo",
+   "nombre": "Flequillo largo",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "cortu_straight_bangs",
+   "carpeta": "hair/cortu_straight_bangs",
+   "hueco": "pelo",
+   "nombre": "Flequillo recto",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "short03",
+   "carpeta": "hair/short03",
+   "hueco": "pelo",
+   "nombre": "Pixie",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "bob01",
+   "carpeta": "hair/bob01",
+   "hueco": "pelo",
+   "nombre": "Bob",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "bob02",
+   "carpeta": "hair/bob02",
+   "hueco": "pelo",
+   "nombre": "Bob corto",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_blunt_bob",
+   "carpeta": "hair/toigo_blunt_bob",
+   "hueco": "pelo",
+   "nombre": "Bob recto",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_inverted_bob_with_bangs",
+   "carpeta": "hair/toigo_inverted_bob_with_bangs",
+   "hueco": "pelo",
+   "nombre": "Bob invertido con flequillo",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_curled_under_bob",
+   "carpeta": "hair/toigo_curled_under_bob",
+   "hueco": "pelo",
+   "nombre": "Bob hacia dentro",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "littleright_bobcut_hair",
+   "carpeta": "hair/littleright_bobcut_hair",
+   "hueco": "pelo",
+   "nombre": "Bob escalado",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "long01",
+   "carpeta": "hair/long01",
+   "hueco": "pelo",
+   "nombre": "Largo liso",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "o4saken_long01",
+   "carpeta": "hair/o4saken_long01",
+   "hueco": "pelo",
+   "nombre": "Largo con volumen",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "ponytail01",
+   "carpeta": "hair/ponytail01",
+   "hueco": "pelo",
+   "nombre": "Coleta",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "rehmanpolanski_hair_bun_brown",
+   "carpeta": "hair/rehmanpolanski_hair_bun_brown",
+   "hueco": "pelo",
+   "nombre": "Moño",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "elvs_reverse_french_braid_bun",
+   "carpeta": "hair/elvs_reverse_french_braid_bun",
+   "hueco": "pelo",
+   "nombre": "Trenza con moño",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "elvs_french_braid_variation",
+   "carpeta": "hair/elvs_french_braid_variation",
+   "hueco": "pelo",
+   "nombre": "Trenza de raíz",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "elvs_double_mh_braid",
+   "carpeta": "hair/elvs_double_mh_braid",
+   "hueco": "pelo",
+   "nombre": "Dos trenzas",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "braid01",
+   "carpeta": "hair/braid01",
+   "hueco": "pelo",
+   "nombre": "Trenza larga",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "sonntag78_blond_with_headband",
+   "carpeta": "hair/sonntag78_blond_with_headband",
+   "hueco": "pelo",
+   "nombre": "Con diadema",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "culturalibre_hair_05",
+   "carpeta": "hair/culturalibre_hair_05",
+   "hueco": "pelo",
+   "nombre": "Ondulado",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "culturalibre_hair_06",
+   "carpeta": "hair/culturalibre_hair_06",
+   "hueco": "pelo",
+   "nombre": "Largo ondulado",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "afro01",
+   "carpeta": "hair/afro01",
+   "hueco": "pelo",
+   "nombre": "Afro",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "faydaen_hair_1",
+   "carpeta": "hair/faydaen_hair_1",
+   "hueco": "pelo",
+   "nombre": "Recogido corto",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "eyebrow001",
+   "carpeta": "eyebrows/eyebrow001",
+   "hueco": "cejas",
+   "nombre": "Cejas 1",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow002",
+   "carpeta": "eyebrows/eyebrow002",
+   "hueco": "cejas",
+   "nombre": "Cejas 2",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow003",
+   "carpeta": "eyebrows/eyebrow003",
+   "hueco": "cejas",
+   "nombre": "Cejas 3",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow004",
+   "carpeta": "eyebrows/eyebrow004",
+   "hueco": "cejas",
+   "nombre": "Cejas 4",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow005",
+   "carpeta": "eyebrows/eyebrow005",
+   "hueco": "cejas",
+   "nombre": "Cejas 5",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow006",
+   "carpeta": "eyebrows/eyebrow006",
+   "hueco": "cejas",
+   "nombre": "Cejas 6",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow007",
+   "carpeta": "eyebrows/eyebrow007",
+   "hueco": "cejas",
+   "nombre": "Cejas 7",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow008",
+   "carpeta": "eyebrows/eyebrow008",
+   "hueco": "cejas",
+   "nombre": "Cejas 8",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow009",
+   "carpeta": "eyebrows/eyebrow009",
+   "hueco": "cejas",
+   "nombre": "Cejas 9",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow010",
+   "carpeta": "eyebrows/eyebrow010",
+   "hueco": "cejas",
+   "nombre": "Cejas 10",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow011",
+   "carpeta": "eyebrows/eyebrow011",
+   "hueco": "cejas",
+   "nombre": "Cejas 11",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyebrow012",
+   "carpeta": "eyebrows/eyebrow012",
+   "hueco": "cejas",
+   "nombre": "Cejas 12",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyelashes01",
+   "carpeta": "eyelashes/eyelashes01",
+   "hueco": "pestanas",
+   "nombre": "Pestañas 1",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyelashes02",
+   "carpeta": "eyelashes/eyelashes02",
+   "hueco": "pestanas",
+   "nombre": "Pestañas 2",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyelashes03",
+   "carpeta": "eyelashes/eyelashes03",
+   "hueco": "pestanas",
+   "nombre": "Pestañas 3",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "eyelashes04",
+   "carpeta": "eyelashes/eyelashes04",
+   "hueco": "pestanas",
+   "nombre": "Pestañas 4",
+   "sexo": "u",
+   "lado": 256
+  },
+  {
+   "id": "ojos",
+   "carpeta": "eyes/high-poly",
+   "hueco": "ojos",
+   "nombre": "Ojos",
+   "sexo": "u"
+  },
+  {
+   "id": "male_casualsuit01",
+   "carpeta": "clothes/male_casualsuit01",
+   "hueco": "conjunto",
+   "nombre": "Vaqueros y sudadera",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "male_casualsuit02",
+   "carpeta": "clothes/male_casualsuit02",
+   "hueco": "conjunto",
+   "nombre": "Camisa y pantalón",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "male_casualsuit03",
+   "carpeta": "clothes/male_casualsuit03",
+   "hueco": "conjunto",
+   "nombre": "Chaqueta informal",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "male_casualsuit04",
+   "carpeta": "clothes/male_casualsuit04",
+   "hueco": "conjunto",
+   "nombre": "Camiseta y vaqueros",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "male_casualsuit05",
+   "carpeta": "clothes/male_casualsuit05",
+   "hueco": "conjunto",
+   "nombre": "Jersey y pantalón",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "male_casualsuit06",
+   "carpeta": "clothes/male_casualsuit06",
+   "hueco": "conjunto",
+   "nombre": "Cazadora",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "male_elegantsuit01",
+   "carpeta": "clothes/male_elegantsuit01",
+   "hueco": "conjunto",
+   "nombre": "Traje",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "male_worksuit01",
+   "carpeta": "clothes/male_worksuit01",
+   "hueco": "conjunto",
+   "nombre": "Ropa de trabajo",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "female_casualsuit01",
+   "carpeta": "clothes/female_casualsuit01",
+   "hueco": "conjunto",
+   "nombre": "Informal",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "female_casualsuit02",
+   "carpeta": "clothes/female_casualsuit02",
+   "hueco": "conjunto",
+   "nombre": "Informal 2",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "female_elegantsuit01",
+   "carpeta": "clothes/female_elegantsuit01",
+   "hueco": "conjunto",
+   "nombre": "Elegante",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "female_sportsuit01",
+   "carpeta": "clothes/female_sportsuit01",
+   "hueco": "conjunto",
+   "nombre": "Chándal",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_tiered_skirt",
+   "carpeta": "clothes/toigo_tiered_skirt",
+   "hueco": "conjunto",
+   "nombre": "Vestido de volantes",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "elvs_crude_t-shirt_male",
+   "carpeta": "clothes/elvs_crude_t-shirt_male",
+   "hueco": "arriba",
+   "nombre": "Camiseta",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "joepal_crude_t-shirt_female",
+   "carpeta": "clothes/joepal_crude_t-shirt_female",
+   "hueco": "arriba",
+   "nombre": "Camiseta",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "namuhekam_male_polo_shirt",
+   "carpeta": "clothes/namuhekam_male_polo_shirt",
+   "hueco": "arriba",
+   "nombre": "Polo",
+   "sexo": "h",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_basic_tucked_t-shirt",
+   "carpeta": "clothes/toigo_basic_tucked_t-shirt",
+   "hueco": "arriba",
+   "nombre": "Camiseta por dentro",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_fisherman_sweater",
+   "carpeta": "clothes/toigo_fisherman_sweater",
+   "hueco": "arriba",
+   "nombre": "Jersey de lana",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_keyhole_tank_top",
+   "carpeta": "clothes/toigo_keyhole_tank_top",
+   "hueco": "arriba",
+   "nombre": "Camiseta de tirantes",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_camisole_top",
+   "carpeta": "clothes/toigo_camisole_top",
+   "hueco": "arriba",
+   "nombre": "Top de tirantes",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_turtleneck_halter_top",
+   "carpeta": "clothes/toigo_turtleneck_halter_top",
+   "hueco": "arriba",
+   "nombre": "Top de cuello alto",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_bodice-style_top",
+   "carpeta": "clothes/toigo_bodice-style_top",
+   "hueco": "arriba",
+   "nombre": "Corpiño",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "skalldyrssuppe_tube_top_funky_colors",
+   "carpeta": "clothes/skalldyrssuppe_tube_top_funky_colors",
+   "hueco": "arriba",
+   "nombre": "Top palabra de honor",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "cortu_cargo_pants",
+   "carpeta": "clothes/cortu_cargo_pants",
+   "hueco": "abajo",
+   "nombre": "Pantalón cargo",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "cortu_jeans_shorts",
+   "carpeta": "clothes/cortu_jeans_shorts",
+   "hueco": "abajo",
+   "nombre": "Pantalón corto vaquero",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_wool_pants",
+   "carpeta": "clothes/toigo_wool_pants",
+   "hueco": "abajo",
+   "nombre": "Pantalón de lana",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_harem_pants",
+   "carpeta": "clothes/toigo_harem_pants",
+   "hueco": "abajo",
+   "nombre": "Pantalón bombacho",
+   "sexo": "u",
+   "lado": 1024
+  },
+  {
+   "id": "frankyaye_mini_skirt_01",
+   "carpeta": "clothes/frankyaye_mini_skirt_01",
+   "hueco": "abajo",
+   "nombre": "Minifalda",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "frankyaye_mini_skirt_02",
+   "carpeta": "clothes/frankyaye_mini_skirt_02",
+   "hueco": "abajo",
+   "nombre": "Minifalda 2",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_long_full_skirt",
+   "carpeta": "clothes/toigo_long_full_skirt",
+   "hueco": "abajo",
+   "nombre": "Falda larga",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_skirt_with_lace_ruffle",
+   "carpeta": "clothes/toigo_skirt_with_lace_ruffle",
+   "hueco": "abajo",
+   "nombre": "Falda con encaje",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "toigo_tiered_mini_skirt",
+   "carpeta": "clothes/toigo_tiered_mini_skirt",
+   "hueco": "abajo",
+   "nombre": "Falda de volantes",
+   "sexo": "m",
+   "lado": 1024
+  },
+  {
+   "id": "shoes01",
+   "carpeta": "clothes/shoes01",
+   "hueco": "calzado",
+   "nombre": "Zapatillas",
+   "sexo": "u",
+   "lado": 512
+  },
+  {
+   "id": "shoes02",
+   "carpeta": "clothes/shoes02",
+   "hueco": "calzado",
+   "nombre": "Zapatos",
+   "sexo": "h",
+   "lado": 512
+  },
+  {
+   "id": "shoes03",
+   "carpeta": "clothes/shoes03",
+   "hueco": "calzado",
+   "nombre": "Deportivas",
+   "sexo": "u",
+   "lado": 512
+  },
+  {
+   "id": "shoes04",
+   "carpeta": "clothes/shoes04",
+   "hueco": "calzado",
+   "nombre": "Zapatillas 2",
+   "sexo": "u",
+   "lado": 512
+  },
+  {
+   "id": "shoes05",
+   "carpeta": "clothes/shoes05",
+   "hueco": "calzado",
+   "nombre": "Zapatos 2",
+   "sexo": "u",
+   "lado": 512
+  },
+  {
+   "id": "shoes06",
+   "carpeta": "clothes/shoes06",
+   "hueco": "calzado",
+   "nombre": "Zapatos 3",
+   "sexo": "u",
+   "lado": 512
+  },
+  {
+   "id": "toigo_ankle_boots_male",
+   "carpeta": "clothes/toigo_ankle_boots_male",
+   "hueco": "calzado",
+   "nombre": "Botines",
+   "sexo": "h",
+   "lado": 512
+  },
+  {
+   "id": "toigo_ankle_boots_female",
+   "carpeta": "clothes/toigo_ankle_boots_female",
+   "hueco": "calzado",
+   "nombre": "Botines",
+   "sexo": "m",
+   "lado": 512
+  },
+  {
+   "id": "toigo_ballet_flats",
+   "carpeta": "clothes/toigo_ballet_flats",
+   "hueco": "calzado",
+   "nombre": "Bailarinas",
+   "sexo": "m",
+   "lado": 512
+  },
+  {
+   "id": "toigo_mj_cloth_shoes",
+   "carpeta": "clothes/toigo_mj_cloth_shoes",
+   "hueco": "calzado",
+   "nombre": "Merceditas",
+   "sexo": "m",
+   "lado": 512
+  },
+  {
+   "id": "cortu_t-bar",
+   "carpeta": "clothes/cortu_t-bar",
+   "hueco": "calzado",
+   "nombre": "Sandalias",
+   "sexo": "m",
+   "lado": 512
+  },
+  {
+   "id": "culturalibre_hero_boots_1",
+   "carpeta": "clothes/culturalibre_hero_boots_1",
+   "hueco": "calzado",
+   "nombre": "Botas",
+   "sexo": "u",
+   "lado": 512
+  },
+  {
+   "id": "culturalibre_hero_boots_2",
+   "carpeta": "clothes/culturalibre_hero_boots_2",
+   "hueco": "calzado",
+   "nombre": "Botas 2",
+   "sexo": "u",
+   "lado": 512
+  },
+  {
+   "id": "culturalibre_heroine_boots_2",
+   "carpeta": "clothes/culturalibre_heroine_boots_2",
+   "hueco": "calzado",
+   "nombre": "Botas altas",
+   "sexo": "m",
+   "lado": 512
+  },
+  {
+   "id": "fedora01",
+   "carpeta": "clothes/fedora01",
+   "hueco": "sombrero",
+   "nombre": "Sombrero",
+   "sexo": "u",
+   "lado": 512
+  },
+  {
+   "id": "fedora_cocked",
+   "carpeta": "clothes/fedora_cocked",
+   "hueco": "sombrero",
+   "nombre": "Sombrero ladeado",
+   "sexo": "u",
+   "lado": 512
+  }
+ ],
+ "pieles": [
+  {
+   "id": "young_caucasian_male",
+   "material": "skins/young_caucasian_male/young_caucasian_male.mhmat",
+   "nombre": "Europea joven",
+   "sexo": "h",
+   "edad": "young",
+   "origen": "caucasian"
+  },
+  {
+   "id": "young_caucasian_female",
+   "material": "skins/young_caucasian_female/young_caucasian_female.mhmat",
+   "nombre": "Europea joven",
+   "sexo": "m",
+   "edad": "young",
+   "origen": "caucasian"
+  },
+  {
+   "id": "young_african_male",
+   "material": "skins/young_african_male/young_african_male.mhmat",
+   "nombre": "Africana joven",
+   "sexo": "h",
+   "edad": "young",
+   "origen": "african"
+  },
+  {
+   "id": "young_african_female",
+   "material": "skins/young_african_female/young_african_female.mhmat",
+   "nombre": "Africana joven",
+   "sexo": "m",
+   "edad": "young",
+   "origen": "african"
+  },
+  {
+   "id": "young_asian_male",
+   "material": "skins/young_asian_male/young_asian_male.mhmat",
+   "nombre": "Asiática joven",
+   "sexo": "h",
+   "edad": "young",
+   "origen": "asian"
+  },
+  {
+   "id": "young_asian_female",
+   "material": "skins/young_asian_female/young_asian_female.mhmat",
+   "nombre": "Asiática joven",
+   "sexo": "m",
+   "edad": "young",
+   "origen": "asian"
+  },
+  {
+   "id": "middleage_caucasian_male",
+   "material": "skins/middleage_caucasian_male/middleage_caucasian_male.mhmat",
+   "nombre": "Europea media",
+   "sexo": "h",
+   "edad": "middleage",
+   "origen": "caucasian"
+  },
+  {
+   "id": "middleage_caucasian_female",
+   "material": "skins/middleage_caucasian_female/middleage_caucasian_female.mhmat",
+   "nombre": "Europea media",
+   "sexo": "m",
+   "edad": "middleage",
+   "origen": "caucasian"
+  },
+  {
+   "id": "middleage_african_male",
+   "material": "skins/middleage_african_male/middleage_african_male.mhmat",
+   "nombre": "Africana media",
+   "sexo": "h",
+   "edad": "middleage",
+   "origen": "african"
+  },
+  {
+   "id": "middleage_african_female",
+   "material": "skins/middleage_african_female/middleage_african_female.mhmat",
+   "nombre": "Africana media",
+   "sexo": "m",
+   "edad": "middleage",
+   "origen": "african"
+  },
+  {
+   "id": "middleage_asian_male",
+   "material": "skins/middleage_asian_male/middleage_asian_male.mhmat",
+   "nombre": "Asiática media",
+   "sexo": "h",
+   "edad": "middleage",
+   "origen": "asian"
+  },
+  {
+   "id": "middleage_asian_female",
+   "material": "skins/middleage_asian_female/middleage_asian_female.mhmat",
+   "nombre": "Asiática media",
+   "sexo": "m",
+   "edad": "middleage",
+   "origen": "asian"
+  },
+  {
+   "id": "old_caucasian_male",
+   "material": "skins/old_caucasian_male/old_caucasian_male.mhmat",
+   "nombre": "Europea mayor",
+   "sexo": "h",
+   "edad": "old",
+   "origen": "caucasian"
+  },
+  {
+   "id": "old_caucasian_female",
+   "material": "skins/old_caucasian_female/old_caucasian_female.mhmat",
+   "nombre": "Europea mayor",
+   "sexo": "m",
+   "edad": "old",
+   "origen": "caucasian"
+  },
+  {
+   "id": "old_african_male",
+   "material": "skins/old_african_male/old_african_male.mhmat",
+   "nombre": "Africana mayor",
+   "sexo": "h",
+   "edad": "old",
+   "origen": "african"
+  },
+  {
+   "id": "old_african_female",
+   "material": "skins/old_african_female/old_african_female.mhmat",
+   "nombre": "Africana mayor",
+   "sexo": "m",
+   "edad": "old",
+   "origen": "african"
+  },
+  {
+   "id": "old_asian_male",
+   "material": "skins/old_asian_male/old_asian_male.mhmat",
+   "nombre": "Asiática mayor",
+   "sexo": "h",
+   "edad": "old",
+   "origen": "asian"
+  },
+  {
+   "id": "old_asian_female",
+   "material": "skins/old_asian_female/old_asian_female.mhmat",
+   "nombre": "Asiática mayor",
+   "sexo": "m",
+   "edad": "old",
+   "origen": "asian"
+  },
+  {
+   "id": "pecas_m",
+   "material": "skins/toigo_light_skin_female_freckles/toigo_light_skin_female_freckles.mhmat",
+   "nombre": "Con pecas",
+   "sexo": "m",
+   "edad": "young",
+   "origen": "caucasian"
+  },
+  {
+   "id": "pecas_h",
+   "material": "skins/toigo_light_skin_male_freckles/toigo_light_skin_male_freckles.mhmat",
+   "nombre": "Con pecas",
+   "sexo": "h",
+   "edad": "young",
+   "origen": "caucasian"
+  },
+  {
+   "id": "pelirroja_m",
+   "material": "skins/toigo_light_skin_female_ginger/toigo_light_skin_female_ginger.mhmat",
+   "nombre": "Pelirroja",
+   "sexo": "m",
+   "edad": "young",
+   "origen": "caucasian"
+  },
+  {
+   "id": "pelirrojo_h",
+   "material": "skins/toigo_light_skin_male_ginger/toigo_light_skin_male_ginger.mhmat",
+   "nombre": "Pelirrojo",
+   "sexo": "h",
+   "edad": "young",
+   "origen": "caucasian"
+  },
+  {
+   "id": "euroasiatica_m",
+   "material": "skins/onlytheghosts_young_eurasian_female/onlytheghosts_young_eurasian_female.mhmat",
+   "nombre": "Euroasiática",
+   "sexo": "m",
+   "edad": "young",
+   "origen": "asian"
+  },
+  {
+   "id": "india_m",
+   "material": "skins/cutoff3d_indian_female_skin/cutoff3d_indian_female_skin.mhmat",
+   "nombre": "India",
+   "sexo": "m",
+   "edad": "young",
+   "origen": "asian"
+  }
+ ],
+ "iris": [
+  {
+   "id": "brown",
+   "material": "eyes/materials/brown.mhmat",
+   "nombre": "Marrón"
+  },
+  {
+   "id": "brownlight",
+   "material": "eyes/materials/brownlight.mhmat",
+   "nombre": "Avellana"
+  },
+  {
+   "id": "green",
+   "material": "eyes/materials/green.mhmat",
+   "nombre": "Verde"
+  },
+  {
+   "id": "bluegreen",
+   "material": "eyes/materials/bluegreen.mhmat",
+   "nombre": "Verde azulado"
+  },
+  {
+   "id": "blue",
+   "material": "eyes/materials/blue.mhmat",
+   "nombre": "Azul"
+  },
+  {
+   "id": "lightblue",
+   "material": "eyes/materials/lightblue.mhmat",
+   "nombre": "Azul claro"
+  },
+  {
+   "id": "deepblue",
+   "material": "eyes/materials/deepblue.mhmat",
+   "nombre": "Azul intenso"
+  },
+  {
+   "id": "grey",
+   "material": "eyes/materials/grey.mhmat",
+   "nombre": "Gris"
+  },
+  {
+   "id": "ice",
+   "material": "eyes/materials/ice.mhmat",
+   "nombre": "Hielo"
+  }
+ ]
+}

@@ -8,9 +8,9 @@ const requiere = createRequire(process.env.PLAYWRIGHT_RAIZ ? `${process.env.PLAY
 const { chromium } = requiere('playwright');
 const S = process.argv[2];
 mkdirSync(S, { recursive: true });
-const b = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
+const b = await chromium.launch({ channel: process.env.CANAL, args: ['--autoplay-policy=no-user-gesture-required'] });
 const p = await b.newPage();
-await p.goto('http://localhost:5173/');
+await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&personaje=0`);
 const sonidos = await p.evaluate(async () => {
   const { creaSonido } = await import('/src/fiestas/sonido.js');
   const s = creaSonido();

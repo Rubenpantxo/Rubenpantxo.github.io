@@ -32,7 +32,9 @@ const ESTILO = `
 @media (max-height: 480px) {
   #hud-fiestas .panel { padding: 4px 8px; min-width: 132px; }
   #hud-fiestas .cifra b { font-size: 15px; }
-  #hud-fiestas .aviso { top: calc(max(10px, env(safe-area-inset-top)) + 82px); }
+  /* 85 px: con la letra de Chrome en Windows el marcador mide 4 px más que con la del Chromium de
+     pruebas; más abajo, en 667×375 pisaría el botón «Subir» */
+  #hud-fiestas .aviso { top: calc(max(10px, env(safe-area-inset-top)) + 85px); }
 }`;
 const HACE = { corral: 'En el corral', saliendo: '¡Sale!', reconoce: 'A su aire', fija: 'Te mira', embiste: 'Embestida', frena: 'Pasa de largo', derrote: 'Remata en la valla',
   guiada: 'En manada', recogiendo: 'Vuelve al corral', entrando: 'Vuelve al corral' };

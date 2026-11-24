@@ -1,8 +1,8 @@
 // Nodos de las calles OSM: punto de salida y recolocación del coche (tecla R).
-const TIPOS_CONDUCIBLES = new Set(['primary', 'primary_link', 'secondary', 'secondary_link', 'tertiary',
+export const TIPOS_CONDUCIBLES = new Set(['primary', 'primary_link', 'secondary', 'secondary_link', 'tertiary',
   'tertiary_link', 'unclassified', 'residential', 'living_street', 'service', 'road']);
 
-function lineasDe(geometria) {
+export function lineasDe(geometria) {
   if (geometria.type === 'LineString') return [geometria.coordinates];
   if (geometria.type === 'MultiLineString') return geometria.coordinates;
   return [];

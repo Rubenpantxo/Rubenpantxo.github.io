@@ -1,0 +1,28 @@
+{
+  "lado_m": 8000.0,
+  "paso_m": 20.0,
+  "vertices": 401,
+  "vertice_0": {
+    "x": -4000.0,
+    "z": -4000.0,
+    "nota": "esquina noroeste; filas de norte a sur"
+  },
+  "hueco": {
+    "mitad_x": 750.0,
+    "mitad_z": 700.0,
+    "nota": "sin triángulos con los tres vértices dentro de la zona o en su borde"
+  },
+  "formato": "Float32 little-endian, alturas locales (y = H − H_base)",
+  "desfase_mdt_m": -0.01,
+  "fuente_relieve": "MDT05 del IGN, WCS https://servicios.idee.es/wcs-inspire/mdt (Elevacion25830_5), media a 20 m",
+  "fuente_color": "PNOA máxima actualidad, WMS https://www.ign.es/wms-inspire/pnoa-ma (capa OI.OrthoimageCoverage)",
+  "parecido_orto": {
+    "correlacion": 0.9768,
+    "diferencia_media": 7.53
+  },
+  "atribucion": "MDT05 y PNOA cedidos por © Instituto Geográfico Nacional",
+  "texturas": {
+    "alta": "horizonte.jpg",
+    "bajo": "horizonte_bajo.jpg"
+  }
+}

@@ -2,7 +2,8 @@
 // de pines para el firmware. Todo sale del documento y del análisis, no de
 // plantillas: lo que se exporta es lo que está cableado.
 
-import { clavePin } from './modelo.js';
+import { clavePin, docDesdePlantilla } from './modelo.js';
+import { analizar } from './erc.js';
 
 export function listaMateriales(doc, catalogo, inventario = {}) {
     const filas = new Map();
@@ -88,9 +89,129 @@ export function cabeceraPines(doc, catalogo, analisis) {
             usados.add(nombre);
             l.push(`#define ${nombre.padEnd(ancho)}  ${String(f.gpio).padStart(2)}  // ${f.destino.parte.ref}.${f.destino.pin.n || f.destino.pin.id} (${f.destino.def.corto})`);
         }
+        // Periféricos soldados en la propia placa: sus GPIO son fijos.
+        if (m.def.fijos) {
+            const pre = macro(m.def.placaCodigo || m.parte.ref);
+            const todos = m.def.fijos.flatMap(([, lista]) => lista);
+            const anchoF = Math.max(...todos.map(([, n]) => pre.length + n.length + 1));
+            l.push('', `// Periféricos integrados en ${m.def.corto} (GPIO fijos)`);
+            for (const [grupo, lista] of m.def.fijos) {
+                l.push(`// ${grupo}`);
+                for (const [g, n] of lista) l.push(`#define ${(pre + '_' + n).padEnd(anchoF)}  ${String(g).padStart(2)}`);
+            }
+        }
         l.push('');
     }
     return l.join('\n');
+}
+
+export const PLATFORMIO_CYD = `; ESP32-2432S028R «Cheap Yellow Display» (ESP32-WROOM-32, 4 MB Flash)
+; Pantalla ILI9341 en HSPI y táctil XPT2046 en sus propios pines (25/32/39/33/36).
+; Variante de dos USB (ST7789): cambia ILI9341_2_DRIVER por ST7789_DRIVER y
+; añade -DTFT_INVERSION_OFF si los colores salen invertidos.
+
+[env:esp32-2432s028r]
+platform = espressif32
+board = esp32dev
+framework = arduino
+monitor_speed = 115200
+
+lib_deps =
+  bodmer/TFT_eSPI
+  https://github.com/PaulStoffregen/XPT2046_Touchscreen.git
+
+build_flags =
+  -DUSER_SETUP_LOADED
+  -DILI9341_2_DRIVER
+  -DTFT_WIDTH=240
+  -DTFT_HEIGHT=320
+  -DUSE_HSPI_PORT
+  -DTFT_MISO=12
+  -DTFT_MOSI=13
+  -DTFT_SCLK=14
+  -DTFT_CS=15
+  -DTFT_DC=2
+  -DTFT_RST=-1
+  -DTFT_BL=21
+  -DTFT_BACKLIGHT_ON=HIGH
+  -DLOAD_GLCD
+  -DLOAD_FONT2
+  -DLOAD_FONT4
+  -DLOAD_FONT7
+  -DSMOOTH_FONT
+  -DSPI_FREQUENCY=55000000
+  -DSPI_READ_FREQUENCY=20000000
+  -DSPI_TOUCH_FREQUENCY=2500000
+`;
+
+export const PLATFORMIO_C3 = `; ESP32-C3 SuperMini (ESP32-C3FN4, 4 MB Flash, USB nativo)
+; Sin USB_CDC_ON_BOOT=1 el monitor serie no sale por el USB-C.
+
+[env:esp32-c3-supermini]
+platform = espressif32
+board = esp32-c3-devkitm-1
+framework = arduino
+monitor_speed = 115200
+board_build.flash_mode = dio
+
+build_flags =
+  -DARDUINO_USB_MODE=1
+  -DARDUINO_USB_CDC_ON_BOOT=1
+`;
+
+export const PLATFORMIO_STAMP = `; M5StampS3 (ESP32-S3FN8, 8 MB Flash, sin PSRAM, USB nativo)
+; LED RGB WS2812B en G21 y botón en G0.
+
+[env:m5stamp-s3]
+platform = espressif32
+board = m5stack-stamps3
+framework = arduino
+monitor_speed = 115200
+
+lib_deps =
+  fastled/FastLED
+
+build_flags =
+  -DARDUINO_USB_CDC_ON_BOOT=1
+`;
+
+const PLATFORMIO_POR_PLACA = [
+    [t => t.startsWith('esp32-s3'), 'ESP32-S3 N16R8', () => PLATFORMIO_INI],
+    [t => t === 'esp32-2432s028r', 'ESP32 CYD 2,8"', () => PLATFORMIO_CYD],
+    [t => t === 'esp32-c3-supermini', 'ESP32-C3 SuperMini', () => PLATFORMIO_C3],
+    [t => t === 'm5stamp-s3', 'M5StampS3', () => PLATFORMIO_STAMP]
+];
+
+// Añade librerías al lib_deps de un platformio.ini (o crea la sección).
+export function conLibrerias(ini, libs = []) {
+    if (!libs.length) return ini;
+    const extra = libs.map(l => '  ' + l + '\n').join('');
+    if (/^lib_deps =$/m.test(ini)) return ini.replace(/^lib_deps =\n(?: {2}.+\n)*/m, m => m + extra);
+    return ini.replace(/^(monitor_speed = .+\n)/m, `$1\nlib_deps =\n${extra}`);
+}
+
+// platformio.ini de cada placa que lo tiene, en el orden en que aparecen.
+// `libs`: las librerías que pide el código de ejemplo del proyecto.
+export function platformioDe(doc, libs = []) {
+    const vistos = [];
+    for (const p of doc.partes) {
+        const e = PLATFORMIO_POR_PLACA.find(([es]) => es(p.tipo));
+        if (e && !vistos.includes(e)) vistos.push(e);
+    }
+    return vistos.map(([, titulo, ini]) => ({ titulo, ini: conLibrerias(ini(), libs) }));
+}
+
+// Proyecto PlatformIO completo de un ejemplo: platformio.ini con sus
+// librerías, include/pines.h sacado del montaje y el código.
+export function archivosEjemplo(p, catalogo) {
+    if (!p.ejemplo || !p.montaje) return [];
+    const doc = docDesdePlantilla(p.montaje, catalogo, p.titulo);
+    const pio = platformioDe(doc, p.ejemplo.libs);
+    return [
+        ...pio.map(x => ({ nombre: 'platformio.ini', texto: x.ini })),
+        { nombre: 'include/pines.h', texto: cabeceraPines(doc, catalogo, analizar(doc, catalogo)) },
+        ...p.ejemplo.archivos.map(([nombre, texto]) => ({ nombre, texto }))
+    ];
 }
 
 export const PLATFORMIO_INI = `; ESP32-S3 DevKitC-1 N16R8 (16 MB Flash QIO + 8 MB PSRAM Octal)

@@ -6,6 +6,7 @@ import { CATEGORIAS, COMPONENTES, TIPOS_PIN } from '../datos/componentes.js';
 import { PROYECTOS, AMBITOS } from '../datos/proyectos.js';
 import { RECURSOS, HOJA_DE_RUTA } from '../datos/recursos.js';
 import { formato } from '../core/erc.js';
+import { archivosEjemplo } from '../core/exportar.js';
 import { miniatura } from './dibujos.js';
 import { esc, eur, mm, ico, enlace } from './util.js';
 
@@ -93,7 +94,7 @@ export function pintarProyectos(el, app, id) {
     const lista = PROYECTOS.filter(x => (!f.ambito || x.ambito === f.ambito) && (!f.montaje || x.montaje) &&
         (!texto || (x.titulo + ' ' + x.resumen + ' ' + (x.modelo || '') + ' ' + x.ambito).toLowerCase().includes(texto)));
     el.innerHTML = `
-<header class="cab-area"><div><h2>Proyectos</h2><p>${PROYECTOS.filter(x => x.montaje).length} montajes listos para abrir en la mesa y ${PROYECTOS.filter(x => !x.montaje).length} ideas híbridas ESP32-S3 + Coral con su material y los repositorios de partida.</p></div>
+<header class="cab-area"><div><h2>Proyectos</h2><p>${PROYECTOS.length} proyectos con ESP32-S3, ESP32-C3 SuperMini, M5StampS3, Coral, Raspberry Pi y la pantalla táctil CYD: ${PROYECTOS.filter(x => x.montaje).length} se abren ya cableados en la mesa, con su material y los repositorios de partida.</p></div>
   <label class="buscador">${ico('buscar')}<input type="search" data-buscar-proyecto placeholder="Buscar proyecto, modelo o ámbito" value="${esc(f.texto || '')}"></label></header>
 <div class="filtros" role="group" aria-label="Filtrar proyectos">
   <button type="button" data-filtro-montaje aria-pressed="${!!f.montaje}" class="${f.montaje ? 'activo' : ''}">${ico('mesa')}Con montaje</button>
@@ -108,6 +109,17 @@ ${lista.length ? `<div class="rejilla-proyectos">${lista.map(x => {
   <dl class="pie"><div><dt>Nivel</dt><dd>${esc(x.nivel)}</dd></div><div><dt>Modelo</dt><dd>${esc(x.modelo)}</dd></div><div><dt>Por comprar</dt><dd>${c.total ? '≈ ' + eur(c.total) : 'Nada'}</dd></div></dl>
 </a>`;
     }).join('')}</div>` : '<p class="vacio">Ningún proyecto coincide con el filtro.</p>'}`;
+}
+
+function seccionEjemplo(p, app) {
+    const archivos = archivosEjemplo(p, app.catalogo);
+    const lineas = t => t.split('\n').length - (t.endsWith('\n') ? 1 : 0);
+    return `<section class="ejemplo"><h3>${ico('codigo')}Código de ejemplo</h3>
+<p>Proyecto PlatformIO listo para compilar: pon cada archivo en su carpeta, rellena la Wi-Fi si la pide y súbelo. <code>pines.h</code> sale del cableado del montaje; si cambias cables en la mesa, descárgalo de nuevo desde el panel Código.</p>
+<div class="archivos">${archivos.map((a, i) => `<details class="archivo"${a.nombre.startsWith('src/') ? ' open' : ''}><summary><code>${esc(a.nombre)}</code><small>${lineas(a.texto)} líneas</small></summary>
+<pre class="codigo" data-codigo="ejp-${i}">${esc(a.texto)}</pre>
+<div class="fila-botones"><button type="button" data-copiar="ejp-${i}">${ico('copiar')}Copiar</button><button type="button" data-descargar-ejemplo="${p.id}:${i}">${ico('exportar')}Descargar</button></div></details>`).join('')}</div>
+</section>`;
 }
 
 function pintarProyecto(el, app, p) {
@@ -127,7 +139,7 @@ function pintarProyecto(el, app, p) {
   </header>
   ${p.aviso ? `<p class="nota aviso">${ico('alerta')}<span>${esc(p.aviso)}</span></p>` : ''}
   <div class="reparto">
-    <section class="rol esp"><h3>${ico('chip')}ESP32-S3</h3><p>${esc(p.esp32)}</p></section>
+    <section class="rol esp"><h3>${ico('chip')}${esc(p.placa || 'ESP32-S3')}</h3><p>${esc(p.esp32)}</p></section>
     ${p.coral ? `<section class="rol tpu"><h3>${ico('rayo')}Coral Edge TPU</h3><p>${esc(p.coral)}</p></section>` : ''}
     ${p.coral ? `<section class="rol"><h3>${ico('codigo')}Modelo</h3><p>${esc(p.modelo)}</p></section>` : ''}
   </div>
@@ -138,10 +150,11 @@ function pintarProyecto(el, app, p) {
     </section>
     <section>${p.pasos ? `<h3>Pasos</h3><ol class="pasos">${p.pasos.map(s => `<li>${esc(s)}</li>`).join('')}</ol>` : ''}
       ${p.aprendizaje ? `<h3>Qué se aprende</h3><ul class="aprendizaje">${p.aprendizaje.map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
-      ${!p.pasos && !p.coral ? `<h3>Por dónde empezar</h3><ol class="pasos"><li>Monta el circuito en la mesa con las piezas de la lista y deja el diagnóstico sin errores.</li><li>Exporta el mapa de pines y carga el ejemplo del repositorio enlazado.</li><li>Prueba cada periférico por separado antes de unirlo todo.</li></ol>` : ''}
-      ${!p.pasos && p.coral ? `<h3>Por dónde empezar</h3><ol class="pasos"><li>Prueba el modelo en el host con el ejemplo del repositorio de Coral que corresponda.</li><li>Monta en la mesa el ESP32-S3 con sus periféricos y deja el diagnóstico sin errores.</li><li>Une ambos lados por el puerto serie USB o por MQTT.</li></ol>` : ''}
+      ${!p.pasos && !p.coral ? `<h3>Por dónde empezar</h3><ol class="pasos"><li>Abre el montaje en la mesa y adáptalo a las piezas que tengas, sin errores en el diagnóstico.</li><li>Exporta el mapa de pines y carga el ejemplo del repositorio enlazado.</li><li>Prueba cada periférico por separado antes de unirlo todo.</li></ol>` : ''}
+      ${!p.pasos && p.coral ? `<h3>Por dónde empezar</h3><ol class="pasos"><li>Prueba el modelo en el host con el ejemplo del repositorio de Coral que corresponda.</li><li>Abre el montaje en la mesa, cambia lo que necesites y deja el diagnóstico sin errores.</li><li>Une ambos lados por el puerto serie USB o por MQTT.</li></ol>` : ''}
     </section>
   </div>
+  ${p.ejemplo ? seccionEjemplo(p, app) : ''}
   <section><h3>Repositorios de partida</h3><div class="rejilla-enlaces">${p.repos.map(r => tarjetaEnlace({ ...r, tipo: 'repo' })).join('')}</div></section>
   ${p.docs && p.docs.length ? `<section><h3>Documentación</h3><div class="rejilla-enlaces">${p.docs.map(d => tarjetaEnlace({ ...d, tipo: 'doc' })).join('')}</div></section>` : ''}
 </article>`;

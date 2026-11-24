@@ -13,7 +13,7 @@ const requiere = createRequire(process.env.PLAYWRIGHT_RAIZ ? `${process.env.PLAY
 const { chromium } = requiere('playwright');
 const calidad = process.argv[2] ?? 'medio';
 const tmp = mkdtempSync(join(tmpdir(), 'capturas-'));
-const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const b = await chromium.launch({ channel: process.env.CANAL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const VISTAS = [
   { nombre: 'teclado', contexto: { viewport: { width: 1280, height: 720 } },
     marcas: [['#hud-fiestas .paneles > .panel:first-child', 'jugador'], ['#hud-fiestas .paneles > .panel:last-child', 'vaquilla'],
@@ -26,7 +26,7 @@ const VISTAS = [
 for (const v of VISTAS) {
   const c = await b.newContext(v.contexto);
   const p = await c.newPage();
-  await p.goto(`http://localhost:5173/?calidad=${calidad}&mozos=0&capa=colorada`);
+  await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&personaje=0&calidad=${calidad}&mozos=0&capa=colorada`);
   await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 300000 });
   await p.evaluate(() => { document.documentElement.dataset.joystick = 'fijo'; document.getElementById('jugar').click(); });
   await p.evaluate(async () => {

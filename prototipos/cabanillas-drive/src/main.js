@@ -1,5 +1,5 @@
 // Cabanillas Drive — arranque. Por defecto el juego; con ?visor, el visor de comprobación;
-// con ?arboles, la galería de modelos de árbol.
+// con ?arboles, la galería de modelos de árbol; con ?personaje, solo el editor de personaje.
 // Convención: 1 unidad = 1 m, Y arriba, norte = −Z.
 import * as THREE from 'three';
 import { CALIDAD } from './config/calidad.js';
@@ -17,7 +17,9 @@ import { iniciaVisorArboles } from './visor/visorArboles.js';
 vigilaDescargas();   // antes de la primera descarga: la barra de inicio cuenta todos los bytes
 const parametros = new URLSearchParams(location.search);
 if (parametros.has('debug')) console.info(`[calidad] nivel ${CALIDAD.nivel}`, CALIDAD);
-const esJuego = !parametros.has('visor') && !parametros.has('arboles');
+// ?personaje: solo el editor de personaje (?personaje=0, en cambio, se lo salta y carga el juego)
+const soloPersonaje = parametros.has('personaje') && parametros.get('personaje') !== '0';
+const esJuego = !parametros.has('visor') && !parametros.has('arboles') && !soloPersonaje;
 const ui = {
   panel: document.getElementById('panel'),
   estado: document.getElementById('estado'),
@@ -122,7 +124,11 @@ renderer.domElement.addEventListener('webglcontextlost', (ev) => {
 const sol = await fetch(ESCENA.rutaSol).then((r) => (r.ok ? r.json() : null)).catch(() => null);
 const escena = new THREE.Scene();
 const { luzSol, direccion } = creaEntorno(escena, ESCENA, sol);
-if (CALIDAD.niebla) Object.assign(escena.fog, CALIDAD.niebla);   // móvil: recorta lo lejano
+// Móvil: niebla más cerca para recortar lo lejano (THREE.Fog usa near y far, no cerca y lejos)
+if (CALIDAD.niebla && escena.fog) {
+  escena.fog.near = CALIDAD.niebla.cerca;
+  escena.fog.far = CALIDAD.niebla.lejos;
+}
 const camara = new THREE.PerspectiveCamera(
   CAMARA.persecucion.fov, window.innerWidth / window.innerHeight, CALIDAD.camaraCerca, CALIDAD.camaraLejos,
 );
@@ -149,7 +155,59 @@ function ajustaTamano() {
 window.addEventListener('resize', ajustaTamano);
 ajustaTamano();
 
-const modo = parametros.has('visor') ? iniciaVisor : parametros.has('arboles') ? iniciaVisorArboles : iniciaJuego;
+// --- Editor de personaje (PLAN_PERSONAJE.md). Al empezar la sesión se elige la apariencia: se
+// abre con «Crea tu personaje» (también mientras carga el pueblo) o al pulsar cualquier botón de
+// jugar si aún no se ha hecho. Una vez en el juego no se vuelve a abrir. Comparte el renderer.
+// ?personaje=0 lo salta (pruebas); al volver de otro juego (?aparece) tampoco sale.
+let editor = null;
+let saltoPendiente = null;
+let personajeElegido = parametros.get('personaje') === '0' || Boolean(parametros.get('aparece'));
+async function abrePersonaje(boton) {
+  if (editor) return;
+  document.body.classList.add('editando-personaje');
+  const { abreEditor } = await import('./personaje/editor.js');
+  try {
+    editor = await abreEditor({
+      renderer,
+      progresoJuego: esJuego ? () => pantallas.progreso() : null,
+      calidad: { sombras: CALIDAD.sombras, texturaMax: CALIDAD.texturaMax ?? 2048 },
+    });
+  } catch (error) {
+    console.error('[personaje] no se pudo abrir el editor', error);
+    document.body.classList.remove('editando-personaje');
+    document.getElementById('editor-personaje')?.remove();
+    editor = null;
+    personajeElegido = true;
+    return;
+  }
+  const apariencia = await editor.terminado;
+  window.__aparienciaJugador = apariencia;
+  if (!esJuego) return;
+  personajeElegido = true;
+  editor = null;
+  document.body.classList.remove('editando-personaje');
+  // El juego ya ha cargado (el botón del editor espera): se monta el jugador y se empieza
+  await api?.ponJugador(apariencia);
+  saltoPendiente?.();
+  saltoPendiente = null;
+  (boton ?? document.getElementById('jugar')).click();
+}
+if (esJuego) {
+  document.getElementById('crear-personaje').addEventListener('click', () => abrePersonaje(null));
+  // Antes que los manejadores de pantallas.js: sin personaje, primero el editor
+  for (const id of ['jugar', 'jugar-calle', 'jugar-fiestas']) {
+    document.getElementById(id).addEventListener('click', (e) => {
+      if (personajeElegido) return;
+      e.stopImmediatePropagation();
+      abrePersonaje(e.currentTarget);
+    }, { capture: true });
+  }
+} else {
+  document.getElementById('crear-personaje').hidden = true;
+}
+
+const modo = parametros.has('visor') ? iniciaVisor : parametros.has('arboles') ? iniciaVisorArboles
+  : soloPersonaje ? async () => { abrePersonaje(null); return { actualiza() {} }; } : iniciaJuego;
 const reloj = new THREE.Clock();
 let actualiza = () => {};
 
@@ -186,15 +244,21 @@ renderer.setAnimationLoop(() => {
   const dt = Math.min(dtReal, 0.1);
   ajustaTamano();
   if (!tamanoAplicado) return;          // aún sin tamaño (panel oculto): no se dibuja
+  renderer.info.reset();
+  // Editor de personaje abierto: se dibuja su estudio (el juego espera en la pantalla de inicio)
+  if (editor?.abierto) {
+    editor.actualiza(dt);
+    editor.render();
+    return;
+  }
   gobiernaResolucion(dtReal);
   actualiza(dt);
   ciclo.actualiza(dt);
-  renderer.info.reset();
   render.render();
 });
 
-modo({ renderer, escena, camara, ui, ciclo })
-  .then((m) => {
+modo({ renderer, escena, camara, ui, ciclo, render })
+  .then(async (m) => {
     configuraSombras(escena);
     fase = 'jugando';
     actualiza = m.actualiza;
@@ -212,6 +276,28 @@ modo({ renderer, escena, camara, ui, ciclo })
         if (valor === 'dejar') return api.fiestas.abandona();
         return api.entraFiestas(valor);
       }, (que) => (que === 'partida' ? Boolean(api.fiestas?.partida) : api.modoFiestas !== null));
+      // Sin pasar por el editor (?personaje=0 o de vuelta de otro juego): el último personaje
+      // guardado, montado antes del salto para que caiga él y no la persona por defecto
+      let promesaJugador = null;
+      const jugadorGuardado = () => (promesaJugador ??= personajeElegido
+        ? import('./personaje/estado.js').then(({ cargaGuardada }) => {
+          const guardada = cargaGuardada();
+          return guardada ? api.ponJugador(guardada) : false;
+        })
+        : Promise.resolve(false));
+      jugadorGuardado();
+      // Se empieza saltando del avión (PLAN_SALTO.md), salvo con ?salto=0, al entrar directo a las
+      // fiestas o al volver de otro juego. ?salto=semilla repite la misma ruta. Desde la pantalla de
+      // inicio, «Empezar en la calle» lo omite; en la pausa, «Saltarse el salto»
+      if (parametros.get('salto') !== '0' && !parametros.get('fiestas') && !parametros.get('aparece')) {
+        const semilla = Number.parseInt(parametros.get('salto'), 10);
+        const arranca = () => api.empiezaSalto(Number.isFinite(semilla) ? semilla : undefined);
+        // Con el editor pendiente, el salto espera al personaje (lo monta abrePersonaje)
+        if (personajeElegido) { await jugadorGuardado(); arranca(); } else saltoPendiente = arranca;
+      }
+      pantallas.ponSalto(() => api.puedeOmitirSalto, () => api.omiteSalto());
+
+      window.addEventListener('cabanillas:inicioCalle', () => api.omiteSalto());
       // ?fiestas=plaza|calle|encierro entra directamente al modo
       if (parametros.get('fiestas')) api.entraFiestas(parametros.get('fiestas'));
       // Desde la pantalla de inicio, «Ir a las fiestas»

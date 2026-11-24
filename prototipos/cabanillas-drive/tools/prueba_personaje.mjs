@@ -16,7 +16,7 @@ const calidad = process.argv[3] ?? 'bajo';
 const movil = process.argv[4] === 'movil';
 const sinFotos = process.argv[5] === 'sinfotos';
 const soloTactil = process.env.SOLO === 'tactil';      // salta las partes 1 a 4
-const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const b = await chromium.launch({ channel: process.env.CANAL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const ctx = await b.newContext(movil ? { viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 } : { viewport: { width: 1100, height: 620 } });
 const p = await ctx.newPage();
 const errores = [];
@@ -32,7 +32,7 @@ const foto = async (nombre) => {
   });
   writeFileSync(`${S}/f2_${nombre}.jpg`, Buffer.from(url.split(',')[1], 'base64'));
 };
-await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1&vacas=0`);
+await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&personaje=0&calidad=${calidad}&debug=1&vacas=0`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 await p.evaluate(() => document.getElementById('jugar').click());
 await p.waitForTimeout(1000);

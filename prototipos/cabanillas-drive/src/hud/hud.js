@@ -24,7 +24,7 @@ export async function creaHud(mundo, { lugares = [] } = {}) {
   document.getElementById('minimapa').addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('cabanillas:mapa'));
   });
-  window.addEventListener('keydown', (e) => { if (e.code === 'KeyM' && !contenedor.hidden && !contenedor.classList.contains('fiestas')) minimapa.alternaGiro(); });
+  window.addEventListener('keydown', (e) => { if (e.code === 'KeyM' && !contenedor.hidden && !contenedor.classList.contains('fiestas') && !contenedor.classList.contains('salto')) minimapa.alternaGiro(); });
 
   // --- Mapa ampliado: arrastrar para mover, rueda o pellizco para acercar
   const lienzoGrande = document.getElementById('mapa-lienzo');
@@ -116,9 +116,10 @@ export async function creaHud(mundo, { lugares = [] } = {}) {
     actualiza(estado, dt, otros = []) {
       // Rumbo desde el norte en sentido horario (norte = −Z, este = +X)
       const rumbo = Math.atan2(estado.adelante.x, -estado.adelante.z);
-      ultimo = { x: estado.posicion.x, z: estado.posicion.z, rumbo, otros };
+      ultimo = { x: estado.posicion.x, z: estado.posicion.z, rumbo, otros, miCoche: estado.miCoche ?? null };
       if (contenedor.hidden) return;
-      minimapa.actualiza({ x: estado.posicion.x, z: estado.posicion.z, rumbo, kmh: estado.velocidadKmh, otros }, dt);
+      minimapa.actualiza({ x: estado.posicion.x, z: estado.posicion.z, rumbo, kmh: estado.velocidadKmh, otros,
+        extra: estado.minimapa ?? null, miCoche: estado.miCoche ?? null }, dt);
       velocimetro.actualiza(estado.velocidadKmh, dt);
     },
   };

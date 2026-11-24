@@ -34,8 +34,14 @@ function grano(g, lado, fuerza, azar) {
 
 function hex(c) { return `#${c.getHexString()}`; }
 
-// Enfoscado neutro (el color lo pone el material): manchas suaves y grano; 2 × 2 m
+// Enfoscado neutro (el color lo pone el material): manchas suaves y grano; 2 × 2 m. Una sola textura
+// para todos los colores (sale siempre igual: semilla fija), para poder juntarlos en un material
+let enfoscadoHecho = null;
 function texEnfoscado() {
+  enfoscadoHecho ??= dibujaEnfoscado();
+  return enfoscadoHecho;
+}
+function dibujaEnfoscado() {
   const lado = 512;
   const azar = azarDe(11);
   const [c, g] = lienzo(lado);
@@ -223,6 +229,20 @@ function texPersiana(base) {
     gb.fillStyle = gr; gb.fillRect(0, i * t, lado, t);
   }
   return texturas(c, cb, m);
+}
+
+// La persiana es su color por un degradado: se dibuja una vez en gris y el color va en el material.
+// tinteSobre(color, gris): lo que hay que multiplicar a la textura gris (en lineal) para dar el color
+const PERSIANA_NEUTRA = '#cccccc';
+let persianaHecha = null;
+function texPersianaNeutra() {
+  persianaHecha ??= texPersiana(PERSIANA_NEUTRA);
+  return persianaHecha;
+}
+function tinteSobre(color, gris) {
+  const c = new THREE.Color(color);
+  const g = new THREE.Color(gris);
+  return new THREE.Color(c.r / g.r, c.g / g.g, c.b / g.b);
 }
 
 // Teja mixta: columnas de 20 cm, hiladas de 25 cm, con la sombra del labio de la hilada de arriba
@@ -490,7 +510,7 @@ function material(clave, color) {
     case 'tablas': m = conTex(texTablas(color, 0.12, true, 13), { bumpScale: 0.8, roughness: 0.7 }); break;
     case 'seccional': m = conTex(texSeccional(color), { bumpScale: 0.8, roughness: 0.6 }); break;
     case 'chapa': m = conTex(texChapa(color), { bumpScale: 0.8, roughness: 0.45, metalness: 0.4 }); break;
-    case 'persiana': m = conTex(texPersiana(color), { bumpScale: 0.6, roughness: 0.6 }); break;
+    case 'persiana': m = conTex(texPersianaNeutra(), { color: tinteSobre(color, PERSIANA_NEUTRA), bumpScale: 0.6, roughness: 0.6 }); break;
     case 'teja': m = conTex(texTeja(color, parseInt(color.slice(1), 16)), { bumpScale: 2.2, roughness: 0.82 }); break;
     case 'seto': m = conTex(texHojas(color ?? '#4a6b2c'), { bumpScale: 1.5, roughness: 0.95 }); break;
     case 'flores': m = conTex(texHojas('#7d8c34', color), { bumpScale: 1.5, roughness: 0.95 }); break;
@@ -1295,9 +1315,85 @@ function creaFila(fila, terreno, fisica) {
   return raiz;
 }
 
+// Materiales de detalle de fachada (carpintería, cristal, rejas, persianas…): desde el aire no
+// se ven y cada uno es una llamada de dibujo por fila. El salto en paracaídas los oculta en lo alto.
+const DETALLE_FACHADA = /vidrio|aluminio|hierro|marco|puerta|persiana|cortina|plastico|negr|oscuro|marmol|rotulo|farol/;
+
+// Las mallas de todas las filas se juntan por material dentro de celdas de este tamaño: una
+// llamada de dibujo por material y celda (antes, una por material y fila: 519 mallas). Medido el
+// 2026-11-19: con 150 m las rayas de las celdas partían la plaza en seis y apenas mejoraba; con
+// 400 m quedan 176 mallas y en vista pasan de 142 a 114 en la plaza y de 271 a 132 desde el aire.
+const CELDA_CASAS_M = 400;
+
+// Familia de un material: todo menos el color. Los materiales de la misma familia (enfoscados,
+// persianas y lisos de igual aspereza y brillo) se juntan en uno con el color en cada vértice.
+// El detalle de fachada va siempre aparte, para poder ocultarlo desde el aire.
+function familia(m) {
+  return [m.type, m.map?.uuid, m.bumpMap?.uuid, m.roughness, m.metalness, m.bumpScale, m.side, m.transparent,
+    m.alphaTest, m.emissive?.getHex(), DETALLE_FACHADA.test(m.name)].join('|');
+}
+const MATERIALES_FAMILIA = new Map();
+function materialDeFamilia(clave, ejemplo, nombres) {
+  if (!MATERIALES_FAMILIA.has(clave)) {
+    const m = ejemplo.clone();
+    m.color.setRGB(1, 1, 1);
+    m.vertexColors = true;
+    m.name = nombres.length > 1 ? `${ejemplo.name}+${nombres.length - 1}` : ejemplo.name;
+    MATERIALES_FAMILIA.set(clave, m);
+  }
+  return MATERIALES_FAMILIA.get(clave);
+}
+
+function juntaPorCeldas(raiz, filas, celdaM) {
+  const grupos = new Map();
+  for (const fila of filas) {
+    fila.updateMatrixWorld(true);
+    const celda = `${Math.floor(fila.position.x / celdaM)},${Math.floor(fila.position.z / celdaM)}`;
+    fila.traverse((m) => {
+      if (!m.isMesh) return;
+      const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
+      m.geometry.dispose();
+      // El color del material, en cada vértice (lineal, como lo usa el sombreador)
+      const n = g.attributes.position.count;
+      const colores = new Float32Array(n * 3);
+      const { r, g: v, b } = m.material.color;
+      for (let i = 0; i < n; i++) { colores[i * 3] = r; colores[i * 3 + 1] = v; colores[i * 3 + 2] = b; }
+      g.setAttribute('color', new THREE.BufferAttribute(colores, 3));
+      // Solo se juntan geometrías con los mismos atributos (y todas con índice o todas sin él)
+      const firma = `${Object.keys(g.attributes).sort().join(',')}${g.index ? '|i' : ''}`;
+      const fam = familia(m.material);
+      const clave = `${celda}|${fam}|${firma}`;
+      if (!grupos.has(clave)) grupos.set(clave, { familia: fam, ejemplo: m.material, nombres: new Set(), geos: [], celda });
+      const grupo = grupos.get(clave);
+      grupo.nombres.add(m.material.name);
+      grupo.geos.push(g);
+    });
+  }
+  for (const { familia: fam, ejemplo, nombres, geos, celda } of grupos.values()) {
+    const mat = materialDeFamilia(fam, ejemplo, [...nombres]);
+    const unida = geos.length === 1 ? geos[0] : mergeGeometries(geos);
+    for (const g of unida ? [unida] : geos) {
+      const malla = new THREE.Mesh(g, mat);
+      malla.name = mat.name;
+      malla.userData.celda = celda;
+      raiz.add(malla);
+    }
+    if (unida && geos.length > 1) for (const g of geos) g.dispose();
+  }
+  sombras(raiz);
+}
+
 export function creaCasas(terreno, fisica) {
   const raiz = new THREE.Group();
   raiz.name = 'casas';
-  for (const fila of FILAS_CASAS) raiz.add(creaFila(fila, terreno, fisica));
+  juntaPorCeldas(raiz, FILAS_CASAS.map((fila) => creaFila(fila, terreno, fisica)), CELDA_CASAS_M);
+  const detalles = [];
+  raiz.traverse((o) => { if (o.isMesh && DETALLE_FACHADA.test(o.material?.name ?? '')) detalles.push(o); });
+  let conDetalle = true;
+  raiz.userData.ponDetalle = (valor) => {
+    if (valor === conDetalle) return;
+    conDetalle = valor;
+    for (const m of detalles) m.visible = valor;
+  };
   return raiz;
 }

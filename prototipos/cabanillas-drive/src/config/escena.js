@@ -25,6 +25,7 @@ export const ESCENA = {
   rutaSol: 'assets/sol.json',
   rutaSuelo: 'assets/suelo/',
   rutaCielo: 'assets/cielo/',
+  rutaHorizonte: 'assets/horizonte/',   // anillo de 8 × 8 km (tools/40_horizonte.py)
   // Coches aparcados: a menos de esta distancia de la cámara se dibuja el modelo detallado
   distanciaCochesDetalle: 70,
   segundosRepartoCoches: 0.25,

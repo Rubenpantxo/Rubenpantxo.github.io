@@ -18,7 +18,7 @@ const modo = process.argv[3] ?? 'plaza';
 const calidad = process.argv[4] ?? 'bajo';
 const movil = process.argv[5] === 'movil';
 const sinFotos = process.argv[6] === 'sinfotos';
-const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const b = await chromium.launch({ channel: process.env.CANAL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const ctx = await b.newContext(movil ? { viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 } : { viewport: { width: 1100, height: 620 } });
 const p = await ctx.newPage();
 const errores = [];
@@ -29,7 +29,7 @@ const foto = async (nombre) => {
   const url = await p.evaluate(() => { const j = window.__juego; j.peaton.colocaCamara(j.camara); window.__render.render(); return j.renderer.domElement.toDataURL('image/jpeg', 0.85); });
   writeFileSync(`${S}/f1_${modo}_${nombre}.jpg`, Buffer.from(url.split(',')[1], 'base64'));
 };
-await p.goto(`http://localhost:5173/?calidad=${calidad}&debug=1&vacas=0`);
+await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&personaje=0&calidad=${calidad}&debug=1&vacas=0`);
 await p.waitForFunction(() => window.__juego, null, { timeout: 240000 });
 // Estado del pueblo antes de entrar
 const cuenta = () => p.evaluate(() => {

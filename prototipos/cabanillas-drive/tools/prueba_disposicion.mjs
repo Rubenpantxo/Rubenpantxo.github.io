@@ -8,13 +8,13 @@ const requiere = createRequire(process.env.PLAYWRIGHT_RAIZ ? `${process.env.PLAY
 const { chromium } = requiere('playwright');
 const S = process.argv[2];
 const TAMANOS = [[667, 375], [740, 360], [844, 390], [915, 412], [1024, 600]];
-const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const b = await chromium.launch({ channel: process.env.CANAL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 let fallos = 0;
 const comprueba = (ok, texto) => { console.log(`  ${ok ? 'bien ' : 'FALLO'}  ${texto}`); if (!ok) fallos++; };
 for (const [ancho, alto] of TAMANOS) {
   const c = await b.newContext({ viewport: { width: ancho, height: alto }, hasTouch: true, isMobile: true });
   const p = await c.newPage();
-  await p.goto('http://localhost:5173/?calidad=bajo&debug=0&mozos=0');
+  await p.goto(`http://localhost:${process.env.PUERTO ?? '5173'}/?salto=0&personaje=0&calidad=bajo&debug=0&mozos=0`);
   await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 300000 });
   await p.evaluate(() => document.getElementById('jugar').click());
   await p.evaluate(async () => {
@@ -58,7 +58,7 @@ for (const [ancho, alto] of TAMANOS) {
     for (let k = i + 1; k < cajas.length; k++) {
       const a = cajas[i]; const o = cajas[k];
       const sx = Math.min(a.x1, o.x1) - Math.max(a.x0, o.x0); const sy = Math.min(a.y1, o.y1) - Math.max(a.y0, o.y0);
-      if (sx > 2 && sy > 2) pisan.push(`${a.nombre} / ${o.nombre}`);
+      if (sx > 2 && sy > 2) pisan.push(`${a.nombre} / ${o.nombre} (${Math.round(sx)}×${Math.round(sy)} px)`);
     }
   }
   const fuera = cajas.filter((a) => a.x0 < -1 || a.y0 < -1 || a.x1 > ancho + 1 || a.y1 > alto + 1).map((a) => a.nombre);

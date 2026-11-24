@@ -1,0 +1,179 @@
+/* Editor de personaje: panel de cristal a la izquierda (abajo en el móvil), raíl de pestañas,
+   cámara por zonas arriba a la derecha y acciones abajo. */
+#editor-personaje {
+  --ep-fondo: rgba(18, 24, 32, .72); --ep-borde: rgba(255, 255, 255, .12); --ep-tinta: #f4f1ea;
+  --ep-tenue: #aab4bf; --ep-acento: #ffd54a; --ep-acento2: #ffb52e; --ep-panel: 372px; --ep-rail: 74px;
+  position: fixed; inset: 0; z-index: 40; pointer-events: none; color: var(--ep-tinta);
+  font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+#editor-personaje[hidden] { display: none; }
+#editor-personaje * { box-sizing: border-box; }
+#editor-personaje button { font: inherit; color: inherit; }
+#editor-personaje .ep-capa { position: absolute; inset: 0; pointer-events: auto; touch-action: none; }
+
+/* Cabecera */
+#editor-personaje .ep-cabecera {
+  position: absolute; left: calc(var(--ep-rail) + var(--ep-panel) + 28px); top: max(18px, env(safe-area-inset-top));
+  pointer-events: none; text-shadow: 0 2px 12px rgba(0, 0, 0, .5);
+}
+#editor-personaje .ep-cabecera h2 { margin: 0; font-size: 26px; letter-spacing: .02em; font-weight: 800; }
+#editor-personaje .ep-cabecera p { margin: 2px 0 0; color: var(--ep-tenue); font-size: 13px; }
+#editor-personaje .ep-medidas { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; pointer-events: none; }
+#editor-personaje .ep-medidas span {
+  background: rgba(0, 0, 0, .35); border: 1px solid var(--ep-borde); border-radius: 999px; padding: 3px 10px; font-size: 12px;
+}
+
+/* Raíl de pestañas */
+#editor-personaje .ep-rail {
+  position: absolute; left: max(12px, env(safe-area-inset-left)); top: 50%; transform: translateY(-50%);
+  width: var(--ep-rail); display: flex; flex-direction: column; gap: 6px; padding: 8px 6px; pointer-events: auto;
+  background: var(--ep-fondo); border: 1px solid var(--ep-borde); border-radius: 18px;
+  backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+}
+#editor-personaje .ep-pestana {
+  display: grid; place-items: center; gap: 2px; padding: 9px 2px 7px; border: 0; border-radius: 12px; background: transparent;
+  cursor: pointer; font-size: 10.5px !important; color: var(--ep-tenue) !important; transition: background .15s, color .15s;
+}
+#editor-personaje .ep-pestana i { font-style: normal; font-size: 22px; line-height: 1; filter: grayscale(.4); }
+#editor-personaje .ep-pestana:hover { background: rgba(255, 255, 255, .06); color: var(--ep-tinta) !important; }
+#editor-personaje .ep-pestana[aria-selected="true"] { background: rgba(255, 213, 74, .16); color: var(--ep-acento) !important; }
+#editor-personaje .ep-pestana[aria-selected="true"] i { filter: none; }
+
+/* Panel */
+#editor-personaje .ep-panel {
+  position: absolute; left: calc(max(12px, env(safe-area-inset-left)) + var(--ep-rail) + 10px); top: max(14px, env(safe-area-inset-top));
+  bottom: max(14px, env(safe-area-inset-bottom)); width: var(--ep-panel); display: flex; flex-direction: column;
+  pointer-events: auto; background: var(--ep-fondo); border: 1px solid var(--ep-borde); border-radius: 20px;
+  backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+}
+#editor-personaje .ep-panel header { padding: 16px 18px 8px; }
+#editor-personaje .ep-panel header h3 { margin: 0; font-size: 18px; }
+#editor-personaje .ep-panel header p { margin: 2px 0 0; color: var(--ep-tenue); font-size: 12.5px; }
+#editor-personaje .ep-chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 4px 16px 10px; }
+#editor-personaje .ep-chip {
+  border: 1px solid var(--ep-borde); background: rgba(255, 255, 255, .04); border-radius: 999px; padding: 5px 11px;
+  cursor: pointer; font-size: 12.5px !important; white-space: nowrap;
+}
+#editor-personaje .ep-chip[aria-pressed="true"] { background: var(--ep-acento); color: #1d1a12 !important; border-color: transparent; font-weight: 600; }
+#editor-personaje .ep-contenido { flex: 1; overflow-y: auto; padding: 4px 16px 18px; overscroll-behavior: contain; scrollbar-width: thin; }
+#editor-personaje .ep-seccion { margin: 10px 0 14px; }
+#editor-personaje .ep-seccion > h4 {
+  margin: 0 0 8px; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ep-tenue); font-weight: 600;
+}
+#editor-personaje .ep-buscar {
+  width: 100%; margin: 0 0 6px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--ep-borde);
+  background: rgba(0, 0, 0, .25); color: var(--ep-tinta); font: inherit;
+}
+
+/* Deslizador */
+#editor-personaje .ep-deslizador { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; padding: 5px 0; }
+#editor-personaje .ep-deslizador label { font-size: 13px; }
+#editor-personaje .ep-deslizador output { font-variant-numeric: tabular-nums; color: var(--ep-tenue); font-size: 12px; min-width: 42px; text-align: right; }
+#editor-personaje .ep-deslizador input { grid-column: 1 / -1; width: 100%; margin: 2px 0 0; appearance: none; -webkit-appearance: none; height: 22px; background: transparent; cursor: pointer; }
+#editor-personaje .ep-deslizador input::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: var(--ep-pista, rgba(255, 255, 255, .16)); }
+#editor-personaje .ep-deslizador input::-moz-range-track { height: 4px; border-radius: 4px; background: var(--ep-pista, rgba(255, 255, 255, .16)); }
+#editor-personaje .ep-deslizador input::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: #fff;
+  border: 3px solid var(--ep-acento); box-shadow: 0 2px 8px rgba(0, 0, 0, .4);
+}
+#editor-personaje .ep-deslizador input::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 3px solid var(--ep-acento); }
+#editor-personaje .ep-deslizador.ep-tocado label { color: var(--ep-acento); }
+#editor-personaje .ep-deslizador.ep-esculpe { background: rgba(255, 213, 74, .08); border-radius: 8px; margin: 0 -8px; padding: 5px 8px; }
+
+/* Rejillas de opciones (pelo, ropa, pieles) */
+#editor-personaje .ep-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+#editor-personaje .ep-opcion {
+  position: relative; display: grid; gap: 4px; padding: 6px; border-radius: 12px; border: 1px solid var(--ep-borde);
+  background: rgba(255, 255, 255, .04); cursor: pointer; text-align: center; font-size: 11px !important; line-height: 1.2;
+}
+#editor-personaje .ep-opcion img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: #2a3039; }
+#editor-personaje .ep-opcion .ep-nada { width: 100%; aspect-ratio: 1; border-radius: 8px; display: grid; place-items: center; font-size: 26px; background: #2a3039; }
+#editor-personaje .ep-opcion[aria-pressed="true"] { border-color: var(--ep-acento); box-shadow: 0 0 0 2px var(--ep-acento) inset; }
+#editor-personaje .ep-opcion:hover { background: rgba(255, 255, 255, .09); }
+#editor-personaje .ep-colores { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+#editor-personaje .ep-color {
+  width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .25); cursor: pointer; padding: 0;
+}
+#editor-personaje .ep-color[aria-pressed="true"] { outline: 2px solid var(--ep-acento); outline-offset: 2px; }
+#editor-personaje .ep-color.ep-libre { background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red); position: relative; overflow: hidden; }
+#editor-personaje .ep-color.ep-libre input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+#editor-personaje .ep-color.ep-quita { background: repeating-linear-gradient(45deg, #444 0 4px, #666 4px 8px); }
+
+/* Botones */
+#editor-personaje .ep-boton {
+  border: 1px solid var(--ep-borde); background: rgba(255, 255, 255, .07); border-radius: 12px; padding: 9px 14px; cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+#editor-personaje .ep-boton:hover { background: rgba(255, 255, 255, .14); }
+#editor-personaje .ep-boton:active { transform: scale(.97); }
+#editor-personaje .ep-boton:disabled { opacity: .4; cursor: default; }
+#editor-personaje .ep-boton.ep-principal {
+  background: linear-gradient(180deg, var(--ep-acento), var(--ep-acento2)); color: #201a0a !important; border: 0; font-weight: 800;
+  padding: 13px 22px; font-size: 16px !important; box-shadow: 0 8px 26px rgba(255, 181, 46, .35);
+}
+#editor-personaje .ep-boton.ep-principal:disabled { filter: grayscale(.6); }
+#editor-personaje .ep-fila { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+#editor-personaje .ep-segmento { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; background: rgba(0, 0, 0, .28); border-radius: 12px; }
+#editor-personaje .ep-segmento button { border: 0; background: transparent; padding: 8px; border-radius: 9px; cursor: pointer; color: var(--ep-tenue) !important; }
+#editor-personaje .ep-segmento button[aria-pressed="true"] { background: rgba(255, 255, 255, .14); color: var(--ep-tinta) !important; font-weight: 600; }
+#editor-personaje .ep-nombre {
+  width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--ep-borde); background: rgba(0, 0, 0, .25);
+  color: var(--ep-tinta); font: inherit; font-size: 15px;
+}
+#editor-personaje .ep-padres { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+#editor-personaje .ep-padre { background: rgba(0, 0, 0, .22); border: 1px solid var(--ep-borde); border-radius: 12px; padding: 8px; text-align: center; }
+#editor-personaje .ep-padre small { color: var(--ep-tenue); display: block; font-size: 11px; }
+#editor-personaje .ep-padre .ep-fila { justify-content: space-between; flex-wrap: nowrap; margin-top: 4px; }
+#editor-personaje .ep-padre .ep-fila button { padding: 4px 10px; }
+#editor-personaje .ep-padre strong { font-size: 15px; }
+
+/* Zonas de cámara (arriba a la derecha) */
+#editor-personaje .ep-zonas {
+  position: absolute; right: max(16px, env(safe-area-inset-right)); top: max(16px, env(safe-area-inset-top)); pointer-events: auto;
+  display: flex; gap: 4px; padding: 4px; background: var(--ep-fondo); border: 1px solid var(--ep-borde); border-radius: 14px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+#editor-personaje .ep-zonas button { border: 0; background: transparent; padding: 8px 12px; border-radius: 10px; cursor: pointer; color: var(--ep-tenue) !important; font-size: 13px !important; }
+#editor-personaje .ep-zonas button[aria-pressed="true"] { background: rgba(255, 255, 255, .14); color: var(--ep-tinta) !important; }
+
+/* Acciones (abajo a la derecha) */
+#editor-personaje .ep-acciones {
+  position: absolute; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); pointer-events: auto;
+  display: flex; gap: 8px; align-items: center;
+}
+#editor-personaje .ep-acciones .ep-boton:not(.ep-principal) { background: var(--ep-fondo); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+#editor-personaje .ep-pista {
+  position: absolute; left: calc(var(--ep-rail) + var(--ep-panel) + 28px); bottom: max(20px, env(safe-area-inset-bottom));
+  color: var(--ep-tenue); font-size: 12.5px; pointer-events: none; text-shadow: 0 1px 6px rgba(0, 0, 0, .6);
+}
+#editor-personaje .ep-carga { position: absolute; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(16px, env(safe-area-inset-bottom)) + 62px);
+  font-size: 12px; color: var(--ep-tenue); pointer-events: none; text-align: right; }
+#editor-personaje .ep-carga .ep-barra { width: 220px; height: 4px; background: rgba(255, 255, 255, .15); border-radius: 4px; margin-top: 4px; overflow: hidden; margin-left: auto; }
+#editor-personaje .ep-carga .ep-barra span { display: block; height: 100%; background: var(--ep-acento); width: 0; transition: width .3s; }
+#editor-personaje .ep-espera { position: absolute; inset: 0; display: grid; place-items: center; background: #1b2430; font-size: 16px; color: var(--ep-tenue); pointer-events: auto; }
+#editor-personaje .ep-espera[hidden] { display: none; }
+
+/* Móvil y pantallas estrechas: panel como hoja inferior, pestañas en fila */
+@media (max-width: 820px), (pointer: coarse) and (max-height: 520px) {
+  #editor-personaje { --ep-panel: 100%; }
+  #editor-personaje .ep-rail {
+    top: auto; transform: none; left: 8px; right: 8px; bottom: calc(44vh + max(8px, env(safe-area-inset-bottom)) + 6px); width: auto;
+    flex-direction: row; overflow-x: auto; padding: 4px; border-radius: 14px; scrollbar-width: none;
+  }
+  #editor-personaje .ep-pestana { flex: 1 0 58px; padding: 6px 2px 5px; }
+  #editor-personaje .ep-pestana i { font-size: 18px; }
+  #editor-personaje .ep-panel { left: 8px; right: 8px; top: auto; width: auto; height: 44vh; bottom: max(8px, env(safe-area-inset-bottom)); border-radius: 18px; }
+  #editor-personaje .ep-panel header { padding: 10px 14px 2px; }
+  #editor-personaje .ep-panel header p { display: none; }
+  #editor-personaje .ep-cabecera { left: 10px; top: calc(max(10px, env(safe-area-inset-top)) + 46px); }
+  #editor-personaje .ep-cabecera h2 { display: none; }
+  #editor-personaje .ep-medidas { flex-direction: column; align-items: flex-start; gap: 4px; }
+  #editor-personaje .ep-cabecera p { display: none; }
+  #editor-personaje .ep-zonas { top: max(10px, env(safe-area-inset-top)); right: 8px; left: 8px; justify-content: space-between; }
+  #editor-personaje .ep-zonas button { padding: 6px 8px; font-size: 12px !important; }
+  #editor-personaje .ep-acciones { top: calc(max(10px, env(safe-area-inset-top)) + 46px); bottom: auto; right: 8px; flex-direction: column; align-items: flex-end; }
+  #editor-personaje .ep-acciones .ep-boton { padding: 7px 10px; }
+  #editor-personaje .ep-acciones .ep-principal { padding: 10px 14px; font-size: 14px !important; }
+  #editor-personaje .ep-pista, #editor-personaje .ep-carga { display: none; }
+}

@@ -3,6 +3,7 @@
 ## Datos geográficos
 - LiDAR (MDT y MDS 2024) y Catastro: © Gobierno de Navarra.
 - Ortofoto: PNOA cedido por © Instituto Geográfico Nacional.
+- Horizonte de 8 × 8 km (`tools/40_horizonte.py`): relieve MDT05 y ortofoto PNOA cedidos por © Instituto Geográfico Nacional.
 - Calles, caminos, agua y usos del suelo: © colaboradores de OpenStreetMap (ODbL).
 
 ## Modelos de coche (`data/raw/coches/`, aportados por Rubén)
@@ -38,6 +39,12 @@ condiciones de cada web antes de publicar el juego.
   giros de huesos encima de las animaciones de andar y de quieto (`src/fiestas/pose.js`).
 - Sonido (murmullo, olé, aplausos, «¡uy!», cencerros, pezuñas, pisadas, golpe en la valla y cohete):
   sintetizado en el navegador por `src/fiestas/sonido.js` (Web Audio). No hay grabaciones de terceros.
+
+## Salto en paracaídas
+- Avión de carga y mochila-paracaídas (`modelos/salto/`): modelos propios de Rubén, sin texturas.
+  `tools/build_activos_salto.py` (script CAD paramétrico de Rubén para Blender) genera una versión
+  más sencilla de los dos.
+- Figuras provisionales (si no cargan los modelos): hechas por `src/salto/figuras.js`.
 
 ## Render
 - Cielo: HDRI «Kloofendal 48d Partly Cloudy (Pure Sky)», de Poly Haven (CC0), en `data/raw/externos/cielo/`.
