@@ -469,7 +469,7 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 
 ## Agricultura (PLAN_AGRICULTURA.md)
 
-**Fase actual: A2 (parcela viva) hecha el 2026-11-21, pendiente de que Rubén la pruebe.** A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
+**Fase actual: A3 (tractor y COPE) hecha el 2026-11-24, pendiente de que Rubén apruebe el tractor.** A2 aprobada (2026-11-24); A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
 
 ### Hecho en A0
 - **Todas las parcelas del término** (decisión de Rubén): 1 775 rústicas + 22 mixtas = **1 797 parcelas, 3 275 ha** de las 3 574 del término; 9 polígonos. 259 dentro de la zona del juego, 70 en parte y 1 468 fuera.
@@ -497,15 +497,28 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - **Material:** malla transparente; lo que no se ha trabajado no se dibuja y se ve la ortofoto de debajo tal cual (sin costuras). Arado: tiras de vertedera en la dirección de cada pasada y terrones, con relieve calculado en el shader y sombreado con el sol del juego. Gradeado: más claro y liso. Abono: moteado de granulado (de lejos, un velo). Sembrado: líneas cada 17 cm en la dirección de la pasada. Mojado: oscurece lo de debajo (también la foto) y encharca en los bajos con el agua a tope. Cosechado: rastrojo claro e hileras de paja cada 6 m. Rodadas: huella aplastada con tacos, hundida. Linde con borde irregular que se funde con la foto. De noche oscurece como la ortofoto (`LUZ_SUELO`) y recibe las sombras 3D.
 - La hierba 3D (`hierba.js`) se quita de lo labrado (`ponExclusion`).
 - Máscaras a 0,5 m/píxel en las tres calidades (en «bajo» con tope de 512 px de lado; en alta y media, 1 024). Parcela 2-700: 195 × 189 px, malla de 9 032 triángulos, una llamada de dibujo.
-- **Pincel de pruebas:** `?agricultura` (o `?agricultura=2-650` para otra parcela). Panel con las ocho labores (teclas 1–8), ancho de 0,5 a 12 m, 🖌️ Pintar / ✋ Mover (Espacio), vistas Cerca, Lejos y Arriba, 🧪 Muestrario (una franja por estado, con su nombre encima), Limpiar y el recuento en %. Ratón: botón izquierdo pinta, derecho gira, rueda acerca, Mayús+izquierdo desplaza. Táctil: un dedo pinta (o gira en ✋), dos dedos acercan y desplazan. El juego queda en pausa debajo; ✖ recarga sin el parámetro.
+- **Pincel de pruebas:** `?agricultura=pincel` (y `&parcela=2-650` para otra parcela; desde A3, `?agricultura` a secas es el modo con el tractor). Panel con las ocho labores (teclas 1–8), ancho de 0,5 a 12 m, 🖌️ Pintar / ✋ Mover (Espacio), vistas Cerca, Lejos y Arriba, 🧪 Muestrario (una franja por estado, con su nombre encima), Limpiar y el recuento en %. Ratón: botón izquierdo pinta, derecho gira, rueda acerca, Mayús+izquierdo desplaza. Táctil: un dedo pinta (o gira en ✋), dos dedos acercan y desplazan. El juego queda en pausa debajo; ✖ recarga sin el parámetro.
 - Único cambio en un archivo compartido: `src/main.js` (13 líneas: con `?agricultura` no hay salto, se carga el modo con `import()` y se salta la pantalla de inicio).
 - **Prueba:** `node tools/vista_agricultura.mjs <carpeta> [bajo|medio|alto] [movil]`: superficie de la máscara = la del Catastro (0,442 ha), recuentos del muestrario, trazos curvos con el ratón o el dedo (ara y siembra), nada fuera de la parcela, sin errores de consola y, sin `?agricultura`, no se descarga nada del modo. **Todo bien** en «bajo» escritorio, «bajo» móvil (412 × 860, táctil) y «alto». Capturas en `data/processed/previews/agricultura/`.
 - Arreglado por el camino: la malla sin normales hacía que la luz de Lambert diera NaN y la parcela salía negra.
 
+### Decisiones de Rubén (2026-11-24, tras ver A2)
+- **A2 aprobada** («okey»): los estados y los colores valen.
+- **Riego de la 2-700:** marcó sobre la captura de la COPE la acequia (línea verde) y por dónde entra el agua (flechas): la acequia corre por fuera de la linde **sureste** de la 2-700, de nordeste a suroeste, hasta el camino del norte de la COPE; el agua entra por esa linde, en su tramo del lado este. Copia de su captura en `docs/agricultura/riego_2-700_acequia.jpg` y coordenadas (±3 m, a confirmar en A7) en `AGRICULTURA.riegoPruebas` de `src/config/agricultura.js`: las dos boqueras caen en la linde (a menos de 5 cm) y la acequia queda a 2,7 m por fuera.
+- **Maquinaria:** pasó como referencia fotos de dos tractores (uno verde y otro rojo, de dos marcas) y de una cosechadora amarilla. Se toman solo proporciones y colores; los modelos son genéricos, sin marcas, logotipos ni rótulos (regla del plan).
+
+### Hecho en A3 (2026-11-24)
+- **Tractor genérico** con `tools/build_maquinaria.py` (Blender en consola, solo primitivas y colores, sin texturas): doble tracción, ~5,2 × 2,6 × 3,4 m, ruedas traseras de 0,86 m de radio y delanteras de 0,62, capó con el frente inclinado, rejilla negra de arriba abajo con faros y faros en los costados, contrapesos delanteros, cabina de cuatro postes acristalada, escape vertical, rotativo, luces de trabajo, guardabarros traseros y tripuntal con toma de fuerza. Piezas con nombre (`rueda_*`, `carroceria`, `vidrios`, `tripuntal`, `luces_trabajo`, `rotativo`, `pilotos`); 12 600 triángulos; `modelos/maquinaria/tractor.glb` → `npm run maquinaria` → `public/assets/maquinaria/` (113 KB). Vistas en `data/processed/previews/maquinaria/`.
+- **Física:** el mismo controlador que el coche (`src/vehiculo/coche.js`, ahora con configuración como 4.º parámetro y `motor.traccionTotal`). `src/config/maquinaria.js`: 6,2 t, centro de masas bajo, casi sin suspensión, mucho agarre, 40 km/h en carretera, 14 marcha atrás, freno motor fuerte, giro cerrado. Cámara propia (más alta y lejos) y cámara de cabina (C o 👁).
+- **COPE:** entrada «COPE · San Isidro» en el patio (`src/config/entradas.js`, solo con el modo activo). E (o «Entrar») abre `src/hud/menuCope.js`: elegir color (rojo, verde, azul o naranja; se recuerda) y «Coger el tractor», o con el tractor «Dejar el tractor y coger el coche». El que no se conduce queda aparcado en el patio (`AGRICULTURA.cope`: sitios del tractor y del coche, lejos de la nave y las casetas) y sigue en la física, frenado.
+- `src/agricultura/modoAgricultura.js` (el modo: tractor, aparcamiento y menú) y `maquina.js` (carga del modelo). El pincel de A2 pasa a `pincelPruebas.js` (`?agricultura=pincel`).
+- Ganchos en archivos compartidos, todos inactivos sin `?agricultura`: `juego.js` (vehículo intercambiable: `cambiaVehiculo`, `aparcaVehiculo`, vehículos aparcados en la física, `cargaAgricultura` con `import()`), `camaraCoche.js` (`ponVehiculo` y ajustes por vehículo), `coche.js` (configuración y tracción total), `main.js` (con `?agricultura` se empieza en la COPE sin salto) y `entradas.js`.
+- **Prueba:** `node tools/prueba_tractor.mjs <carpeta> [bajo|medio|alto] [movil]`: salida en la COPE con el tractor aparcado, menú, coger el tractor en verde, andar adelante y atrás sin volcar, cámara de cabina, entrar en la 2-700 desde su linde, dejar el tractor y volver al coche, sin errores y sin nada del modo sin `?agricultura`. **Todo bien** en escritorio y móvil. `vista_agricultura.mjs` (A2) sigue bien.
+
 ### Pendiente de Rubén
-- Probar el pincel (`npm run dev` → `http://localhost:5173/?agricultura`, también en el móvil con `npm run dev:red`) y decir si los estados se distinguen y si los colores casan con la tierra de Cabanillas.
-- Por dónde le entra el agua a la 2-700 (boquera), o dejar que se busque en A7.
-- Más adelante: maquinaria, tiempo agrícola y precios (§3 del plan).
+- Probar el tractor (`?agricultura`) y aprobar el modelo (o decir qué cambiar: forma, colores, tamaño).
+- Confirmar que se empieza A4 (arado y cultivador).
+- Más adelante: tiempo agrícola y precios (§3 del plan).
 
 ### Notas
 - En el PC no hay `data/raw/` en `Rubenpantxo.github.io/prototipos/cabanillas-drive` (los datos del pipeline siguen en `bifurcaciones/feat-cabanillas-drive`, ver «Salto en paracaídas»): por eso A0 baja el Catastro del WFS. Si se copia el paquete de shapefiles a `data/raw/catastro/`, el script lo usa en lugar del WFS.

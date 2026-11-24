@@ -1,5 +1,5 @@
 // Vista de comprobación de la fase A2 del modo agricultura (PLAN_AGRICULTURA.md): abre el pincel de
-// pruebas (?agricultura) en un navegador sin ventana, pinta el muestrario (una franja por estado de
+// pruebas (?agricultura=pincel) en un navegador sin ventana, pinta el muestrario (una franja por estado de
 // la tierra) y saca capturas de lejos, de cerca y desde arriba; después pinta trazos curvos a mano
 // alzada para ver que los surcos siguen la pasada. Comprueba también:
 //   - que el pincel solo pinta dentro de la parcela y que el recuento cuadra;
@@ -39,7 +39,7 @@ const captura = async (p, nombre) => {
 const p = await contexto.newPage();
 p.on('console', (m) => { if (m.type() === 'error' && !/favicon/.test(m.location()?.url ?? '')) errores.push(m.text()); });
 p.on('pageerror', (e) => errores.push(`PAGEERROR ${e.message}`));
-await p.goto(`http://localhost:${puerto}/?calidad=${calidad}&personaje=0&hora=dia&agricultura${ref ? `=${ref}` : ''}`);
+await p.goto(`http://localhost:${puerto}/?calidad=${calidad}&personaje=0&hora=dia&agricultura=pincel${ref ? `&parcela=${ref}` : ''}`);
 await p.waitForFunction(() => window.__agricultura, null, { timeout: 300000 });
 const info = await p.evaluate(() => {
   const a = window.__agricultura;
@@ -134,7 +134,7 @@ await p.close();
 // --- 3. Sin ?agricultura, nada del modo
 const q = await contexto.newPage();
 const pedidos = [];
-q.on('request', (req) => { if (/agricultura/.test(req.url())) pedidos.push(req.url()); });
+q.on('request', (req) => { if (/src\/agricultura\/|assets\/agricultura|assets\/maquinaria/.test(req.url())) pedidos.push(req.url()); });
 await q.goto(`http://localhost:${puerto}/?calidad=${calidad}&personaje=0&salto=0`);
 await q.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 300000 });
 comprueba(pedidos.length === 0, `sin ?agricultura no se descarga nada del modo${pedidos.length ? `: ${pedidos.join(', ')}` : ''}`);

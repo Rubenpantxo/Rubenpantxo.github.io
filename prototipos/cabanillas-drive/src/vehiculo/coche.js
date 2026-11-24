@@ -1,6 +1,9 @@
 // Coche con DynamicRayCastVehicleController de Rapier: chasis caja, 4 ruedas, tracción trasera.
 // Ejes locales del chasis: Y = arriba, Z = adelante (la izquierda es +X).
 // El modelo 3D manda: largo, ancho, posición y radio de las ruedas salen de él.
+// Con otra configuración (4.º parámetro, con la forma de VEHICULO) sirve para otros vehículos del
+// jugador, como el tractor del modo agricultura (src/config/maquinaria.js): motor.traccionTotal
+// mueve las cuatro ruedas.
 import * as THREE from 'three';
 import { VEHICULO } from '../config/vehiculo.js';
 import { preparaCocheJugador } from '../escena/coches.js';
@@ -8,10 +11,11 @@ import { preparaCocheJugador } from '../escena/coches.js';
 const DELANTERAS = [0, 1];
 const TRASERAS = [2, 3];
 
-export function creaCoche(fisica, escena, modeloJugador) {
+export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
   const { RAPIER, mundo } = fisica;
-  const { chasis, ruedas, motor, frenos, direccion } = VEHICULO;
-  const pieza = preparaCocheJugador(modeloJugador, VEHICULO.color);
+  const { chasis, ruedas, motor, frenos, direccion } = config;
+  const MOTRICES = motor.traccionTotal ? [...DELANTERAS, ...TRASERAS] : TRASERAS;
+  const pieza = preparaCocheJugador(modeloJugador, config.color);
 
   const cuerpo = mundo.createRigidBody(
     RAPIER.RigidBodyDesc.dynamic()
@@ -57,7 +61,7 @@ export function creaCoche(fisica, escena, modeloJugador) {
 
   // Contenedor que sigue al cuerpo físico; el modelo va desplazado −h0 (su suelo en y = 0)
   const modelo = { grupo: new THREE.Group(), ruedas: pieza.ruedas };
-  modelo.grupo.name = 'coche_jugador';
+  modelo.grupo.name = config.nombreGrupo ?? 'coche_jugador';
   pieza.grupo.position.y = -h0;
   modelo.grupo.add(pieza.grupo);
   for (const r of pieza.ruedas) modelo.grupo.add(r.pivote);
@@ -102,7 +106,7 @@ export function creaCoche(fisica, escena, modeloJugador) {
     }
     if (entrada.acelerador === 0 && entrada.freno === 0) freno = motor.frenoMotor;
 
-    for (const i of TRASERAS) vehiculo.setWheelEngineForce(i, fuerza);
+    for (const i of MOTRICES) vehiculo.setWheelEngineForce(i, fuerza);
     for (const i of DELANTERAS) vehiculo.setWheelBrake(i, freno);
     for (const i of TRASERAS) {
       vehiculo.setWheelBrake(i, entrada.frenoMano ? frenos.mano : freno);
@@ -159,5 +163,5 @@ export function creaCoche(fisica, escena, modeloJugador) {
     };
   }
 
-  return { cuerpo, collider, vehiculo, modelo, aplicaEntrada, paso, sincroniza, recoloca, estado };
+  return { cuerpo, collider, vehiculo, modelo, aplicaEntrada, paso, sincroniza, recoloca, estado, config, info: modeloJugador.info };
 }

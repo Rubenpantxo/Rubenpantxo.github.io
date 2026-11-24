@@ -2,8 +2,12 @@
 import * as THREE from 'three';
 import { CAMARA } from '../config/camara.js';
 
-export function creaCamaraCoche(camara, fisica, terreno, coche) {
+export function creaCamaraCoche(camara, fisica, terreno, cocheInicial) {
   const { RAPIER, mundo } = fisica;
+  // El vehículo puede cambiar (coche ↔ tractor en el modo agricultura): cada uno puede traer sus
+  // distancias en config.camara (con la forma de CAMARA)
+  let coche = cocheInicial;
+  let ajustes = coche.config?.camara ?? CAMARA;
   let modo = 'persecucion';
   let iniciada = false;
   const posicion = new THREE.Vector3();
@@ -30,14 +34,14 @@ export function creaCamaraCoche(camara, fisica, terreno, coche) {
     const impacto = mundo.castRay(rayo, distancia, true, undefined, undefined, coche.collider, coche.cuerpo);
     if (!impacto) return destino;
     const toi = impacto.timeOfImpact ?? impacto.toi;
-    const util = Math.max(CAMARA.persecucion.distanciaMinima, toi - 0.4);
+    const util = Math.max(ajustes.persecucion.distanciaMinima, toi - 0.4);
     return origen.clone().addScaledVector(dir, util);
   }
 
   function actualiza(dt) {
     const e = coche.estado();
     if (modo === 'capo') {
-      const c = CAMARA.capo;
+      const c = ajustes.capo;
       aplicaFov(c.fov);
       camara.position.set(...c.posicion).applyQuaternion(e.cuaternion).add(e.posicion);
       objetivo.set(0, c.posicion[1], c.mirarAdelante).applyQuaternion(e.cuaternion).add(e.posicion);
@@ -46,7 +50,7 @@ export function creaCamaraCoche(camara, fisica, terreno, coche) {
       return;
     }
 
-    const c = CAMARA.persecucion;
+    const c = ajustes.persecucion;
     aplicaFov(c.fov);
     // Solo el rumbo del coche (sin cabeceo ni balanceo) para que la cámara no se maree
     plano.copy(e.adelante).setY(0);
@@ -78,5 +82,11 @@ export function creaCamaraCoche(camara, fisica, terreno, coche) {
     return modo;
   }
 
-  return { actualiza, cambia, get modo() { return modo; } };
+  function ponVehiculo(nuevo) {
+    coche = nuevo;
+    ajustes = coche.config?.camara ?? CAMARA;
+    iniciada = false;
+  }
+
+  return { actualiza, cambia, ponVehiculo, get modo() { return modo; } };
 }

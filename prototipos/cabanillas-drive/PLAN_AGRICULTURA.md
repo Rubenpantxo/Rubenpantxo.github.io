@@ -2,7 +2,7 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo agricultura**: parcelas reales del término de Cabanillas, delimitadas con el Catastro de Navarra y la ortofoto, que se trabajan con tractores, aperos y cosechadora hechos en 3D. El suelo cambia de aspecto por donde pasa el apero (arado, gradeado, abonado, sembrado, regado, cosechado) y las plantas nacen, crecen, maduran y se cosechan. Complementa a `PLAN.md`, `PLAN_REALISMO.md`, `PLAN_FIESTAS.md` y `PLAN_SALTO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: una fase cada vez, parada al final de cada fase, no inventar datos geográficos, todo en español, escritorio y móvil siempre.
 
-Fecha: 2026-11-20. Estado: **A0 aprobada (2026-11-20); A1 omitida por Rubén; A2 hecha el 2026-11-21, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
+Fecha: 2026-11-20. Estado: **A0 y A2 aprobadas; A1 omitida por Rubén; A3 (tractor y COPE) hecha el 2026-11-24, pendiente de que Rubén apruebe el tractor** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
 
 ### Inspiración y límites
 
@@ -65,12 +65,12 @@ Tomadas (2026-11-20):
 - **Cultivos:** **trigo, cebada, cebolla, brócoli, alcachofa y espárrago** (ver §5.4).
 - **La COPE** (Sociedad Cooperativa del Campo San Isidro) es la nave agrícola. Rubén la marcó sobre una foto aérea y coincide con la **parcela urbana 2-1031 del Catastro** (2,29 ha: la nave grande y el patio, entre el camino del oeste, el campo de fútbol y la calle San Isidro). Funciona como una cooperativa de verdad: se compran semillas, plantel, abono, herramientas y aperos, y se vende la cosecha.
 - **Parcela de pruebas: 2-700** (0,44 ha, Cza las Planas, regadío, al norte de la COPE), elegida por Rubén el 2026-11-21 entre tres candidatas (vista `cope_y_parcelas_prueba.jpg`). Como está en la zona del juego, **A1 se omite**.
+- **Riego de la 2-700** (2026-11-24): la acequia corre por fuera de la linde sureste, de nordeste a suroeste, hacia la COPE, y el agua entra por esa linde en su tramo del lado este (captura de Rubén en `docs/agricultura/riego_2-700_acequia.jpg`; coordenadas en `AGRICULTURA.riegoPruebas`, a confirmar en A7).
+- **Maquinaria** (2026-11-24): referencias de Rubén, dos tractores (verde y rojo) y una cosechadora amarilla. Modelos genéricos sin marcas; el tractor se puede pintar de rojo, verde, azul o naranja en la COPE; la cosechadora será amarilla (A8).
 - **Entrega:** la rama `feat/cabanillas-agricultura` se sube a GitHub (excepción a la regla de no hacer push, pedida por Rubén); `main` no se toca.
 
 Pendientes:
 
-- **Boquera de la parcela de pruebas:** la abertura de la acequia o del brazal por donde entra el agua del riego a manta, que se abre y se cierra con una tajadera (compuerta). Rubén dice por dónde entra el agua a la parcela elegida, o se busca en A7 con las acequias de OSM y la ortofoto y él lo confirma.
-- **Maquinaria.** Colores y tipo de tractor (genérico, sin marca). Fotos de tractores y aperos del pueblo como referencia, si las tiene.
 - **Tiempo agrícola.** Cuántos minutos reales dura un día de cultivo y si hay botón de «pasar días». Con espárrago y alcachofa (plurianuales) hará falta pasar estaciones o años.
 - **Dinero:** precios de compra y venta en la COPE y si se pueden comprar y vender parcelas (A9).
 
@@ -110,7 +110,7 @@ Principios:
 - **Carga diferida.** Código y modelos de agricultura en un chunk aparte con `import()`: quien solo conduce no los descarga.
 - **Registro ligero, estado bajo demanda.** Las 1 797 parcelas son solo contornos y datos (para el minimapa, el panel y comprar/vender). La malla, las máscaras y las plantas se crean cuando el tractor entra en una parcela con el apero bajado, y se liberan al alejarse (el estado queda guardado).
 - **Sin tocar el juego.** Todo vive en `src/agricultura/`, `src/config/` y `public/assets/agricultura/`. Los únicos cambios en archivos compartidos son ganchos pequeños y protegidos por `AGRICULTURA.activo` (ver §7).
-- **Acceso directo para pruebas:** `?agricultura` abre el pincel de pruebas en la parcela de pruebas (A2; desde A3, el modo con el tractor); `?agricultura=cosecha` empieza con el cereal maduro; `?agricultura=riego` con la parcela sembrada y la boquera al lado; `?agricultura=2-656` en una parcela concreta.
+- **Acceso directo para pruebas:** `?agricultura` empieza en la COPE con el tractor esperando (A3); `?agricultura=pincel` (y `&parcela=…`) abre el pincel de pruebas de A2; `?agricultura=cosecha` empieza con el cereal maduro; `?agricultura=riego` con la parcela sembrada y la boquera al lado; `?agricultura=2-656` en una parcela concreta.
 - **La máscara manda.** El estado de cada metro de parcela está en memoria (CPU); las texturas, las plantas y el agua se dibujan a partir de ella. Así se puede medir el porcentaje trabajado, guardar y cargar.
 
 ---
@@ -243,20 +243,21 @@ Aceptación: Rubén ve las parcelas sobre la ortofoto y confirma contornos y ent
 
 Aceptación: llegar en coche desde el pueblo a las parcelas por el camino real. Medir la memoria en calidad baja.
 
-### A2 — Parcela viva (sin máquinas) — HECHA (2026-11-21), pendiente de que Rubén la pruebe
+### A2 — Parcela viva (sin máquinas) — HECHA y aprobada (2026-11-24)
 
 - `registro.js`, `parcela.js`, `pincel.js`, `sueloParcela.js`, `src/config/agricultura.js`.
-- Pincel de depuración (`?agricultura`, o `?agricultura=<ref>` para otra parcela): con el ratón o el dedo se pinta cada estado para ver los ocho aspectos de la tabla 5.3; 🧪 Muestrario pinta una franja por estado.
+- Pincel de depuración (`?agricultura=pincel`, y `&parcela=<ref>` para otra parcela): con el ratón o el dedo se pinta cada estado para ver los ocho aspectos de la tabla 5.3; 🧪 Muestrario pinta una franja por estado.
 - Vista de comprobación: `tools/vista_agricultura.mjs` → capturas de la parcela en cada estado, de cerca y de lejos, en `data/processed/previews/agricultura/`.
 - Hecho así: malla transparente (lo no trabajado deja ver la ortofoto de debajo); máscaras a 0,5 m/px; relieve de surcos, terrones y rodadas calculado en el shader y sombreado con el sol; la hierba 3D se quita de lo labrado.
 
 Aceptación: los estados se distinguen bien de cerca y de lejos, los surcos siguen la pasada y la linde funde con la ortofoto.
 
-### A3 — Tractor y nave agrícola
+### A3 — Tractor y nave agrícola — HECHA (2026-11-24), pendiente de que Rubén apruebe el tractor
 
 - `tools/build_maquinaria.py` (tractor primero), `npm run maquinaria`, `maquina.js`, `src/config/maquinaria.js`.
 - Cámara de tractor (detrás y alta) y vista de cabina. Controles de teclado y táctiles.
 - Entrada «COPE» en `src/config/entradas.js` (parcela urbana 2-1031, en la calle San Isidro): cambiar coche ↔ tractor.
+- Hecho así: tractor genérico de primitivas en Blender (`tools/build_maquinaria.py`, sin texturas ni marcas), mismo controlador que el coche con tracción total (`coche.js` + `src/config/maquinaria.js`), menú de la COPE con el color del tractor (`src/hud/menuCope.js`), el vehículo que no se conduce queda aparcado en el patio y `tools/prueba_tractor.mjs`.
 
 Aceptación: conducir el tractor por el pueblo y los caminos, entrar en la parcela, sin vuelcos raros. Rubén aprueba el modelo.
 

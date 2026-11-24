@@ -1,0 +1,53 @@
+{
+ "tractor": {
+  "archivo": "tractor.glb",
+  "largo": 5.157,
+  "ancho": 2.58,
+  "alto": 3.351,
+  "pintura": true,
+  "triangulos": 12948,
+  "ruedas": [
+   {
+    "objeto": "rueda_di",
+    "centro": [
+     0.92,
+     0.6214,
+     1.6213
+    ],
+    "radio": 0.62,
+    "ancho": 0.46
+   },
+   {
+    "objeto": "rueda_dd",
+    "centro": [
+     -0.92,
+     0.6214,
+     1.6213
+    ],
+    "radio": 0.62,
+    "ancho": 0.46
+   },
+   {
+    "objeto": "rueda_ti",
+    "centro": [
+     0.93,
+     0.8614,
+     -1.2287
+    ],
+    "radio": 0.86,
+    "ancho": 0.6
+   },
+   {
+    "objeto": "rueda_td",
+    "centro": [
+     -0.93,
+     0.8614,
+     -1.2287
+    ],
+    "radio": 0.86,
+    "ancho": 0.6
+   }
+  ],
+  "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ }
+}
