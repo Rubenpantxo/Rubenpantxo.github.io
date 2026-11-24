@@ -438,8 +438,9 @@ function agregaEdificio(chunk, e, tejados) {
 // Edificios por celdas de «celdaM» metros con dos niveles de detalle:
 // - simple (techo plano y un muro recto por lado): todos, desde el principio
 // - detalle (tejados y aleros del LiDAR, muros que siguen el tejado): solo las celdas a menos
-//   de «distanciaDetalle» de la cámara; se genera al acercarse (una celda por llamada a
-//   actualiza) y se libera al alejarse, que en móvil la memoria es escasa
+//   de «distanciaDetalle» de la cámara; se genera al acercarse (una celda cada vez, a trozos de
+//   unos milisegundos por fotograma con «avanza») y se libera al alejarse, que en móvil la
+//   memoria es escasa
 export function creaEdificios(geojson, aspecto, atlas, rejilla, opciones) {
   const {
     tejadosSinLuz, tejados = null, celdaM = 250, distanciaDetalle = Infinity, proyectaSombras = true,
@@ -474,6 +475,10 @@ export function creaEdificios(geojson, aspecto, atlas, rejilla, opciones) {
     const chunk = new Chunk();
     let lidar = 0;
     for (const e of celda.edificios) if (agregaEdificio(chunk, e, conLidar ? tejados : null)) lidar++;
+    return termina(celda, conLidar, chunk, lidar);
+  }
+
+  function termina(celda, conLidar, chunk, lidar) {
     const { geometria, triangulos } = chunk.geometria();
     const malla = new THREE.Mesh(geometria, [fachada, tejado]);
     malla.name = `edificios_${celda.clave}_${conLidar ? 'detalle' : 'simple'}`;
@@ -511,17 +516,41 @@ export function creaEdificios(geojson, aspecto, atlas, rejilla, opciones) {
       celda.simple.malla.visible = !(quiere && celda.detalle);
     }
     pendientes.sort((a, b) => a[0] - b[0]);
-    for (const [, celda] of todo ? pendientes : pendientes.slice(0, 1)) {
-      celda.detalle = construye(celda, true);
-      conTejadoLidar += celda.detalle.lidar;
-      celda.simple.malla.visible = false;
+    if (todo) {
+      enObra = null;
+      for (const [, celda] of pendientes) estrena(celda, construye(celda, true));
+    } else if (!enObra && pendientes.length) {
+      enObra = { celda: pendientes[0][1], chunk: new Chunk(), i: 0, lidar: 0 };
     }
+  }
+
+  function estrena(celda, detalle) {
+    celda.detalle = detalle;
+    conTejadoLidar += detalle.lidar;
+    celda.simple.malla.visible = false;
+  }
+
+  // La celda de detalle en obra: edificio a edificio hasta gastar «presupuestoMs» (cada fotograma)
+  let enObra = null;
+  function avanza(presupuestoMs = 4) {
+    if (!enObra) return;
+    const t0 = performance.now();
+    const o = enObra;
+    const lista = o.celda.edificios;
+    while (o.i < lista.length && performance.now() - t0 < presupuestoMs) {
+      if (agregaEdificio(o.chunk, lista[o.i], tejados)) o.lidar++;
+      o.i++;
+    }
+    if (o.i < lista.length) return;
+    enObra = null;
+    if (!o.celda.detalle) estrena(o.celda, termina(o.celda, true, o.chunk, o.lidar));
   }
 
   if (sinAspecto) console.warn(`[edificios] ${sinAspecto} edificios sin entrada en edificios_aspecto.json`);
   return {
     grupo,
     actualiza,
+    avanza,
     edificios: geojson.features.length,
     get mallas() { return grupo.children; },
     get triangulos() {

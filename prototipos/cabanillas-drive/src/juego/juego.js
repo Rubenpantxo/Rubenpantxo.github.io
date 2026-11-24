@@ -344,6 +344,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       carteles.actualiza(camara.position);
       tiempoReparto = ESCENA.segundosRepartoCoches;
     }
+    mundo.edificios.avanza(ESCENA.msObraEdificios);
   }
 
   function cuentaFps(dt) {
@@ -422,8 +423,27 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
         if (!omitido) avisa('Ve a buscar tu coche: está donde lo dejaste (🚗 en el mapa)', 7);
       },
     });
+    precompilaEscena();
     if (import.meta.env.DEV) window.__salto = salto;
     return true;
+  }
+
+  // Compila ya, en el avión, los sombreadores de todo lo que el salto irá enseñando (el personaje,
+  // la mochila abierta, la hierba, los rótulos, los coches…). Si no, se compilan la primera vez
+  // que salen y el juego se para un cuarto de segundo cada vez (casi un segundo al saltar, en el
+  // móvil). Se hace todo visible un instante, sin dibujar nada. (Dibujarlo todo una vez en una
+  // imagen diminuta acabaría también lo que los controladores dejan para el primer dibujo, pero
+  // parado el avión más de un segundo: no compensa.) Las sombras no las cubre.
+  function precompilaEscena() {
+    const ocultos = [];
+    escena.traverse((o) => { if (!o.visible) { ocultos.push(o); o.visible = true; } });
+    try {
+      // compile y no compileAsync: este se queda mirando los materiales y, si te saltas el salto
+      // en seguida (se liberan los del avión y el personaje), da error
+      renderer.compile(escena, camara);
+    } finally {
+      for (const o of ocultos) o.visible = false;
+    }
   }
 
   // Saltarse el salto: se empieza en el coche, en la salida de siempre (como sin salto)
