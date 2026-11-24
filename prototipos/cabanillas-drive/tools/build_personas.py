@@ -10,6 +10,9 @@ Por cada persona de tools/personas.json:
    aclara y agrisa el pelo.
 3. Animaciones hechas aquí: «andar» (ciclo de 32 fotogramas a 30 fps: 1,07 s y 1,39 m a
    1,3 m/s; cadera, rodillas, tobillos, brazos y balanceo) y «quieto» (respiración, 4 s).
+   El reposo de MakeHuman tiene las piernas abiertas (tobillos a ±0,20 m con las caderas a
+   ±0,11 m): en las dos animaciones cada muslo se gira hacia dentro hasta dejar el tobillo
+   TOBILLO_DENTRO_M por dentro de la cadera.
 4. Exporta <salida>/<id>.glb y una vista previa <salida>/<id>.png.
 
 Uso (lo lanza tools/14_personas.py):
@@ -37,6 +40,7 @@ FOTOGRAMAS_PASO = 32
 FPS = 30
 VELOCIDAD_DISENO = 1.3          # m/s a la que el ciclo no patina
 FOTOGRAMAS_QUIETO = 120
+TOBILLO_DENTRO_M = 0.02         # de pie, el tobillo así de por dentro de la cadera
 
 
 def argumentos():
@@ -281,6 +285,19 @@ def anima(arm):
         actual = math.asin(max(-1.0, min(1.0, -d.z)))
         signo = 1 if b.head_local.x > 0 else -1
         bajar[lado] = Quaternion(Y, signo * (math.radians(80) - actual))
+    # Piernas juntas: giro de cada muslo sobre el eje adelante-atrás (Y) hasta que el tobillo
+    # quede bajo la cadera. Girar sobre +Y lleva lo que cuelga hacia −X: la pierna de +X (la
+    # izquierda), en positivo
+    juntar = {}
+    for lado in ("l", "r"):
+        cadera = huesos[f"thigh_{lado}"].head_local
+        tobillo = huesos[f"foot_{lado}"].head_local
+        alto = cadera.z - tobillo.z
+        signo = 1 if cadera.x > 0 else -1
+        fuera = (tobillo.x - cadera.x) * signo          # lo que se abre el tobillo (m)
+        angulo = math.atan2(fuera, alto) - math.atan2(-TOBILLO_DENTRO_M, alto)
+        juntar[lado] = Quaternion(Y, signo * angulo)
+        print(f"   piernas: muslo {lado} {math.degrees(angulo):.1f}° hacia dentro (tobillo {fuera:+.3f} m de la cadera)")
     codo = {}
     for lado in ("l", "r"):
         u = (huesos[f"upperarm_{lado}"].tail_local - huesos[f"upperarm_{lado}"].head_local).normalized()
@@ -309,7 +326,7 @@ def anima(arm):
         for lado, desfase in (("l", 0.0), ("r", 0.5)):
             s = math.sin(2 * math.pi * (fase + desfase))
             c = math.cos(2 * math.pi * (fase + desfase))
-            pon(f"thigh_{lado}", Quaternion(X, adelante * rad(24) * s), f)
+            pon(f"thigh_{lado}", Quaternion(X, adelante * rad(24) * s) @ juntar[lado], f)
             apoyo = max(0.0, math.sin(4 * math.pi * (fase + desfase - 0.25))) if s < 0.3 else 0.0
             pon(f"calf_{lado}", Quaternion(X, -adelante * rad(5 + 55 * max(0.0, c) ** 1.6 + 9 * apoyo)), f)
             pon(f"foot_{lado}", Quaternion(X, -adelante * rad(-11 * s)), f)
@@ -328,7 +345,7 @@ def anima(arm):
         for lado in ("l", "r"):
             pon(f"upperarm_{lado}", bajar[lado], f)
             pon(f"lowerarm_{lado}", flexion_codo(lado, 10), f)
-            pon(f"thigh_{lado}", Quaternion(X, 0), f)
+            pon(f"thigh_{lado}", juntar[lado], f)
             pon(f"calf_{lado}", Quaternion(X, 0), f)
         pon("spine_03", Quaternion(X, adelante * rad(1.2 * math.sin(2 * math.pi * fase))), f)
         pon("pelvis", Quaternion(Z, rad(1.5) * math.sin(2 * math.pi * fase)), f)
