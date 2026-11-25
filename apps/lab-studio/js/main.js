@@ -16,6 +16,7 @@ import { DEFS } from './ui/dibujos.js';
 import { pintarBiblioteca, pintarPropiedades, pintarReglas, pintarRedes, pintarMateriales, pintarCodigo } from './ui/paneles.js';
 import { pintarComponentes, pintarProyectos, pintarRecursos } from './ui/vistas.js';
 import { pintarCalculadoras } from './ui/calculadoras.js';
+import { cerrarVisor } from './ui/vista3d.js';
 import { esc, ico, hojaIconos, descargar, copiar, nombreArchivo, almacen, mm } from './ui/util.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -284,6 +285,7 @@ function pintarArea() {
     for (const a of AREAS) $('#area-' + a).hidden = a !== app.area;
     for (const b of $$('[data-area]')) b.setAttribute('aria-current', b.dataset.area === app.area ? 'page' : 'false');
     const el = $('#area-' + app.area);
+    if (app.area !== 'componentes') cerrarVisor();
     if (app.area === 'componentes') pintarComponentes(el, app, id);
     else if (app.area === 'proyectos') pintarProyectos(el, app, id);
     else if (app.area === 'calculadoras') { if (!el.dataset.listo) { pintarCalculadoras(el); el.dataset.listo = '1'; } }
