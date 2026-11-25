@@ -289,7 +289,13 @@ modo({ renderer, escena, camara, ui, ciclo, render })
       // Se empieza saltando del avión (PLAN_SALTO.md), salvo con ?salto=0, al entrar directo a las
       // fiestas o al volver de otro juego. ?salto=semilla repite la misma ruta. Desde la pantalla de
       // inicio, «Empezar en la calle» lo omite; en la pausa, «Saltarse el salto»
-      if (parametros.get('salto') !== '0' && !parametros.get('fiestas') && !parametros.get('aparece')) {
+      // ?agricultura: modo agricultura (PLAN_AGRICULTURA.md): se empieza en la COPE, donde se cambia
+      // el coche por el tractor. ?agricultura=pincel: pincel de pruebas de la fase A2 (&parcela=…).
+      // ?agricultura=riego: con el tractor junto a la primera tajadera de la acequia (A7).
+      // Su código se descarga solo entonces; sin el parámetro, el juego no cambia
+      const agricultura = parametros.has('agricultura');
+      const pincelAgricultura = parametros.get('agricultura') === 'pincel';
+      if (parametros.get('salto') !== '0' && !parametros.get('fiestas') && !parametros.get('aparece') && !agricultura) {
         const semilla = Number.parseInt(parametros.get('salto'), 10);
         const arranca = () => api.empiezaSalto(Number.isFinite(semilla) ? semilla : undefined);
         // Con el editor pendiente, el salto espera al personaje (lo monta abrePersonaje)
@@ -308,6 +314,19 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         const p = new URLSearchParams(location.search);
         p.delete('aparece');
         history.replaceState(null, '', `${location.pathname}${p.toString() ? `?${p}` : ''}`);
+      }
+      if (agricultura && !pincelAgricultura) {
+        if (!parametros.get('aparece')) api.aparece('cope');
+        const agri = await api.cargaAgricultura();        // el tractor espera aparcado en la COPE
+        if (parametros.get('agricultura') === 'riego') agri.empiezaEnRiego();
+      }
+      if (pincelAgricultura) {
+        const { iniciaPincel } = await import('./agricultura/pincelPruebas.js');
+        const agri = await iniciaPincel({ api, escena, camara, renderer, refParcela: parametros.get('parcela') || null });
+        pantallas.omite();
+        const actualizaJuego = actualiza;
+        actualiza = (dt) => { actualizaJuego(dt); agri.actualiza(dt); };
+        return;
       }
       pantallas.listo();
     }

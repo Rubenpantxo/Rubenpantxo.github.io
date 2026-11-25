@@ -2,7 +2,9 @@
 // en coche, parado), aparece un marcador y «E / Entrar» lleva a otra parte del juego o a otro
 // juego de la web. Para añadir uno basta una línea más.
 //   en: [x, z] locales (m), o null si aún no se sabe dónde está (entonces no sale en el mundo)
-//   accion: { fiestas: 'menu' | 'plaza' | … }  o  { juego: '/ruta/del/juego/' }
+//   accion: { fiestas: 'menu' | 'plaza' | … }  o  { juego: '/ruta/del/juego/' }  o  { agricultura: 'cope' }
+import { agriculturaActiva } from './agricultura.js';
+
 export const ENTRADAS = [
   // Centro del ruedo de la plaza del Ayuntamiento (src/datos/fiestas.js, plaza.ruedo)
   { id: 'fiestas_plaza', nombre: 'Fiestas · Plaza', icono: '🐂', en: [177.2, 335.6], accion: { fiestas: 'menu' } },
@@ -15,6 +17,11 @@ export const ENTRADAS = [
   // frente a la calle las Planas. Sitio medido sobre la captura con los edificios como referencia
   { id: 'fronton_sanisidro', nombre: 'Frontón · San Isidro', icono: '🥎', en: [-155.5, 10.5], accion: { juego: '/juegos/cesta-punta/' } },
   { id: 'fronton_bardenas', nombre: 'Frontón · Bardenas Reales', icono: '🥎', en: [-49.5, -65.5], accion: { juego: '/juegos/cesta-punta/' } },
+  // COPE (Sociedad Cooperativa del Campo San Isidro), modo agricultura (PLAN_AGRICULTURA.md, A3): el
+  // patio de la nave, al norte de la calle San Isidro (parcela urbana 2-1031 del Catastro, la que
+  // marcó Rubén el 2026-11-20). Aquí se cambia el coche por el tractor y al revés. Solo con el modo
+  // agricultura activo (?agricultura)
+  ...(agriculturaActiva() ? [{ id: 'cope', nombre: 'COPE · San Isidro', icono: '🚜', en: [-322, -14], accion: { agricultura: 'cope' } }] : []),
 ];
 
 export const ENTRADA = {

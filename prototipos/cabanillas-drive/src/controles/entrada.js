@@ -34,6 +34,8 @@ export function creaEntrada(raizTactil) {
         if (teclas.camara.includes(e.code)) pendientes.camara = true;
         if (teclas.bajar.includes(e.code)) pendientes.bajar = true;
         if (teclas.entrar?.includes(e.code)) pendientes.entrar = true;
+        if (teclas.apero?.includes(e.code)) pendientes.apero = true;
+        if (teclas.tajadera?.includes(e.code)) pendientes.tajadera = true;
       }
       if (teclas.hora.includes(e.code)) pendientes.hora = true;
     }

@@ -99,7 +99,11 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
   escena.add(farolas.raiz);
   const colisiones = creaGestorColisiones(fisica, { radio: CALIDAD.radioColisiones });
   const nodos = nodosDeCalles(geoCalles);
-  const coche = creaCoche(fisica, escena, modelosCoches[VEHICULO.modelo]);
+  // Vehículo que conduce el jugador: el coche, o el tractor del modo agricultura (cambiaVehiculo).
+  // El que no se conduce se queda aparcado donde se dejó (sigue en la física, frenado)
+  let coche = creaCoche(fisica, escena, modelosCoches[VEHICULO.modelo]);
+  const cocheJugador = coche;
+  const vehiculosAparcados = new Set();
   const entrada = creaEntrada(ui.tactil);
   const camaraCoche = creaCamaraCoche(camara, fisica, mundo.terreno, coche);
   const trafico = creaTrafico({
@@ -111,7 +115,6 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     calles: geoCalles, caminos: geoCaminos, edificios: mundo.geoEdificios, muros: datosMuros, terreno: mundo.terreno, personas,
   });
   escena.add(peatones.raiz);
-  const infoCoche = modelosCoches[VEHICULO.modelo].info;
   let obstaculosPeatones = [];
   const luces = creaLuces({
     escena, cocheJugador: coche.modelo.grupo, infoJugador: modelosCoches[VEHICULO.modelo].info, agentes: trafico.agentes,
@@ -137,7 +140,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     if (Math.abs(e.velocidadKmh) > PEATON.velocidadBajarKmh) { avisa('Para el coche para bajarte'); return; }
     const f = e.adelante.clone().setY(0).normalize();
     const izquierda = new THREE.Vector3(f.z, 0, -f.x);
-    const { largo, ancho } = modelosCoches[VEHICULO.modelo].info;
+    const { largo, ancho } = coche.info;
     const huecos = [
       izquierda.clone().multiplyScalar(ancho / 2 + 0.7), izquierda.clone().multiplyScalar(-(ancho / 2 + 0.7)),
       f.clone().multiplyScalar(-(largo / 2 + 0.8)), f.clone().multiplyScalar(largo / 2 + 0.8),
@@ -155,6 +158,35 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       return;
     }
     avisa('No hay sitio para bajarse aquí');
+  }
+
+  // Modo agricultura (PLAN_AGRICULTURA.md): su código se descarga la primera vez que se entra en
+  // la COPE (solo existe con ?agricultura mientras no esté publicado)
+  let agricultura = null;
+  let cargandoAgricultura = null;
+  function cargaAgricultura() {
+    cargandoAgricultura ??= import('../agricultura/modoAgricultura.js')
+      .then(({ creaModoAgricultura }) => creaModoAgricultura({ api, escena, fisica, camara, renderer }))
+      .then((m) => { agricultura = m; return m; });
+    return cargandoAgricultura;
+  }
+  async function entraAgricultura(e) {
+    await cargaAgricultura();
+    await agricultura.entra(e);
+  }
+  // Un vehículo que no se conduce: queda en la física, frenado, donde se dejó
+  function aparcaVehiculo(v) {
+    if (v && v !== coche) vehiculosAparcados.add(v);
+  }
+  // Cambia el vehículo que se conduce (coche ↔ tractor). El otro se queda aparcado
+  function cambiaVehiculo(nuevo) {
+    if (!nuevo || nuevo === coche) return;
+    vehiculosAparcados.delete(nuevo);
+    vehiculosAparcados.add(coche);
+    coche = nuevo;
+    camaraCoche.ponVehiculo(coche);
+    tiempoVolcado = 0;
+    acumulado = 0;
   }
 
   // Entrar al modo fiestas: sin tráfico ni peatones, el festejo montado y el jugador a pie dentro
@@ -249,7 +281,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
 
   // Salida: el nodo de calle más cercano al origen (centro del casco)
   function colocaEn(nodo) {
-    const y = mundo.terreno.alturaEn(nodo.x, nodo.z) + VEHICULO.reinicio.alturaSobreSuelo;
+    const y = mundo.terreno.alturaEn(nodo.x, nodo.z) + coche.config.reinicio.alturaSobreSuelo;
     coche.recoloca(nodo.x, y, nodo.z, nodo.dx, nodo.dz);
     colisiones.fuerza({ x: nodo.x, z: nodo.z });
   }
@@ -275,6 +307,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
   }
   function entraPor(e) {
     if (e.accion.fiestas) { entraFiestas(e.accion.fiestas); return; }
+    if (e.accion.agricultura) { entraAgricultura(e); return; }
     if (e.accion.juego) {
       // Al volver (atrás en el navegador) se reaparece aquí
       const p = new URLSearchParams(location.search);
@@ -493,6 +526,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       hierba.avanza(dt);
       avanzaAgua(dt);
       repartoDetalle(dt);
+      agricultura?.pausa();
       return;
     }
     const mandos = entrada.actualiza();
@@ -535,12 +569,16 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     while (acumulado >= PASO_FISICA) {
       coche.aplicaEntrada(aPie ? PARADO : mandos, PASO_FISICA);
       coche.paso(PASO_FISICA);
+      for (const v of vehiculosAparcados) { v.aplicaEntrada(PARADO, PASO_FISICA); v.paso(PASO_FISICA); }
+      agricultura?.paso(PASO_FISICA);
       if (fiesta) fiestas.paso(mandos, PASO_FISICA);
       else if (aPie) peaton.paso(mandos, PASO_FISICA);
       fisica.mundo.step();
       acumulado -= PASO_FISICA;
     }
     coche.sincroniza();
+    for (const v of vehiculosAparcados) v.sincroniza();
+    agricultura?.actualiza(dt, mandos);
 
     const e = coche.estado();
     const fCoche = e.adelante.clone().setY(0).normalize();
@@ -548,12 +586,12 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     else peatones.actualiza(dt, {
       jugador: centro, camara, oscuridad: ciclo ? ciclo.estado.oscuridad : 0,
       coche: { x: e.posicion.x, z: e.posicion.z, fx: fCoche.x, fz: fCoche.z, velocidad: e.velocidadKmh / 3.6,
-        largo: infoCoche.largo, ancho: infoCoche.ancho },
+        largo: coche.info.largo, ancho: coche.info.ancho },
       aPie: aPie ? { x: centro.x, z: centro.z } : null,
     });
     if (!fiesta) obstaculosPeatones = peatones.obstaculos();
     const suelo = mundo.terreno.alturaEn(e.posicion.x, e.posicion.z);
-    if (!aPie && e.posicion.y < suelo - VEHICULO.reinicio.caidaMaxima) recolocaCerca();
+    if (!aPie && e.posicion.y < suelo - coche.config.reinicio.caidaMaxima) recolocaCerca();
     tiempoVolcado = !aPie && e.volcado ? tiempoVolcado + dt : 0;
 
     if (fiesta) {
@@ -577,17 +615,18 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     luces.actualiza(ciclo ? ciclo.estado.oscuridad : 0);
     farolas.actualiza(ciclo ? ciclo.estado.oscuridad : 0, camara, dt);
     let texto = textoDepuracion;
-    if (tiempoVolcado > VEHICULO.reinicio.segundosVolcado) texto = 'Coche volcado: pulsa R (o ↺) para recolocarlo';
+    if (tiempoVolcado > coche.config.reinicio.segundosVolcado) texto = 'Volcado: pulsa R (o ↺) para recolocarlo';
     if (performance.now() < avisoHasta) texto = aviso;
     ui.estado.textContent = texto;
   }
 
-  const api = { mundo, fisica, coche, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico, peaton,
+  const api = { get coche() { return coche; }, mundo, fisica, entrada, camaraCoche, nodos, cochesAparcados, modelosCoches, arboles, hierba, hud, colisiones, trafico, peaton,
     get aPie() { return aPie; }, bajarse, subirse, irA, avisa, entraFiestas, saleFiestas,
     get fiestas() { return fiestas; },
     get modoFiestas() { return enFiestas() ? fiestas.modo : null; }, carteles, luces, ciclo, peatones, muros, elementos, farolas,
     lugares: lugares.map(({ nombre, icono }) => ({ nombre, icono })),
-    entradas, aparece, empiezaSalto, omiteSalto,
+    entradas, aparece, empiezaSalto, omiteSalto, cambiaVehiculo, aparcaVehiculo, cocheJugador, entraAgricultura, cargaAgricultura,
+    get agricultura() { return agricultura; },
     // El personaje del editor (PLAN_PERSONAJE.md) hace de jugador en las fiestas y en el salto
     async ponJugador(apariencia) {
       if (!apariencia || !personas) return false;
