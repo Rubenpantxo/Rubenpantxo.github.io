@@ -454,72 +454,103 @@ function construirModelo(def, m, recursos, texturas, renderer, pedir) {
         return me;
     };
 
-    // --- carcasa ----------------------------------------------------
-    const colCaja = C.color || '#f2f3f5';
-    const matCaja = C.metal ? mat(colCaja, { roughness: .35, metalness: .55 }) : mat(colCaja, { roughness: .5 });
     const enTapa = (me, material) => { tapa.add(me); mallasTapa.push(me); materialesTapa.push(material); return me; };
+    const materialesBase = [];
+    const grosor = 1.6;
+    let margen, pw, pd, py, pTop;
 
-    if (C.tipo === 'mecanismo') {
-        const fr = C.frente || 4;
-        enTapa(malla(cajaRedondeada(C.w, C.d, fr, C.r || 2, .5), matCaja), matCaja).position.y = C.h - fr;
-        const matCuerpo = mat(C.cuerpo || '#2a2c31', { roughness: .7 });
-        enTapa(malla(cajaRedondeada(C.w * .86, C.d * .84, C.h - fr, 1.5, .4), matCuerpo), matCuerpo);
+    if (C.tipo === 'placa') {
+        // Placa sin carcasa (placas de desarrollo): el propio circuito lleva el
+        // dibujo en planta y descansa a la altura `y` (sobre sus pines o sus piezas de abajo).
+        pw = C.w; pd = C.d; py = C.y ?? 0; pTop = py + grosor;
+        const matPcb = mat(P.color || C.color || '#1d5e3a', { roughness: .6 });
+        const pcb = malla(cajaRedondeada(pw, pd, grosor, C.r ?? 1, .2), matPcb);
+        pcb.position.y = py;
+        base.add(pcb);
+        const texPcb = texturaDibujo(def, rect, renderer, pedir);
+        texturas.push(texPcb);
+        const plano = new THREE.Mesh(new THREE.PlaneGeometry(pw * .995, pd * .995), new THREE.MeshStandardMaterial({ map: texPcb, transparent: true, roughness: .55, polygonOffset: true, polygonOffsetFactor: -2 }));
+        plano.rotation.x = -Math.PI / 2;
+        plano.position.y = pTop + .02;
+        plano.receiveShadow = true;
+        base.add(plano);
+        if (C.fondo) {
+            const tex = texturaTexto(C.fondo, pw, pd, '#e8eaed');
+            texturas.push(tex);
+            const etiqueta = new THREE.Mesh(new THREE.PlaneGeometry(pw * .9, pd * .9), new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: .7 }));
+            etiqueta.rotation.x = Math.PI / 2;
+            etiqueta.position.y = py - .03;
+            base.add(etiqueta);
+        }
     } else {
-        enTapa(malla(cajaRedondeada(C.w, C.d, C.h, C.r || 3, Math.min(1.2, C.h * .08)), matCaja), matCaja);
-    }
-    if (C.tipo === 'llavero') {
-        // Ranura del marco entre la carcasa y el panel negro.
-        const borde = mat('#8f959d', { roughness: .4, metalness: .6 });
-        const me = enTapa(malla(cajaRedondeada(C.w + .4, C.d + .4, 1.2, C.r, .3), borde), borde);
-        me.position.y = C.h * .45;
-    }
+        // --- carcasa ----------------------------------------------------
+        const colCaja = C.color || '#f2f3f5';
+        const matCaja = C.metal ? mat(colCaja, { roughness: .35, metalness: .55 }) : mat(colCaja, { roughness: .5 });
 
-    // Tapa: el dibujo en planta como textura, recortado al rectángulo de la carcasa.
-    const texTapa = texturaDibujo(def, rect, renderer, pedir);
-    texturas.push(texTapa);
-    const matDibujo = new THREE.MeshStandardMaterial({ map: texTapa, transparent: true, roughness: .6, metalness: 0, polygonOffset: true, polygonOffsetFactor: -2 });
-    matDibujo.userData.opacidad = 1;
-    const plano = new THREE.Mesh(new THREE.PlaneGeometry(C.w * .985, C.d * .985), matDibujo);
-    plano.rotation.x = -Math.PI / 2;
-    plano.position.y = C.h + .03;
-    plano.receiveShadow = true;
-    enTapa(plano, matDibujo);
+        if (C.tipo === 'mecanismo') {
+            const fr = C.frente || 4;
+            enTapa(malla(cajaRedondeada(C.w, C.d, fr, C.r || 2, .5), matCaja), matCaja).position.y = C.h - fr;
+            const matCuerpo = mat(C.cuerpo || '#2a2c31', { roughness: .7 });
+            enTapa(malla(cajaRedondeada(C.w * .86, C.d * .84, C.h - fr, 1.5, .4), matCuerpo), matCuerpo);
+        } else {
+            enTapa(malla(cajaRedondeada(C.w, C.d, C.h, C.r || 3, Math.min(1.2, C.h * .08)), matCaja), matCaja);
+        }
+        if (C.tipo === 'llavero') {
+            // Ranura del marco entre la carcasa y el panel negro.
+            const borde = mat('#8f959d', { roughness: .4, metalness: .6 });
+            const me = enTapa(malla(cajaRedondeada(C.w + .4, C.d + .4, 1.2, C.r, .3), borde), borde);
+            me.position.y = C.h * .45;
+        }
 
-    // Base interior: queda en su sitio al abrir y lleva la etiqueta de abajo.
-    const matBase = mat(C.tipo === 'mecanismo' ? (C.cuerpo || '#2a2c31') : colCaja, { roughness: .6 });
-    const bw = C.tipo === 'mecanismo' ? C.w * .86 - .6 : C.w - .6, bd = C.tipo === 'mecanismo' ? C.d * .84 - .6 : C.d - .6;
-    const placaBase = malla(cajaRedondeada(bw, bd, 1.2, C.tipo === 'mecanismo' ? 1.2 : Math.max(1, (C.r || 3) - .3), .3), matBase);
-    placaBase.position.y = .05;
-    base.add(placaBase);
-    // Al abrir, el fondo también se vuelve translúcido: deja ver lo que va debajo de la placa.
-    const materialesBase = [matBase];
-    if (C.fondo) {
-        const tex = texturaTexto(C.fondo, bw, bd, C.tipo === 'mecanismo' || C.metal ? '#e8eaed' : '#3b3f45');
-        texturas.push(tex);
-        const matEtiqueta = new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: .7 });
-        matEtiqueta.userData.opacidad = 1;
-        materialesBase.push(matEtiqueta);
-        const etiqueta = new THREE.Mesh(new THREE.PlaneGeometry(bw * .9, bd * .9), matEtiqueta);
-        etiqueta.rotation.x = Math.PI / 2;
-        etiqueta.position.y = -.04;
-        base.add(etiqueta);
+        // Tapa: el dibujo en planta como textura, recortado al rectángulo de la carcasa.
+        const texTapa = texturaDibujo(def, rect, renderer, pedir);
+        texturas.push(texTapa);
+        const matDibujo = new THREE.MeshStandardMaterial({ map: texTapa, transparent: true, roughness: .6, metalness: 0, polygonOffset: true, polygonOffsetFactor: -2 });
+        matDibujo.userData.opacidad = 1;
+        const plano = new THREE.Mesh(new THREE.PlaneGeometry(C.w * .985, C.d * .985), matDibujo);
+        plano.rotation.x = -Math.PI / 2;
+        plano.position.y = C.h + .03;
+        plano.receiveShadow = true;
+        enTapa(plano, matDibujo);
+
+        // Base interior: queda en su sitio al abrir y lleva la etiqueta de abajo.
+        const matBase = mat(C.tipo === 'mecanismo' ? (C.cuerpo || '#2a2c31') : colCaja, { roughness: .6 });
+        const bw = C.tipo === 'mecanismo' ? C.w * .86 - .6 : C.w - .6, bd = C.tipo === 'mecanismo' ? C.d * .84 - .6 : C.d - .6;
+        const placaBase = malla(cajaRedondeada(bw, bd, 1.2, C.tipo === 'mecanismo' ? 1.2 : Math.max(1, (C.r || 3) - .3), .3), matBase);
+        placaBase.position.y = .05;
+        base.add(placaBase);
+        // Al abrir, el fondo también se vuelve translúcido: deja ver lo que va debajo de la placa.
+        materialesBase.push(matBase);
+        if (C.fondo) {
+            const tex = texturaTexto(C.fondo, bw, bd, C.tipo === 'mecanismo' || C.metal ? '#e8eaed' : '#3b3f45');
+            texturas.push(tex);
+            const matEtiqueta = new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: .7 });
+            matEtiqueta.userData.opacidad = 1;
+            materialesBase.push(matEtiqueta);
+            const etiqueta = new THREE.Mesh(new THREE.PlaneGeometry(bw * .9, bd * .9), matEtiqueta);
+            etiqueta.rotation.x = Math.PI / 2;
+            etiqueta.position.y = -.04;
+            base.add(etiqueta);
+        }
+
+        // --- placa de circuito -------------------------------------------
+        margen = P.margen ?? 2;
+        pw = (C.tipo === 'mecanismo' ? C.w * .86 : C.w) - 2 * margen;
+        pd = (C.tipo === 'mecanismo' ? C.d * .84 : C.d) - 2 * margen;
+        py = P.y ?? 2; pTop = py + grosor;
+        const matPcb = mat(P.color || '#1d5e3a', { roughness: .62 });
+        const pcb = malla(cajaRedondeada(pw, pd, grosor, 1, .2), matPcb);
+        pcb.position.y = py;
+        base.add(pcb);
+        // Serigrafía: el nombre del componente en una esquina libre.
+        const serig = texturaTexto([def.corto], pw, pd, '#eef2f4', 'esquina');
+        texturas.push(serig);
+        const planoSerig = new THREE.Mesh(new THREE.PlaneGeometry(pw, pd), new THREE.MeshStandardMaterial({ map: serig, transparent: true, roughness: .6, polygonOffset: true, polygonOffsetFactor: -1 }));
+        planoSerig.rotation.x = -Math.PI / 2;
+        planoSerig.position.y = pTop + .01;
+        base.add(planoSerig);
+
     }
-
-    // --- placa de circuito -------------------------------------------
-    const margen = P.margen ?? 2;
-    const pw = (C.tipo === 'mecanismo' ? C.w * .86 : C.w) - 2 * margen, pd = (C.tipo === 'mecanismo' ? C.d * .84 : C.d) - 2 * margen;
-    const py = P.y ?? 2, grosor = 1.6, pTop = py + grosor;
-    const matPcb = mat(P.color || '#1d5e3a', { roughness: .62 });
-    const pcb = malla(cajaRedondeada(pw, pd, grosor, 1, .2), matPcb);
-    pcb.position.y = py;
-    base.add(pcb);
-    // Serigrafía: el nombre del componente en una esquina libre.
-    const serig = texturaTexto([def.corto], pw, pd, '#eef2f4', 'esquina');
-    texturas.push(serig);
-    const planoSerig = new THREE.Mesh(new THREE.PlaneGeometry(pw, pd), new THREE.MeshStandardMaterial({ map: serig, transparent: true, roughness: .6, polygonOffset: true, polygonOffsetFactor: -1 }));
-    planoSerig.rotation.x = -Math.PI / 2;
-    planoSerig.position.y = pTop + .01;
-    base.add(planoSerig);
 
     // --- piezas -----------------------------------------------------
     const piezas = [];
@@ -650,11 +681,52 @@ function construirModelo(def, m, recursos, texturas, renderer, pedir) {
                 const an = malla(new THREE.TorusGeometry(r, 1.6, 14, 40), mat('#c3c7cd', { roughness: .3, metalness: .65 }));
                 an.rotation.x = Math.PI / 2;
                 add(an, ox, -C.h / 2, oz);
+            } else if (t === 'usbc' || t === 'microusb') {
+                // Conector metálico con la boca hacia el borde (+z).
+                // `lado: 'x'` la gira para que mire al borde derecho.
+                const enX = f.lado === 'x';
+                const a = f.w || (t === 'usbc' ? 8.9 : 7.5), l = f.d || (t === 'usbc' ? 7.3 : 5.6), h = f.h || (t === 'usbc' ? 3.2 : 2.6);
+                const w = enX ? l : a, dd = enX ? a : l;
+                add(malla(cajaRedondeada(w, dd, h, t === 'usbc' ? Math.min(h / 2 - .05, .9) : .5, .15), metal()), ox, 0, oz);
+                const boca = malla(new THREE.BoxGeometry(enX ? .3 : a * .72, h * .42, enX ? a * .72 : .3), mat('#141518', { roughness: .8 }), false);
+                add(boca, ox + (enX ? w / 2 - .05 : 0), h / 2, oz + (enX ? 0 : dd / 2 - .05));
+            } else if (t === 'tira') {
+                // Tira de pines macho de 2,54 mm a lo largo de z, montada por debajo:
+                // plástico pegado a la placa y pines que la atraviesan hasta el suelo.
+                const zA = aZ(f.z0) - z0, zB = aZ(f.z1) - z0, n = f.n || Math.round(Math.abs(zB - zA) / 2.54) + 1;
+                const paso = n > 1 ? (zB - zA) / (n - 1) : 0;
+                add(malla(new THREE.BoxGeometry(2.5, 2.5, Math.abs(zB - zA) + 2.54), mat('#141518', { roughness: .7 })), ox, -1.25, (zA + zB) / 2);
+                const arriba = grosor + .9, abajoPin = -(y0 - .15), geo = new THREE.BoxGeometry(.64, arriba - abajoPin, .64);
+                for (let i = 0; i < n; i++) add(malla(geo, oro(), false), ox, (arriba + abajoPin) / 2, zA + i * paso);
+            } else if (t === 'pantalla') {
+                // Módulo TFT: marco metálico y, encima, el dibujo de la pantalla recortado.
+                const [rx, ry, rw, rh] = f.rect;
+                const w = rw / W * C.w, dd = rh / H * C.d, h = f.h || 3.5;
+                const cx = aX(rx + rw / 2) - x0, cz = aZ(ry + rh / 2) - z0;
+                add(malla(new THREE.BoxGeometry(w, h, dd), mat('#9aa1a9', { roughness: .35, metalness: .6 })), cx, h / 2, cz);
+                const tex = texturaDibujo(def, f.rect, renderer, pedir);
+                texturas.push(tex);
+                const vidrio = new THREE.Mesh(new THREE.PlaneGeometry(w, dd), new THREE.MeshStandardMaterial({ map: tex, roughness: .18, metalness: .1 }));
+                vidrio.rotation.x = -Math.PI / 2;
+                add(vidrio, cx, h + .02, cz);
+            } else if (t === 'tacto') {
+                const w = f.w || 4.6, dd = f.d || 3.6;
+                add(malla(new THREE.BoxGeometry(w, 1.4, dd), metal()), ox, sentido * .7, oz);
+                add(malla(new THREE.CylinderGeometry(Math.min(w, dd) * .3, Math.min(w, dd) * .3, .7, 20), mat(f.color || '#1a1b1e')), ox, sentido * 1.75, oz);
+            } else if (t === 'rgb') {
+                const w = f.w || 5, c = new THREE.Color(f.color || '#ffd2a0');
+                add(malla(new THREE.BoxGeometry(w, 1.5, w), mat('#f4f4f0', { roughness: .4 })), ox, .75, oz);
+                add(malla(new THREE.CylinderGeometry(w * .32, w * .32, .1, 24), mat(c, { emissive: c, emissiveIntensity: .5, roughness: .3 }), false), ox, 1.52, oz);
             }
         };
 
-        if (d.tipo === 'grupo') for (const f of d.formas) pinta(f, f.dx || 0, f.dz || 0);
-        else pinta(d);
+        if (d.tipo === 'grupo') {
+            for (const f of d.formas) {
+                const antes = mallas.length;
+                pinta(f, f.dx || 0, f.dz || 0);
+                if (f.dy) for (const me of mallas.slice(antes)) me.position.y += f.dy;
+            }
+        } else pinta(d);
 
         grupo.position.set(x0, y0, z0);
         (enLaTapa ? tapa : base).add(grupo);
@@ -671,7 +743,7 @@ function construirModelo(def, m, recursos, texturas, renderer, pedir) {
         const acento = new THREE.Color('#4c9dff');
         const bb = new THREE.Box3();
         piezas.push({
-            n: d.n, datos: d, dentro: !enLaTapa && !d.asoma, abajo: !!d.abajo,
+            n: d.n, datos: d, dentro: C.tipo !== 'placa' && !enLaTapa && !d.asoma, abajo: !!d.abajo,
             centro(v) { bb.setFromObject(grupo); return bb.getCenter(v); },
             tamano() { bb.setFromObject(grupo); const s = bb.getSize(new THREE.Vector3()); return Math.max(s.x, s.y, s.z, 3); },
             ancla(v) {

@@ -15,6 +15,8 @@
 // o `abajo: true` (cara inferior de la placa). `asoma` alarga la pieza hasta
 // asomar por la carcasa cerrada (tornillos, botones, LED).
 
+import { PLATFORMIO_INI, PLATFORMIO_CYD } from '../core/exportar.js';
+
 const ESPHOME_SHELLY = `# ESPHome · Shelly 1 Mini Gen3 (ESP32-C3, 8 MB)
 # Pines de devices.esphome.io/devices/shelly-1-mini-gen3
 esphome:
@@ -666,5 +668,431 @@ curl "http://$SHELLY/rpc/Switch.Set?id=0&on=true"
         ]
     }
 };
+
+// ======================================================= placas y Shelly 1PM
+const SKETCH_S3 = `// ESP32-S3-DevKitC-1 N16R8 · primer sketch: el LED RGB cambia de color y
+// el puerto serie cuenta qué chip, cuánta flash y cuánta PSRAM ve.
+// El LED RGB va en GPIO48 en las placas v1.0 y en GPIO38 en las v1.1.
+#include <Arduino.h>
+
+constexpr int PIN_RGB = 48;   // 38 en la v1.1: mira la serigrafía
+
+void color(uint8_t r, uint8_t g, uint8_t b) {
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+  rgbLedWrite(PIN_RGB, r, g, b);
+#else
+  neopixelWrite(PIN_RGB, r, g, b);
+#endif
+}
+
+void setup() {
+  Serial.begin(115200);
+  delay(1500);
+  Serial.printf("Chip %s rev %d, %d nucleos a %lu MHz\\n", ESP.getChipModel(), ESP.getChipRevision(),
+                ESP.getChipCores(), (unsigned long)ESP.getCpuFreqMHz());
+  Serial.printf("Flash %lu MB, PSRAM %lu MB\\n", (unsigned long)(ESP.getFlashChipSize() >> 20),
+                (unsigned long)(ESP.getPsramSize() >> 20));
+}
+
+void loop() {
+  const uint8_t colores[][3] = {{40, 0, 0}, {0, 40, 0}, {0, 0, 40}, {30, 30, 30}};
+  for (const auto &c : colores) {
+    color(c[0], c[1], c[2]);
+    delay(500);
+  }
+  color(0, 0, 0);
+  delay(500);
+}
+`;
+
+const SKETCH_CYD = `// ESP32-2432S028R (CYD) · primer sketch: saluda en la pantalla, dibuja lo
+// que lee el LDR y va cambiando el LED RGB (activo a nivel bajo).
+// TFT_eSPI se configura entera desde el platformio.ini de abajo.
+#include <Arduino.h>
+#include <TFT_eSPI.h>
+
+constexpr int LED_R = 4, LED_G = 16, LED_B = 17, PIN_LDR = 34;
+TFT_eSPI tft;
+
+void led(bool r, bool g, bool b) {   // nivel bajo enciende
+  digitalWrite(LED_R, r ? LOW : HIGH);
+  digitalWrite(LED_G, g ? LOW : HIGH);
+  digitalWrite(LED_B, b ? LOW : HIGH);
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
+  led(false, false, false);
+  tft.init();
+  tft.setRotation(1);                // apaisada: 320 x 240
+  tft.fillScreen(TFT_NAVY);
+  tft.setTextColor(TFT_WHITE, TFT_NAVY);
+  tft.drawString("Hola desde la CYD", 20, 20, 4);
+  tft.drawString("Lectura del LDR (0-4095):", 20, 80, 2);
+}
+
+void loop() {
+  static int paso = 0;
+  const int luz = analogRead(PIN_LDR);
+  tft.fillRect(20, 110, 280, 24, TFT_DARKGREY);
+  tft.fillRect(20, 110, map(luz, 0, 4095, 0, 280), 24, TFT_YELLOW);
+  tft.setTextPadding(120);
+  tft.drawNumber(luz, 20, 145, 4);
+  led(paso == 0, paso == 1, paso == 2);
+  paso = (paso + 1) % 3;
+  delay(500);
+}
+`;
+
+const SKETCH_1PM = `// Shelly 1PM Mini Gen3 con firmware propio (ESP32-C3, 8 MB de flash).
+// Pines (devices.esphome.io): LED GPIO0 activo a nivel bajo, botón GPIO1,
+// relé GPIO5, entrada SW GPIO10 y medidor BL0942 por UART (TX GPIO6, RX GPIO7).
+// Primer sketch: el botón y el interruptor de pared conmutan el relé.
+#include <Arduino.h>
+
+constexpr int PIN_LED = 0, PIN_BOTON = 1, PIN_RELE = 5, PIN_SW = 10;
+bool encendido = false;
+
+void aplicar() {
+  digitalWrite(PIN_RELE, encendido ? HIGH : LOW);
+  digitalWrite(PIN_LED, encendido ? LOW : HIGH);
+  Serial.println(encendido ? "Rele ON" : "Rele OFF");
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(PIN_RELE, OUTPUT);
+  pinMode(PIN_LED, OUTPUT);
+  pinMode(PIN_BOTON, INPUT_PULLUP);
+  pinMode(PIN_SW, INPUT);
+  aplicar();
+}
+
+void loop() {
+  static int botonAntes = HIGH;
+  static int swAntes = digitalRead(PIN_SW);
+  const int boton = digitalRead(PIN_BOTON);
+  const int sw = digitalRead(PIN_SW);
+  if (botonAntes == HIGH && boton == LOW) { encendido = !encendido; aplicar(); }
+  if (sw != swAntes) { encendido = !encendido; aplicar(); }
+  botonAntes = boton;
+  swAntes = sw;
+  delay(30);
+}
+`;
+
+const ESPHOME_1PM = `# ESPHome · Shelly 1PM Mini Gen3 (ESP32-C3, 8 MB, medidor BL0942)
+# Pines de devices.esphome.io/devices/shelly-1pm-mini-gen3
+esphome:
+  name: shelly-1pm-mini
+  friendly_name: Shelly 1PM Mini
+
+esp32:
+  variant: esp32c3
+  flash_size: 8MB
+  framework:
+    type: esp-idf
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+
+logger:
+api:
+ota:
+  - platform: esphome
+captive_portal:
+
+uart:
+  id: uart_bl0942
+  tx_pin: GPIO6
+  rx_pin:
+    number: GPIO7
+    mode:
+      input: true
+      pullup: true
+  baud_rate: 9600
+
+sensor:
+  - platform: bl0942
+    uart_id: uart_bl0942
+    voltage:
+      name: Tensión
+    current:
+      name: Corriente
+    power:
+      name: Potencia
+    energy:
+      name: Energía
+    update_interval: 5s
+
+output:
+  - platform: gpio
+    id: salida_rele
+    pin: GPIO5
+
+switch:
+  - platform: output
+    id: rele
+    name: Relé
+    output: salida_rele
+
+binary_sensor:
+  - platform: gpio
+    name: Interruptor
+    pin: GPIO10
+    filters:
+      - delayed_on_off: 50ms
+    on_state:
+      - switch.toggle: rele
+
+status_led:
+  pin:
+    number: GPIO0
+    inverted: true
+`;
+
+const SCRIPT_ESPERA = `// Apaga la carga cuando lleva 10 minutos por debajo de 5 W (en espera).
+let UMBRAL_W = 5, MINUTOS = 10, PERIODO_S = 30;
+let tandas = 0;
+
+Timer.set(PERIODO_S * 1000, true, function () {
+  let st = Shelly.getComponentStatus("switch:0");
+  if (!st.output || st.apower >= UMBRAL_W) {
+    tandas = 0;
+    return;
+  }
+  tandas++;
+  if (tandas * PERIODO_S >= MINUTOS * 60) {
+    Shelly.call("Switch.Set", { id: 0, on: false });
+    print("En espera " + MINUTOS + " min: apagado");
+    tandas = 0;
+  }
+});
+`;
+
+const RPC_1PM = `SHELLY=IP_DE_TU_SHELLY
+
+curl "http://$SHELLY/rpc/Switch.GetStatus?id=0"
+curl "http://$SHELLY/rpc/Switch.Toggle?id=0"
+curl "http://$SHELLY/rpc/Switch.ResetCounters?id=0"
+`;
+
+const pasosShelly = archivo => [
+    'Desconéctalo de la red. A partir de aquí solo lo alimenta el adaptador USB-serie a 3,3 V.',
+    'Conecta el adaptador al conector de 1,27 mm: 3V3, GND, TX del adaptador a RX del Shelly y RX a TX.',
+    'Pon BOOT (GPIO9) a GND mientras das alimentación o mientras sueltas RST: entra en modo descarga.',
+    `Haz la copia: \`esptool.py --chip esp32c3 read_flash 0 0x800000 ${archivo}\`.`,
+    'Graba tu sketch con `pio run -t upload` o ESPHome con `esphome run` y su YAML.',
+    `Para volver al firmware de Shelly: \`esptool.py --chip esp32c3 write_flash 0 ${archivo}\`.`
+];
+
+Object.assign(FICHAS, {
+    // ==================================================== ESP32-S3 DevKitC-1
+    'esp32-s3-devkitc-1-n16r8': {
+        claves: [['Procesador', '2 × LX7 · 240 MHz'], ['Flash', '16 MB'], ['PSRAM', '8 MB octal'], ['Radio', 'Wi-Fi 4 + BLE 5'], ['USB', 'Nativo + UART'], ['Lógica', '3,3 V']],
+        modelo: {
+            caja: { tipo: 'placa', w: 27.9, d: 71.1, h: 1.6, y: 8.6, r: .8, color: '#14161a', fondo: ['ESP32-S3-DevKitC-1', 'N16R8 · 16 MB + 8 MB PSRAM'] },
+            piezas: [
+                { n: 1, nombre: 'Módulo ESP32-S3-WROOM-1 N16R8', tipo: 'grupo', x: 55, z: 51.5,
+                    texto: 'El ESP32-S3 con 16 MB de flash y 8 MB de PSRAM octal bajo el blindaje metálico. Dos núcleos LX7 a 240 MHz con instrucciones vectoriales para IA.',
+                    formas: [{ tipo: 'caja', w: 18, d: 25.6, h: .8, color: '#1c1f24' }, { tipo: 'blindaje', dz: 3.2, dy: .8, w: 16.2, d: 18.3, h: 2.4, rotulo: 'ESP32-S3\nN16R8' }] },
+                { n: 2, nombre: 'Antena impresa del módulo', tipo: 'grupo', x: 55, z: 15,
+                    texto: 'El meandro de cobre del extremo del módulo. Para un buen alcance, que no quede encima de metal ni de un plano de masa.',
+                    formas: [{ tipo: 'antena', dy: .8, w: 14, d: 3.6 }] },
+                { n: 3, nombre: 'Puente USB-serie CH343', tipo: 'chip', x: 55, z: 163, w: 4, d: 4, h: .9, rotulo: 'CH343',
+                    texto: 'Convierte el USB-C marcado UART en el puerto serie UART0. Es por donde salen los mensajes de Serial con el platformio.ini de abajo.' },
+                { n: 4, nombre: 'Regulador de 3,3 V y protección', tipo: 'grupo', x: 55, z: 122,
+                    texto: 'Bajan los 5 V del USB a los 3,3 V del módulo y protegen la entrada. De aquí sale el pin 3V3: no le pidas más de unos 500 mA en total.',
+                    formas: [{ tipo: 'chip', dx: -4.6, w: 3.5, d: 2.3, h: 1 }, { tipo: 'chip', dx: 4.6, w: 3.5, d: 2.3, h: 1 }] },
+                { n: 5, nombre: 'LED RGB direccionable', tipo: 'rgb', x: 55, z: 206, w: 3,
+                    texto: 'Un LED WS2812 en GPIO48 (v1.0) o GPIO38 (v1.1). Es el «blink» de esta placa: se maneja con rgbLedWrite().' },
+                { n: 6, nombre: 'Botón BOOT', tipo: 'tacto', x: 40, z: 235,
+                    texto: 'Une GPIO0 a masa. Mantenido mientras pulsas RST, la placa arranca en modo descarga.' },
+                { n: 7, nombre: 'Botón RST', tipo: 'tacto', x: 70, z: 235,
+                    texto: 'Reinicia el programa desde el principio. No borra nada.' },
+                { n: 8, nombre: 'USB-C «UART»', tipo: 'usbc', x: 30, z: 268, w: 8.6,
+                    texto: 'Va al CH343: alimentación, grabación y monitor serie. Es el puerto más seguro para empezar.' },
+                { n: 9, nombre: 'USB-C «USB» nativo', tipo: 'usbc', x: 80, z: 268, w: 8.6,
+                    texto: 'Va directo al USB del ESP32-S3 (GPIO19 y 20): puede hacer de teclado, ratón o disco para el ordenador, y también grabar.' },
+                { n: 10, nombre: 'Dos tiras de 22 pines', tipo: 'grupo', x: 55, abajo: true,
+                    texto: 'Las 44 patas a 2,54 mm que se pinchan en la protoboard. Ojo: la placa ocupa casi todo el ancho de una protoboard estándar.',
+                    formas: [{ tipo: 'tira', dx: -11.4, z0: 40, z1: 250, n: 22 }, { tipo: 'tira', dx: 11.4, z0: 40, z1: 250, n: 22 }] }
+            ]
+        },
+        fuertes: [
+            'PSRAM de 8 MB: cámaras, audio y LVGL sin quedarse sin memoria',
+            'USB nativo: se hace pasar por teclado, ratón, MIDI o disco',
+            'Instrucciones vectoriales para IA ligera (ESP-DL, TensorFlow Lite Micro)',
+            'Dos USB-C: uno para grabar y otro para el USB nativo'
+        ],
+        cuidado: [
+            'Todo va a 3,3 V: 5 V en un GPIO lo daña',
+            'GPIO35, 36 y 37 están ocupados por la PSRAM octal del N16R8',
+            'GPIO0, 3, 45 y 46 deciden el arranque: no los fuerces durante el reset',
+            'Sin `memory_type = qio_opi` en platformio.ini la PSRAM no arranca'
+        ],
+        codigos: [
+            { titulo: 'Primer sketch: LED RGB y datos del chip', lenguaje: 'Arduino C++', archivo: 'src/main.cpp', nota: 'Conecta el USB-C marcado UART y abre el monitor serie a 115200 baudios.', texto: SKETCH_S3 },
+            { titulo: 'platformio.ini', lenguaje: 'INI', archivo: 'platformio.ini', texto: PLATFORMIO_INI }
+        ],
+        flasheo: {
+            titulo: 'Grabarle tu programa',
+            resumen: 'Se programa directamente por USB, sin soldar nada.',
+            pasos: [
+                'Conecta el USB-C marcado UART. En Windows, si no aparece el puerto, instala el controlador del CH343.',
+                'Graba con `pio run -t upload` y abre el monitor con `pio device monitor`.',
+                'Si no entra en modo descarga: mantén BOOT, pulsa y suelta RST, y suelta BOOT.',
+                'Para usar el USB nativo como monitor, cambia a `-DARDUINO_USB_CDC_ON_BOOT=1` y conecta el USB-C marcado USB.'
+            ]
+        },
+        ideas: [
+            'Robot con cámara y reconocimiento junto al Coral',
+            'Teclado de atajos o mando MIDI por USB nativo',
+            'Asistente de voz con el micrófono INMP441 y el amplificador I²S',
+            'Pasarela que reúne sensores por Wi-Fi y los publica por MQTT'
+        ]
+    },
+
+    // ================================================================ CYD 2,8"
+    'esp32-2432s028r': {
+        claves: [['Procesador', 'ESP32 · 2 × 240 MHz'], ['Pantalla', '2,8" · 320 × 240'], ['Táctil', 'Resistivo XPT2046'], ['Flash', '4 MB'], ['GPIO libres', '22, 27 y 35'], ['USB', 'micro-USB · CH340']],
+        modelo: {
+            caja: { tipo: 'placa', w: 86, d: 50, h: 1.6, y: 3.6, r: 1.5, color: '#e6a019', fondo: ['ESP32-2432S028R', 'ESP32-WROOM-32 · CH340 · XPT2046'] },
+            piezas: [
+                { n: 1, nombre: 'Pantalla TFT de 2,8" con táctil', tipo: 'pantalla', rect: [34, 6, 278, 164], h: 3.8,
+                    texto: 'Un TFT de 320 × 240 con controlador ILI9341 (ST7789 en la variante de dos USB) y, pegada encima, la lámina táctil resistiva que lee el XPT2046.' },
+                { n: 2, nombre: 'LED RGB', tipo: 'rgb', x: 322, z: 36, w: 3,
+                    texto: 'Tres LED en GPIO4 (rojo), GPIO16 (verde) y GPIO17 (azul), activos a nivel bajo: LOW enciende.' },
+                { n: 3, nombre: 'Sensor de luz (LDR)', tipo: 'ldr', x: 322, z: 62, r: 1.6,
+                    texto: 'Una fotorresistencia leída por GPIO34: sirve para ajustar el brillo de la pantalla a la luz de la habitación.' },
+                { n: 4, nombre: 'Micro-USB', tipo: 'microusb', x: 330, z: 100, lado: 'x',
+                    texto: 'Alimentación, grabación y monitor serie a través del CH340.' },
+                { n: 5, nombre: 'Conectores P1, P3 y CN1', tipo: 'grupo', x: 115, z: 190,
+                    texto: 'Los JST de 1,25 mm con lo poco que queda libre: P1 (VIN, TX, RX), P3 (GPIO35, 22 y 21) y CN1 (GPIO22 y 27, el bus I²C natural).',
+                    formas: [-17.7, 0, 17.7].map(dx => ({ tipo: 'caja', dx, w: 10.6, d: 3.8, h: 4.5, color: '#f3efe2' })) },
+                { n: 6, nombre: 'Módulo ESP32-WROOM-32', tipo: 'grupo', x: 100, z: 100, abajo: true,
+                    texto: 'Por detrás: el ESP32 de doble núcleo con 4 MB de flash y sin PSRAM, con su antena en un extremo para que la pantalla no la tape.',
+                    formas: [{ tipo: 'caja', w: 25.5, d: 18, h: .8, color: '#1c1f24' }, { tipo: 'blindaje', dx: 3, dy: -.8, w: 17.6, d: 15.4, h: 2.4, rotulo: 'ESP32' }, { tipo: 'antena', dx: -10, dy: -.86, w: 4, d: 14 }] },
+                { n: 7, nombre: 'Puente USB-serie CH340', tipo: 'chip', x: 290, z: 120, w: 5, d: 4, h: 1.5, abajo: true, rotulo: 'CH340',
+                    texto: 'Convierte el micro-USB en el puerto serie del ESP32 y maneja el reinicio automático al grabar.' },
+                { n: 8, nombre: 'Ranura microSD', tipo: 'blindaje', x: 190, z: 55, w: 14, d: 15, h: 1.8, abajo: true, rotulo: 'TF',
+                    texto: 'Por el bus VSPI (GPIO5, 18, 19 y 23). Ideal para guardar registros, imágenes o fuentes.' },
+                { n: 9, nombre: 'Controlador táctil XPT2046', tipo: 'chip', x: 190, z: 150, w: 5, d: 4.4, h: 1, abajo: true, rotulo: 'XPT2046',
+                    texto: 'Lee la lámina resistiva por su propio bus SPI (GPIO25, 32, 33, 36 y 39). Hay que calibrar sus valores a píxeles.' },
+                { n: 10, nombre: 'Reguladores AMS1117', tipo: 'grupo', x: 250, z: 100, abajo: true,
+                    texto: 'Dos reguladores de 3,3 V: uno para el ESP32 y otro para la pantalla. Se calientan con la retroiluminación al máximo.',
+                    formas: [{ tipo: 'chip', dz: -6, w: 6.5, d: 3.5, h: 1.6, rotulo: 'AMS1117' }, { tipo: 'chip', dz: 6, w: 6.5, d: 3.5, h: 1.6, rotulo: 'AMS1117' }] },
+                { n: 11, nombre: 'Amplificador y conector del altavoz', tipo: 'grupo', x: 130, z: 165, abajo: true,
+                    texto: 'Un pequeño amplificador mono atacado por GPIO26 (DAC) y su conector para un altavoz de 8 Ω.',
+                    formas: [{ tipo: 'chip', w: 3, d: 3, h: .9 }, { tipo: 'caja', dx: 8, w: 6, d: 4, h: 3, color: '#f3efe2' }] },
+                { n: 12, nombre: 'Botones BOOT y RST', tipo: 'grupo', x: 300, z: 40, abajo: true,
+                    texto: 'Por detrás. BOOT (GPIO0) también sirve como botón de usuario una vez arrancado el programa.',
+                    formas: [{ tipo: 'tacto', dx: -5 }, { tipo: 'tacto', dx: 5 }] }
+            ]
+        },
+        fuertes: [
+            'Todo en una placa: pantalla táctil, Wi-Fi, microSD, LED RGB, LDR y altavoz',
+            'Muy barata para lo que trae',
+            'TFT_eSPI y LVGL la soportan bien; hay seis proyectos listos en Lab Studio',
+            'El BOOT hace de botón de usuario sin añadir nada'
+        ],
+        cuidado: [
+            'Casi sin GPIO libres: solo 22, 27, 35 (solo entrada) y 21 (compartido con la retroiluminación)',
+            'Sin PSRAM: LVGL con buffers grandes se queda corto de memoria',
+            'La variante de dos USB lleva ST7789 en lugar de ILI9341: cambia el driver o los colores salen mal',
+            'El LED RGB es activo a nivel bajo y el táctil hay que calibrarlo'
+        ],
+        codigos: [
+            { titulo: 'Primer sketch: pantalla, LDR y LED RGB', lenguaje: 'Arduino C++', archivo: 'src/main.cpp', nota: 'Con el platformio.ini de abajo no hace falta tocar User_Setup.h. Los seis proyectos de la CYD tienen ejemplos más completos.', texto: SKETCH_CYD },
+            { titulo: 'platformio.ini', lenguaje: 'INI', archivo: 'platformio.ini', texto: PLATFORMIO_CYD }
+        ],
+        flasheo: {
+            titulo: 'Grabarle tu programa',
+            resumen: 'Se programa por el micro-USB, sin soldar nada.',
+            pasos: [
+                'Conecta el micro-USB. En Windows, si no aparece el puerto, instala el controlador del CH340.',
+                'Graba con `pio run -t upload` y abre el monitor con `pio device monitor`.',
+                'Si no entra en modo descarga, mantén BOOT al empezar la grabación.',
+                'Si la pantalla sale en blanco o con colores raros, es la variante ST7789: cambia `-DILI9341_2_DRIVER` por `-DST7789_DRIVER`.'
+            ]
+        },
+        ideas: [
+            'Estación meteorológica con gráfica de 24 horas',
+            'Panel táctil para los Shelly de casa',
+            'Monitor de CPU y RAM del PC por USB',
+            'Termostato con horario y relé'
+        ]
+    },
+
+    // =================================================== Shelly 1PM Mini Gen3
+    'shelly-1pm-mini-g3': {
+        claves: [['Procesador', 'ESP32-C3'], ['Flash', '8 MB'], ['Carga', '8 A · 2000 W'], ['Medida', 'V, A, W y kWh'], ['Radio', 'Wi-Fi + BLE'], ['Medidas', '34 × 29 × 16 mm']],
+        modelo: {
+            caja: { w: 34, d: 29, h: 16, r: 4, color: '#b01a30', rect: [2, 1, 136, 117, 10], fondo: ['Shelly 1PM Mini Gen3', 'S3SW-001P8EU', '110-240 VAC · 50/60 Hz'] },
+            placa: { y: 2, color: '#1d2633', margen: 2 },
+            piezas: [
+                { n: 1, nombre: 'Módulo ESP-Shelly-C38F (ESP32-C3)', tipo: 'blindaje', x: 106, z: 53, w: 10, d: 10, h: 2, rotulo: 'C38F',
+                    texto: 'Un ESP32-C3 con 8 MB de flash bajo la tapa metálica: ejecuta el firmware de Shelly y sus scripts, o el tuyo si lo flasheas.' },
+                { n: 2, nombre: 'Antena impresa de 2,4 GHz', tipo: 'antena', x: 106, z: 89, w: 10, d: 3.5,
+                    texto: 'Wi-Fi y Bluetooth salen por esta pista. Mejor sin cajas metálicas alrededor.' },
+                { n: 3, nombre: 'Relé de 8 A', tipo: 'rele', x: 56, z: 53, w: 12, d: 10, h: 10.5, color: '#202329', rotulo: '8A 240VAC',
+                    texto: 'Conmuta la fase de L hacia O. No es un contacto seco: la salida siempre lleva la tensión de red.' },
+                { n: 4, nombre: 'Medidor de energía BL0942', tipo: 'chip', x: 74, z: 80, w: 3, d: 3, h: .9, rotulo: 'BL0942',
+                    texto: 'Mide tensión, corriente, potencia y energía, y se lo cuenta al ESP32-C3 por una UART a 9600 baudios.' },
+                { n: 5, nombre: 'Resistencia de medida (shunt)', tipo: 'caja', x: 84, z: 53, w: .9, d: 7, h: .9, color: '#b87333',
+                    texto: 'Una tira metálica de muy pocos miliohmios por la que pasa toda la corriente: el BL0942 mide su caída de tensión.' },
+                { n: 6, nombre: 'Fuente conmutada 230 V → 3,3 V', tipo: 'grupo', x: 42, z: 93, texto: 'Saca de la red los 3,3 V del ESP32-C3 y del medidor.',
+                    formas: [{ tipo: 'condensador', dx: -5, r: 2.4, h: 7, color: '#243a8f' }, { tipo: 'bobina', dx: .5, r: 2.2, h: 3 }, { tipo: 'chip', dx: 5, w: 3, d: 2.4, h: 1 }] },
+                { n: 7, nombre: 'Sensor de temperatura (NTC)', tipo: 'smd', x: 66, z: 108, w: 1.6, d: .8, h: .6, color: '#c9a66b',
+                    texto: 'Vigila la temperatura interna y abre el relé si se calienta de más.' },
+                { n: 8, nombre: 'Bornas SW y O', tipo: 'borna', z: 15, polos: [30, 50], d: 7, h: 8, color: '#1a1b1e',
+                    texto: 'SW: entrada del interruptor de la pared, conmutada a fase. O: salida hacia la carga.' },
+                { n: 9, nombre: 'Bornas L y N', tipo: 'borna', z: 15, polos: [90, 110], d: 7, h: 8, color: '#1a1b1e',
+                    texto: 'Fase y neutro de la caja: alimentan el Shelly y la carga.' },
+                { n: 10, nombre: 'Conector de programación (1,27 mm)', tipo: 'pads', x: 12, z: 55, etiquetas: ['RST', '3V3', 'RX', 'TX', 'BOOT', 'GND'], vertical: true,
+                    texto: 'Seis contactos para un adaptador USB-serie a 3,3 V: copia del firmware y grabación de ESPHome o de tu sketch.' },
+                { n: 11, nombre: 'Botón de reinicio', tipo: 'boton', x: 80, z: 101, r: 1.4, color: '#e8eaed', asoma: true,
+                    texto: 'Pulsado conmuta el relé; mantenido 10 s devuelve el Shelly a fábrica.' },
+                { n: 12, nombre: 'LED de estado', tipo: 'led', x: 94, z: 103, color: '#4c9dff', asoma: true,
+                    texto: 'Indica la conexión Wi-Fi y el modo de punto de acceso.' }
+            ]
+        },
+        fuertes: [
+            'Mide lo que consume la carga: tensión, corriente, potencia y energía',
+            'API local por RPC y MQTT, sin nube',
+            'Scripts mJS que deciden con el consumo dentro del propio relé',
+            'ESP32-C3 con 8 MB y conector de programación: admite ESPHome o tu sketch'
+        ],
+        cuidado: [
+            'Va a 230 V: se instala sin tensión, dentro de una caja y con magnetotérmico',
+            'No es contacto seco: O entrega la fase de L',
+            'Con motores o transformadores grandes, 8 A se quedan cortos: usa un contactor',
+            'Nunca lo programes conectado a la red y haz copia del firmware antes'
+        ],
+        codigos: [
+            { titulo: 'Script: apagar lo que se queda en espera', lenguaje: 'Shelly Script (mJS)', nota: 'Sin flashear nada: Scripts → Añadir script, pega, guarda e Iniciar.', texto: SCRIPT_ESPERA },
+            { titulo: 'Desde tu red: consumo por RPC', lenguaje: 'Terminal', nota: 'Pon en SHELLY la IP de tu Shelly. La respuesta trae apower (W), voltage (V), current (A) y aenergy.total (Wh).', texto: RPC_1PM },
+            { titulo: 'Primer sketch con firmware propio', lenguaje: 'Arduino C++', archivo: 'src/main.cpp', nota: 'Antes, lee los pasos de flasheo.', texto: SKETCH_1PM },
+            { titulo: 'platformio.ini', lenguaje: 'INI', archivo: 'platformio.ini', texto: PIO_SHELLY.replace('Shelly 1 Mini Gen3', 'Shelly 1PM Mini Gen3').replace('shelly-1-mini-gen3', 'shelly-1pm-mini-gen3') },
+            { titulo: 'ESPHome con medida de energía', lenguaje: 'YAML', archivo: 'shelly-1pm-mini.yaml', texto: ESPHOME_1PM }
+        ],
+        flasheo: {
+            titulo: 'Grabarle tu programa',
+            resumen: 'Admite programa propio: es un ESP32-C3 con conector de programación. Haz siempre copia del firmware de fábrica primero.',
+            pasos: pasosShelly('shelly-1pm-mini-g3.bin')
+        },
+        ideas: [
+            'Avisar cuando termina la lavadora: el consumo cae y un script publica por MQTT',
+            'Cortar el consumo en espera del televisor y su equipo de sonido',
+            'Medir cuánto gasta el calefactor o el termo eléctrico',
+            'Programar el termo para que caliente en las horas baratas'
+        ]
+    }
+});
 
 export const fichaDe = id => FICHAS[id] || null;

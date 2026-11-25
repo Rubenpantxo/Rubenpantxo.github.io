@@ -103,7 +103,7 @@ function visor3d(def, f) {
     <div class="grupo-visor">
       <button type="button" class="icono" data-visor="girar" aria-pressed="false" title="Girar solo" aria-label="Girar solo">${ico('girar')}</button>
       <button type="button" class="icono" data-visor="rotulos" aria-pressed="true" title="Rótulos numerados" aria-label="Rótulos numerados">${ico('rotulo')}</button>
-      <button type="button" data-visor="abrir" aria-pressed="false" title="Levanta la carcasa y deja ver la placa">${ico('ojo')}Ver la placa</button>
+      ${f.modelo.caja.tipo === 'placa' ? '' : `<button type="button" data-visor="abrir" aria-pressed="false" title="Levanta la carcasa y deja ver la placa">${ico('ojo')}Ver la placa</button>`}
     </div>
   </div>
   <p class="visor-pista">Arrastra para girar · Ctrl + rueda o pellizco para acercar · doble clic para volver</p>
@@ -114,7 +114,7 @@ function leccionCabeza(f) {
     const piezas = f.modelo ? f.modelo.piezas : [];
     return `
   ${f.claves ? `<section class="en-corto"><h3>En corto</h3><dl class="cifras">${f.claves.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl></section>` : ''}
-  ${piezas.length ? `<section><h3>Qué hay dentro</h3><p class="tenue">${piezas.length} partes, numeradas como los rótulos del modelo 3D. Pulsa una y la cámara va hacia ella; si está dentro, la carcasa se levanta.</p>
+  ${piezas.length ? `<section><h3>${f.modelo && f.modelo.caja.tipo === 'placa' ? 'Qué hay en la placa' : 'Qué hay dentro'}</h3><p class="tenue">${piezas.length} partes, numeradas como los rótulos del modelo 3D. Pulsa una y la cámara va hacia ella${f.modelo && f.modelo.caja.tipo === 'placa' ? '' : '; si está dentro, la carcasa se levanta'}.</p>
     <ol class="partes">${piezas.map(p => `<li><button type="button" data-pieza="${p.n}" aria-pressed="false"><span class="num">${p.n}</span><span><b>${esc(p.nombre)}</b><small>${esc(p.texto || '')}</small></span></button></li>`).join('')}</ol></section>` : ''}
   ${f.fuertes || f.cuidado ? `<section class="pros"><div><h3>${ico('ok')}Puntos fuertes</h3><ul>${(f.fuertes || []).map(s => `<li>${conCodigo(s)}</li>`).join('')}</ul></div>
     <div><h3>${ico('alerta')}Cuidado con</h3><ul>${(f.cuidado || []).map(s => `<li>${conCodigo(s)}</li>`).join('')}</ul></div></section>` : ''}`;

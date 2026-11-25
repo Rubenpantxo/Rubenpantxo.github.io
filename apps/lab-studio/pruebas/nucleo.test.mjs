@@ -405,8 +405,10 @@ test('modelo: plegar un montaje apaisado para una pantalla vertical', () => {
 // ------------------------------------------- domótica de caja de mecanismo
 const CASA = ['shelly-1-mini-g3', 'sonoff-zbminir2', 'sonoff-mini-d', 'ettroit-ln1800', 'came-ttsd4rks'];
 
-test('domótica: los cinco aparatos de casa, con ficha, modelo 3D y primer código', () => {
-    for (const id of CASA) {
+test('fichas ampliadas: modelo 3D, lección y primer código coherentes', () => {
+    for (const id of CASA) assert.ok(FICHAS[id], id + ': ficha');
+    for (const id of ['esp32-s3-devkitc-1-n16r8', 'esp32-2432s028r', 'shelly-1pm-mini-g3']) assert.ok(FICHAS[id], id + ': ficha');
+    for (const id of Object.keys(FICHAS)) {
         const c = def(id), f = FICHAS[id];
         assert.ok(c && c.propio, id + ': en el inventario');
         assert.ok(f && f.modelo, id + ': ficha con modelo');
@@ -421,6 +423,10 @@ test('domótica: los cinco aparatos de casa, con ficha, modelo 3D y primer códi
             assert.ok(p.nombre && p.texto, `${id}.${p.n}: textos`);
             for (const x of [p.x, ...(p.polos || []), ...(p.puntos || []).map(q => q[0])].filter(v => v != null)) assert.ok(x >= 0 && x <= W, `${id}.${p.n}: x fuera del dibujo`);
             for (const z of [p.z, ...(p.puntos || []).map(q => q[1])].filter(v => v != null)) assert.ok(z >= 0 && z <= H, `${id}.${p.n}: z fuera del dibujo`);
+            for (const f of p.formas || [p]) {
+                for (const z of [f.z0, f.z1].filter(v => v != null)) assert.ok(z >= 0 && z <= H, `${id}.${p.n}: tira fuera del dibujo`);
+                if (f.rect) assert.ok(f.rect[0] >= 0 && f.rect[1] >= 0 && f.rect[0] + f.rect[2] <= W && f.rect[1] + f.rect[3] <= H, `${id}.${p.n}: pantalla fuera del dibujo`);
+            }
         }
         for (const k of f.codigos.filter(k => k.archivo === 'src/main.cpp')) {
             const cuenta = ch => k.texto.split(ch).length - 1;
