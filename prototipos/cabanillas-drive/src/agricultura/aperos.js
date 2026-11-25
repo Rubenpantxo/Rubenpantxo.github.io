@@ -43,6 +43,13 @@ export async function cargaApero(id, { fisica }) {
   contenido.add(modelo);
   const rodillo = info.rodillo ? modelo.getObjectByName(info.rodillo.objeto) : null;
   const ruedaControl = info.rueda_control ? modelo.getObjectByName(info.rueda_control.objeto) : null;
+  const nodo = (n) => (n ? modelo.getObjectByName(n) : null);
+  const discos = (info.discos ?? []).map(nodo).filter(Boolean);
+  const ruedas = (info.ruedas ?? []).map(nodo).filter(Boolean);
+  const rejas = nodo(info.rejas);
+  const pata = nodo(info.pata);
+  const nodoCarga = nodo(info.carga?.objeto);
+  const rejasY = rejas ? rejas.position.y : 0;
 
   // Caja de colisión para cuando está aparcado (no va en el tractor: el tractor no choca con su apero)
   const { RAPIER, mundo } = fisica;
@@ -52,13 +59,47 @@ export async function cargaApero(id, { fisica }) {
   let cuerpo = null;
 
   const apero = {
-    id, config, info, objeto, modelo, volteo, rodillo, ruedaControl,
+    id, config, info, objeto, modelo, volteo, rodillo, ruedaControl, discos, ruedas, rejas, pata,
     anchoTrabajo: info.ancho_trabajo,
+    arrastrado: info.tipo === 'arrastrado',
     angulo: 0,              // volteo del reversible (0 o π)
+    // Tolva (abonadora, sembradora): kg que lleva y de qué ('abono', 'trigo', 'cebada')
+    carga: 0,
+    contenido: null,
+    get capacidad() { return config.capacidadKg ?? 0; },
+    get llenado() { return config.capacidadKg ? apero.carga / config.capacidadKg : 0; },
+    llena(contenido) {
+      apero.contenido = contenido;
+      apero.carga = config.capacidadKg ?? 0;
+      apero.pintaCarga();
+    },
+    // Gasta hasta «kg» de la tolva; devuelve lo que había de verdad
+    gasta(kg) {
+      const g = Math.min(kg, apero.carga);
+      apero.carga -= g;
+      if (apero.carga <= 1e-6) apero.carga = 0;
+      apero.pintaCarga();
+      return g;
+    },
+    // La placa de la carga sube con lo que queda y se ensancha como la tolva
+    pintaCarga() {
+      if (!nodoCarga) return;
+      const c = info.carga;
+      const t = apero.llenado;
+      nodoCarga.visible = t > 0.005;
+      nodoCarga.position.y = THREE.MathUtils.lerp(c.y_vacia, c.y_llena, t);
+      nodoCarga.scale.set(THREE.MathUtils.lerp(c.escala_vacia_x, 1, t), 1, THREE.MathUtils.lerp(c.escala_vacia, 1, t));
+    },
+    // Rejas de la sembradora: 0 bajadas (clavadas unos centímetros) … 1 levantadas
+    ponRejas(subida) {
+      if (rejas) rejas.position.y = rejasY + (info.bajada_rejas ?? 0.12) * subida - 0.04 * (1 - subida);
+    },
     // Deja el apero apoyado en el suelo del patio, en (x, z) y con un rumbo en grados (0 = norte)
     aparca(raiz, terreno, [x, z, rumbo]) {
       const r = (rumbo * Math.PI) / 180;
       raiz.add(objeto);
+      if (pata) pata.visible = true;
+      apero.ponRejas(1);
       objeto.rotation.set(0, Math.atan2(Math.sin(r), -Math.cos(r)), 0);
       // Apoyado en lo más bajo (rejas o brazos encima del suelo, no clavados)
       const y = terreno.alturaEn(x, z) - caja.min.y;
@@ -74,8 +115,10 @@ export async function cargaApero(id, { fisica }) {
     recoge() {
       if (cuerpo) { mundo.removeRigidBody(cuerpo); cuerpo = null; }
       objeto.removeFromParent();
+      if (pata) pata.visible = false;
     },
     get aparcado() { return cuerpo !== null; },
   };
+  apero.pintaCarga();
   return apero;
 }

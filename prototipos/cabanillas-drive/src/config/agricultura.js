@@ -13,7 +13,7 @@ export const AGRICULTURA = {
     sitioTractor: [-306, -10, 180],     // mirando a la calle
     sitioCoche: [-291, -4, 180],
     // Aperos aparcados en el patio cuando no van en el tractor (a más de 9 m de cualquier edificio)
-    sitiosAperos: { arado: [-299, -11, 180], cultivador: [-313, -6, 180] },
+    sitiosAperos: { arado: [-299, -11, 180], cultivador: [-313, -6, 180], abonadora: [-292, -11, 180], sembradora: [-313, 3, 180] },
   },
   // Labranza (A4): rodadas del tractor, hierba y recuento
   labranza: {
@@ -21,6 +21,9 @@ export const AGRICULTURA = {
     refrescoHierbaS: 1.0,     // cada cuánto se quita la hierba 3D de lo recién labrado
     recuentoS: 0.5,           // cada cuánto se rehace el porcentaje del panel
     rodadas: 0.55,            // fuerza de las huellas de las ruedas traseras en tierra seca (0…1)
+    rodadasApero: 0.35,       // las de las ruedas de la sembradora, más estrechas y ligeras
+    // Día de cultivo que se guarda al sembrar. El reloj agrícola llega en A6: hasta entonces, día 1
+    diaInicial: 1,
   },
   // Riego de la parcela de pruebas (Rubén, 2026-11-21, sobre la captura cope_y_parcelas_prueba.jpg):
   // la acequia corre por fuera de la linde sureste de la 2-700, de nordeste a suroeste, desde algo

@@ -1,6 +1,7 @@
-// Polvo y terrones de la labranza (PLAN_AGRICULTURA.md §5.6, fase A4). Una sola nube de puntos para
-// el polvo (cada partícula con su tamaño y su opacidad, sin escribir en profundidad) y una malla
-// instanciada para los terrones que salta la vertedera. Cantidades según la calidad.
+// Polvo, terrones y abono de las labores (PLAN_AGRICULTURA.md §5.6, fases A4–A5). Una nube de puntos
+// para el polvo (cada partícula con su tamaño y su opacidad, sin escribir en profundidad), una malla
+// instanciada para los terrones que salta la vertedera y otra nube de puntos para el granulado que
+// echan los discos de la abonadora en abanico. Cantidades según la calidad.
 import * as THREE from 'three';
 
 const VERTICE = /* glsl */ `
@@ -35,6 +36,7 @@ void main() {
 export function creaParticulas(escena, { terreno, calidad = 'alto' }) {
   const N = { alto: 900, medio: 500, bajo: 260 }[calidad] ?? 500;
   const NT = { alto: 220, medio: 140, bajo: 70 }[calidad] ?? 140;
+  const NG = { alto: 900, medio: 550, bajo: 300 }[calidad] ?? 550;
   const raiz = new THREE.Group();
   raiz.name = 'particulas_labranza';
   escena.add(raiz);
@@ -111,7 +113,20 @@ export function creaParticulas(escena, { terreno, calidad = 'alto' }) {
     terrones.count = Math.max(terrones.count, k + 1);
   }
 
-  const acumulado = { polvo: 0, terrones: 0 };
+  // --- Granulado de la abonadora
+  const gp = new Float32Array(NG * 3).fill(-1e4);
+  const gv = new Float32Array(NG * 3);
+  const gvivo = new Uint8Array(NG);
+  const geoG = new THREE.BufferGeometry();
+  geoG.setAttribute('position', new THREE.BufferAttribute(gp, 3).setUsage(THREE.DynamicDrawUsage));
+  const matG = new THREE.PointsMaterial({ color: 0xf2f0e8, size: 0.13, sizeAttenuation: true });
+  const granulado = new THREE.Points(geoG, matG);
+  granulado.frustumCulled = false;
+  raiz.add(granulado);
+  let gSig = 0;
+  let gVivos = 0;
+
+  const acumulado = { polvo: 0, terrones: 0, granos: 0 };
   return {
     raiz,
     // Emite a lo largo de la línea de trabajo: centro (x, y, z), dirección de la marcha (fx, fz),
@@ -138,7 +153,40 @@ export function creaParticulas(escena, { terreno, calidad = 'alto' }) {
           -nz * lado + fz * velocidad * 0.3, 0.035 + Math.random() * 0.06);
       }
     },
+    // Abanico de granulado de un disco de la abonadora en (x, y, z): hacia atrás y hacia su lado
+    // (lado 1 izquierda, −1 derecha), con alcance para cubrir media anchura de reparto
+    granos(dt, { x, y, z, fx, fz, ancho, velocidad, lado }) {
+      acumulado.granos += dt * 260 * (NG / 900);
+      const nx = -fz;                 // derecha de la marcha
+      const nz = fx;
+      while (acumulado.granos >= 1) {
+        acumulado.granos -= 1;
+        const k = gSig;
+        gSig = (gSig + 1) % NG;
+        // Ángulo desde «atrás» hacia su lado (−0,2…1,45 rad) y rapidez para llegar hasta ancho/2
+        const a = -0.2 + Math.random() * 1.65;
+        const atras = Math.cos(a);
+        const lat = Math.sin(a) * -lado;     // lado izquierdo (1): −derecha
+        const v = 3 + Math.random() * (ancho * 0.75);
+        gp[k * 3] = x; gp[k * 3 + 1] = y; gp[k * 3 + 2] = z;
+        gv[k * 3] = (-fx * atras + nx * lat) * v + fx * velocidad;
+        gv[k * 3 + 1] = 1 + Math.random() * 1.4;
+        gv[k * 3 + 2] = (-fz * atras + nz * lat) * v + fz * velocidad;
+        gvivo[k] = 1;
+      }
+    },
     actualiza(dt, { luz = 1, viento = [0.4, 0.15], escala = 600 } = {}) {
+      gVivos = 0;
+      for (let k = 0; k < NG; k++) {
+        if (!gvivo[k]) continue;
+        gv[k * 3 + 1] -= 9.8 * dt;
+        gv[k * 3] *= 1 - dt * 0.5; gv[k * 3 + 2] *= 1 - dt * 0.5;    // el aire los frena
+        gp[k * 3] += gv[k * 3] * dt; gp[k * 3 + 1] += gv[k * 3 + 1] * dt; gp[k * 3 + 2] += gv[k * 3 + 2] * dt;
+        if (gp[k * 3 + 1] < terreno.alturaEn(gp[k * 3], gp[k * 3 + 2])) { gvivo[k] = 0; gp[k * 3 + 1] = -1e4; continue; }
+        gVivos++;
+      }
+      geoG.attributes.position.needsUpdate = true;
+      matG.color.setScalar(0.95 * luz);
       material.uniforms.uLuz.value = luz;
       material.uniforms.uEscala.value = escala;     // px por metro a 1 m de la cámara
       vivas = 0;
@@ -183,10 +231,11 @@ export function creaParticulas(escena, { terreno, calidad = 'alto' }) {
       terrones.instanceMatrix.needsUpdate = true;
     },
     get vivas() { return vivas; },
+    get granosEnElAire() { return gVivos; },
     get terrones() { let n = 0; for (let k = 0; k < terrones.count; k++) if (tvida[k] > 0) n++; return n; },
     libera() {
       raiz.removeFromParent();
-      geo.dispose(); material.dispose(); geoTerron.dispose(); matTerron.dispose();
+      geo.dispose(); material.dispose(); geoTerron.dispose(); matTerron.dispose(); geoG.dispose(); matG.dispose();
     },
   };
 }

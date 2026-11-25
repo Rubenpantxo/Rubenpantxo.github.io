@@ -469,7 +469,7 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 
 ## Agricultura (PLAN_AGRICULTURA.md)
 
-**Fase actual: A4 (arado y cultivador) hecha el 2026-11-25, pendiente de que Rubén la pruebe.** A3 aprobada (2026-11-25); A2 aprobada (2026-11-24); A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
+**Fase actual: A5 (abonadora y sembradora) hecha el 2026-11-25, pendiente de que Rubén la pruebe.** A4 aprobada (2026-11-25); A3 aprobada (2026-11-25); A2 aprobada (2026-11-24); A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
 
 ### Hecho en A0
 - **Todas las parcelas del término** (decisión de Rubén): 1 775 rústicas + 22 mixtas = **1 797 parcelas, 3 275 ha** de las 3 574 del término; 9 polígonos. 259 dentro de la zona del juego, 70 en parte y 1 468 fuera.
@@ -529,10 +529,23 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - Ganchos nuevos (inactivos sin `?agricultura`): `juego.js` llama a `agricultura.paso` en cada paso de física, `agricultura.actualiza` en cada fotograma y `agricultura.pausa` en pausa; tecla `apero` (Q) en `src/config/camara.js` y `entrada.js`; botón táctil del apero en `index.html`. Corregido: los vehículos se colocaban con la caja de colisión metida 15 cm en el suelo y, en cuesta, giraban al aparecer.
 - **Prueba:** `node tools/prueba_labranza.mjs <carpeta> [bajo|medio|alto] [movil]`: arado y cultivador en el patio; coger el tractor con el arado; dos pasadas conducidas de verdad en la 2-700 (ida y vuelta al lado): el porcentaje casa con 1,6 m × lo recorrido, surcos en la dirección de la pasada, no pasa de la velocidad de trabajo, polvo, terrones, rodadas, motor, panel, volteo del reversible y gaviotas; media parcela con 15 pasadas de 1,6 m (con el pincel, sin conducir) = 50,7 %; cambiar al cultivador en la COPE (el arado vuelve al patio) y cultivar lo arado (el rodillo gira); sin errores. **Todo bien** en escritorio y móvil. `prueba_tractor.mjs` (A3) sigue bien.
 
+### Decisiones de Rubén (2026-11-25, tras A4)
+- **A4 aprobada** («empieza a5»).
+
+### Hecho en A5 (2026-11-25)
+- **Aperos nuevos** en `tools/build_maquinaria.py` (genéricos, sin marcas, con placas de señalización): **abonadora centrífuga** suspendida (azul: tolva de tronco de pirámide con rejilla, dos discos con paletas que giran en sentidos contrarios, protector, caja de engranajes, patas de apoyo; 2 800 triángulos, 42 KB) y **sembradora de cereal arrastrada** de 3 m y 20 líneas (burdeos: lanza en A, tolva corrida a lo ancho, ruedas, rejas de disco con sus tubos de caída, rastrillo tapador, pata de apoyo que solo se ve aparcada; 4 500 triángulos, 54 KB). Las dos tienen la carga de la tolva (abono blanco, grano dorado) como pieza que baja y encoge con lo que queda. El tractor apunta además en `maquinaria.json` la barra de tiro y la toma de fuerza.
+- **Enganche** (`enganche.js`): la abonadora va al tripuntal y un **cardán** amarillo une la toma de fuerza del tractor con la suya; bajada, gira la toma de fuerza y giran los discos. La sembradora va a la **barra de tiro**: sigue al tractor sobre sus ruedas como un remolque (su eje va hacia la lanza: en las curvas va por dentro y marcha atrás se cruza), con la lanza limitada a 75° y apoyada en el terreno (cabeceo y alabeo); Q o ⬇ baja y sube sus rejas. **Decisión:** es cinemática, sin cuerpo en la física (una articulación de Rapier con el controlador de vehículo sería inestable): no choca con nada.
+- **Tolvas y COPE:** en el menú se elige el apero y la semilla (trigo o cebada); al enganchar la abonadora o la sembradora en la COPE su tolva sale **llena** (800 kg de abono; 400 kg de semilla), y con el tractor en el aro hay «Llenar la tolva». Gastan por la superficie que cubren: abono 300 kg/ha, trigo 200 kg/ha, cebada 180 kg/ha (orientativos, en `src/config/maquinaria.js`; se afinarán en A6). Vacías, no hacen nada y avisan de volver a la COPE. De momento no se paga (A9).
+- **Labores** (`labranza.js`): la abonadora deja abonada una franja de **12 m** (no deshace lo labrado; los discos echan el granulado aunque caiga fuera de la parcela, como de verdad); la sembradora siembra **3 m** y guarda en la máscara B el **día de cultivo** (día 1 hasta que haya reloj agrícola en A6) y en la parcela el cultivo (`parcela.siembra`). Sembrar sobre rastrojo avisa de labrar antes. Las ruedas de la sembradora dejan sus rodadas. Las franjas de los aperos acaban **rectas** (antes en redondo, que con 12 m se veía un círculo al empezar).
+- **Efectos:** abanico de granulado blanco desde cada disco hacia atrás y a su lado (`particulas.granos`); polvo fino de la sembradora y algunas gaviotas detrás de ella. El motor va con carga con la toma de fuerza o la sembradora.
+- **Panel:** la tolva (barra, kg y de qué) y los porcentajes de arado, cultivado, abonado y sembrado.
+- **Prueba:** `node tools/prueba_siembra.mjs <carpeta> [bajo|medio|alto] [movil]`: la mitad central de la 2-700 se deja cultivada con el pincel (el arado y el cultivador de verdad los prueba `prueba_labranza.mjs`); menú con abonadora, sembradora y semilla; tolva llena y cardán; una pasada de verdad abonando (franja de ~12 m, kg gastados = dosis × hectáreas, granulado en el aire, discos, velocidad); cambio a la sembradora en la COPE; una pasada sembrando (franja de 3 m, día de siembra en la máscara, trigo en la parcela, kg por la dosis, rodadas, ruedas que giran, apoyada en el suelo); curva (la sembradora gira respecto al tractor sin pasar de 75°) y marcha atrás (no siembra); sembrar sobre rastrojo avisa; tolva vacía deja de sembrar y avisa; sin errores. **Todo bien** en escritorio y móvil; `prueba_labranza.mjs` (A4) y `prueba_tractor.mjs` (A3) siguen bien.
+
 ### Pendiente de Rubén
-- Probar el arado y el cultivador (`?agricultura`: en la COPE, elegir el apero y «Coger el tractor»; en la 2-700, Q o ⬇ para bajarlo) y decir si la tierra, el polvo, las gaviotas, el ritmo y el sonido le parecen bien.
-- Confirmar que se empieza A5 (abonadora y sembradora).
-- Más adelante: tiempo agrícola y precios (§3 del plan).
+- Probar la abonadora y la sembradora (`?agricultura`: en la COPE elegir el apero y la semilla y «Coger el tractor»; mejor arar y cultivar antes la 2-700) y decir qué le parecen el abanico de abono, cómo sigue la sembradora y las dosis.
+- **Tiempo agrícola** (lo necesita A6): cuántos minutos reales dura un día de cultivo y si hay botón de «pasar días».
+- Confirmar que se empieza A6 (los cultivos crecen: trigo y cebada).
+- Más adelante: precios (§3 del plan).
 
 ### Notas
 - En el PC no hay `data/raw/` en `Rubenpantxo.github.io/prototipos/cabanillas-drive` (los datos del pipeline siguen en `bifurcaciones/feat-cabanillas-drive`, ver «Salto en paracaídas»): por eso A0 baja el Catastro del WFS. Si se copia el paquete de shapefiles a `data/raw/catastro/`, el script lo usa en lugar del WFS.

@@ -48,6 +48,10 @@ ENGANCHE = {}   # puntos del tripuntal del tractor (los rellena tractor())
 # Aperos (A4): medidas en metros. Origen en el centro de los bulones inferiores del enganche;
 # el apero se extiende hacia atrás (+Y de Blender); el suelo, trabajando, en z = −alto_bulon.
 ARADO = {"cuerpos": 4, "corte": 0.40, "paso": 0.90, "y0": 0.95, "viga_z": 0.30, "alto_bulon": 0.45, "profundidad": 0.22}
+ABONADORA = {"alto_bulon": 0.55, "tolva": (1.35, 0.36, 0.62, 1.42), "tolva_y": 0.78, "discos_x": 0.34, "disco_r": 0.3,
+             "disco_z": 0.08, "ancho_trabajo": 12.0}
+SEMBRADORA = {"ancho": 3.0, "lineas": 20, "alto_lanza": 0.42, "eje_y": 2.25, "rueda_r": 0.38, "marco_y": (1.55, 3.0),
+              "marco_z": 0.22, "tolva_y": 2.2, "tolva_z": (0.5, 1.2), "tolva_fondo": (0.36, 0.9)}
 CULTIVADOR = {"ancho": 3.0, "barras_y": (0.55, 1.15, 1.75), "barra_z": 0.35, "brazos_por_barra": 5,
               "separacion": 0.6, "alto_bulon": 0.45, "profundidad": 0.10, "rodillo_y": 2.45, "rodillo_r": 0.2}
 
@@ -66,6 +70,11 @@ COLORES = {
     "asiento": (0.06, 0.06, 0.065, 1.0),
     "apero_arado": (0.045, 0.075, 0.022, 1.0),       # verde oliva oscuro
     "apero_cultivador": (0.48, 0.30, 0.015, 1.0),    # amarillo mostaza
+    "apero_abonadora": (0.018, 0.06, 0.17, 1.0),     # azul oscuro
+    "apero_sembradora": (0.22, 0.012, 0.016, 1.0),   # rojo burdeos
+    "abono": (0.78, 0.77, 0.72, 1.0),                # granulado blanco grisáceo
+    "semilla": (0.62, 0.42, 0.13, 1.0),              # grano de cereal
+    "proteccion": (0.75, 0.5, 0.0, 1.0),             # protector amarillo del cardán
     "acero": (0.62, 0.62, 0.6, 1.0),                 # vertederas y rejas gastadas de trabajar
     "senal_roja": (0.6, 0.012, 0.01, 1.0),
     "senal_blanca": (0.85, 0.85, 0.82, 1.0),
@@ -122,6 +131,8 @@ def mats():
         "piloto": material("piloto", 0.3, 0.0, 1.0),
         "asiento": material("asiento", 0.85),
         "acero": material("acero", 0.32, 0.85),
+        "abono": material("abono", 0.9),
+        "semilla": material("semilla", 0.8),
         "senal_roja": material("senal_roja", 0.5),
         "senal_blanca": material("senal_blanca", 0.5),
     }
@@ -413,7 +424,8 @@ def tractor(M):
         caja("soporte_tripuntal", (0.9, 0.2, 0.55), (0, yt - 0.05, 0.85), M["negro"], 0.02),
     ]
     # Puntos del enganche (Blender): eje de los brazos, rótulas y extremo del tercer punto
-    ENGANCHE.update({"pivote": (0, yt, 0.564), "rotula": (0, yt + 0.85, 0.5), "superior": (0, yt + 0.775, 1.18)})
+    ENGANCHE.update({"pivote": (0, yt, 0.564), "rotula": (0, yt + 0.85, 0.5), "superior": (0, yt + 0.775, 1.18),
+                     "barra_tiro": (0, yt + 0.5, 0.42), "toma_fuerza": (0, yt + 0.225, 0.78)})
 
     vidrios = []
     vid_z = (suelo + 0.12 + techo - 0.04) / 2
@@ -671,6 +683,173 @@ def cultivador(M):
     return objetos, datos
 
 
+def tronco_piramide(nombre, inferior, superior, z0, z1, centro_y, mat, grosor=0.012, cerrado_abajo=True):
+    """Tolva: tronco de pirámide hueco (abierto arriba). inferior y superior: (ancho x, fondo y)."""
+    (ax0, ay0), (ax1, ay1) = inferior, superior
+    malla = bpy.data.meshes.new(nombre)
+    bm = bmesh.new()
+    abajo = [bm.verts.new((sx * ax0 / 2, centro_y + sy * ay0 / 2, z0)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    arriba = [bm.verts.new((sx * ax1 / 2, centro_y + sy * ay1 / 2, z1)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    for k in range(4):
+        bm.faces.new((abajo[k], abajo[(k + 1) % 4], arriba[(k + 1) % 4], arriba[k]))
+    if cerrado_abajo:
+        bm.faces.new(list(reversed(abajo)))
+    bm.to_mesh(malla)
+    bm.free()
+    obj = _objeto(nombre, malla, mat)
+    m = obj.modifiers.new("grosor", "SOLIDIFY")
+    m.thickness = grosor
+    return obj
+
+
+def abonadora(M):
+    """Abonadora centrífuga de dos discos suspendida (reparte 12 m), con tolva de pirámide y cardán."""
+    A = ABONADORA
+    pintura = material("pintura_apero", 0.4, 0.15, color=COLORES["apero_abonadora"])
+    zs = -A["alto_bulon"]
+    arriba, abajo, z0, z1 = A["tolva"]
+    yt = A["tolva_y"]
+    bastidor = cabezal_enganche(M, pintura)
+    # Tolva y su borde
+    bastidor.append(tronco_piramide("tolva", (abajo * 2.2, abajo), (arriba, arriba), z0, z1, yt, pintura, 0.015))
+    for k, (dx, dy, cx, cy) in enumerate(((arriba + 0.06, 0.06, 0, yt - arriba / 2), (arriba + 0.06, 0.06, 0, yt + arriba / 2),
+                                          (0.06, arriba, -arriba / 2, yt), (0.06, arriba, arriba / 2, yt))):
+        bastidor.append(caja(f"borde{k}", (dx, dy, 0.07), (cx, cy, z1), pintura, 0.01))
+    # Rejilla de arriba (para que no caigan terrones)
+    rejilla = [caja(f"rejilla{k}", (arriba - 0.04, 0.012, 0.03), (0, yt - arriba / 2 + (k + 1) * arriba / 8, z1 - 0.02), M["negro"]) for k in range(7)]
+    # Bastidor: montantes desde los bulones y la torre hasta la tolva, patas de apoyo
+    for sx in (-1, 1):
+        bastidor.append(segmento(f"montante{sx}", (sx * 0.38, 0.06, 0.0), (sx * 0.52, yt - 0.35, z1 - 0.1), 0.07, 0.07, pintura, 0.01))
+        bastidor.append(segmento(f"montante_tras{sx}", (sx * 0.38, yt + 0.25, 0.05), (sx * 0.52, yt + 0.4, z1 - 0.1), 0.07, 0.07, pintura, 0.01))
+        bastidor.append(segmento(f"larguero{sx}", (sx * 0.38, 0.02, 0.0), (sx * 0.38, yt + 0.25, 0.05), 0.07, 0.07, pintura, 0.01))
+        bastidor.append(segmento(f"pata{sx}", (sx * 0.38, yt + 0.25, 0.05), (sx * 0.42, yt + 0.3, zs), 0.05, 0.05, pintura))
+    bastidor.append(segmento("tirante_torre", (0, -0.06, 0.66), (0, yt - 0.35, z1 - 0.05), 0.06, 0.06, pintura))
+    # Salidas y caja de engranajes con el eje de entrada (de la toma de fuerza)
+    zd = A["disco_z"]
+    mecanica = []
+    for sx in (-1, 1):
+        mecanica.append(cilindro(f"salida{sx}", 0.06, 0.18, (sx * A["discos_x"] * 0.6, yt + 0.03, z0 - 0.05), "z", M["metal"], 12))
+    mecanica.append(caja("caja_engranajes", (0.5, 0.18, 0.14), (0, yt - 0.12, zd - 0.12), M["negro"], 0.02))
+    mecanica.append(cilindro("eje_entrada", 0.035, yt - 0.22, (0, (yt - 0.22) / 2, zd - 0.12), "y", M["metal"], 10))
+    # Protector trasero de los discos (arco de tubo)
+    for k in range(10):
+        a0 = math.radians(-20 + k * 22)
+        a1 = math.radians(-20 + (k + 1) * 22)
+        r = 0.98
+        mecanica.append(segmento(f"protector{k}", (math.cos(a0) * r, yt + 0.05 + math.sin(a0) * 0.55, zd + 0.02),
+                                 (math.cos(a1) * r, yt + 0.05 + math.sin(a1) * 0.55, zd + 0.02), 0.03, 0.03, M["metal"]))
+    # Discos de reparto con cuatro paletas cada uno (giran en el juego sobre su eje vertical)
+    discos = {}
+    for sx, nombre in ((1, "disco_i"), (-1, "disco_d")):
+        cx, cy = sx * A["discos_x"], yt + 0.05
+        partes = [cilindro(f"{nombre}_plato", A["disco_r"], 0.012, (cx, cy, zd), "z", M["acero"], 28)]
+        for k in range(4):
+            a = math.radians(45 + 90 * k)
+            partes.append(segmento(f"{nombre}_paleta{k}", (cx + math.cos(a) * 0.06, cy + math.sin(a) * 0.06, zd + 0.04),
+                                   (cx + math.cos(a + 0.35 * sx) * (A["disco_r"] - 0.01), cy + math.sin(a + 0.35 * sx) * (A["disco_r"] - 0.01), zd + 0.04),
+                                   0.012, 0.07, M["acero"]))
+        partes.append(cilindro(f"{nombre}_cubo", 0.05, 0.08, (cx, cy, zd + 0.03), "z", M["negro"], 12))
+        discos[nombre] = con_origen(une(nombre, partes), (cx, cy, zd))
+    # Carga de abono: una placa que baja y encoge con lo que queda (origen abajo, en el centro)
+    carga = con_origen(caja("carga", (arriba - 0.04, arriba - 0.04, 0.02), (0, yt, z1 - 0.06), M["abono"]), (0, yt, z1 - 0.06))
+    senales = []
+    for sx in (-1, 1):
+        # Sobre la cara trasera de la tolva (inclinada): a 0,37 m de arriba, la cara está a ~0,45 m del centro
+        zc = z1 - 0.37
+        fondo = abajo / 2 + (arriba / 2 - abajo / 2) * (zc - z0) / (z1 - z0)
+        senales += senal(f"senal{sx}", (sx * 0.33, yt + fondo + 0.015, zc), M, lado=0.22)
+    objetos = {"bastidor": une("bastidor", bastidor), "rejilla": une("rejilla", rejilla), "mecanica": une("mecanica", mecanica),
+               "senales": une("senales", senales), "carga": carga, **discos}
+    datos = {"ancho_trabajo": A["ancho_trabajo"], "alto_bulon": A["alto_bulon"], "profundidad": 0,
+             "trabajo_z": round(-(yt + 0.05), 3), "reversible": False, "tipo": "suspendido",
+             "discos": ["disco_i", "disco_d"], "entrada_tdf": [0, round(zd - 0.12, 3), 0.0],
+             "salida_discos": [[round(sx * A["discos_x"], 3), round(zd + 0.05, 3), round(-(yt + 0.05), 3)] for sx in (1, -1)],
+             # La carga sube de z0 (vacía) a z1 (llena) y su lado pasa de abajo a arriba
+             "carga": {"objeto": "carga", "y_vacia": round(z0 + 0.05, 3), "y_llena": round(z1 - 0.06, 3),
+                       "escala_vacia": round(abajo / (arriba - 0.04), 3), "escala_vacia_x": round(abajo * 2.2 / (arriba - 0.04), 3)}}
+    return objetos, datos
+
+
+def sembradora(M):
+    """Sembradora de cereal arrastrada de 3 m y 20 líneas: lanza, tolva, rejas de disco y rastrillo."""
+    S = SEMBRADORA
+    pintura = material("pintura_apero", 0.45, 0.12, color=COLORES["apero_sembradora"])
+    zs = -S["alto_lanza"]
+    W = S["ancho"]
+    y0, y1 = S["marco_y"]
+    zm = S["marco_z"]
+    bastidor = []
+    # Lanza en A con el ojo del enganche en el origen
+    bastidor.append(cilindro("ojo", 0.07, 0.05, (0, 0, 0), "z", M["metal"], 14))
+    for sx in (-1, 1):
+        bastidor.append(segmento(f"lanza{sx}", (0, 0.05, 0.0), (sx * 0.75, y0, zm), 0.08, 0.1, pintura, 0.01))
+    bastidor.append(segmento("lanza_centro", (0, 0.05, 0.0), (0, y0, zm), 0.08, 0.1, pintura, 0.01))
+    # Marco
+    for k, y in enumerate((y0, (y0 + y1) / 2, y1)):
+        bastidor.append(caja(f"travesano{k}", (W + 0.1, 0.1, 0.1), (0, y, zm), pintura, 0.012))
+    for sx in (-1, 1):
+        bastidor.append(caja(f"lateral{sx}", (0.1, y1 - y0, 0.1), (sx * (W / 2 + 0.05), (y0 + y1) / 2, zm), pintura, 0.012))
+    # Tolva corrida a lo ancho (tronco de pirámide alargado) con la tapa abierta hacia atrás
+    za, zb = S["tolva_z"]
+    fa, fb = S["tolva_fondo"]
+    yt = S["tolva_y"]
+    bastidor.append(tronco_piramide("tolva", (W - 0.1, fa), (W, fb), za, zb, yt, pintura, 0.015))
+    bastidor.append(caja("borde_tolva", (W + 0.06, 0.05, 0.05), (0, yt - fb / 2, zb), pintura, 0.01))
+    # Sin tapa: se ve la semilla que queda
+    for sx in (-1, 1):
+        bastidor.append(segmento(f"pata_tolva{sx}", (sx * (W / 2 - 0.1), yt - fa / 2, zm), (sx * (W / 2 - 0.05), yt - fb / 2, zb - 0.05), 0.06, 0.06, pintura))
+        bastidor.append(segmento(f"pata_tolva_t{sx}", (sx * (W / 2 - 0.1), yt + fa / 2, zm), (sx * (W / 2 - 0.05), yt + fb / 2, zb - 0.05), 0.06, 0.06, pintura))
+    # Plataforma y escalón para cargar
+    bastidor.append(caja("plataforma", (1.2, 0.35, 0.03), (0, yt - fb / 2 - 0.25, za + 0.05), M["metal"]))
+    bastidor.append(segmento("escalon", (0.55, yt - fb / 2 - 0.4, za + 0.04), (0.55, yt - fb / 2 - 0.45, zs + 0.25), 0.04, 0.04, M["metal"]))
+    # Ruedas (también mueven la distribución; giran en el juego)
+    ruedas = {}
+    rr = S["rueda_r"]
+    ey = S["eje_y"]
+    for sx, nombre in ((1, "rueda_i"), (-1, "rueda_d")):
+        cx = sx * (W / 2 + 0.2)
+        partes = [anillo(f"{nombre}_cubierta", rr * 0.6, rr, 0.2, (cx, ey, zs + rr), M["neumatico"], 28, abombado=0.012),
+                  cilindro(f"{nombre}_llanta", rr * 0.6, 0.16, (cx, ey, zs + rr), "x", M["llanta"], 24)]
+        ruedas[nombre] = con_origen(une(nombre, partes), (cx, ey, zs + rr))
+        bastidor.append(segmento(f"brazo_rueda{sx}", (sx * (W / 2 + 0.05), ey - 0.3, zm), (cx - sx * 0.12, ey, zs + rr), 0.08, 0.08, pintura, 0.01))
+        bastidor.append(cilindro(f"eje{sx}", 0.04, 0.3, (cx - sx * 0.12, ey, zs + rr), "x", M["metal"], 10))
+    # Líneas de siembra: brazo, disco y tubo de caída desde la tolva; rastrillo tapador detrás
+    rejas, tubos = [], []
+    n = S["lineas"]
+    paso = W / n
+    zr = zs + 0.12                           # bajadas, los discos entran unos centímetros
+    for i in range(n):
+        x = -W / 2 + paso / 2 + i * paso
+        yr = y1 + (0.28 if i % 2 else 0.05)
+        rejas.append(segmento(f"brazo_reja{i}", (x, y1 - 0.05, zm - 0.05), (x, yr, zr + 0.12), 0.03, 0.05, M["negro"]))
+        rejas.append(cilindro(f"disco_reja{i}", 0.16, 0.01, (x, yr, zr + 0.04), "x", M["acero"], 18))
+        tubos.append(segmento(f"tubo{i}", (x, yt + 0.05, za - 0.02), (x, yr - 0.02, zr + 0.2), 0.025, 0.025, M["negro"]))
+    for i in range(n + 6):
+        x = -W / 2 + i * W / (n + 5)
+        rejas.append(segmento(f"pua{i}", (x, y1 + 0.5, zm - 0.05), (x, y1 + 0.75, zs + 0.13), 0.012, 0.012, M["metal"]))
+    rejas.append(caja("barra_rastrillo", (W, 0.05, 0.05), (0, y1 + 0.5, zm - 0.05), M["metal"]))
+    for sx in (-1, 1):
+        rejas.append(segmento(f"soporte_rastrillo{sx}", (sx * W / 2, y1, zm), (sx * W / 2, y1 + 0.5, zm - 0.05), 0.05, 0.05, pintura))
+    # Pata de apoyo de la lanza (solo se ve aparcada)
+    pata = [cilindro("pata_tubo", 0.04, abs(zs) + 0.05, (0.0, 0.35, zs / 2), "z", M["metal"], 10),
+            caja("pata_pie", (0.18, 0.18, 0.02), (0.0, 0.35, zs + 0.01), M["metal"])]
+    carga = con_origen(caja("carga", (W - 0.08, fb - 0.04, 0.02), (0, yt, zb - 0.06), M["semilla"]), (0, yt, zb - 0.06))
+    senales = []
+    for sx in (-1, 1):
+        senales += senal(f"senal{sx}", (sx * (W / 2 - 0.15), y1 + 0.08, zm + 0.35), M, lado=0.25)
+        bastidor.append(caja(f"soporte_senal{sx}", (0.04, 0.04, 0.3), (sx * (W / 2 - 0.15), y1 + 0.05, zm + 0.15), pintura))
+    objetos = {"bastidor": une("bastidor", bastidor), "rejas": une("rejas", rejas), "tubos": une("tubos", tubos),
+               "pata": une("pata", pata), "senales": une("senales", senales), "carga": carga, **ruedas}
+    trabajo_y = y1 + 0.2
+    datos = {"ancho_trabajo": W, "alto_bulon": S["alto_lanza"], "profundidad": 0.04, "trabajo_z": round(-trabajo_y, 3),
+             "reversible": False, "tipo": "arrastrado", "lineas": n,
+             "eje_z": round(-ey, 3), "rueda_r": rr, "via": round(W + 0.4, 3), "ruedas": ["rueda_i", "rueda_d"],
+             "rejas": "rejas", "pata": "pata", "bajada_rejas": 0.12,
+             "carga": {"objeto": "carga", "y_vacia": round(za + 0.05, 3), "y_llena": round(zb - 0.06, 3),
+                       "escala_vacia": round((fa - 0.04) / (fb - 0.04), 3), "escala_vacia_x": round((W - 0.18) / (W - 0.08), 3)}}
+    return objetos, datos
+
+
 # ----------------------------------------------------------------------------- Salida
 def centra(objetos):
     """Centra en largo (Y) y ancho (X), suelo en z = 0. Devuelve la caja (min, max) final."""
@@ -830,7 +1009,11 @@ if __name__ == "__main__":
         print(f"[OK] Tractor: {t['largo']} × {t['ancho']} × {t['alto']} m, {t['triangulos']} triángulos")
         if con_vistas:
             vistas(objetos, str(previews), t["largo"])
-    for id_, constructor, nombre in (("arado", arado, "Arado reversible de 4 cuerpos"), ("cultivador", cultivador, "Cultivador de 3 m")):
+    for id_, constructor, nombre, vista in (
+            ("arado", arado, "Arado reversible de 4 cuerpos", ((0, 1.6, -0.05), 0.75)),
+            ("cultivador", cultivador, "Cultivador de 3 m", ((0, 1.6, -0.05), 0.75)),
+            ("abonadora", abonadora, "Abonadora centrífuga", ((0, 0.8, 0.5), 0.6)),
+            ("sembradora", sembradora, "Sembradora de cereal de 3 m", ((0, 2.0, 0.3), 0.8))):
         if solo and id_ not in solo:
             continue
         limpiar_escena()
@@ -841,5 +1024,5 @@ if __name__ == "__main__":
         a = datos[id_]
         print(f"[OK] {nombre}: {a['largo']} × {a['ancho']} × {a['alto']} m, {a['triangulos']} triángulos, {a['ancho_trabajo']} m de trabajo")
         if con_vistas:
-            vistas(objetos, str(previews), a["largo"], id_, objetivo=(0, 1.6, -0.05), escala=0.75, suelo_z=-ARADO["alto_bulon"])
+            vistas(objetos, str(previews), a["largo"], id_, objetivo=vista[0], escala=vista[1], suelo_z=-extra["alto_bulon"])
     ruta_json.write_text(json.dumps(datos, ensure_ascii=False, indent=1), encoding="utf-8")

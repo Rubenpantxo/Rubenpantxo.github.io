@@ -94,7 +94,30 @@ export const APEROS = {
     velocidadMaxKmh: 13, resistenciaN: 2200, trabajoKmh: [6, 12],
     polvo: 1.3, terrones: 0.25, aves: 4, color: 0xb88a1a,
   },
+  // A5. Tolva: capacidadKg; lo que se gasta por hectárea está en dosisKgHa (abono) o en SEMILLAS
+  abonadora: {
+    modelo: 'abonadora', nombre: 'Abonadora', detalle: '2 discos · reparte 12 m', icono: '🌨️', labor: 'abonar',
+    velocidadMaxKmh: 16, resistenciaN: 0, trabajoKmh: [8, 14],
+    polvo: 0.15, terrones: 0, aves: 0, tolva: 'abono', capacidadKg: 800, dosisKgHa: 300,
+    discosRpm: 540,          // con la toma de fuerza a 540 vueltas
+  },
+  sembradora: {
+    modelo: 'sembradora', nombre: 'Sembradora', detalle: 'arrastrada · 20 líneas · 3 m', icono: '🌱', labor: 'sembrar',
+    velocidadMaxKmh: 13, resistenciaN: 1500, trabajoKmh: [7, 12],
+    polvo: 0.5, terrones: 0, aves: 5, tolva: 'semilla', capacidadKg: 400,
+  },
 };
+
+// Semillas que se cargan en la COPE (A5; los cereales crecen en A6). Dosis orientativas de siembra
+// de cereal de invierno en regadío; se ajustarán en A6 con fuentes agronómicas.
+export const SEMILLAS = {
+  trigo: { nombre: 'Trigo', icono: '🌾', dosisKgHa: 200 },
+  cebada: { nombre: 'Cebada', icono: '🌾', dosisKgHa: 180 },
+};
+
+// Aperos arrastrados (sembradora): la lanza va al enganche de la barra de tiro y el apero sigue al
+// tractor sobre sus ruedas; giro máximo de la lanza respecto al tractor (grados)
+export const ARRASTRE = { anguloMaxGrados: 75 };
 
 // Enganche tripuntal: cuánto sube el apero, cuánto tarda y el freno de la tierra al soltar el acelerador
 export const ENGANCHE = {

@@ -2,7 +2,7 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo agricultura**: parcelas reales del término de Cabanillas, delimitadas con el Catastro de Navarra y la ortofoto, que se trabajan con tractores, aperos y cosechadora hechos en 3D. El suelo cambia de aspecto por donde pasa el apero (arado, gradeado, abonado, sembrado, regado, cosechado) y las plantas nacen, crecen, maduran y se cosechan. Complementa a `PLAN.md`, `PLAN_REALISMO.md`, `PLAN_FIESTAS.md` y `PLAN_SALTO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: una fase cada vez, parada al final de cada fase, no inventar datos geográficos, todo en español, escritorio y móvil siempre.
 
-Fecha: 2026-11-20. Estado: **A0, A2 y A3 aprobadas; A1 omitida por Rubén; A4 (arado y cultivador) hecha el 2026-11-25, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
+Fecha: 2026-11-20. Estado: **A0, A2, A3 y A4 aprobadas; A1 omitida por Rubén; A5 (abonadora y sembradora) hecha el 2026-11-25, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
 
 ### Inspiración y límites
 
@@ -71,7 +71,8 @@ Tomadas (2026-11-20):
 
 Pendientes:
 
-- **Tiempo agrícola.** Cuántos minutos reales dura un día de cultivo y si hay botón de «pasar días». Con espárrago y alcachofa (plurianuales) hará falta pasar estaciones o años.
+- **Tiempo agrícola** (hace falta para A6). Cuántos minutos reales dura un día de cultivo y si hay botón de «pasar días». Con espárrago y alcachofa (plurianuales) hará falta pasar estaciones o años.
+- **Dosis** de abono y de semilla (A5 usa valores orientativos: 300 kg/ha de abono, 200 de trigo, 180 de cebada).
 - **Dinero:** precios de compra y venta en la COPE y si se pueden comprar y vender parcelas (A9).
 
 ---
@@ -264,7 +265,7 @@ Aceptación: los estados se distinguen bien de cerca y de lejos, los surcos sigu
 
 Aceptación: conducir el tractor por el pueblo y los caminos, entrar en la parcela, sin vuelcos raros. Rubén aprueba el modelo.
 
-### A4 — Labranza: arado y cultivador — HECHA (2026-11-25), pendiente de que Rubén la pruebe
+### A4 — Labranza: arado y cultivador — HECHA y aprobada (2026-11-25)
 
 - `enganche.js` (tripuntal), `aperos.js` (arado, cultivador), subir y bajar el apero, pintar la máscara A.
 - Polvo, terrones, rodadas y aves detrás del arado. Sonido de motor con carga.
@@ -272,10 +273,11 @@ Aceptación: conducir el tractor por el pueblo y los caminos, entrar en la parce
 
 Aceptación: arar media parcela deja la mitad arada con los surcos en la dirección de las pasadas; el HUD marca el porcentaje.
 
-### A5 — Abonado y siembra
+### A5 — Abonado y siembra — HECHA (2026-11-25), pendiente de que Rubén la pruebe
 
 - Abonadora centrífuga (toma de fuerza, abanico de grano, reparto ancho) y sembradora arrastrada (articulación, tolva que se vacía, líneas de siembra).
 - Cargar semilla y abono en la COPE.
+- Hecho así: abonadora suspendida de dos discos (12 m) con cardán a la toma de fuerza y sembradora de 3 m y 20 líneas enganchada a la barra de tiro, que sigue al tractor de forma cinemática (tractriz, lanza limitada a 75°, apoyada en el terreno; sin cuerpo en la física); tolvas con carga visible que se gastan por dosis × superficie (abono 300 kg/ha, trigo 200, cebada 180, orientativas) y se llenan en la COPE al enganchar o con «Llenar la tolva»; la siembra guarda el día de cultivo (1 hasta A6) y el cultivo de la parcela; franjas de los aperos con extremos rectos; prueba `tools/prueba_siembra.mjs`.
 
 Aceptación: abonar y sembrar una parcela preparada; la máscara B guarda el día de siembra.
 

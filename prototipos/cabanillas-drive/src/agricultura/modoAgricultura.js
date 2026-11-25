@@ -4,7 +4,8 @@
 // lo baja y, dentro de una parcela, labra por donde pasa (labranza.js).
 // Lo carga juego.js con import() la primera vez que hace falta (solo con el modo activo).
 import { AGRICULTURA } from '../config/agricultura.js';
-import { APEROS, COLORES_TRACTOR, TRACTOR } from '../config/maquinaria.js';
+import * as THREE from 'three';
+import { APEROS, COLORES_TRACTOR, SEMILLAS, TRACTOR } from '../config/maquinaria.js';
 import { cargaParcelas } from '../datos/parcelas.js';
 import { creaHudAgricultura } from '../hud/agricultura.js';
 import { creaMenuCope } from '../hud/menuCope.js';
@@ -16,6 +17,7 @@ import { creaRegistro } from './registro.js';
 import { creaSonidoMotor } from './sonidoMotor.js';
 
 const CLAVE_COLOR = 'cabdrive.agricultura.colorTractor';
+const CLAVE_SEMILLA = 'cabdrive.agricultura.semilla';
 
 function leeColor() {
   try {
@@ -36,8 +38,14 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   const registro = creaRegistro(datosParcelas);
   const aperos = Object.fromEntries(listaAperos.map((a) => [a.id, a]));
   const menu = creaMenuCope();
-  const enganche = creaEnganche(tractor, { terreno });
-  const labranza = creaLabranza({ api, escena, camara, renderer, registro, tractor, enganche });
+  const raiz = new THREE.Group();
+  raiz.name = 'raizAgricultura';
+  escena.add(raiz);
+  const enganche = creaEnganche(tractor, { terreno, raiz });
+  const labranza = creaLabranza({ api, escena, camara, renderer, registro, tractor, enganche, raiz,
+    diaCultivo: () => AGRICULTURA.labranza.diaInicial });
+  let semilla = 'trigo';
+  try { const g = localStorage.getItem(CLAVE_SEMILLA); if (g && SEMILLAS[g]) semilla = g; } catch { /* sin almacenamiento */ }
   const hud = creaHudAgricultura({ tactil: document.getElementById('tactil') });
   let sonido = null;                         // se crea al coger el tractor (después de un toque o tecla)
   const conTeclado = !matchMedia('(pointer: coarse)').matches;
@@ -52,7 +60,7 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   }
   colocaEn(tractor, C.sitioTractor);
   api.aparcaVehiculo(tractor);
-  for (const a of listaAperos) a.aparca(labranza.raiz, terreno, C.sitiosAperos[a.id]);
+  for (const a of listaAperos) a.aparca(raiz, terreno, C.sitiosAperos[a.id]);
 
   function pinta(indice) {
     indiceColor = indice;
@@ -86,13 +94,22 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     if (viejo) viejo.aparca(labranza.raiz, terreno, C.sitiosAperos[viejo.id]);
     return viejo;
   }
+  // Llena la tolva del apero en la COPE (abono o la semilla elegida). De momento sin pagar (A9)
+  function llenaTolva(a = enganche.apero) {
+    if (!a?.config.tolva) return false;
+    a.llena(a.config.tolva === 'abono' ? 'abono' : semilla);
+    return true;
+  }
+  const nombreCarga = (a) => (a.contenido === 'abono' ? 'abono' : `semilla de ${SEMILLAS[a.contenido]?.nombre.toLowerCase() ?? '…'}`);
   function engancha(id, aviso = true) {
     if (enganche.apero?.id === id) return;
     dejaApero();
     const a = aperos[id];
     a.recoge();
     enganche.engancha(a);
-    if (aviso) api.avisa(`${a.config.icono} ${a.config.nombre} enganchado · ${conTeclado ? 'Q' : '⬇'}: bajarlo en la parcela`, 6);
+    llenaTolva(a);
+    const lleno = a.config.tolva ? ` · tolva llena: ${Math.round(a.carga)} kg de ${nombreCarga(a)}` : '';
+    if (aviso) api.avisa(`${a.config.icono} ${a.config.nombre} enganchado${lleno} · ${conTeclado ? 'Q' : '⬇'}: bajarlo en la parcela`, 6);
   }
   function alternaApero() {
     if (api.coche !== tractor || !enganche.apero) return;
@@ -102,6 +119,8 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   const xz = (v) => [v.x, v.z];
 
   let avisoMarchaAtras = 0;
+  let avisoTolva = 0;
+  let avisoRastrojo = 0;
   const modo = {
     tractor, enganche, labranza, registro, aperos,
     get llevaTractor() { return api.coche === tractor; },
@@ -116,9 +135,15 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
         colorElegido: indiceColor,
         aperos: listaAperos.map((a) => ({ id: a.id, nombre: a.config.nombre, detalle: a.config.detalle, icono: a.config.icono,
           enganchado: enganche.apero === a })),
+        semillas: Object.entries(SEMILLAS).map(([id, x]) => ({ id, ...x })),
+        semilla,
+        tolva: enTractor && enganche.apero?.config.tolva ? { nombre: nombreCarga(enganche.apero), llenado: enganche.apero.llenado,
+          kg: enganche.apero.carga, capacidad: enganche.apero.capacidad, esSemilla: enganche.apero.config.tolva === 'semilla' } : null,
         sonido: enTractor ? Boolean(sonido?.activo) : null,
         acciones: { tractor: cogeTractor, coche: dejaTractor, engancha, desengancha: () => { if (dejaApero()) api.avisa('Apero dejado en el patio', 3); },
-          sonido: () => Boolean(sonido?.alterna()) },
+          sonido: () => Boolean(sonido?.alterna()),
+          semilla: (id) => { semilla = id; try { localStorage.setItem(CLAVE_SEMILLA, id); } catch { /* sin almacenamiento */ } },
+          llena: () => { if (llenaTolva()) api.avisa(`Tolva llena: ${Math.round(enganche.apero.carga)} kg de ${nombreCarga(enganche.apero)}`, 4); } },
       });
     },
     // Cada paso de física (antes de avanzar el mundo)
@@ -134,11 +159,23 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
           avisoMarchaAtras = performance.now() + 6000;
           api.avisa(`⬆ Levanta el apero para dar marcha atrás (${conTeclado ? 'Q' : '⬆'})`, 3);
         }
-        const esfuerzo = enganche.apero && enganche.subida < 0.5 ? Math.min(1, Math.abs(e.velocidadKmh) / 3) : 0;
+        const ahora = performance.now();
+        if (labranza.tolvaVacia && ahora > avisoTolva) {
+          avisoTolva = ahora + 8000;
+          api.avisa(`La tolva está vacía · vuelve a la COPE a llenarla (${nombreCarga(enganche.apero)})`, 5);
+        }
+        if (labranza.sinPreparar && ahora > avisoRastrojo) {
+          avisoRastrojo = ahora + 12000;
+          api.avisa('Siembras sobre rastrojo · mejor arar y pasar el cultivador antes', 4);
+        }
+        const ap = enganche.apero;
+        const carga = ap && (ap.config.resistenciaN > 0 || enganche.tdf) ? 1 : 0;
+        const esfuerzo = ap && enganche.subida < 0.5 ? carga * Math.min(1, Math.abs(e.velocidadKmh) / 3) : 0;
         sonido?.actualiza(dt, { velocidadKmh: e.velocidadKmh, acelerador: mandos?.acelerador ?? 0, esfuerzo,
           distancia: camara.position.distanceTo(e.posicion) });
-        hud.actualiza({ apero: enganche.apero, bajado: enganche.bajado, velocidadKmh: e.velocidadKmh,
-          parcela: labranza.parcelaPisada, recuento: labranza.recuento, conTeclado });
+        hud.actualiza({ apero: ap, bajado: enganche.bajado, velocidadKmh: e.velocidadKmh,
+          parcela: labranza.parcelaPisada, recuento: labranza.recuento, conTeclado,
+          tolva: ap?.config.tolva ? { nombre: nombreCarga(ap), llenado: ap.llenado, kg: ap.carga } : null });
       } else {
         sonido?.para();
         hud.actualiza(null);
@@ -151,6 +188,9 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     engancha,
     dejaApero,
     alternaApero,
+    llenaTolva,
+    get semilla() { return semilla; },
+    set semilla(id) { if (SEMILLAS[id]) semilla = id; },
   };
   return modo;
 }

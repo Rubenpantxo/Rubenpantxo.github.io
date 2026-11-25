@@ -16,6 +16,16 @@
     0.0,
     1.1814,
     -2.4537
+   ],
+   "barra_tiro": [
+    0.0,
+    0.4214,
+    -2.1787
+   ],
+   "toma_fuerza": [
+    0.0,
+    0.7814,
+    -1.9037
    ]
   },
   "largo": 5.157,
@@ -153,6 +163,108 @@
   "rodillo": {
    "objeto": "rodillo",
    "radio": 0.2
+  },
+  "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ },
+ "abonadora": {
+  "archivo": "abonadora.glb",
+  "nombre": "Abonadora centrífuga",
+  "largo": 1.587,
+  "ancho": 1.988,
+  "alto": 2.009,
+  "triangulos": 2760,
+  "enganche": {
+   "inferior": [
+    0,
+    0,
+    0
+   ],
+   "superior": [
+    0,
+    0.68,
+    0.075
+   ]
+  },
+  "suelo_y": -0.55,
+  "ancho_trabajo": 12.0,
+  "alto_bulon": 0.55,
+  "profundidad": 0,
+  "trabajo_z": -0.83,
+  "reversible": false,
+  "tipo": "suspendido",
+  "discos": [
+   "disco_i",
+   "disco_d"
+  ],
+  "entrada_tdf": [
+   0,
+   -0.04,
+   0.0
+  ],
+  "salida_discos": [
+   [
+    0.34,
+    0.13,
+    -0.83
+   ],
+   [
+    -0.34,
+    0.13,
+    -0.83
+   ]
+  ],
+  "carga": {
+   "objeto": "carga",
+   "y_vacia": 0.67,
+   "y_llena": 1.36,
+   "escala_vacia": 0.275,
+   "escala_vacia_x": 0.605
+  },
+  "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ },
+ "sembradora": {
+  "archivo": "sembradora.glb",
+  "nombre": "Sembradora de cereal de 3 m",
+  "largo": 3.825,
+  "ancho": 3.624,
+  "alto": 1.67,
+  "triangulos": 4548,
+  "enganche": {
+   "inferior": [
+    0,
+    0,
+    0
+   ],
+   "superior": [
+    0,
+    0.68,
+    0.075
+   ]
+  },
+  "suelo_y": -0.42,
+  "ancho_trabajo": 3.0,
+  "alto_bulon": 0.42,
+  "profundidad": 0.04,
+  "trabajo_z": -3.2,
+  "reversible": false,
+  "tipo": "arrastrado",
+  "lineas": 20,
+  "eje_z": -2.25,
+  "rueda_r": 0.38,
+  "via": 3.4,
+  "ruedas": [
+   "rueda_i",
+   "rueda_d"
+  ],
+  "rejas": "rejas",
+  "pata": "pata",
+  "bajada_rejas": 0.12,
+  "carga": {
+   "objeto": "carga",
+   "y_vacia": 0.55,
+   "y_llena": 1.14,
+   "escala_vacia": 0.372,
+   "escala_vacia_x": 0.966
   },
   "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
  }

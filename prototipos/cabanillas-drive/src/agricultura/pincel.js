@@ -85,6 +85,12 @@ function franja(parcela, labor, xa, za, xb, zb, ancho, opciones) {
   const j1 = Math.min(H - 1, Math.ceil((Math.max(za, zb) + alcance - oz) / mpp));
   if (i0 > i1 || j0 > j1) return 0;
   const efecto = LABOR[labor];
+  // Extremos rectos (los aperos): la franja acaba recta en cada punto, alargada un poco para que en
+  // las curvas no queden huecos por fuera. Sin ellos (pincel, rodadas), redondos.
+  const recto = opciones.extremosRectos && l2 > 1e-6;
+  const largo = Math.sqrt(l2);
+  const tMin = recto ? -(opciones.solape ?? 0.35) / largo : -Infinity;
+  const tMax = recto ? 1 + (opciones.solape ?? 0.35) / largo : Infinity;
   const dia = opciones.dia ?? 1;
   const fuerza = opciones.fuerza ?? 1;      // p. ej. riego a medias
   let tocados = 0;
@@ -94,7 +100,9 @@ function franja(parcela, labor, xa, za, xb, zb, ancho, opciones) {
       const k = j * W + i;
       if (!interior[k]) continue;
       const x = ox + (i + 0.5) * mpp;
-      const t = l2 > 1e-6 ? Math.min(1, Math.max(0, ((x - xa) * dx + (z - za) * dz) / l2)) : 0;
+      const t0 = l2 > 1e-6 ? ((x - xa) * dx + (z - za) * dz) / l2 : 0;
+      if (t0 < tMin || t0 > tMax) continue;
+      const t = recto ? t0 : Math.min(1, Math.max(0, t0));
       const d = Math.hypot(x - xa - t * dx, z - za - t * dz);
       if (d >= alcance) continue;
       const w = d <= media - suave ? 1 : (alcance - d) / (2 * suave);
@@ -107,7 +115,8 @@ function franja(parcela, labor, xa, za, xb, zb, ancho, opciones) {
 }
 
 // Labor de un apero de anchura «ancho» entre dos puntos. Las rodadas son dos huellas separadas
-// por la vía del tractor. opciones: { direccion (byte), dia (día de siembra, 1…255) }
+// por la vía del tractor. opciones: { direccion (byte), dia (día de siembra, 1…255), fuerza,
+// extremosRectos (los aperos; si no, la franja acaba en redondo), solape (m que se alarga por cada lado) }
 export function pinta(parcela, labor, xa, za, xb, zb, ancho, opciones = {}) {
   if (!LABOR[labor]) throw new Error(`Labor desconocida: ${labor}`);
   if (labor !== 'rodar') return franja(parcela, labor, xa, za, xb, zb, ancho, opciones);
@@ -118,11 +127,13 @@ export function pinta(parcela, labor, xa, za, xb, zb, ancho, opciones = {}) {
   if (l < 1e-3) { [dx, dz] = direccionLabor(parcela.info); l = 1; }
   const nx = -dz / l;
   const nz = dx / l;
-  const via = Math.min(P.viaRodadasM, Math.max(ancho - P.anchoRodadaM, 0));
+  // opciones.via y opciones.anchoRodada: las de esa máquina (si no, las del tractor de config)
+  const huella = opciones.anchoRodada ?? P.anchoRodadaM;
+  const via = opciones.via ?? Math.min(P.viaRodadasM, Math.max(ancho - huella, 0));
   let n = 0;
   for (const s of [-0.5, 0.5]) {
     n += franja(parcela, labor, xa + nx * via * s, za + nz * via * s, xb + nx * via * s, zb + nz * via * s,
-      P.anchoRodadaM, opciones);
+      huella, opciones);
   }
   return n;
 }
@@ -134,6 +145,19 @@ export function labradoEn(parcela, x, z) {
   if (i < 0 || j < 0 || i >= parcela.ancho || j >= parcela.alto) return false;
   const k = (j * parcela.ancho + i) * 4;
   return parcela.laboreo[k] > 127 || parcela.laboreo[k + 1] > 127 || parcela.cultivo[k + 2] > 127;
+}
+
+// Estado de la tierra en un punto: preparada (arada o cultivada), abonada, sembrada (o null si cae fuera)
+export function estadoEn(parcela, x, z) {
+  const i = Math.floor((x - parcela.ox) / parcela.mpp);
+  const j = Math.floor((z - parcela.oz) / parcela.mpp);
+  if (i < 0 || j < 0 || i >= parcela.ancho || j >= parcela.alto || !parcela.interior[j * parcela.ancho + i]) return null;
+  const k = (j * parcela.ancho + i) * 4;
+  return {
+    preparada: parcela.laboreo[k] > 127 || parcela.laboreo[k + 1] > 127,
+    abonada: parcela.laboreo[k + 2] > 127,
+    sembrada: parcela.cultivo[k + 1] > 0,
+  };
 }
 
 // Deja la parcela sin trabajar

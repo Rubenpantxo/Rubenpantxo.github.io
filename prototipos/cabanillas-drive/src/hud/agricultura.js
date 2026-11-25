@@ -1,5 +1,6 @@
 // Panel del modo agricultura (PLAN_AGRICULTURA.md §5.7). De momento (A4): con el tractor, qué apero
-// lleva y si está bajado, la parcela que pisa y cuánto lleva labrado; y el botón táctil del apero.
+// lleva y si está bajado, la parcela que pisa y cuánto lleva labrado; desde A5, lo que queda en la
+// tolva (abono o semilla); y el botón táctil del apero.
 // Crecerá en A9 (cultivo, humedad, avisos, minimapa).
 const ESTILO = `
 #agri-hud { position: fixed; top: calc(max(10px, env(safe-area-inset-top)) + 4px); left: 50%; transform: translateX(-50%);
@@ -16,13 +17,16 @@ const ESTILO = `
 #agri-hud .barra { display: inline-block; vertical-align: middle; width: 70px; height: 6px; border-radius: 3px;
   background: rgba(255,255,255,.2); overflow: hidden; margin: 0 4px; }
 #agri-hud .barra i { display: block; height: 100%; background: var(--acento, #ffd54a); }
+#agri-hud .vacia { color: #ffb74d; }
 #agri-hud .ritmo.bien { color: #8be28f; } #agri-hud .ritmo.rapido { color: #ffb74d; } #agri-hud .ritmo.lento { color: #c9d3de; }
 @media (max-width: 640px) { #agri-hud { top: calc(max(8px, env(safe-area-inset-top)) + 2px); font-size: 12px; max-width: 58vw; } }
 .boton-tactil.apero { font-size: 22px; }
 .boton-tactil.apero.bajado { border-color: #4caf50; box-shadow: 0 0 8px #4caf50; }
 `;
 
-const NOMBRE_LABOR = { arar: ['Arado', 'arado'], gradear: ['Cultivado', 'gradeado'] };
+const NOMBRE_LABOR = { arar: ['Arado', 'arado'], gradear: ['Cultivado', 'gradeado'], abonar: ['Abonado', 'abonado'], sembrar: ['Sembrado', 'sembrado'] };
+// Lo que se enseña además de la labor del apero (si ya hay algo)
+const OTRAS = [['Arado', 'arado'], ['Cultivado', 'gradeado'], ['Abonado', 'abonado'], ['Sembrado', 'sembrado']];
 const fmt = (n, d = 0) => n.toLocaleString('es-ES', { maximumFractionDigits: d, minimumFractionDigits: d });
 
 export function creaHudAgricultura({ tactil }) {
@@ -46,7 +50,7 @@ export function creaHudAgricultura({ tactil }) {
         ultimo = '';
         return;
       }
-      const { apero, bajado, velocidadKmh, parcela, recuento, conTeclado } = estado;
+      const { apero, bajado, velocidadKmh, parcela, recuento, conTeclado, tolva } = estado;
       if (boton) {
         boton.hidden = !apero;
         boton.textContent = bajado ? '⬆' : '⬇';
@@ -64,6 +68,10 @@ export function creaHudAgricultura({ tactil }) {
         const tecla = conTeclado ? ' (Q)' : '';
         html = `<span class="apero">${apero.config.icono} ${apero.config.nombre}</span>`
           + `<span class="estado-apero ${bajado ? 'bajado' : 'subido'}">${bajado ? '⬇ Bajado' : '⬆ Levantado'}${tecla}</span>${ritmo}`;
+        if (tolva) {
+          const pct = Math.round(tolva.llenado * 100);
+          html += `<div class="parcela${pct < 10 ? ' vacia' : ''}">Tolva <span class="barra"><i style="width:${pct}%"></i></span>${fmt(tolva.kg, 0)} kg de ${tolva.nombre}</div>`;
+        }
       }
       if (parcela) {
         html += `<div class="parcela">Parcela ${parcela.ref}${parcela.paraje ? ` · ${parcela.paraje}` : ''} · ${fmt(parcela.superficie_ha, 2)} ha</div>`;
@@ -71,8 +79,8 @@ export function creaHudAgricultura({ tactil }) {
           const [nombre, clave] = NOMBRE_LABOR[apero.config.labor] ?? ['Labrado', 'arado'];
           const pct = recuento[clave] ?? 0;
           // El cultivador trabaja sobre lo arado: el arado pasa a «cultivado»; se enseñan los dos
-          const otros = Object.entries(NOMBRE_LABOR).filter(([, [, c]]) => c !== clave && (recuento[c] ?? 0) > 0)
-            .map(([, [n, c]]) => ` · ${n} ${fmt(recuento[c], 0)} %`).join('');
+          const otros = OTRAS.filter(([, c]) => c !== clave && (recuento[c] ?? 0) > 0)
+            .map(([n, c]) => ` · ${n} ${fmt(recuento[c], 0)} %`).join('');
           html += `<div><span class="labor">${nombre}</span><span class="barra"><i style="width:${Math.min(100, pct)}%"></i></span>${fmt(pct, 0)} %${otros}</div>`;
         }
       }

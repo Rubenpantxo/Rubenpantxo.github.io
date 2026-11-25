@@ -1,7 +1,7 @@
 // Menú de la COPE (Sociedad Cooperativa del Campo San Isidro), modo agricultura (PLAN_AGRICULTURA.md,
-// A3–A4): coger el tractor (con su color) o dejarlo y volver al coche, y con el tractor enganchar o
-// dejar los aperos que esperan en el patio. La tienda (semilla, plantel, abono, aperos) y la venta
-// de la cosecha llegan en A5 y A9.
+// A3–A5): coger el tractor (con su color y su apero) o dejarlo y volver al coche; con el tractor,
+// enganchar o dejar los aperos que esperan en el patio y llenar la tolva de abono o de semilla (trigo
+// o cebada). Pagar lo que se carga, el plantel y la venta de la cosecha llegan en A9.
 const ESTILO = `
 #menu-cope { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(0,0,0,.35); }
 #menu-cope[hidden] { display: none; }
@@ -23,6 +23,11 @@ const ESTILO = `
 #menu-cope h3 { margin: 14px 0 0; font-size: 14px; opacity: .9; }
 #menu-cope button small { display: block; font-weight: 500; font-size: 12px; opacity: .8; }
 #menu-cope button.enganchado { background: #4caf50; }
+#menu-cope .colores.aperos { flex-wrap: wrap; }
+#menu-cope .colores.aperos label { flex: 1 0 18%; }
+#menu-cope .tolva { margin-top: 10px; font-size: 13px; }
+#menu-cope .tolva .barra { height: 8px; border-radius: 4px; background: rgba(255,255,255,.18); overflow: hidden; margin-top: 4px; }
+#menu-cope .tolva .barra i { display: block; height: 100%; background: var(--acento, #ffd54a); }
 #menu-cope .aperos span.icono { height: auto; padding: 6px 0; font-size: 20px; background: rgba(255,255,255,.08); }
 `;
 
@@ -52,12 +57,30 @@ export function creaMenuCope() {
     return b;
   };
 
+  // Trigo o cebada para la sembradora
+  function eligeSemilla(semillas, semilla, alCambiar) {
+    crea('h3', '', caja, 'Semilla para la sembradora');
+    const fila = crea('div', 'colores aperos', caja);
+    for (const g of semillas) {
+      const l = crea('label', '', fila);
+      const r = crea('input', '', l);
+      r.type = 'radio';
+      r.name = 'semilla';
+      r.checked = g.id === semilla;
+      r.addEventListener('change', () => alCambiar(g.id));
+      crea('span', 'icono', l, g.icono);
+      l.append(g.nombre);
+    }
+  }
+
   return {
     get visible() { return !raiz.hidden; },
     oculta() { raiz.hidden = true; },
     // en: 'coche' | 'tractor'. colores: [{ nombre, color }]. aperos: [{ id, nombre, detalle, icono, enganchado }].
-    // acciones: { tractor(indiceColor, idApero), coche(), engancha(id), desengancha(), sonido() → activo }
-    abre({ en, colores, colorElegido, aperos = [], sonido = null, acciones }) {
+    // semillas: [{ id, nombre, icono }], semilla: la elegida. tolva: null o { nombre, llenado, kg, capacidad, esSemilla }.
+    // acciones: { tractor(indiceColor, idApero), coche(), engancha(id), desengancha(), sonido() → activo,
+    //   semilla(id), llena() }
+    abre({ en, colores, colorElegido, aperos = [], semillas = [], semilla = null, tolva = null, sonido = null, acciones }) {
       caja.replaceChildren();
       raiz.hidden = false;
       document.exitPointerLock?.();
@@ -94,12 +117,21 @@ export function creaMenuCope() {
             l.append(a.nombre);
           }
         }
+        if (semillas.length) eligeSemilla(semillas, semilla, (id) => acciones.semilla(id));
         boton('🚜 Coger el tractor', '', () => { raiz.hidden = true; acciones.tractor(elegido, aperoElegido); });
         const ayuda = crea('ul', '', caja);
         for (const l of tactil
           ? ['Se conduce como el coche (joystick); 👁 cambia a la cámara de la cabina', '⬇ (arriba a la derecha) baja y sube el apero', 'Para cambiar de apero o volver al coche, entra otra vez aquí con el tractor']
           : ['Se conduce como el coche (WASD o flechas); C: cámara de la cabina', 'Q: bajar y subir el apero', 'Para cambiar de apero o volver al coche, entra otra vez aquí con el tractor (E)']) crea('li', '', ayuda, l);
       } else {
+        // Tolva del apero enganchado: cuánto queda y llenarla aquí
+        if (tolva) {
+          crea('h3', '', caja, 'Tolva');
+          const t = crea('div', 'tolva', caja, `${Math.round(tolva.llenado * 100)} % · ${Math.round(tolva.kg)} de ${tolva.capacidad} kg de ${tolva.nombre}`);
+          crea('i', '', crea('div', 'barra', t)).style.width = `${Math.round(tolva.llenado * 100)}%`;
+          if (tolva.esSemilla && semillas.length) eligeSemilla(semillas, semilla, (id) => acciones.semilla(id));
+          boton(tolva.esSemilla ? '🌾 Llenar la tolva de semilla' : '🌨️ Llenar la tolva de abono', '', () => { raiz.hidden = true; acciones.llena(); });
+        }
         if (aperos.length) {
           crea('h3', '', caja, 'Aperos del patio');
           for (const a of aperos) {
@@ -111,7 +143,8 @@ export function creaMenuCope() {
           }
           const ayuda = crea('ul', '', caja);
           for (const l of [tactil ? '⬇ (arriba a la derecha): bajar y subir el apero' : 'Q: bajar y subir el apero',
-            'Bájalo dentro de la parcela y avanza: labra por donde pasa', 'El arado da la vuelta cada vez que lo levantas, para la pasada de vuelta'])
+            'Bájalo dentro de la parcela y avanza: trabaja por donde pasa', 'El arado da la vuelta cada vez que lo levantas, para la pasada de vuelta',
+            'La abonadora reparte 12 m; la sembradora (arrastrada) siembra 3 m sobre la tierra preparada', 'Al enganchar la abonadora o la sembradora se llena su tolva'])
             crea('li', '', ayuda, l);
         }
         boton('🚗 Dejar el tractor y coger el coche', 'plano', () => { raiz.hidden = true; acciones.coche(); });
@@ -122,7 +155,7 @@ export function creaMenuCope() {
           b.textContent = activo ? '🔊 Sonido del motor: sí' : '🔇 Sonido del motor: no';
         });
       }
-      crea('div', 'nota', caja, 'Pronto: semilla, plantel y abono, y venta de la cosecha.');
+      crea('div', 'nota', caja, 'Pronto: pagar el abono y la semilla, el plantel y la venta de la cosecha.');
       boton('Cerrar', 'plano', () => { raiz.hidden = true; });
     },
   };
