@@ -292,6 +292,7 @@ modo({ renderer, escena, camara, ui, ciclo, render })
       // ?agricultura: modo agricultura (PLAN_AGRICULTURA.md): se empieza en la COPE, donde se cambia
       // el coche por el tractor. ?agricultura=pincel: pincel de pruebas de la fase A2 (&parcela=…).
       // ?agricultura=riego: con el tractor junto a la primera tajadera de la acequia (A7).
+      // ?agricultura=cosecha: con la cosechadora en la 2-700 sembrada de trigo maduro y el remolque al lado (A8).
       // Su código se descarga solo entonces; sin el parámetro, el juego no cambia
       const agricultura = parametros.has('agricultura');
       const pincelAgricultura = parametros.get('agricultura') === 'pincel';
@@ -319,6 +320,7 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         if (!parametros.get('aparece')) api.aparece('cope');
         const agri = await api.cargaAgricultura();        // el tractor espera aparcado en la COPE
         if (parametros.get('agricultura') === 'riego') agri.empiezaEnRiego();
+        if (parametros.get('agricultura') === 'cosecha') agri.empiezaEnCosecha();
       }
       if (pincelAgricultura) {
         const { iniciaPincel } = await import('./agricultura/pincelPruebas.js');

@@ -3,7 +3,8 @@
 // El modelo 3D manda: largo, ancho, posición y radio de las ruedas salen de él.
 // Con otra configuración (4.º parámetro, con la forma de VEHICULO) sirve para otros vehículos del
 // jugador, como el tractor del modo agricultura (src/config/maquinaria.js): motor.traccionTotal
-// mueve las cuatro ruedas.
+// mueve las cuatro ruedas; motor.traccion = 'delantera' solo las de delante, y direccion.trasera
+// gira las de atrás (la cosechadora).
 import * as THREE from 'three';
 import { VEHICULO } from '../config/vehiculo.js';
 import { preparaCocheJugador } from '../escena/coches.js';
@@ -14,7 +15,9 @@ const TRASERAS = [2, 3];
 export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
   const { RAPIER, mundo } = fisica;
   const { chasis, ruedas, motor, frenos, direccion } = config;
-  const MOTRICES = motor.traccionTotal ? [...DELANTERAS, ...TRASERAS] : TRASERAS;
+  const MOTRICES = motor.traccionTotal ? [...DELANTERAS, ...TRASERAS] : motor.traccion === 'delantera' ? DELANTERAS : TRASERAS;
+  const DIRECTRICES = direccion.trasera ? TRASERAS : DELANTERAS;
+  const signoGiro = direccion.trasera ? -1 : 1;       // las de atrás giran al revés para ir al mismo lado
   const pieza = preparaCocheJugador(modeloJugador, config.color);
 
   const cuerpo = mundo.createRigidBody(
@@ -91,7 +94,7 @@ export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
       const paso = rapidez * dt;
       volante += Math.max(-paso, Math.min(paso, objetivo - volante));
     }
-    for (const i of DELANTERAS) vehiculo.setWheelSteering(i, volante);
+    for (const i of DIRECTRICES) vehiculo.setWheelSteering(i, signoGiro * volante);
 
     // Motor y frenos: S frena y, ya parado, da marcha atrás
     let fuerza = 0;

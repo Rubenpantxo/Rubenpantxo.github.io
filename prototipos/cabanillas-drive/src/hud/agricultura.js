@@ -3,7 +3,9 @@
 // tolva (abono o semilla); desde A6, el día de cultivo y lo que hay sembrado donde se pisa (etapa,
 // edad y cuánto falta para la siguiente); y el botón táctil del apero. Desde A7, la humedad del
 // suelo y el riego de la parcela, y junto a una tajadera (en coche o en tractor) cómo abrirla o
-// cerrarla (G o el botón 💧) y cómo va el agua.
+// cerrarla (G o el botón 💧) y cómo va el agua. Desde A8, con la cosechadora: el cabezal, la tolva,
+// lo que se está segando, el rendimiento y lo cosechado de la parcela; botones ⬇ (cabezal) y 🌾 (tubo).
+// Con el remolque de grano en el tractor, lo que lleva.
 // Crecerá en A9 (cultivo, humedad, avisos, minimapa).
 const ESTILO = `
 #agri-hud { position: fixed; top: calc(max(10px, env(safe-area-inset-top)) + 4px); left: 50%; transform: translateX(-50%);
@@ -34,7 +36,9 @@ const ESTILO = `
 .boton-tactil.tajadera.abierta { border-color: #4fc3f7; box-shadow: 0 0 8px #4fc3f7; }
 @media (max-width: 640px) { #agri-riego { bottom: calc(max(10px, env(safe-area-inset-bottom)) + 200px); font-size: 12px; } }
 @media (max-width: 640px) { #agri-hud { top: calc(max(8px, env(safe-area-inset-top)) + 2px); font-size: 12px; max-width: 58vw; } }
-.boton-tactil.apero { font-size: 22px; }
+.boton-tactil.apero, .boton-tactil.descargar { font-size: 22px; }
+.boton-tactil.descargar.fuera { border-color: #ffd54a; box-shadow: 0 0 8px #ffd54a; }
+#agri-hud .segando { color: #ffd54a; font-weight: 600; }
 .boton-tactil.apero.bajado { border-color: #4caf50; box-shadow: 0 0 8px #4caf50; }
 `;
 
@@ -54,6 +58,7 @@ export function creaHudAgricultura({ tactil }) {
   document.body.append(caja);
   const boton = tactil ? tactil.querySelector('[data-pulsar="apero"]') : null;
   const botonTajadera = tactil ? tactil.querySelector('[data-pulsar="tajadera"]') : null;
+  const botonDescargar = tactil ? tactil.querySelector('[data-pulsar="descargar"]') : null;
   const cajaRiego = document.createElement('div');
   cajaRiego.id = 'agri-riego';
   cajaRiego.hidden = true;
@@ -65,6 +70,7 @@ export function creaHudAgricultura({ tactil }) {
   return {
     // estado: null (no se lleva el tractor) o { apero, bajado, velocidadKmh, parcela, recuento, teclado }
     actualiza(estado) {
+      if (botonDescargar) botonDescargar.hidden = true;
       if (!estado) {
         caja.hidden = true;
         if (boton) boton.hidden = true;
@@ -73,7 +79,7 @@ export function creaHudAgricultura({ tactil }) {
       }
       const { apero, bajado, velocidadKmh, parcela, recuento, conTeclado, tolva, dia, minutosParaManana, cultivo, suelo, riego } = estado;
       if (boton) {
-        boton.hidden = !apero;
+        boton.hidden = !apero || !apero.config.labor;
         boton.textContent = bajado ? '⬆' : '⬇';
         boton.classList.toggle('bajado', Boolean(bajado));
         boton.setAttribute('aria-label', bajado ? 'Subir el apero' : 'Bajar el apero');
@@ -81,6 +87,10 @@ export function creaHudAgricultura({ tactil }) {
       let html;
       if (!apero) {
         html = `<span class="apero">🚜 Sin apero</span> <span class="parcela">· engánchalo en la COPE</span>`;
+      } else if (apero.config.grano) {
+        const pct = Math.round(apero.llenado * 100);
+        html = `<span class="apero">${apero.config.icono} ${apero.config.nombre}</span>`
+          + `<div class="parcela">Lleva <span class="barra"><i style="width:${pct}%"></i></span>${fmt(apero.carga, 0)} kg${apero.carga > 0 && tolva?.nombre ? ` de ${tolva.nombre}` : ''}</div>`;
       } else {
         const [min, max] = apero.config.trabajoKmh;
         const v = Math.abs(velocidadKmh);
@@ -100,7 +110,7 @@ export function creaHudAgricultura({ tactil }) {
       }
       if (parcela) {
         html += `<div class="parcela">Parcela ${parcela.ref}${parcela.paraje ? ` · ${parcela.paraje}` : ''} · ${fmt(parcela.superficie_ha, 2)} ha</div>`;
-        if (recuento && apero) {
+        if (recuento && apero?.config.labor) {
           const [nombre, clave] = NOMBRE_LABOR[apero.config.labor] ?? ['Labrado', 'arado'];
           const pct = recuento[clave] ?? 0;
           // El cultivador trabaja sobre lo arado: el arado pasa a «cultivado»; se enseñan los dos
@@ -116,6 +126,42 @@ export function creaHudAgricultura({ tactil }) {
         html += `<div class="parcela">${partes.join(' · ')}</div>`;
       }
       if (dia != null) html += `<div class="parcela">📅 Día ${dia} de cultivo · el siguiente en ${minutosParaManana} min</div>`;
+      if (html !== ultimo) { caja.innerHTML = html; ultimo = html; }
+      caja.hidden = false;
+    },
+    // Cosechadora: { bajado, velocidadKmh, conTeclado, tuboFuera, tolva: { kg, capacidad, nombre }, segando,
+    //   descargando, rendimiento (kg/ha), parcela, cosechado (%), cultivo, dia, minutosParaManana }
+    cosechadora(e) {
+      if (boton) {
+        boton.hidden = false;
+        boton.textContent = e.bajado ? '⬆' : '⬇';
+        boton.classList.toggle('bajado', Boolean(e.bajado));
+        boton.setAttribute('aria-label', e.bajado ? 'Subir el cabezal' : 'Bajar el cabezal');
+      }
+      if (botonDescargar) {
+        botonDescargar.hidden = false;
+        botonDescargar.classList.toggle('fuera', Boolean(e.tuboFuera));
+        botonDescargar.setAttribute('aria-label', e.tuboFuera ? 'Recoger el tubo de descarga' : 'Sacar el tubo de descarga');
+      }
+      const v = Math.abs(e.velocidadKmh);
+      const [min, max] = [3, 7];
+      const ritmo = !e.bajado || v < 1 ? '' : v > max + 0.5 ? '<span class="ritmo rapido"> · deprisa</span>'
+        : v >= min ? '<span class="ritmo bien"> · buen ritmo</span>' : '<span class="ritmo lento"> · despacio</span>';
+      let html = `<span class="apero">🌾 Cosechadora</span><span class="estado-apero ${e.bajado ? 'bajado' : 'subido'}">${e.bajado ? '⬇ Cabezal bajado' : '⬆ Cabezal arriba'}${e.conTeclado ? ' (Q)' : ''}</span>${ritmo}`;
+      const pct = Math.round((e.tolva.kg / e.tolva.capacidad) * 100);
+      html += `<div class="parcela${pct >= 99 ? ' vacia' : ''}">Tolva <span class="barra"><i style="width:${pct}%"></i></span>${fmt(e.tolva.kg, 0)} kg${e.tolva.kg > 0 ? ` de ${e.tolva.nombre}` : ''}${pct >= 99 ? ' · llena' : ''}</div>`;
+      if (e.segando) html += `<div class="segando">Segando · ${fmt(e.rendimiento, 0)} kg/ha</div>`;
+      else if (e.descargando) html += '<div class="segando">Descargando al remolque…</div>';
+      else if (e.tuboFuera) html += `<div class="parcela">Tubo de descarga fuera${e.conTeclado ? ' (X)' : ''}</div>`;
+      if (e.cultivo) {
+        const sig = e.cultivo.siguiente ? ` · ${e.cultivo.siguiente.etapa.toLowerCase()} en ${e.cultivo.siguiente.enDias} ${e.cultivo.siguiente.enDias === 1 ? 'día' : 'días'}` : '';
+        html += `<div class="cultivo">🌾 ${e.cultivo.nombre} · ${e.cultivo.etapa}${e.cultivo.madura ? ' ✓' : ''}${sig}</div>`;
+      }
+      if (e.parcela) {
+        html += `<div class="parcela">Parcela ${e.parcela.ref}${e.parcela.paraje ? ` · ${e.parcela.paraje}` : ''} · ${fmt(e.parcela.superficie_ha, 2)} ha</div>`;
+        if (e.cosechado != null) html += `<div><span class="labor">Cosechado</span><span class="barra"><i style="width:${Math.min(100, e.cosechado)}%"></i></span>${fmt(e.cosechado, 0)} %</div>`;
+      }
+      if (e.dia != null) html += `<div class="parcela">📅 Día ${e.dia} de cultivo · el siguiente en ${e.minutosParaManana} min</div>`;
       if (html !== ultimo) { caja.innerHTML = html; ultimo = html; }
       caja.hidden = false;
     },

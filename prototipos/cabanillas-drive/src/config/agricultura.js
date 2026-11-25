@@ -13,7 +13,10 @@ export const AGRICULTURA = {
     sitioTractor: [-306, -10, 180],     // mirando a la calle
     sitioCoche: [-291, -4, 180],
     // Aperos aparcados en el patio cuando no van en el tractor (a más de 9 m de cualquier edificio)
-    sitiosAperos: { arado: [-299, -11, 180], cultivador: [-313, -6, 180], abonadora: [-292, -11, 180], sembradora: [-313, 3, 180] },
+    sitiosAperos: { arado: [-299, -11, 180], cultivador: [-313, -6, 180], abonadora: [-292, -11, 180], sembradora: [-313, 3, 180],
+      remolque: [-333, -12, 90] },
+    // A8: la cosechadora, en la parte oeste del patio (libre en la ortofoto), mirando a la calle
+    sitioCosechadora: [-357, -8, 180],
   },
   // Reloj agrícola (A6). Decisión de Rubén (2026-11-25): un día de cultivo dura una hora de juego
   // (con el juego en marcha, no en pausa). En la COPE se pueden pasar días; ?agricultura&dia=N

@@ -1,8 +1,9 @@
 // Menú de la COPE (Sociedad Cooperativa del Campo San Isidro), modo agricultura (PLAN_AGRICULTURA.md,
 // A3–A5): coger el tractor (con su color y su apero) o dejarlo y volver al coche; con el tractor,
 // enganchar o dejar los aperos que esperan en el patio y llenar la tolva de abono o de semilla (trigo
-// o cebada); y (A6) ver el día de cultivo y pasar días. Pagar lo que se carga, el plantel y la venta
-// de la cosecha llegan en A9.
+// o cebada); (A6) ver el día de cultivo y pasar días; (A8) coger o dejar la cosechadora y descargar
+// en la COPE el grano de su tolva o del remolque (de momento se apunta lo entregado). Pagar lo que se
+// carga, el plantel y la venta de la cosecha llegan en A9.
 const ESTILO = `
 #menu-cope { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(0,0,0,.35); }
 #menu-cope[hidden] { display: none; }
@@ -84,7 +85,11 @@ export function creaMenuCope() {
     // acciones: { tractor(indiceColor, idApero), coche(), engancha(id), desengancha(), sonido() → activo,
     //   semilla(id), llena() }
     // reloj: { dia, minutosParaManana, pasar: [1, 7, 30] } (acciones.pasaDias(n))
-    abre({ en, colores, colorElegido, aperos = [], semillas = [], semilla = null, tolva = null, sonido = null, reloj = null, acciones }) {
+    // A8: en: 'cosechadora'. cosecha: { kg, capacidad, nombre } (tolva de la cosechadora); remolque: { kg,
+    // capacidad, nombre } (el enganchado al tractor); granero: { kg, texto } (lo entregado en la COPE).
+    // acciones: cosechadora(), vaciaTolva(), vaciaRemolque()
+    abre({ en, colores, colorElegido, aperos = [], semillas = [], semilla = null, tolva = null, sonido = null, reloj = null,
+      cosecha = null, remolque = null, granero = null, acciones }) {
       caja.replaceChildren();
       raiz.hidden = false;
       document.exitPointerLock?.();
@@ -123,11 +128,39 @@ export function creaMenuCope() {
         }
         if (semillas.length) eligeSemilla(semillas, semilla, (id) => acciones.semilla(id));
         boton('🚜 Coger el tractor', '', () => { raiz.hidden = true; acciones.tractor(elegido, aperoElegido); });
+        if (acciones.cosechadora) {
+          const b = boton('🌾 Coger la cosechadora', '', () => { raiz.hidden = true; acciones.cosechadora(); });
+          crea('small', '', b, 'cabezal de 5,4 m · para el trigo y la cebada maduros');
+        }
         const ayuda = crea('ul', '', caja);
         for (const l of tactil
           ? ['Se conduce como el coche (joystick); 👁 cambia a la cámara de la cabina', '⬇ (arriba a la derecha) baja y sube el apero', 'Para cambiar de apero o volver al coche, entra otra vez aquí con el tractor']
           : ['Se conduce como el coche (WASD o flechas); C: cámara de la cabina', 'Q: bajar y subir el apero', 'Para cambiar de apero o volver al coche, entra otra vez aquí con el tractor (E)']) crea('li', '', ayuda, l);
+      } else if (en === 'cosechadora') {
+        if (cosecha) {
+          crea('h3', '', caja, 'Tolva de grano');
+          const pct = Math.round((cosecha.kg / cosecha.capacidad) * 100);
+          const t = crea('div', 'tolva', caja, `${pct} % · ${Math.round(cosecha.kg)} de ${Math.round(cosecha.capacidad)} kg${cosecha.kg > 0 ? ` de ${cosecha.nombre}` : ''}`);
+          crea('i', '', crea('div', 'barra', t)).style.width = `${pct}%`;
+          if (cosecha.kg > 0) boton('🏭 Descargar la tolva en la COPE', '', () => { raiz.hidden = true; acciones.vaciaTolva(); });
+        }
+        const ayuda = crea('ul', '', caja);
+        for (const l of [tactil ? '⬇ (arriba a la derecha): bajar y subir el cabezal' : 'Q: bajar y subir el cabezal',
+          'Con el cabezal bajado, avanza por el cereal maduro: siega por donde pasa y el grano va a la tolva',
+          tactil ? '🌾: sacar y recoger el tubo de descarga' : 'X: sacar y recoger el tubo de descarga (a la izquierda)',
+          'Para vaciarla en el campo: arrima el remolque del tractor a la izquierda, bajo el tubo',
+          'Bájate (🚶 o E) para subir al tractor o a otro vehículo que esté cerca'])
+          crea('li', '', ayuda, l);
+        boton('🚗 Dejar la cosechadora y coger el coche', 'plano', () => { raiz.hidden = true; acciones.coche(); });
       } else {
+        // Remolque de grano enganchado: lo que lleva, y descargarlo aquí
+        if (remolque) {
+          crea('h3', '', caja, 'Remolque');
+          const pct = Math.round((remolque.kg / remolque.capacidad) * 100);
+          const t = crea('div', 'tolva', caja, `${pct} % · ${Math.round(remolque.kg)} de ${remolque.capacidad} kg${remolque.kg > 0 ? ` de ${remolque.nombre}` : ''}`);
+          crea('i', '', crea('div', 'barra', t)).style.width = `${pct}%`;
+          if (remolque.kg > 0) boton('🏭 Descargar el remolque en la COPE', '', () => { raiz.hidden = true; acciones.vaciaRemolque(); });
+        }
         // Tolva del apero enganchado: cuánto queda y llenarla aquí
         if (tolva) {
           crea('h3', '', caja, 'Tolva');
@@ -148,11 +181,13 @@ export function creaMenuCope() {
           const ayuda = crea('ul', '', caja);
           for (const l of [tactil ? '⬇ (arriba a la derecha): bajar y subir el apero' : 'Q: bajar y subir el apero',
             'Bájalo dentro de la parcela y avanza: trabaja por donde pasa', 'El arado da la vuelta cada vez que lo levantas, para la pasada de vuelta',
-            'La abonadora reparte 12 m; la sembradora (arrastrada) siembra 3 m sobre la tierra preparada', 'Al enganchar la abonadora o la sembradora se llena su tolva'])
+            'La abonadora reparte 12 m; la sembradora (arrastrada) siembra 3 m sobre la tierra preparada', 'Al enganchar la abonadora o la sembradora se llena su tolva',
+            'El remolque de grano lo llena la cosechadora con su tubo'])
             crea('li', '', ayuda, l);
         }
         boton('🚗 Dejar el tractor y coger el coche', 'plano', () => { raiz.hidden = true; acciones.coche(); });
       }
+      if (granero?.kg > 0) crea('div', 'tolva', caja, `🏭 ${granero.texto}`);
       // Calendario: el día de cultivo y pasar días (lo sembrado crece)
       if (reloj) {
         crea('h3', '', caja, 'Calendario');

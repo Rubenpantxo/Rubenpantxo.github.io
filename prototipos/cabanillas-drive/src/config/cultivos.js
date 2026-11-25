@@ -24,6 +24,12 @@ export const CULTIVOS = {
       [240, 0.84, 0.92, 1, [182, 152, 92], [204, 166, 100], 0.22, null],
     ],
     madura: 222,                // a partir de aquí se puede cosechar (A8)
+    // Rendimiento con vigor 1 (tierra preparada y abonada, solo con la lluvia: kg/ha de grano). El
+    // vigor lo sube o lo baja (×0,5…×1,3): bien regado sale hacia 8 000, como lo que INTIA da por
+    // alcanzable en el regadío navarro bien llevado (8 000–9 000 kg/ha); sobre rastrojo sin abono,
+    // hacia 4 000, cerca de la media de toda Navarra con el secano (4 500 de trigo blando, 2025).
+    rendimientoKgHa: 6500,
+    pesoLitroKg: 0.78,          // kg por litro de grano (para la tolva, en litros)
   },
   cebada: {
     nombre: 'Cebada',
@@ -40,6 +46,8 @@ export const CULTIVOS = {
       [225, 0.74, 0.9, 1, [200, 182, 128], [212, 192, 138], 0.9, null],
     ],
     madura: 205,
+    rendimientoKgHa: 5800,      // la cebada da algo menos (media de Navarra 3 900 frente a 4 500 del trigo, 2025)
+    pesoLitroKg: 0.66,
   },
 };
 

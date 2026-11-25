@@ -1,4 +1,5 @@
-// Aperos del modo agricultura (PLAN_AGRICULTURA.md §5.6, fase A4): arado reversible y cultivador.
+// Aperos del modo agricultura (PLAN_AGRICULTURA.md §5.6, fases A4–A8): arado reversible, cultivador,
+// abonadora, sembradora y (A8) el remolque de grano.
 // Modelos de tools/build_maquinaria.py (public/assets/maquinaria/); su configuración de trabajo está
 // en src/config/maquinaria.js (APEROS). Cuando no van en el tractor esperan en el patio de la COPE,
 // apoyados en el suelo y con una caja de colisión para que no se atraviesen.
@@ -88,7 +89,8 @@ export async function cargaApero(id, { fisica }) {
       const t = apero.llenado;
       nodoCarga.visible = t > 0.005;
       nodoCarga.position.y = THREE.MathUtils.lerp(c.y_vacia, c.y_llena, t);
-      nodoCarga.scale.set(THREE.MathUtils.lerp(c.escala_vacia_x, 1, t), 1, THREE.MathUtils.lerp(c.escala_vacia, 1, t));
+      const sy = c.escala_y ? THREE.MathUtils.lerp(c.escala_y[0], c.escala_y[1], t) : 1;     // el montón del remolque crece
+      nodoCarga.scale.set(THREE.MathUtils.lerp(c.escala_vacia_x, 1, t), sy, THREE.MathUtils.lerp(c.escala_vacia, 1, t));
     },
     // Rejas de la sembradora: 0 bajadas (clavadas unos centímetros) … 1 levantadas
     ponRejas(subida) {
