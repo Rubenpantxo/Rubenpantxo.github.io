@@ -278,9 +278,9 @@ const dias = await p.evaluate((ref) => {
   const q = window.__juego.agricultura.labranza.parcelas.get(ref);
   const h = new Map();
   for (let k = 0; k < q.interior.length; k++) if (q.interior[k] && q.cultivo[k * 4 + 1] > 0) h.set(q.cultivo[k * 4 + 1], (h.get(q.cultivo[k * 4 + 1]) ?? 0) + 1);
-  return [...h.entries()];
+  return { dias: [...h.entries()], byte: window.__juego.agricultura.reloj.byte };
 }, REF);
-comprueba(dias.length === 1 && dias[0][0] === 1 && r2.st.siembra?.cultivo === 'trigo', `la máscara guarda el día de siembra (día ${dias.map((d) => d[0]).join(', ')}) y la parcela el cultivo (${r2.st.siembra?.cultivo})`);
+comprueba(dias.dias.length === 1 && dias.dias[0][0] === dias.byte && r2.st.siembra?.cultivo === 'trigo', `la máscara guarda el día de siembra (byte ${dias.dias.map((d) => d[0]).join(', ')} = día de hoy) y la parcela el cultivo (${r2.st.siembra?.cultivo})`);
 comprueba(r2.st.cuenta.rodadasApero > 0, 'rodadas de las ruedas de la sembradora');
 comprueba(Math.abs(r2.st.ruedas - r2.antes.ruedas) > 20, 'sus ruedas giran');
 comprueba(r2.st.lanza && Math.abs(r2.st.lanza.sobreSuelo - 0.42) < 0.3, `va apoyada en el suelo (lanza a ${r2.st.lanza?.sobreSuelo.toFixed(2)} m)`);

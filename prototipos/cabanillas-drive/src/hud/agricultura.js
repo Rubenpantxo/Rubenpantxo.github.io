@@ -1,6 +1,7 @@
 // Panel del modo agricultura (PLAN_AGRICULTURA.md §5.7). De momento (A4): con el tractor, qué apero
 // lleva y si está bajado, la parcela que pisa y cuánto lleva labrado; desde A5, lo que queda en la
-// tolva (abono o semilla); y el botón táctil del apero.
+// tolva (abono o semilla); desde A6, el día de cultivo y lo que hay sembrado donde se pisa (etapa,
+// edad y cuánto falta para la siguiente); y el botón táctil del apero.
 // Crecerá en A9 (cultivo, humedad, avisos, minimapa).
 const ESTILO = `
 #agri-hud { position: fixed; top: calc(max(10px, env(safe-area-inset-top)) + 4px); left: 50%; transform: translateX(-50%);
@@ -18,6 +19,7 @@ const ESTILO = `
   background: rgba(255,255,255,.2); overflow: hidden; margin: 0 4px; }
 #agri-hud .barra i { display: block; height: 100%; background: var(--acento, #ffd54a); }
 #agri-hud .vacia { color: #ffb74d; }
+#agri-hud .cultivo { font-weight: 600; color: #c8e6a0; }
 #agri-hud .ritmo.bien { color: #8be28f; } #agri-hud .ritmo.rapido { color: #ffb74d; } #agri-hud .ritmo.lento { color: #c9d3de; }
 @media (max-width: 640px) { #agri-hud { top: calc(max(8px, env(safe-area-inset-top)) + 2px); font-size: 12px; max-width: 58vw; } }
 .boton-tactil.apero { font-size: 22px; }
@@ -50,7 +52,7 @@ export function creaHudAgricultura({ tactil }) {
         ultimo = '';
         return;
       }
-      const { apero, bajado, velocidadKmh, parcela, recuento, conTeclado, tolva } = estado;
+      const { apero, bajado, velocidadKmh, parcela, recuento, conTeclado, tolva, dia, minutosParaManana, cultivo } = estado;
       if (boton) {
         boton.hidden = !apero;
         boton.textContent = bajado ? '⬆' : '⬇';
@@ -73,6 +75,10 @@ export function creaHudAgricultura({ tactil }) {
           html += `<div class="parcela${pct < 10 ? ' vacia' : ''}">Tolva <span class="barra"><i style="width:${pct}%"></i></span>${fmt(tolva.kg, 0)} kg de ${tolva.nombre}</div>`;
         }
       }
+      if (cultivo) {
+        const sig = cultivo.siguiente ? ` · ${cultivo.siguiente.etapa.toLowerCase()} en ${cultivo.siguiente.enDias} ${cultivo.siguiente.enDias === 1 ? 'día' : 'días'}` : '';
+        html += `<div class="cultivo">🌾 ${cultivo.nombre} · ${cultivo.etapa}${cultivo.madura ? ' ✓' : ''} · ${fmt(Math.floor(cultivo.edad))} días${sig}</div>`;
+      }
       if (parcela) {
         html += `<div class="parcela">Parcela ${parcela.ref}${parcela.paraje ? ` · ${parcela.paraje}` : ''} · ${fmt(parcela.superficie_ha, 2)} ha</div>`;
         if (recuento && apero) {
@@ -84,6 +90,7 @@ export function creaHudAgricultura({ tactil }) {
           html += `<div><span class="labor">${nombre}</span><span class="barra"><i style="width:${Math.min(100, pct)}%"></i></span>${fmt(pct, 0)} %${otros}</div>`;
         }
       }
+      if (dia != null) html += `<div class="parcela">📅 Día ${dia} de cultivo · el siguiente en ${minutosParaManana} min</div>`;
       if (html !== ultimo) { caja.innerHTML = html; ultimo = html; }
       caja.hidden = false;
     },

@@ -1,7 +1,8 @@
 // Menú de la COPE (Sociedad Cooperativa del Campo San Isidro), modo agricultura (PLAN_AGRICULTURA.md,
 // A3–A5): coger el tractor (con su color y su apero) o dejarlo y volver al coche; con el tractor,
 // enganchar o dejar los aperos que esperan en el patio y llenar la tolva de abono o de semilla (trigo
-// o cebada). Pagar lo que se carga, el plantel y la venta de la cosecha llegan en A9.
+// o cebada); y (A6) ver el día de cultivo y pasar días. Pagar lo que se carga, el plantel y la venta
+// de la cosecha llegan en A9.
 const ESTILO = `
 #menu-cope { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(0,0,0,.35); }
 #menu-cope[hidden] { display: none; }
@@ -26,6 +27,8 @@ const ESTILO = `
 #menu-cope .colores.aperos { flex-wrap: wrap; }
 #menu-cope .colores.aperos label { flex: 1 0 18%; }
 #menu-cope .tolva { margin-top: 10px; font-size: 13px; }
+#menu-cope .fila-dias { display: flex; gap: 6px; }
+#menu-cope .fila-dias button { flex: 1; margin-top: 6px; }
 #menu-cope .tolva .barra { height: 8px; border-radius: 4px; background: rgba(255,255,255,.18); overflow: hidden; margin-top: 4px; }
 #menu-cope .tolva .barra i { display: block; height: 100%; background: var(--acento, #ffd54a); }
 #menu-cope .aperos span.icono { height: auto; padding: 6px 0; font-size: 20px; background: rgba(255,255,255,.08); }
@@ -80,7 +83,8 @@ export function creaMenuCope() {
     // semillas: [{ id, nombre, icono }], semilla: la elegida. tolva: null o { nombre, llenado, kg, capacidad, esSemilla }.
     // acciones: { tractor(indiceColor, idApero), coche(), engancha(id), desengancha(), sonido() → activo,
     //   semilla(id), llena() }
-    abre({ en, colores, colorElegido, aperos = [], semillas = [], semilla = null, tolva = null, sonido = null, acciones }) {
+    // reloj: { dia, minutosParaManana, pasar: [1, 7, 30] } (acciones.pasaDias(n))
+    abre({ en, colores, colorElegido, aperos = [], semillas = [], semilla = null, tolva = null, sonido = null, reloj = null, acciones }) {
       caja.replaceChildren();
       raiz.hidden = false;
       document.exitPointerLock?.();
@@ -148,6 +152,22 @@ export function creaMenuCope() {
             crea('li', '', ayuda, l);
         }
         boton('🚗 Dejar el tractor y coger el coche', 'plano', () => { raiz.hidden = true; acciones.coche(); });
+      }
+      // Calendario: el día de cultivo y pasar días (lo sembrado crece)
+      if (reloj) {
+        crea('h3', '', caja, 'Calendario');
+        const texto = () => `📅 Día ${reloj.dia} de cultivo · el siguiente, dentro de ${reloj.minutosParaManana} min de juego`;
+        const linea = crea('div', 'tolva', caja, texto());
+        const fila = crea('div', 'fila-dias', caja);
+        for (const n of reloj.pasar) {
+          const b = crea('button', 'plano', fila, `⏩ +${n} ${n === 1 ? 'día' : 'días'}`);
+          b.type = 'button';
+          b.addEventListener('click', () => {
+            acciones.pasaDias(n);
+            reloj.dia += n;
+            linea.textContent = texto();
+          });
+        }
       }
       if (sonido !== null) {
         const b = boton(sonido ? '🔊 Sonido del motor: sí' : '🔇 Sonido del motor: no', 'plano', () => {

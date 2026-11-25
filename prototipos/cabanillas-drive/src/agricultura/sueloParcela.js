@@ -4,7 +4,8 @@
 //   arado      tierra oscura volteada, surcos de vertedera en la dirección de la pasada, terrones
 //   gradeado   tierra más clara, mullida y lisa, con surcos finos
 //   abonado    moteado de granulado blanco-grisáceo
-//   sembrado   líneas de siembra cada 17 cm en la dirección de la pasada
+//   sembrado   líneas de siembra cada 17 cm en la dirección de la pasada; desde A6, el cultivo que
+//              nace y cubre el suelo con su color (de lejos es lo único que se ve de él)
 //   húmedo     más oscuro y algo más saturado; charcos con el color del cielo donde está encharcado
 //   cosechado  rastrojo claro y hileras de paja
 //   rodadas    huellas de rueda hundidas
@@ -13,6 +14,7 @@
 // Sigue la luz del terreno (LUZ_SUELO): de noche oscurece igual que la ortofoto.
 import * as THREE from 'three';
 import { LUZ_SUELO } from '../escena/suelo.js';
+import { GLSL_CRECIMIENTO, uniformesCultivo } from './crecimiento.js';
 
 // Colores en sRGB (se pasan a lineal): tierra de la Ribera, clara y caliza
 const COLORES = {
@@ -44,7 +46,9 @@ uniform vec4 uMascara;               // ox, oz, ancho en metros, alto en metros
 uniform vec2 uTexel;                 // 1/ancho, 1/alto en píxeles de máscara
 uniform vec3 uSol;                   // hacia el sol (mundo)
 uniform vec3 uColArado, uColGradeo, uColAbono, uColSurco, uColRastrojo, uColPaja, uColHumedo, uColCharco;
+uniform float uHayCultivo;
 vec4 capaParcela = vec4(0.0);
+${GLSL_CRECIMIENTO}
 
 float azarP(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 float ruidoP(vec2 p) {
@@ -141,6 +145,20 @@ void calculaParcela() {
     float lomo = smoothstep(0.012, 0.035, dLinea) * (1.0 - smoothstep(0.035, 0.06, dLinea));
     encima(capa, uColSurco, linea * 0.75 * vista + 0.12 * (1.0 - vista));
     encima(capa, uColGradeo * 1.15, lomo * 0.25 * vista);
+    // El cultivo: de joven, plantitas a lo largo de las líneas; luego cubre el suelo
+    float edad = uHayCultivo > 0.5 ? edadSuave(p, 0.5 + (ruidoP(p * 3.0) - 0.5) * 0.4) : -1.0;
+    if (edad >= 0.0) {
+      Fase f = faseDe(edad);
+      float vig = vigorEn(p);
+      float cob = clamp(f.cobertura * mix(0.75, 1.05, (vig - 0.45) / 0.67), 0.0, 0.97);
+      float fila = 1.0 - smoothstep(0.2, 0.48, abs(fract(u) - 0.5));
+      float joven = 1.0 - smoothstep(0.35, 0.8, cob);
+      float a = mix(cob, cob * mix(0.3, 2.6, fila) * (0.6 + 0.8 * fbmP(p * 3.0)), joven * vista);
+      vec3 c = mix(f.hoja.rgb, f.colEspiga, f.espiga * 0.55) * (0.82 + 0.3 * fbmP(p * 0.45)) * (0.88 + 0.18 * vig);
+      // Con el cultivo alto, lo que se ve por abajo (entre el dosel y la linde) es la base en sombra
+      c *= mix(1.0, 0.5, smoothstep(0.1, 0.3, f.altura * vig));
+      encima(capa, c, clamp(a, 0.0, 0.97));
+    }
   }
   // --- Cosechado: rastrojo claro, tallos en líneas e hileras de paja
   if (cosechado > 0.001) {
@@ -214,6 +232,12 @@ export function creaMaterialParcela({ texturas, ox, oz, anchoM, altoM, ancho, al
     uColPaja: { value: lineal(COLORES.paja) },
     uColHumedo: { value: lineal(COLORES.humedo) },
     uColCharco: { value: lineal(COLORES.charco) },
+    // Cultivo (A6): los pone cultivo.js con los del cultivo sembrado
+    uHayCultivo: { value: 0 },
+    uHoy: { value: 0 },
+    uCurva: { value: uniformesCultivo('trigo').uCurva.value },
+    uHoja: { value: uniformesCultivo('trigo').uHoja.value },
+    uEspiga: { value: uniformesCultivo('trigo').uEspiga.value },
   };
   material.userData.uniformes = uniformes;
   material.onBeforeCompile = (shader) => {
@@ -241,6 +265,6 @@ export function creaMaterialParcela({ texturas, ox, oz, anchoM, altoM, ancho, al
         outgoingLight *= 1.0 - 0.55 * min(uFactorLuz, 1.0) * (1.0 - getShadowMask());
         #include <opaque_fragment>`);
   };
-  material.customProgramCacheKey = () => 'suelo_parcela_v1';
+  material.customProgramCacheKey = () => 'suelo_parcela_v2';
   return material;
 }

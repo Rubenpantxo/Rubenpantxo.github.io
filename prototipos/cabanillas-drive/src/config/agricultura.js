@@ -15,6 +15,10 @@ export const AGRICULTURA = {
     // Aperos aparcados en el patio cuando no van en el tractor (a más de 9 m de cualquier edificio)
     sitiosAperos: { arado: [-299, -11, 180], cultivador: [-313, -6, 180], abonadora: [-292, -11, 180], sembradora: [-313, 3, 180] },
   },
+  // Reloj agrícola (A6). Decisión de Rubén (2026-11-25): un día de cultivo dura una hora de juego
+  // (con el juego en marcha, no en pausa). En la COPE se pueden pasar días; ?agricultura&dia=N
+  // empieza en el día N.
+  reloj: { segundosPorDia: 3600, diaInicial: 1, pasarDias: [1, 7, 30] },
   // Labranza (A4): rodadas del tractor, hierba y recuento
   labranza: {
     velocidadMinKmh: 1.0,     // por debajo, el apero bajado no labra (parado)
@@ -22,8 +26,6 @@ export const AGRICULTURA = {
     recuentoS: 0.5,           // cada cuánto se rehace el porcentaje del panel
     rodadas: 0.55,            // fuerza de las huellas de las ruedas traseras en tierra seca (0…1)
     rodadasApero: 0.35,       // las de las ruedas de la sembradora, más estrechas y ligeras
-    // Día de cultivo que se guarda al sembrar. El reloj agrícola llega en A6: hasta entonces, día 1
-    diaInicial: 1,
   },
   // Riego de la parcela de pruebas (Rubén, 2026-11-21, sobre la captura cope_y_parcelas_prueba.jpg):
   // la acequia corre por fuera de la linde sureste de la 2-700, de nordeste a suroeste, desde algo

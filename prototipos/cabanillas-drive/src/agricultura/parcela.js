@@ -83,12 +83,13 @@ function calculaDentro(info, ox, oz, mpp, ancho, alto, fundido) {
   return { interior, dentro };
 }
 
-// Rejilla que se apoya en el terreno, solo en las celdas que tocan la parcela
-function creaGeometria(info, terreno, mascara) {
+// Rejilla que se apoya en el terreno, solo en las celdas que tocan la parcela (paso: si se da, el
+// de la rejilla; si no, el de config según el tamaño de la parcela)
+export function creaGeometria(info, terreno, mascara, pasoPedido = null) {
   const { ox, oz, mpp, ancho, alto, interior } = mascara;
   const lado = Math.max(info.caja[2] - info.caja[0], info.caja[3] - info.caja[1]);
   const M = AGRICULTURA.malla;
-  const paso = lado > M.pasoGrandeDesdeM ? M.pasoGrandeM : M.pasoM;
+  const paso = pasoPedido ?? (lado > M.pasoGrandeDesdeM ? M.pasoGrandeM : M.pasoM);
   const anchoM = ancho * mpp;
   const altoM = alto * mpp;
   const nx = Math.ceil(anchoM / paso);
@@ -172,7 +173,7 @@ export function creaParcela(info, { terreno, nivelCalidad = 'alto' }) {
   const pixelesDentro = interior.reduce((s, v) => s + v, 0);
 
   const parcela = {
-    info, ref: info.ref, malla, laboreo, cultivo, dentro, interior, texturas,
+    info, ref: info.ref, malla, laboreo, cultivo, dentro, interior, texturas, mascara,
     ox, oz, mpp, ancho, alto, pasoMalla: paso, triangulos, pixelesDentro,
     // Píxel de un punto (puede caer fuera de la máscara)
     aPixel: (x, z) => [(x - ox) / mpp - 0.5, (z - oz) / mpp - 0.5],

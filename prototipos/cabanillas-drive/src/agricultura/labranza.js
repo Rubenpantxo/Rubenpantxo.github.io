@@ -3,7 +3,7 @@
 // barrido la línea de trabajo del apero (su anchura real: 12 m de reparto la abonadora) y las rodadas
 // de las ruedas traseras (y las de la sembradora). La abonadora y la sembradora gastan de su tolva lo
 // que toca por la superficie que cubren (dosis por hectárea) y sin carga no hacen nada; la siembra
-// guarda en la máscara el día de cultivo en que se sembró. La parcela se
+// guarda en la máscara el día de cultivo en que se sembró (crecimiento.js: (día mod 255) + 1). La parcela se
 // activa (malla y máscaras) la primera vez que se labra; mientras dura la partida se queda (el
 // guardado entre sesiones llega en A9). Además: freno de la tierra en la física, polvo, terrones,
 // gaviotas y la hierba 3D quitada de lo labrado.
@@ -16,7 +16,7 @@ import { estadoEn, labradoEn, pinta } from './pincel.js';
 import { creaParticulas } from './particulas.js';
 import { creaAves } from './aves.js';
 
-export function creaLabranza({ api, escena, camara, renderer, registro, tractor, enganche, raiz: raizDada, diaCultivo = () => AGRICULTURA.labranza.diaInicial }) {
+export function creaLabranza({ api, escena, camara, renderer, registro, tractor, enganche, raiz: raizDada, reloj }) {
   const L = AGRICULTURA.labranza;
   const terreno = api.mundo.terreno;
   const raiz = raizDada ?? new THREE.Group();
@@ -71,7 +71,11 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
       if (Math.max(a.x, b.x) < x0 - m || Math.min(a.x, b.x) > x1 + m || Math.max(a.z, b.z) < z0 - m || Math.min(a.z, b.z) > z1 + m) continue;
       const k = pinta(p, labor, a.x, a.z, b.x, b.z, ancho, opciones);
       n += k;
-      if (k && labor === 'sembrar') p.siembra = { cultivo: opciones.cultivo, dia: opciones.dia };
+      // La parcela recuerda qué lleva sembrado y cuándo se sembró (el primer y el último día)
+      if (k && labor === 'sembrar') {
+        const antes = p.siembra?.cultivo === opciones.cultivo ? p.siembra : null;
+        p.siembra = { cultivo: opciones.cultivo, primerDia: antes ? antes.primerDia : reloj.dia, ultimoDia: reloj.dia };
+      }
     }
     return n;
   }
@@ -88,7 +92,6 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
   const anchoRodada = tractor.info.ruedas[2].ancho;
   const ejeTrasero = tractor.info.ruedas[2].centro[2];
   let labrando = false;
-  let reloj = 0;
   let relojRecuento = 0;
   let parcelaPisada = null;
   let recuento = null;
@@ -123,7 +126,6 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
       tractor.cuerpo.applyImpulse({ x: adelante.x * f, y: 0, z: adelante.z * f }, true);
     },
     actualiza(dt, { acelerador = 0 } = {}) {
-      reloj += dt;
       enganche.actualiza(dt);
       const ap = enganche.apero;
       const motor = tractor.config.motor;
@@ -153,7 +155,7 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
             sinPreparar = Boolean(est && !est.preparada);
           }
           const n = pintaTramo(labor, desde, trabajo, ap.anchoTrabajo,
-            { extremosRectos: true, ...(labor === 'sembrar' ? { dia: diaCultivo(), cultivo: ap.contenido } : {}) });
+            { extremosRectos: true, ...(labor === 'sembrar' ? { dia: reloj.byte, cultivo: ap.contenido } : {}) });
           if (n > 0) {
             labrando = true;
             cuenta.tramos++;

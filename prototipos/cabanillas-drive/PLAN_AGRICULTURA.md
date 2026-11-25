@@ -2,7 +2,7 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo agricultura**: parcelas reales del término de Cabanillas, delimitadas con el Catastro de Navarra y la ortofoto, que se trabajan con tractores, aperos y cosechadora hechos en 3D. El suelo cambia de aspecto por donde pasa el apero (arado, gradeado, abonado, sembrado, regado, cosechado) y las plantas nacen, crecen, maduran y se cosechan. Complementa a `PLAN.md`, `PLAN_REALISMO.md`, `PLAN_FIESTAS.md` y `PLAN_SALTO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: una fase cada vez, parada al final de cada fase, no inventar datos geográficos, todo en español, escritorio y móvil siempre.
 
-Fecha: 2026-11-20. Estado: **A0, A2, A3 y A4 aprobadas; A1 omitida por Rubén; A5 (abonadora y sembradora) hecha el 2026-11-25, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
+Fecha: 2026-11-20. Estado: **A0, A2, A3, A4 y A5 aprobadas; A1 omitida por Rubén; A6 (los cultivos crecen) hecha el 2026-11-25, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
 
 ### Inspiración y límites
 
@@ -67,11 +67,11 @@ Tomadas (2026-11-20):
 - **Parcela de pruebas: 2-700** (0,44 ha, Cza las Planas, regadío, al norte de la COPE), elegida por Rubén el 2026-11-21 entre tres candidatas (vista `cope_y_parcelas_prueba.jpg`). Como está en la zona del juego, **A1 se omite**.
 - **Riego de la 2-700** (2026-11-24): la acequia corre por fuera de la linde sureste, de nordeste a suroeste, hacia la COPE, y el agua entra por esa linde en su tramo del lado este (captura de Rubén en `docs/agricultura/riego_2-700_acequia.jpg`; coordenadas en `AGRICULTURA.riegoPruebas`, a confirmar en A7).
 - **Maquinaria** (2026-11-24): referencias de Rubén, dos tractores (verde y rojo) y una cosechadora amarilla. Modelos genéricos sin marcas; el tractor se puede pintar de rojo, verde, azul o naranja en la COPE; la cosechadora será amarilla (A8).
+- **Tiempo agrícola** (2026-11-25): un día de cultivo = una hora de juego (con el juego en marcha). En la COPE se pueden pasar días (+1, +7, +30).
 - **Entrega:** la rama `feat/cabanillas-agricultura` se sube a GitHub (excepción a la regla de no hacer push, pedida por Rubén); `main` no se toca.
 
 Pendientes:
 
-- **Tiempo agrícola** (hace falta para A6). Cuántos minutos reales dura un día de cultivo y si hay botón de «pasar días». Con espárrago y alcachofa (plurianuales) hará falta pasar estaciones o años.
 - **Dosis** de abono y de semilla (A5 usa valores orientativos: 300 kg/ha de abono, 200 de trigo, 180 de cebada).
 - **Dinero:** precios de compra y venta en la COPE y si se pueden comprar y vender parcelas (A9).
 
@@ -90,7 +90,7 @@ src/agricultura/parcela.js      Malla de la parcela sobre el MDT + máscaras de 
 src/agricultura/pincel.js       Pinta en la máscara el rectángulo barrido por el apero entre dos fotogramas
 src/agricultura/sueloParcela.js Material del suelo (estados, surcos orientados, humedad, abono, rodadas)
 src/agricultura/cultivo.js      Plantas: matas instanciadas cerca, dosel en medio, color en el suelo lejos
-src/agricultura/crecimiento.js  Reloj agrícola y vigor por celda (agua, abono)
+src/agricultura/crecimiento.js  Reloj agrícola, edad por píxel, curva del cultivo y vigor (GLSL y JavaScript) (A6)
 src/agricultura/riego.js        Simulación del agua sobre el MDT y su lámina visible
 src/agricultura/maquina.js      Tractor y cosechadora sobre Rapier (a partir de coche.js)
 src/agricultura/enganche.js     Tripuntal (aperos suspendidos) y enganche de bola (arrastrados, con articulación)
@@ -273,7 +273,7 @@ Aceptación: conducir el tractor por el pueblo y los caminos, entrar en la parce
 
 Aceptación: arar media parcela deja la mitad arada con los surcos en la dirección de las pasadas; el HUD marca el porcentaje.
 
-### A5 — Abonado y siembra — HECHA (2026-11-25), pendiente de que Rubén la pruebe
+### A5 — Abonado y siembra — HECHA y aprobada (2026-11-25)
 
 - Abonadora centrífuga (toma de fuerza, abanico de grano, reparto ancho) y sembradora arrastrada (articulación, tolva que se vacía, líneas de siembra).
 - Cargar semilla y abono en la COPE.
@@ -281,11 +281,12 @@ Aceptación: arar media parcela deja la mitad arada con los surcos en la direcci
 
 Aceptación: abonar y sembrar una parcela preparada; la máscara B guarda el día de siembra.
 
-### A6 — Cultivos que crecen
+### A6 — Cultivos que crecen — HECHA (2026-11-25), pendiente de que Rubén la pruebe
 
 - `crecimiento.js`, `cultivo.js`, `src/config/cultivos.js` (trigo y cebada).
 - Matas cercanas, dosel y color lejano; viento; vigor por celda (rodales).
 - Botón de pasar días y `?agricultura&dia=N` para pruebas.
+- Hecho así: reloj de una hora de juego por día, con «Calendario» en la COPE (+1, +7, +30 días); edad por píxel = (hoy − día de siembra) mod 255, topada a 250 días; curvas por edad de altura, cobertura, espiga, colores y cabeceo con ocho etapas; vigor por tierra preparada y abono, con rodales; color en el suelo de lejos, dosel (rejilla de la parcela levantada en el vertex shader) y matas instanciadas en una rejilla que sigue a la cámara, todo en los shaders con la edad de cada píxel; el vigor va calculado en el shader (no hace falta otra máscara); prueba `tools/prueba_cultivo.mjs`.
 
 Aceptación: de una siembra a la madurez se ven nascencia, verde, espigado y dorado; las franjas sembradas en días distintos tienen alturas distintas, como en el vídeo 2. Coste medido por fotograma en alto y bajo.
 

@@ -469,7 +469,7 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 
 ## Agricultura (PLAN_AGRICULTURA.md)
 
-**Fase actual: A5 (abonadora y sembradora) hecha el 2026-11-25, pendiente de que Rubén la pruebe.** A4 aprobada (2026-11-25); A3 aprobada (2026-11-25); A2 aprobada (2026-11-24); A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
+**Fase actual: A6 (los cultivos crecen) hecha el 2026-11-25, pendiente de que Rubén la pruebe.** A5 aprobada (2026-11-25); A4 aprobada (2026-11-25); A3 aprobada (2026-11-25); A2 aprobada (2026-11-24); A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
 
 ### Hecho en A0
 - **Todas las parcelas del término** (decisión de Rubén): 1 775 rústicas + 22 mixtas = **1 797 parcelas, 3 275 ha** de las 3 574 del término; 9 polígonos. 259 dentro de la zona del juego, 70 en parte y 1 468 fuera.
@@ -541,10 +541,25 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - **Panel:** la tolva (barra, kg y de qué) y los porcentajes de arado, cultivado, abonado y sembrado.
 - **Prueba:** `node tools/prueba_siembra.mjs <carpeta> [bajo|medio|alto] [movil]`: la mitad central de la 2-700 se deja cultivada con el pincel (el arado y el cultivador de verdad los prueba `prueba_labranza.mjs`); menú con abonadora, sembradora y semilla; tolva llena y cardán; una pasada de verdad abonando (franja de ~12 m, kg gastados = dosis × hectáreas, granulado en el aire, discos, velocidad); cambio a la sembradora en la COPE; una pasada sembrando (franja de 3 m, día de siembra en la máscara, trigo en la parcela, kg por la dosis, rodadas, ruedas que giran, apoyada en el suelo); curva (la sembradora gira respecto al tractor sin pasar de 75°) y marcha atrás (no siembra); sembrar sobre rastrojo avisa; tolva vacía deja de sembrar y avisa; sin errores. **Todo bien** en escritorio y móvil; `prueba_labranza.mjs` (A4) y `prueba_tractor.mjs` (A3) siguen bien.
 
+### Decisiones de Rubén (2026-11-25, tras A5)
+- **A5 aprobada** («puedes comenzar ya la A6»).
+- **Tiempo agrícola:** un día de cultivo dura **una hora de juego** (con el juego en marcha; en pausa no corre). Así un trigo tarda unas 220 horas de juego en madurar: para verlo crecer, en la COPE se pasan días.
+
+### Hecho en A6 (2026-11-25)
+- **Reloj agrícola** (`src/agricultura/crecimiento.js`, `AGRICULTURA.reloj`): cuenta días de cultivo con el juego en marcha (3 600 s por día). En el menú de la COPE, apartado «Calendario», se ve el día y se pasan **+1, +7 o +30 días**; `?agricultura&dia=N` empieza en el día N. El panel del tractor enseña el día y cuánto falta para el siguiente. De momento el reloj y lo sembrado no se guardan al cerrar (A9).
+- **Edad por píxel:** al sembrar se guarda en la máscara el día como (día mod 255) + 1; la edad es (hoy − siembra) mod 255. Lo que se queda sin cosechar se topa a 250 días cada vez que cambia el día (también si se pasan cientos de golpe): sigue maduro y no «vuelve a nacer».
+- **Trigo y cebada** (`src/config/cultivos.js`): curva por edad (altura, cobertura del suelo, espiga, color de la hoja, de la espiga y cabeceo) con las etapas **sembrado, nascencia, ahijado, encañado, espigado, floración, llenado del grano y madura**. Calendario orientativo de cereal de invierno en el regadío de Navarra (siembra en noviembre, espigado del trigo hacia primeros de mayo, cosecha a finales de junio o julio; la cebada unas dos semanas antes): trigo maduro a los 222 días y 0,86 m; cebada a los 205 días y 0,76 m, con la espiga que se dobla al madurar.
+- **Vigor:** la tierra preparada y abonada crece más (de 0,62 sobre rastrojo sin abono a ~1,05), con rodales más altos y más bajos (ruido lento). Mismo cálculo en el shader y en JavaScript (para el rendimiento de A8). El agua llega en A7.
+- **Dibujo por distancia** (`src/agricultura/cultivo.js`), todo calculado en los shaders con la edad de cada píxel (no se rehace geometría al pasar el tiempo):
+  - **Lejos:** el suelo de la parcela toma el color del cultivo; de joven, plantitas a lo largo de las líneas de siembra.
+  - **Dosel:** la rejilla de la parcela (de 0,5 m en las parcelas pequeñas, salvo en calidad baja) levantada a la altura del cultivo a partir de 12 cm, con hojas, espigas y olas de viento por encima, los huecos entre líneas de cerca y los tallos en los bordes de lo sembrado (el «escalón» entre franjas de distinta edad); recibe sombras. El borde de lo sembrado se suaviza (sin la escalera de los píxeles de 0,5 m).
+  - **Matas** cerca de la cámara: tarjetas cruzadas con tallos, hojas y espigas (textura hecha en el navegador, distinta para trigo y cebada) en una rejilla que sigue a la cámara (radio y separación por calidad: 32/0,30 m, 24/0,34 m, 14/0,42 m); cada una lee su edad, vigor y la altura del terreno, se mueve con el viento y se esconde donde no hay nada sembrado.
+- **Panel:** cultivo, etapa, días y cuánto falta para la siguiente etapa donde está el tractor.
+- **Prueba:** `node tools/prueba_cultivo.mjs <carpeta> [bajo|medio|alto] [movil]`: `?dia=3`, el reloj avanza con el juego, media hora = medio día, «+7 días» en la COPE; tres franjas de trigo sembradas los días 1, 31 y 61 (con el pincel) y cebada en la parcela de al lado (2-701); pasando días, la primera franja pasa por nascencia, ahijado, encañado, espigado, llenado del grano y madura, y el panel lo dice; el día 173 las tres franjas miden 0,84, 0,57 y 0,26 m; 300 días después sigue madura; coste del cultivo; sin errores. **Coste** (medido en swiftshader, que es muy lento: vale la proporción): en calidad baja el fotograma pasa de 954 a 1 161 ms (×1,2; 4 761 matas por parcela); en alta, de 2 115 a 2 712 ms (×1,28; 46 225 matas por parcela).
+
 ### Pendiente de Rubén
-- Probar la abonadora y la sembradora (`?agricultura`: en la COPE elegir el apero y la semilla y «Coger el tractor»; mejor arar y cultivar antes la 2-700) y decir qué le parecen el abanico de abono, cómo sigue la sembradora y las dosis.
-- **Tiempo agrícola** (lo necesita A6): cuántos minutos reales dura un día de cultivo y si hay botón de «pasar días».
-- Confirmar que se empieza A6 (los cultivos crecen: trigo y cebada).
+- Probar el crecimiento (`?agricultura`: sembrar en la 2-700 y en la COPE «Calendario» pasar días; o `?agricultura&dia=N`) y decir si las etapas, los colores y las alturas del trigo y la cebada le parecen bien.
+- Confirmar que se empieza A7 (riego a manta desde la acequia de la 2-700).
 - Más adelante: precios (§3 del plan).
 
 ### Notas
