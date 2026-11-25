@@ -166,7 +166,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
   let cargandoAgricultura = null;
   function cargaAgricultura() {
     cargandoAgricultura ??= import('../agricultura/modoAgricultura.js')
-      .then(({ creaModoAgricultura }) => creaModoAgricultura({ api, escena, fisica }))
+      .then(({ creaModoAgricultura }) => creaModoAgricultura({ api, escena, fisica, camara, renderer }))
       .then((m) => { agricultura = m; return m; });
     return cargandoAgricultura;
   }
@@ -503,6 +503,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       hierba.avanza(dt);
       avanzaAgua(dt);
       repartoDetalle(dt);
+      agricultura?.pausa();
       return;
     }
     const mandos = entrada.actualiza();
@@ -546,6 +547,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       coche.aplicaEntrada(aPie ? PARADO : mandos, PASO_FISICA);
       coche.paso(PASO_FISICA);
       for (const v of vehiculosAparcados) { v.aplicaEntrada(PARADO, PASO_FISICA); v.paso(PASO_FISICA); }
+      agricultura?.paso(PASO_FISICA);
       if (fiesta) fiestas.paso(mandos, PASO_FISICA);
       else if (aPie) peaton.paso(mandos, PASO_FISICA);
       fisica.mundo.step();
@@ -553,6 +555,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     }
     coche.sincroniza();
     for (const v of vehiculosAparcados) v.sincroniza();
+    agricultura?.actualiza(dt, mandos);
 
     const e = coche.estado();
     const fCoche = e.adelante.clone().setY(0).normalize();

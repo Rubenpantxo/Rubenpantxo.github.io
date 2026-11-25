@@ -76,3 +76,31 @@ export const TRACTOR = {
     capo: { posicion: [0, 0.95, -0.75], mirarAdelante: 20, fov: 72 },
   },
 };
+
+// Aperos (A4): se enganchan al tripuntal del tractor en la COPE. Las medidas (anchura de trabajo,
+// alto de los bulones, dónde trabajan) salen de maquinaria.json; aquí, cómo trabajan.
+//   labor: lo que pintan en la parcela (src/agricultura/pincel.js)
+//   velocidadMaxKmh: con el apero bajado el tractor no pasa de aquí (tira de él la tierra)
+//   resistenciaN: lo que frena el apero clavado, además
+//   trabajoKmh: velocidad buena de trabajo (para el aviso y el sonido)
+export const APEROS = {
+  arado: {
+    modelo: 'arado', nombre: 'Arado reversible', detalle: '4 cuerpos · 1,6 m', icono: '⛏️', labor: 'arar',
+    velocidadMaxKmh: 10, resistenciaN: 3200, trabajoKmh: [4, 9],
+    polvo: 0.8, terrones: 1.0, aves: 9, color: 0x3d5226,
+  },
+  cultivador: {
+    modelo: 'cultivador', nombre: 'Cultivador', detalle: '15 brazos y rodillo · 3 m', icono: '〰️', labor: 'gradear',
+    velocidadMaxKmh: 13, resistenciaN: 2200, trabajoKmh: [6, 12],
+    polvo: 1.3, terrones: 0.25, aves: 4, color: 0xb88a1a,
+  },
+};
+
+// Enganche tripuntal: cuánto sube el apero, cuánto tarda y el freno de la tierra al soltar el acelerador
+export const ENGANCHE = {
+  subidaM: 0.5,              // los bulones, por encima de la posición de trabajo
+  segundosSubir: 1.4,
+  segundosVoltear: 1.3,      // el arado reversible da la vuelta al levantarlo en la cabecera
+  frenoMotorTrabajo: 90,
+  seguimientoSuelo: 6,       // rapidez con la que el apero sigue el terreno (1/s)
+};

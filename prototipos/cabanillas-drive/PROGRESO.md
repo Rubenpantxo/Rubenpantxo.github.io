@@ -469,7 +469,7 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 
 ## Agricultura (PLAN_AGRICULTURA.md)
 
-**Fase actual: A3 (tractor y COPE) hecha el 2026-11-24, pendiente de que Rubén apruebe el tractor.** A2 aprobada (2026-11-24); A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
+**Fase actual: A4 (arado y cultivador) hecha el 2026-11-25, pendiente de que Rubén la pruebe.** A3 aprobada (2026-11-25); A2 aprobada (2026-11-24); A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
 
 ### Hecho en A0
 - **Todas las parcelas del término** (decisión de Rubén): 1 775 rústicas + 22 mixtas = **1 797 parcelas, 3 275 ha** de las 3 574 del término; 9 polígonos. 259 dentro de la zona del juego, 70 en parte y 1 468 fuera.
@@ -515,9 +515,23 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - Ganchos en archivos compartidos, todos inactivos sin `?agricultura`: `juego.js` (vehículo intercambiable: `cambiaVehiculo`, `aparcaVehiculo`, vehículos aparcados en la física, `cargaAgricultura` con `import()`), `camaraCoche.js` (`ponVehiculo` y ajustes por vehículo), `coche.js` (configuración y tracción total), `main.js` (con `?agricultura` se empieza en la COPE sin salto) y `entradas.js`.
 - **Prueba:** `node tools/prueba_tractor.mjs <carpeta> [bajo|medio|alto] [movil]`: salida en la COPE con el tractor aparcado, menú, coger el tractor en verde, andar adelante y atrás sin volcar, cámara de cabina, entrar en la 2-700 desde su linde, dejar el tractor y volver al coche, sin errores y sin nada del modo sin `?agricultura`. **Todo bien** en escritorio y móvil. `vista_agricultura.mjs` (A2) sigue bien.
 
+### Decisiones de Rubén (2026-11-25)
+- **A3 aprobada** («okey, empieza a4»): el tractor y la COPE valen.
+
+### Hecho en A4 (2026-11-25)
+- **Aperos genéricos** en `tools/build_maquinaria.py` (sin marcas, con placas de señalización rojas y blancas): **arado reversible de 4 cuerpos** (1,6 m de trabajo, verde oliva: cabezal con cilindro de volteo, viga en diagonal, vertederas alabeadas de acero, rejas, talones, cuchillas circulares, rueda de control que queda abajo al voltear; 6 500 triángulos) y **cultivador de 3 m** (mostaza: tres barras con 15 brazos en S, rodillo desterronador que gira; 5 400 triángulos). `npm run maquinaria` → 66 y 65 KB. Vistas en `data/processed/previews/maquinaria/{arado,cultivador}_*.png`. El script acepta `--solo arado,cultivador`.
+- **Tripuntal que se mueve:** el tractor tiene ahora `brazos_tripuntal` aparte (brazos, tirantes y tercer punto) y en `maquinaria.json` los puntos del enganche (pivote, rótulas, tercer punto). `src/agricultura/enganche.js`: los brazos giran en su eje y suben o bajan el apero (Q en el teclado; botón ⬇/⬆ arriba a la derecha en el móvil); bajado, el apero sigue el terreno de debajo; el reversible da la vuelta cada vez que se levanta.
+- **COPE:** los aperos esperan en el patio (`AGRICULTURA.cope.sitiosAperos`, a más de 9 m de los edificios, con caja de colisión). En el menú se elige con qué apero sale el tractor y, con el tractor en el aro, se cambia o se deja; también se quita o pone el sonido del motor.
+- **Labranza** (`src/agricultura/labranza.js`): con el apero bajado, dentro de una parcela y hacia delante, cada fotograma pinta en las máscaras de A2 la franja que barre la línea de trabajo del apero (su anchura real; arado → «arado», cultivador → «gradeado», que deshace el arado) y las rodadas de las ruedas traseras. La parcela se activa la primera vez que se labra (sirve cualquiera de las 1 797) y se queda mientras dura la partida (guardar entre sesiones: A9). La hierba 3D se quita de lo labrado poco a poco (`hierba.olvidaZona`, nuevo, solo rehace esas celdas).
+- **Carga:** con el apero clavado el tractor no pasa de 10 km/h (arado) o 13 (cultivador), la tierra lo frena (`resistenciaN`) y al soltar el acelerador se para enseguida; marcha atrás con el apero clavado no labra y avisa de levantarlo.
+- **Efectos:** polvo (nube de puntos con su tamaño y opacidad), terrones que la vertedera echa al lado que toca (cambia al voltear), gaviotas que llegan al rato, vuelan en círculo detrás del arado, se posan a picotear en lo removido y se espantan si pasa el tractor (`particulas.js`, `aves.js`; tres mallas instanciadas). **Sonido** del motor diésel con WebAudio (`sonidoMotor.js`): baja de vueltas y suena más fuerte cuando tira del apero; respeta el sonido quitado de fiestas y salto.
+- **Panel** (`src/hud/agricultura.js`): apero, bajado o levantado, ritmo (despacio, buen ritmo, deprisa), parcela que se pisa (referencia, paraje, hectáreas) y porcentaje arado o cultivado con barra.
+- Ganchos nuevos (inactivos sin `?agricultura`): `juego.js` llama a `agricultura.paso` en cada paso de física, `agricultura.actualiza` en cada fotograma y `agricultura.pausa` en pausa; tecla `apero` (Q) en `src/config/camara.js` y `entrada.js`; botón táctil del apero en `index.html`. Corregido: los vehículos se colocaban con la caja de colisión metida 15 cm en el suelo y, en cuesta, giraban al aparecer.
+- **Prueba:** `node tools/prueba_labranza.mjs <carpeta> [bajo|medio|alto] [movil]`: arado y cultivador en el patio; coger el tractor con el arado; dos pasadas conducidas de verdad en la 2-700 (ida y vuelta al lado): el porcentaje casa con 1,6 m × lo recorrido, surcos en la dirección de la pasada, no pasa de la velocidad de trabajo, polvo, terrones, rodadas, motor, panel, volteo del reversible y gaviotas; media parcela con 15 pasadas de 1,6 m (con el pincel, sin conducir) = 50,7 %; cambiar al cultivador en la COPE (el arado vuelve al patio) y cultivar lo arado (el rodillo gira); sin errores. **Todo bien** en escritorio y móvil. `prueba_tractor.mjs` (A3) sigue bien.
+
 ### Pendiente de Rubén
-- Probar el tractor (`?agricultura`) y aprobar el modelo (o decir qué cambiar: forma, colores, tamaño).
-- Confirmar que se empieza A4 (arado y cultivador).
+- Probar el arado y el cultivador (`?agricultura`: en la COPE, elegir el apero y «Coger el tractor»; en la 2-700, Q o ⬇ para bajarlo) y decir si la tierra, el polvo, las gaviotas, el ritmo y el sonido le parecen bien.
+- Confirmar que se empieza A5 (abonadora y sembradora).
 - Más adelante: tiempo agrícola y precios (§3 del plan).
 
 ### Notas

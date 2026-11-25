@@ -62,7 +62,8 @@ async function paraEn(p, x, z, rumbo) {
   await p.evaluate(({ x, z, rumbo }) => {
     const j = window.__juego;
     const r = (rumbo * Math.PI) / 180;
-    j.coche.recoloca(x, j.mundo.terreno.alturaEn(x, z) + 1, z, Math.sin(r), -Math.cos(r));
+    const { alturaLibre, altoCaja } = j.coche.config.chasis;
+    j.coche.recoloca(x, j.mundo.terreno.alturaEn(x, z) + alturaLibre + altoCaja / 2 + 0.12, z, Math.sin(r), -Math.cos(r));
   }, { x, z, rumbo });
   for (let i = 0; i < 12; i++) {
     await fotogramas(p, 2);

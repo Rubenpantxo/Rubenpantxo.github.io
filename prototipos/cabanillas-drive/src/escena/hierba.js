@@ -203,6 +203,14 @@ export function creaHierba(vegetacion, terreno, { radio = 60, maxPorClase = 4000
     actualiza,
     avanza(dt) { uniformes.uTiempo.value += dt; },
     ponExclusion(fn) { excluye = fn; cache.clear(); ultima.set(Infinity, 0, 0); },
+    // Vuelve a sembrar solo las celdas de un rectángulo (x0, z0)–(x1, z1): para lo que cambia poco a
+    // poco, como la tierra que va labrando el tractor (la exclusión se mira de nuevo ahí)
+    olvidaZona(x0, z0, x1, z1) {
+      for (let i = Math.floor(x0 / CELDA_M); i <= Math.floor(x1 / CELDA_M); i++) {
+        for (let j = Math.floor(z0 / CELDA_M); j <= Math.floor(z1 / CELDA_M); j++) cache.delete(`${i},${j}`);
+      }
+      ultima.set(Infinity, 0, 0);
+    },
     get triangulos() { return triangulos; },
     get mechones() { return mallas.map((m) => m.count); },
   };

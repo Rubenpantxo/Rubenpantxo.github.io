@@ -11,7 +11,8 @@ Piezas con nombre (las usa el juego):
                                            con su neumático de tacos, llanta y buje
   carroceria                               todo lo fijo; el material «pintura» se recolorea
   vidrios                                  cristales de la cabina (transparentes)
-  tripuntal                                brazos del enganche trasero (se moverán en A4)
+  tripuntal                                soporte del enganche, toma de fuerza y barra de tiro
+  brazos_tripuntal                         brazos inferiores, tirantes y tercer punto (suben y bajan)
   luces_delanteras, luces_trabajo, rotativo, pilotos   luces (materiales emisivos)
 
 Ejes: Blender X izquierda, −Y adelante, Z arriba; el GLB sale con +Y arriba, morro hacia +Z y la
@@ -42,6 +43,14 @@ TRACTOR = {
     "cabina": {"ancho": 1.56, "y0": -0.05, "y1": 1.55, "suelo": 1.38, "techo": 2.96},
 }
 
+ENGANCHE = {}   # puntos del tripuntal del tractor (los rellena tractor())
+
+# Aperos (A4): medidas en metros. Origen en el centro de los bulones inferiores del enganche;
+# el apero se extiende hacia atrás (+Y de Blender); el suelo, trabajando, en z = −alto_bulon.
+ARADO = {"cuerpos": 4, "corte": 0.40, "paso": 0.90, "y0": 0.95, "viga_z": 0.30, "alto_bulon": 0.45, "profundidad": 0.22}
+CULTIVADOR = {"ancho": 3.0, "barras_y": (0.55, 1.15, 1.75), "barra_z": 0.35, "brazos_por_barra": 5,
+              "separacion": 0.6, "alto_bulon": 0.45, "profundidad": 0.10, "rodillo_y": 2.45, "rodillo_r": 0.2}
+
 # Colores en lineal (Blender). La pintura es roja por defecto; el juego la cambia
 COLORES = {
     "pintura": (0.42, 0.012, 0.010, 1.0),
@@ -55,6 +64,11 @@ COLORES = {
     "ambar": (1.0, 0.42, 0.02, 1.0),
     "piloto": (0.6, 0.01, 0.01, 1.0),
     "asiento": (0.06, 0.06, 0.065, 1.0),
+    "apero_arado": (0.045, 0.075, 0.022, 1.0),       # verde oliva oscuro
+    "apero_cultivador": (0.48, 0.30, 0.015, 1.0),    # amarillo mostaza
+    "acero": (0.62, 0.62, 0.6, 1.0),                 # vertederas y rejas gastadas de trabajar
+    "senal_roja": (0.6, 0.012, 0.01, 1.0),
+    "senal_blanca": (0.85, 0.85, 0.82, 1.0),
 }
 
 
@@ -62,10 +76,10 @@ def limpiar_escena():
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
 
-def material(nombre, roughness=0.55, metallic=0.0, emision=0.0):
+def material(nombre, roughness=0.55, metallic=0.0, emision=0.0, color=None):
     if nombre in bpy.data.materials:
         return bpy.data.materials[nombre]
-    color = COLORES[nombre]
+    color = color or COLORES[nombre]
     mat = bpy.data.materials.new(name=nombre)
     if bpy.app.version < (5, 0, 0):
         mat.use_nodes = True
@@ -107,6 +121,9 @@ def mats():
         "ambar": material("ambar", 0.3, 0.0, 2.0),
         "piloto": material("piloto", 0.3, 0.0, 1.0),
         "asiento": material("asiento", 0.85),
+        "acero": material("acero", 0.32, 0.85),
+        "senal_roja": material("senal_roja", 0.5),
+        "senal_blanca": material("senal_blanca", 0.5),
     }
 
 
@@ -389,9 +406,14 @@ def tractor(M):
         trip.append(caja(f"tirante{s}", (0.05, 0.05, 0.42), (s * 0.38, yt + 0.4, 0.78), M["metal"]))
         trip.append(cilindro(f"rotula{s}", 0.05, 0.08, (s * 0.38, yt + 0.85, 0.5), "x", M["metal"], 10))
     trip.append(cilindro("tercer_punto", 0.045, 0.75, (0, yt + 0.4, 1.18), "y", M["metal"], 12))
-    trip.append(cilindro("toma_fuerza", 0.045, 0.25, (0, yt + 0.1, 0.78), "y", M["metal"], 12))
-    trip.append(caja("barra_tiro", (0.12, 0.55, 0.05), (0, yt + 0.25, 0.42), M["negro"], 0.01))
-    trip.append(caja("soporte_tripuntal", (0.9, 0.2, 0.55), (0, yt - 0.05, 0.85), M["negro"], 0.02))
+    # Fijo (no sube con los brazos): soporte, toma de fuerza y barra de tiro
+    trip_fijo = [
+        cilindro("toma_fuerza", 0.045, 0.25, (0, yt + 0.1, 0.78), "y", M["metal"], 12),
+        caja("barra_tiro", (0.12, 0.55, 0.05), (0, yt + 0.25, 0.42), M["negro"], 0.01),
+        caja("soporte_tripuntal", (0.9, 0.2, 0.55), (0, yt - 0.05, 0.85), M["negro"], 0.02),
+    ]
+    # Puntos del enganche (Blender): eje de los brazos, rótulas y extremo del tercer punto
+    ENGANCHE.update({"pivote": (0, yt, 0.564), "rotula": (0, yt + 0.85, 0.5), "superior": (0, yt + 0.775, 1.18)})
 
     vidrios = []
     vid_z = (suelo + 0.12 + techo - 0.04) / 2
@@ -410,7 +432,8 @@ def tractor(M):
     objetos = {
         "carroceria": une("carroceria", fijo),
         "vidrios": une("vidrios", vidrios),
-        "tripuntal": une("tripuntal", trip),
+        "tripuntal": une("tripuntal", trip_fijo),
+        "brazos_tripuntal": une("brazos_tripuntal", trip),
         "luces_trabajo": une("luces_trabajo", luces),
         "rotativo": une("rotativo", rotativo),
         "pilotos": une("pilotos", pilotos),
@@ -418,6 +441,234 @@ def tractor(M):
     for r in ruedas:
         objetos[r.name] = r
     return objetos
+
+
+# ----------------------------------------------------------------------------- Aperos (A4)
+def segmento(nombre, a, b, ancho, grueso, mat, radio_bisel=0.0):
+    """Barra de sección ancho (x) × grueso entre dos puntos del plano de un mismo x (o casi)."""
+    a, b = Vector(a), Vector(b)
+    d = b - a
+    giro = Vector((0, 1, 0)).rotation_difference(d.normalized()).to_matrix().to_4x4()
+    return caja(nombre, (ancho, d.length, grueso), (a + b) / 2, mat, radio_bisel, matriz=giro)
+
+
+def superficie(nombre, funcion, nu, nv, mat, grosor=0.012):
+    """Chapa curva: funcion(u, v) → (x, y, z) con u, v en [0, 1], con grosor (dos caras)."""
+    malla = bpy.data.meshes.new(nombre)
+    bm = bmesh.new()
+    filas = [[bm.verts.new(funcion(i / nu, j / nv)) for j in range(nv + 1)] for i in range(nu + 1)]
+    for i in range(nu):
+        for j in range(nv):
+            bm.faces.new((filas[i][j], filas[i + 1][j], filas[i + 1][j + 1], filas[i][j + 1]))
+    bm.to_mesh(malla)
+    bm.free()
+    obj = _objeto(nombre, malla, mat)
+    for poligono in obj.data.polygons:
+        poligono.use_smooth = True
+    m = obj.modifiers.new("grosor", "SOLIDIFY")
+    m.thickness = grosor
+    m.offset = 0
+    return obj
+
+
+def con_origen(obj, punto):
+    """Lleva el origen del objeto a «punto» sin moverlo (para girarlo en el juego sobre ese eje)."""
+    p = Vector(punto)
+    obj.data.transform(Matrix.Translation(-p))
+    obj.location = p
+    return obj
+
+
+def espejo(obj, eje_x, eje_z):
+    """Gira 180° la geometría alrededor de la recta paralela a Y por (eje_x, eje_z): pieza de vuelta."""
+    obj.data.transform(Matrix.Translation((eje_x, 0, eje_z)) @ Matrix.Rotation(math.pi, 4, "Y")
+                       @ Matrix.Translation((-eje_x, 0, -eje_z)))
+    return obj
+
+
+def senal(nombre, centro, M, lado=0.28, franjas=5):
+    """Placa de señalización de apero: cuadrado con franjas diagonales rojas y blancas, de cara
+    atrás (+Y). Cada franja es el trozo del cuadrado entre dos diagonales x + z = c."""
+    cx, cy, cz = centro
+    h = lado / 2
+
+    def recorta(poligono, c, signo):          # se queda con la parte donde signo·(x + z − c) ≥ 0
+        salida = []
+        for k in range(len(poligono)):
+            a, b = poligono[k], poligono[(k + 1) % len(poligono)]
+            fa, fb = signo * (a[0] + a[1] - c), signo * (b[0] + b[1] - c)
+            if fa >= 0:
+                salida.append(a)
+            if fa * fb < 0:
+                t = fa / (fa - fb)
+                salida.append((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t))
+        return salida
+
+    partes = []
+    cuadrado = [(-h, -h), (h, -h), (h, h), (-h, h)]
+    for k in range(franjas):
+        c0 = -lado + 2 * lado * k / franjas
+        c1 = -lado + 2 * lado * (k + 1) / franjas
+        pol = recorta(recorta(cuadrado, c0, 1), c1, -1)
+        if len(pol) < 3:
+            continue
+        malla = bpy.data.meshes.new(f"{nombre}_{k}")
+        bm = bmesh.new()
+        bm.faces.new([bm.verts.new((cx + x, cy, cz + z)) for x, z in pol])
+        bm.to_mesh(malla)
+        bm.free()
+        obj = _objeto(f"{nombre}_{k}", malla, M["senal_roja"] if k % 2 == 0 else M["senal_blanca"])
+        m = obj.modifiers.new("grosor", "SOLIDIFY")
+        m.thickness = 0.012
+        partes.append(obj)
+    return partes
+
+
+def cabezal_enganche(M, pintura, alto_mastil=0.68):
+    """Bulones inferiores (a ±0,38 m, como las rótulas del tractor), placa y torre del tercer punto."""
+    p = []
+    for s in (-1, 1):
+        p.append(cilindro(f"bulon{s}", 0.028, 0.16, (s * 0.38, 0, 0), "x", M["metal"], 10))
+        p.append(caja(f"oreja{s}", (0.03, 0.16, 0.16), (s * 0.31, 0.04, 0.0), pintura, 0.01))
+        p.append(segmento(f"torre{s}", (s * 0.22, 0.08, -0.02), (s * 0.05, -0.06, alto_mastil), 0.03, 0.09, pintura, 0.01))
+    p.append(caja("placa_cabezal", (0.7, 0.08, 0.16), (0, 0.1, 0.03), pintura, 0.015))
+    p.append(cilindro("bulon_superior", 0.024, 0.16, (0, -0.075, alto_mastil), "x", M["metal"], 10))
+    return p
+
+
+def arado(M):
+    """Arado de vertedera reversible de cuatro cuerpos (1,6 m de trabajo), genérico, sin marca."""
+    A = ARADO
+    pintura = material("pintura_apero", 0.45, 0.1, color=COLORES["apero_arado"])
+    zv, zs = A["viga_z"], -A["alto_bulon"]          # viga y suelo
+    bastidor = cabezal_enganche(M, pintura)
+    # Cabezal de volteo: tubo a lo largo de la marcha con su cilindro hidráulico
+    bastidor.append(cilindro("volteo", 0.12, 0.5, (0, 0.32, zv), "y", pintura, 20))
+    bastidor.append(segmento("cilindro_volteo", (0.0, 0.05, 0.62), (0.22, 0.32, zv + 0.1), 0.07, 0.07, M["metal"]))
+    # Cuerpos en diagonal: cada uno corta «corte» m más a la derecha (−X) que el anterior
+    n, corte, paso = A["cuerpos"], A["corte"], A["paso"]
+    pies = [((n - 1) / 2 * corte - k * corte, A["y0"] + k * paso) for k in range(n)]
+    dx, dy = pies[-1][0] - pies[0][0], pies[-1][1] - pies[0][1]
+    t0 = (0.5 - pies[0][1]) / dy
+    v0 = (pies[0][0] + dx * t0, 0.5)
+    v1 = (pies[-1][0] + dx * 0.32, pies[-1][1] + dy * 0.32)
+    bastidor.append(segmento("viga", (v0[0], v0[1], zv), (v1[0], v1[1], zv), 0.15, 0.15, pintura, 0.02))
+    bastidor.append(segmento("union_viga", (0, 0.45, zv), (v0[0], v0[1] + 0.08, zv), 0.13, 0.13, pintura, 0.02))
+    vertederas, rejas, cuchillas = [], [], []
+    for k, (x, y) in enumerate(pies):
+        largo_pie = zv - (zs - A["profundidad"]) + 0.08
+        bastidor.append(caja(f"pie{k}", (0.06, 0.13, 2 * largo_pie), (x, y, zv), pintura, 0.01))
+        bastidor.append(caja(f"abrazadera{k}", (0.2, 0.2, 0.2), (x, y, zv), pintura, 0.02))
+        for vuelta in (False, True):
+            piezas_v, piezas_r = [], []
+            zr = zs - A["profundidad"]                    # fondo del surco
+            # Vertedera: chapa alabeada que voltea la tierra hacia la derecha (−X)
+            def vert(u, v, x=x, y=y, zr=zr):
+                return (x + 0.08 - 0.12 * u - 0.36 * u * u * (0.35 + 0.65 * v) - 0.06 * v,
+                        y - 0.32 + 0.86 * u + 0.12 * v * u,
+                        zr + 0.02 + 0.42 * v + 0.05 * u * v)
+            piezas_v.append(superficie(f"vertedera{k}{int(vuelta)}", vert, 10, 5, M["acero"]))
+            # Reja (la punta que corta) y talón (apoyo en la pared del surco)
+            malla = bpy.data.meshes.new(f"reja{k}")
+            bm = bmesh.new()
+            pts = [(x + 0.06, y - 0.48, zr), (x + 0.12, y - 0.1, zr + 0.01), (x - 0.30, y - 0.02, zr + 0.03), (x - 0.12, y - 0.32, zr + 0.01)]
+            bm.faces.new([bm.verts.new(q) for q in pts])
+            bm.to_mesh(malla)
+            bm.free()
+            reja = _objeto(f"reja{k}{int(vuelta)}", malla, M["acero"])
+            m = reja.modifiers.new("grosor", "SOLIDIFY")
+            m.thickness = 0.02
+            piezas_r.append(reja)
+            piezas_r.append(caja(f"talon{k}{int(vuelta)}", (0.015, 0.62, 0.12), (x + 0.12, y + 0.02, zr + 0.07), M["negro"]))
+            piezas_r.append(caja(f"pecho{k}{int(vuelta)}", (0.1, 0.22, 0.34), (x + 0.04, y - 0.12, zr + 0.22), M["negro"], 0.02))
+            # Cuchilla circular delante de cada cuerpo, con su brazo desde la viga
+            cx, cy, cz = x + 0.10, y - 0.62, zr + 0.20
+            piezas_r.append(segmento(f"brazo_cuchilla{k}{int(vuelta)}", (x + 0.1, y - 0.3, zv), (cx + 0.05, cy, cz), 0.05, 0.05, pintura))
+            disco = cilindro(f"cuchilla{k}{int(vuelta)}", 0.22, 0.01, (cx, cy, cz), "x", M["acero"], 28)
+            if vuelta:
+                for o in piezas_v + piezas_r + [disco]:
+                    espejo(o, x, zv)
+            vertederas += piezas_v
+            rejas += piezas_r
+            cuchillas.append(disco)
+    # Rueda de control al final de la viga, sobre su brazo; cuelga de un eje para seguir abajo al voltear
+    pivote = (v1[0] + 0.05, v1[1] - 0.05, zv)
+    rc = 0.3
+    centro_rueda = (pivote[0] + 0.32, pivote[1] + 0.35, zs + rc)
+    rueda_partes = [segmento("brazo_rueda", pivote, (centro_rueda[0] - 0.12, centro_rueda[1], centro_rueda[2]), 0.08, 0.08, pintura, 0.01),
+                    anillo("rueda_control_cubierta", rc * 0.55, rc, 0.18, centro_rueda, M["neumatico"], 28, abombado=0.012),
+                    cilindro("rueda_control_llanta", rc * 0.56, 0.15, centro_rueda, "x", M["llanta"], 24),
+                    cilindro("rueda_control_eje", 0.04, 0.26, (centro_rueda[0] - 0.05, centro_rueda[1], centro_rueda[2]), "x", M["metal"], 10)]
+    rueda = con_origen(une("rueda_control", rueda_partes), (0, pivote[1], zv))
+    senales = senal("senal", (v1[0] + 0.2, v1[1] + 0.12, zv + 0.35), M)
+    bastidor.append(segmento("soporte_senal", (v1[0] + 0.1, v1[1], zv), (v1[0] + 0.2, v1[1] + 0.1, zv + 0.25), 0.04, 0.04, pintura))
+    objetos = {
+        "bastidor": une("bastidor", bastidor),
+        "vertederas": une("vertederas", vertederas),
+        "rejas": une("rejas", rejas),
+        "cuchillas": une("cuchillas", cuchillas),
+        "senales": une("senales", senales),
+        "rueda_control": rueda,
+    }
+    trabajo_y = sum(y for _, y in pies) / n
+    datos = {"ancho_trabajo": round(n * corte, 3), "alto_bulon": A["alto_bulon"], "profundidad": A["profundidad"],
+             "trabajo_z": round(-trabajo_y, 3), "eje_volteo_y": zv, "reversible": True,
+             "cuerpos": [[round(x, 3), round(zs - A["profundidad"], 3), round(-y, 3)] for x, y in pies],
+             "rueda_control": {"objeto": "rueda_control", "eje": [0, zv, round(-pivote[1], 3)]}}
+    return objetos, datos
+
+
+def cultivador(M):
+    """Cultivador de brazos flexibles en S, tres filas y rodillo desterronador (3 m), sin marca."""
+    C = CULTIVADOR
+    pintura = material("pintura_apero", 0.45, 0.1, color=COLORES["apero_cultivador"])
+    zb, zs = C["barra_z"], -C["alto_bulon"]
+    W = C["ancho"]
+    bastidor = cabezal_enganche(M, pintura)
+    for k, y in enumerate(C["barras_y"]):
+        bastidor.append(caja(f"barra{k}", (W, 0.1, 0.1), (0, y, zb), pintura, 0.012))
+    for s in (-1, 1):
+        bastidor.append(caja(f"larguero{s}", (0.1, C["barras_y"][-1] - C["barras_y"][0] + 0.25, 0.1),
+                             (s * 0.6, sum(C["barras_y"][::2]) / 2, zb), pintura, 0.012))
+        bastidor.append(segmento(f"tirante_bulon{s}", (s * 0.33, 0.05, 0.0), (s * 0.6, C["barras_y"][0], zb), 0.07, 0.07, pintura, 0.01))
+    bastidor.append(segmento("tirante_superior", (0, -0.04, 0.66), (0, C["barras_y"][1], zb + 0.05), 0.07, 0.07, pintura, 0.01))
+    brazos = []
+    zr = zs - C["profundidad"]
+    n, sep = C["brazos_por_barra"], C["separacion"]
+    desplaza = sep / len(C["barras_y"])
+    for b, y in enumerate(C["barras_y"]):
+        for i in range(n):
+            x = -W / 2 + 0.1 + i * sep + b * desplaza
+            # Brazo en S: sale de la barra hacia atrás y abajo y acaba con la punta hacia delante
+            puntos = [(x, y + 0.02, zb - 0.02), (x, y + 0.16, zb - 0.06), (x, y + 0.27, zb - 0.22), (x, y + 0.26, zb - 0.42),
+                      (x, y + 0.14, zb - 0.62), (x, y + 0.02, zr + 0.12), (x, y - 0.06, zr + 0.02)]
+            for j in range(len(puntos) - 1):
+                brazos.append(segmento(f"s{b}_{i}_{j}", puntos[j], puntos[j + 1], 0.045, 0.014, M["negro"]))
+            brazos.append(caja(f"grapa{b}_{i}", (0.07, 0.12, 0.14), (x, y, zb), M["negro"], 0.01))
+            brazos.append(segmento(f"punta{b}_{i}", (x, y - 0.0, zr + 0.06), (x, y - 0.16, zr - 0.0), 0.07, 0.012, M["acero"]))
+    # Rodillo desterronador (gira en el juego sobre su eje)
+    ry, rr = C["rodillo_y"], C["rodillo_r"]
+    rz = zs + rr
+    rod = []
+    for k in range(5):
+        rod.append(cilindro(f"disco_rodillo{k}", rr, 0.02, (-W / 2 + 0.04 + k * (W - 0.08) / 4, ry, rz), "x", M["negro"], 20))
+    for k in range(12):
+        a = 2 * math.pi * k / 12
+        rod.append(cilindro(f"varilla{k}", 0.016, W - 0.04, (0, ry + math.cos(a) * (rr - 0.015), rz + math.sin(a) * (rr - 0.015)), "x", M["metal"], 6))
+    rod.append(cilindro("eje_rodillo", 0.025, W + 0.08, (0, ry, rz), "x", M["metal"], 10))
+    rodillo = con_origen(une("rodillo", rod), (0, ry, rz))
+    for s in (-1, 1):
+        bastidor.append(segmento(f"brazo_rodillo{s}", (s * (W / 2 - 0.05), C["barras_y"][-1], zb), (s * (W / 2 + 0.03), ry, rz), 0.06, 0.08, pintura, 0.01))
+    senales = []
+    for s in (-1, 1):
+        senales += senal(f"senal{s}", (s * (W / 2 - 0.2), C["barras_y"][-1] + 0.08, zb + 0.3), M)
+        bastidor.append(caja(f"soporte_senal{s}", (0.04, 0.04, 0.3), (s * (W / 2 - 0.2), C["barras_y"][-1] + 0.05, zb + 0.15), pintura))
+    objetos = {"bastidor": une("bastidor", bastidor), "brazos": une("brazos", brazos), "senales": une("senales", senales),
+               "rodillo": rodillo}
+    datos = {"ancho_trabajo": W, "alto_bulon": C["alto_bulon"], "profundidad": C["profundidad"],
+             "trabajo_z": round(-(sum(C["barras_y"]) / len(C["barras_y"]) + 0.1), 3), "reversible": False,
+             "rodillo": {"objeto": "rodillo", "radio": rr}}
+    return objetos, datos
 
 
 # ----------------------------------------------------------------------------- Salida
@@ -447,14 +698,39 @@ def ficha(objetos, mn, mx, d, archivo):
     for o in objetos.values():
         o.data.calc_loop_triangles()
         triangulos += len(o.data.loop_triangles)
+    def juego(p):
+        return [round(p[0] + d.x, 4), round(p[2] + d.z, 4), round(-(p[1] + d.y), 4)]
     return {
         "archivo": archivo,
+        "enganche": {k: juego(v) for k, v in ENGANCHE.items()},
         "largo": round(mx.y - mn.y, 3),
         "ancho": round(mx.x - mn.x, 3),
         "alto": round(mx.z - mn.z, 3),
         "pintura": True,
         "triangulos": triangulos,
         "ruedas": ruedas,
+        "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)",
+    }
+
+
+def ficha_apero(objetos, datos, archivo, nombre):
+    """Medidas del apero en ejes del juego, con el origen en los bulones inferiores del enganche."""
+    bpy.context.view_layer.update()
+    puntos = [o.matrix_world @ Vector(v) for o in objetos.values() for v in o.bound_box]
+    triangulos = 0
+    for o in objetos.values():
+        o.data.calc_loop_triangles()
+        triangulos += len(o.data.loop_triangles)
+    return {
+        "archivo": archivo,
+        "nombre": nombre,
+        "largo": round(max(p.y for p in puntos) - min(p.y for p in puntos), 3),
+        "ancho": round(max(p.x for p in puntos) - min(p.x for p in puntos), 3),
+        "alto": round(max(p.z for p in puntos) - min(p.z for p in puntos), 3),
+        "triangulos": triangulos,
+        "enganche": {"inferior": [0, 0, 0], "superior": [0, 0.68, 0.075]},
+        "suelo_y": -datos["alto_bulon"],
+        **datos,
         "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)",
     }
 
@@ -469,7 +745,7 @@ def exportar_glb(objetos, ruta):
     print(f"[OK] Exportado: {ruta}")
 
 
-def vistas(objetos, carpeta, largo):
+def vistas(objetos, carpeta, largo, nombre="tractor", objetivo=(0, 0, 1.35), escala=1.0, suelo_z=0.0):
     """Imágenes de comprobación con Cycles: tres cuartos delante, lado, detrás y planta."""
     os.makedirs(carpeta, exist_ok=True)
     escena = bpy.context.scene
@@ -499,6 +775,7 @@ def vistas(objetos, carpeta, largo):
     bm.to_mesh(suelo)
     bm.free()
     os_ = bpy.data.objects.new("suelo", suelo)
+    os_.location.z = suelo_z
     mat_suelo = bpy.data.materials.new("suelo_vista")
     mat_suelo.diffuse_color = (0.42, 0.36, 0.28, 1)
     if bpy.app.version < (5, 0, 0):
@@ -515,12 +792,13 @@ def vistas(objetos, carpeta, largo):
     camara.data.lens = 45
     bpy.context.collection.objects.link(camara)
     escena.camera = camara
-    objetivo = Vector((0, 0, 1.35))
-    for nombre, pos in (("tractor_3cuartos", (-6.2, -7.0, 3.4)), ("tractor_lado", (-9.0, 0.0, 1.9)),
-                        ("tractor_detras", (5.5, 7.5, 3.6)), ("tractor_frente", (0.0, -8.5, 2.0))):
-        camara.location = Vector(pos)
+    objetivo = Vector(objetivo)
+    for vista, pos in (("3cuartos", (-6.2, -7.0, 3.4)), ("lado", (-9.0, 0.0, 1.9)),
+                       ("detras", (5.5, 7.5, 3.6)), ("frente", (0.0, -8.5, 2.0))):
+        camara.location = objetivo + (Vector(pos) - Vector((0, 0, 1.35))) * escala
+        archivo = f"{nombre}_{vista}"
         camara.rotation_euler = (objetivo - camara.location).to_track_quat("-Z", "Y").to_euler()
-        escena.render.filepath = os.path.join(carpeta, f"{nombre}.png")
+        escena.render.filepath = os.path.join(carpeta, f"{archivo}.png")
         bpy.ops.render.render(write_still=True)
         print(f"[OK] Vista: {escena.render.filepath}")
 
@@ -538,14 +816,30 @@ def argumentos():
 
 if __name__ == "__main__":
     salida, previews, con_vistas = argumentos()
-    limpiar_escena()
-    M = mats()
-    objetos = tractor(M)
-    mn, mx, d = centra(objetos)
-    exportar_glb(list(objetos.values()), str(salida / "tractor.glb"))
-    datos = {"tractor": ficha(objetos, mn, mx, d, "tractor.glb")}
-    (salida / "maquinaria.json").write_text(json.dumps(datos, ensure_ascii=False, indent=1), encoding="utf-8")
-    t = datos["tractor"]
-    print(f"[OK] Tractor: {t['largo']} × {t['ancho']} × {t['alto']} m, {t['triangulos']} triángulos")
-    if con_vistas:
-        vistas(objetos, str(previews), t["largo"])
+    solo = sys.argv[sys.argv.index("--solo") + 1].split(",") if "--solo" in sys.argv else None
+    ruta_json = salida / "maquinaria.json"
+    datos = json.loads(ruta_json.read_text(encoding="utf-8")) if solo and ruta_json.exists() else {}
+    if not solo or "tractor" in solo:
+        limpiar_escena()
+        M = mats()
+        objetos = tractor(M)
+        mn, mx, d = centra(objetos)
+        exportar_glb(list(objetos.values()), str(salida / "tractor.glb"))
+        datos["tractor"] = ficha(objetos, mn, mx, d, "tractor.glb")
+        t = datos["tractor"]
+        print(f"[OK] Tractor: {t['largo']} × {t['ancho']} × {t['alto']} m, {t['triangulos']} triángulos")
+        if con_vistas:
+            vistas(objetos, str(previews), t["largo"])
+    for id_, constructor, nombre in (("arado", arado, "Arado reversible de 4 cuerpos"), ("cultivador", cultivador, "Cultivador de 3 m")):
+        if solo and id_ not in solo:
+            continue
+        limpiar_escena()
+        M = mats()
+        objetos, extra = constructor(M)
+        exportar_glb(list(objetos.values()), str(salida / f"{id_}.glb"))
+        datos[id_] = ficha_apero(objetos, extra, f"{id_}.glb", nombre)
+        a = datos[id_]
+        print(f"[OK] {nombre}: {a['largo']} × {a['ancho']} × {a['alto']} m, {a['triangulos']} triángulos, {a['ancho_trabajo']} m de trabajo")
+        if con_vistas:
+            vistas(objetos, str(previews), a["largo"], id_, objetivo=(0, 1.6, -0.05), escala=0.75, suelo_z=-ARADO["alto_bulon"])
+    ruta_json.write_text(json.dumps(datos, ensure_ascii=False, indent=1), encoding="utf-8")

@@ -2,7 +2,7 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo agricultura**: parcelas reales del término de Cabanillas, delimitadas con el Catastro de Navarra y la ortofoto, que se trabajan con tractores, aperos y cosechadora hechos en 3D. El suelo cambia de aspecto por donde pasa el apero (arado, gradeado, abonado, sembrado, regado, cosechado) y las plantas nacen, crecen, maduran y se cosechan. Complementa a `PLAN.md`, `PLAN_REALISMO.md`, `PLAN_FIESTAS.md` y `PLAN_SALTO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: una fase cada vez, parada al final de cada fase, no inventar datos geográficos, todo en español, escritorio y móvil siempre.
 
-Fecha: 2026-11-20. Estado: **A0 y A2 aprobadas; A1 omitida por Rubén; A3 (tractor y COPE) hecha el 2026-11-24, pendiente de que Rubén apruebe el tractor** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
+Fecha: 2026-11-20. Estado: **A0, A2 y A3 aprobadas; A1 omitida por Rubén; A4 (arado y cultivador) hecha el 2026-11-25, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
 
 ### Inspiración y límites
 
@@ -94,7 +94,10 @@ src/agricultura/riego.js        Simulación del agua sobre el MDT y su lámina v
 src/agricultura/maquina.js      Tractor y cosechadora sobre Rapier (a partir de coche.js)
 src/agricultura/enganche.js     Tripuntal (aperos suspendidos) y enganche de bola (arrastrados, con articulación)
 src/agricultura/aperos.js       Arado, cultivador, abonadora, sembradora, cabezal, remolque
-src/agricultura/particulas.js   Polvo, terrones, grano, paja, aves que siguen al arado
+src/agricultura/labranza.js     Con el apero bajado: pinta la franja de trabajo y las rodadas, freno de la tierra (A4)
+src/agricultura/particulas.js   Polvo, terrones, grano, paja
+src/agricultura/aves.js         Gaviotas que siguen al arado (A4)
+src/agricultura/sonidoMotor.js  Motor diésel con WebAudio, con carga (A4)
 src/agricultura/guardado.js     Estado de cada parcela trabajada en localStorage (máscaras comprimidas)
 src/hud/agricultura.js          Panel de parcela, apero, calendario, avisos
 tools/50_parcelas.py            Catastro + SIGPAC + regadío → parcelas.json + vistas para revisar (HECHO, A0)
@@ -252,7 +255,7 @@ Aceptación: llegar en coche desde el pueblo a las parcelas por el camino real. 
 
 Aceptación: los estados se distinguen bien de cerca y de lejos, los surcos siguen la pasada y la linde funde con la ortofoto.
 
-### A3 — Tractor y nave agrícola — HECHA (2026-11-24), pendiente de que Rubén apruebe el tractor
+### A3 — Tractor y nave agrícola — HECHA y aprobada (2026-11-25)
 
 - `tools/build_maquinaria.py` (tractor primero), `npm run maquinaria`, `maquina.js`, `src/config/maquinaria.js`.
 - Cámara de tractor (detrás y alta) y vista de cabina. Controles de teclado y táctiles.
@@ -261,10 +264,11 @@ Aceptación: los estados se distinguen bien de cerca y de lejos, los surcos sigu
 
 Aceptación: conducir el tractor por el pueblo y los caminos, entrar en la parcela, sin vuelcos raros. Rubén aprueba el modelo.
 
-### A4 — Labranza: arado y cultivador
+### A4 — Labranza: arado y cultivador — HECHA (2026-11-25), pendiente de que Rubén la pruebe
 
 - `enganche.js` (tripuntal), `aperos.js` (arado, cultivador), subir y bajar el apero, pintar la máscara A.
 - Polvo, terrones, rodadas y aves detrás del arado. Sonido de motor con carga.
+- Hecho así: arado reversible de 4 cuerpos (1,6 m) y cultivador de 3 m en `build_maquinaria.py`; brazos del tripuntal aparte y puntos del enganche en `maquinaria.json`; aperos en el patio de la COPE, elegidos en su menú; Q o ⬇ sube y baja; `labranza.js` pinta la franja de la línea de trabajo y las rodadas, frena el tractor (10 y 13 km/h como mucho) y quita la hierba 3D de lo labrado; `particulas.js` (polvo y terrones), `aves.js` (gaviotas), `sonidoMotor.js` y panel `src/hud/agricultura.js`; prueba `tools/prueba_labranza.mjs`.
 
 Aceptación: arar media parcela deja la mitad arada con los surcos en la dirección de las pasadas; el HUD marca el porcentaje.
 
