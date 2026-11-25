@@ -5,7 +5,9 @@
 //     reposo y en todas las animaciones, hasta tener el tobillo bajo la cadera. Se mide en la
 //     postura «quieto»: los GLB que haga tools/build_personas.py desde el 2026-11-24 ya traen
 //     las piernas juntas en las animaciones, y entonces aquí no se gira nada.
-//   - Manos: los dedos no se animan y quedan estirados; se cierran un poco (mano relajada).
+//   - Manos: los dedos no se animan y quedan estirados; se cierran un poco (mano relajada). Los
+//     GLB que haga tools/build_personas.py desde el 2026-11-25 ya traen los dedos cerrados en las
+//     animaciones: entonces aquí no se tocan.
 import * as THREE from 'three';
 import { PEATONES } from '../config/peatones.js';
 
@@ -68,8 +70,9 @@ export function corrigePersona(escena, animaciones) {
     resultado.piernas.push({ lado, grados: +(angulo * 180 / Math.PI).toFixed(1), tobilloAntes: +tobillo.x.toFixed(3) });
   }
 
-  // --- Dedos: cada falange se dobla hacia la palma
-  for (const lado of ['l', 'r']) {
+  // --- Dedos: cada falange se dobla hacia la palma (si las animaciones no los mueven ya)
+  const dedosAnimados = animaciones.some((c) => c.tracks.some((t) => /^(index|middle|ring|pinky|thumb)_0\d_[lr]\.quaternion$/.test(t.name)));
+  for (const lado of dedosAnimados ? [] : ['l', 'r']) {
     const mano = escena.getObjectByName(`hand_${lado}`);
     const indice = escena.getObjectByName(`index_01_${lado}`);
     const menique = escena.getObjectByName(`pinky_01_${lado}`);
