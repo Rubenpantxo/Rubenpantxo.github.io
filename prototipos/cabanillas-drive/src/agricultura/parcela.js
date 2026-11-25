@@ -6,6 +6,7 @@
 //   laboreo  R arado · G gradeado (tierra preparada) · B abono · A dirección de la pasada (0…π)
 //   cultivo  R humedad · G día de siembra (0 = sin sembrar) · B cosechado · A rodadas
 //   dentro   R: 0 fuera, sube hasta 255 a fundidoLindeM de la linde (para fundir con la ortofoto)
+//   agua     R: agua que ha tenido lo sembrado mientras crecía (A7; 128 = solo la lluvia)
 // El píxel (i, j) cubre x = ox + (i + ½)·mpp, z = oz + (j + ½)·mpp.
 import * as THREE from 'three';
 import { AGRICULTURA } from '../config/agricultura.js';
@@ -153,10 +154,12 @@ export function creaParcela(info, { terreno, nivelCalidad = 'alto' }) {
   const { interior, dentro } = calculaDentro(info, ox, oz, mpp, ancho, alto, AGRICULTURA.fundidoLindeM);
   const laboreo = new Uint8Array(ancho * alto * 4);
   const cultivo = new Uint8Array(ancho * alto * 4);
+  const agua = new Uint8Array(ancho * alto).fill(128);
   const texturas = {
     laboreo: texturaMascara(laboreo, ancho, alto, THREE.RGBAFormat),
     cultivo: texturaMascara(cultivo, ancho, alto, THREE.RGBAFormat),
     dentro: texturaMascara(dentro, ancho, alto, THREE.RedFormat),
+    agua: texturaMascara(agua, ancho, alto, THREE.RedFormat),
   };
   const mascara = { ox, oz, mpp, ancho, alto, interior };
   const { geo, paso, triangulos } = creaGeometria(info, terreno, mascara);
@@ -173,7 +176,7 @@ export function creaParcela(info, { terreno, nivelCalidad = 'alto' }) {
   const pixelesDentro = interior.reduce((s, v) => s + v, 0);
 
   const parcela = {
-    info, ref: info.ref, malla, laboreo, cultivo, dentro, interior, texturas, mascara,
+    info, ref: info.ref, malla, laboreo, cultivo, agua, dentro, interior, texturas, mascara,
     ox, oz, mpp, ancho, alto, pasoMalla: paso, triangulos, pixelesDentro,
     // Píxel de un punto (puede caer fuera de la máscara)
     aPixel: (x, z) => [(x - ox) / mpp - 0.5, (z - oz) / mpp - 0.5],
@@ -189,6 +192,7 @@ export function creaParcela(info, { terreno, nivelCalidad = 'alto' }) {
       if (!forzar && ahora - ultimaSubida < 1000 / AGRICULTURA.subidasPorSegundo) return false;
       texturas.laboreo.needsUpdate = true;
       texturas.cultivo.needsUpdate = true;
+      texturas.agua.needsUpdate = true;
       sucio = null;
       ultimaSubida = ahora;
       return true;

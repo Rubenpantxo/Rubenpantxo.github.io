@@ -27,7 +27,7 @@ const LABOR = {
     const k = 1 - w;
     for (let i = 0; i < 3; i++) { m.laboreo[l + i] *= k; m.cultivo[c + i] *= k; }
     m.cultivo[c + 3] *= k;
-    if (w > 0.5) m.cultivo[c + 1] = 0;
+    if (w > 0.5) { m.cultivo[c + 1] = 0; m.agua[l >> 2] = 128; }
   },
   arar(m, l, c, w, dir) {
     m.laboreo[l] = Math.max(m.laboreo[l], w * 255);
@@ -35,13 +35,13 @@ const LABOR = {
     m.laboreo[l + 2] *= 1 - w * 0.7;      // y entierra casi todo el abono
     m.cultivo[c + 2] *= 1 - w;            // y el rastrojo
     m.cultivo[c + 3] *= 1 - w;            // y las rodadas
-    if (w > 0.5) { m.cultivo[c + 1] = 0; m.laboreo[l + 3] = dir; }
+    if (w > 0.5) { m.cultivo[c + 1] = 0; m.agua[l >> 2] = 128; m.laboreo[l + 3] = dir; }
   },
   gradear(m, l, c, w, dir) {
     m.laboreo[l + 1] = Math.max(m.laboreo[l + 1], w * 255);
     m.cultivo[c + 2] *= 1 - w;
     m.cultivo[c + 3] *= 1 - w * 0.6;
-    if (w > 0.5) { m.cultivo[c + 1] = 0; m.laboreo[l + 3] = dir; }
+    if (w > 0.5) { m.cultivo[c + 1] = 0; m.agua[l >> 2] = 128; m.laboreo[l + 3] = dir; }
   },
   abonar(m, l, c, w) {
     m.laboreo[l + 2] = Math.max(m.laboreo[l + 2], w * 255);
@@ -50,6 +50,7 @@ const LABOR = {
     if (w > 0.5) {
       m.cultivo[c + 1] = dia;
       m.cultivo[c + 2] = 0;
+      m.agua[l >> 2] = 128;               // lo nuevo empieza sin el agua de lo de antes
       m.laboreo[l + 3] = dir;
     }
   },
@@ -58,7 +59,7 @@ const LABOR = {
   },
   cosechar(m, l, c, w, dir) {
     m.cultivo[c + 2] = Math.max(m.cultivo[c + 2], w * 255);
-    if (w > 0.5) { m.cultivo[c + 1] = 0; m.laboreo[l + 3] = dir; }
+    if (w > 0.5) { m.cultivo[c + 1] = 0; m.agua[l >> 2] = 128; m.laboreo[l + 3] = dir; }
   },
   rodar(m, l, c, w) {
     m.cultivo[c + 3] = Math.max(m.cultivo[c + 3], w * 255);
@@ -164,5 +165,6 @@ export function estadoEn(parcela, x, z) {
 export function limpia(parcela) {
   parcela.laboreo.fill(0);
   parcela.cultivo.fill(0);
+  parcela.agua.fill(128);
   parcela.marcaCambio(0, 0, parcela.ancho - 1, parcela.alto - 1);
 }

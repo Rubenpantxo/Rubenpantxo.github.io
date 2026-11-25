@@ -178,16 +178,32 @@ float edadSuave(vec2 p, float umbral) {
   if (b < 0.5) b = max(max(b00, b10), max(b01, b11));
   return mod(uHoy - (b - 1.0) + 255.0, 255.0);
 }
-// Vigor (0,45…1,12): tierra preparada y abonada crece más; rodales más altos y más bajos
+// Agua que ha tenido el cultivo mientras crecía (A7, máscara «agua»: 0,5 = solo la lluvia)
+uniform sampler2D uAgua;
+// Vigor (0,36…1,34): tierra preparada y abonada crece más; rodales más altos y más bajos; con el
+// agua de los riegos, hasta un 20 % más; con sed, hasta un 20 % menos
 float vigorEn(vec2 p) {
   ivec2 i = pixelDe(p);
   vec4 lab = i.x < 0 ? vec4(0.0) : texelFetch(uLaboreo, i, 0);
+  float agua = i.x < 0 ? 0.5 : texelFetch(uAgua, i, 0).r;
   float prep = max(smoothstep(0.3, 0.7, lab.r), smoothstep(0.3, 0.7, lab.g));
-  return clamp(0.62 + 0.18 * prep + 0.25 * lab.b + 0.24 * (fbmC(p * 0.07) - 0.5), 0.45, 1.12);
+  float suelo = clamp(0.62 + 0.18 * prep + 0.25 * lab.b + 0.24 * (fbmC(p * 0.07) - 0.5), 0.45, 1.12);
+  return suelo * (0.8 + 0.4 * agua);
 }
 `;
 
-// Vigor en JavaScript (sin los rodales: para medias)
-export function vigorMedio(prep, abono) {
-  return Math.min(1.12, Math.max(0.45, 0.62 + 0.18 * prep + 0.25 * abono));
+// Vigor en JavaScript (sin los rodales: para medias). agua: la de la máscara «agua» (0…1)
+export function vigorMedio(prep, abono, agua = 0.5) {
+  return Math.min(1.12, Math.max(0.45, 0.62 + 0.18 * prep + 0.25 * abono)) * (0.8 + 0.4 * agua);
+}
+
+// Altura relativa del cultivo a cada edad (0…EDAD_MAX), para repartir el agua por lo que crece cada día
+const cacheCrece = new Map();
+export function alturaPorEdad(id) {
+  if (!cacheCrece.has(id)) {
+    const t = new Float32Array(256);
+    for (let e = 0; e < 256; e++) t[e] = faseDe(id, e).altura;
+    cacheCrece.set(id, t);
+  }
+  return cacheCrece.get(id);
 }

@@ -1,7 +1,9 @@
 // Panel del modo agricultura (PLAN_AGRICULTURA.md §5.7). De momento (A4): con el tractor, qué apero
 // lleva y si está bajado, la parcela que pisa y cuánto lleva labrado; desde A5, lo que queda en la
 // tolva (abono o semilla); desde A6, el día de cultivo y lo que hay sembrado donde se pisa (etapa,
-// edad y cuánto falta para la siguiente); y el botón táctil del apero.
+// edad y cuánto falta para la siguiente); y el botón táctil del apero. Desde A7, la humedad del
+// suelo y el riego de la parcela, y junto a una tajadera (en coche o en tractor) cómo abrirla o
+// cerrarla (G o el botón 💧) y cómo va el agua.
 // Crecerá en A9 (cultivo, humedad, avisos, minimapa).
 const ESTILO = `
 #agri-hud { position: fixed; top: calc(max(10px, env(safe-area-inset-top)) + 4px); left: 50%; transform: translateX(-50%);
@@ -21,6 +23,16 @@ const ESTILO = `
 #agri-hud .vacia { color: #ffb74d; }
 #agri-hud .cultivo { font-weight: 600; color: #c8e6a0; }
 #agri-hud .ritmo.bien { color: #8be28f; } #agri-hud .ritmo.rapido { color: #ffb74d; } #agri-hud .ritmo.lento { color: #c9d3de; }
+#agri-hud .riego, #agri-riego .riego { color: #8fd3ff; font-weight: 600; }
+#agri-riego { position: fixed; bottom: calc(max(12px, env(safe-area-inset-bottom)) + 150px); left: 50%; transform: translateX(-50%);
+  z-index: 12; pointer-events: none; text-align: center; color: var(--tinta, #fff); background: var(--fondo-ui, rgba(16,22,30,.78));
+  border-radius: 10px; padding: 6px 14px 7px; font: 500 13px system-ui, sans-serif; max-width: min(92vw, 420px);
+  box-sizing: border-box; backdrop-filter: blur(4px); line-height: 1.4; border: 1px solid rgba(143,211,255,.45); }
+#agri-riego[hidden] { display: none; }
+#agri-riego .tecla { display: inline-block; min-width: 16px; padding: 0 5px; border-radius: 4px; background: rgba(255,255,255,.2); font-weight: 700; }
+.boton-tactil.tajadera { font-size: 22px; }
+.boton-tactil.tajadera.abierta { border-color: #4fc3f7; box-shadow: 0 0 8px #4fc3f7; }
+@media (max-width: 640px) { #agri-riego { bottom: calc(max(10px, env(safe-area-inset-bottom)) + 200px); font-size: 12px; } }
 @media (max-width: 640px) { #agri-hud { top: calc(max(8px, env(safe-area-inset-top)) + 2px); font-size: 12px; max-width: 58vw; } }
 .boton-tactil.apero { font-size: 22px; }
 .boton-tactil.apero.bajado { border-color: #4caf50; box-shadow: 0 0 8px #4caf50; }
@@ -41,6 +53,13 @@ export function creaHudAgricultura({ tactil }) {
   caja.setAttribute('aria-live', 'polite');
   document.body.append(caja);
   const boton = tactil ? tactil.querySelector('[data-pulsar="apero"]') : null;
+  const botonTajadera = tactil ? tactil.querySelector('[data-pulsar="tajadera"]') : null;
+  const cajaRiego = document.createElement('div');
+  cajaRiego.id = 'agri-riego';
+  cajaRiego.hidden = true;
+  cajaRiego.setAttribute('aria-live', 'polite');
+  document.body.append(cajaRiego);
+  let ultimoRiego = '';
 
   let ultimo = '';
   return {
@@ -52,7 +71,7 @@ export function creaHudAgricultura({ tactil }) {
         ultimo = '';
         return;
       }
-      const { apero, bajado, velocidadKmh, parcela, recuento, conTeclado, tolva, dia, minutosParaManana, cultivo } = estado;
+      const { apero, bajado, velocidadKmh, parcela, recuento, conTeclado, tolva, dia, minutosParaManana, cultivo, suelo, riego } = estado;
       if (boton) {
         boton.hidden = !apero;
         boton.textContent = bajado ? '⬆' : '⬇';
@@ -90,10 +109,39 @@ export function creaHudAgricultura({ tactil }) {
           html += `<div><span class="labor">${nombre}</span><span class="barra"><i style="width:${Math.min(100, pct)}%"></i></span>${fmt(pct, 0)} %${otros}</div>`;
         }
       }
+      if (parcela && (suelo || riego)) {
+        const partes = [];
+        if (suelo) partes.push(`💧 Humedad del suelo ${fmt(suelo.humedad * 100, 0)} %`);
+        if (riego?.regando) partes.push(`<span class="riego">regando ${fmt(riego.cubierto * 100, 0)} %</span>`);
+        html += `<div class="parcela">${partes.join(' · ')}</div>`;
+      }
       if (dia != null) html += `<div class="parcela">📅 Día ${dia} de cultivo · el siguiente en ${minutosParaManana} min</div>`;
       if (html !== ultimo) { caja.innerHTML = html; ultimo = html; }
       caja.hidden = false;
     },
-    libera() { caja.remove(); estilo.remove(); },
+    // Junto a una tajadera: { ref, nombre, abierta, estado (riego de la parcela), conTeclado } o null
+    riego(info) {
+      if (!info) {
+        cajaRiego.hidden = true;
+        if (botonTajadera) botonTajadera.hidden = true;
+        ultimoRiego = '';
+        return;
+      }
+      const { nombre, abierta, estado: e, conTeclado, ref } = info;
+      if (botonTajadera) {
+        botonTajadera.hidden = false;
+        botonTajadera.classList.toggle('abierta', abierta);
+        botonTajadera.setAttribute('aria-label', abierta ? 'Cerrar la tajadera' : 'Abrir la tajadera');
+      }
+      const tecla = conTeclado ? '<span class="tecla">G</span>' : '💧';
+      let html = `<div>🚰 Tajadera ${nombre} de la ${ref} · ${abierta ? 'abierta' : 'cerrada'} · ${tecla} ${abierta ? 'cerrarla' : 'abrirla'}</div>`;
+      if (e?.regando) {
+        html += `<div class="riego">Regando: ${fmt(e.caudalLs, 0)} L/s · agua en el ${fmt(e.cubierto * 100, 0)} % de la parcela`
+          + ` · ${fmt(e.mm, 0)} mm</div>`;
+      }
+      if (html !== ultimoRiego) { cajaRiego.innerHTML = html; ultimoRiego = html; }
+      cajaRiego.hidden = false;
+    },
+    libera() { caja.remove(); cajaRiego.remove(); estilo.remove(); },
   };
 }

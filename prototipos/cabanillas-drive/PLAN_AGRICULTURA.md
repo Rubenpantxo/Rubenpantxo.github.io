@@ -2,7 +2,7 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo agricultura**: parcelas reales del término de Cabanillas, delimitadas con el Catastro de Navarra y la ortofoto, que se trabajan con tractores, aperos y cosechadora hechos en 3D. El suelo cambia de aspecto por donde pasa el apero (arado, gradeado, abonado, sembrado, regado, cosechado) y las plantas nacen, crecen, maduran y se cosechan. Complementa a `PLAN.md`, `PLAN_REALISMO.md`, `PLAN_FIESTAS.md` y `PLAN_SALTO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: una fase cada vez, parada al final de cada fase, no inventar datos geográficos, todo en español, escritorio y móvil siempre.
 
-Fecha: 2026-11-20. Estado: **A0, A2, A3, A4 y A5 aprobadas; A1 omitida por Rubén; A6 (los cultivos crecen) hecha el 2026-11-25, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
+Fecha: 2026-11-20. Estado: **A0, A2, A3, A4, A5 y A6 aprobadas; A1 omitida por Rubén; A7 (riego a manta) hecha el 2026-11-25, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
 
 ### Inspiración y límites
 
@@ -65,7 +65,7 @@ Tomadas (2026-11-20):
 - **Cultivos:** **trigo, cebada, cebolla, brócoli, alcachofa y espárrago** (ver §5.4).
 - **La COPE** (Sociedad Cooperativa del Campo San Isidro) es la nave agrícola. Rubén la marcó sobre una foto aérea y coincide con la **parcela urbana 2-1031 del Catastro** (2,29 ha: la nave grande y el patio, entre el camino del oeste, el campo de fútbol y la calle San Isidro). Funciona como una cooperativa de verdad: se compran semillas, plantel, abono, herramientas y aperos, y se vende la cosecha.
 - **Parcela de pruebas: 2-700** (0,44 ha, Cza las Planas, regadío, al norte de la COPE), elegida por Rubén el 2026-11-21 entre tres candidatas (vista `cope_y_parcelas_prueba.jpg`). Como está en la zona del juego, **A1 se omite**.
-- **Riego de la 2-700** (2026-11-24): la acequia corre por fuera de la linde sureste, de nordeste a suroeste, hacia la COPE, y el agua entra por esa linde en su tramo del lado este (captura de Rubén en `docs/agricultura/riego_2-700_acequia.jpg`; coordenadas en `AGRICULTURA.riegoPruebas`, a confirmar en A7).
+- **Riego de la 2-700** (2026-11-24): la acequia corre por fuera de la linde sureste, de nordeste a suroeste, hacia la COPE, y el agua entra por esa linde en su tramo del lado este (captura de Rubén en `docs/agricultura/riego_2-700_acequia.jpg`). En A7 la acequia se afinó con la ortofoto (`config.json` → `agricultura.riego`).
 - **Maquinaria** (2026-11-24): referencias de Rubén, dos tractores (verde y rojo) y una cosechadora amarilla. Modelos genéricos sin marcas; el tractor se puede pintar de rojo, verde, azul o naranja en la COPE; la cosechadora será amarilla (A8).
 - **Tiempo agrícola** (2026-11-25): un día de cultivo = una hora de juego (con el juego en marcha). En la COPE se pueden pasar días (+1, +7, +30).
 - **Entrega:** la rama `feat/cabanillas-agricultura` se sube a GitHub (excepción a la regla de no hacer push, pedida por Rubén); `main` no se toca.
@@ -73,6 +73,7 @@ Tomadas (2026-11-20):
 Pendientes:
 
 - **Dosis** de abono y de semilla (A5 usa valores orientativos: 300 kg/ha de abono, 200 de trigo, 180 de cebada).
+- **Riego** (A7 usa valores orientativos): caudal de una boquera (60 L/s), tiempo de riego de la 2-700 y si hay desagüe al final.
 - **Dinero:** precios de compra y venta en la COPE y si se pueden comprar y vender parcelas (A9).
 
 ---
@@ -91,7 +92,8 @@ src/agricultura/pincel.js       Pinta en la máscara el rectángulo barrido por 
 src/agricultura/sueloParcela.js Material del suelo (estados, surcos orientados, humedad, abono, rodadas)
 src/agricultura/cultivo.js      Plantas: matas instanciadas cerca, dosel en medio, color en el suelo lejos
 src/agricultura/crecimiento.js  Reloj agrícola, edad por píxel, curva del cultivo y vigor (GLSL y JavaScript) (A6)
-src/agricultura/riego.js        Simulación del agua sobre el MDT y su lámina visible
+src/agricultura/riego.js        Simulación del agua sobre el MDT, humedad, agua del cultivo y lámina visible (A7)
+src/agricultura/acequia.js      Acequia (canal de hormigón con agua) y tajaderas de las boqueras (A7)
 src/agricultura/maquina.js      Tractor y cosechadora sobre Rapier (a partir de coche.js)
 src/agricultura/enganche.js     Tripuntal (aperos suspendidos) y enganche de bola (arrastrados, con articulación)
 src/agricultura/aperos.js       Arado, cultivador, abonadora, sembradora, cabezal, remolque
@@ -103,7 +105,7 @@ src/agricultura/guardado.js     Estado de cada parcela trabajada en localStorage
 src/hud/agricultura.js          Panel de parcela, apero, calendario, avisos
 tools/50_parcelas.py            Catastro + SIGPAC + regadío → parcelas.json + vistas para revisar (HECHO, A0)
 tools/51_zona_agricola.py       Terreno y ortofoto de detalle de la zona agrícola (si hace falta)
-tools/52_riego.py               Pendientes, boquera y orden de llenado por parcela (como el vídeo 3)
+tools/52_riego.py               Cotas, ribazo, boqueras, simulación y vista del llenado por parcela → riego.json (HECHO, A7)
 tools/build_maquinaria.py       Tractor, cosechadora y aperos en Blender (consola), piezas con nombre
 tools/prueba_agricultura.mjs    Prueba automática: labra, siembra, riega, crece y cosecha una parcela
 ```
@@ -139,7 +141,7 @@ Principios:
 - **Malla:** el polígono triangulado y subdividido en rejilla de 1 m que sigue el MDT, unos centímetros por encima del suelo (`polygonOffset`), con un borde de linde (ribazo de hierba) de 0,5–1 m.
 - **Dos máscaras por parcela activa**, a 0,5 m por píxel en todas las calidades (lado máximo 1024 px; 512 en «bajo»), en memoria como `Uint8Array` y en GPU como `DataTexture`. Como quedaron en A2:
   - **Máscara A (laboreo):** R = arado, G = gradeado, B = abono, A = **dirección de la pasada** (0…π).
-  - **Máscara B (cultivo):** R = humedad, G = día de siembra (0 = sin sembrar), B = cosechado, A = rodadas. El vigor (A6) irá en una tercera máscara o en la rejilla de 2 m en CPU.
+  - **Máscara B (cultivo):** R = humedad, G = día de siembra (0 = sin sembrar), B = cosechado, A = rodadas. El vigor de A6 se calcula en el shader (labor, abono y rodales); el agua que ha tenido el cultivo va en otra máscara («agua», A7).
   - Una tercera, «dentro» (R), con la distancia a la linde para el fundido.
 - Parcelas grandes del secano (hasta decenas de ha): se trocean en teselas de máscara de 512 × 512 y solo se crean las que pisa el apero.
 - **Pincel (`pincel.js`):** en cada fotograma, si el apero está **bajado, dentro de la parcela y a velocidad de trabajo**, se pinta el cuadrilátero barrido entre la posición anterior y la actual con la anchura real del apero (relleno por líneas, muy barato). Solo se sube a la GPU el trozo modificado, como mucho 10 veces por segundo.
@@ -281,7 +283,7 @@ Aceptación: arar media parcela deja la mitad arada con los surcos en la direcci
 
 Aceptación: abonar y sembrar una parcela preparada; la máscara B guarda el día de siembra.
 
-### A6 — Cultivos que crecen — HECHA (2026-11-25), pendiente de que Rubén la pruebe
+### A6 — Cultivos que crecen — HECHA y aprobada (2026-11-25)
 
 - `crecimiento.js`, `cultivo.js`, `src/config/cultivos.js` (trigo y cebada).
 - Matas cercanas, dosel y color lejano; viento; vigor por celda (rodales).
@@ -290,10 +292,11 @@ Aceptación: abonar y sembrar una parcela preparada; la máscara B guarda el dí
 
 Aceptación: de una siembra a la madurez se ven nascencia, verde, espigado y dorado; las franjas sembradas en días distintos tienen alturas distintas, como en el vídeo 2. Coste medido por fotograma en alto y bajo.
 
-### A7 — Riego
+### A7 — Riego — HECHA (2026-11-25), pendiente de que Rubén la pruebe
 
 - `tools/52_riego.py` (cotas, boquera, vista de escorrentía), `riego.js`.
 - Tajadera en la boquera, avance del agua, humedad, charcos, secado, efecto en el vigor y en la tracción.
+- Hecho así: acequia de la 2-700 afinada con la ortofoto (canal estrecho sobre el cajero, a 1,5–2 m de la linde sureste) y boqueras de Rubén en `config.json`; `52_riego.py` saca cotas, plano, ribazo de las lindes (no se riega), simula y escribe `riego.json` y la vista `riego_2-700.jpg`; en el juego, la misma simulación (lámina por celda de 1 m, ecuación inercial local con Manning, caudal por boquera, infiltración que baja al llenarse el suelo) con el tiempo agrícola (×24); acequia y tajaderas en 3D, G o 💧 junto a una tajadera; lámina que sigue el terreno; la humedad queda en la máscara de cultivo y se seca cada día; nueva máscara «agua» con el agua que ha tenido el cultivo (vigor ×0,8…×1,2); barro (agarre, freno, rodadas, sin polvo); pasar días cierra las tajaderas; `?agricultura=riego`; prueba `tools/prueba_riego.mjs`. Valores del modelo orientativos (pendientes de Rubén).
 
 Aceptación: al abrir la tajadera, el agua entra y cubre la parcela siguiendo la pendiente real en un tiempo razonable; al cerrarla se va secando. Rubén comprueba que el sentido del agua es el que conoce.
 

@@ -32,9 +32,19 @@ export const AGRICULTURA = {
   // más allá de la esquina este hasta el camino del norte de la COPE; el agua entra a la parcela por
   // esa linde, en su tramo del lado este (dos flechas). Coordenadas locales (x, z) medidas a mano
   // sobre la captura (±3 m): en A7 se afinan con la ortofoto y Rubén las confirma.
-  riegoPruebas: {
-    acequia: [[-217.8, -266.3], [-242.2, -228.4], [-287.8, -145.1]],
-    boqueras: [[-230.2, -252.6], [-235.3, -244.6]],   // en la linde sureste (a 30 % y 55 % desde la esquina este)
+  // A7: la acequia afinada con la ortofoto y las boqueras están en config.json (agricultura.riego),
+  // de donde tools/52_riego.py saca public/assets/agricultura/riego.json, que es lo que lee el juego
+  // (con el modelo del agua: caudal, rozamiento, infiltración…). Aquí, lo del juego:
+  riego: {
+    ruta: 'assets/agricultura/riego.json',
+    radioTajaderaM: 9,          // a esta distancia (del vehículo a la tajadera) se puede abrir o cerrar
+    maxPasosPorFotograma: 16,   // pasos de la simulación por fotograma como mucho (si no da, el agua va más lenta)
+    refrescoHumedadS: 0.3,      // cada cuánto se pasa al suelo lo que ha empapado el agua
+    refrescoLaminaS: 0.06,      // cada cuánto se sube a la GPU la lámina de agua
+    // Acequia: canal de hormigón estrecho sobre su cajero (lo que se ve en la ortofoto y el LiDAR)
+    acequia: { anchoM: 0.5, paredM: 0.08, altoM: 0.42, laminaM: 0.3, pasoM: 1.0 },
+    // Efecto en el tractor de la tierra mojada (0…1 de humedad por encima de lo de la lluvia)
+    barro: { agarre: 0.35, frenoN: 2600, rodadas: 0.8 },
   },
 
   // Máscaras de estado de cada parcela activa (A, laboreo; B, cultivo): metros por píxel según la

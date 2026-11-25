@@ -3,7 +3,8 @@
 // queda aparcado en el patio), enganchar o dejar un apero, o volver al coche. Con un apero, Q (o ⬇)
 // lo baja y, dentro de una parcela, labra por donde pasa (labranza.js). Lo sembrado crece con el
 // reloj agrícola (crecimiento.js, cultivo.js): un día de cultivo por hora de juego, y en la COPE se
-// pueden pasar días.
+// pueden pasar días. En las parcelas con acequia (riego.json, de tools/52_riego.py), junto a la
+// tajadera de cada boquera G (o 💧) la abre o la cierra y el agua entra y avanza por el relieve (riego.js).
 // Lo carga juego.js con import() la primera vez que hace falta (solo con el modo activo).
 import { AGRICULTURA } from '../config/agricultura.js';
 import * as THREE from 'three';
@@ -20,6 +21,7 @@ import { creaSonidoMotor } from './sonidoMotor.js';
 import { creaReloj, edadDe, envejece, faseDe } from './crecimiento.js';
 import { creaCultivo } from './cultivo.js';
 import { CULTIVOS } from '../config/cultivos.js';
+import { cargaDatosRiego, creaRiegoModo } from './riego.js';
 
 const CLAVE_COLOR = 'cabdrive.agricultura.colorTractor';
 const CLAVE_SEMILLA = 'cabdrive.agricultura.semilla';
@@ -35,9 +37,10 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   const C = AGRICULTURA.cope;
   const terreno = api.mundo.terreno;
   let indiceColor = leeColor();
-  const [tractor, datosParcelas, ...listaAperos] = await Promise.all([
+  const [tractor, datosParcelas, datosRiego, ...listaAperos] = await Promise.all([
     creaMaquina(fisica, escena, { ...TRACTOR, color: COLORES_TRACTOR[indiceColor].color }),
     cargaParcelas(AGRICULTURA.rutaParcelas),
+    cargaDatosRiego(),
     ...Object.keys(APEROS).map((id) => cargaApero(id, { fisica })),
   ]);
   const registro = creaRegistro(datosParcelas);
@@ -55,7 +58,12 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   const sol = escena.getObjectByName('sol');
   // Cada día, lo que lleva demasiado sin cosechar se queda maduro (solo hacia delante en el tiempo)
   reloj.alCambiarDia((dia, pasados) => { if (pasados > 0) for (const p of labranza.parcelas.values()) if (p.siembra) envejece(p, dia, pasados); });
+  // Riego (A7): acequias y tajaderas; cada día el suelo se seca y lo que crece apunta el agua que tuvo
+  const riego = creaRiegoModo({ datos: datosRiego, terreno, labranza, registro, raiz });
+  labranza.ponRiego(riego);
+  reloj.alCambiarDia((dia, pasados) => riego.alCambiarDia(dia, pasados));
   function pasaDias(n) {
+    riego.resuelve();          // el agua que queda se mete en el suelo y se cierran las tajaderas
     reloj.pasaDias(n);
     for (const p of labranza.parcelas.values()) p.sube(performance.now(), true);
     api.avisa(`⏩ Día ${reloj.dia} de cultivo`, 3);
@@ -71,9 +79,23 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     const f = faseDe(p.siembra.cultivo, edad);
     return { nombre: CULTIVOS[p.siembra.cultivo].nombre, edad, ...f, aqui: Boolean(byte) };
   }
+  // Humedad media del suelo de la parcela (lo que da la lluvia como poco), para el panel
+  let cacheSuelo = { ref: null, t: 0, valor: null };
+  function sueloEn(info) {
+    const p = info ? labranza.parcelas.get(info.ref) : null;
+    if (!p || !riego.modelo) return null;
+    const ahora = performance.now();
+    if (cacheSuelo.ref === p.ref && ahora - cacheSuelo.t < 500) return cacheSuelo.valor;
+    let s = 0; let n = 0;
+    const lluvia = riego.modelo.humedad_lluvia;
+    for (let k = 0; k < p.interior.length; k++) if (p.interior[k]) { s += Math.max(p.cultivo[k * 4] / 255, lluvia); n++; }
+    cacheSuelo = { ref: p.ref, t: ahora, valor: { humedad: n ? s / n : 0 } };
+    return cacheSuelo.valor;
+  }
   let semilla = 'trigo';
   try { const g = localStorage.getItem(CLAVE_SEMILLA); if (g && SEMILLAS[g]) semilla = g; } catch { /* sin almacenamiento */ }
   const hud = creaHudAgricultura({ tactil: document.getElementById('tactil') });
+  let tajaderaCerca = null;
   let sonido = null;                         // se crea al coger el tractor (después de un toque o tecla)
   const conTeclado = !matchMedia('(pointer: coarse)').matches;
 
@@ -145,6 +167,18 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   }
   const xz = (v) => [v.x, v.z];
 
+  // Tajadera junto al vehículo que se lleva (coche o tractor): abrirla o cerrarla
+  function alternaTajadera(t = tajaderaCerca) {
+    if (!t) return null;
+    const abierta = riego.alterna(t.ref, t.indice);
+    const M = riego.modelo;
+    api.avisa(abierta
+      ? `💧 Tajadera ${t.nombre} abierta: el agua entra en la ${t.ref} (${M.caudal_boquera_ls} L/s)`
+      : `💧 Tajadera ${t.nombre} cerrada`, 4);
+    return abierta;
+  }
+  const posicionVehiculo = () => (api.coche === tractor ? tractor.estado().posicion : api.coche?.estado?.().posicion ?? null);
+
   let avisoMarchaAtras = 0;
   let avisoTolva = 0;
   let avisoRastrojo = 0;
@@ -182,6 +216,12 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
       if (api.entrada.consume('apero')) alternaApero();
       reloj.avanza(dt);
       const r = labranza.actualiza(dt);
+      // Riego: la tajadera más cerca del vehículo y el agua
+      const pv = posicionVehiculo();
+      tajaderaCerca = pv && riego.hay ? riego.tajaderaCerca(pv.x, pv.z) : null;
+      if (api.entrada.consume('tajadera')) alternaTajadera();
+      riego.actualiza(dt);
+      hud.riego(tajaderaCerca ? { ...tajaderaCerca, estado: riego.estado(tajaderaCerca.ref), conTeclado } : null);
       // Cultivos: dosel y matas de cada parcela sembrada
       for (const p of labranza.parcelas.values()) {
         if (!p.siembra) continue;
@@ -219,6 +259,8 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
           parcela: labranza.parcelaPisada, recuento: labranza.recuento, conTeclado,
           dia: reloj.dia, minutosParaManana: Math.ceil(reloj.segundosParaManana / 60),
           cultivo: cultivoEn(labranza.parcelaPisada, e.posicion.x, e.posicion.z),
+          suelo: sueloEn(labranza.parcelaPisada),
+          riego: labranza.parcelaPisada ? riego.estado(labranza.parcelaPisada.ref) : null,
           tolva: ap?.config.tolva ? { nombre: nombreCarga(ap), llenado: ap.llenado, kg: ap.carga } : null });
       } else {
         sonido?.para();
@@ -236,6 +278,27 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     reloj,
     cultivos,
     pasaDias,
+    riego,
+    alternaTajadera,
+    // ?agricultura=riego: con el tractor junto a la primera tajadera, mirando a la parcela
+    empiezaEnRiego() {
+      const s = riego.sitios.values().next().value;
+      if (!s) return false;
+      const t = s.acequia.tajaderas[0];
+      const info = registro.porRef(s.ref);
+      cogeTractor(indiceColor, null);
+      const [cx, cz] = info.centro;
+      const dx = cx - t.x;
+      const dz = cz - t.z;
+      const l = Math.hypot(dx, dz) || 1;
+      // Fuera de la parcela, por el lado de la acequia, a unos metros de la tajadera
+      const x = t.x - (dx / l) * 6;
+      const z = t.z - (dz / l) * 6;
+      const rumbo = (Math.atan2(dx, -dz) * 180) / Math.PI;
+      colocaEn(tractor, [x, z, rumbo]);
+      return true;
+    },
+    get tajaderaCerca() { return tajaderaCerca; },
     get semilla() { return semilla; },
     set semilla(id) { if (SEMILLAS[id]) semilla = id; },
   };

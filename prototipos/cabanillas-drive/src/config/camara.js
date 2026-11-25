@@ -31,6 +31,7 @@ export const CONTROLES = {
     hora: ['KeyT'],                   // adelantar una hora
     entrar: ['KeyE'],                 // en un punto de entrada (fiestas, frontón…): entrar
     apero: ['KeyQ'],                  // modo agricultura: bajar y subir el apero del tractor
+    tajadera: ['KeyG'],               // modo agricultura: abrir o cerrar la tajadera de una boquera (riego)
   },
   // Modo fiestas (PLAN_FIESTAS.md §4b): mismas teclas de movimiento (WASD y Mayús) y estas acciones.
   // E, F y Espacio dejan de ser «bajarse» y «freno de mano» mientras dura el modo.

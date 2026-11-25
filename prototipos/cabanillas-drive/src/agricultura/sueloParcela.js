@@ -137,6 +137,7 @@ void calculaParcela() {
     encima(capa, c * luz, gradeo);
   }
   // --- Siembra: líneas finas en la dirección de la pasada
+  float hojas = 0.0;                               // lo que tapa el cultivo (la humedad no lo oscurece)
   if (sembrado > 0.5) {
     float u = dot(p, lado) / ${PARAMETROS.lineaSiembraM.toFixed(3)};
     float dLinea = abs(fract(u) - 0.5) * ${PARAMETROS.lineaSiembraM.toFixed(3)};   // metros a la línea
@@ -157,7 +158,8 @@ void calculaParcela() {
       vec3 c = mix(f.hoja.rgb, f.colEspiga, f.espiga * 0.55) * (0.82 + 0.3 * fbmP(p * 0.45)) * (0.88 + 0.18 * vig);
       // Con el cultivo alto, lo que se ve por abajo (entre el dosel y la linde) es la base en sombra
       c *= mix(1.0, 0.5, smoothstep(0.1, 0.3, f.altura * vig));
-      encima(capa, c, clamp(a, 0.0, 0.97));
+      hojas = clamp(a, 0.0, 0.97);
+      encima(capa, c, hojas);
     }
   }
   // --- Cosechado: rastrojo claro, tallos en líneas e hileras de paja
@@ -196,10 +198,12 @@ void calculaParcela() {
   }
   // --- Humedad: oscurece lo de debajo (también la foto) y encharca donde hay mucha agua
   if (humedad > 0.004) {
-    encima(capa, uColHumedo, smoothstep(0.0, 0.6, humedad) * ${PARAMETROS.oscurecerHumedo.toFixed(2)});
+    // (A7: el riego deja la humedad del suelo, 0,3 es lo que da la lluvia; se seca con los días)
+    encima(capa, uColHumedo, smoothstep(0.3, 0.75, humedad) * ${PARAMETROS.oscurecerHumedo.toFixed(2)} * (1.0 - hojas));
     // Charcos solo en los bajos (ruido lento) y con el agua de sobra: bordes irregulares
     float bajo = fbmP(p * 0.25) * 0.7 + ruidoP(p * 1.3) * 0.3;
-    float charco = smoothstep(0.0, 0.05, (humedad - 0.9) * 1.5 + bajo - 0.75);   // ~⅓ encharcado con el agua a tope
+    // Solo con el pincel (255): los charcos del riego los dibuja su lámina de agua (riego.js)
+    float charco = step(0.998, humedad) * smoothstep(0.0, 0.05, (humedad - 0.9) * 1.5 + bajo - 0.75);
     vec3 cielo = mix(uColCharco, uColHumedo * 6.0, 0.25 + 0.25 * ruidoP(p * 0.6)) * (0.9 + 0.2 * ruidoP(p * 0.15));
     encima(capa, cielo, charco * 0.7);
   }
@@ -221,6 +225,7 @@ export function creaMaterialParcela({ texturas, ox, oz, anchoM, altoM, ancho, al
     uLaboreo: { value: texturas.laboreo },
     uCultivo: { value: texturas.cultivo },
     uDentro: { value: texturas.dentro },
+    uAgua: { value: texturas.agua },
     uMascara: { value: new THREE.Vector4(ox, oz, anchoM, altoM) },
     uTexel: { value: new THREE.Vector2(1 / ancho, 1 / alto) },
     uSol: { value: new THREE.Vector3(0.3, 0.8, 0.5).normalize() },
@@ -265,6 +270,6 @@ export function creaMaterialParcela({ texturas, ox, oz, anchoM, altoM, ancho, al
         outgoingLight *= 1.0 - 0.55 * min(uFactorLuz, 1.0) * (1.0 - getShadowMask());
         #include <opaque_fragment>`);
   };
-  material.customProgramCacheKey = () => 'suelo_parcela_v2';
+  material.customProgramCacheKey = () => 'suelo_parcela_v4';
   return material;
 }

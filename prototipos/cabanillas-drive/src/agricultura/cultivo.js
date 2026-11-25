@@ -231,7 +231,7 @@ function materialDosel(u) {
         outgoingLight *= 1.0 - 0.5 * (1.0 - getShadowMask());
         #include <opaque_fragment>`);
   };
-  m.customProgramCacheKey = () => 'dosel_cultivo_v1';
+  m.customProgramCacheKey = () => 'dosel_cultivo_v2';
   return m;
 }
 
@@ -306,7 +306,7 @@ function materialMatas(u, textura) {
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
         totalEmissiveRadiance = colorMata * uEmisivo;`);
   };
-  m.customProgramCacheKey = () => 'matas_cultivo_v1';
+  m.customProgramCacheKey = () => 'matas_cultivo_v2';
   return m;
 }
 
@@ -320,6 +320,7 @@ export function creaCultivo(parcela, { terreno, reloj, sol = null }) {
   const u = {
     uLaboreo: { value: parcela.texturas.laboreo },
     uCultivo: { value: parcela.texturas.cultivo },
+    uAgua: { value: parcela.texturas.agua },
     uMascara: { value: new THREE.Vector4(parcela.ox, parcela.oz, parcela.ancho * parcela.mpp, parcela.alto * parcela.mpp) },
     uTexel: { value: new THREE.Vector2(1 / parcela.ancho, 1 / parcela.alto) },
     uHoy: reloj.uHoy,

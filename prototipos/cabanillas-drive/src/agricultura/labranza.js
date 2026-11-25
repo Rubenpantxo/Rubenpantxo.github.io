@@ -6,7 +6,8 @@
 // guarda en la máscara el día de cultivo en que se sembró (crecimiento.js: (día mod 255) + 1). La parcela se
 // activa (malla y máscaras) la primera vez que se labra; mientras dura la partida se queda (el
 // guardado entre sesiones llega en A9). Además: freno de la tierra en la física, polvo, terrones,
-// gaviotas y la hierba 3D quitada de lo labrado.
+// gaviotas y la hierba 3D quitada de lo labrado. Desde A7, la tierra mojada (o con agua encima) es
+// barro: menos agarre, más freno, rodadas más hondas y nada de polvo.
 import * as THREE from 'three';
 import { AGRICULTURA } from '../config/agricultura.js';
 import { ENGANCHE, SEMILLAS } from '../config/maquinaria.js';
@@ -105,6 +106,23 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
   const salida = new THREE.Vector3();
 
   const conduceTractor = () => api.coche === tractor;
+  // Barro (A7): humedad del suelo bajo el tractor (0…1) y lámina de agua del riego
+  let riego = null;
+  let barro = 0;
+  const B = AGRICULTURA.riego.barro;
+  const agarreOriginal = tractor.config.ruedas.agarre;
+  const suave = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  function humedadEn(x, z) {
+    for (const p of parcelas.values()) {
+      const [x0, z0, x1, z1] = p.info.caja;
+      if (x < x0 || x > x1 || z < z0 || z > z1) continue;
+      const i = Math.floor((x - p.ox) / p.mpp);
+      const j = Math.floor((z - p.oz) / p.mpp);
+      const k = j * p.ancho + i;
+      if (i >= 0 && j >= 0 && i < p.ancho && j < p.alto && p.interior[k]) return p.cultivo[k * 4] / 255;
+    }
+    return 0;
+  }
 
   return {
     raiz, parcelas, particulas, aves, cuenta,
@@ -113,16 +131,22 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
     get sinPreparar() { return sinPreparar; },
     get parcelaPisada() { return parcelaPisada; },
     get recuento() { return recuento; },
+    get barro() { return barro; },
     activa,
+    humedadEn,
+    ponRiego(r) { riego = r; },
     // Paso de física: la tierra frena el apero clavado
     paso(dt) {
+      if (!conduceTractor()) return;
       const ap = enganche.apero;
-      if (!ap || enganche.subida > 0.5 || !conduceTractor()) return;
+      const clavado = ap && enganche.subida <= 0.5;
+      if (!clavado && barro < 0.01) return;
       const v = tractor.vehiculo.currentVehicleSpeed();
       if (Math.abs(v) < 0.05) return;
       const r = tractor.cuerpo.rotation();
       adelante.set(0, 0, 1).applyQuaternion(new THREE.Quaternion(r.x, r.y, r.z, r.w));
-      const f = -Math.sign(v) * Math.min(1, Math.abs(v) / 0.6) * ap.config.resistenciaN * (1 - enganche.subida * 2) * dt;
+      const n = (clavado ? ap.config.resistenciaN * (1 - enganche.subida * 2) : 0) + B.frenoN * barro;
+      const f = -Math.sign(v) * Math.min(1, Math.abs(v) / 0.6) * n * dt;
       tractor.cuerpo.applyImpulse({ x: adelante.x * f, y: 0, z: adelante.z * f }, true);
     },
     actualiza(dt, { acelerador = 0 } = {}) {
@@ -135,6 +159,12 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
 
       const e = tractor.estado();
       const kmh = e.velocidadKmh;
+      // Barro bajo el tractor: tierra regada o agua encima
+      if (conduceTractor() && parcelas.size) {
+        const lam = riego ? riego.laminaEn(e.posicion.x, e.posicion.z) : 0;
+        barro = Math.max(suave(0.35, 0.85, humedadEn(e.posicion.x, e.posicion.z)), suave(0.004, 0.03, lam));
+      } else barro = 0;
+      tractor.config.ruedas.agarre = agarreOriginal * (1 - B.agarre * barro);
       adelante.copy(e.adelante).setY(0).normalize();
       labrando = false;
       tolvaVacia = false;
@@ -186,7 +216,7 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
         tractor.base.updateWorldMatrix(true, false);
         rodada.set(0, 0, ejeTrasero).applyMatrix4(tractor.base.matrixWorld);
         if (hayRodadaAntes && rodadaAntes.distanceToSquared(rodada) < 25) {
-          cuenta.rodadas += pintaTramo('rodar', rodadaAntes, rodada, via + anchoRodada, { fuerza: L.rodadas });
+          cuenta.rodadas += pintaTramo('rodar', rodadaAntes, rodada, via + anchoRodada, { fuerza: Math.min(1, L.rodadas * (1 + B.rodadas * barro)) });
         }
         rodadaAntes.copy(rodada);
         hayRodadaAntes = true;
@@ -213,7 +243,7 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
       }
       // Polvo, terrones y gaviotas detrás del apero
       if (labrando) {
-        const seco = 1;   // A7: menos polvo con la tierra mojada
+        const seco = 1 - barro;   // con la tierra mojada no hay polvo
         particulas.emite(dt, { x: trabajo.x, y: terreno.alturaEn(trabajo.x, trabajo.z), z: trabajo.z, fx: adelante.x, fz: adelante.z,
           ancho: ap.anchoTrabajo, velocidad: kmh / 3.6, polvo: ap.config.polvo, terrones: ap.config.terrones, seco,
           lado: ap.info.reversible ? (ap.angulo ? -1 : 1) : 0 });
