@@ -29,6 +29,7 @@ export const ESCENA = {
   // Coches aparcados: a menos de esta distancia de la cámara se dibuja el modelo detallado
   distanciaCochesDetalle: 70,
   segundosRepartoCoches: 0.25,
+  msObraEdificios: 4,        // por fotograma, para construir los edificios con detalle (a trozos)
 
   // La ortofoto ya trae la luz del día en que se tomó: sin iluminación se ve como la foto
   terrenoSinLuz: true,

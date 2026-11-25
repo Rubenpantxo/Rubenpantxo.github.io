@@ -64,6 +64,7 @@ MEDIA_CALZADA_M = {"primary": 4.0, "primary_link": 3.5, "secondary": 4.0, "terti
 POR_DEFECTO = {"wall": 1.8, "fence": 2.0, "retaining_wall": 1.0}
 TIPOS_OSM = {"wall": "muro", "fence": "valla", "retaining_wall": "contencion"}
 DECIMALES = 2
+MARGEN_ZONA_M = 1.0          # los muros se recortan a la zona, este margen hacia dentro
 
 
 def lee_osm(ruta, a_local):
@@ -183,6 +184,25 @@ def tramos(s, es_muro):
 
 def simplifica(puntos, tolerancia=0.15):
     return list(LineString(puntos).simplify(tolerancia).coords)
+
+
+def recorta_a_zona(muros, origin):
+    """Recorta cada muro al rectángulo de la zona (MARGEN_ZONA_M hacia dentro) y quita los trozos cortos."""
+    mx, mz = origin["ancho"] / 2 - MARGEN_ZONA_M, origin["alto"] / 2 - MARGEN_ZONA_M
+    caja = Polygon([(-mx, -mz), (mx, -mz), (mx, mz), (-mx, mz)])
+    salida, tocados = [], 0
+    for m in muros:
+        linea = LineString(m["p"])
+        if caja.contains(linea):
+            salida.append(m)
+            continue
+        tocados += 1
+        dentro = linea.intersection(caja)
+        trozos = list(dentro.geoms) if hasattr(dentro, "geoms") else [dentro]
+        for t in trozos:
+            if isinstance(t, LineString) and t.length >= TRAMO_MIN_M:
+                salida.append({**m, "p": [[round(x, DECIMALES), round(z, DECIMALES)] for x, z in t.coords]})
+    return salida, tocados
 
 
 def main() -> int:
@@ -306,6 +326,11 @@ def main() -> int:
             largo_cat += linea.length
         print(f"Tapias del casco (Catastro): {n_cat} tramos, {largo_cat / 1000:.2f} km "
               f"({medidas_cat} con altura del LiDAR, el resto {TAPIA_POR_DEFECTO_M} m)")
+
+    # Solo dentro de la zona: fuera no hay terreno del juego (el muro flotaría a la altura del borde
+    # encima del horizonte). El casco urbano del Catastro incluye trozos lejanos del término.
+    muros, quitados = recorta_a_zona(muros, origin)
+    print(f"Fuera de la zona: {quitados} tramos quitados o recortados")
 
     (assets / "muros.json").write_text(json.dumps({
         "sistema": "local: x este, z sur (m); h = altura sobre el terreno (m)",

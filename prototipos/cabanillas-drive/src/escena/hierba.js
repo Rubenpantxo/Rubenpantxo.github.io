@@ -160,10 +160,15 @@ export function creaHierba(vegetacion, terreno, { radio = 60, maxPorClase = 4000
   const ultima = new THREE.Vector3(Infinity, 0, 0);
   let triangulos = 0;
 
+  // Celdas nuevas que se calculan como mucho en cada llamada (cada una cuesta: la del sitio de
+  // aterrizaje, en el móvil, paraba el juego); las que faltan, en las llamadas siguientes
+  const NUEVAS_POR_LLAMADA = 2;
   function actualiza(posicionCamara) {
     uniformes.uCamara.value.copy(posicionCamara);
     if (ultima.distanceToSquared(posicionCamara) < 16) return triangulos;
     ultima.copy(posicionCamara);
+    let nuevas = 0;
+    let faltan = false;
     const cuenta = mallas.map(() => 0);
     const r2 = radio * radio;
     const i0 = Math.floor((posicionCamara.x - radio) / CELDA_M), i1 = Math.floor((posicionCamara.x + radio) / CELDA_M);
@@ -172,6 +177,10 @@ export function creaHierba(vegetacion, terreno, { radio = 60, maxPorClase = 4000
       for (let j = j0; j <= j1; j++) {
         const cx = (i + 0.5) * CELDA_M - posicionCamara.x, cz = (j + 0.5) * CELDA_M - posicionCamara.z;
         if (cx * cx + cz * cz > (radio + CELDA_M) ** 2) continue;
+        if (!cache.has(`${i},${j}`)) {
+          if (nuevas >= NUEVAS_POR_LLAMADA) { faltan = true; continue; }
+          nuevas++;
+        }
         celda(i, j).forEach((lista, k) => {
           const malla = mallas[k];
           for (let n = 0; n < lista.length; n += 9) {
@@ -195,6 +204,7 @@ export function creaHierba(vegetacion, terreno, { radio = 60, maxPorClase = 4000
       if (malla.instanceColor) malla.instanceColor.needsUpdate = true;
       triangulos += cuenta[k] * 6;
     });
+    if (faltan) ultima.set(Infinity, 0, 0);      // seguir en la próxima llamada
     return triangulos;
   }
 
