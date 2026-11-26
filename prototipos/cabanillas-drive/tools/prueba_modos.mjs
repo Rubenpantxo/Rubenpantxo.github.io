@@ -7,6 +7,7 @@
 //      coge a quien se queda en medio y da puntos a quien corre delante.
 // Uso: node tools/prueba_modos.mjs
 import { FIESTAS } from '../src/config/fiestas.js';
+import { PEATON } from '../src/config/peaton.js';
 import { RECINTO_FIESTAS as recinto } from '../src/datos/fiestas.js';
 import { creaPartida } from '../src/fiestas/partida.js';
 import { creaRecortes } from '../src/fiestas/recortes.js';
@@ -23,12 +24,13 @@ const camino = creaCamino(recinto);
 function juega(modo, variante, mueve, { semilla = 3, maxS = 900 } = {}) {
   const azar = azarCon(semilla);
   const recortes = creaRecortes({ sinFin: true });
-  const todas = []; let sueltas = 0; let n = 0;
+  const todas = []; const capasSoltadas = []; let sueltas = 0; let n = 0;
   const partida = creaPartida({
     modo, variante, recortes, camino, corral: recinto.corral, azar,
     suelta: (o) => {
       const v = creaVaca({ recinto, terreno: null, puertaAbierta: modo !== 'plaza', semilla: semilla + 17 * n++, alturaSuelo: () => 0, sombras: false, ...o });
       todas.push(v); sueltas++;
+      capasSoltadas.push(v.capa);
       return v;
     },
     retira: (v) => { todas.splice(todas.indexOf(v), 1); },
@@ -55,10 +57,18 @@ function juega(modo, variante, mueve, { semilla = 3, maxS = 900 } = {}) {
     m.turnosVistos.add(partida.turno);
     m.t += DT;
   }
-  return { partida, recortes, r: partida.resultado, sueltas, ...m };
+  return { partida, recortes, r: partida.resultado, sueltas, capasSoltadas, ...m };
 }
 const enLaValla = () => {};
 const quietoEnElRuedo = (j) => { j.x = 178; j.z = 336; j.seguro = false; j.alto = 0; };
+
+console.log('0. Movimiento');
+comprueba(PEATON.andarMs >= 4 && FIESTAS.personaje.andarMs >= 4.4,
+  `velocidad al andar: ${PEATON.andarMs} m/s en el pueblo y ${FIESTAS.personaje.andarMs} m/s en fiestas`);
+comprueba(PEATON.correrMs > PEATON.andarMs
+  && FIESTAS.personaje.correrMs > FIESTAS.personaje.andarMs
+  && FIESTAS.personaje.esprintMs > FIESTAS.personaje.correrMs,
+  'correr y esprintar siguen siendo controles separados');
 
 console.log('1. Concurso en la plaza');
 {
@@ -106,6 +116,8 @@ console.log('4. Encierro');
   comprueba(a.r?.motivo === 'completo' && a.sueltas === P.encierro.vacas && a.fuera === 0,
     `subido a la valla: ${a.sueltas} vacas, ${a.partida.manada.tramo} tramos de ${a.partida.manada.tramos}, acaba por «${a.r?.motivo}» a los ${a.t.toFixed(0)} s, fuera del recinto ${a.fuera} pasos`);
   comprueba(a.aLaVez === P.encierro.vacas && a.juntasMax < 16, `van juntas: ${a.aLaVez} a la vez, la manada se estira como mucho ${a.juntasMax.toFixed(1)} m`);
+  comprueba(new Set(a.capasSoltadas).size === FIESTAS.vaca.capas.length,
+    `la manada combina capas: ${[...new Set(a.capasSoltadas)].join(', ')}`);
   // En medio de la calle, quieto
   const medio = camino.punto(camino.s(...recinto.puerta.a) - 30);
   const b = juega('encierro', null, (j) => { j.x = medio[0]; j.z = medio[1]; j.seguro = false; j.alto = 0; });

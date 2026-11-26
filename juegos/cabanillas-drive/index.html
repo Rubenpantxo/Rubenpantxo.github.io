@@ -36,6 +36,17 @@
         width: 200px; height: 200px; cursor: pointer; }
       #velocimetro { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom));
         width: 190px; height: 190px; pointer-events: none; }
+      #aviso-salto { display: none; position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom));
+        width: 190px; min-height: 190px; box-sizing: border-box; place-items: center; text-align: center;
+        border-radius: 50%; border: 2px solid rgba(255, 213, 74, .75); background: rgba(16, 22, 30, .78);
+        color: #fff; font: 800 20px/1.25 system-ui, sans-serif; pointer-events: none; }
+      #aviso-salto strong { display: block; color: var(--acento); font-size: 34px; }
+      #hud.salto-avion #aviso-salto { display: grid; }
+      #hud.salto-avion #velocimetro { display: none; }
+      #hud.salto-avion #minimapa { opacity: .75; }
+      @media (pointer: coarse) {
+        #aviso-salto { display: none !important; }
+      }
       #boton-menu { position: fixed; left: max(12px, env(safe-area-inset-left)); top: max(12px, env(safe-area-inset-top));
         width: 44px; height: 44px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .3); background: var(--fondo-ui);
         color: #fff; font-size: 20px; cursor: pointer; }
@@ -225,12 +236,12 @@
       /* Editor abierto en mitad de la partida: sin HUD ni controles táctiles encima */
       body.editando-personaje #hud, body.editando-personaje #tactil, body.editando-personaje .botones-superiores { visibility: hidden !important; }
     </style>
-    <script type="module" crossorigin src="./assets/index-lxvTj9zI.js"></script>
-    <link rel="modulepreload" crossorigin href="./assets/librerias-BYlJDhEZ.js">
-    <link rel="modulepreload" crossorigin href="./assets/agricultura-CfKhKtl0.js">
+    <script type="module" crossorigin src="./assets/index-CWm7ejR7.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/librerias-CJXCBNRg.js">
+    <link rel="modulepreload" crossorigin href="./assets/agricultura-B9dh_AO6.js">
     <link rel="modulepreload" crossorigin href="./assets/rapier-OnF19VgH.js">
     <link rel="modulepreload" crossorigin href="./assets/personaje-0Dt6zHpz.js">
-    <link rel="modulepreload" crossorigin href="./assets/materiales-DS95y_Kn.js">
+    <link rel="modulepreload" crossorigin href="./assets/materiales-qtqZJvxB.js">
   </head>
   <body>
     <canvas id="escena"></canvas>
@@ -240,6 +251,7 @@
     <div id="hud" hidden>
       <canvas id="minimapa" title="Minimapa: clic para ampliarlo (M: girar con el coche o norte arriba)" aria-label="Minimapa"></canvas>
       <canvas id="velocimetro" aria-hidden="true"></canvas>
+      <div id="aviso-salto" aria-live="polite"><span><strong>ESPACIO</strong>Saltar</span></div>
       <button id="boton-menu" type="button" aria-label="Menú">☰</button>
     </div>
 
@@ -306,8 +318,8 @@
           </div>
         </div>
         <div class="acciones-inicio">
-          <button id="jugar" class="boton" type="button" hidden>🪂 Jugar</button>
-          <button id="jugar-calle" class="boton secundario" type="button" hidden>🚗 Empezar en la calle</button>
+          <button id="jugar" class="boton" type="button" hidden>🪂 Saltar</button>
+          <button id="jugar-calle" class="boton secundario" type="button" hidden>🚗 Conducir</button>
           <button id="jugar-fiestas" class="boton secundario" type="button" hidden>🐂 Ir a las fiestas</button>
         </div>
         <div class="fila">
@@ -326,6 +338,7 @@
         <button id="omitir-salto" class="boton secundario" type="button" hidden>⏭ Saltarse el salto</button>
         <button class="boton secundario" type="button" data-abre="controles">Controles y ajustes</button>
         <label class="calidad ir-a" hidden>Ir a <select id="ir-a"><option value="">Elige un lugar…</option></select></label>
+        <label class="calidad">Vehículo <select id="vehiculo"></select></label>
         <label class="calidad">Fiestas <select id="fiestas">
           <option value="">Elige…</option>
           <option value="menu">Menú de fiestas</option>
@@ -429,7 +442,7 @@
               <kbd>E</kbd> recorte · <kbd>Espacio</kbd> salto · <kbd>E</kbd>+<kbd>Espacio</kbd> salto al trascuerno</span></li>
             <li><span class="num">5</span><span><b>Minimapa</b></span></li>
           </ol>
-          <p class="extra"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> y ratón · <kbd>Mayús</kbd> esprint · <kbd>F</kbd> subir a la valla o al burladero
+          <p class="extra"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> y ratón · <kbd>Mayús</kbd> correr · <kbd>Ctrl</kbd> esprint · <kbd>F</kbd> subir a la valla o al burladero
             (y bajar) · <kbd>V</kbd> cámara · <kbd>M</kbd> sonido · <kbd>Esc</kbd> pausa (dejar la partida o volver al pueblo)</p>
           <figure class="captura" style="--proporcion: 2.164">
             <img src="ui/controles_fiestas_tactil.webp" alt="Las fiestas en el móvil" width="1266" height="585" loading="lazy" />
@@ -528,6 +541,6 @@
         <p id="fallo-detalle" class="extra"></p>
       </div>
     </section>
-
+
   </body>
 </html>

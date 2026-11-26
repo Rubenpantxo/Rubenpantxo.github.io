@@ -309,7 +309,7 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     colocaCamara,
     sonido,
     ponPausa(valor) { sonido.ponPausa(valor); },
-    // Saltarse el salto (pausa, «Empezar en la calle», fiestas…): solo antes de tocar el suelo
+    // Saltarse el salto (pausa, «Conducir», fiestas…): solo antes de tocar el suelo
     get omitible() { return !terminado && fase !== 'aterrizaje'; },
     omite() { if (fase !== 'aterrizaje') termina(true); },
     // Para el HUD (velocímetro y minimapa)
@@ -321,6 +321,7 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
         posicion: enAvion ? posAvion.clone() : new THREE.Vector3(cuerpo.x, cuerpo.y, cuerpo.z),
         adelante: new THREE.Vector3(-Math.sin(r), 0, -Math.cos(r)),
         velocidadKmh: v * 3.6,
+        enAvion,
         volcado: false,
         minimapa: this.minimapa(),
       };

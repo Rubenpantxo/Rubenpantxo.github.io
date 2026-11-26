@@ -77,8 +77,26 @@ await p.evaluate(() => {
       }
       return n;
     },
-    // Sube al jugador a la valla más cercana (para que no lo cojan)
-    aSalvo() { j.fiestas.personaje.cogida(0, 1); this.pasos(150); },
+    // Usa un refugio real, en vez de simularlo como una cogida
+    aSalvo() {
+      const f = j.fiestas;
+      const personaje = f.personaje;
+      const tramos = f.recinto.tramos.filter((t) => t.tipo === 'tablones' && t.clase !== 'gradas' && t.largo > 1.2);
+      for (const t of tramos) {
+        const dx = t.b[0] - t.a[0]; const dz = t.b[1] - t.a[1]; const largo = Math.hypot(dx, dz);
+        const mx = (t.a[0] + t.b[0]) / 2; const mz = (t.a[1] + t.b[1]) / 2;
+        for (const lado of [-1, 1]) {
+          j.peaton.activa(mx - dz / largo * 0.8 * lado, mz + dx / largo * 0.8 * lado, 0);
+          personaje.reinicia(0);
+          this.pasos(5);
+          if (!personaje.pista) continue;
+          personaje.pide('refugio');
+          this.pasos(60);
+          if (personaje.seguro) return true;
+        }
+      }
+      throw new Error('No se encontró un refugio accesible para la prueba');
+    },
   };
 });
 
@@ -127,6 +145,11 @@ e = await p.evaluate(() => { const f = window.__juego.fiestas; return { entrada:
 comprueba(e.entrada === 'calle' && e.turnos === 3 && e.puerta, `calle: ${JSON.stringify(e)}`);
 await p.evaluate(() => window.__juego.fiestas.abandona());
 await pulsa('Menú de fiestas');
+await p.waitForFunction(() => {
+  const m = document.getElementById('menu-fiestas');
+  return m && getComputedStyle(m).display !== 'none'
+    && m.querySelector('h2')?.firstChild?.textContent === 'Fiestas de Cabanillas';
+}, null, { timeout: 10000 });
 await pulsa('Encierro');
 const enc = await p.evaluate(() => {
   const j = window.__juego; const t = window.__t; const f = j.fiestas;

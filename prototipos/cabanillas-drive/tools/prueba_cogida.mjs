@@ -1,6 +1,6 @@
 // Prueba de la vaca dentro del juego (F3), en un navegador sin ventana: la vaca sale del corral,
-// embiste al jugador de verdad, lo coge si se queda quieto (volteo y a la valla), no lo coge si
-// hace el quiebro a tiempo, y no se arranca mientras está subido. Saca capturas de las tres capas.
+// embiste al jugador de verdad, los impactos distinguen cornada y revolcón y la recuperación no
+// lo teletransporta a la valla. Saca capturas de las tres capas.
 // Hace falta el servidor de desarrollo (npm run dev) y Playwright (PLAYWRIGHT_RAIZ si no está en el proyecto).
 // Uso: node tools/prueba_cogida.mjs <carpeta de capturas> [bajo|medio|alto] [colorada|negra|berrenda]
 // Sin mozos (?mozos=0): aquí se mide la vaca contra el jugador solo.
@@ -58,18 +58,40 @@ await p.evaluate(() => {
 const res = await p.evaluate(() => {
   const j = window.__juego; const t = window.__t; const vaca = j.fiestas.vacas[0]; const pj = () => j.fiestas.personaje;
   const r = { capa: vaca.capa };
+  const mideVelocidad = (correr, esprintar) => {
+    t.pon(170, 332.5, -1.2);
+    const mandos = { avance: 1, lateral: 0, correr, esprintar, conJoystick: false, giro: 0 };
+    for (let i = 0; i < 120; i++) { pj().paso(mandos, -1.2, 1 / 60); j.fisica.mundo.step(); }
+    const v = pj().velocidad();
+    return Math.hypot(v.x, v.z);
+  };
+  r.velocidades = {
+    andar: mideVelocidad(false, false),
+    correr: mideVelocidad(true, false),
+    esprint: mideVelocidad(false, true),
+  };
   // Sale del corral
   t.pon(170, 332.5, -1.2);
   const n = t.pasos(60 * 12, t.quieto, () => vaca.estado !== 'corral' && vaca.estado !== 'saliendo');
   r.sale = { segundos: +(n / 60).toFixed(1), estado: vaca.estado, dentro: vaca.dentro };
-  // Quieto: la vaca, a 14 m, embiste y lo coge; acaba subido a la valla
+  // Quieto: la vaca, a 14 m, embiste y lo coge; permanece dentro del ruedo al recuperarse
   const cara = (x, z) => Math.atan2(170 - x, 332.5 - z);
   t.pon(170, 332.5, -1.2);
   vaca.pon(183.5, 337, cara(183.5, 337), 'fija', 0.3);
   t.pasos(60 * 6, t.quieto, () => pj().cogidas > 0);
   const trasGolpe = pj().estado;
   t.pasos(120);
-  r.quieto = { cogidas: pj().cogidas, alCogerlo: trasGolpe, acaba: pj().estado, seguro: pj().seguro };
+  const q = pj().posicion();
+  r.quieto = { cogidas: pj().cogidas, alCogerlo: trasGolpe, acaba: pj().estado, seguro: pj().seguro,
+    dentro: j.fiestas.dentroDe(j.fiestas.recinto.plaza.ruedo, q.x, q.z) };
+  const mideGolpe = (velocidad) => {
+    t.pon(170, 332.5, -1.2);
+    pj().cogida(1, 0, velocidad);
+    const tipo = pj().tipoCogida;
+    t.pasos(120);
+    return tipo;
+  };
+  r.tipos = { leve: mideGolpe(3), fuerte: mideGolpe(8) };
   // Subido: no se arranca en 20 s
   const antes = vaca.embestidas;
   t.pasos(60 * 20);
@@ -88,16 +110,36 @@ const res = await p.evaluate(() => {
 });
 console.log('VACA', JSON.stringify(res));
 // Capturas: la vaca parada mirando, embistiendo y la cogida en el aire
-await p.evaluate(() => { const j = window.__juego; const t = window.__t; const v = j.fiestas.vacas[0];
-  t.pon(176, 334.5, -1.25); v.pon(181.5, 336.4, Math.atan2(176 - 181.5, 334.5 - 336.4), 'fija', 30); t.pasos(20); });
-await foto(`${capa}_fija`);
-await p.evaluate(() => { const j = window.__juego; const t = window.__t; const v = j.fiestas.vacas[0];
-  t.pon(172, 333, -1.25); v.pon(186, 338, Math.atan2(172 - 186, 333 - 338), 'fija', 0.2); t.pasos(75); });
-await foto(`${capa}_embiste`);
-if (capa === 'colorada') {
-  await p.evaluate(() => { const j = window.__juego; const t = window.__t; const pj = j.fiestas.personaje;
-    t.pasos(200, t.quieto, () => pj.estado === 'cogido'); t.pasos(22); });
-  await foto('cogida');
+if (await p.evaluate(() => window.__juego.fiestas.vacas.length > 0)) {
+  await p.evaluate(() => { const j = window.__juego; const v = j.fiestas.vacas[0];
+    j.peaton.activa(176, 334.5, -1.25); j.fiestas.personaje.reinicia(-1.25); j.fiestas.camaraJugador.reinicia(-1.25);
+    v.pon(181.5, 336.4, Math.atan2(176 - 181.5, 334.5 - 336.4), 'fija', 30);
+    for (let i = 0; i < 20; i++) { j.fiestas.paso({ avance: 0, lateral: 0, correr: false, conJoystick: false, giro: 0 }, 1 / 60); j.fisica.mundo.step(); }
+  });
+  await foto(`${capa}_fija`);
+  await p.evaluate(() => { const j = window.__juego; const v = j.fiestas.vacas[0];
+    j.peaton.activa(172, 333, -1.25); j.fiestas.personaje.reinicia(-1.25); j.fiestas.camaraJugador.reinicia(-1.25);
+    v.pon(186, 338, Math.atan2(172 - 186, 333 - 338), 'fija', 0.2);
+    for (let i = 0; i < 75; i++) { j.fiestas.paso({ avance: 0, lateral: 0, correr: false, conJoystick: false, giro: 0 }, 1 / 60); j.fisica.mundo.step(); }
+  });
+  await foto(`${capa}_embiste`);
+  if (capa === 'colorada') {
+    await p.evaluate(() => { const j = window.__juego; const pj = j.fiestas.personaje;
+      for (let i = 0; i < 200 && pj.estado !== 'cogido'; i++) {
+        j.fiestas.paso({ avance: 0, lateral: 0, correr: false, conJoystick: false, giro: 0 }, 1 / 60);
+        j.fisica.mundo.step();
+      }
+      for (let i = 0; i < 22; i++) { j.fiestas.paso({ avance: 0, lateral: 0, correr: false, conJoystick: false, giro: 0 }, 1 / 60); j.fisica.mundo.step(); }
+    });
+    await foto('cogida');
+  }
 }
 console.log('ERRORES', JSON.stringify(errores.slice(0, 8)));
+const fallos = Number(res.tipos.leve !== 'revolcon' || res.tipos.fuerte !== 'cornada'
+  || res.quieto.acaba !== 'libre' || res.quieto.seguro || !res.quieto.dentro
+  || Math.abs(res.velocidades.andar - 4.4) > 0.2
+  || Math.abs(res.velocidades.correr - 5.8) > 0.2
+  || Math.abs(res.velocidades.esprint - 6.6) > 0.2);
+console.log(fallos ? '\nFallan las comprobaciones del impacto' : '\nImpactos y recuperación bien');
 await b.close();
+process.exit(fallos ? 1 : 0);

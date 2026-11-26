@@ -18,8 +18,12 @@ export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
   const MOTRICES = motor.traccionTotal ? [...DELANTERAS, ...TRASERAS] : motor.traccion === 'delantera' ? DELANTERAS : TRASERAS;
   const DIRECTRICES = direccion.trasera ? TRASERAS : DELANTERAS;
   const signoGiro = direccion.trasera ? -1 : 1;       // las de atrás giran al revés para ir al mismo lado
-  const pieza = preparaCocheJugador(modeloJugador, config.color);
+  let pieza = preparaCocheJugador(modeloJugador, config.color);
+  let info = modeloJugador.info;
+  let idModelo = modeloJugador.id;
   let marcha = 0;
+  const largoInicial = modeloJugador.info.largo;
+  const anchoInicial = Math.min(modeloJugador.info.ancho, chasis.anchoMax);
 
   const cuerpo = mundo.createRigidBody(
     RAPIER.RigidBodyDesc.dynamic()
@@ -31,14 +35,16 @@ export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
   // Caja de colisión: el largo y ancho del modelo, levantada alturaLibre del suelo.
   // El origen del cuerpo es el centro de esa caja, a h0 sobre el suelo en reposo.
   const m = chasis.masa;
-  const l = modeloJugador.info.largo;
-  const a = Math.min(modeloJugador.info.ancho, chasis.anchoMax);
   const h = chasis.altoCaja;
   const h0 = chasis.alturaLibre + h / 2;
-  const inercia = { x: (m / 12) * (h * h + l * l), y: (m / 12) * (a * a + l * l), z: (m / 12) * (a * a + h * h) };
+  const inercia = (ancho, largo) => ({
+    x: (m / 12) * (h * h + largo * largo),
+    y: (m / 12) * (ancho * ancho + largo * largo),
+    z: (m / 12) * (ancho * ancho + h * h),
+  });
   const collider = mundo.createCollider(
-    RAPIER.ColliderDesc.cuboid(a / 2, h / 2, l / 2)
-      .setMassProperties(m, { x: 0, y: chasis.centroMasaY, z: 0 }, inercia, { w: 1, x: 0, y: 0, z: 0 })
+    RAPIER.ColliderDesc.cuboid(anchoInicial / 2, h / 2, largoInicial / 2)
+      .setMassProperties(m, { x: 0, y: chasis.centroMasaY, z: 0 }, inercia(anchoInicial, largoInicial), { w: 1, x: 0, y: 0, z: 0 })
       .setFriction(chasis.friccion),
     cuerpo,
   );
@@ -49,7 +55,10 @@ export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
   // Orden: 0 delantera izquierda, 1 delantera derecha, 2 trasera izquierda, 3 trasera derecha.
   // Anclaje = centro de la rueda del modelo + recorrido de reposo: en reposo la rueda queda
   // donde la dibujó el modelo y toca el suelo.
-  const anclajes = pieza.ruedas.map((r) => [r.centro.x, r.centro.y - h0 + ruedas.suspensionReposo, r.centro.z]);
+  function anclajesDe(piezaModelo) {
+    return piezaModelo.ruedas.map((r) => [r.centro.x, r.centro.y - h0 + ruedas.suspensionReposo, r.centro.z]);
+  }
+  const anclajes = anclajesDe(pieza);
   for (let i = 0; i < anclajes.length; i++) {
     const [x, y, z] = anclajes[i];
     vehiculo.addWheel({ x, y, z }, { x: 0, y: -1, z: 0 }, { x: -1, y: 0, z: 0 }, ruedas.suspensionReposo,
@@ -149,6 +158,31 @@ export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
   }
 
   // Coloca el coche parado en (x, y, z) mirando en la dirección (dx, dz)
+  function ponModelo(nuevoModelo) {
+    if (nuevoModelo.id === idModelo) return;
+    const nuevaPieza = preparaCocheJugador(nuevoModelo, config.color);
+    nuevaPieza.grupo.position.y = -h0;
+    modelo.grupo.remove(pieza.grupo);
+    pieza.ruedas.forEach((r) => modelo.grupo.remove(r.pivote));
+    modelo.grupo.add(nuevaPieza.grupo);
+    nuevaPieza.ruedas.forEach((r) => modelo.grupo.add(r.pivote));
+    const ancho = Math.min(nuevoModelo.info.ancho, chasis.anchoMax);
+    const largo = nuevoModelo.info.largo;
+    collider.setHalfExtents({ x: ancho / 2, y: h / 2, z: largo / 2 });
+    collider.setMassProperties(m, { x: 0, y: chasis.centroMasaY, z: 0 }, inercia(ancho, largo), { w: 1, x: 0, y: 0, z: 0 });
+    const nuevosAnclajes = anclajesDe(nuevaPieza);
+    for (let i = 0; i < nuevosAnclajes.length; i++) {
+      const [x, y, z] = nuevosAnclajes[i];
+      vehiculo.setWheelChassisConnectionPointCs(i, { x, y, z });
+      vehiculo.setWheelRadius(i, nuevaPieza.ruedas[i].radio);
+    }
+    pieza = nuevaPieza;
+    modelo.ruedas = pieza.ruedas;
+    info = nuevoModelo.info;
+    idModelo = nuevoModelo.id;
+    sincroniza();
+  }
+
   function recoloca(x, y, z, dx, dz) {
     const rumbo = Math.atan2(dx, dz);
     q.setFromAxisAngle(ejeY, rumbo);
@@ -178,5 +212,5 @@ export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
     };
   }
 
-  return { cuerpo, collider, vehiculo, modelo, aplicaEntrada, paso, sincroniza, recoloca, estado, config, info: modeloJugador.info };
+  return { cuerpo, collider, vehiculo, modelo, aplicaEntrada, paso, sincroniza, recoloca, estado, ponModelo, config, get info() { return info; } };
 }

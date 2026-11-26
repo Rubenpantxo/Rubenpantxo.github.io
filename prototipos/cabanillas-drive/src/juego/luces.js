@@ -18,18 +18,22 @@ function texturaBrillo() {
 }
 
 export function creaLuces({ escena, cocheJugador, infoJugador, agentes }) {
-  const { largo, ancho } = infoJugador;
-  // El origen del coche del jugador es el centro de su caja de chasis
+  let { largo, ancho } = infoJugador;
+  let objetoJugador = cocheJugador;
+  let focos = [];
   const altoFaro = -0.15;
-  const focos = [-1, 1].map((lado) => {
-    const foco = new THREE.SpotLight(0xfff4e0, 0, DIA.faros.alcanceM, DIA.faros.anguloGrados * Math.PI / 180,
-      DIA.faros.penumbra, 1.6);
-    foco.position.set(lado * ancho * 0.33, altoFaro, largo / 2 - 0.2);
-    foco.target.position.set(lado * ancho * 0.33, -1.6, largo / 2 + 20);
-    foco.castShadow = false;
-    cocheJugador.add(foco, foco.target);
-    return foco;
-  });
+  function creaFocos() {
+    focos = [-1, 1].map((lado) => {
+      const foco = new THREE.SpotLight(0xfff4e0, 0, DIA.faros.alcanceM, DIA.faros.anguloGrados * Math.PI / 180,
+        DIA.faros.penumbra, 1.6);
+      foco.position.set(lado * ancho * 0.33, altoFaro, largo / 2 - 0.2);
+      foco.target.position.set(lado * ancho * 0.33, -1.6, largo / 2 + 20);
+      foco.castShadow = false;
+      objetoJugador.add(foco, foco.target);
+      return foco;
+    });
+  }
+  creaFocos();
 
   // Puntos: 4 por coche (2 faros + 2 pilotos)
   const coches = 1 + agentes.length;
@@ -65,12 +69,19 @@ export function creaLuces({ escena, cocheJugador, infoJugador, agentes }) {
   }
 
   return {
+    ponVehiculo(objeto, info) {
+      focos.forEach((foco) => { foco.removeFromParent(); foco.target.removeFromParent(); });
+      objetoJugador = objeto;
+      largo = info.largo;
+      ancho = info.ancho;
+      creaFocos();
+    },
     actualiza(oscuridad) {
       for (const f of focos) f.intensity = DIA.faros.intensidad * oscuridad;
       puntos.visible = oscuridad > 0.01;
       material.opacity = oscuridad;
       if (!puntos.visible) return;
-      ponCoche(0, cocheJugador, largo, ancho, altoFaro, cocheJugador.visible);
+      ponCoche(0, objetoJugador, largo, ancho, altoFaro, objetoJugador.visible);
       agentes.forEach((a, i) => ponCoche(i + 1, a.grupo, a.largo, Math.min(a.ancho, 2.0), 0.72, a.listo && a.grupo.visible));
       geo.attributes.position.needsUpdate = true;
     },
