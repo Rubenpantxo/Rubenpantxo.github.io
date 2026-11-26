@@ -11,7 +11,8 @@
 // Se monta en <div id="sv-entregable"> dentro de #servicios.
 // Perfil: botones propios o el evento global
 //   document.dispatchEvent(new CustomEvent('sv:perfil', { detail: { perfil: 'web' | '3d' | 'automatizacion' } }))
-// que puede lanzar el selector del hero (zona 01).
+// que lanza el selector del hero (zona 01). Si el hero eligió antes de
+// que esto cargue, se lee data-perfil de #servicios o sessionStorage.
 // Analítica: window.rpEvento (js/consentimiento.js), solo con consentimiento.
 // ============================================================
 
@@ -461,8 +462,8 @@ async function iniciar() {
     const normalizar = v => {
         const s = String(v || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
         if (perfiles[s]) return s;
-        if (s.includes('3d')) return '3d';
-        if (s.includes('autom')) return 'automatizacion';
+        if (s.includes('3d') || s === 'webgl' || s === 'visualizacion') return '3d';
+        if (s.includes('autom') || s === 'ia' || s === 'edge') return 'automatizacion';
         if (s.includes('web') || s.includes('app')) return 'web';
         return null;
     };
@@ -470,7 +471,12 @@ async function iniciar() {
         const id = normalizar(e.detail?.perfil ?? e.detail);
         if (id) ponerPerfil(id, 'hero');
     });
-    const inicial = normalizar(document.getElementById('servicios')?.dataset.svPerfil);
+    // Si el hero ya eligió antes de que cargáramos, se lee de su marca
+    // en #servicios (data-perfil) o de su sessionStorage 'sv:perfil'.
+    const seccion = document.getElementById('servicios')?.dataset || {};
+    let deSesion = null;
+    try { deSesion = sessionStorage.getItem('sv:perfil'); } catch { /* bloqueado */ }
+    const inicial = normalizar(seccion.perfil || seccion.svPerfil || deSesion);
     ponerPerfil(inicial || perfilActual, null);
 }
 
