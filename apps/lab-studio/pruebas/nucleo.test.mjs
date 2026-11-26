@@ -406,11 +406,15 @@ test('modelo: plegar un montaje apaisado para una pantalla vertical', () => {
 const CASA = ['shelly-1-mini-g3', 'sonoff-zbminir2', 'sonoff-mini-d', 'ettroit-ln1800', 'came-ttsd4rks'];
 
 test('fichas ampliadas: modelo 3D, lección y primer código coherentes', () => {
-    for (const id of CASA) assert.ok(FICHAS[id], id + ': ficha');
-    for (const id of ['esp32-s3-devkitc-1-n16r8', 'esp32-2432s028r', 'shelly-1pm-mini-g3']) assert.ok(FICHAS[id], id + ': ficha');
+    for (const id of CASA) assert.ok(FICHAS[id] && def(id).propio, id + ': ficha y en el inventario');
+    // Todas las placas de desarrollo del catálogo (menos el PC) tienen modelo 3D.
+    for (const c of COMPONENTES.filter(c => c.categoria === 'placas' && c.id !== 'pc-host')) assert.ok(FICHAS[c.id], c.id + ': ficha');
+    // Y todos los sensores y actuadores.
+    for (const c of COMPONENTES.filter(c => c.categoria === 'sensores' || c.categoria === 'actuadores')) assert.ok(FICHAS[c.id], c.id + ': ficha');
+    assert.ok(FICHAS['shelly-1pm-mini-g3'], 'shelly-1pm-mini-g3: ficha');
     for (const id of Object.keys(FICHAS)) {
         const c = def(id), f = FICHAS[id];
-        assert.ok(c && c.propio, id + ': en el inventario');
+        assert.ok(c, id + ': en el catálogo');
         assert.ok(f && f.modelo, id + ': ficha con modelo');
         assert.ok(f.claves.length >= 4 && f.fuertes.length && f.cuidado.length && f.ideas.length, id + ': lección');
         assert.ok(f.flasheo && f.flasheo.pasos.length, id + ': flasheo o ajuste');
