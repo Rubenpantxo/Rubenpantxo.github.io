@@ -1,0 +1,275 @@
+{
+  "version": 1,
+  "_ayuda": "Explorador del entregable (zona 04). Añadir un archivo = añadir un nodo a 'comunes' o a 'perfiles.<id>.arbol'. Nodo: id, nombre, tipo (carpeta|archivo), desc, para (cliente|equipo|desarrollador), nota (solo carpetas), abierta (solo carpetas), vista (solo archivos: modo doc|md|codigo|texto) e hijos. {\"ref\": \"<id>\"} reutiliza un nodo de 'comunes'.",
+  "perfilPorDefecto": "web",
+  "perfiles": {
+    "web": {
+      "nombre": "Web / App",
+      "raiz": "mi-negocio-web",
+      "resumen": "Una web o app como las de las demos: código, documentación y todo lo necesario para publicarla donde quieras.",
+      "arbol": [
+        { "ref": "docs" },
+        {
+          "id": "src", "nombre": "src", "tipo": "carpeta", "abierta": true,
+          "nota": "Aquí está todo el código fuente. Es tuyo desde el primer día.",
+          "hijos": [
+            { "id": "src-index", "nombre": "index.html", "tipo": "archivo", "para": "desarrollador",
+              "desc": "La página principal. HTML semántico y accesible, sin plantillas de terceros.",
+              "vista": { "modo": "codigo", "lenguaje": "html", "texto": "<!doctype html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Mi negocio · Reservas</title>\n  <link rel=\"stylesheet\" href=\"estilos/tema.css\">\n</head>\n<body>\n  <!-- Cabecera con el horario y el botón de reservar -->\n  <header class=\"cabecera\">\n    <h1>Mi negocio</h1>\n    <a class=\"boton\" href=\"#reservar\">Reservar mesa</a>\n  </header>\n  <main id=\"app\"></main>\n  <script type=\"module\" src=\"js/reservas.js\"></script>\n</body>\n</html>" } },
+            {
+              "id": "src-js", "nombre": "js", "tipo": "carpeta",
+              "nota": "La lógica de la app, en módulos pequeños y comentados.",
+              "hijos": [
+                { "id": "src-reservas", "nombre": "reservas.js", "tipo": "archivo", "para": "desarrollador",
+                  "desc": "Ejemplo real del estilo de código que recibes: funciones cortas, nombres claros y comentarios en español.",
+                  "vista": { "modo": "codigo", "lenguaje": "js", "texto": "// Reservas: guarda la mesa elegida y avisa si ya está ocupada.\n// Sin librerías externas: solo JavaScript estándar.\n\nconst AFORO_POR_MESA = 4;\n\n/**\n * Comprueba si una mesa admite a un grupo.\n * @param {{ ocupada: boolean, plazas: number }} mesa\n * @param {number} personas\n */\nexport function admiteGrupo(mesa, personas) {\n  if (mesa.ocupada) return false;\n  return personas <= (mesa.plazas || AFORO_POR_MESA);\n}\n\nexport async function reservar(mesa, datos) {\n  const respuesta = await fetch('/api/reservas', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ mesa: mesa.id, ...datos })\n  });\n  if (!respuesta.ok) throw new Error('No se pudo reservar');\n  return respuesta.json();\n}" } },
+                { "id": "src-carrito", "nombre": "carrito.js", "tipo": "archivo", "para": "desarrollador",
+                  "desc": "El carrito se guarda en el propio navegador: si el cliente cierra la pestaña, no pierde nada.",
+                  "vista": { "modo": "codigo", "lenguaje": "js", "texto": "// Carrito persistente en localStorage (con try/catch:\n// en modo privado el navegador puede negarse).\nconst CLAVE = 'carrito-v1';\n\nexport function leer() {\n  try {\n    return JSON.parse(localStorage.getItem(CLAVE)) ?? [];\n  } catch {\n    return [];\n  }\n}\n\nexport function guardar(lineas) {\n  try { localStorage.setItem(CLAVE, JSON.stringify(lineas)); } catch { /* sin espacio */ }\n}" } }
+              ]
+            },
+            {
+              "id": "src-estilos", "nombre": "estilos", "tipo": "carpeta",
+              "nota": "Colores, letras y espaciados de tu marca, en variables fáciles de cambiar.",
+              "hijos": [
+                { "id": "src-tema", "nombre": "tema.css", "tipo": "archivo", "para": "equipo",
+                  "desc": "Tu sistema de diseño en tokens: cambiar el color de marca es cambiar una línea.",
+                  "vista": { "modo": "codigo", "lenguaje": "css", "texto": "/* Tokens de marca: todo el sitio sale de aquí. */\n:root {\n  --marca: #ff8a4c;\n  --fondo: #fffaf4;\n  --texto: #1d1a16;\n  --radio: 14px;\n  --letra: 'Inter', system-ui, sans-serif;\n}\n\n.boton {\n  background: var(--marca);\n  border-radius: var(--radio);\n  font: 600 1rem/1 var(--letra);\n  padding: .9rem 1.4rem;\n}" } }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "assets", "nombre": "assets", "tipo": "carpeta",
+          "nota": "Imágenes, iconos y tipografías optimizados, con sus licencias de uso.",
+          "hijos": [
+            { "id": "assets-logo", "nombre": "logo.svg", "tipo": "archivo", "para": "cliente",
+              "desc": "Tu logo en vector: se ve nítido en cualquier tamaño y pesa muy poco.",
+              "vista": { "modo": "texto", "texto": "Formato: SVG (vectorial)\nVersiones: color, blanco y negro\nUso: web, redes sociales e impresión\nOrigen: diseñado para ti o facilitado por ti" } },
+            { "id": "assets-fotos", "nombre": "fotos-LICENCIAS.txt", "tipo": "archivo", "para": "cliente",
+              "desc": "De dónde sale cada foto y qué licencia tiene. Nada de imágenes «cogidas de Google».",
+              "vista": { "modo": "texto", "texto": "portada.webp ........ foto propia del cliente\nplato-01.webp ....... foto propia del cliente\nfondo-textura.webp .. banco libre (licencia en el enlace)\n\nTodas las imágenes están comprimidas en WebP\ny tienen texto alternativo en el código." } }
+          ]
+        },
+        { "ref": "tests-web" },
+        { "ref": "deploy-web" },
+        { "ref": "soporte" },
+        { "ref": "readme" },
+        { "ref": "changelog" },
+        { "ref": "licencia" }
+      ],
+      "cronologia": [
+        { "cuando": "Semana 1", "que": "Propuesta, mapa de pantallas y repositorio creado a tu nombre." },
+        { "cuando": "Mitad del proyecto", "que": "Versión navegable en una dirección de pruebas y primeros documentos." },
+        { "cuando": "Entrega final", "que": "Código completo, manual, guía de despliegue y publicación en tu dominio." },
+        { "cuando": "Después", "que": "Periodo de corrección de errores y, si lo quieres, plan de mantenimiento." }
+      ]
+    },
+    "3d": {
+      "nombre": "3D interactivo",
+      "raiz": "mi-producto-3d",
+      "resumen": "Una experiencia 3D en el navegador (producto, maqueta o configurador) con sus modelos y escenas.",
+      "arbol": [
+        { "ref": "docs" },
+        {
+          "id": "src3d", "nombre": "src", "tipo": "carpeta", "abierta": true,
+          "nota": "La escena y su lógica. Código tuyo, sin licencias que caduquen.",
+          "hijos": [
+            { "id": "src3d-escena", "nombre": "escena.js", "tipo": "archivo", "para": "desarrollador",
+              "desc": "Monta la escena con Three.js (código abierto, licencia MIT) y la pausa cuando no se ve para ahorrar batería.",
+              "vista": { "modo": "codigo", "lenguaje": "js", "texto": "import * as THREE from 'three';\n\n// Escena del producto: luz suave, sombra de contacto\n// y render solo cuando algo cambia.\nexport function crearEscena(lienzo) {\n  const renderer = new THREE.WebGLRenderer({ canvas: lienzo, antialias: true });\n  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));\n\n  const escena = new THREE.Scene();\n  const camara = new THREE.PerspectiveCamera(35, 1, 0.1, 50);\n  camara.position.set(0, 1.2, 4);\n\n  let pendiente = true;\n  const pedirRender = () => { pendiente = true; };\n\n  renderer.setAnimationLoop(() => {\n    if (!pendiente || document.hidden) return;\n    renderer.render(escena, camara);\n    pendiente = false;\n  });\n  return { escena, camara, pedirRender };\n}" } },
+            { "id": "src3d-config", "nombre": "configurador.js", "tipo": "archivo", "para": "desarrollador",
+              "desc": "Las opciones del configurador (colores, medidas, acabados) se leen de una tabla: ampliarlas no requiere tocar la escena.",
+              "vista": { "modo": "codigo", "lenguaje": "js", "texto": "// Opciones del configurador: añadir un acabado = añadir una línea.\nexport const ACABADOS = [\n  { id: 'roble',  nombre: 'Roble natural', color: '#c8a27a', precio: 0 },\n  { id: 'nogal',  nombre: 'Nogal',         color: '#6b4a32', precio: 40 },\n  { id: 'lacado', nombre: 'Lacado blanco', color: '#f2f0eb', precio: 65 }\n];\n\nexport function precioFinal(base, idAcabado) {\n  const acabado = ACABADOS.find(a => a.id === idAcabado);\n  return base + (acabado ? acabado.precio : 0);\n}" } }
+          ]
+        },
+        {
+          "id": "modelos", "nombre": "modelos", "tipo": "carpeta",
+          "nota": "Los modelos 3D en formatos abiertos, también los archivos fuente editables.",
+          "hijos": [
+            { "id": "modelos-glb", "nombre": "producto.glb", "tipo": "archivo", "para": "equipo",
+              "desc": "El modelo optimizado para la web (formato glTF binario, estándar abierto).",
+              "vista": { "modo": "texto", "texto": "Formato: glTF 2.0 binario (.glb)\nPolígonos: reducidos para móvil\nTexturas: comprimidas, 1K y 2K\nSe abre en Blender, Windows 3D Viewer o cualquier visor glTF" } },
+            { "id": "modelos-blend", "nombre": "producto-fuente.blend", "tipo": "archivo", "para": "desarrollador",
+              "desc": "El archivo fuente editable. Con él cualquier artista 3D puede seguir el trabajo.",
+              "vista": { "modo": "texto", "texto": "Archivo fuente de Blender (gratuito y de código abierto).\nIncluye materiales, cámaras y la escena tal cual se diseñó.\nNo dependes de programas de pago para modificarlo." } }
+          ]
+        },
+        { "ref": "tests-web" },
+        { "ref": "deploy-web" },
+        { "ref": "soporte" },
+        { "ref": "readme" },
+        { "ref": "changelog" },
+        { "ref": "licencia" }
+      ],
+      "cronologia": [
+        { "cuando": "Semana 1", "que": "Referencias, boceto del modelo y prueba de rendimiento en móvil." },
+        { "cuando": "Mitad del proyecto", "que": "Escena navegable con el modelo provisional y las interacciones." },
+        { "cuando": "Entrega final", "que": "Modelos definitivos, archivos fuente, código y documentación." },
+        { "cuando": "Después", "que": "Periodo de corrección de errores y ajustes de rendimiento." }
+      ]
+    },
+    "automatizacion": {
+      "nombre": "Automatización",
+      "raiz": "mi-automatizacion",
+      "resumen": "Scripts e integraciones que ahorran tareas repetitivas: avisos, informes o pedidos que se procesan solos.",
+      "arbol": [
+        { "ref": "docs" },
+        {
+          "id": "srcauto", "nombre": "src", "tipo": "carpeta", "abierta": true,
+          "nota": "Cada tarea automática en su propio archivo, comentada paso a paso.",
+          "hijos": [
+            { "id": "srcauto-informe", "nombre": "informe-diario.mjs", "tipo": "archivo", "para": "desarrollador",
+              "desc": "Ejemplo: junta las ventas del día y envía un resumen. Se puede ejecutar a mano o programado.",
+              "vista": { "modo": "codigo", "lenguaje": "js", "texto": "// Informe diario: suma las ventas y avisa por correo.\n// Las claves van en variables de entorno, nunca en el código.\nimport { leerVentas } from './fuentes/ventas.mjs';\nimport { enviarCorreo } from './avisos/correo.mjs';\n\nconst hoy = new Date().toISOString().slice(0, 10);\nconst ventas = await leerVentas(hoy);\n\nconst total = ventas.reduce((suma, v) => suma + v.importe, 0);\nconst texto = `Ventas del ${hoy}: ${ventas.length} pedidos, ${total.toFixed(2)} €`;\n\nawait enviarCorreo({ asunto: 'Resumen del día', texto });\nconsole.log('Informe enviado:', texto);" } },
+            { "id": "srcauto-env", "nombre": ".env.ejemplo", "tipo": "archivo", "para": "equipo",
+              "desc": "Plantilla de configuración. Las contraseñas reales las pones tú y nunca se suben al repositorio.",
+              "vista": { "modo": "codigo", "lenguaje": "texto", "texto": "# Copia este archivo como .env y rellena tus datos.\n# El .env real está en .gitignore: nunca se publica.\nCORREO_DESTINO=tu-correo@tu-negocio.es\nHORA_INFORME=21:00\nCLAVE_TIENDA=pega-aquí-tu-clave" } }
+          ]
+        },
+        {
+          "id": "tareas", "nombre": "tareas", "tipo": "carpeta",
+          "nota": "Cuándo se ejecuta cada automatización, en un archivo legible.",
+          "hijos": [
+            { "id": "tareas-calendario", "nombre": "calendario.yml", "tipo": "archivo", "para": "equipo",
+              "desc": "El horario de las tareas. Cambiar la hora del informe es cambiar un número.",
+              "vista": { "modo": "codigo", "lenguaje": "texto", "texto": "# Cuándo se ejecuta cada tarea\ninforme-diario:\n  cada: día\n  hora: \"21:00\"\nrevisar-stock:\n  cada: lunes\n  hora: \"08:30\"\n  avisar_si_menos_de: 5" } }
+          ]
+        },
+        { "ref": "tests-auto" },
+        { "ref": "deploy-auto" },
+        { "ref": "soporte" },
+        { "ref": "readme" },
+        { "ref": "changelog" },
+        { "ref": "licencia" }
+      ],
+      "cronologia": [
+        { "cuando": "Semana 1", "que": "Mapa de la tarea actual, qué se automatiza y qué datos intervienen." },
+        { "cuando": "Mitad del proyecto", "que": "Primera automatización funcionando con datos de prueba." },
+        { "cuando": "Entrega final", "que": "Todas las tareas en marcha, registro de ejecuciones y manual." },
+        { "cuando": "Después", "que": "Periodo de corrección de errores y revisión del primer mes." }
+      ]
+    }
+  },
+  "comunes": {
+    "docs": {
+      "id": "docs", "nombre": "docs", "tipo": "carpeta", "abierta": true,
+      "nota": "La documentación para usar, mantener y ampliar el proyecto sin depender de nadie.",
+      "hijos": [
+        { "id": "docs-manual", "nombre": "manual-uso.pdf", "tipo": "archivo", "para": "cliente",
+          "desc": "El manual para ti y tu equipo: cómo se usa el día a día, con capturas y sin tecnicismos.",
+          "vista": {
+            "modo": "doc",
+            "titulo": "Manual de uso",
+            "subtitulo": "Mi negocio · versión 1.0 · Documento de ejemplo",
+            "indice": [
+              "1. Primeros pasos: entrar y cambiar tu contraseña",
+              "2. Actualizar horarios, precios y fotos",
+              "3. Gestionar reservas y pedidos",
+              "4. Ver las estadísticas de visitas",
+              "5. Qué hacer si algo falla",
+              "6. Contacto y soporte"
+            ],
+            "pasos": [
+              { "titulo": "Cambiar un precio", "texto": "Entra en Panel › Carta, pulsa sobre el plato y escribe el nuevo precio. Se publica al guardar." },
+              { "titulo": "Bloquear un día", "texto": "En Panel › Reservas, pulsa el día del calendario y elige «Cerrado». Nadie podrá reservar." }
+            ]
+          } },
+        { "id": "docs-despliegue", "nombre": "guia-despliegue.md", "tipo": "archivo", "para": "desarrollador",
+          "desc": "Paso a paso para publicar el proyecto en otro servidor. Si un día cambias de proveedor, esto es lo que necesita.",
+          "vista": { "modo": "md", "texto": "# Guía de despliegue\n\nPublicar el proyecto **en cualquier alojamiento** estático o con Node.\n\n## Requisitos\n\n- Node 22 o superior\n- Una cuenta en tu alojamiento (GitHub Pages, Netlify, tu servidor…)\n\n## Pasos\n\n1. Clona el repositorio: `git clone <tu-repositorio>`\n2. Instala dependencias: `npm ci`\n3. Genera la versión final: `npm run build`\n4. Sube la carpeta `dist/` a tu alojamiento.\n5. Apunta tu dominio (registro DNS) a la nueva dirección.\n\n## Copias de seguridad\n\nEl código vive en tu repositorio: cada cambio queda guardado." } },
+        { "id": "docs-arquitectura", "nombre": "arquitectura.md", "tipo": "archivo", "para": "desarrollador",
+          "desc": "El mapa del proyecto para el próximo desarrollador: qué hace cada carpeta y por qué se decidió así.",
+          "vista": { "modo": "md", "texto": "# Arquitectura\n\n## Piezas\n\n- `src/` · la interfaz y su lógica\n- `assets/` · imágenes y tipografías\n- `deploy/` · cómo se publica\n\n## Decisiones\n\n- **Sin dependencias ocultas.** Las librerías usadas están en `package.json` con su licencia.\n- **Datos fuera del código.** Textos y precios se cambian sin programar.\n- **Accesible.** Se usa con teclado y lector de pantalla." } }
+      ]
+    },
+    "tests-web": {
+      "id": "tests", "nombre": "tests", "tipo": "carpeta",
+      "nota": "Pruebas automáticas que comprueban que nada se rompe al hacer cambios.",
+      "hijos": [
+        { "id": "tests-reservas", "nombre": "reservas.test.js", "tipo": "archivo", "para": "desarrollador",
+          "desc": "Una prueba de ejemplo. Se ejecutan todas con un solo comando antes de publicar.",
+          "vista": { "modo": "codigo", "lenguaje": "js", "texto": "import { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { admiteGrupo } from '../src/js/reservas.js';\n\ntest('una mesa ocupada no admite grupos', () => {\n  assert.equal(admiteGrupo({ ocupada: true, plazas: 4 }, 2), false);\n});\n\ntest('una mesa libre admite hasta su aforo', () => {\n  assert.equal(admiteGrupo({ ocupada: false, plazas: 4 }, 4), true);\n  assert.equal(admiteGrupo({ ocupada: false, plazas: 4 }, 5), false);\n});" } }
+      ]
+    },
+    "tests-auto": {
+      "id": "tests", "nombre": "tests", "tipo": "carpeta",
+      "nota": "Pruebas con datos ficticios: se comprueba todo sin tocar tus datos reales.",
+      "hijos": [
+        { "id": "tests-informe", "nombre": "informe.test.mjs", "tipo": "archivo", "para": "desarrollador",
+          "desc": "Comprueba el cálculo del informe con ventas inventadas.",
+          "vista": { "modo": "codigo", "lenguaje": "js", "texto": "import { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { sumar } from '../src/calculos.mjs';\n\ntest('suma las ventas del día', () => {\n  const ventas = [{ importe: 12.5 }, { importe: 7.5 }];\n  assert.equal(sumar(ventas), 20);\n});" } }
+      ]
+    },
+    "deploy-web": {
+      "id": "deploy", "nombre": "deploy", "tipo": "carpeta",
+      "nota": "Lo necesario para publicar. Se puede llevar a otro alojamiento sin pedirme permiso.",
+      "hijos": [
+        { "id": "deploy-pasos", "nombre": "publicar.md", "tipo": "archivo", "para": "equipo",
+          "desc": "La publicación resumida en una página, para quien la tenga que repetir.",
+          "vista": { "modo": "md", "texto": "# Publicar una actualización\n\n1. Haz el cambio y guárdalo en el repositorio.\n2. Las pruebas se ejecutan solas.\n3. Si todo está en verde, la web se publica.\n\n> Si algo sale mal, se vuelve a la versión anterior con un clic." } },
+        { "id": "deploy-cabeceras", "nombre": "_headers", "tipo": "archivo", "para": "desarrollador",
+          "desc": "Cabeceras de seguridad y caché ya configuradas.",
+          "vista": { "modo": "codigo", "lenguaje": "texto", "texto": "/*\n  Content-Security-Policy: default-src 'self'\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable" } }
+      ]
+    },
+    "deploy-auto": {
+      "id": "deploy", "nombre": "deploy", "tipo": "carpeta",
+      "nota": "Cómo se pone en marcha en tu servidor o en la nube, paso a paso.",
+      "hijos": [
+        { "id": "deploy-instalar", "nombre": "instalar.md", "tipo": "archivo", "para": "equipo",
+          "desc": "Instalación en un servidor propio o en un servicio en la nube.",
+          "vista": { "modo": "md", "texto": "# Instalar las automatizaciones\n\n1. Copia `.env.ejemplo` como `.env` y rellena tus datos.\n2. Instala dependencias: `npm ci`\n3. Prueba una tarea a mano: `node src/informe-diario.mjs`\n4. Activa el calendario de `tareas/calendario.yml`.\n\nCada ejecución queda anotada en `registro/`." } }
+      ]
+    },
+    "soporte": {
+      "id": "soporte", "nombre": "soporte", "tipo": "carpeta",
+      "nota": "Qué pasa después de la entrega y cómo contactar.",
+      "hijos": [
+        { "id": "soporte-plan", "nombre": "plan-mantenimiento.md", "tipo": "archivo", "para": "cliente",
+          "desc": "El periodo de corrección de errores incluido y las opciones de mantenimiento, por escrito.",
+          "vista": { "modo": "md", "texto": "# Después de la entrega\n\n## Incluido\n\n- **Periodo de corrección de errores** tras la publicación: si algo de lo entregado no funciona como se acordó, se arregla sin coste.\n\n## Opcional\n\n- **Mantenimiento**: actualizaciones, copias y pequeños cambios cada mes.\n- **Bolsa de horas**: para mejoras puntuales cuando las necesites.\n\nLa duración y las condiciones exactas se fijan en la propuesta de cada proyecto." } },
+        { "id": "soporte-contacto", "nombre": "contacto.txt", "tipo": "archivo", "para": "cliente",
+          "desc": "Por dónde hablar conmigo y en cuánto tiempo respondo.",
+          "vista": { "modo": "texto", "texto": "Correo: el de la sección de contacto de esta web\nRespuesta: en días laborables\nUrgencias de la web publicada: indícalo en el asunto" } }
+      ]
+    },
+    "readme": {
+      "id": "readme", "nombre": "README.md", "tipo": "archivo", "para": "equipo",
+      "desc": "La portada del proyecto: qué es, cómo arrancarlo en cinco minutos y dónde está cada cosa.",
+      "vista": { "modo": "md", "texto": "# Mi negocio\n\nProyecto entregado por **Rubén Aguado**. Todo el contenido de esta carpeta es tuyo.\n\n## Arrancar en local\n\n```\nnpm ci\nnpm run dev\n```\n\n## Dónde está cada cosa\n\n- `docs/` · manual, guía de despliegue y arquitectura\n- `src/` · el código\n- `deploy/` · publicación\n- `soporte/` · mantenimiento y contacto" }
+    },
+    "changelog": {
+      "id": "changelog", "nombre": "CHANGELOG.md", "tipo": "archivo", "para": "equipo",
+      "desc": "Historial de versiones: qué cambió y cuándo. Un trabajo versionado se puede auditar.",
+      "vista": { "modo": "md", "texto": "# Historial de cambios\n\n## 1.0.0 · Entrega final\n\n- Publicación en el dominio del cliente.\n- Manual de uso y guía de despliegue.\n\n## 0.3.0 · Revisión de mitad de proyecto\n\n- Ajustes de diseño tras la revisión.\n- Mejoras de accesibilidad con teclado.\n\n## 0.1.0 · Primera versión navegable\n\n- Pantallas principales con datos de prueba." }
+    },
+    "licencia": {
+      "id": "licencia", "nombre": "licencia.txt", "tipo": "archivo", "para": "cliente",
+      "desc": "Deja por escrito que la propiedad del código y los diseños hechos para ti es tuya.",
+      "vista": { "modo": "texto", "texto": "CESIÓN DE DERECHOS (resumen de ejemplo)\n\nEl código, los diseños y la documentación creados para\neste proyecto se ceden al cliente una vez abonado.\n\nLas librerías de código abierto incluidas mantienen su\npropia licencia (MIT, Apache 2.0…), listada en\nTERCEROS.txt. Ninguna exige pagos ni caduca.\n\nEl texto definitivo es el del contrato firmado." }
+    }
+  },
+  "garantias": [
+    { "id": "propiedad", "titulo": "Es tuyo", "frase": "La propiedad del código, los diseños y la documentación hechos para ti pasa a ser tuya.", "incluye": "Repositorio a tu nombre y archivos fuente editables.", "noIncluye": "Las librerías de código abierto, que conservan su propia licencia (gratuita)." },
+    { "id": "sin-dependencias", "titulo": "Sin ataduras", "frase": "Nada de plataformas cerradas ni cuotas escondidas para que la web siga funcionando.", "incluye": "Lista de todas las librerías y servicios usados, con su licencia.", "noIncluye": "El coste del alojamiento o del dominio, que contratas a tu nombre." },
+    { "id": "documentado", "titulo": "Documentado", "frase": "Manual de uso para ti y guía técnica para quien venga después.", "incluye": "Manual, guía de despliegue, arquitectura y código comentado.", "noIncluye": "Formación presencial, salvo que se acuerde en la propuesta." },
+    { "id": "errores", "titulo": "Errores corregidos", "frase": "Tras la publicación hay un periodo en el que lo que no funcione como se acordó se arregla sin coste.", "incluye": "Fallos de lo entregado frente a lo acordado.", "noIncluye": "Funciones nuevas o cambios de idea, que se presupuestan aparte." },
+    { "id": "confidencial", "titulo": "Confidencial", "frase": "Tus datos y los de tus clientes no se usan para nada más que tu proyecto.", "incluye": "Datos de prueba en las demos y claves fuera del código.", "noIncluye": "" }
+  ],
+  "comparativa": {
+    "titulo": "Entrega habitual frente a esta entrega",
+    "filas": [
+      { "aspecto": "Código fuente", "habitual": "Se queda en la plataforma o la agencia", "esta": "En un repositorio a tu nombre" },
+      { "aspecto": "Documentación", "habitual": "Ninguna o un correo suelto", "esta": "Manual, guía de despliegue y arquitectura" },
+      { "aspecto": "Cambiar de proveedor", "habitual": "Empezar de cero", "esta": "Otra persona sigue con la guía" },
+      { "aspecto": "Historial", "habitual": "No hay", "esta": "CHANGELOG con cada versión" }
+    ]
+  },
+  "faq": [
+    { "p": "¿De quién es la web cuando termina el proyecto?", "r": "Tuya. Te entrego el código, los diseños y la documentación, y el repositorio queda a tu nombre. El detalle va en el contrato." },
+    { "p": "¿Y si mañana quiero cambiar de proveedor?", "r": "Puedes. La guía de despliegue y la de arquitectura están pensadas para que otra persona continúe sin tener que preguntarme nada." },
+    { "p": "¿Quién paga el alojamiento?", "r": "Lo contratas tú, a tu nombre, así no dependes de mí. Te ayudo a elegir y a dejarlo configurado." },
+    { "p": "¿Qué pasa si algo falla después de publicar?", "r": "Durante el periodo de corrección de errores se arregla sin coste. Después puedes contratar mantenimiento o pedir cambios sueltos." }
+  ]
+}
