@@ -9,6 +9,8 @@ import { Historial } from '../js/core/historial.js';
 import { construirRedes } from '../js/core/redes.js';
 import { analizar } from '../js/core/erc.js';
 import { crearEnrutador, rutaSimple, simplificar, caminoSvg } from '../js/core/ruta.js';
+import { FICHAS } from '../js/datos/fichas.js';
+import { U } from '../js/core/modelo.js';
 import { listaMateriales, materialesCsv, cabeceraPines, listaRedesTexto, platformioDe, archivosEjemplo, conLibrerias } from '../js/core/exportar.js';
 
 const ESP = 'esp32-s3-devkitc-1-n16r8';
@@ -398,4 +400,71 @@ test('modelo: plegar un montaje apaisado para una pantalla vertical', () => {
     const p = PROYECTOS.find(x => x.id === 'cyd-shelly');
     assert.equal(M.plegarPlantilla(p.montaje, CATALOGO, 1200, 700), p.montaje);
     assert.ok(M.plegarPlantilla(p.montaje, CATALOGO, 335, 640) !== p.montaje);
+});
+
+// ------------------------------------------- domótica de caja de mecanismo
+const CASA = ['shelly-1-mini-g3', 'sonoff-zbminir2', 'sonoff-mini-d', 'ettroit-ln1800', 'came-ttsd4rks'];
+
+test('fichas ampliadas: modelo 3D, lección y primer código coherentes', () => {
+    for (const id of CASA) assert.ok(FICHAS[id] && def(id).propio, id + ': ficha y en el inventario');
+    // Todas las placas de desarrollo del catálogo (menos el PC) tienen modelo 3D.
+    for (const c of COMPONENTES.filter(c => c.categoria === 'placas' && c.id !== 'pc-host')) assert.ok(FICHAS[c.id], c.id + ': ficha');
+    // Y todos los sensores, actuadores, salidas y alimentación.
+    for (const c of COMPONENTES.filter(c => ['sensores', 'actuadores', 'salidas', 'alimentacion'].includes(c.categoria))) assert.ok(FICHAS[c.id], c.id + ': ficha');
+    assert.ok(FICHAS['shelly-1pm-mini-g3'], 'shelly-1pm-mini-g3: ficha');
+    for (const id of Object.keys(FICHAS)) {
+        const c = def(id), f = FICHAS[id];
+        assert.ok(c, id + ': en el catálogo');
+        assert.ok(f && f.modelo, id + ': ficha con modelo');
+        assert.ok(f.claves.length >= 4 && f.fuertes.length && f.cuidado.length && f.ideas.length, id + ': lección');
+        assert.ok(f.flasheo && f.flasheo.pasos.length, id + ': flasheo o ajuste');
+        assert.ok(f.codigos.length && f.codigos.every(k => k.titulo && k.lenguaje && k.texto.trim()), id + ': código');
+        const { caja, piezas } = f.modelo;
+        assert.ok(caja.w > 0 && caja.d > 0 && caja.h > 0, id + ': carcasa');
+        assert.deepEqual(piezas.map(p => p.n), piezas.map((_, i) => i + 1), id + ': piezas numeradas 1..n');
+        const W = c.w * U, H = c.h * U;
+        for (const p of piezas) {
+            assert.ok(p.nombre && p.texto, `${id}.${p.n}: textos`);
+            for (const x of [p.x, ...(p.polos || []), ...(p.puntos || []).map(q => q[0])].filter(v => v != null)) assert.ok(x >= 0 && x <= W, `${id}.${p.n}: x fuera del dibujo`);
+            for (const z of [p.z, ...(p.puntos || []).map(q => q[1])].filter(v => v != null)) assert.ok(z >= 0 && z <= H, `${id}.${p.n}: z fuera del dibujo`);
+            for (const f of p.formas || [p]) {
+                for (const z of [f.z0, f.z1].filter(v => v != null)) assert.ok(z >= 0 && z <= H, `${id}.${p.n}: tira fuera del dibujo`);
+                if (f.rect) assert.ok(f.rect[0] >= 0 && f.rect[1] >= 0 && f.rect[0] + f.rect[2] <= W && f.rect[1] + f.rect[3] <= H, `${id}.${p.n}: pantalla fuera del dibujo`);
+            }
+        }
+        for (const k of f.codigos.filter(k => k.archivo === 'src/main.cpp')) {
+            const cuenta = ch => k.texto.split(ch).length - 1;
+            assert.equal(cuenta('{'), cuenta('}'), id + ': llaves');
+            assert.equal(cuenta('('), cuenta(')'), id + ': paréntesis');
+            assert.match(k.texto, /void setup\(\)[\s\S]*void loop\(\)/, id + ': setup y loop');
+        }
+    }
+    assert.equal(def('sonoff-zbminir2').unidades, 2);
+});
+
+test('ERC: ZBMINIR2 y Shelly 1 Mini Gen3 en la caja de mecanismo', () => {
+    const partes = [
+        { k: 'x', tipo: 'toma-230', x: 0, y: 0 }, { k: 'q', tipo: 'magnetotermico', x: 12, y: 0 },
+        { k: 'z', tipo: 'sonoff-zbminir2', x: 20, y: 20 }, { k: 'e', tipo: 'lampara', x: 40, y: 0 }, { k: 's', tipo: 'interruptor-pared', x: 0, y: 20 }
+    ];
+    const cables = [['x.L', 'q.L_IN'], ['x.N', 'q.N_IN'], ['q.L_OUT', 'z.L_IN'], ['q.N_OUT', 'z.N1'], ['z.L_OUT', 'e.L'], ['z.N2', 'e.N'], ['z.S1', 's.1'], ['s.2', 'z.S2']];
+    assert.deepEqual(codigos(analizar(montaje(partes, cables), CATALOGO)).filter(c => !c.startsWith('I-')), []);
+    // S1 y S2 no están aislados: ni fase ni un GPIO.
+    assert.ok(codigos(analizar(montaje(partes, [...cables, ['q.L_OUT', 'z.S1']]), CATALOGO)).includes('E-SOBRETENSION'));
+    const conEsp = [...partes, { k: 'u', tipo: ESP, x: 60, y: 30 }];
+    assert.ok(codigos(analizar(montaje(conEsp, [...cables, ['u.GPIO4', 'z.S2']]), CATALOGO)).includes('E-DOMINIO'));
+
+    // Shelly 1 Mini Gen3: el contacto seco I-O no mezcla dominios y sin neutro avisa.
+    const shelly = [{ k: 'x', tipo: 'toma-230', x: 0, y: 0 }, { k: 'k', tipo: 'shelly-1-mini-g3', x: 20, y: 20 }];
+    assert.deepEqual(codigos(analizar(montaje(shelly, [['x.L', 'k.L'], ['x.N', 'k.N'], ['x.L', 'k.I']]), CATALOGO)).filter(c => !c.startsWith('I-')), []);
+    assert.ok(codigos(analizar(montaje(shelly, [['x.L', 'k.L']]), CATALOGO)).includes('A-SIN-N'));
+});
+
+test('ERC: MINI-D se alimenta por red o por continua', () => {
+    const red = [{ k: 'x', tipo: 'toma-230', x: 0, y: 0 }, { k: 'd', tipo: 'sonoff-mini-d', x: 20, y: 20 }];
+    assert.deepEqual(codigos(analizar(montaje(red, [['x.L', 'd.L'], ['x.N', 'd.N']]), CATALOGO)).filter(c => !c.startsWith('I-')), []);
+    const cc = [{ k: 'f', tipo: 'fuente-5v', x: 0, y: 0 }, { k: 'd', tipo: 'sonoff-mini-d', x: 20, y: 20 }];
+    const sub = codigos(analizar(montaje(cc, [['f.V', 'd.DCP'], ['f.GND', 'd.DCN']]), CATALOGO));
+    assert.ok(sub.includes('A-SUBTENSION'), '5 V no llegan a los 12 V que pide DC+');
+    assert.ok(codigos(analizar(montaje(red, [['x.N', 'd.N']]), CATALOGO)).includes('A-SIN-ALIM'));
 });

@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { SALTO } from '../config/salto.js';
 import { creaRuta } from './ruta.js';
-import { alturaApertura, dentroDeZona, pasoApertura, pasoCaida, pasoPlaneo, prediceAterrizaje } from './caida.js';
+import { alturaApertura, dentroDeZona, pasoApertura, pasoCaida, pasoDesvio, pasoPlaneo, pesoDesvio, prediceAterrizaje } from './caida.js';
 import { creaAvion, creaParacaidas, creaPersonaje, liberaFigura } from './figuras.js';
 import { preparaAvion, preparaMochila } from './modelos.js';
 import { POSTURAS_SALTO, creaPersonaSalto } from './persona.js';
@@ -22,8 +22,10 @@ const suave = (t) => t * t * (3 - 2 * t);
 // alTerminar(omitido): el juego vuelve a su modo normal (omitido: se ha saltado el salto antes de tocar el suelo)
 // detalles: funciones (valor) => … para ocultar detalle en lo alto (src/salto/alturaRender.js)
 // modelos: { avion, mochila } de modelos.js (null: figuras provisionales)
+// buscaCalle(desde {x, y, z}, hasta {x, z}) → {x, z} de la calle adonde desviarse si «hasta» (el
+//   aterrizaje previsto) no sirve para posarse, o null (aterrizaje.js, calleDesvio)
 export function creaSalto({ escena, camara, terreno, render, zona, centro, semilla, suelo, tactil = false, detalles = [],
-  modelos = null, personas = null, conSonido = true,
+  modelos = null, personas = null, conSonido = true, buscaCalle = () => null,
   avisa = () => {}, alTocarSuelo, alTerminar }) {
   const ruta = creaRuta({ semilla, centro, alturaSuelo: terreno.alturaEn(centro.x, centro.z) });
   const camaraSalto = creaCamaraSalto({ camara, terreno });
@@ -87,6 +89,8 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
   let colocaDestino = null;
   let fovDestino = 70;
   let terminado = false;
+  // Desvío a la calle en los últimos metros: el objetivo se fija la primera vez que hace falta
+  const desvio = { objetivo: null, peso: 0, espera: 0 };
 
   avion.position.copy(posAvion);
   avion.rotation.y = ruta.rumbo;
@@ -220,6 +224,7 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
         }
       } else {
         pasoPlaneo(cuerpo, entrada, dt, alturaJugador);
+        actualizaDesvio(dt);
       }
       dentroDeZona(cuerpo, zona.mitadAncho, zona.mitadAlto, SALTO.aterrizaje.margenZonaM);
       const sueloNuevo = suelo(cuerpo.x, cuerpo.z);
@@ -254,6 +259,24 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     colocaCamara(dt);
   }
 
+  // Por debajo de alturaInicioM: si el aterrizaje previsto cae en un tejado o en el agua, busca
+  // la calle (pocas veces por segundo) y, desde entonces, se va desviando hacia ella cada vez más
+  function actualizaDesvio(dt) {
+    const D = SALTO.planeo.desvio;
+    if (alturaJugador > D.alturaInicioM) return;
+    if (!desvio.objetivo) {
+      desvio.espera -= dt;
+      if (desvio.espera > 0) return;
+      desvio.espera = D.cadaS;
+      desvio.objetivo = buscaCalle(cuerpo, prevision);
+      if (!desvio.objetivo) return;
+      avisa('Debajo hay un tejado: el paracaídas te lleva a la calle', 3);
+    }
+    // No baja: al salir del tejado la altura sobre el suelo crece de golpe y no debe devolver el control
+    desvio.peso = Math.max(desvio.peso, pesoDesvio(Math.max(0, alturaJugador)));
+    pasoDesvio(cuerpo, desvio.objetivo, desvio.peso, dt, Math.max(0, alturaJugador));
+  }
+
   // Cámara (también en pausa, con dt = 0)
   function colocaCamara(dt) {
     if (terminado || fase === 'aterrizaje') return;
@@ -272,6 +295,15 @@ export function creaSalto({ escena, camara, terreno, render, zona, centro, semil
     get altura() { return fase === 'avion' ? posAvion.y - terreno.alturaEn(posAvion.x, posAvion.z) : alturaJugador; },
     get alturaCamara() { return alturaCamara; },
     get prevision() { return prevision; },
+    get desvio() { return { objetivo: desvio.objetivo, peso: desvio.peso }; },
+    // Pruebas: pone al paracaidista planeando a «altura» m sobre (x, z), con rumbo «rumbo»
+    ponPlaneo(x, z, altura, rumbo = 0) {
+      if (fase !== 'planeo') return false;
+      Object.assign(cuerpo, { x, z, y: suelo(x, z) + altura, rumbo, vy: -SALTO.planeo.bajadaMs,
+        vx: -Math.sin(rumbo) * SALTO.planeo.avanceMs, vz: -Math.cos(rumbo) * SALTO.planeo.avanceMs });
+      Object.assign(desvio, { objetivo: null, peso: 0, espera: 0 });
+      return true;
+    },
     ruta,
     actualiza,
     colocaCamara,

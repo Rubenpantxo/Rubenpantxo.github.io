@@ -358,7 +358,8 @@ function aplicarMezcla() {
   $('o-tipo').textContent = buscar('tipografias', mezcla.tipo).nombre;
   $('o-elem').textContent = buscar('elementos', mezcla.elem).nombre;
   const q = `?paleta=${mezcla.paleta}&tipo=${mezcla.tipo}&elem=${mezcla.elem}`;
-  $('m-abrir').href = `${$('m-demo').value}.html${q}`;
+  const demo = $('m-demo').value;
+  $('m-abrir').href = `${/^[a-z-]+$/.test(demo) ? demo : 'bar-restaurante'}.html${q}`;
   $('m-config').href = `sistemas/configurador.html${q}`;
   if (!reducido) pantalla.animate([{ transform: 'scale(.985)' }, { transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.34,1.56,.64,1)' });
 }

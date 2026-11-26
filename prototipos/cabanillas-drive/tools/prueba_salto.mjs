@@ -7,6 +7,7 @@
 //      niebla vuelven a los de la calidad; los mandos, a los del pueblo.
 //   4. Sin pulsar nada, el avión te tira al final de la ruta.
 //   5. Varias rutas al azar (semillas) aterrizan bien.
+//   5b. Planeando hacia un tejado, por debajo de 28 m se desvía solo a la calle (y no antes).
 //   6. Sin ?salto se empieza saltando; «Empezar en la calle», «Ir a las fiestas», «Saltarse el
 //      salto» (pausa) y ?salto=0 llevan al juego de siempre.
 // El bucle del juego va a menos de 2 FPS sin gráfica: el salto se avanza con
@@ -149,6 +150,46 @@ for (const semilla of [11, 23, 42, 77, 1234]) {
   });
   const quieto = Math.hypot(v.cx - antes.x, v.cz - antes.z) < 1.5;
   comprueba(!v.activo && v.valido && quieto, `semilla ${semilla}: en (${v.x.toFixed(0)}, ${v.z.toFixed(0)}), coche donde estaba, a ${v.coche.toFixed(0)} m`);
+  await w.close();
+}
+
+console.log('5b. Desvío a la calle en los últimos metros');
+{
+  const w = await abre(7);
+  // Puntos en medio de tejados (con tejado también a 6 m en las cuatro direcciones), cerca de la salida
+  const tejados = await w.evaluate(() => {
+    const j = window.__juego; const c = j.coche.estado().posicion; const r = [];
+    const dentro = (x, z) => [[0, 0], [6, 0], [-6, 0], [0, 6], [0, -6]].every(([a, b]) => j.techoEn(x + a, z + b) !== null);
+    for (let x = c.x - 300; x <= c.x + 300 && r.length < 40; x += 7) {
+      for (let z = c.z - 300; z <= c.z + 300 && r.length < 40; z += 7) if (dentro(x, z)) r.push([x, z]);
+    }
+    return r.filter((_, i) => i % 6 === 0).slice(0, 6);
+  });
+  comprueba(tejados.length >= 3, `${tejados.length} tejados de prueba`);
+  for (const [tx, tz] of tejados) {
+    const v = await w.evaluate(({ tx, tz }) => {
+      const j = window.__juego; const S = j.salto?.activo ? j.salto : (j.empiezaSalto(5), j.salto);
+      j.simulaSalto(0.1, {}, true);                                  // fuera del avión
+      for (let i = 0; i < 400 && S.fase !== 'planeo'; i++) j.simulaSalto(0.1);
+      // 60 m por encima, rumbo norte, de forma que sin desvío caería en el tejado (12 m/s, baja 5 m/s)
+      S.ponPlaneo(tx, tz + (60 / 5) * 12, 60, 0);
+      let pesoArriba = 0; let primeraAltura = null; let movido = false; let pesoMax = 0; let objetivo = null; let toque = null;
+      for (let i = 0; i < 400 && S.activo; i++) {
+        j.simulaSalto(0.1);
+        const d = S.desvio;
+        if (S.fase === 'planeo' && !d.objetivo) pesoArriba = Math.max(pesoArriba, d.peso);
+        if (d.objetivo && primeraAltura === null) primeraAltura = S.altura;
+        pesoMax = Math.max(pesoMax, d.peso); if (d.objetivo) objetivo = d.objetivo;
+        if (S.fase === 'planeo') toque = S.estadoHud().posicion;
+        if (/tejado: bajas/.test(j.ultimoAviso ?? '')) movido = true;
+      }
+      const pe = j.peaton.estado().posicion;
+      return { objetivo, toque: toque && [toque.x, toque.z], valObj: objetivo && j.esSitioValido(objetivo.x, objetivo.z), activo: S.activo, valido: j.esSitioValido(pe.x, pe.z), movido, pesoArriba, primeraAltura, pesoMax };
+    }, { tx, tz });
+    comprueba(!v.activo && v.valido && !v.movido && v.pesoArriba === 0 && v.primeraAltura !== null && v.primeraAltura <= 28.5,
+      `tejado (${tx.toFixed(0)}, ${tz.toFixed(0)}): desvío desde ${v.primeraAltura?.toFixed(1)} m (peso máx ${v.pesoMax.toFixed(2)}, antes de empezar ${v.pesoArriba}); `
+      + `${v.movido ? `acaba llevado a la calle de golpe (objetivo ${JSON.stringify(v.objetivo)} libre ${v.valObj}, toca en ${v.toque})` : 'se posa en la calle él solo'}, sitio libre ${v.valido}`);
+  }
   await w.close();
 }
 

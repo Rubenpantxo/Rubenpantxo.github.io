@@ -7,7 +7,9 @@ import { PROYECTOS, AMBITOS } from '../datos/proyectos.js';
 import { RECURSOS, HOJA_DE_RUTA } from '../datos/recursos.js';
 import { formato } from '../core/erc.js';
 import { archivosEjemplo } from '../core/exportar.js';
+import { fichaDe } from '../datos/fichas.js';
 import { miniatura } from './dibujos.js';
+import { montarVisor, cerrarVisor } from './vista3d.js';
 import { esc, eur, mm, ico, enlace } from './util.js';
 
 const { fmtV, fmtI } = formato;
@@ -45,12 +47,15 @@ export function pintarComponentes(el, app, id) {
 <td>${esc(electrico(p))}</td><td>${(p.fn || []).map(f => `<code>${esc(f)}</code>`).join(' ')}</td>
 <td>${p.reservado ? `<span class="marca error">Reservado</span> ` : ''}${p.strap ? `<span class="marca aviso">Arranque</span> ` : ''}${p.req ? `<span class="marca aviso">Obligatorio</span> ` : ''}${esc(p.nota || '')}</td></tr>`).join('');
     const usos = PROYECTOS.filter(p => (p.material || []).some(m => m.id === def.id));
+    const f = fichaDe(def.id);
+    const con3d = !!(f && f.modelo);
 
+    cerrarVisor();
     el.innerHTML = `
 <nav class="indice" aria-label="Componentes">${nav}</nav>
 <article class="ficha">
-  <header class="ficha-cab">
-    <div class="ficha-dibujo">${miniatura(def, { margen: 10 })}</div>
+  <header class="ficha-cab${con3d ? ' con-3d' : ''}">
+    ${con3d ? visor3d(def, f) : `<div class="ficha-dibujo">${miniatura(def, { margen: 10 })}</div>`}
     <div class="ficha-intro">
       <p class="sobre">${esc(CATEGORIAS.find(c => c[0] === def.categoria)[1])} · ${esc(def.fabricante)}</p>
       <h2>${esc(def.nombre)}</h2>
@@ -59,6 +64,7 @@ export function pintarComponentes(el, app, id) {
         <div><dt>Huella</dt><dd>${mm(def.w)} × ${mm(def.h)} mm</dd></div>
         <div><dt>Conexiones</dt><dd>${def.pines.length}</dd></div>
         <div><dt>Precio orientativo</dt><dd>${def.precio ? eur(def.precio) : '—'}</dd></div>
+        ${def.unidades && app.tengo(def) ? `<div><dt>En casa</dt><dd>${def.unidades} unidades</dd></div>` : ''}
       </dl>
       <div class="fila-botones">
         <button type="button" class="primario" data-anadir="${def.id}">${ico('mas')}Añadir a la mesa</button>
@@ -67,15 +73,62 @@ export function pintarComponentes(el, app, id) {
     </div>
   </header>
   <section><h3>Descripción</h3><p>${esc(def.descripcion)}</p>${def.aviso ? `<p class="nota aviso">${ico('alerta')}<span>${esc(def.aviso)}</span></p>` : ''}</section>
+  ${f ? leccionCabeza(f) : ''}
   <section><h3>Especificaciones</h3><table class="tabla specs"><tbody>${def.specs.map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</tbody></table></section>
   <section><h3>Conexiones</h3>
     <div class="filtros" role="group" aria-label="Filtrar por tipo"><button type="button" class="activo" data-filtro-pin="">Todos <span>${def.pines.length}</span></button>${[...usados].map(t =>
         `<button type="button" data-filtro-pin="${t}">${esc(TIPOS_PIN[t] || t)} <span>${def.pines.filter(p => p.tipo === t).length}</span></button>`).join('')}</div>
     <div class="tabla-scroll"><table class="tabla pinout"><thead><tr><th>Pin</th><th>Tipo</th><th>Eléctrico</th><th>Funciones</th><th>Notas</th></tr></thead><tbody>${filas}</tbody></table></div>
   </section>
+  ${f ? leccionCola(f) : ''}
   ${def.enlaces.length ? `<section><h3>Documentación y repositorios</h3><div class="rejilla-enlaces">${def.enlaces.map(tarjetaEnlace).join('')}</div></section>` : ''}
   ${usos.length ? `<section><h3>Proyectos que lo usan</h3><ul class="lista-usos">${usos.map(p => `<li><a href="#proyectos/${p.id}">${ico('proyectos')}${esc(p.titulo)}</a></li>`).join('')}</ul></section>` : ''}
 </article>`;
+    if (con3d) montarVisor(el, def, f);
+}
+
+// ------------------------------------------------- ficha ampliada (vista 3/4)
+// Texto con `código` en línea.
+const conCodigo = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+
+function visor3d(def, f) {
+    const vistas = [['34', '3/4'], ['arriba', 'Arriba'], ['abajo', 'Abajo'], ['frente', 'Frente']];
+    return `<div class="visor3d" tabindex="0" role="group" aria-label="Modelo 3D de ${esc(def.nombre)}. Arrastra para girarlo.">
+  <div class="visor-lienzo">${miniatura(def, { margen: 10, clase: 'visor-plano' })}</div>
+  <div class="visor-marcas"></div>
+  <div class="visor-globo" hidden></div>
+  <div class="visor-info" hidden></div>
+  <div class="visor-barra" role="toolbar" aria-label="Vista del modelo">
+    <div class="grupo-visor">${vistas.map(([k, t]) => `<button type="button" data-vista="${k}" aria-pressed="${k === '34'}">${t}</button>`).join('')}</div>
+    <div class="grupo-visor">
+      <button type="button" class="icono" data-visor="girar" aria-pressed="false" title="Girar solo" aria-label="Girar solo">${ico('girar')}</button>
+      <button type="button" class="icono" data-visor="rotulos" aria-pressed="true" title="Rótulos numerados" aria-label="Rótulos numerados">${ico('rotulo')}</button>
+      ${f.modelo.caja.tipo === 'placa' ? '' : `<button type="button" data-visor="abrir" aria-pressed="false" title="Levanta la carcasa y deja ver la placa">${ico('ojo')}Ver la placa</button>`}
+    </div>
+  </div>
+  <p class="visor-pista">Arrastra para girar · Ctrl + rueda o pellizco para acercar · doble clic para volver</p>
+</div>`;
+}
+
+function leccionCabeza(f) {
+    const piezas = f.modelo ? f.modelo.piezas : [];
+    return `
+  ${f.claves ? `<section class="en-corto"><h3>En corto</h3><dl class="cifras">${f.claves.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl></section>` : ''}
+  ${piezas.length ? `<section><h3>${f.modelo && f.modelo.caja.tipo === 'placa' ? 'Qué hay en la placa' : 'Qué hay dentro'}</h3><p class="tenue">${piezas.length} partes, numeradas como los rótulos del modelo 3D. Pulsa una y la cámara va hacia ella${f.modelo && f.modelo.caja.tipo === 'placa' ? '' : '; si está dentro, la carcasa se levanta'}.</p>
+    <ol class="partes">${piezas.map(p => `<li><button type="button" data-pieza="${p.n}" aria-pressed="false"><span class="num">${p.n}</span><span><b>${esc(p.nombre)}</b><small>${esc(p.texto || '')}</small></span></button></li>`).join('')}</ol></section>` : ''}
+  ${f.fuertes || f.cuidado ? `<section class="pros"><div><h3>${ico('ok')}Puntos fuertes</h3><ul>${(f.fuertes || []).map(s => `<li>${conCodigo(s)}</li>`).join('')}</ul></div>
+    <div><h3>${ico('alerta')}Cuidado con</h3><ul>${(f.cuidado || []).map(s => `<li>${conCodigo(s)}</li>`).join('')}</ul></div></section>` : ''}`;
+}
+
+function leccionCola(f) {
+    return `
+  ${f.codigos && f.codigos.length ? `<section class="primer-codigo"><h3>${ico('codigo')}Primer código</h3><p>Cópialo, cárgalo y comprueba que todo responde.</p>
+    <div class="bloques-codigo">${f.codigos.map((c, i) => `<div class="bloque-codigo">
+      <div class="bloque-cab"><b>${esc(c.titulo)}</b><span class="lenguaje">${esc(c.lenguaje)}${c.archivo ? ` · <code>${esc(c.archivo)}</code>` : ''}</span><button type="button" data-copiar="fc-${i}">${ico('copiar')}Copiar</button></div>
+      ${c.nota ? `<p class="bloque-nota">${conCodigo(c.nota)}</p>` : ''}
+      <pre class="codigo" data-codigo="fc-${i}">${esc(c.texto)}</pre></div>`).join('')}</div></section>` : ''}
+  ${f.flasheo ? `<section class="flasheo"><h3>${ico('chip')}${esc(f.flasheo.titulo)}</h3><p>${conCodigo(f.flasheo.resumen)}</p><ol class="pasos">${f.flasheo.pasos.map(s => `<li>${conCodigo(s)}</li>`).join('')}</ol></section>` : ''}
+  ${f.ideas ? `<section><h3>Dónde brilla</h3><ul class="ideas">${f.ideas.map(s => `<li>${conCodigo(s)}</li>`).join('')}</ul></section>` : ''}`;
 }
 
 // ------------------------------------------------------------------ proyectos

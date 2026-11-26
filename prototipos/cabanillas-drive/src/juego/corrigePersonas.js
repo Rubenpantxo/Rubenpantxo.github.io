@@ -2,8 +2,12 @@
 // Blender; aquí se arreglan sin rehacerlos):
 //   - Piernas: el reposo de MakeHuman tiene las piernas abiertas (tobillos a ±0,20 m con las
 //     caderas a ±0,11 m), y andar y quieto parten de ahí: se gira cada muslo hacia dentro, en el
-//     reposo y en todas las animaciones, hasta tener el tobillo bajo la cadera.
-//   - Manos: los dedos no se animan y quedan estirados; se cierran un poco (mano relajada).
+//     reposo y en todas las animaciones, hasta tener el tobillo bajo la cadera. Se mide en la
+//     postura «quieto»: los GLB que haga tools/build_personas.py desde el 2026-11-24 ya traen
+//     las piernas juntas en las animaciones, y entonces aquí no se gira nada.
+//   - Manos: los dedos no se animan y quedan estirados; se cierran un poco (mano relajada). Los
+//     GLB que haga tools/build_personas.py desde el 2026-11-25 ya traen los dedos cerrados en las
+//     animaciones: entonces aquí no se tocan.
 import * as THREE from 'three';
 import { PEATONES } from '../config/peatones.js';
 
@@ -18,13 +22,30 @@ export function corrigePersona(escena, animaciones) {
   const raiz = escena.getWorldQuaternion(new THREE.Quaternion()).invert();
   const resultado = { piernas: [], dedos: 0 };
 
-  // --- Piernas: giro sobre el eje hacia delante del cuerpo (Z local de la persona)
+  // --- Piernas: giro sobre el eje hacia delante del cuerpo (Z local de la persona). Dónde está
+  // el tobillo se mide en la postura «quieto» (la del primer fotograma) y luego se deja todo
+  // como estaba
+  const tobillos = {};
+  {
+    const huesos = [];
+    escena.traverse((o) => { if (o.isBone) huesos.push([o, o.position.clone(), o.quaternion.clone(), o.scale.clone()]); });
+    const quieto = animaciones.find((a) => a.name === 'quieto');
+    const mezclador = quieto ? new THREE.AnimationMixer(escena) : null;
+    if (mezclador) { mezclador.clipAction(quieto).play(); mezclador.update(0); }
+    escena.updateMatrixWorld(true);
+    for (const lado of ['l', 'r']) {
+      const muslo = escena.getObjectByName(`thigh_${lado}`); const pie = escena.getObjectByName(`foot_${lado}`);
+      if (muslo && pie) tobillos[lado] = { cadera: escena.worldToLocal(enMundo(muslo)), tobillo: escena.worldToLocal(enMundo(pie)) };
+    }
+    if (mezclador) { mezclador.stopAllAction(); mezclador.uncacheRoot(escena); }
+    for (const [h, p, q, e] of huesos) { h.position.copy(p); h.quaternion.copy(q); h.scale.copy(e); }
+    escena.updateMatrixWorld(true);
+  }
   for (const lado of ['l', 'r']) {
     const muslo = escena.getObjectByName(`thigh_${lado}`);
     const pie = escena.getObjectByName(`foot_${lado}`);
-    if (!muslo || !pie) continue;
-    const cadera = escena.worldToLocal(enMundo(muslo));
-    const tobillo = escena.worldToLocal(enMundo(pie));
+    if (!muslo || !pie || !tobillos[lado]) continue;
+    const { cadera, tobillo } = tobillos[lado];
     const alto = cadera.y - tobillo.y;
     const signo = Math.sign(cadera.x) || 1;                  // hacia fuera
     const fuera = (tobillo.x - cadera.x) * signo;            // lo que se abre el tobillo (m)
@@ -46,12 +67,12 @@ export function corrigePersona(escena, animaciones) {
       }
     }
     escena.updateMatrixWorld(true);
-    const nuevo = escena.worldToLocal(enMundo(pie));
-    resultado.piernas.push({ lado, grados: +(angulo * 180 / Math.PI).toFixed(1), tobilloAntes: +tobillo.x.toFixed(3), tobilloAhora: +nuevo.x.toFixed(3) });
+    resultado.piernas.push({ lado, grados: +(angulo * 180 / Math.PI).toFixed(1), tobilloAntes: +tobillo.x.toFixed(3) });
   }
 
-  // --- Dedos: cada falange se dobla hacia la palma
-  for (const lado of ['l', 'r']) {
+  // --- Dedos: cada falange se dobla hacia la palma (si las animaciones no los mueven ya)
+  const dedosAnimados = animaciones.some((c) => c.tracks.some((t) => /^(index|middle|ring|pinky|thumb)_0\d_[lr]\.quaternion$/.test(t.name)));
+  for (const lado of dedosAnimados ? [] : ['l', 'r']) {
     const mano = escena.getObjectByName(`hand_${lado}`);
     const indice = escena.getObjectByName(`index_01_${lado}`);
     const menique = escena.getObjectByName(`pinky_01_${lado}`);

@@ -10,6 +10,10 @@ Por cada persona de tools/personas.json:
    aclara y agrisa el pelo.
 3. Animaciones hechas aquí: «andar» (ciclo de 32 fotogramas a 30 fps: 1,07 s y 1,39 m a
    1,3 m/s; cadera, rodillas, tobillos, brazos y balanceo) y «quieto» (respiración, 4 s).
+   El reposo de MakeHuman tiene las piernas abiertas (tobillos a ±0,20 m con las caderas a
+   ±0,11 m): en las dos animaciones cada muslo se gira hacia dentro hasta dejar el tobillo
+   TOBILLO_DENTRO_M por dentro de la cadera. Y los dedos, que en el reposo están estirados, se
+   cierran un poco (mano relajada: DEDOS_RAD por falange, el pulgar menos).
 4. Exporta <salida>/<id>.glb y una vista previa <salida>/<id>.png.
 
 Uso (lo lanza tools/14_personas.py):
@@ -37,6 +41,10 @@ FOTOGRAMAS_PASO = 32
 FPS = 30
 VELOCIDAD_DISENO = 1.3          # m/s a la que el ciclo no patina
 FOTOGRAMAS_QUIETO = 120
+TOBILLO_DENTRO_M = 0.02         # de pie, el tobillo así de por dentro de la cadera
+DEDOS = ("index", "middle", "ring", "pinky", "thumb")
+DEDOS_RAD = (0.45, 0.6, 0.45)   # flexión de cada falange (1.ª, 2.ª y 3.ª)
+PULGAR = 0.35                   # el pulgar se dobla esta fracción
 
 
 def argumentos():
@@ -281,6 +289,45 @@ def anima(arm):
         actual = math.asin(max(-1.0, min(1.0, -d.z)))
         signo = 1 if b.head_local.x > 0 else -1
         bajar[lado] = Quaternion(Y, signo * (math.radians(80) - actual))
+    # Piernas juntas: giro de cada muslo sobre el eje adelante-atrás (Y) hasta que el tobillo
+    # quede bajo la cadera. Girar sobre +Y lleva lo que cuelga hacia −X: la pierna de +X (la
+    # izquierda), en positivo
+    juntar = {}
+    for lado in ("l", "r"):
+        cadera = huesos[f"thigh_{lado}"].head_local
+        tobillo = huesos[f"foot_{lado}"].head_local
+        alto = cadera.z - tobillo.z
+        signo = 1 if cadera.x > 0 else -1
+        fuera = (tobillo.x - cadera.x) * signo          # lo que se abre el tobillo (m)
+        angulo = math.atan2(fuera, alto) - math.atan2(-TOBILLO_DENTRO_M, alto)
+        juntar[lado] = Quaternion(Y, signo * angulo)
+        print(f"   piernas: muslo {lado} {math.degrees(angulo):.1f}° hacia dentro (tobillo {fuera:+.3f} m de la cadera)")
+    # Dedos: cada falange se dobla hacia la palma sobre el eje perpendicular a ella y a la normal
+    # de la palma. En el reposo de MakeHuman las palmas miran hacia el cuerpo y algo hacia abajo:
+    # con eso se elige hacia qué lado de la mano está la palma
+    cerrar = {}
+    for lado in ("l", "r"):
+        mano, indice, menique = (huesos.get(f"{n}_{lado}") for n in ("hand", "index_01", "pinky_01"))
+        if not (mano and indice and menique):
+            continue
+        m = mano.head_local
+        normal = (indice.head_local - m).cross(menique.head_local - m).normalized()
+        if normal.dot(Vector((-1 if m.x > 0 else 1, 0, -0.5))) < 0:
+            normal.negate()
+        for dedo in DEDOS:
+            for k, flexion in enumerate(DEDOS_RAD):
+                h = huesos.get(f"{dedo}_0{k + 1}_{lado}")
+                if not h:
+                    continue
+                d = (h.tail_local - h.head_local).normalized()
+                eje = d.cross(normal).normalized()
+                angulo = flexion * (PULGAR if dedo == "thumb" else 1)
+                q = Quaternion(eje, angulo)
+                if (q @ d).dot(normal) < d.dot(normal):       # que la punta vaya hacia la palma
+                    q = Quaternion(eje, -angulo)
+                cerrar[h.name] = q
+    print(f"   dedos: {len(cerrar)} falanges cerradas")
+
     codo = {}
     for lado in ("l", "r"):
         u = (huesos[f"upperarm_{lado}"].tail_local - huesos[f"upperarm_{lado}"].head_local).normalized()
@@ -309,7 +356,7 @@ def anima(arm):
         for lado, desfase in (("l", 0.0), ("r", 0.5)):
             s = math.sin(2 * math.pi * (fase + desfase))
             c = math.cos(2 * math.pi * (fase + desfase))
-            pon(f"thigh_{lado}", Quaternion(X, adelante * rad(24) * s), f)
+            pon(f"thigh_{lado}", Quaternion(X, adelante * rad(24) * s) @ juntar[lado], f)
             apoyo = max(0.0, math.sin(4 * math.pi * (fase + desfase - 0.25))) if s < 0.3 else 0.0
             pon(f"calf_{lado}", Quaternion(X, -adelante * rad(5 + 55 * max(0.0, c) ** 1.6 + 9 * apoyo)), f)
             pon(f"foot_{lado}", Quaternion(X, -adelante * rad(-11 * s)), f)
@@ -321,6 +368,9 @@ def anima(arm):
         pon("spine_02", Quaternion(Z, -rad(3) * s1), f)
         pon("spine_01", Quaternion(X, adelante * rad(3)), f)
         mueve("pelvis", Vector((0, 0, 0.018 * math.cos(4 * math.pi * fase))), f)
+        if f in (0, FOTOGRAMAS_PASO):
+            for nombre, q in cerrar.items():
+                pon(nombre, q, f)
 
     a_quieto = accion("quieto")
     for f in range(0, FOTOGRAMAS_QUIETO + 1, 10):
@@ -328,11 +378,14 @@ def anima(arm):
         for lado in ("l", "r"):
             pon(f"upperarm_{lado}", bajar[lado], f)
             pon(f"lowerarm_{lado}", flexion_codo(lado, 10), f)
-            pon(f"thigh_{lado}", Quaternion(X, 0), f)
+            pon(f"thigh_{lado}", juntar[lado], f)
             pon(f"calf_{lado}", Quaternion(X, 0), f)
         pon("spine_03", Quaternion(X, adelante * rad(1.2 * math.sin(2 * math.pi * fase))), f)
         pon("pelvis", Quaternion(Z, rad(1.5) * math.sin(2 * math.pi * fase)), f)
         mueve("pelvis", Vector((0.012 * math.sin(2 * math.pi * fase), 0, 0)), f)
+        if f in (0, FOTOGRAMAS_QUIETO):
+            for nombre, q in cerrar.items():
+                pon(nombre, q, f)
 
     # Cada acción a su pista NLA (el exportador saca una animación por pista)
     arm.animation_data.action = None

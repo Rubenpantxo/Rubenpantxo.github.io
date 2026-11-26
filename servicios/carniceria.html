@@ -2,6 +2,9 @@
 <html lang="es" data-paleta="grana-mensajeria" data-tipo="caprasimo-figtree" data-elem="redondeado">
 <head>
 <meta charset="UTF-8">
+<!-- Seguridad: solo se cargan recursos de los orígenes de esta lista (GitHub Pages no permite cabeceras). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; worker-src 'self' blob:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Carnicería Manolo — Demo vitrina y báscula en 3D, encargos y turno</title>
 <meta name="description" content="Demo: elige la pieza en la vitrina 3D, pésala en la báscula de esfera girando el dial, elige el corte y encarga por WhatsApp. Con turno en directo y recetas por pieza.">
@@ -1776,6 +1779,8 @@ $('form').addEventListener('submit', ev => {
 
 /* ---------- el chat ---------- */
 const VISTOS = '<svg class="vistos" viewBox="0 0 18 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 6l3 3 6-7"/><path d="M7 8.5l.8.6 6-7"/></svg>';
+// Lo que escribe el cliente (nombre, notas) entra en el chat como texto, nunca como HTML.
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const horaTxt = t => new Date(t).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 function textoEncargo(enc) {
   return `Hola Manolo, soy ${enc.nombre}. Te encargo:\n${enc.lineas.map(l => { const p = pieza(l.pieza); return `· ${p.nombre}: ${cantidad(p, l.cant)}, ${CORTES[l.corte].toLowerCase()}`; }).join('\n')}${enc.notas?.length ? `\n(${enc.notas.join(', ').toLowerCase()})` : ''}\n\nRecojo ${enc.diaTxt} a las ${enc.franja}. Total aprox. ${euros(enc.total)}.`;
@@ -1787,14 +1792,14 @@ function abrirChat(enc, animar) {
   const c = $('chat'); c.hidden = false;
   c.innerHTML = `<div class="wa" role="log" aria-label="Conversación con Carnicería Manolo">
     <div class="wa-cab"><span class="avatar" aria-hidden="true">M</span><div><b>Carnicería Manolo</b><small id="wa-estado">en línea</small></div></div>
-    <div class="wa-cuerpo" id="wa-cuerpo"><div class="burbuja sale">${textoEncargo(enc)}<span class="hora">${horaTxt(enc.t)} ${VISTOS}</span></div></div>
+    <div class="wa-cuerpo" id="wa-cuerpo"><div class="burbuja sale">${esc(textoEncargo(enc))}<span class="hora">${horaTxt(enc.t)} ${VISTOS}</span></div></div>
     <div class="wa-pie"><button class="btn btn--linea" type="button" data-wa="otro">Hacer otro encargo</button><button class="btn" type="button" data-wa="mostrador">Volver al mostrador</button></div></div>`;
   const vistos = c.querySelector('.vistos'), cuerpo = $('wa-cuerpo');
   const respuesta = () => `¡Recibido, ${enc.nombre}! Te lo dejo preparado ${enc.diaTxt} a las ${enc.franja}. Tu código es ${enc.codigo}. Te escribo cuando esté listo.`;
   if (!animar) {
     vistos.classList.add('doble', 'leido');
-    cuerpo.insertAdjacentHTML('beforeend', `<div class="burbuja entra">${respuesta()}<span class="hora">${horaTxt(enc.t + 4000)}</span></div>`);
-    if (enc.estado === 'listo') cuerpo.insertAdjacentHTML('beforeend', `<div class="burbuja entra">${enc.nombre}, ya lo tienes listo. Te espero en el puesto 14.<span class="hora">${horaTxt(enc.tListo || Date.now())}</span></div>`);
+    cuerpo.insertAdjacentHTML('beforeend', `<div class="burbuja entra">${esc(respuesta())}<span class="hora">${horaTxt(enc.t + 4000)}</span></div>`);
+    if (enc.estado === 'listo') cuerpo.insertAdjacentHTML('beforeend', `<div class="burbuja entra">${esc(enc.nombre)}, ya lo tienes listo. Te espero en el puesto 14.<span class="hora">${horaTxt(enc.tListo || Date.now())}</span></div>`);
     return;
   }
   const r = reducido() ? 0.2 : 1;
@@ -1803,7 +1808,7 @@ function abrirChat(enc, animar) {
   setTimeout(() => { $('wa-estado').textContent = 'escribiendo…'; cuerpo.insertAdjacentHTML('beforeend', '<div class="escribiendo" id="escribe"><span>Manolo está escribiendo</span><i></i><i></i><i></i></div>'); }, 1600 * r);
   setTimeout(() => {
     $('escribe')?.remove(); $('wa-estado').textContent = 'en línea';
-    cuerpo.insertAdjacentHTML('beforeend', `<div class="burbuja entra">${respuesta()}<span class="hora">${horaTxt(Date.now())}</span></div>`);
+    cuerpo.insertAdjacentHTML('beforeend', `<div class="burbuja entra">${esc(respuesta())}<span class="hora">${horaTxt(Date.now())}</span></div>`);
     decir(`Manolo responde: ${respuesta()}`);
     confeti(cuerpo, ['#a8231d', '#1fa855', '#c9a274', '#f6efe2']);
     vibrar([10, 50, 10]);

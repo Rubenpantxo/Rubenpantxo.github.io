@@ -1,0 +1,99 @@
+name: Ejemplos CYD
+
+# Compila con PlatformIO los seis ejemplos de la CYD de Lab Studio tal y como
+# los descarga la web (platformio.ini + include/pines.h + src/). La plataforma
+# espressif32 no está fijada a propósito: así se detecta cuando una versión
+# nueva del núcleo Arduino-ESP32 rompe algún ejemplo (como pasó con ledcSetup).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/lab-studio/js/**"
+      - "apps/lab-studio/pruebas/generar-cyd.mjs"
+      - ".github/workflows/cyd.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/lab-studio/js/**"
+      - "apps/lab-studio/pruebas/generar-cyd.mjs"
+      - ".github/workflows/cyd.yml"
+  schedule:
+    - cron: "17 5 * * 1" # los lunes, por si cambia la plataforma o una librería
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cyd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compilar:
+    name: compilar ejemplos CYD
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+
+      # Plataforma, toolchain y librerías (~1 GB). La clave cambia cada semana
+      # para que el aviso de los lunes pruebe lo último publicado.
+      - name: Semana (clave de la caché)
+        id: semana
+        run: echo "semana=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            ~/.platformio
+            ~/.cache/pip
+          key: pio-${{ runner.os }}-${{ steps.semana.outputs.semana }}-${{ hashFiles('apps/lab-studio/js/**') }}
+          restore-keys: |
+            pio-${{ runner.os }}-${{ steps.semana.outputs.semana }}-
+
+      - name: Instalar PlatformIO
+        run: |
+          python -m pip install --upgrade platformio
+          pio --version
+
+      - name: Generar los proyectos
+        run: node apps/lab-studio/pruebas/generar-cyd.mjs "$RUNNER_TEMP/cyd"
+
+      - name: Compilar
+        run: |
+          set -uo pipefail
+          fallos=""
+          {
+            echo "### Ejemplos CYD"
+            echo
+            echo "| Proyecto | Resultado | Flash | RAM |"
+            echo "|---|---|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+          for dir in "$RUNNER_TEMP"/cyd/*/; do
+            nombre=$(basename "$dir")
+            echo "::group::$nombre"
+            if pio run -d "$dir" 2>&1 | tee "$RUNNER_TEMP/$nombre.log"; then
+              estado="✅"
+            else
+              estado="❌"
+              fallos="$fallos $nombre"
+              echo "::error title=$nombre::No compila. Mira el grupo «$nombre» del registro."
+            fi
+            echo "::endgroup::"
+            flash=$(grep -oE 'Flash: .*\(used [0-9]+ bytes' "$RUNNER_TEMP/$nombre.log" | grep -oE '[0-9.]+%' | tail -1 || true)
+            ram=$(grep -oE 'RAM: .*\(used [0-9]+ bytes' "$RUNNER_TEMP/$nombre.log" | grep -oE '[0-9.]+%' | tail -1 || true)
+            echo "| $nombre | $estado | ${flash:--} | ${ram:--} |" >> "$GITHUB_STEP_SUMMARY"
+          done
+          if [ -n "$fallos" ]; then
+            echo "No compilan:$fallos"
+            exit 1
+          fi
+          echo "Los seis ejemplos compilan."

@@ -195,7 +195,7 @@ Objetivo: que el salto sea el inicio de verdad y funcione igual de bien en el m�
   - Se respeta la tecla M y el sonido apagado.
 - Carga anticipada: las celdas de detalle y los coches aparcados alrededor del punto previsto, durante el planeo.
 - Avisos cortos: «Espacio: saltar», «Espacio: abrir el paracaídas», «Tu coche está aparcado ahí · E para subir».
-- Aterrizaje mejorado según la duda 3: si el punto cae en un tejado o en el agua, el planeo se desvía hacia la calle más cercana. **Solo por debajo de 25–30 m y de forma progresiva**; más arriba, el control es 100 % del jugador, para que no sienta que el juego se lo quita (indicación de Rubén).
+- ~~Aterrizaje mejorado según la duda 3~~: hecho el 2026-11-19. Si el punto cae en un tejado o en el agua, el planeo se desvía hacia la calle más cercana. **Solo por debajo de 28 m y de forma progresiva**; más arriba, el control es 100 % del jugador, para que no sienta que el juego se lo quita (indicación de Rubén).
 - ~~Juntar las mallas de las casas a mano entre filas~~: hecho el 2026-11-19 (por material y celda de 400 m).
 - Medición final en calidad baja con pantalla de móvil y, si Rubén puede, en un Android real. `npm run publica` y el tamaño nuevo apuntados en `PROGRESO.md`.
 

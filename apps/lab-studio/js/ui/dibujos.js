@@ -17,6 +17,7 @@ export const DEFS = `
 <radialGradient id="ls-lente" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#5b6b86"/><stop offset=".35" stop-color="#1b2130"/><stop offset="1" stop-color="#05070b"/></radialGradient>
 <linearGradient id="ls-blanco" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9dcdf"/></linearGradient>
 <linearGradient id="ls-rojo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e02440"/><stop offset="1" stop-color="#a80d24"/></linearGradient>
+<linearGradient id="ls-azul" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f74e6"/><stop offset="1" stop-color="#1a4fb8"/></linearGradient>
 <linearGradient id="ls-rele" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f9bf5"/><stop offset="1" stop-color="#1d5fc2"/></linearGradient>
 <linearGradient id="ls-servo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f6ff0"/><stop offset="1" stop-color="#1836a8"/></linearGradient>
 <radialGradient id="ls-bombilla" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#fffbe0"/><stop offset=".6" stop-color="#ffd95a"/><stop offset="1" stop-color="#f0a92a"/></radialGradient>
@@ -250,6 +251,70 @@ const ARTE = {
         s += txt(52, 104, 'Shelly', 18, '#fff', 'text-anchor="middle" font-weight="800" font-style="italic"');
         s += rect(82, 91, 32, 15, '#fff', 'rx="5"') + txt(98, 102, 'Gen3', 8, '#c8102e', 'text-anchor="middle" font-weight="800" font-style="italic"');
         s += wifi(128, 78, '#fff', .9);
+        return s;
+    },
+
+    shelly1mini(def) {
+        let s = rect(2, 12, 136, 106, 'url(#ls-azul)', 'rx="10" stroke="#123d8a" stroke-width=".8"') + rect(4, 14, 132, 20, '#fff', 'rx="9" opacity=".08"');
+        s += rect(8, 1, 46, 28, '#16171a', 'rx="2"') + rect(62, 1, 70, 28, '#16171a', 'rx="2"');
+        s += def.pines.filter(p => p.lado === 'arr').map(p => tornillo(p.x * U, p.y * U + 3, 6)).join('');
+        s += `<path d="M11 46V36h40v10M65 46V36h64v10" fill="none" stroke="#fff" stroke-width=".9"/>`;
+        for (const p of def.pines.filter(q => q.lado === 'arr')) s += txt(p.x * U, 46, esc(p.n), 8, '#fff', 'text-anchor="middle" font-weight="500"');
+        s += txt(31, 33, 'contacto seco', 4.4, '#fff', 'text-anchor="middle" opacity=".8"');
+        s += txt(70, 61, 'Shelly 1 Mini Gen3', 7, '#fff', 'text-anchor="middle" font-weight="600"');
+        s += txt(70, 70, '110-240 VAC, 50/60 Hz', 5.6, '#fff', 'text-anchor="middle"') + txt(70, 78, '8 A / 240 VAC · 5 A / 30 VDC', 5.2, '#fff', 'text-anchor="middle"');
+        s += txt(52, 104, 'Shelly', 18, '#fff', 'text-anchor="middle" font-weight="800" font-style="italic"');
+        s += rect(82, 91, 32, 15, '#fff', 'rx="5"') + txt(98, 102, 'Gen3', 8, '#1f5fd1', 'text-anchor="middle" font-weight="800" font-style="italic"');
+        s += wifi(128, 78, '#fff', .9);
+        return s;
+    },
+
+    zbminir2(def) {
+        let s = rect(2, 2, 156, 126, 'url(#ls-blanco)', 'rx="11" stroke="#b9bec4" stroke-width=".8"');
+        s += rect(8, 96, 144, 30, '#e3e6ea', 'rx="4"');
+        s += def.pines.filter(p => p.lado === 'aba').map(p => tornillo(p.x * U, 113, 6.4)).join('');
+        for (const p of def.pines.filter(q => q.lado === 'aba')) s += txt(p.x * U, 92, esc(p.n), 6.2, '#4b5057', 'text-anchor="middle" font-weight="600"');
+        s += txt(14, 28, 'SONOFF', 14, '#3b3f45', 'font-weight="800" letter-spacing="1"') + txt(14, 40, 'ZBMINIR2 · Zigbee 3.0', 6.4, '#5b6068');
+        s += txt(14, 60, '100-240V~ 50/60Hz', 5.4, '#6b7078') + txt(14, 68, '10A Max · 2400W', 5.4, '#6b7078');
+        s += circ(132, 34, 11, '#fff', 'stroke="#aeb3ba" stroke-width="1.2"') + circ(132, 34, 7, '#f4f5f7');
+        s += circ(132, 58, 2.6, '#3ccf6a') + txt(132, 70, 'Zigbee', 4.6, '#6b7078', 'text-anchor="middle"');
+        return s;
+    },
+
+    minid(def) {
+        let s = rect(2, 2, 166, 156, 'url(#ls-blanco)', 'rx="11" stroke="#b9bec4" stroke-width=".8"');
+        s += rect(36, 6, 88, 26, '#e3e6ea', 'rx="4"') + rect(14, 128, 142, 26, '#e3e6ea', 'rx="4"');
+        s += def.pines.filter(p => p.lado === 'arr').map(p => tornillo(p.x * U, 19, 6.4)).join('');
+        s += def.pines.filter(p => p.lado === 'aba').map(p => tornillo(p.x * U, 141, 6.4)).join('');
+        for (const p of def.pines.filter(q => q.lado === 'arr')) s += txt(p.x * U, 43, esc(p.n), 6.2, '#4b5057', 'text-anchor="middle" font-weight="600"');
+        for (const p of def.pines.filter(q => q.lado === 'aba')) s += txt(p.x * U, 123, esc(p.n), 6.2, '#4b5057', 'text-anchor="middle" font-weight="600"');
+        s += txt(85, 82, 'SONOFF', 15, '#3b3f45', 'text-anchor="middle" font-weight="800" letter-spacing="1"') + txt(85, 94, 'MINI-D · contacto seco', 5.8, '#5b6068', 'text-anchor="middle"');
+        s += circ(146, 62, 11, '#fff', 'stroke="#aeb3ba" stroke-width="1.2"') + circ(146, 62, 7, '#f4f5f7') + wifi(146, 86, '#3b82f6', .8);
+        return s;
+    },
+
+    ln1800(def) {
+        let s = rect(1, 1, 88, 176, '#1b1c1f', 'rx="5" stroke="#000" stroke-width=".8"') + rect(3, 3, 84, 30, '#fff', 'rx="4" opacity=".05"');
+        s += circ(45, 54, 25, '#e7e4dc', 'stroke="#b8b4aa" stroke-width=".8"');
+        for (const r of [8, 15, 21]) s += circ(45, 54, r, 'none', 'stroke="#c9c5bb" stroke-width=".7"');
+        for (let i = 0; i < 8; i++) s += `<path d="M45 54L${45 + 25 * Math.cos(i * Math.PI / 4)} ${54 + 25 * Math.sin(i * Math.PI / 4)}" stroke="#d3cfc6" stroke-width=".6"/>`;
+        for (const [x, t] of [[27, 'TIME'], [63, 'LUX']]) {
+            s += circ(x, 116, 8, '#2c2e33', 'stroke="#55595f" stroke-width=".8"') + `<path d="M${x} 110v12" stroke="#a9adb3" stroke-width="1.6" stroke-linecap="round"/>`;
+            s += txt(x, 134, t, 5.6, '#c9cdd2', 'text-anchor="middle" font-weight="600"');
+        }
+        s += txt(45, 160, 'ETTROIT', 7, '#8d939b', 'text-anchor="middle" font-weight="700" letter-spacing="1"');
+        s += def.pines.map(p => rect(p.x * U - 5, 172, 10, 7, '#8d949c', 'rx="1"') + txt(p.x * U, 170, esc(p.n), 4.4, '#c9cdd2', 'text-anchor="middle"')).join('');
+        return s;
+    },
+
+    cametts() {
+        let s = circ(30, 75, 22, 'url(#ls-metal-h)', 'stroke="#6a7078" stroke-width=".8"') + circ(30, 75, 10, '#0c0d0f');
+        s += rect(40, 6, 246, 138, 'url(#ls-metal-h)', 'rx="56" stroke="#6a7078" stroke-width=".8"');
+        s += rect(62, 18, 206, 114, '#16171a', 'rx="46"');
+        for (let x = 74; x < 262; x += 9) s += `<path d="M${x} 22l-10 106" stroke="#24262b" stroke-width="1.2"/>`;
+        for (const [x, y] of [[148, 52], [206, 52], [148, 98], [206, 98]]) s += `<ellipse cx="${x}" cy="${y}" rx="25" ry="20" fill="url(#ls-metal)" stroke="#5c626a" stroke-width=".8"/>`;
+        s += circ(98, 75, 3, '#ff4d4d') + txt(96, 132, 'CAME', 9, '#e8eaed', 'font-weight="800" letter-spacing="1"');
+        s += txt(250, 132, 'TTS', 7, '#e8eaed', 'text-anchor="end" font-weight="700"');
         return s;
     },
 

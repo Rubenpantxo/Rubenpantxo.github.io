@@ -500,6 +500,153 @@ export const COMPONENTES = [
             repo('ALLTERCO/shelly-script-examples', 'https://github.com/ALLTERCO/shelly-script-examples')
         ]
     },
+    // ------------------------------------------- domótica de caja de mecanismo
+    // La ficha ampliada (vista 3/4, partes, primer código y flasheo) de estos
+    // cinco está en datos/fichas.js.
+    {
+        id: 'shelly-1-mini-g3', nombre: 'Shelly 1 Mini Gen3', corto: 'Shelly 1 Mini', fabricante: 'Shelly',
+        categoria: 'potencia', propio: true, precio: 12.9, ref: 'K', w: 14, h: 12, dibujo: 'shelly1mini',
+        resumen: 'Relé Wi-Fi + Bluetooth de 8 A con contacto seco · ESP32-C3 · scripts mJS, RPC y MQTT en local',
+        descripcion: 'El Shelly más pequeño con contacto libre de potencial: sus bornas I y O son un interruptor aislado, así que conmuta 230 V, 24 V o la entrada de mando de un motor de puerta sin mezclar tensiones. Lleva un ESP32-C3 con 8 MB de flash que ejecuta los scripts mJS del firmware original o, si lo flasheas, ESPHome o tu propio programa de Arduino.',
+        aviso: 'Trabaja con tensión de red: instálalo con el circuito sin tensión y dentro de una caja. Para flashearlo, aliméntalo solo desde el adaptador USB-serie a 3,3 V, nunca conectado a la red.',
+        specs: [
+            ['Modelo', 'S3SW-001X8EU'],
+            ['Alimentación', '110 – 240 V CA, 50/60 Hz · consumo propio < 1,2 W'],
+            ['Relé', 'Contacto seco NO, 1 polo: 8 A a 240 V CA (2000 W) · 5 A a 30 V CC (150 W)'],
+            ['Procesador', 'ESP-Shelly-C38F (ESP32-C3, RISC-V a 160 MHz) · 8 MB de flash'],
+            ['Radio', 'Wi-Fi 802.11 b/g/n · Bluetooth 4.2 (pasarela BLE para Shelly BLU)'],
+            ['Control', 'RPC HTTP/WebSocket · MQTT · webhooks · scripts mJS · 20 programaciones'],
+            ['Sensores', 'Temperatura interna (NTC) con protección por sobrecalentamiento'],
+            ['Dimensiones', '34 × 29 × 16 mm · 19 g · cable de 0,5 a 4 mm²']
+        ],
+        pines: [
+            pin('O', 'O', 2, 1, 'arr', 'pas', { nota: 'Salida del contacto seco (NO) hacia la carga. Máx. 8 A a 240 V CA o 5 A a 30 V CC.' }),
+            pin('I', 'I', 4, 1, 'arr', 'pas', { nota: 'Entrada del contacto seco: lleva aquí lo que quieres conmutar (fase, 24 V o el común de un mando).' }),
+            pin('SW', 'SW', 7, 1, 'arr', 'ent', { dom: 'ac', vmax: 240, nota: 'Entrada del pulsador o interruptor, conmutada a fase.' }),
+            pin('L', 'L', 10, 1, 'arr', 'alim', { dom: 'ac', vmin: 110, vmax: 240, i: 5 }),
+            pin('N', 'N', 12, 1, 'arr', 'neutro', { dom: 'ac' }),
+            pin('WIFI', 'Wi-Fi', 14, 8, 'der', 'red', { puerto: 'wifi', nota: 'Control local por RPC HTTP, WebSocket o MQTT.' })
+        ],
+        enlaces: [
+            doc('Manual y esquemas de conexión', 'https://kb.shelly.cloud/knowledge-base/shelly-1-mini-gen3'),
+            doc('API Gen2+/Gen3 (RPC y scripts)', 'https://shelly-api-docs.shelly.cloud/gen2/'),
+            doc('ESPHome: pines y configuración', 'https://devices.esphome.io/devices/shelly-1-mini-gen3/'),
+            repo('ALLTERCO/shelly-script-examples', 'https://github.com/ALLTERCO/shelly-script-examples')
+        ]
+    },
+    {
+        id: 'sonoff-zbminir2', nombre: 'Sonoff ZBMINIR2 · interruptor Zigbee 3.0', corto: 'Sonoff ZBMINIR2', fabricante: 'Sonoff (ITEAD)',
+        categoria: 'potencia', propio: true, unidades: 2, precio: 9.9, ref: 'K', w: 16, h: 13, dibujo: 'zbminir2',
+        resumen: 'Relé Zigbee 3.0 de 10 A con neutro · EFR32MG21 · repetidor de la malla Zigbee',
+        descripcion: 'Módulo de caja de mecanismo que convierte un interruptor normal en uno inteligente. Habla Zigbee 3.0 con un coordinador (Zigbee2MQTT, ZHA o la app eWeLink con su pasarela) y, al ir siempre alimentado, hace de repetidor para el resto de la red Zigbee. Conmuta la fase hacia la carga: no es un contacto seco.',
+        aviso: 'Necesita neutro y trabaja con tensión de red. S1 y S2 son para un interruptor sin tensión y no están aislados de la red: no les lleves fase ni los unas a la electrónica. Para usarlo hace falta un coordinador Zigbee (un adaptador USB como el Sonoff Dongle).',
+        specs: [
+            ['Alimentación', '100 – 240 V CA, 50/60 Hz'],
+            ['Carga máxima', '10 A resistivos · 2400 W a 240 V'],
+            ['Procesador', 'Silicon Labs EFR32MG21 (Cortex-M33)'],
+            ['Radio', 'Zigbee 3.0 · router (repetidor) de la malla'],
+            ['Interruptor externo', 'S1 – S2: pulsador o interruptor sin tensión; tipo elegible con tres pulsaciones del botón'],
+            ['Funciones', 'Estado al encender, modo pulso (inching), retardo, modo desacoplado del relé'],
+            ['Dimensiones', '39,5 × 33 × 16,8 mm · 26,7 g'],
+            ['En casa', '2 unidades']
+        ],
+        pines: [
+            pin('N1', 'N', 2, 13, 'aba', 'neutro', { dom: 'ac' }),
+            pin('N2', 'N', 4, 13, 'aba', 'neutro', { dom: 'ac', nota: 'Segundo neutro, puenteado con el primero: va hacia la carga.' }),
+            pin('L_OUT', 'L out', 6, 13, 'aba', 'fuente', { dom: 'ac', v: 230, imax: 10000, nota: 'Fase conmutada hacia la carga.' }),
+            pin('L_IN', 'L in', 8, 13, 'aba', 'alim', { dom: 'ac', vmin: 100, vmax: 240, i: 5 }),
+            pin('S1', 'S1', 11, 13, 'aba', 'ent', { dom: 'ac', vmax: 3.3, nota: 'Interruptor externo sin tensión entre S1 y S2. Es una señal interna no aislada de la red: ni fase ni electrónica.' }),
+            pin('S2', 'S2', 13, 13, 'aba', 'ent', { dom: 'ac', vmax: 3.3, nota: 'Interruptor externo sin tensión entre S1 y S2. Es una señal interna no aislada de la red: ni fase ni electrónica.' }),
+            pin('ZB', 'Zigbee', 16, 5, 'der', 'red', { puerto: 'zigbee', nota: 'Enlace Zigbee 3.0 con el coordinador (Zigbee2MQTT, ZHA o eWeLink).' })
+        ],
+        enlaces: [
+            doc('Manual de usuario', 'https://support.sonoff.tech/zbminir2-usermanual/'),
+            doc('Zigbee2MQTT: ZBMINIR2', 'https://www.zigbee2mqtt.io/devices/ZBMINIR2.html'),
+            repo('Koenkk/zigbee2mqtt', 'https://github.com/Koenkk/zigbee2mqtt')
+        ]
+    },
+    {
+        id: 'sonoff-mini-d', nombre: 'Sonoff MINI-D · relé Wi-Fi de contacto seco', corto: 'Sonoff MINI-D', fabricante: 'Sonoff (ITEAD)',
+        categoria: 'potencia', propio: true, precio: 11.9, ref: 'K', w: 17, h: 16, dibujo: 'minid',
+        resumen: 'Contacto seco NO/NC con Wi-Fi y Matter · se alimenta a 230 V CA o a 12 – 48 V CC · ESP32',
+        descripcion: 'Relé inteligente de contacto libre de potencial con salida conmutada (NO, COM y NC). Pensado para dar órdenes a otros equipos: la entrada de una caldera, un motor de puerta o una válvula de 12/24 V. Se alimenta por red o por continua y se controla con eWeLink o, en local, por Matter desde Home Assistant. Dentro lleva un ESP32-D0WDR2-V3, pero Sonoff no permite grabarle firmware propio.',
+        aviso: 'El contacto aguanta poco: 24 V ⎓ 2 A resistivos (motores de 12/24 V de hasta 8 W). No conmutes 230 V con él. S1 y S2 son para un interruptor sin tensión: con alimentación de red pueden estar a su potencial, así que no los unas a la electrónica.',
+        alimPor: [['L'], ['DCP']],
+        alimNota: 'aliméntalo con fase y neutro (100 – 240 V CA) o con 12 – 48 V CC en DC+ y DC−.',
+        specs: [
+            ['Alimentación', '100 – 240 V CA, 50/60 Hz (0,1 A) o 12 – 48 V CC (1 A)'],
+            ['Contacto', 'Seco, conmutado NO/NC · 24 V ⎓ 2 A resistivos o 12/24 V ⎓ 8 W'],
+            ['Relé', 'FANHAR W11-1C2STL (5 A 250 V CA / 30 V CC de catálogo)'],
+            ['Procesador', 'Espressif ESP32-D0WDR2-V3, doble núcleo a 240 MHz'],
+            ['Radio', 'Wi-Fi 802.11 b/g/n 2,4 GHz · Matter sobre Wi-Fi'],
+            ['Interruptor externo', 'S1 – S2: pulsador o interruptor sin tensión'],
+            ['Dimensiones', '43 × 41 × 21,5 mm · 34,5 g']
+        ],
+        pines: [
+            pin('NO', 'NO', 5, 0, 'arr', 'pas', { nota: 'Contacto normalmente abierto: se cierra con COM al activar el relé. Máx. 24 V ⎓ 2 A.' }),
+            pin('COM', 'COM', 8, 0, 'arr', 'pas', { nota: 'Común del contacto seco.' }),
+            pin('NC', 'NC', 11, 0, 'arr', 'pas', { nota: 'Contacto normalmente cerrado: se abre al activar el relé.' }),
+            pin('N', 'N', 3, 16, 'aba', 'neutro', { dom: 'ac' }),
+            pin('L', 'L', 5, 16, 'aba', 'alim', { dom: 'ac', vmin: 100, vmax: 240, i: 5 }),
+            pin('S1', 'S1', 7, 16, 'aba', 'ent', { dom: 'ac', vmax: 3.3, nota: 'Interruptor externo sin tensión entre S1 y S2. Con alimentación de red puede estar a su potencial: ni fase ni electrónica.' }),
+            pin('S2', 'S2', 9, 16, 'aba', 'ent', { dom: 'ac', vmax: 3.3, nota: 'Interruptor externo sin tensión entre S1 y S2. Con alimentación de red puede estar a su potencial: ni fase ni electrónica.' }),
+            pin('DCP', 'DC+', 11, 16, 'aba', 'alim', { vmin: 12, vmax: 48, i: 60, nota: 'Alimentación en continua (12 – 48 V). Usa esta o la de red, no las dos.' }),
+            pin('DCN', 'DC−', 13, 16, 'aba', 'gnd'),
+            pin('WIFI', 'Wi-Fi', 17, 7, 'der', 'red', { puerto: 'wifi', nota: 'eWeLink o Matter sobre Wi-Fi (en local con Home Assistant). No admite firmware propio.' })
+        ],
+        enlaces: [
+            doc('Manual de usuario', 'https://support.sonoff.tech/mini-d-usermanual/'),
+            doc('Análisis y despiece (SmartHomeScene)', 'https://smarthomescene.com/reviews/sonoff-matter-dry-contact-switch-mini-d-review/'),
+            doc('Análisis con Home Assistant y Matter (CNX Software)', 'https://www.cnx-software.com/2025/01/15/sonoff-mini-d-review-matter-enabled-dry-contact-wifi-switch-ewelink-home-assistant-apple-home/')
+        ]
+    },
+    {
+        id: 'ettroit-ln1800', nombre: 'Ettroit LN1800 · detector de movimiento de 1 módulo', corto: 'Detector Ettroit LN1800', fabricante: 'Ettroit (serie Space)',
+        categoria: 'potencia', propio: true, precio: 15, ref: 'B', w: 9, h: 18, dibujo: 'ln1800',
+        resumen: 'Detector PIR empotrable con ajuste de tiempo (10 s – 3 min) y de luz · 230 V · 4 A',
+        descripcion: 'Mecanismo de un módulo para caja de empotrar que enciende la luz al detectar movimiento y la apaga pasado el tiempo elegido. Mide la luz ambiente para no encender de día. Va en la serie Space de Ettroit, compatible con los soportes y placas BTicino Living Light / International. No se programa: se ajusta con sus dos ruedas.',
+        aviso: 'Trabaja con tensión de red. 4 A con cos φ = 1 es para cargas resistivas: con LED o fluorescentes deja margen. Si quieres que el movimiento llegue a la domótica, lleva su salida a la entrada SW de un Shelly en lugar de unirla a la electrónica.',
+        specs: [
+            ['Alimentación', '230 V CA, 50 Hz'],
+            ['Carga', '4 A con cos φ = 1 (resistiva)'],
+            ['Temporizador', '10 s – 3 min, rueda frontal'],
+            ['Umbral de luz', 'Regulable con la rueda frontal (lux)'],
+            ['Detector', 'Infrarrojo pasivo (PIR) con lente de Fresnel'],
+            ['Protección', 'IP20, para interior'],
+            ['Montaje', '1 módulo · soportes BTicino Living Light / International']
+        ],
+        pines: [
+            pin('L', 'L', 2, 18, 'aba', 'alim', { dom: 'ac', vmin: 207, vmax: 253, i: 5 }),
+            pin('N', 'N', 4, 18, 'aba', 'neutro', { dom: 'ac' }),
+            pin('OUT', 'Carga', 7, 18, 'aba', 'fuente', { dom: 'ac', v: 230, imax: 4000, nota: 'Fase conmutada hacia la lámpara cuando detecta movimiento.' })
+        ],
+        enlaces: [
+            doc('Ficha del fabricante', 'https://ettroit.com/prodotto/sensore-movimento-1p-con-set-tempo-lux-ln1800')
+        ]
+    },
+    {
+        id: 'came-ttsd4rks', nombre: 'Mando CAME TTS TTSD4RKS (806TS-0230)', corto: 'Mando CAME TTS', fabricante: 'CAME',
+        categoria: 'red', propio: true, precio: 24, ref: 'TX', w: 29, h: 15, dibujo: 'cametts',
+        resumen: 'Emisor de 4 canales con código evolutivo (rolling code) · doble frecuencia 433,92 / 868,35 MHz',
+        descripcion: 'Mando de llavero para automatismos CAME: puertas de garaje, cancelas y barreras. Cada botón es un canal que se memoriza en el receptor del cuadro. Emite en 433,92 y 868,35 MHz a la vez y cambia el código en cada pulsación, así que no se puede copiar ni reproducir con un receptor de radio.',
+        aviso: 'No se programa ni se clona: es de código evolutivo. Para abrir la puerta desde la domótica, conecta el contacto seco de un Shelly 1 Mini Gen3 a la entrada de mando del cuadro, en paralelo con su pulsador.',
+        specs: [
+            ['Canales', '4 botones'],
+            ['Frecuencia', '433,92 MHz y 868,35 MHz (doble frecuencia)'],
+            ['Codificación', 'Código evolutivo · más de 4000 millones de combinaciones'],
+            ['Alcance', '50 – 150 m en campo abierto'],
+            ['Pila', '1 × CR2032 de litio'],
+            ['Temperatura', '−20 – +55 °C'],
+            ['Materiales y medidas', 'Policarbonato y zamak · 73 × 38 × 11 mm']
+        ],
+        pines: [
+            pin('RF', 'Radio', 29, 7, 'der', 'red', { puerto: 'rf', nota: 'Enlace de radio con el receptor del automatismo (433,92 / 868,35 MHz).' })
+        ],
+        enlaces: [
+            doc('CAME: TTSD4RKS', 'https://www.came.com/global/en/products/transmitters-tts-806ts-0230/'),
+            doc('Guía rápida (ManualsLib)', 'https://www.manualslib.com/manual/2511100/Came-Ttsd4rks.html')
+        ]
+    },
     {
         id: 'hc-sr04', nombre: 'Sensor ultrasónico HC-SR04', corto: 'HC-SR04', fabricante: 'Genérico',
         categoria: 'sensores', precio: 1.75, ref: 'S', w: 18, h: 8, dibujo: 'hcsr04',

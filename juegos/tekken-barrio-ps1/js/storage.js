@@ -79,6 +79,8 @@ const Storage = (() => {
   function set(path, value) {
     const data = load();
     const keys = path.split('.');
+    // Nunca escribir en el prototipo de Object.
+    if (keys.some(k => k === '__proto__' || k === 'constructor' || k === 'prototype')) return;
     let obj = data;
     for (let i = 0; i < keys.length - 1; i++) {
       if (typeof obj[keys[i]] !== 'object' || obj[keys[i]] === null) obj[keys[i]] = {};
