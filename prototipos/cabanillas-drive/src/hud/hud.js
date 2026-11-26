@@ -28,6 +28,7 @@ export async function creaHud(mundo, { lugares = [] } = {}) {
 
   // --- Mapa ampliado: arrastrar para mover, rueda o pellizco para acercar
   const lienzoGrande = document.getElementById('mapa-lienzo');
+  const avisoSalto = document.getElementById('aviso-salto');
   const vista = { zoom: 1, cx: 0, cz: 0 };
   let escalaGrande = 1;
   let pendiente = false;
@@ -120,7 +121,12 @@ export async function creaHud(mundo, { lugares = [] } = {}) {
       if (contenedor.hidden) return;
       minimapa.actualiza({ x: estado.posicion.x, z: estado.posicion.z, rumbo, kmh: estado.velocidadKmh, otros,
         extra: estado.minimapa ?? null, miCoche: estado.miCoche ?? null }, dt);
-      velocimetro.actualiza(estado.velocidadKmh, dt);
+      contenedor.classList.toggle('salto-avion', Boolean(estado.enAvion));
+      if (estado.enAvion) {
+        if (avisoSalto) avisoSalto.innerHTML = '<span><strong>ESPACIO</strong>Saltar</span>';
+      } else {
+        velocimetro.actualiza(estado.velocidadKmh, dt);
+      }
     },
   };
 }

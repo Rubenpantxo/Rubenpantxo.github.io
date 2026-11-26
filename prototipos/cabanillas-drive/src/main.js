@@ -161,7 +161,7 @@ ajustaTamano();
 // ?personaje=0 lo salta (pruebas); al volver de otro juego (?aparece) tampoco sale.
 let editor = null;
 let saltoPendiente = null;
-let personajeElegido = parametros.get('personaje') === '0' || Boolean(parametros.get('aparece'));
+let personajeElegido = true;
 async function abrePersonaje(boton) {
   if (editor) return;
   document.body.classList.add('editando-personaje');
@@ -194,14 +194,6 @@ async function abrePersonaje(boton) {
 }
 if (esJuego) {
   document.getElementById('crear-personaje').addEventListener('click', () => abrePersonaje(null));
-  // Antes que los manejadores de pantallas.js: sin personaje, primero el editor
-  for (const id of ['jugar', 'jugar-calle', 'jugar-fiestas']) {
-    document.getElementById(id).addEventListener('click', (e) => {
-      if (personajeElegido) return;
-      e.stopImmediatePropagation();
-      abrePersonaje(e.currentTarget);
-    }, { capture: true });
-  }
 } else {
   document.getElementById('crear-personaje').hidden = true;
 }
@@ -288,7 +280,7 @@ modo({ renderer, escena, camara, ui, ciclo, render })
       jugadorGuardado();
       // Se empieza saltando del avión (PLAN_SALTO.md), salvo con ?salto=0, al entrar directo a las
       // fiestas o al volver de otro juego. ?salto=semilla repite la misma ruta. Desde la pantalla de
-      // inicio, «Empezar en la calle» lo omite; en la pausa, «Saltarse el salto»
+      // inicio, «Conducir» lo omite; en la pausa, «Saltarse el salto»
       // ?agricultura: modo agricultura (PLAN_AGRICULTURA.md): se empieza en la COPE, donde se cambia
       // el coche por el tractor. ?agricultura=pincel: pincel de pruebas de la fase A2 (&parcela=…).
       // ?agricultura=riego: con el tractor junto a la primera tajadera de la acequia (A7).
