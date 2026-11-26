@@ -409,8 +409,8 @@ test('fichas ampliadas: modelo 3D, lección y primer código coherentes', () => 
     for (const id of CASA) assert.ok(FICHAS[id] && def(id).propio, id + ': ficha y en el inventario');
     // Todas las placas de desarrollo del catálogo (menos el PC) tienen modelo 3D.
     for (const c of COMPONENTES.filter(c => c.categoria === 'placas' && c.id !== 'pc-host')) assert.ok(FICHAS[c.id], c.id + ': ficha');
-    // Y todos los sensores y actuadores.
-    for (const c of COMPONENTES.filter(c => c.categoria === 'sensores' || c.categoria === 'actuadores')) assert.ok(FICHAS[c.id], c.id + ': ficha');
+    // Y todos los sensores, actuadores, salidas y alimentación.
+    for (const c of COMPONENTES.filter(c => ['sensores', 'actuadores', 'salidas', 'alimentacion'].includes(c.categoria))) assert.ok(FICHAS[c.id], c.id + ': ficha');
     assert.ok(FICHAS['shelly-1pm-mini-g3'], 'shelly-1pm-mini-g3: ficha');
     for (const id of Object.keys(FICHAS)) {
         const c = def(id), f = FICHAS[id];
