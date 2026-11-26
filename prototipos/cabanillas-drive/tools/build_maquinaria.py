@@ -52,6 +52,21 @@ ABONADORA = {"alto_bulon": 0.55, "tolva": (1.35, 0.36, 0.62, 1.42), "tolva_y": 0
              "disco_z": 0.08, "ancho_trabajo": 12.0}
 SEMBRADORA = {"ancho": 3.0, "lineas": 20, "alto_lanza": 0.42, "eje_y": 2.25, "rueda_r": 0.38, "marco_y": (1.55, 3.0),
               "marco_z": 0.22, "tolva_y": 2.2, "tolva_z": (0.5, 1.2), "tolva_fondo": (0.36, 0.9)}
+# Cosechadora (A8): compacta, de cabezal de cereal de 5,4 m. Origen en el eje delantero (Blender);
+# ruedas delanteras (motrices) grandes, traseras (directrices) pequeñas
+COSECHADORA = {
+    "delantera": {"radio": 0.80, "ancho": 0.62, "via": 2.36, "y": 0.0, "tacos": 22, "llanta": 0.52},
+    "trasera": {"radio": 0.50, "ancho": 0.34, "via": 2.10, "y": 3.25, "tacos": 15, "llanta": 0.55},
+    "cabezal": {"ancho": 5.4, "corte_y": -3.62, "fondo_y": -2.35, "corte_z": 0.14, "pared_z": 1.1},
+    "molinete": {"y": -3.25, "z": 1.25, "radio": 0.55, "bates": 6},
+    "pivote_cabezal": (0.0, -0.55, 1.55),
+    "tolva": {"x": 1.18, "y0": 0.05, "y1": 2.25, "z0": 2.85, "z1": 3.55},
+    "tubo": {"pivote": (1.12, 2.2, 3.35), "largo": 4.3, "radio": 0.16, "bajante": 0.5},
+    "cabina": {"ancho": 1.6, "y0": -1.5, "y1": -0.15, "suelo": 2.35, "techo": 3.78},
+}
+# Remolque basculante de un eje para el grano (A8): origen en el ojo de la lanza
+REMOLQUE = {"alto_lanza": 0.55, "caja": (2.3, 5.2, 1.15), "caja_y0": 1.55, "caja_z": 1.05, "eje_y": 4.2, "rueda_r": 0.56,
+            "rueda_ancho": 0.42, "via": 1.95}
 CULTIVADOR = {"ancho": 3.0, "barras_y": (0.55, 1.15, 1.75), "barra_z": 0.35, "brazos_por_barra": 5,
               "separacion": 0.6, "alto_bulon": 0.45, "profundidad": 0.10, "rodillo_y": 2.45, "rodillo_r": 0.2}
 
@@ -78,6 +93,11 @@ COLORES = {
     "acero": (0.62, 0.62, 0.6, 1.0),                 # vertederas y rejas gastadas de trabajar
     "senal_roja": (0.6, 0.012, 0.01, 1.0),
     "senal_blanca": (0.85, 0.85, 0.82, 1.0),
+    "pintura_cosechadora": (0.78, 0.52, 0.0, 1.0),   # amarillo
+    "gris_banda": (0.06, 0.065, 0.07, 1.0),          # banda oscura (sin rótulos)
+    "grano": (0.62, 0.45, 0.17, 1.0),                # trigo trillado
+    "apero_remolque": (0.24, 0.02, 0.012, 1.0),      # rojo teja
+    "goma": (0.03, 0.03, 0.03, 1.0),
 }
 
 
@@ -135,6 +155,7 @@ def mats():
         "semilla": material("semilla", 0.8),
         "senal_roja": material("senal_roja", 0.5),
         "senal_blanca": material("senal_blanca", 0.5),
+        "grano": material("grano", 0.85),
     }
 
 
@@ -850,6 +871,269 @@ def sembradora(M):
     return objetos, datos
 
 
+# ----------------------------------------------------------------------------- Cosechadora (A8)
+def cosechadora(M):
+    """Cosechadora compacta genérica (amarilla, sin marca): cabezal de cereal con molinete, canal
+    de alimentación, cabina delante, tolva de grano arriba, motor detrás, tubo de descarga a la
+    izquierda (plegado hacia atrás), picador y esparcidor de paja. Ruedas delanteras motrices
+    grandes y traseras directrices pequeñas."""
+    C = COSECHADORA
+    de, tr, cb, ca, mo, tv, tu = (C[k] for k in ("delantera", "trasera", "cabina", "cabezal", "molinete", "tolva", "tubo"))
+    pintura = M["pintura"]
+    banda = material("gris_banda", 0.5)
+    fijo = []
+    # --- Bastidor bajo, entre las ruedas, y cuerpo ancho por encima de ellas
+    fijo.append(caja("bastidor", (1.5, 4.3, 1.1), (0, 1.45, 1.15), pintura, 0.06))
+    fijo.append(caja("cuerpo", (2.5, 4.4, 1.2), (0, 1.6, 2.25), pintura, 0.1))
+    fijo.append(caja("faldon", (2.3, 1.3, 0.55), (0, 3.25, 1.35), pintura, 0.05))
+    for s in (-1, 1):
+        fijo.append(caja(f"banda{s}", (0.012, 3.6, 0.16), (s * 1.257, 1.7, 2.32), banda))
+        fijo.append(caja(f"rejilla_motor{s}", (0.015, 1.1, 0.5), (s * 1.257, 3.15, 2.55), M["rejilla"], 0.01))
+        # Guardabarros de las ruedas delanteras
+        fijo.append(arco_guardabarros(f"guardabarros{s}", de["radio"] + 0.06, de["ancho"] + 0.1, (s * de["via"] / 2, de["y"], de["radio"]),
+                                      20, 160, 0.03, M["negro"]))
+    fijo.append(cilindro("eje_delantero", 0.2, de["via"] - de["ancho"] * 0.6, (0, de["y"], de["radio"]), "x", M["negro"], 20))
+    fijo.append(caja("eje_trasero", (tr["via"] - tr["ancho"] * 0.6, 0.22, 0.2), (0, tr["y"], tr["radio"] + 0.05), M["negro"], 0.03))
+    fijo.append(caja("soporte_eje_trasero", (0.35, 0.3, 0.75), (0, tr["y"], tr["radio"] + 0.42), M["negro"], 0.03))
+    # --- Tolva de grano (abierta arriba, con el grano dentro) y su borde
+    fijo.append(tronco_piramide("tolva", (2.1, 1.9), (2 * tv["x"], tv["y1"] - tv["y0"]), tv["z0"] - 0.05, tv["z1"],
+                                (tv["y0"] + tv["y1"]) / 2, pintura, 0.03))
+    ym, ly = (tv["y0"] + tv["y1"]) / 2, tv["y1"] - tv["y0"]
+    for s_ in (-1, 1):
+        fijo.append(caja(f"borde_tolva_x{s_}", (0.06, ly + 0.06, 0.06), (s_ * tv["x"], ym, tv["z1"]), M["negro"]))
+        fijo.append(caja(f"borde_tolva_y{s_}", (2 * tv["x"] + 0.06, 0.06, 0.06), (0, ym + s_ * ly / 2, tv["z1"]), M["negro"]))
+    # --- Motor detrás, con el filtro rotativo del radiador a la derecha y el escape
+    fijo.append(caja("capo_motor", (2.2, 1.55, 0.55), (0, 3.2, 3.1), pintura, 0.12))
+    fijo.append(cilindro("filtro_rotativo", 0.48, 0.12, (-1.3, 3.15, 2.55), "x", M["rejilla"], 28))
+    fijo.append(cilindro("tapa_filtro", 0.5, 0.04, (-1.37, 3.15, 2.55), "x", M["negro"], 28))
+    fijo.append(cilindro("escape", 0.08, 0.95, (-0.7, 2.75, 3.75), "z", M["negro"], 14))
+    fijo.append(caja("deposito", (0.95, 0.6, 0.55), (0.6, 3.4, 3.42), M["negro"], 0.12))
+    # --- Picador y esparcidor de paja detrás
+    fijo.append(caja("picador", (1.6, 0.55, 0.6), (0, 3.95, 1.25), M["negro"], 0.06))
+    fijo.append(caja("esparcidor", (1.3, 0.45, 0.12), (0, 4.25, 1.0), M["negro"], 0.02))
+    # --- Plataforma delante de la cabina, barandilla y escalera de subida (izquierda)
+    fijo.append(caja("plataforma", (2.4, 1.6, 0.08), (0, (cb["y0"] + cb["y1"]) / 2 - 0.1, cb["suelo"] - 0.04), M["negro"], 0.01))
+    for s in (-1, 1):
+        fijo.append(segmento(f"barandilla{s}", (s * 1.18, cb["y0"] - 0.3, cb["suelo"] + 0.95), (s * 1.18, cb["y1"] + 0.1, cb["suelo"] + 0.95), 0.035, 0.035, M["negro"]))
+        for yy in (cb["y0"] - 0.3, cb["y1"] + 0.1):
+            fijo.append(segmento(f"poste_barandilla{s}_{yy:.1f}", (s * 1.18, yy, cb["suelo"]), (s * 1.18, yy, cb["suelo"] + 0.95), 0.035, 0.035, M["negro"]))
+    xe, ye = 1.3, -0.95
+    for k in range(2):
+        fijo.append(segmento(f"larguero{k}", (xe, ye - 0.22 + k * 0.44, 0.45), (xe - 0.05, ye - 0.22 + k * 0.44, cb["suelo"]), 0.035, 0.035, M["negro"]))
+    for k in range(6):
+        z = 0.55 + k * (cb["suelo"] - 0.55) / 6
+        fijo.append(caja(f"peldano{k}", (0.12, 0.44, 0.03), (xe - 0.03, ye, z), M["metal"]))
+    # --- Cabina: postes, techo con visera, asiento, volante y columna
+    a, y0, y1, su, te = cb["ancho"], cb["y0"], cb["y1"], cb["suelo"], cb["techo"]
+    for sx in (-1, 1):
+        for yy, inc in ((y0, 0.25), (y1, 0.0)):
+            fijo.append(segmento(f"poste_cabina{sx}_{yy:.1f}", (sx * (a / 2 - 0.04), yy - inc, su), (sx * (a / 2 - 0.04), yy, te), 0.07, 0.07, M["negro"], 0.01))
+    fijo.append(caja("techo", (a + 0.2, y1 - y0 + 0.45, 0.2), (0, (y0 + y1) / 2 - 0.08, te + 0.1), pintura, 0.07))
+    fijo.append(caja("asiento", (0.52, 0.48, 0.12), (0, y1 - 0.45, su + 0.45), M["asiento"], 0.04))
+    fijo.append(caja("respaldo", (0.52, 0.12, 0.62), (0, y1 - 0.22, su + 0.8), M["asiento"], 0.04))
+    fijo.append(cilindro("columna", 0.04, 0.75, (0, y0 + 0.2, su + 0.4), "z", M["negro"], 10))
+    fijo.append(cilindro("aro_volante", 0.18, 0.035, (0, 0, 0), "z", M["negro"], 20))
+    fijo[-1].rotation_euler = (math.radians(30), 0, 0)
+    fijo[-1].location = (0, y0 + 0.25, su + 0.85)
+    fijo.append(caja("consola", (0.25, 0.5, 0.5), (0.45, y1 - 0.55, su + 0.35), M["negro"], 0.03))
+    for s in (-1, 1):
+        fijo.append(caja(f"brazo_espejo{s}", (0.5, 0.03, 0.03), (s * (a / 2 + 0.25), y0 + 0.05, te - 0.35), M["negro"]))
+        fijo.append(caja(f"espejo{s}", (0.04, 0.2, 0.34), (s * (a / 2 + 0.5), y0 + 0.05, te - 0.5), M["negro"], 0.02))
+    vidrios = []
+    hv = te - su - 0.12
+    giro_frente = Matrix.Rotation(math.radians(-10), 4, "X")
+    vidrios.append(caja("vidrio_frente", (a - 0.1, 0.015, hv), (0, y0 - 0.12, su + 0.06 + hv / 2), M["vidrio"], matriz=giro_frente))
+    vidrios.append(caja("vidrio_detras", (a - 0.1, 0.015, hv), (0, y1 - 0.01, su + 0.06 + hv / 2), M["vidrio"]))
+    for s in (-1, 1):
+        vidrios.append(caja(f"vidrio_lado{s}", (0.015, y1 - y0 - 0.05, hv), (s * (a / 2 - 0.02), (y0 + y1) / 2 - 0.1, su + 0.06 + hv / 2), M["vidrio"]))
+    luces = [caja(f"luz_trabajo{k}", (0.18, 0.06, 0.1), (x, y0 - 0.32, te + 0.1), M["luz"], 0.01) for k, x in enumerate((-0.55, -0.2, 0.2, 0.55))]
+    luces += [caja(f"luz_lado{s}", (0.06, 0.16, 0.1), (s * 1.26, 2.1, 2.9), M["luz"], 0.01) for s in (-1, 1)]
+    rotativo = [cilindro("rotativo_base", 0.07, 0.04, (0.0, y1 - 0.2, te + 0.22), "z", M["negro"], 14),
+                cilindro("rotativo_cupula", 0.065, 0.13, (0.0, y1 - 0.2, te + 0.3), "z", M["ambar"], 14, radio2=0.045)]
+    pilotos = [caja(f"piloto{s}", (0.16, 0.04, 0.1), (s * 0.95, 4.22, 1.7), M["piloto"], 0.01) for s in (-1, 1)]
+
+    # --- Cabezal y canal de alimentación (suben juntos girando sobre el pivote)
+    cab = []
+    W = ca["ancho"]
+    px, py, pz = C["pivote_cabezal"]
+    # Canal: de la boca del cabezal al pivote, inclinado
+    cab.append(segmento("canal", (0, ca["fondo_y"] + 0.15, 0.55), (0, py - 0.1, pz - 0.15), 1.25, 0.75, pintura, 0.04))
+    cab.append(segmento("cadenas_canal", (0, ca["fondo_y"] + 0.2, 0.2), (0, py, pz - 0.55), 1.1, 0.1, M["negro"]))
+    # Suelo del cabezal, pared trasera y techo de la pared
+    yc, yf, zc = ca["corte_y"], ca["fondo_y"], ca["corte_z"]
+    malla = bpy.data.meshes.new("artesa")
+    bm = bmesh.new()
+    perfil = [(yc, zc), (yc + 0.45, zc - 0.03), (yf - 0.2, zc + 0.05), (yf, zc + 0.35), (yf, ca["pared_z"]), (yf + 0.12, ca["pared_z"] + 0.08)]
+    filas = [[bm.verts.new((x, y, z)) for y, z in perfil] for x in (-W / 2, W / 2)]
+    for j in range(len(perfil) - 1):
+        bm.faces.new((filas[0][j], filas[1][j], filas[1][j + 1], filas[0][j + 1]))
+    bm.to_mesh(malla)
+    bm.free()
+    artesa = _objeto("artesa", malla, pintura)
+    m = artesa.modifiers.new("grosor", "SOLIDIFY")
+    m.thickness = 0.025
+    cab.append(artesa)
+    cab.append(caja("travesano_cabezal", (W, 0.12, 0.14), (0, yf + 0.06, ca["pared_z"] + 0.1), pintura, 0.02))
+    # Sinfín de alimentación
+    cab.append(cilindro("sinfin", 0.25, W - 0.3, (0, yf - 0.32, zc + 0.4), "x", pintura, 20))
+    for k in range(14):
+        x = -W / 2 + 0.3 + k * (W - 0.6) / 13
+        cab.append(caja(f"espira{k}", (0.03, 0.08, 0.62), (x, yf - 0.32, zc + 0.4), M["negro"], matriz=Matrix.Rotation(math.radians(35), 4, "Y")))
+    # Laterales (chapas) y puntones divisores
+    for s in (-1, 1):
+        x = s * W / 2
+        malla = bpy.data.meshes.new(f"lateral{s}")
+        bm = bmesh.new()
+        poly = [(yc - 0.05, zc - 0.02), (yf + 0.1, zc - 0.02), (yf + 0.1, ca["pared_z"] + 0.1), (yf - 0.4, ca["pared_z"] + 0.15), (yc + 0.2, 0.55)]
+        bm.faces.new([bm.verts.new((x, y, z)) for y, z in poly])
+        bm.to_mesh(malla)
+        bm.free()
+        lat = _objeto(f"lateral{s}", malla, pintura)
+        m = lat.modifiers.new("grosor", "SOLIDIFY")
+        m.thickness = 0.04
+        cab.append(lat)
+        cab.append(segmento(f"puntón{s}", (x - s * 0.05, yc - 0.55, 0.06), (x - s * 0.05, yc + 0.25, 0.58), 0.1, 0.12, pintura, 0.02))
+        # Brazos del molinete, del travesaño al eje
+        cab.append(segmento(f"brazo_molinete{s}", (x - s * 0.18, yf + 0.05, ca["pared_z"] + 0.18), (x - s * 0.18, mo["y"], mo["z"]), 0.08, 0.1, pintura, 0.02))
+        cab.append(cilindro(f"cilindro_molinete{s}", 0.035, 0.9, (x - s * 0.18, yf - 0.35, ca["pared_z"] - 0.05), "y", M["metal"], 10))
+    # Barra de corte con dedos y cuchilla
+    cab.append(caja("barra_corte", (W, 0.08, 0.04), (0, yc + 0.02, zc), M["negro"]))
+    for k in range(int(W / 0.15)):
+        x = -W / 2 + 0.075 + k * 0.15
+        cab.append(segmento(f"dedo{k}", (x, yc - 0.16, zc - 0.005), (x, yc + 0.05, zc + 0.01), 0.035, 0.025, M["acero"]))
+    cab.append(caja("protector_corte", (W - 0.1, 0.02, 0.15), (0, yc - 0.18, zc + 0.08), pintura))
+    # --- Molinete: eje, crucetas y bates con púas
+    mol = []
+    R = mo["radio"]
+    mol.append(cilindro("eje_molinete", 0.05, W - 0.3, (0, mo["y"], mo["z"]), "x", M["negro"], 12))
+    for k in range(mo["bates"]):
+        ang = 2 * math.pi * k / mo["bates"]
+        y = mo["y"] + math.cos(ang) * R
+        z = mo["z"] + math.sin(ang) * R
+        mol.append(caja(f"bate{k}", (W - 0.35, 0.05, 0.05), (0, y, z), M["negro"]))
+        for j in range(int((W - 0.4) / 0.14)):
+            x = -W / 2 + 0.25 + j * 0.14
+            mol.append(segmento(f"pua{k}_{j}", (x, y, z), (x, y + 0.06, z - 0.28), 0.012, 0.012, M["negro"]))
+        for xx in (-W / 2 + 0.2, -W / 6, W / 6, W / 2 - 0.2):
+            mol.append(segmento(f"radio{k}_{xx:.1f}", (xx, mo["y"], mo["z"]), (xx, y, z), 0.03, 0.03, M["negro"]))
+    molinete = con_origen(une("molinete", mol), (0, mo["y"], mo["z"]))
+    cabezal = con_origen(une("cabezal", cab), C["pivote_cabezal"])
+
+    # --- Tubo de descarga (plegado hacia atrás, por la izquierda, sobre la tolva)
+    tx, ty, tz = tu["pivote"]
+    tub = [cilindro("tubo", tu["radio"], tu["largo"], (tx, ty + tu["largo"] / 2 - 0.1, tz + 0.1), "y", pintura, 18),
+           cilindro("bajante", tu["radio"] * 0.85, tu["bajante"], (tx, ty + tu["largo"] - 0.12, tz + 0.1 - tu["bajante"] / 2), "z", M["negro"], 16),
+           cilindro("codo", tu["radio"] * 1.15, 0.45, (tx, ty, tz), "z", pintura, 18)]
+    tubo = con_origen(une("tubo_descarga", tub), tu["pivote"])
+    fijo.append(caja("apoyo_tubo", (0.25, 0.2, 0.55), (tx, ty + tu["largo"] - 0.5, 2.9), M["negro"]))
+    fijo.append(cilindro("pie_tubo", 0.2, 0.85, (tx, ty - 0.1, 2.95), "z", pintura, 16))
+
+    carga = con_origen(caja("carga", (2 * tv["x"] - 0.1, tv["y1"] - tv["y0"] - 0.1, 0.03), (0, (tv["y0"] + tv["y1"]) / 2, tv["z1"] - 0.08), M["grano"]),
+                       (0, (tv["y0"] + tv["y1"]) / 2, tv["z1"] - 0.08))
+    ruedas = [
+        rueda("rueda_di", de, de["via"] / 2, M),
+        rueda("rueda_dd", de, -de["via"] / 2, M),
+        rueda("rueda_ti", tr, tr["via"] / 2, M),
+        rueda("rueda_td", tr, -tr["via"] / 2, M),
+    ]
+    objetos = {
+        "carroceria": une("carroceria", fijo),
+        "vidrios": une("vidrios", vidrios),
+        "luces_trabajo": une("luces_trabajo", luces),
+        "rotativo": une("rotativo", rotativo),
+        "pilotos": une("pilotos", pilotos),
+        "cabezal": cabezal, "molinete": molinete, "tubo_descarga": tubo, "carga": carga,
+    }
+    for r in ruedas:
+        objetos[r.name] = r
+    return objetos
+
+
+def ficha_cosechadora(objetos, mn, mx, d):
+    """Como ficha() del tractor, con los puntos de la cosechadora (ejes del juego)."""
+    C = COSECHADORA
+    ca, mo, tv, tu = C["cabezal"], C["molinete"], C["tolva"], C["tubo"]
+    def j(p):
+        return [round(p[0] + d.x, 4), round(p[2] + d.z, 4), round(-(p[1] + d.y), 4)]
+    extra = {
+        "cabezal": {"pivote": j(C["pivote_cabezal"]), "ancho_corte": ca["ancho"], "corte": j((0, ca["corte_y"], ca["corte_z"])),
+                    "molinete": j((0, mo["y"], mo["z"]))},
+        "tolva": {"carga": "carga", "y_vacia": round(tv["z0"] + 0.05 + d.z, 3), "y_llena": round(tv["z1"] - 0.08 + d.z, 3),
+                  "escala_vacia": 0.85},
+        "tubo": {"pivote": j(tu["pivote"]), "largo": tu["largo"], "salida": j((tu["pivote"][0], tu["pivote"][1] + tu["largo"] - 0.12, tu["pivote"][2] + 0.1 - tu["bajante"]))},
+        "paja": j((0, 4.45, 1.0)),
+    }
+    return ficha(objetos, mn, mx, d, "cosechadora.glb", medidas=C, puntos={}, extra=extra)
+
+
+def remolque(M):
+    """Remolque basculante de un eje para el grano (unos 10 t): lanza con ojo, caja con laterales
+    y portón, ruedas anchas, pata de apoyo y el grano dentro (sube al cargarlo)."""
+    R = REMOLQUE
+    pintura = material("pintura_apero", 0.45, 0.12, color=COLORES["apero_remolque"])
+    zs = -R["alto_lanza"]
+    ax, ay, az = R["caja"]
+    y0 = R["caja_y0"]
+    zc = R["caja_z"]
+    b = []
+    b.append(cilindro("ojo", 0.07, 0.05, (0, 0, 0), "z", M["metal"], 14))
+    for sx in (-1, 1):
+        b.append(segmento(f"lanza{sx}", (0, 0.06, 0.0), (sx * 0.55, y0, zc - 0.15), 0.1, 0.12, M["negro"], 0.01))
+    b.append(caja("chasis", (0.9, ay, 0.18), (0, y0 + ay / 2, zc - 0.12), M["negro"], 0.02))
+    for sx in (-1, 1):
+        b.append(caja(f"larguero{sx}", (0.12, ay, 0.16), (sx * 0.5, y0 + ay / 2, zc - 0.1), M["negro"]))
+    # Caja: fondo, laterales, frente y portón
+    b.append(caja("fondo_caja", (ax, ay, 0.06), (0, y0 + ay / 2, zc), pintura, 0.01))
+    for sx in (-1, 1):
+        b.append(caja(f"lateral_caja{sx}", (0.05, ay, az), (sx * (ax / 2 - 0.025), y0 + ay / 2, zc + az / 2), pintura, 0.01))
+        for k in range(5):
+            b.append(caja(f"refuerzo{sx}_{k}", (0.04, 0.07, az), (sx * (ax / 2 + 0.01), y0 + 0.3 + k * (ay - 0.6) / 4, zc + az / 2), pintura))
+        b.append(caja(f"borde{sx}", (0.08, ay + 0.04, 0.06), (sx * (ax / 2 - 0.02), y0 + ay / 2, zc + az), M["negro"]))
+    b.append(caja("frente_caja", (ax, 0.05, az + 0.3), (0, y0 + 0.025, zc + (az + 0.3) / 2), pintura, 0.01))
+    b.append(caja("porton", (ax, 0.06, az), (0, y0 + ay - 0.03, zc + az / 2), pintura, 0.01))
+    b.append(caja("escalera_remolque", (0.35, 0.04, 0.9), (0.7, y0 - 0.02, zc + 0.2), M["metal"]))
+    # Guardabarros y eje
+    rr = R["rueda_r"]
+    ey = R["eje_y"]
+    ruedas = {}
+    for sx, nombre in ((1, "rueda_i"), (-1, "rueda_d")):
+        cx = sx * R["via"] / 2
+        partes = [anillo(f"{nombre}_cubierta", rr * 0.58, rr, R["rueda_ancho"], (cx, ey, zs + rr), M["neumatico"], 32, abombado=0.02),
+                  cilindro(f"{nombre}_llanta", rr * 0.58, R["rueda_ancho"] * 0.85, (cx, ey, zs + rr), "x", M["llanta"], 24)]
+        ruedas[nombre] = con_origen(une(nombre, partes), (cx, ey, zs + rr))
+        b.append(arco_guardabarros(f"guardabarros{sx}", rr + 0.06, R["rueda_ancho"] + 0.08, (cx, ey, zs + rr), 20, 160, 0.03, M["negro"]))
+    b.append(cilindro("eje", 0.07, R["via"] - 0.2, (0, ey, zs + rr), "x", M["metal"], 12))
+    b.append(caja("ballesta", (1.7, 0.6, 0.12), (0, ey, zs + rr + 0.15), M["negro"]))
+    pilotos = [caja(f"piloto{s}", (0.16, 0.04, 0.1), (s * (ax / 2 - 0.2), y0 + ay + 0.02, zc - 0.05), M["piloto"], 0.01) for s in (-1, 1)]
+    xp = 0.55 * 0.9 / y0                     # sobre el brazo izquierdo de la lanza
+    pata = [cilindro("pata_tubo", 0.05, abs(zs) + 0.08, (xp, 0.9, zs / 2), "z", M["metal"], 10),
+            caja("pata_pie", (0.22, 0.22, 0.02), (xp, 0.9, zs + 0.01), M["metal"])]
+    # Grano: un montón (caja con el centro abombado), sube al cargar
+    malla = bpy.data.meshes.new("carga")
+    bm = bmesh.new()
+    nx_, ny_ = 8, 16
+    filas = [[bm.verts.new((-ax / 2 + 0.08 + (ax - 0.16) * i / nx_, y0 + 0.08 + (ay - 0.16) * j / ny_,
+                            zc + 0.04 + 0.25 * math.sin(math.pi * i / nx_) * math.sin(math.pi * j / ny_))) for j in range(ny_ + 1)] for i in range(nx_ + 1)]
+    for i in range(nx_):
+        for j in range(ny_):
+            bm.faces.new((filas[i][j], filas[i + 1][j], filas[i + 1][j + 1], filas[i][j + 1]))
+    bm.to_mesh(malla)
+    bm.free()
+    carga = _objeto("carga", malla, M["grano"])
+    for poligono in carga.data.polygons:
+        poligono.use_smooth = True
+    carga = con_origen(carga, (0, y0 + ay / 2, zc + 0.04))
+    objetos = {"bastidor": une("bastidor", b), "pilotos": une("pilotos", pilotos), "pata": une("pata", pata), "carga": carga, **ruedas}
+    datos = {"ancho_trabajo": 0, "alto_bulon": R["alto_lanza"], "profundidad": 0, "trabajo_z": 0, "reversible": False,
+             "tipo": "arrastrado", "eje_z": round(-ey, 3), "rueda_r": rr, "via": R["via"], "ruedas": ["rueda_i", "rueda_d"],
+             "pata": "pata",
+             "caja": {"centro": [0, round(zc + az / 2, 3), round(-(y0 + ay / 2), 3)], "ancho": ax, "largo": ay, "alto": az,
+                      "borde_y": round(zc + az, 3)},
+             "carga": {"objeto": "carga", "y_vacia": round(zc + 0.04 - 0.22, 3), "y_llena": round(zc + az - 0.12, 3),
+                       "escala_vacia": 1.0, "escala_vacia_x": 1.0, "escala_y": [0.15, 1.6]}}
+    return objetos, datos
+
+
 # ----------------------------------------------------------------------------- Salida
 def centra(objetos):
     """Centra en largo (Y) y ancho (X), suelo en z = 0. Devuelve la caja (min, max) final."""
@@ -864,14 +1148,17 @@ def centra(objetos):
     return mn + d, mx + d, d
 
 
-def ficha(objetos, mn, mx, d, archivo):
+def ficha(objetos, mn, mx, d, archivo, medidas=None, puntos=None, extra=None):
     """Medidas y ruedas en ejes del juego (x = Blender x, y = Blender z, z = −Blender y)."""
+    medidas = medidas or TRACTOR
+    puntos = ENGANCHE if puntos is None else puntos
+
     def centro_rueda(nombre, datos):
         x = (datos["via"] / 2 if nombre.endswith("i") else -datos["via"] / 2) + d.x
         return [round(x, 4), round(datos["radio"] + d.z, 4), round(-(datos["y"] + d.y), 4)]
     ruedas = []
     for nombre, clave in (("rueda_di", "delantera"), ("rueda_dd", "delantera"), ("rueda_ti", "trasera"), ("rueda_td", "trasera")):
-        datos = TRACTOR[clave]
+        datos = medidas[clave]
         ruedas.append({"objeto": nombre, "centro": centro_rueda(nombre, datos), "radio": datos["radio"], "ancho": datos["ancho"]})
     triangulos = 0
     for o in objetos.values():
@@ -881,7 +1168,8 @@ def ficha(objetos, mn, mx, d, archivo):
         return [round(p[0] + d.x, 4), round(p[2] + d.z, 4), round(-(p[1] + d.y), 4)]
     return {
         "archivo": archivo,
-        "enganche": {k: juego(v) for k, v in ENGANCHE.items()},
+        **({"enganche": {k: juego(v) for k, v in puntos.items()}} if puntos else {}),
+        **{k: (juego(v) if isinstance(v, tuple) else v) for k, v in (extra or {}).items()},
         "largo": round(mx.y - mn.y, 3),
         "ancho": round(mx.x - mn.x, 3),
         "alto": round(mx.z - mn.z, 3),
@@ -1009,11 +1297,24 @@ if __name__ == "__main__":
         print(f"[OK] Tractor: {t['largo']} × {t['ancho']} × {t['alto']} m, {t['triangulos']} triángulos")
         if con_vistas:
             vistas(objetos, str(previews), t["largo"])
+    if not solo or "cosechadora" in solo:
+        limpiar_escena()
+        material("pintura", 0.35, 0.05, color=COLORES["pintura_cosechadora"])   # antes de mats(): amarilla
+        M = mats()
+        objetos = cosechadora(M)
+        mn, mx, d = centra(objetos)
+        exportar_glb(list(objetos.values()), str(salida / "cosechadora.glb"))
+        datos["cosechadora"] = ficha_cosechadora(objetos, mn, mx, d)
+        c = datos["cosechadora"]
+        print(f"[OK] Cosechadora: {c['largo']} × {c['ancho']} × {c['alto']} m, {c['triangulos']} triángulos")
+        if con_vistas:
+            vistas(objetos, str(previews), c["largo"], "cosechadora", objetivo=(0, 0, 1.8), escala=1.55)
     for id_, constructor, nombre, vista in (
             ("arado", arado, "Arado reversible de 4 cuerpos", ((0, 1.6, -0.05), 0.75)),
             ("cultivador", cultivador, "Cultivador de 3 m", ((0, 1.6, -0.05), 0.75)),
             ("abonadora", abonadora, "Abonadora centrífuga", ((0, 0.8, 0.5), 0.6)),
-            ("sembradora", sembradora, "Sembradora de cereal de 3 m", ((0, 2.0, 0.3), 0.8))):
+            ("sembradora", sembradora, "Sembradora de cereal de 3 m", ((0, 2.0, 0.3), 0.8)),
+            ("remolque", remolque, "Remolque de grano de un eje", ((0, 3.6, 0.6), 1.1))):
         if solo and id_ not in solo:
             continue
         limpiar_escena()

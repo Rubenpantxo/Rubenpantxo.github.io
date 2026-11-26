@@ -104,7 +104,93 @@ export const APEROS = {
   sembradora: {
     modelo: 'sembradora', nombre: 'Sembradora', detalle: 'arrastrada · 20 líneas · 3 m', icono: '🌱', labor: 'sembrar',
     velocidadMaxKmh: 13, resistenciaN: 1500, trabajoKmh: [7, 12],
-    polvo: 0.5, terrones: 0, aves: 5, tolva: 'semilla', capacidadKg: 400,
+    polvo: 0.5, terrones: 0, aves: 5, tolva: 'semilla', capacidadKg: 400, acepta: ['trigo', 'cebada', 'cebolla'],
+  },
+  // A10: arrancadora de cebolla, suspendida del tripuntal. Saca solo la cebolla madura y la lleva al
+  // cajón que lleva detrás (capacidadKg); se vacía en la COPE. Modelo hecho en código (modelosCodigo.js)
+  arrancadora: {
+    modelo: 'arrancadora', procedural: true, nombre: 'Arrancadora de cebolla', detalle: '1,8 m · cajón de 3 000 kg', icono: '🧅', labor: 'arrancar',
+    velocidadMaxKmh: 7, resistenciaN: 2600, trabajoKmh: [3, 6],
+    polvo: 0.9, terrones: 0.5, aves: 3, recolector: true, grano: false, capacidadKg: 3000, cultivos: ['cebolla'],
+  },
+  // A10: plantadora de plantel (brócoli), zuecas (alcachofa) y garras (espárrago), suspendida del
+  // tripuntal. La tolva cuenta PLANTAS (no kg). Modelo hecho en código (modelosCodigo.js)
+  plantadora: {
+    modelo: 'plantadora', procedural: true, nombre: 'Plantadora', detalle: '4 líneas · 2 m · 12 000 plantas', icono: '🌱', labor: 'sembrar',
+    velocidadMaxKmh: 6, resistenciaN: 1400, trabajoKmh: [2, 5],
+    polvo: 0.3, terrones: 0, aves: 2, tolva: 'semilla', capacidadKg: 12000, acepta: ['brocoli', 'alcachofa', 'esparrago'],
+  },
+  // Remolque de grano (A8): no labra; lo llena la cosechadora con el tubo (cargaKg, de grano)
+  remolque: {
+    modelo: 'remolque', nombre: 'Remolque de grano', detalle: 'un eje · 10 000 kg', icono: '🛒', labor: null,
+    velocidadMaxKmh: 40, resistenciaN: 0, trabajoKmh: [0, 40], polvo: 0, terrones: 0, aves: 0,
+    grano: true, capacidadKg: 10000,
+  },
+};
+
+// Cosechadora (A8): compacta, de cabezal de 5,4 m, con tracción en las ruedas delanteras (grandes)
+// y la dirección en las traseras (pequeñas). Misma forma que TRACTOR (la mueve coche.js)
+export const COSECHADORA = {
+  modelo: 'cosechadora',
+  nombreGrupo: 'cosechadora_jugador',
+  color: 0xc79a14,
+  piezasMoviles: ['cabezal', 'molinete', 'tubo_descarga', 'carga'],
+
+  chasis: {
+    masa: 9500,
+    alturaLibre: 0.55,
+    altoCaja: 3.1,
+    anchoMax: 2.5,
+    centroMasaY: -0.9,
+    friccion: 0.5,
+    amortiguacionLineal: 0.1,
+    amortiguacionAngular: 1.2,
+  },
+  ruedas: {
+    suspensionReposo: 0.24,
+    recorridoMax: 0.12,
+    rigidez: 42,
+    compresion: 4.2,
+    relajacion: 4.8,
+    fuerzaMaxSuspension: 260000,
+    agarre: 3.0,
+    agarreTraseroFrenoMano: 2.6,
+    rigidezLateral: 1.3,
+  },
+  motor: {
+    traccion: 'delantera',
+    fuerza: 6500,             // N por rueda motriz (dos)
+    velocidadMaxKmh: 25,
+    marchaAtrasKmh: 10,
+    fuerzaMarchaAtras: 5500,
+    frenoMotor: 45,
+  },
+  frenos: { servicio: 320, mano: 480 },
+  direccion: {
+    trasera: true,            // giran las ruedas de atrás: la cola sale hacia fuera en las curvas
+    anguloMax: 0.62,
+    anguloMinAlta: 0.2,
+    velocidadReferenciaKmh: 25,
+    velocidadGiro: 2.0,
+    velocidadRetorno: 3.2,
+  },
+  reinicio: { alturaSobreSuelo: 2.4, caidaMaxima: 8, segundosVolcado: 3 },
+  camara: {
+    persecucion: { ...CAMARA.persecucion, detras: 14.5, altura: 7.2, mirarAdelante: 6, alturaMirada: 2.4, distanciaMinima: 4.5, fov: 60 },
+    capo: { posicion: [0, 1.55, 2.0], mirarAdelante: 25, fov: 75 },
+  },
+  // Cosecha: velocidad buena de trabajo y la máxima con el cabezal bajado; la tolva (litros) y lo
+  // que tarda en vaciarse por el tubo; cuánto sube el cabezal y lo que tarda; el molinete
+  cosecha: {
+    trabajoKmh: [3, 7],
+    velocidadMaxKmh: 8,
+    tolvaL: 6000,
+    descargaLs: 75,
+    segundosCabezal: 1.4,
+    subidaCabezalRad: 0.14,     // unos 45 cm en la barra de corte
+    segundosTubo: 3.5,
+    molineteRpm: 38,
+    alturaCorteM: 0.15,
   },
 };
 
@@ -113,6 +199,13 @@ export const APEROS = {
 export const SEMILLAS = {
   trigo: { nombre: 'Trigo', icono: '🌾', dosisKgHa: 200 },
   cebada: { nombre: 'Cebada', icono: '🌾', dosisKgHa: 180 },
+  // A10: semilla de cebolla (siembra de precisión: unos 3,5 kg/ha, orientativo)
+  cebolla: { nombre: 'Cebolla', icono: '🧅', dosisKgHa: 3.5 },
+  // A10: lo que lleva la plantadora, en plantas (dosisKgHa = plantas por hectárea; orientativas):
+  // brócoli 20 000, alcachofa 5 000, espárrago 16 000
+  brocoli: { nombre: 'Brócoli', icono: '🥦', dosisKgHa: 20000, plantel: true, material: 'plantel de brócoli' },
+  alcachofa: { nombre: 'Alcachofa', icono: '🌿', dosisKgHa: 5000, plantel: true, material: 'zuecas de alcachofa' },
+  esparrago: { nombre: 'Espárrago', icono: '🌿', dosisKgHa: 16000, plantel: true, material: 'garras de espárrago' },
 };
 
 // Aperos arrastrados (sembradora): la lanza va al enganche de la barra de tiro y el apero sigue al

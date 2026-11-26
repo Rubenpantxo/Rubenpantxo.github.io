@@ -26,9 +26,108 @@ function texturaMata(id) {
   lienzo.width = W;
   lienzo.height = H;
   const ctx = lienzo.getContext('2d');
-  let semilla = id === 'cebada' ? 7 : 3;
+  let semilla = id === 'cebada' ? 7 : id === 'cebolla' ? 11 : id === 'brocoli' ? 13 : id === 'alcachofa' ? 17 : id === 'esparrago' ? 19 : 3;
   const azar = () => { semilla = (semilla * 16807) % 2147483647; return semilla / 2147483647; };
   const color = (r, g, matiz) => `rgb(${r},${g},${Math.round(60 + matiz * 195)})`;
+  if (id === 'cebolla') {
+    // Cebolla: hojas tubulares, gruesas y largas, que salen del cuello y se abren y se doblan por arriba
+    for (let k = 0; k < 15; k++) {
+      const x0 = W * (0.38 + azar() * 0.24);
+      const lado = (azar() - 0.5) * 2;
+      const alto = H * (0.55 + azar() * 0.4);
+      const x1 = x0 + lado * W * (0.1 + azar() * 0.2);
+      ctx.strokeStyle = color(255, 0, azar());
+      ctx.lineWidth = 4.5 + azar() * 2.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(x0, H);
+      ctx.quadraticCurveTo(x0 + lado * W * 0.03, H - alto * 0.65, x1, H - alto);
+      ctx.stroke();
+    }
+    const t = new THREE.CanvasTexture(lienzo);
+    t.colorSpace = THREE.NoColorSpace;
+    t.anisotropy = 2;
+    texturas.set(id, t);
+    return t;
+  }
+  const guarda = () => {
+    const t = new THREE.CanvasTexture(lienzo);
+    t.colorSpace = THREE.NoColorSpace;
+    t.anisotropy = 2;
+    texturas.set(id, t);
+    return t;
+  };
+  if (id === 'brocoli') {
+    // Brócoli: hojas anchas y onduladas en roseta; la pella (canal G) en el centro, a media altura
+    for (let k = 0; k < 9; k++) {
+      const lado = k % 2 ? 1 : -1;
+      const x0 = W * 0.5; const alto = H * (0.45 + azar() * 0.35);
+      ctx.fillStyle = color(255, 0, azar());
+      ctx.beginPath();
+      ctx.ellipse(x0 + lado * W * (0.12 + azar() * 0.2), H - alto * 0.55, W * 0.16, alto * 0.38, lado * (0.5 + azar() * 0.5), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = color(0, 255, azar());
+    for (let k = 0; k < 14; k++) {
+      ctx.beginPath();
+      ctx.arc(W * 0.5 + (azar() - 0.5) * W * 0.2, H * 0.56 + (azar() - 0.5) * H * 0.07, W * 0.09, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    return guarda();
+  }
+  if (id === 'alcachofa') {
+    // Alcachofa: hojas grandes, largas y partidas, de color gris verdoso; las alcachofas (G) arriba
+    for (let k = 0; k < 11; k++) {
+      const x0 = W * (0.35 + azar() * 0.3);
+      const lado = azar() < 0.5 ? -1 : 1;
+      const alto = H * (0.5 + azar() * 0.45);
+      const x1 = x0 + lado * W * (0.12 + azar() * 0.28);
+      ctx.strokeStyle = color(255, 0, azar());
+      ctx.lineWidth = 7 + azar() * 4;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(x0, H);
+      ctx.quadraticCurveTo(x0 + lado * W * 0.04, H - alto * 0.6, x1, H - alto);
+      ctx.stroke();
+      ctx.lineWidth = 2;                            // lóbulos de la hoja
+      for (let l = 1; l < 5; l++) {
+        const t = l / 5;
+        const yy = H - alto * t; const xx = x0 + (x1 - x0) * t * t;
+        ctx.beginPath(); ctx.moveTo(xx, yy); ctx.lineTo(xx + lado * 12, yy - 6); ctx.stroke();
+      }
+    }
+    ctx.fillStyle = color(0, 255, azar());
+    for (let k = 0; k < 4; k++) {
+      ctx.beginPath();
+      ctx.ellipse(W * (0.3 + azar() * 0.4), H * (0.3 + azar() * 0.18), W * 0.07, H * 0.07, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    return guarda();
+  }
+  if (id === 'esparrago') {
+    // Espárrago: frondes finísimos y plumosos que salen de unos pocos tallos; los turiones, G
+    for (let k = 0; k < 7; k++) {
+      const x0 = W * (0.3 + azar() * 0.4);
+      const x1 = x0 + (azar() - 0.5) * W * 0.3;
+      const alto = H * (0.65 + azar() * 0.3);
+      ctx.strokeStyle = color(255, 0, azar());
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x0, H);
+      ctx.quadraticCurveTo((x0 + x1) / 2, H - alto * 0.6, x1, H - alto);
+      ctx.stroke();
+      ctx.lineWidth = 1;
+      for (let l = 0; l < 26; l++) {
+        const t = 0.25 + (l / 26) * 0.75;
+        const xx = x0 + (x1 - x0) * t * t; const yy = H - alto * t;
+        const lado = l % 2 ? 1 : -1;
+        ctx.beginPath(); ctx.moveTo(xx, yy); ctx.lineTo(xx + lado * (6 + azar() * 10), yy - 4 - azar() * 6); ctx.stroke();
+      }
+    }
+    ctx.fillStyle = color(0, 255, azar());
+    for (let k = 0; k < 5; k++) ctx.fillRect(W * (0.35 + azar() * 0.3), H * 0.62, 3, H * 0.36);
+    return guarda();
+  }
   const topeTallo = H * 0.24;            // las espigas ocupan el cuarto de arriba
   // Hojas: láminas curvas desde abajo hacia los lados
   for (let k = 0; k < 14; k++) {

@@ -24,6 +24,12 @@ export const CULTIVOS = {
       [240, 0.84, 0.92, 1, [182, 152, 92], [204, 166, 100], 0.22, null],
     ],
     madura: 222,                // a partir de aquí se puede cosechar (A8)
+    // Rendimiento con vigor 1 (tierra preparada y abonada, solo con la lluvia: kg/ha de grano). El
+    // vigor lo sube o lo baja (×0,5…×1,3): bien regado sale hacia 8 000, como lo que INTIA da por
+    // alcanzable en el regadío navarro bien llevado (8 000–9 000 kg/ha); sobre rastrojo sin abono,
+    // hacia 4 000, cerca de la media de toda Navarra con el secano (4 500 de trigo blando, 2025).
+    rendimientoKgHa: 6500,
+    pesoLitroKg: 0.78,          // kg por litro de grano (para la tolva, en litros)
   },
   cebada: {
     nombre: 'Cebada',
@@ -40,6 +46,85 @@ export const CULTIVOS = {
       [225, 0.74, 0.9, 1, [200, 182, 128], [212, 192, 138], 0.9, null],
     ],
     madura: 205,
+    rendimientoKgHa: 5800,      // la cebada da algo menos (media de Navarra 3 900 frente a 4 500 del trigo, 2025)
+    pesoLitroKg: 0.66,
+  },
+  // A10. Cebolla de siembra directa en el regadío de la Ribera: se siembra a finales de invierno y
+  // se arranca a finales de verano, hacia los 165 días, cuando las hojas se han tumbado y secado.
+  // El cabeceo (último número de la hoja) es lo tumbada que está la mata. Calendario y rendimiento
+  // ORIENTATIVOS (a afinar con Rubén). Aquí «espiga» no se usa.
+  cebolla: {
+    nombre: 'Cebolla',
+    curva: [
+      [0, 0, 0, 0, [120, 104, 80], [120, 150, 70], 0, 'Sembrada'],
+      [18, 0.04, 0.06, 0, [124, 162, 76], [120, 150, 70], 0, 'Nascencia'],
+      [45, 0.14, 0.2, 0, [96, 146, 64], [120, 150, 70], 0, 'Hojas'],
+      [90, 0.42, 0.5, 0, [78, 132, 58], [120, 150, 70], 0, 'Bulbificación'],
+      [125, 0.55, 0.62, 0, [84, 134, 58], [120, 150, 70], 0.05, 'Engrosado del bulbo'],
+      [148, 0.5, 0.58, 0, [128, 148, 66], [120, 150, 70], 0.55, 'Tumbado'],
+      [165, 0.26, 0.4, 0, [176, 150, 84], [120, 150, 70], 1, 'Madura'],
+      [185, 0.2, 0.34, 0, [168, 138, 80], [120, 150, 70], 1, null],
+    ],
+    madura: 165,
+    rendimientoKgHa: 55000,     // 55 t/ha con vigor 1 (orientativo; la cebolla de Navarra anda en 50–70 t/ha)
+    pesoLitroKg: 0.62,
+    arrancable: true,           // se arranca con la arrancadora, no con la cosechadora
+  },
+  // A10: hortícolas de recolección a mano. «recoleccion: mano» → se cogen a pie, en cestas (cestaKg).
+  // Brócoli de plantel (se trasplanta; en la Ribera, de verano a otoño): la pella (la «espiga» aquí)
+  // se corta a los ~90 días y la planta se retira. ORIENTATIVO.
+  brocoli: {
+    nombre: 'Brócoli',
+    curva: [
+      [0, 0.04, 0.03, 0, [110, 140, 90], [150, 180, 110], 0, 'Plantado'],
+      [14, 0.12, 0.25, 0, [96, 138, 98], [150, 180, 110], 0, 'Arraigado'],
+      [40, 0.35, 0.72, 0, [84, 128, 98], [150, 180, 110], 0, 'Hojas'],
+      [68, 0.55, 0.95, 0.35, [78, 120, 96], [138, 176, 96], 0, 'Formando la pella'],
+      [90, 0.6, 0.97, 1, [76, 116, 92], [128, 172, 92], 0, 'Pella en su punto'],
+      [110, 0.6, 0.95, 1, [92, 120, 80], [160, 170, 80], 0, 'Se pasa'],
+    ],
+    madura: 90,
+    recoleccion: 'mano',
+    rendimientoKgHa: 12000,      // kg de pella por ha (orientativo)
+    pesoLitroKg: 0.4,
+  },
+  // Alcachofa (Blanca de Tudela) de zueca: plurianual. Aquí, cada corte devuelve la planta a «rebrote»
+  // (edadRebrote) y vuelve a madurar. ORIENTATIVO.
+  alcachofa: {
+    nombre: 'Alcachofa',
+    curva: [
+      [0, 0.05, 0.03, 0, [120, 130, 100], [128, 140, 110], 0, 'Zueca plantada'],
+      [25, 0.2, 0.3, 0, [126, 148, 118], [128, 140, 110], 0, 'Brotando'],
+      [60, 0.55, 0.7, 0, [118, 142, 118], [128, 140, 110], 0, 'Matas'],
+      [95, 0.85, 0.95, 0.4, [112, 138, 114], [120, 130, 120], 0, 'Alcachofas formándose'],
+      [120, 0.95, 0.98, 1, [108, 134, 110], [118, 126, 122], 0, 'Alcachofas en su punto'],
+      [150, 0.95, 0.96, 1, [120, 132, 100], [132, 124, 100], 0, 'Se abren'],
+    ],
+    madura: 120,
+    recoleccion: 'mano',
+    perenne: true,
+    edadRebrote: 95,             // tras cortar, la planta vuelve a esta edad
+    rendimientoKgHa: 4000,       // kg por corte y ha (orientativo)
+    pesoLitroKg: 0.3,
+  },
+  // Espárrago blanco de garra: plurianual, de tierra amontonada en caballones (A10 no los hace
+  // todavía). El turión se cosecha a mano; después la planta rebrota. ORIENTATIVO.
+  esparrago: {
+    nombre: 'Espárrago',
+    curva: [
+      [0, 0.02, 0.02, 0, [120, 110, 80], [200, 190, 150], 0, 'Garras plantadas'],
+      [30, 0.08, 0.1, 0, [118, 150, 80], [200, 190, 150], 0, 'Brotando'],
+      [70, 0.5, 0.35, 0, [96, 140, 74], [200, 190, 150], 0, 'Frondes'],
+      [100, 0.85, 0.55, 0.5, [92, 132, 70], [214, 204, 160], 0, 'Turiones en su punto'],
+      [130, 0.9, 0.6, 1, [96, 128, 68], [214, 204, 160], 0, null],
+      [170, 0.8, 0.5, 1, [150, 140, 70], [214, 204, 160], 0, 'Frondes amarilleando'],
+    ],
+    madura: 100,
+    recoleccion: 'mano',
+    perenne: true,
+    edadRebrote: 70,
+    rendimientoKgHa: 1500,
+    pesoLitroKg: 0.5,
   },
 };
 

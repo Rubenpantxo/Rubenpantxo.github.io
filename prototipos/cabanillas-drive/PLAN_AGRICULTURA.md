@@ -2,7 +2,7 @@
 
 Plan por fases para añadir a Cabanillas Drive un **modo agricultura**: parcelas reales del término de Cabanillas, delimitadas con el Catastro de Navarra y la ortofoto, que se trabajan con tractores, aperos y cosechadora hechos en 3D. El suelo cambia de aspecto por donde pasa el apero (arado, gradeado, abonado, sembrado, regado, cosechado) y las plantas nacen, crecen, maduran y se cosechan. Complementa a `PLAN.md`, `PLAN_REALISMO.md`, `PLAN_FIESTAS.md` y `PLAN_SALTO.md`. Las reglas de `CLAUDE.md` siguen siendo obligatorias: una fase cada vez, parada al final de cada fase, no inventar datos geográficos, todo en español, escritorio y móvil siempre.
 
-Fecha: 2026-11-20. Estado: **A0, A2, A3, A4, A5 y A6 aprobadas; A1 omitida por Rubén; A7 (riego a manta) hecha el 2026-11-25, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
+Fecha: 2026-11-20. Estado: **A0, A2, A3, A4, A5, A6 y A7 aprobadas; A1 omitida por Rubén; A8 (cosecha) hecha el 2026-11-25, pendiente de que Rubén la pruebe** (ver §6 y `PROGRESO.md`, apartado «Agricultura»). Rama de trabajo: **`feat/cabanillas-agricultura`** (sale de `main`).
 
 ### Inspiración y límites
 
@@ -74,6 +74,7 @@ Pendientes:
 
 - **Dosis** de abono y de semilla (A5 usa valores orientativos: 300 kg/ha de abono, 200 de trigo, 180 de cebada).
 - **Riego** (A7 usa valores orientativos): caudal de una boquera (60 L/s), tiempo de riego de la 2-700 y si hay desagüe al final.
+- **Cosecha** (A8 usa valores orientativos): rendimiento del trigo (6 500 kg/ha) y de la cebada (5 800), tolva de 6 000 L y remolque de 10 000 kg.
 - **Dinero:** precios de compra y venta en la COPE y si se pueden comprar y vender parcelas (A9).
 
 ---
@@ -94,9 +95,10 @@ src/agricultura/cultivo.js      Plantas: matas instanciadas cerca, dosel en medi
 src/agricultura/crecimiento.js  Reloj agrícola, edad por píxel, curva del cultivo y vigor (GLSL y JavaScript) (A6)
 src/agricultura/riego.js        Simulación del agua sobre el MDT, humedad, agua del cultivo y lámina visible (A7)
 src/agricultura/acequia.js      Acequia (canal de hormigón con agua) y tajaderas de las boqueras (A7)
-src/agricultura/maquina.js      Tractor y cosechadora sobre Rapier (a partir de coche.js)
+src/agricultura/maquina.js      Tractor y cosechadora sobre Rapier (a partir de coche.js), con sus piezas que se mueven
+src/agricultura/cosechadora.js  Cabezal, molinete, siega de lo maduro, tolva, tubo, descarga al remolque, paja (A8)
 src/agricultura/enganche.js     Tripuntal (aperos suspendidos) y enganche de bola (arrastrados, con articulación)
-src/agricultura/aperos.js       Arado, cultivador, abonadora, sembradora, cabezal, remolque
+src/agricultura/aperos.js       Arado, cultivador, abonadora, sembradora, remolque de grano
 src/agricultura/labranza.js     Con el apero bajado: pinta la franja de trabajo y las rodadas, freno de la tierra (A4)
 src/agricultura/particulas.js   Polvo, terrones, grano, paja
 src/agricultura/aves.js         Gaviotas que siguen al arado (A4)
@@ -106,7 +108,7 @@ src/hud/agricultura.js          Panel de parcela, apero, calendario, avisos
 tools/50_parcelas.py            Catastro + SIGPAC + regadío → parcelas.json + vistas para revisar (HECHO, A0)
 tools/51_zona_agricola.py       Terreno y ortofoto de detalle de la zona agrícola (si hace falta)
 tools/52_riego.py               Cotas, ribazo, boqueras, simulación y vista del llenado por parcela → riego.json (HECHO, A7)
-tools/build_maquinaria.py       Tractor, cosechadora y aperos en Blender (consola), piezas con nombre
+tools/build_maquinaria.py       Tractor, cosechadora, aperos y remolque en Blender (consola), piezas con nombre
 tools/prueba_agricultura.mjs    Prueba automática: labra, siembra, riega, crece y cosecha una parcela
 ```
 
@@ -292,7 +294,7 @@ Aceptación: abonar y sembrar una parcela preparada; la máscara B guarda el dí
 
 Aceptación: de una siembra a la madurez se ven nascencia, verde, espigado y dorado; las franjas sembradas en días distintos tienen alturas distintas, como en el vídeo 2. Coste medido por fotograma en alto y bajo.
 
-### A7 — Riego — HECHA (2026-11-25), pendiente de que Rubén la pruebe
+### A7 — Riego — HECHA y aprobada (2026-11-25)
 
 - `tools/52_riego.py` (cotas, boquera, vista de escorrentía), `riego.js`.
 - Tajadera en la boquera, avance del agua, humedad, charcos, secado, efecto en el vigor y en la tracción.
@@ -300,14 +302,17 @@ Aceptación: de una siembra a la madurez se ven nascencia, verde, espigado y dor
 
 Aceptación: al abrir la tajadera, el agua entra y cubre la parcela siguiendo la pendiente real en un tiempo razonable; al cerrarla se va secando. Rubén comprueba que el sentido del agua es el que conoce.
 
-### A8 — Cosecha
+### A8 — Cosecha — HECHA y aprobada (2026-11-26)
 
 - Cosechadora (modelo, dirección trasera, cabezal, molinete), corte del dosel con el escalón del vídeo 1, tolva, hileras de paja, rastrojo.
 - Remolque y descarga de grano con el tubo.
+- Hecho así: cosechadora genérica amarilla de 5,4 m de cabezal y remolque de grano de un eje en `build_maquinaria.py` (cabezal, molinete, tubo y grano como piezas que se mueven, apartadas en `maquina.js`); `coche.js` con tracción delantera y dirección trasera; `cosechadora.js`: Q baja el cabezal, la labor `segar` del pincel corta solo lo maduro y apunta el grano por píxel (rendimiento del cultivo × vigor), tolva de 6 000 L, paja, polvo y rodadas; X saca el tubo y el grano pasa al remolque que haya debajo; en la COPE se descarga (se apunta lo entregado); a pie se sube al vehículo más cercano; `?agricultura=cosecha`; prueba `tools/prueba_cosecha.mjs`. Rendimientos orientativos: trigo 6 500 y cebada 5 800 kg/ha con vigor 1.
 
 Aceptación: cosechar una parcela madura deja rastrojo; la tolva se llena según el rendimiento y se descarga al remolque.
 
-### A9 — Ciclo completo, HUD y guardado
+### A9 — Ciclo completo, HUD y guardado — HECHA (2026-11-26), pendiente de que Rubén la pruebe
+
+- Hecho así: dinero (3 000 €), venta de grano (trigo 0,25 y cebada 0,238 €/kg, Lonja del Ebro, noviembre de 2026), compra de semilla y abono al llenar la tolva (0,45 €/kg, orientativo), menú de la COPE con «Tus parcelas», avisos, panel con SIGPAC y regadío, capa de parcelas y de anchura de trabajo en el minimapa, guardado en `localStorage` (RLE por canales + base64; un escenario de pruebas no guarda) y `tools/prueba_agricultura.mjs`. Comprar y vender parcelas: pendiente de que Rubén lo quiera.
 
 - `src/hud/agricultura.js`, panel de parcela, avisos, minimapa, menú de la COPE (comprar y vender), guardado y carga.
 - Comprar y vender parcelas si Rubén lo quiere.
@@ -322,9 +327,13 @@ Aceptación: Rubén hace un ciclo completo en escritorio y en el móvil.
 - Recolección a mano con el personaje y cajas al remolque; arrancado de la cebolla en hileras.
 - Venta en la COPE.
 
+Estado (2026-11-26): hecho salvo la **acaballonadora** (el espárrago se planta en llano) y el ciclo de varios años (alcachofa y espárrago rebrotan en su edad de rebrote). Cebolla con arrancadora y cajón; brócoli, alcachofa y espárrago con plantadora (tolva en plantas) y recolección a pie con cesta de 40 kg. Detalle en `PROGRESO.md`.
+
 Aceptación: Rubén planta y cosecha cada uno de los cuatro, en escritorio y en el móvil.
 
 ### A11 — Rendimiento, móvil y publicación
+
+Estado (2026-11-26): presupuesto medido (el modo suma ~42 llamadas y ~150 mil triángulos en «bajo»; sin recortes), juego normal comprobado, `CREDITOS.md` al día. Faltan la medición en el Pixel 10 y la publicación (`activo: true`, `npm run publica`, fusión en `main`), que decide Rubén. Detalle en `PROGRESO.md`.
 
 - Presupuesto por calidad (resolución de máscaras, distancia de matas, partículas, rejilla de riego) y medición en el Pixel 10 (recordar: sin sombras 3D en PowerVR).
 - Repetir todas las pruebas existentes (`prueba_salto`, `prueba_fiestas`, `prueba_modos`…) para confirmar que el juego normal no ha cambiado.

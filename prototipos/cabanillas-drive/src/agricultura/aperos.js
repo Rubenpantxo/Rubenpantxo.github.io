@@ -1,4 +1,5 @@
-// Aperos del modo agricultura (PLAN_AGRICULTURA.md §5.6, fase A4): arado reversible y cultivador.
+// Aperos del modo agricultura (PLAN_AGRICULTURA.md §5.6, fases A4–A8): arado reversible, cultivador,
+// abonadora, sembradora y (A8) el remolque de grano.
 // Modelos de tools/build_maquinaria.py (public/assets/maquinaria/); su configuración de trabajo está
 // en src/config/maquinaria.js (APEROS). Cuando no van en el tractor esperan en el patio de la COPE,
 // apoyados en el suelo y con una caja de colisión para que no se atraviesen.
@@ -6,6 +7,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { APEROS, RUTA_MAQUINARIA } from '../config/maquinaria.js';
+import { MODELOS_CODIGO } from './modelosCodigo.js';
 
 let manifiesto = null;
 export async function leeManifiesto() {
@@ -22,12 +24,19 @@ export async function leeManifiesto() {
 export async function cargaApero(id, { fisica }) {
   const config = APEROS[id];
   if (!config) throw new Error(`Apero desconocido: ${id}`);
-  const info = (await leeManifiesto())[config.modelo];
-  if (!info) throw new Error(`No hay «${config.modelo}» en maquinaria.json (¿npm run maquinaria?)`);
-  const cargador = new GLTFLoader();
-  cargador.setMeshoptDecoder(MeshoptDecoder);
-  const gltf = await cargador.loadAsync(`${RUTA_MAQUINARIA}${info.archivo}`);
-  const modelo = gltf.scene;
+  let info;
+  let modelo;
+  if (config.procedural) {
+    // Modelo hecho en código (sin GLB ni maquinaria.json)
+    ({ modelo, info } = MODELOS_CODIGO[config.modelo]());
+  } else {
+    info = (await leeManifiesto())[config.modelo];
+    if (!info) throw new Error(`No hay «${config.modelo}» en maquinaria.json (¿npm run maquinaria?)`);
+    const cargador = new GLTFLoader();
+    cargador.setMeshoptDecoder(MeshoptDecoder);
+    const gltf = await cargador.loadAsync(`${RUTA_MAQUINARIA}${info.archivo}`);
+    modelo = gltf.scene;
+  }
   modelo.traverse((o) => {
     if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
   });
@@ -88,7 +97,8 @@ export async function cargaApero(id, { fisica }) {
       const t = apero.llenado;
       nodoCarga.visible = t > 0.005;
       nodoCarga.position.y = THREE.MathUtils.lerp(c.y_vacia, c.y_llena, t);
-      nodoCarga.scale.set(THREE.MathUtils.lerp(c.escala_vacia_x, 1, t), 1, THREE.MathUtils.lerp(c.escala_vacia, 1, t));
+      const sy = c.escala_y ? THREE.MathUtils.lerp(c.escala_y[0], c.escala_y[1], t) : 1;     // el montón del remolque crece
+      nodoCarga.scale.set(THREE.MathUtils.lerp(c.escala_vacia_x, 1, t), sy, THREE.MathUtils.lerp(c.escala_vacia, 1, t));
     },
     // Rejas de la sembradora: 0 bajadas (clavadas unos centímetros) … 1 levantadas
     ponRejas(subida) {
