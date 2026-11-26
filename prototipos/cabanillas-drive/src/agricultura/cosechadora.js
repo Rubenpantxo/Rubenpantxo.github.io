@@ -84,9 +84,9 @@ function creaChorros(escena, terreno) {
   };
 }
 
-export async function creaCosechadora({ fisica, escena, terreno, registro, labranza, reloj, remolques }) {
-  const K = COSECHADORA.cosecha;
-  const maquina = await creaMaquina(fisica, escena, { ...COSECHADORA });
+export async function creaCosechadora({ fisica, escena, terreno, registro, labranza, reloj, remolques, config = COSECHADORA }) {
+  const K = config.cosecha;
+  const maquina = await creaMaquina(fisica, escena, { ...config });
   const { info, piezas } = maquina;
   const motor = maquina.config.motor;
   const velocidadMaxOriginal = motor.velocidadMaxKmh;

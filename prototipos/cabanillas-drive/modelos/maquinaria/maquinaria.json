@@ -418,5 +418,535 @@
    ]
   },
   "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ },
+ "tractor_fendt_516": {
+  "archivo": "tractor_fendt_516.glb",
+  "enganche": {
+   "pivote": [
+    0.0,
+    0.5651,
+    -1.5787
+   ],
+   "rotula": [
+    0.0,
+    0.5011,
+    -2.4287
+   ],
+   "superior": [
+    0.0,
+    1.1811,
+    -2.3537
+   ],
+   "barra_tiro": [
+    0.0,
+    0.4211,
+    -2.0787
+   ],
+   "toma_fuerza": [
+    0.0,
+    0.7811,
+    -1.8037
+   ]
+  },
+  "largo": 4.957,
+  "ancho": 2.54,
+  "alto": 3.271,
+  "pintura": true,
+  "triangulos": 12948,
+  "ruedas": [
+   {
+    "objeto": "rueda_di",
+    "centro": [
+     0.91,
+     0.6211,
+     1.5913
+    ],
+    "radio": 0.62,
+    "ancho": 0.44
+   },
+   {
+    "objeto": "rueda_dd",
+    "centro": [
+     -0.91,
+     0.6211,
+     1.5913
+    ],
+    "radio": 0.62,
+    "ancho": 0.44
+   },
+   {
+    "objeto": "rueda_ti",
+    "centro": [
+     0.93,
+     0.8211,
+     -1.1287
+    ],
+    "radio": 0.82,
+    "ancho": 0.56
+   },
+   {
+    "objeto": "rueda_td",
+    "centro": [
+     -0.93,
+     0.8211,
+     -1.1287
+    ],
+    "radio": 0.82,
+    "ancho": 0.56
+   }
+  ],
+  "fuente": "Modelo original sin emblemas; proporciones guiadas por datos públicos de referencia.",
+  "referencia": "Fendt 516 Vario",
+  "potenciaCV": 163,
+  "masa": 7600,
+  "velocidadMaxKmh": 50,
+  "transmision": "continuously variable"
+ },
+ "cosechadora_nh_cx790": {
+  "archivo": "cosechadora_nh_cx790.glb",
+  "cabezal": {
+   "pivote": [
+    0.02,
+    1.6327,
+    1.67
+   ],
+   "ancho_corte": 7.6,
+   "corte": [
+    0.02,
+    0.1627,
+    5.3
+   ],
+   "molinete": [
+    0.02,
+    1.3827,
+    4.77
+   ]
+  },
+  "tolva": {
+   "carga": "carga",
+   "y_vacia": 2.973,
+   "y_llena": 3.603,
+   "escala_vacia": 0.85
+  },
+  "tubo": {
+   "pivote": [
+    1.32,
+    3.4527,
+    -1.3
+   ],
+   "largo": 4.55,
+   "salida": [
+    1.32,
+    3.0027,
+    -5.73
+   ]
+  },
+  "paja": [
+   0.02,
+   1.0027,
+   -3.4
+  ],
+  "largo": 11.749,
+  "ancho": 7.64,
+  "alto": 4.248,
+  "pintura": true,
+  "triangulos": 20204,
+  "ruedas": [
+   {
+    "objeto": "rueda_di",
+    "centro": [
+     1.37,
+     0.8627,
+     1.05
+    ],
+    "radio": 0.86,
+    "ancho": 0.67
+   },
+   {
+    "objeto": "rueda_dd",
+    "centro": [
+     -1.33,
+     0.8627,
+     1.05
+    ],
+    "radio": 0.86,
+    "ancho": 0.67
+   },
+   {
+    "objeto": "rueda_ti",
+    "centro": [
+     1.11,
+     0.5227,
+     -2.37
+    ],
+    "radio": 0.52,
+    "ancho": 0.38
+   },
+   {
+    "objeto": "rueda_td",
+    "centro": [
+     -1.07,
+     0.5227,
+     -2.37
+    ],
+    "radio": 0.52,
+    "ancho": 0.38
+   }
+  ],
+  "fuente": "Modelo original sin emblemas; proporciones guiadas por datos públicos de referencia.",
+  "referencia": "New Holland CX7.90",
+  "potenciaCV": 400,
+  "masa": 15500,
+  "velocidadMaxKmh": 25,
+  "tolvaL": 12500,
+  "sistema_trilla": "sacudidores"
+ },
+ "tractor_jd_6r250": {
+  "archivo": "tractor_jd_6r250.glb",
+  "enganche": {
+   "pivote": [
+    0.0,
+    0.5656,
+    -1.7188
+   ],
+   "rotula": [
+    0.0,
+    0.5016,
+    -2.5688
+   ],
+   "superior": [
+    0.0,
+    1.1816,
+    -2.4938
+   ],
+   "barra_tiro": [
+    0.0,
+    0.4216,
+    -2.2188
+   ],
+   "toma_fuerza": [
+    0.0,
+    0.7816,
+    -1.9438
+   ]
+  },
+  "largo": 5.238,
+  "ancho": 2.67,
+  "alto": 3.412,
+  "pintura": true,
+  "triangulos": 13044,
+  "ruedas": [
+   {
+    "objeto": "rueda_di",
+    "centro": [
+     0.94,
+     0.6416,
+     1.6512
+    ],
+    "radio": 0.64,
+    "ancho": 0.47
+   },
+   {
+    "objeto": "rueda_dd",
+    "centro": [
+     -0.94,
+     0.6416,
+     1.6512
+    ],
+    "radio": 0.64,
+    "ancho": 0.47
+   },
+   {
+    "objeto": "rueda_ti",
+    "centro": [
+     0.97,
+     0.8716,
+     -1.2688
+    ],
+    "radio": 0.87,
+    "ancho": 0.61
+   },
+   {
+    "objeto": "rueda_td",
+    "centro": [
+     -0.97,
+     0.8716,
+     -1.2688
+    ],
+    "radio": 0.87,
+    "ancho": 0.61
+   }
+  ],
+  "fuente": "Modelo original sin emblemas; proporciones guiadas por datos públicos de referencia.",
+  "referencia": "John Deere 6R 250",
+  "potenciaCV": 250,
+  "masa": 9400,
+  "velocidadMaxKmh": 50,
+  "transmision": "AutoPowr"
+ },
+ "tractor_nh_t7_300": {
+  "archivo": "tractor_nh_t7_300.glb",
+  "enganche": {
+   "pivote": [
+    0.0,
+    0.5657,
+    -1.8087
+   ],
+   "rotula": [
+    0.0,
+    0.5017,
+    -2.6587
+   ],
+   "superior": [
+    0.0,
+    1.1817,
+    -2.5837
+   ],
+   "barra_tiro": [
+    0.0,
+    0.4217,
+    -2.3087
+   ],
+   "toma_fuerza": [
+    0.0,
+    0.7817,
+    -2.0337
+   ]
+  },
+  "largo": 5.417,
+  "ancho": 2.73,
+  "alto": 3.472,
+  "pintura": true,
+  "triangulos": 13044,
+  "ruedas": [
+   {
+    "objeto": "rueda_di",
+    "centro": [
+     0.95,
+     0.6617,
+     1.7113
+    ],
+    "radio": 0.66,
+    "ancho": 0.48
+   },
+   {
+    "objeto": "rueda_dd",
+    "centro": [
+     -0.95,
+     0.6617,
+     1.7113
+    ],
+    "radio": 0.66,
+    "ancho": 0.48
+   },
+   {
+    "objeto": "rueda_ti",
+    "centro": [
+     0.99,
+     0.9017,
+     -1.3587
+    ],
+    "radio": 0.9,
+    "ancho": 0.63
+   },
+   {
+    "objeto": "rueda_td",
+    "centro": [
+     -0.99,
+     0.9017,
+     -1.3587
+    ],
+    "radio": 0.9,
+    "ancho": 0.63
+   }
+  ],
+  "fuente": "Modelo original sin emblemas; proporciones guiadas por datos públicos de referencia.",
+  "referencia": "New Holland T7.300",
+  "potenciaCV": 300,
+  "masa": 10800,
+  "velocidadMaxKmh": 50,
+  "transmision": "Auto Command"
+ },
+ "tractor_case_magnum_400": {
+  "archivo": "tractor_case_magnum_400.glb",
+  "enganche": {
+   "pivote": [
+    0.0,
+    0.5659,
+    -1.9288
+   ],
+   "rotula": [
+    0.0,
+    0.5019,
+    -2.7788
+   ],
+   "superior": [
+    0.0,
+    1.1819,
+    -2.7038
+   ],
+   "barra_tiro": [
+    0.0,
+    0.4219,
+    -2.4288
+   ],
+   "toma_fuerza": [
+    0.0,
+    0.7819,
+    -2.1538
+   ]
+  },
+  "largo": 5.657,
+  "ancho": 2.84,
+  "alto": 3.612,
+  "pintura": true,
+  "triangulos": 13236,
+  "ruedas": [
+   {
+    "objeto": "rueda_di",
+    "centro": [
+     0.99,
+     0.7019,
+     1.7212
+    ],
+    "radio": 0.7,
+    "ancho": 0.52
+   },
+   {
+    "objeto": "rueda_dd",
+    "centro": [
+     -0.99,
+     0.7019,
+     1.7212
+    ],
+    "radio": 0.7,
+    "ancho": 0.52
+   },
+   {
+    "objeto": "rueda_ti",
+    "centro": [
+     1.02,
+     0.9819,
+     -1.4788
+    ],
+    "radio": 0.98,
+    "ancho": 0.68
+   },
+   {
+    "objeto": "rueda_td",
+    "centro": [
+     -1.02,
+     0.9819,
+     -1.4788
+    ],
+    "radio": 0.98,
+    "ancho": 0.68
+   }
+  ],
+  "fuente": "Modelo original sin emblemas; proporciones guiadas por datos públicos de referencia.",
+  "referencia": "Case IH Magnum 400",
+  "potenciaCV": 435,
+  "masa": 15000,
+  "velocidadMaxKmh": 40,
+  "transmision": "PowerDrive"
+ },
+ "cosechadora_claas_lexion7700": {
+  "archivo": "cosechadora_claas_lexion7700.glb",
+  "cabezal": {
+   "pivote": [
+    0.02,
+    1.7629,
+    1.7492
+   ],
+   "ancho_corte": 9.3,
+   "corte": [
+    0.02,
+    0.1729,
+    5.8792
+   ],
+   "molinete": [
+    0.02,
+    1.5229,
+    5.3092
+   ]
+  },
+  "tolva": {
+   "carga": "carga",
+   "y_vacia": 3.073,
+   "y_llena": 3.763,
+   "escala_vacia": 0.85
+  },
+  "tubo": {
+   "pivote": [
+    1.5,
+    3.6229,
+    -1.5208
+   ],
+   "largo": 4.9,
+   "salida": [
+    1.5,
+    3.1029,
+    -6.3008
+   ]
+  },
+  "paja": [
+   0.02,
+   1.0029,
+   -3.4208
+  ],
+  "largo": 12.908,
+  "ancho": 9.34,
+  "alto": 4.388,
+  "pintura": true,
+  "triangulos": 18932,
+  "ruedas": [
+   {
+    "objeto": "rueda_di",
+    "centro": [
+     1.45,
+     0.9229,
+     1.0292
+    ],
+    "radio": 0.92,
+    "ancho": 0.72
+   },
+   {
+    "objeto": "rueda_dd",
+    "centro": [
+     -1.41,
+     0.9229,
+     1.0292
+    ],
+    "radio": 0.92,
+    "ancho": 0.72
+   },
+   {
+    "objeto": "rueda_ti",
+    "centro": [
+     1.145,
+     0.5529,
+     -2.5208
+    ],
+    "radio": 0.55,
+    "ancho": 0.4
+   },
+   {
+    "objeto": "rueda_td",
+    "centro": [
+     -1.105,
+     0.5529,
+     -2.5208
+    ],
+    "radio": 0.55,
+    "ancho": 0.4
+   }
+  ],
+  "fuente": "Modelo original sin emblemas; proporciones guiadas por datos públicos de referencia.",
+  "referencia": "CLAAS LEXION 7700",
+  "potenciaCV": 585,
+  "masa": 19000,
+  "velocidadMaxKmh": 30,
+  "tolvaL": 13500,
+  "sistema_trilla": "híbrido"
  }
 }

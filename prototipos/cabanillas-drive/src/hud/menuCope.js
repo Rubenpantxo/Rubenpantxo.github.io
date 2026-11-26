@@ -105,7 +105,9 @@ export function creaMenuCope() {
     // A9: dinero, precios { compra, venta }, parcelas [{ ref, paraje, ha, id, estado, … }], guardado;
     // acciones: vende(id), nueva()
     // acciones: cosechadora(), vaciaTolva(), vaciaRemolque()
-    abre({ en, colores, colorElegido, aperos = [], semillas = [], semilla = null, tolva = null, sonido = null, reloj = null,
+    abre({ en, colores, colorElegido, tractores = [], modeloTractor = 'tractor', cosechadoras = [],
+      modeloCosechadora = 'cosechadora',
+      aperos = [], semillas = [], semilla = null, tolva = null, sonido = null, reloj = null,
       cosecha = null, remolque = null, granero = null, dinero = 0, precios = null, parcelas = [], guardado = false, acciones }) {
       caja.replaceChildren();
       raiz.hidden = false;
@@ -152,9 +154,17 @@ export function creaMenuCope() {
         }
         if (semillas.length) eligeSemilla(semillas, semilla, (id) => acciones.semilla(id));
         boton('Coger el tractor', '', () => { raiz.hidden = true; acciones.tractor(elegido, aperoElegido); }, 'tractor');
+        for (const t of tractores.filter((x) => x.id !== 'tractor')) {
+          const b = boton(`Coger ${t.nombre}`, '', () => { raiz.hidden = true; acciones.tractorModelo(t.id, aperoElegido); }, 'tractor');
+          crea('small', '', b, `${t.potenciaCV} CV · ${t.transmision}`);
+        }
         if (acciones.cosechadora) {
           const b = boton('Coger la cosechadora', '', () => { raiz.hidden = true; acciones.cosechadora(); }, 'cosechadora');
           crea('small', '', b, 'cabezal de 5,4 m · para el trigo y la cebada maduros');
+        }
+        for (const c of cosechadoras.filter((x) => x.id !== 'cosechadora')) {
+          const b = boton(`Coger ${c.nombre}`, '', () => { raiz.hidden = true; acciones.cosechadoraModelo(c.id); }, 'cosechadora');
+          crea('small', '', b, `${c.potenciaCV} CV · cabezal de ${c.anchoCabezalM} m · tolva de ${c.tolvaL.toLocaleString('es-ES')} L`);
         }
         const ayuda = crea('ul', '', caja);
         for (const l of tactil
@@ -176,6 +186,10 @@ export function creaMenuCope() {
           'Bájate (botón del peatón o E) para subir al tractor o a otro vehículo que esté cerca'])
           crea('li', '', ayuda, l);
         boton('Dejar la cosechadora y coger el coche', 'plano', () => { raiz.hidden = true; acciones.coche(); }, 'coche');
+        for (const c of cosechadoras.filter((x) => x.id !== modeloCosechadora)) {
+          const b = boton(`Cambiar a ${c.nombre}`, 'plano', () => { raiz.hidden = true; acciones.cosechadoraModelo(c.id); }, 'cosechadora');
+          crea('small', '', b, `${c.potenciaCV} CV · cabezal de ${c.anchoCabezalM} m`);
+        }
       } else {
         // Remolque de grano enganchado: lo que lleva, y descargarlo aquí
         if (remolque) {
@@ -211,6 +225,10 @@ export function creaMenuCope() {
             'La abonadora reparte 12 m; la sembradora (arrastrada) siembra 3 m sobre la tierra preparada', 'Al enganchar la abonadora o la sembradora se llena su tolva',
             'El remolque de grano lo llena la cosechadora con su tubo'])
             crea('li', '', ayuda, l);
+        }
+        for (const t of tractores.filter((x) => x.id !== modeloTractor)) {
+          const b = boton(`Cambiar a ${t.nombre}`, 'plano', () => { raiz.hidden = true; acciones.tractorModelo(t.id, aperos.find((a) => a.enganchado)?.id ?? null); }, 'tractor');
+          crea('small', '', b, `${t.potenciaCV} CV · ${t.transmision}`);
         }
         boton('Dejar el tractor y coger el coche', 'plano', () => { raiz.hidden = true; acciones.coche(); }, 'coche');
       }

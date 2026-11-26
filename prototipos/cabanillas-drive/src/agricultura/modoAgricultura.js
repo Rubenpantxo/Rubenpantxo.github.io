@@ -10,7 +10,7 @@
 // Lo carga juego.js con import() la primera vez que hace falta (solo con el modo activo).
 import { AGRICULTURA } from '../config/agricultura.js';
 import * as THREE from 'three';
-import { APEROS, COLORES_TRACTOR, SEMILLAS, TRACTOR } from '../config/maquinaria.js';
+import { APEROS, COLORES_TRACTOR, COSECHADORAS, SEMILLAS, TRACTORES } from '../config/maquinaria.js';
 import { cargaParcelas } from '../datos/parcelas.js';
 import { creaHudAgricultura } from '../hud/agricultura.js';
 import { creaMenuCope } from '../hud/menuCope.js';
@@ -45,19 +45,25 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   const C = AGRICULTURA.cope;
   const terreno = api.mundo.terreno;
   let indiceColor = leeColor();
-  const [tractor, datosParcelas, datosRiego, ...listaAperos] = await Promise.all([
-    creaMaquina(fisica, escena, { ...TRACTOR, color: COLORES_TRACTOR[indiceColor].color }),
+  const [paresTractores, datosParcelas, datosRiego, ...listaAperos] = await Promise.all([
+    Promise.all(Object.entries(TRACTORES).map(async ([id, config]) => [
+      id,
+      await creaMaquina(fisica, escena, { ...config, ...(id === 'tractor' ? { color: COLORES_TRACTOR[indiceColor].color } : {}) }),
+    ])),
     cargaParcelas(AGRICULTURA.rutaParcelas),
     cargaDatosRiego(),
     ...Object.keys(APEROS).map((id) => cargaApero(id, { fisica })),
   ]);
-  const registro = creaRegistro(datosParcelas);
-  const aperos = Object.fromEntries(listaAperos.map((a) => [a.id, a]));
-  const menu = creaMenuCope();
+  const tractores = Object.fromEntries(paresTractores);
+  let tractor = tractores.tractor;
   const raiz = new THREE.Group();
   raiz.name = 'raizAgricultura';
   escena.add(raiz);
-  const enganche = creaEnganche(tractor, { terreno, raiz });
+  const enganches = Object.fromEntries(Object.entries(tractores).map(([id, maquina]) => [id, creaEnganche(maquina, { terreno, raiz })]));
+  let enganche = enganches.tractor;
+  const registro = creaRegistro(datosParcelas);
+  const aperos = Object.fromEntries(listaAperos.map((a) => [a.id, a]));
+  const menu = creaMenuCope();
   // Reloj agrícola (?dia=N para empezar en otro día)
   const parametros = new URLSearchParams(location.search);
   const diaPedido = Number.parseInt(parametros.get('dia') ?? '', 10);
@@ -67,7 +73,8 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   const guardado = guardaActivo ? leePartida() : null;
   const reloj = creaReloj(Number.isFinite(diaPedido) && diaPedido >= 0 ? { dia: diaPedido } : guardado ? { dia: guardado.dia } : {});
   const economia = { dinero: guardado?.dinero ?? ECONOMIA.dineroInicial };
-  const labranza = creaLabranza({ api, escena, camara, renderer, registro, tractor, enganche, raiz, reloj });
+  const labranza = creaLabranza({ api, escena, camara, renderer, registro, tractor, enganche,
+    getTractor: () => tractor, getEnganche: () => enganche, raiz, reloj });
   const recoleccion = creaRecoleccion({ labranza, reloj });
   const cultivos = new Map();               // ref → cultivo (dosel y matas) de las parcelas sembradas
   const sol = escena.getObjectByName('sol');
@@ -114,9 +121,14 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   document.addEventListener('visibilitychange', alOcultar);
   addEventListener('pagehide', () => guarda(true));
   // Cosechadora (A8): en el patio; vacía su tolva en el remolque de grano (apero del tractor)
-  const cosechadora = await creaCosechadora({ fisica, escena, terreno, registro, labranza, reloj,
-    remolques: () => Object.values(aperos).filter((a) => a.config.grano) });
-  const combinada = cosechadora.maquina;
+  const paresCosechadoras = await Promise.all(Object.entries(COSECHADORAS).map(async ([id, config]) => [
+    id,
+    await creaCosechadora({ fisica, escena, terreno, registro, labranza, reloj, config,
+      remolques: () => Object.values(aperos).filter((a) => a.config.grano) }),
+  ]));
+  const cosechadoras = Object.fromEntries(paresCosechadoras);
+  let cosechadora = cosechadoras.cosechadora;
+  let combinada = cosechadora.maquina;
   const granero = { ...(guardado?.granero ?? {}) };   // kg entregados en la COPE por cultivo, a la venta
   reloj.alCambiarDia((dia, pasados) => riego.alCambiarDia(dia, pasados));
   function pasaDias(n) {
@@ -174,10 +186,16 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     const y = terreno.alturaEn(x, z) + alturaLibre + altoCaja / 2 + 0.12;
     vehiculo.recoloca(x, y, z, Math.sin(r), -Math.cos(r));
   }
-  colocaEn(tractor, C.sitioTractor);
-  api.aparcaVehiculo(tractor);
-  colocaEn(combinada, C.sitioCosechadora);
-  api.aparcaVehiculo(combinada);
+  const sitioTractor = (vehiculo) => C.sitiosTractores?.[vehiculo.config.modelo] ?? C.sitioTractor;
+  const sitioCosechadora = (vehiculo) => C.sitiosCosechadoras?.[vehiculo.config.modelo] ?? C.sitioCosechadora;
+  for (const vehiculo of Object.values(tractores)) {
+    colocaEn(vehiculo, sitioTractor(vehiculo));
+    api.aparcaVehiculo(vehiculo);
+  }
+  for (const control of Object.values(cosechadoras)) {
+    colocaEn(control.maquina, sitioCosechadora(control.maquina));
+    api.aparcaVehiculo(control.maquina);
+  }
   for (const a of listaAperos) a.aparca(raiz, terreno, C.sitiosAperos[a.id]);
 
   function pinta(indice) {
@@ -189,29 +207,69 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   }
 
   function cogeTractor(indice, idApero = enganche.apero?.id ?? null) {
-    if (indice !== indiceColor) pinta(indice);
+    cogeTractorModelo('tractor', idApero, indice);
+  }
+  function cogeTractorModelo(id, idApero = enganche.apero?.id ?? null, indice = indiceColor) {
+    const nuevo = tractores[id];
+    if (!nuevo) throw new Error(`No existe el tractor «${id}»`);
+    const anterior = tractor;
+    const engancheAnterior = enganche;
+    const coche = api.coche;
+    let aperoAnterior = null;
+    if (coche === anterior && anterior !== nuevo) {
+      engancheAnterior.pon(false);
+      aperoAnterior = engancheAnterior.apero ? engancheAnterior.desengancha() : null;
+      colocaEn(anterior, sitioTractor(anterior));
+    } else if (coche === combinada) {
+      cosechadora.ponCabezal(false);
+      cosechadora.ponTubo(false);
+      colocaEn(combinada, sitioCosechadora(combinada));
+    } else if (coche === api.cocheJugador) {
+      colocaEn(coche, C.sitioCoche);
+    }
+    if (anterior !== nuevo) {
+      tractor = nuevo;
+      enganche = enganches[id];
+    }
+    if (aperoAnterior && aperoAnterior.id !== idApero) {
+      aperoAnterior.aparca(raiz, terreno, C.sitiosAperos[aperoAnterior.id]);
+    }
+    if (id === 'tractor' && indice !== indiceColor) pinta(indice);
+    if (idApero) {
+      const propietario = Object.values(enganches).find((otro) => otro !== enganche && otro.apero?.id === idApero);
+      if (propietario) {
+        propietario.pon(false);
+        aperoAnterior = propietario.desengancha();
+      }
+    }
     if (idApero) engancha(idApero, false);
     else if (enganche.apero) dejaApero();
-    const coche = api.coche;
-    colocaEn(coche, C.sitioCoche);           // el coche, aparcado a un lado del patio
     api.cambiaVehiculo(tractor);
     sonido ??= creaSonidoMotor();
     api.avisa(enganche.apero
       ? `🚜 ${enganche.apero.config.icono} ${enganche.apero.config.nombre} · ${conTeclado ? 'Q' : '⬇'}: bajarlo en la parcela`
-      : '🚜 Llevas el tractor · vuelve a la COPE para engancharle un apero o dejarlo', 6);
+      : `🚜 Llevas ${tractor.config.nombre} · vuelve a la COPE para engancharle un apero o dejarlo`, 6);
   }
-  function cogeCosechadora() {
+  function cogeCosechadora(id = 'cosechadora') {
+    const nueva = cosechadoras[id];
+    if (!nueva) throw new Error(`No existe la cosechadora «${id}»`);
     const coche = api.coche;
-    if (coche === tractor) { enganche.pon(false); colocaEn(tractor, C.sitioTractor); }
-    else colocaEn(coche, C.sitioCoche);
+    if (coche === tractor) { enganche.pon(false); colocaEn(tractor, sitioTractor(tractor)); }
+    else if (coche === combinada) {
+      cosechadora.ponCabezal(false);
+      cosechadora.ponTubo(false);
+      colocaEn(combinada, sitioCosechadora(combinada));
+    } else colocaEn(coche, C.sitioCoche);
+    cosechadora = nueva;
+    combinada = cosechadora.maquina;
     api.cambiaVehiculo(combinada);
     sonido ??= creaSonidoMotor();
-    api.avisa(`🌾 Llevas la cosechadora · ${conTeclado ? 'Q' : '⬇'}: bajar el cabezal en el cereal maduro · ${conTeclado ? 'X' : '🌾'}: el tubo de descarga`, 7);
+    api.avisa(`🌾 Llevas ${combinada.config.nombre} · ${conTeclado ? 'Q' : '⬇'}: bajar el cabezal · ${conTeclado ? 'X' : '🌾'}: tubo de descarga`, 7);
   }
   function dejaCosechadora() {
     cosechadora.ponCabezal(false);
     cosechadora.ponTubo(false);
-    colocaEn(combinada, C.sitioCosechadora);
+    colocaEn(combinada, sitioCosechadora(combinada));
     api.cambiaVehiculo(api.cocheJugador);
     sonido?.para();
     api.avisa('🚗 Cosechadora aparcada en la COPE', 4);
@@ -226,7 +284,7 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   }
   function dejaTractor() {
     enganche.pon(false);
-    colocaEn(tractor, C.sitioTractor);
+    colocaEn(tractor, sitioTractor(tractor));
     api.cambiaVehiculo(api.cocheJugador);
     sonido?.para();
     api.avisa('🚗 Tractor aparcado en la COPE', 4);
@@ -356,7 +414,10 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     }
   });
   const modo = {
-    tractor, enganche, labranza, registro, aperos, recoleccion,
+    get tractor() { return tractor; },
+    get enganche() { return enganche; },
+    get cosechadora() { return cosechadora; },
+    labranza, registro, aperos, recoleccion,
     get llevaTractor() { return api.coche === tractor; },
     get menuAbierto() { return menu.visible; },
     get sonido() { return sonido; },
@@ -368,6 +429,15 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
       const rem = enganche.apero?.config.grano || enganche.apero?.config.recolector ? enganche.apero : null;
       menu.abre({
         en: enTractor ? 'tractor' : enCosechadora ? 'cosechadora' : 'coche',
+        tractores: Object.entries(TRACTORES).map(([id, config]) => ({
+          id, nombre: config.nombre, potenciaCV: config.motor.potenciaCV ?? config.motor.potencia,
+          transmision: config.motor.transmision ?? 'Transmisión automática',
+        })),
+        modeloTractor: tractor.config.modelo,
+        cosechadoras: Object.entries(COSECHADORAS).map(([id, config]) => ({
+          id, nombre: config.nombre, potenciaCV: config.potenciaCV, anchoCabezalM: config.cosecha.anchoCabezalM, tolvaL: config.cosecha.tolvaL,
+        })),
+        modeloCosechadora: cosechadora.maquina.config.modelo,
         cosecha: enCosechadora ? { kg: cosechadora.tolvaKg, capacidad: cosechadora.capacidadKg, nombre: nombreGrano(cosechadora.contenido) } : null,
         remolque: enTractor && rem ? { kg: rem.carga, capacidad: rem.capacidad, nombre: nombreGrano(rem.contenido), titulo: rem.config.recolector ? 'Cajón de la arrancadora' : 'Remolque' } : null,
         dinero: economia.dinero,
@@ -391,7 +461,8 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
           kg: enganche.apero.carga, capacidad: enganche.apero.capacidad, esSemilla: enganche.apero.config.tolva === 'semilla', unidad: unidadCarga(enganche.apero) } : null,
         sonido: enTractor || enCosechadora ? Boolean(sonido?.activo) : null,
         reloj: { dia: reloj.dia, minutosParaManana: Math.ceil(reloj.segundosParaManana / 60), pasar: AGRICULTURA.reloj.pasarDias },
-        acciones: { tractor: cogeTractor, coche: enCosechadora ? dejaCosechadora : dejaTractor, engancha, cosechadora: cogeCosechadora,
+        acciones: { tractor: cogeTractor, tractorModelo: cogeTractorModelo, coche: enCosechadora ? dejaCosechadora : dejaTractor,
+          engancha, cosechadora: cogeCosechadora, cosechadoraModelo: cogeCosechadora,
           vaciaTolva: () => entrega(cosechadora.vacia(), cosechadora.contenido),
           vaciaRemolque: () => { if (rem) { const kg = rem.carga; rem.carga = 0; rem.pintaCarga(); entrega(kg, rem.contenido); } }, desengancha: () => { if (dejaApero()) api.avisa('Apero dejado en el patio', 3); },
           sonido: () => Boolean(sonido?.alterna()),
@@ -524,7 +595,6 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     vende,
     get guardaActivo() { return guardaActivo2; },
     cogeTractor: (indice = indiceColor, idApero) => cogeTractor(indice, idApero),
-    cosechadora,
     cogeCosechadora,
     dejaCosechadora,
     granero,
