@@ -140,109 +140,56 @@ board_build.partitions = default_8MB.csv
 monitor_speed = 115200
 `;
 
-const SKETCH_MINI_D = `// Sonoff MINI-D con firmware propio (ESP32). Primer sketch: el botón
-// conmuta el contacto seco y el LED azul indica el estado.
-// OJO: pines tomados de la MINIR4, su placa hermana (botón GPIO0,
-// LED GPIO19 activo a nivel bajo, relé GPIO26, S2 GPIO27). Compruébalos en
-// tu MINI-D con el polímetro antes de fiarte de ellos.
+const SKETCH_MINI_D = `// ESP32-S3 + módulo de 2 relés → entrada S1-S2 del Sonoff MINI-D.
+// El MINI-D no admite programa propio, pero su entrada de interruptor externo
+// sí: un relé del módulo cierra S1-S2 como lo haría un pulsador.
+// Cablea COM1 y NO1 del módulo a S1 y S2, y pon el MINI-D en modo pulsador.
+// Escribe «p» en el monitor serie o pulsa BOOT para mandar un pulso.
 #include <Arduino.h>
 
-constexpr int PIN_BOTON = 0, PIN_LED = 19, PIN_RELE = 26, PIN_S2 = 27;
-bool cerrado = false;
+constexpr int PIN_IN1 = 4;      // entrada IN1 del módulo, activa a nivel bajo
+constexpr int PIN_BOOT = 0;     // botón BOOT de la placa
+constexpr int PULSO_MS = 300;
 
-void aplicar() {
-  digitalWrite(PIN_RELE, cerrado ? HIGH : LOW);
-  digitalWrite(PIN_LED, cerrado ? LOW : HIGH);
-  Serial.println(cerrado ? "COM-NO cerrado" : "COM-NO abierto");
+void pulso() {
+  digitalWrite(PIN_IN1, LOW);   // el relé cierra S1-S2
+  delay(PULSO_MS);
+  digitalWrite(PIN_IN1, HIGH);
+  Serial.println("Pulso enviado al MINI-D");
 }
 
 void setup() {
   Serial.begin(115200);
-  pinMode(PIN_RELE, OUTPUT);
-  pinMode(PIN_LED, OUTPUT);
-  pinMode(PIN_BOTON, INPUT_PULLUP);
-  pinMode(PIN_S2, INPUT_PULLUP);    // interruptor externo entre S1 (masa) y S2
-  aplicar();
+  digitalWrite(PIN_IN1, HIGH);  // relé en reposo antes de ser salida
+  pinMode(PIN_IN1, OUTPUT);
+  pinMode(PIN_BOOT, INPUT_PULLUP);
 }
 
 void loop() {
-  static int botonAntes = HIGH;
-  static int s2Antes = digitalRead(PIN_S2);
-  const int boton = digitalRead(PIN_BOTON);
-  const int s2 = digitalRead(PIN_S2);
-  if (botonAntes == HIGH && boton == LOW) { cerrado = !cerrado; aplicar(); }
-  if (s2 != s2Antes) { cerrado = !cerrado; aplicar(); }
-  botonAntes = boton;
-  s2Antes = s2;
-  delay(30);
+  if (Serial.available() && Serial.read() == 'p') pulso();
+  if (digitalRead(PIN_BOOT) == LOW) {
+    pulso();
+    while (digitalRead(PIN_BOOT) == LOW) delay(10);
+  }
+  delay(10);
 }
 `;
 
-const ESPHOME_MINI_D = `# ESPHome · Sonoff MINI-D (ESP32-D0WDR2-V3)
-# Pines tomados de la MINIR4 (placa hermana): compruébalos antes.
-esphome:
-  name: mini-d
-  friendly_name: MINI-D
-
-esp32:
-  board: esp32dev
-  framework:
-    type: esp-idf
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  ap:
-
-logger:
-api:
-ota:
-  - platform: esphome
-captive_portal:
-
-output:
-  - platform: gpio
-    id: contacto
-    pin: GPIO26
-
-switch:
-  - platform: output
-    id: rele
-    name: Contacto seco
-    output: contacto
-    restore_mode: ALWAYS_OFF   # una caldera o una puerta no deben arrancar solas
-
-binary_sensor:
-  - platform: gpio
-    name: Botón
-    pin:
-      number: GPIO0
-      inverted: true
-    on_press:
-      - switch.toggle: rele
-  - platform: gpio
-    name: Interruptor S1-S2
-    pin:
-      number: GPIO27
-      inverted: true
-      mode:
-        input: true
-        pullup: true
-    filters:
-      - delayed_on_off: 50ms
-
-status_led:
-  pin:
-    number: GPIO19
-    inverted: true
-`;
-
-const PIO_MINI_D = `; platformio.ini · Sonoff MINI-D (ESP32)
-[env:sonoff-mini-d]
-platform = espressif32
-board = esp32dev
-framework = arduino
-monitor_speed = 115200
+const HA_MINI_D = `# Home Assistant · script que da un pulso de 1 s con el MINI-D
+# (abrir la puerta del garaje o dar una orden a la caldera).
+# Cambia switch.mini_d por el nombre que tenga tu MINI-D tras añadirlo por Matter.
+script:
+  pulso_mini_d:
+    alias: Pulso del MINI-D
+    mode: single
+    sequence:
+      - action: switch.turn_on
+        target:
+          entity_id: switch.mini_d
+      - delay: "00:00:01"
+      - action: switch.turn_off
+        target:
+          entity_id: switch.mini_d
 `;
 
 const Z2M_TERMINAL = `# Zigbee2MQTT + Mosquitto. Pon la IP de tu broker:
@@ -491,40 +438,36 @@ curl "http://$SHELLY/rpc/Switch.Set?id=0&on=true&toggle_after=1"
                 { n: 8, nombre: 'Bornas N, L, S1, S2, DC+ y DC−', tipo: 'borna', z: 141, polos: [30, 50, 70, 90, 110, 130], d: 8, h: 10, color: '#eceef1',
                     texto: 'Alimentación por red (N, L) o por continua (DC+, DC−), y el interruptor externo entre S1 y S2.' },
                 { n: 9, nombre: 'Botón', tipo: 'boton', x: 146, z: 62, r: 2.6, asoma: true,
-                    texto: 'Una pulsación conmuta el contacto; 5 s lo pone en emparejamiento. Con firmware propio, mantenido al enchufar entra en modo descarga (GPIO0).' },
+                    texto: 'Conmuta el contacto, pone el MINI-D en emparejamiento y elige el tipo de interruptor externo de S1–S2 (pulsador o conmutador). Los tiempos de cada cosa vienen en el manual.' },
                 { n: 10, nombre: 'LED azul de estado', tipo: 'led', x: 146, z: 86, color: '#3b82f6', asoma: true,
-                    texto: 'Fijo: en línea. Dos destellos cortos y uno largo: emparejando.' },
-                { n: 11, nombre: 'Puntos de programación (UART)', tipo: 'pads', x: 100, z: 112, etiquetas: ['3V3', 'GND', 'TX', 'RX'],
-                    texto: 'Dónde soldar el adaptador USB-serie para flashearlo. La posición es orientativa: identifícalos en tu placa con la serigrafía o el polímetro.' }
+                    texto: 'Indica el estado de la red, el emparejamiento y el tipo de interruptor externo elegido.' }
             ]
         },
         fuertes: [
             'Contacto seco conmutado (NO y NC): da órdenes a calderas, motores de puerta y válvulas sin mezclar tensiones',
             'Se alimenta a 230 V CA o a 12 – 48 V CC: sirve en cuadros de baja tensión sin red cerca',
             'Matter sobre Wi-Fi: se integra en Home Assistant, Google, Alexa o Apple sin nube',
-            'Lleva un ESP32 normal: con soldadura se puede flashear con ESPHome o con tu sketch'
+            'Entrada S1–S2 para un pulsador: otro relé o un ESP32 con relé pueden mandarlo sin red'
         ],
         cuidado: [
             'El contacto es pequeño: 24 V ⎓ 2 A resistivos o 8 W de motor. Nunca conmutes 230 V con él',
             'S1 y S2 son para un interruptor sin tensión: no les lleves fase ni los unas a la electrónica',
-            'Si lo flasheas pierdes Matter y eWeLink: haz copia del firmware antes',
-            'Los pines del sketch y de ESPHome vienen de la MINIR4: compruébalos en tu placa'
+            'No admite programa propio: Sonoff no permite flashearle Tasmota, ESPHome ni tu sketch',
+            'Para mandarlo desde un ESP32, cierra S1–S2 con un relé: un GPIO o un optoacoplador directos no valen'
         ],
         codigos: [
-            { titulo: 'Primer sketch con firmware propio', lenguaje: 'Arduino C++', archivo: 'src/main.cpp', nota: 'Pines de la MINIR4 sin confirmar en la MINI-D: compruébalos antes de grabarlo.', texto: SKETCH_MINI_D },
-            { titulo: 'platformio.ini', lenguaje: 'INI', archivo: 'platformio.ini', texto: PIO_MINI_D },
-            { titulo: 'ESPHome para Home Assistant', lenguaje: 'YAML', archivo: 'mini-d.yaml', texto: ESPHOME_MINI_D }
+            { titulo: 'Home Assistant por Matter: pulso de 1 s', lenguaje: 'YAML', archivo: 'scripts.yaml', nota: 'Sin programar el MINI-D: añádelo por Matter y pega el script.', texto: HA_MINI_D },
+            { titulo: 'Desde un ESP32-S3: pulsar S1–S2 con un relé', lenguaje: 'Arduino C++', archivo: 'src/main.cpp', nota: 'El programa va en la ESP32-S3, no en el MINI-D. Usa el módulo de 2 relés del catálogo.', texto: SKETCH_MINI_D },
+            { titulo: 'platformio.ini', lenguaje: 'INI', archivo: 'platformio.ini', texto: PLATFORMIO_INI }
         ],
         flasheo: {
-            titulo: 'Grabarle tu programa',
-            resumen: 'Admite programa propio con soldadura: es un ESP32 sin conector, así que hay que abrirlo y soldar el adaptador. Si te basta con Matter o eWeLink, no hace falta.',
+            titulo: 'Integrarlo sin programarlo',
+            resumen: 'No admite programa propio: es un equipo Matter y Sonoff no permite grabarle firmware de terceros. Se controla en local por Matter o desde fuera por S1–S2.',
             pasos: [
-                'Desconéctalo de la red y de la continua. Solo lo alimentará el adaptador USB-serie a 3,3 V.',
-                'Ábrelo y suelda 3V3, GND, TX y RX al adaptador (TX con RX cruzados).',
-                'Mantén pulsado su botón (GPIO0) mientras le das alimentación: entra en modo descarga.',
-                'Haz la copia: `esptool.py --chip esp32 read_flash 0 ALL mini-d-original.bin`.',
-                'Graba tu sketch con `pio run -t upload` o ESPHome con `esphome run mini-d.yaml`.',
-                'Para volver a Matter: `esptool.py --chip esp32 write_flash 0 mini-d-original.bin`.'
+                'Aliméntalo por N y L o por DC+ y DC− (nunca por los dos a la vez) y deja el contacto sin carga.',
+                'En Home Assistant: Ajustes → Dispositivos → Añadir integración → Matter, y escanea el código QR de la carcasa.',
+                'Elige con el botón el tipo de interruptor externo (pulsador o conmutador) siguiendo el manual.',
+                'Para mandarlo desde un ESP32: COM1 y NO1 del módulo de relés a S1 y S2, IN1 a GPIO4, y graba el sketch en la ESP32-S3.'
             ]
         },
         ideas: [
