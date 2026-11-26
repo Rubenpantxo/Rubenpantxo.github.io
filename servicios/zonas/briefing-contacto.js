@@ -168,6 +168,7 @@
     let avisoBorrador = !!(borrador && borrador.ruta);
     // Lo que han contado las demás zonas, tal cual
     const contextoZonas = { perfil: null, caso: null, kit: null, configuracion: null };
+    let configUsada = false; // el visitante tocó el configurador (no solo su resumen por defecto)
 
     function capturarOrigen() {
         if (leerSesion(CLAVE_ORIGEN)) return;
@@ -190,7 +191,7 @@
     }
 
     /* Precarga: solo rellena lo que el visitante no haya tocado ya */
-    function aplicarZona(zona, d) {
+    function aplicarZona(zona, d, explicito = false) {
         if (typeof d === 'string' && d) d = { id: d };
         if (!d || typeof d !== 'object') return;
         contextoZonas[zona] = d;
@@ -238,8 +239,11 @@
                 estado.bloques = ids;
                 precargado.bloques = true;
             }
+            // El configurador publica un resumen por defecto al cargar: solo cuenta
+            // el presupuesto si el visitante eligió bloques o pulsó «Enviar mi proyecto»
             const max = d.total && typeof d.total === 'object' ? Number(d.total.max) : Number(d.total);
-            if (max > 0 && (!estado.presupuesto || precargado.presupuesto)) {
+            if (ids.length || explicito) configUsada = true;
+            if (max > 0 && (ids.length || explicito) && (!estado.presupuesto || precargado.presupuesto)) {
                 const banda = PRESUPUESTOS.find(p => p.max && max <= p.max);
                 if (banda) {
                     estado.presupuesto = banda.id;
@@ -264,7 +268,7 @@
     // este módulo se encarga de llevar al visitante al briefing
     document.addEventListener('sv:configuracion-enviar', e => {
         if (e.cancelable) e.preventDefault();
-        aplicarZona('configuracion', e.detail);
+        aplicarZona('configuracion', e.detail, true);
         abrirBriefing('briefing', 'alcance');
     });
     document.addEventListener('sv:caso', e => {
@@ -344,7 +348,7 @@
         let encaje = 0;
         if (estado.objetivo && estado.objetivo !== 'otro') encaje++;
         if (estado.contexto.trim().length >= 120 || estado.bloques.length >= 2) encaje++;
-        if (contextoZonas.configuracion || contextoZonas.kit || estado.telefono.trim()) encaje++;
+        if (configUsada || contextoZonas.kit || estado.telefono.trim()) encaje++;
         const puntos = pPres + pPlazo + encaje;
         const prioridad = puntos >= 6 ? 'alta' : puntos >= 4 ? 'media' : 'baja';
         return { prioridad, puntos };
@@ -355,7 +359,7 @@
      * ------------------------------------------------------------------- */
     function construirBriefing() {
         const { prioridad, puntos } = calificar();
-        const conf = contextoZonas.configuracion;
+        const conf = configUsada ? contextoZonas.configuracion : null;
         const origen = leerSesion(CLAVE_ORIGEN) || {};
         const bloques = estado.bloques.map(id => texto(BLOQUES, id) || id);
         const totalConf = conf && conf.total
@@ -505,7 +509,7 @@
             <h5 class="svb-q2" id="svb-q-kit">¿Qué estilo te gusta? <span class="svb-opc">opcional</span></h5>
             ${opciones('kit', KITS, estado.kit, { marca: precargado.kit, columnas: 'svb-chips' })}`,
         plazo: () => {
-            const conf = contextoZonas.configuracion;
+            const conf = configUsada ? contextoZonas.configuracion : null;
             const total = conf && conf.total
                 ? (typeof conf.total === 'object' ? `${euros(conf.total.min)} – ${euros(conf.total.max)}` : euros(conf.total)) : '';
             return `
@@ -588,6 +592,7 @@
         if (precargado.negocio) l.push(texto(NEGOCIOS, estado.negocio));
         if (precargado.kit) l.push('estilo ' + texto(KITS, estado.kit));
         if (precargado.bloques) l.push(estado.bloques.length + ' bloques del configurador');
+        if (precargado.presupuesto) l.push('presupuesto ' + texto(PRESUPUESTOS, estado.presupuesto));
         return l.join(', ');
     }
 
@@ -902,7 +907,7 @@
         if (!flotante) return;
         const abierta = !seccion || !seccion.classList.contains('content-hidden');
         const mostrar = abierta && !enviado && !contactoVisible
-            && (contextoZonas.configuracion || contextoZonas.kit || (borrador && borrador.ruta));
+            && (hayPrecarga() || (borrador && borrador.ruta));
         flotante.hidden = !mostrar;
     }
 
