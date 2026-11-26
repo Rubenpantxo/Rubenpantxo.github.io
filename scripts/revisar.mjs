@@ -256,7 +256,7 @@ function revisarScriptsInline(archivo, contenido) {
 // enlace real. Se blanquea preservando saltos de línea para no desajustar
 // los números de línea de los avisos.
 function quitarScripts(contenido) {
-    return contenido.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, m => m.replace(/[^\n]/g, ' '));
+    return contenido.replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, m => m.replace(/[^\n]/g, ' '));
 }
 
 function revisarEnlaces(archivo, contenido) {
