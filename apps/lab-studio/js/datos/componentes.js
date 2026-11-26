@@ -569,7 +569,7 @@ export const COMPONENTES = [
         id: 'sonoff-mini-d', nombre: 'Sonoff MINI-D · relé Wi-Fi de contacto seco', corto: 'Sonoff MINI-D', fabricante: 'Sonoff (ITEAD)',
         categoria: 'potencia', propio: true, precio: 11.9, ref: 'K', w: 17, h: 16, dibujo: 'minid',
         resumen: 'Contacto seco NO/NC con Wi-Fi y Matter · se alimenta a 230 V CA o a 12 – 48 V CC · ESP32',
-        descripcion: 'Relé inteligente de contacto libre de potencial con salida conmutada (NO, COM y NC). Pensado para dar órdenes a otros equipos: la entrada de una caldera, un motor de puerta o una válvula de 12/24 V. Se alimenta por red o por continua y se controla con eWeLink, por Matter o, flasheado, con ESPHome. Dentro lleva un ESP32-D0WDR2-V3.',
+        descripcion: 'Relé inteligente de contacto libre de potencial con salida conmutada (NO, COM y NC). Pensado para dar órdenes a otros equipos: la entrada de una caldera, un motor de puerta o una válvula de 12/24 V. Se alimenta por red o por continua y se controla con eWeLink o, en local, por Matter desde Home Assistant. Dentro lleva un ESP32-D0WDR2-V3, pero Sonoff no permite grabarle firmware propio.',
         aviso: 'El contacto aguanta poco: 24 V ⎓ 2 A resistivos (motores de 12/24 V de hasta 8 W). No conmutes 230 V con él. S1 y S2 son para un interruptor sin tensión: con alimentación de red pueden estar a su potencial, así que no los unas a la electrónica.',
         alimPor: [['L'], ['DCP']],
         alimNota: 'aliméntalo con fase y neutro (100 – 240 V CA) o con 12 – 48 V CC en DC+ y DC−.',
@@ -592,13 +592,12 @@ export const COMPONENTES = [
             pin('S2', 'S2', 9, 16, 'aba', 'ent', { dom: 'ac', vmax: 3.3, nota: 'Interruptor externo sin tensión entre S1 y S2. Con alimentación de red puede estar a su potencial: ni fase ni electrónica.' }),
             pin('DCP', 'DC+', 11, 16, 'aba', 'alim', { vmin: 12, vmax: 48, i: 60, nota: 'Alimentación en continua (12 – 48 V). Usa esta o la de red, no las dos.' }),
             pin('DCN', 'DC−', 13, 16, 'aba', 'gnd'),
-            pin('WIFI', 'Wi-Fi', 17, 7, 'der', 'red', { puerto: 'wifi', nota: 'eWeLink en local (LAN) o Matter; con ESPHome, API de Home Assistant.' })
+            pin('WIFI', 'Wi-Fi', 17, 7, 'der', 'red', { puerto: 'wifi', nota: 'eWeLink o Matter sobre Wi-Fi (en local con Home Assistant). No admite firmware propio.' })
         ],
         enlaces: [
             doc('Manual de usuario', 'https://support.sonoff.tech/mini-d-usermanual/'),
             doc('Análisis y despiece (SmartHomeScene)', 'https://smarthomescene.com/reviews/sonoff-matter-dry-contact-switch-mini-d-review/'),
-            doc('ESPHome: MINIR4, la placa hermana', 'https://devices.esphome.io/devices/sonoff-minir4-extreme/'),
-            repo('esphome/esphome', 'https://github.com/esphome/esphome')
+            doc('Análisis con Home Assistant y Matter (CNX Software)', 'https://www.cnx-software.com/2025/01/15/sonoff-mini-d-review-matter-enabled-dry-contact-wifi-switch-ewelink-home-assistant-apple-home/')
         ]
     },
     {
