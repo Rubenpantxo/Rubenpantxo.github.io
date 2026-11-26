@@ -3,6 +3,7 @@
 // juego de la web. Para añadir uno basta una línea más.
 //   en: [x, z] locales (m), o null si aún no se sabe dónde está (entonces no sale en el mundo)
 //   accion: { fiestas: 'menu' | 'plaza' | … }  o  { juego: '/ruta/del/juego/' }  o  { agricultura: 'cope' }
+//           o  { personaje: true } (abre el editor de personaje)
 import { agriculturaActiva } from './agricultura.js';
 
 export const ENTRADAS = [
@@ -22,6 +23,13 @@ export const ENTRADAS = [
   // marcó Rubén el 2026-11-20). Aquí se cambia el coche por el tractor y al revés. Solo con el modo
   // agricultura activo (?agricultura)
   ...(agriculturaActiva() ? [{ id: 'cope', nombre: 'COPE · San Isidro', icono: '🚜', en: [-322, -14], accion: { agricultura: 'cope' } }] : []),
+  // Editor de personaje: solo se abre desde estos tres sitios (puntos marcados por Rubén con una cruz
+  // verde sobre una captura de Google Maps, 2026-11-26; pasados a metros del juego con las calles de
+  // la ortofoto, error de unos 3 m): junto a la COPE (extremo oeste de la calle San Francisco Javier),
+  // la Peluquería Sheyla y el principio de la calle San Roque
+  { id: 'personaje_sanisidro', nombre: 'Tu personaje · San Isidro', icono: '👤', en: [-396.7, 35.5], accion: { personaje: true } },
+  { id: 'personaje_peluqueria', nombre: 'Tu personaje · Peluquería', icono: '👤', en: [38.4, 74.5], accion: { personaje: true } },
+  { id: 'personaje_sanroque', nombre: 'Tu personaje · San Roque', icono: '👤', en: [-92.5, 254], accion: { personaje: true } },
 ];
 
 export const ENTRADA = {

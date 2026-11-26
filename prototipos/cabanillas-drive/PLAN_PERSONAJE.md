@@ -10,7 +10,7 @@ Pipeline: `python tools/40_editor_personaje.py` → `npm run personaje` (textura
 ## Hecho (P1, 2026-11-19)
 - Datos (`tools/40_editor_personaje.py`, `tools/personaje_catalogo.json`), motor, modelo, materiales
   (piel con SSS aproximada, recoloreado de pelo/ropa), estudio, escultura directa, interfaz completa,
-  herencia, azar, deshacer/rehacer, guardado local. Integrado en el inicio (botón «Crea tu personaje»
+  herencia, azar, deshacer/rehacer, guardado local. Integrado en el inicio (botón «Crea tu personaje»; **desde 2026-11-26 ya no: el editor solo se abre desde los tres sitios «Tu personaje» del mapa**
   y antes de cualquier «Jugar»).
 
 - Ojos: la córnea usa una zona transparente de la textura → alphaTest 0,5 (antes salían negros).

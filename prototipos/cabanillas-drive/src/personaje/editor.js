@@ -47,7 +47,8 @@ const el = (etiqueta, atributos = {}, ...hijos) => {
   return e;
 };
 
-export async function abreEditor({ renderer, apariencia: inicial, alTerminar, progresoJuego = null, calidad = {} }) {
+// volverAlJuego: abierto desde un sitio del mapa, en mitad de la partida; «Guardar» o «Cancelar» lo cierran
+export async function abreEditor({ renderer, apariencia: inicial, alTerminar, progresoJuego = null, volverAlJuego = false, calidad = {} }) {
   // --- Marco
   const raiz = el('section', { id: 'editor-personaje', 'aria-label': 'Editor de personaje' });
   const capa = el('div', { class: 'ep-capa' });
@@ -154,7 +155,8 @@ export async function abreEditor({ renderer, apariencia: inicial, alTerminar, pr
     },
   });
   const botonFin = el('button', { class: 'ep-boton ep-principal', type: 'button', texto: progresoJuego ? '¡A Cabanillas!' : 'Guardar' });
-  const acciones = el('div', { class: 'ep-acciones' }, botonDeshacer, botonRehacer, botonAzar, botonFin);
+  const botonCancelar = volverAlJuego ? el('button', { class: 'ep-boton', type: 'button', texto: 'Cancelar' }) : null;
+  const acciones = el('div', { class: 'ep-acciones' }, botonDeshacer, botonRehacer, botonAzar, ...(botonCancelar ? [botonCancelar] : []), botonFin);
   const carga = el('div', { class: 'ep-carga', hidden: !progresoJuego }, el('span', { texto: 'Cargando el pueblo…' }), el('div', { class: 'ep-barra' }, el('span')));
   const pista = el('div', { class: 'ep-pista', texto: 'Arrastra para girar · rueda o pellizco para acercar · en Cara y Cuerpo, arrastra sobre el personaje para esculpir' });
   raiz.append(cabecera, rail, panel, zonas, acciones, carga, pista);
@@ -624,8 +626,9 @@ export async function abreEditor({ renderer, apariencia: inicial, alTerminar, pr
     guarda(final);
     alTerminar?.(final);
     resuelve(final);
-    if (progresoJuego) cierra();
+    if (progresoJuego || volverAlJuego) cierra();
   });
+  botonCancelar?.addEventListener('click', () => { resuelve(null); cierra(); });
 
   function cierra() {
     if (cerrado) return;

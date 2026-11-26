@@ -222,6 +222,8 @@
       #inicio .acciones-inicio { display: grid; gap: 8px; }
       /* Con el editor de personaje abierto, la portada se aparta y se ve el lienzo 3D */
       body.editando-personaje #inicio { display: none; }
+      /* Editor abierto en mitad de la partida: sin HUD ni controles táctiles encima */
+      body.editando-personaje #hud, body.editando-personaje #tactil, body.editando-personaje .botones-superiores { visibility: hidden !important; }
     </style>
   </head>
   <body>
@@ -298,7 +300,6 @@
           </div>
         </div>
         <div class="acciones-inicio">
-          <button id="crear-personaje" class="boton secundario" type="button">👤 Crea tu personaje</button>
           <button id="jugar" class="boton" type="button" hidden>🪂 Jugar</button>
           <button id="jugar-calle" class="boton secundario" type="button" hidden>🚗 Empezar en la calle</button>
           <button id="jugar-fiestas" class="boton secundario" type="button" hidden>🐂 Ir a las fiestas</button>
