@@ -1,4 +1,4 @@
 name: "CodeQL configuration"
 
 paths-ignore:
-  - juegos/cabanillas-drive/assets/**
+  - juegos/cabanillas-drive/assets/librerias-*.js
