@@ -188,13 +188,13 @@ export function creaMenuCope() {
         // Tolva del apero enganchado: cuánto queda y llenarla aquí
         if (tolva) {
           crea('h3', '', caja, 'Tolva');
-          const t = crea('div', 'tolva', caja, `${Math.round(tolva.llenado * 100)} % · ${Math.round(tolva.kg)} de ${tolva.capacidad} kg de ${tolva.nombre}`);
+          const t = crea('div', 'tolva', caja, `${Math.round(tolva.llenado * 100)} % · ${Math.round(tolva.kg).toLocaleString('es-ES')} de ${tolva.capacidad.toLocaleString('es-ES')} ${tolva.unidad ?? 'kg'} de ${tolva.nombre}`);
           crea('i', '', crea('div', 'barra', t)).style.width = `${Math.round(tolva.llenado * 100)}%`;
           if (tolva.esSemilla && semillas.length) eligeSemilla(semillas, semilla, (id) => acciones.semilla(id));
           const falta = Math.max(0, tolva.capacidad - tolva.kg);
           const precio = precios ? precios.compra[tolva.esSemilla ? (semilla ?? 'trigo') : 'abono'] : 0;
           const bl = boton(tolva.esSemilla ? 'Llenar la tolva de semilla' : 'Llenar la tolva de abono', '', () => { raiz.hidden = true; acciones.llena(); }, 'tolva');
-          if (precio) crea('small', '', bl, falta < 1 ? 'ya está llena' : `${Math.round(falta)} kg · ${euros(falta * precio)}`);
+          if (precio) crea('small', '', bl, falta < 1 ? 'ya está llena' : `${Math.round(falta).toLocaleString('es-ES')} ${tolva.unidad ?? 'kg'} · ${euros(falta * precio)}`);
         }
         if (aperos.length) {
           crea('h3', '', caja, 'Aperos del patio');
@@ -222,7 +222,7 @@ export function creaMenuCope() {
             raiz.hidden = true;
             acciones.vende(it.id);
           }, 'vender');
-          crea('small', '', b, `${fmtPrecio(it.precio)} €/kg (Lonja del Ebro, noviembre de 2026)`);
+          crea('small', '', b, `${fmtPrecio(it.precio)} €/kg (${it.fuente ?? 'Lonja del Ebro, noviembre de 2026'})`);
         }
       }
       // Estado de las parcelas trabajadas

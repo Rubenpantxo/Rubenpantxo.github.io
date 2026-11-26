@@ -14,7 +14,7 @@ export const AGRICULTURA = {
     sitioCoche: [-291, -4, 180],
     // Aperos aparcados en el patio cuando no van en el tractor (a más de 9 m de cualquier edificio)
     sitiosAperos: { arado: [-299, -11, 180], cultivador: [-313, -6, 180], abonadora: [-292, -11, 180], sembradora: [-313, 3, 180],
-      remolque: [-333, -12, 90], arrancadora: [-299, 3, 180] },
+      remolque: [-333, -12, 90], arrancadora: [-299, 3, 180], plantadora: [-292, 3, 180] },
     // A8: la cosechadora, en la parte oeste del patio (libre en la ortofoto), mirando a la calle
     sitioCosechadora: [-357, -8, 180],
   },

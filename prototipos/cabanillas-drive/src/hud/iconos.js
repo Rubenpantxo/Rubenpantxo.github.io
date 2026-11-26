@@ -74,6 +74,34 @@ const SVG = {
     <path d="M3 38l20-14 3 4-20 14z" fill="#6d747a"/><path d="M5 34l18-13" stroke="#2b2f33" stroke-width="2.4"/>
     <path d="M25 18h20v18H25z" fill="url(#gar)"/><path d="M27 26c3-4 6-4 8-1 2-4 6-4 8 0v8H27z" fill="url(#gce2)"/>
     <circle cx="35" cy="40" r="5" fill="#1d1f21"/><circle cx="35" cy="40" r="2.2" fill="#8a9097"/><path d="M3 41h20" stroke="#6d747a" stroke-width="2.4" stroke-linecap="round"/>`,
+  // Brócoli: cabeza de floretes verdes sobre tallo claro
+  brocoli: `<defs>${G('gbr', '#6fae4a', '#33692a')}</defs>
+    <path d="M20 46c1-8 1-12-1-17h10c-2 5-2 9-1 17z" fill="#b9cf86"/><path d="M24 30v12" stroke="#8fa85c" stroke-width="1.4"/>
+    <circle cx="14" cy="22" r="8" fill="url(#gbr)"/><circle cx="24" cy="15" r="9.5" fill="url(#gbr)"/><circle cx="34" cy="22" r="8" fill="url(#gbr)"/><circle cx="24" cy="26" r="8" fill="url(#gbr)"/>
+    ${[[14, 20], [20, 13], [28, 13], [34, 20], [24, 22], [18, 27], [30, 27]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.6" fill="#8fcb6a"/>`).join('')}`,
+  // Alcachofa: capítulo de brácteas solapadas con tallo
+  alcachofa: `<defs>${G('gal', '#9bb36a', '#4d6a35')}</defs>
+    <path d="M24 46V35" stroke="#6f8a4a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M24 6c8 3 14 11 14 20 0 8-6 12-14 12S10 34 10 26C10 17 16 9 24 6z" fill="url(#gal)"/>
+    <path d="M24 38V8M24 38c-5-6-9-14-11-22M24 38c5-6 9-14 11-22M12 30c5 0 9-2 12-6M36 30c-5 0-9-2-12-6" fill="none" stroke="#3a5226" stroke-width="1.2" opacity=".7"/>
+    <path d="M24 6l-2.6 5h5.2z" fill="#7a5aa8"/>`,
+  // Espárrago: turiones con yema escamosa
+  esparrago: `<defs>${G('gesp', '#b9d37a', '#5c8a38')}</defs>
+    ${[[14, 8, 40], [24, 4, 44], [34, 11, 38]].map(([x, y, b]) => `<path d="M${x - 2.6} ${b}V${y + 6}a2.6 5 0 0 1 5.2 0V${b}z" fill="url(#gesp)"/><path d="M${x - 2.6} ${y + 9}h5.2M${x - 2.6} ${y + 14}h5.2M${x - 2.6} ${y + 19}h5.2" stroke="#3f6a26" stroke-width="1" opacity=".6"/><ellipse cx="${x}" cy="${y + 3}" rx="2.6" ry="4.6" fill="#7aa347"/>`).join('')}
+    <path d="M4 44h40" stroke="#8a5d3a" stroke-width="4" stroke-linecap="round"/>`,
+  // Plantadora: bandeja de plantel y rueda que las clava en el suelo
+  plantadora: `<defs>${G('gpl', '#6d747a', '#3a3f44')}</defs>
+    <rect x="4" y="12" width="40" height="12" rx="2" fill="url(#gpl)"/>
+    ${[0, 1, 2, 3].map((i) => `<path d="M${10 + i * 9} 12V6M${10 + i * 9} 12c-3-2-4-4-4-6M${10 + i * 9} 12c3-2 4-4 4-6" fill="none" stroke="#5aa43c" stroke-width="2" stroke-linecap="round"/>`).join('')}
+    <path d="M10 24v10M19 24v10M28 24v10M37 24v10" stroke="#2b2f33" stroke-width="2.4"/>
+    ${[0, 1, 2, 3].map((i) => `<circle cx="${10 + i * 9}" cy="38" r="4.6" fill="#1d1f21"/><circle cx="${10 + i * 9}" cy="38" r="1.8" fill="#8a9097"/>`).join('')}
+    <path d="M3 44h42" stroke="#8a5d3a" stroke-width="3.4" stroke-linecap="round"/>`,
+  // Cesta de mimbre con verdura
+  cesta: `<defs>${G('gces', '#d7a85a', '#92622a')}</defs>
+    <path d="M10 22c0-12 28-12 28 0" fill="none" stroke="#92622a" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="17" cy="21" r="5" fill="#5aa43c"/><circle cx="26" cy="19" r="5.4" fill="#6fbf5a"/><circle cx="32" cy="22" r="4.4" fill="#4f8a43"/>
+    <path d="M4 22h40l-4 20a3 3 0 0 1-3 2.4H11a3 3 0 0 1-3-2.4z" fill="url(#gces)"/>
+    <path d="M7 29h34M9 36h30M16 22l2 22M24 22v22M32 22l-2 22" stroke="#7a4f1f" stroke-width="1.2" opacity=".6"/>`,
   // Cebada: espiga con largas aristas
   cebada: `<defs>${G('gcb', '#e8d79a', '#b49a4a')}</defs>
     <path d="M24 46V24" stroke="#8a9a46" stroke-width="2.4" stroke-linecap="round"/>
@@ -118,7 +146,7 @@ const SVG = {
 };
 
 // id de apero → icono
-export const ICONO_APERO = { arado: 'arado', cultivador: 'cultivador', abonadora: 'abonadora', sembradora: 'sembradora', remolque: 'remolque', arrancadora: 'arrancadora' };
+export const ICONO_APERO = { arado: 'arado', cultivador: 'cultivador', abonadora: 'abonadora', sembradora: 'sembradora', remolque: 'remolque', arrancadora: 'arrancadora', plantadora: 'plantadora' };
 
 export function iconoHtml(nombre, px = 22) {
   const dibujo = SVG[nombre];

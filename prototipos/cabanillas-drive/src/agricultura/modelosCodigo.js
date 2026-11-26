@@ -109,4 +109,59 @@ export function creaArrancadora() {
   return { modelo: g, info };
 }
 
-export const MODELOS_CODIGO = { arrancadora: creaArrancadora };
+// Plantadora suspendida de cuatro líneas: barra con cuatro cuerpos (cada uno con su reja y su rueda
+// prensadora), una bandeja con el plantel encima (pieza «carga») y dos ruedas de apoyo.
+export function creaPlantadora() {
+  const g = new THREE.Group();
+  g.name = 'plantadora';
+  const pintura = mat(0x2f5f8f);
+  const acero = mat(0x6d747a, { metalness: 0.6, roughness: 0.5 });
+  const goma = mat(0x1d1f21, { roughness: 0.95, metalness: 0 });
+  const sueloY = -0.45;
+  const ancho = 2.0;
+  for (const s of [-1, 1]) {
+    const brazo = caja(0.1, 0.1, 0.8, s * 0.42, 0.05, -0.38, pintura);
+    brazo.rotation.y = s * -0.42;
+    g.add(brazo);
+  }
+  g.add(caja(0.12, 0.7, 0.1, 0, 0.35, -0.12, pintura));
+  g.add(caja(ancho + 0.2, 0.14, 0.14, 0, 0.1, -0.75, pintura));              // barra
+  g.add(caja(ancho + 0.2, 0.1, 0.1, 0, 0.1, -1.55, pintura));                 // segunda barra
+  for (const s of [-1, 1]) g.add(caja(0.1, 0.1, 0.8, s * (ancho / 2 + 0.05), 0.1, -1.15, pintura));
+  // Cuatro cuerpos: reja, tubo de caída y rueda prensadora
+  for (let k = 0; k < 4; k++) {
+    const x = (k - 1.5) * (ancho / 4);
+    g.add(caja(0.06, 0.55, 0.06, x, sueloY + 0.4, -1.0, acero));                 // reja
+    const reja = caja(0.1, 0.06, 0.3, x, sueloY + 0.06, -1.1, acero); reja.rotation.x = -0.4; g.add(reja);
+    g.add(caja(0.09, 0.5, 0.09, x, sueloY + 0.8, -1.0, pintura));               // tubo de caída
+    const pres = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.06, 16), goma);
+    pres.rotation.z = Math.PI / 2; pres.position.set(x, sueloY + 0.17, -1.45); g.add(pres);
+    g.add(caja(0.04, 0.04, 0.5, x, sueloY + 0.2, -1.22, acero));                // brazo de la rueda
+  }
+  // Bandeja del plantel
+  g.add(caja(ancho, 0.06, 0.9, 0, 0.85, -1.0, pintura));
+  g.add(caja(0.05, 0.3, 0.9, -ancho / 2, 1.0, -1.0, pintura));
+  g.add(caja(0.05, 0.3, 0.9, ancho / 2, 1.0, -1.0, pintura));
+  g.add(caja(ancho, 0.3, 0.05, 0, 1.0, -1.45, pintura));
+  g.add(caja(ancho, 0.3, 0.05, 0, 1.0, -0.55, pintura));
+  g.add(caja(0.1, 0.5, 0.1, -0.7, 0.55, -0.75, acero)); g.add(caja(0.1, 0.5, 0.1, 0.7, 0.55, -0.75, acero));
+  const carga = new THREE.Mesh(new THREE.BoxGeometry(ancho - 0.12, 0.28, 0.8).translate(0, 0.14, 0), mat(0x4f8a3c, { roughness: 0.95, metalness: 0 }));
+  carga.name = 'carga';
+  carga.position.set(0, 0.88, -1.0);
+  g.add(carga);
+  for (const s of [-1, 1]) {
+    const rueda = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.14, 16), goma);
+    rueda.rotation.z = Math.PI / 2; rueda.position.set(s * (ancho / 2 + 0.2), sueloY + 0.28, -1.15); g.add(rueda);
+  }
+  g.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  const info = {
+    nombre: 'Plantadora de 4 líneas', largo: 2.0, ancho: 2.6, alto: 1.4,
+    enganche: { inferior: [0, 0, 0], superior: [0, 0.68, 0.075] },
+    suelo_y: sueloY, ancho_trabajo: ancho, alto_bulon: 0.45, profundidad: 0.1, trabajo_z: -1.0, reversible: false,
+    carga: { objeto: 'carga', y_vacia: 0.88, y_llena: 0.88, escala_vacia: 1, escala_vacia_x: 1, escala_y: [0.05, 1] },
+    fuente: 'src/agricultura/modelosCodigo.js (modelo propio, genérico, sin marca)',
+  };
+  return { modelo: g, info };
+}
+
+export const MODELOS_CODIGO = { arrancadora: creaArrancadora, plantadora: creaPlantadora };

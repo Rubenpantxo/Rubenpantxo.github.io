@@ -15,6 +15,7 @@ import { cargaParcelas } from '../datos/parcelas.js';
 import { creaHudAgricultura } from '../hud/agricultura.js';
 import { creaMenuCope } from '../hud/menuCope.js';
 import { cargaApero } from './aperos.js';
+import { creaRecoleccion, RECOLECCION } from './recoleccion.js';
 import { creaEnganche } from './enganche.js';
 import { creaLabranza } from './labranza.js';
 import { creaMaquina } from './maquina.js';
@@ -67,6 +68,7 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   const reloj = creaReloj(Number.isFinite(diaPedido) && diaPedido >= 0 ? { dia: diaPedido } : guardado ? { dia: guardado.dia } : {});
   const economia = { dinero: guardado?.dinero ?? ECONOMIA.dineroInicial };
   const labranza = creaLabranza({ api, escena, camara, renderer, registro, tractor, enganche, raiz, reloj });
+  const recoleccion = creaRecoleccion({ labranza, reloj });
   const cultivos = new Map();               // ref → cultivo (dosel y matas) de las parcelas sembradas
   const sol = escena.getObjectByName('sol');
   // Cada día, lo que lleva demasiado sin cosechar se queda maduro (solo hacia delante en el tiempo)
@@ -132,7 +134,7 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     const byte = i >= 0 && j >= 0 && i < p.ancho && j < p.alto ? p.cultivo[(j * p.ancho + i) * 4 + 1] : 0;
     const edad = byte ? edadDe(byte, reloj.dia) : reloj.dia - p.siembra.ultimoDia;
     const f = faseDe(p.siembra.cultivo, edad);
-    return { nombre: CULTIVOS[p.siembra.cultivo].nombre, edad, ...f, aqui: Boolean(byte) };
+    return { id: p.siembra.cultivo, nombre: CULTIVOS[p.siembra.cultivo].nombre, edad, ...f, aqui: Boolean(byte) };
   }
   // Humedad media del suelo de la parcela (lo que da la lluvia como poco), para el panel
   let cacheSuelo = { ref: null, t: 0, valor: null };
@@ -251,7 +253,7 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     a.carga = antes + kg;
     a.pintaCarga();
     sucioGeneral = true;
-    if (aviso || kg < falta) api.avisa(`🌨️ Tolva: ${Math.round(a.carga)} kg de ${nombreCarga(a)} · pagados ${euros(coste)}${kg < falta ? ' (no llegaba para llenarla)' : ''}`, 5);
+    if (aviso || kg < falta) api.avisa(`🌨️ Tolva: ${Math.round(a.carga).toLocaleString('es-ES')} ${unidadCarga(a)} de ${nombreCarga(a)} · pagados ${euros(coste)}${kg < falta ? ' (no llegaba para llenarla)' : ''}`, 5);
     return true;
   }
   // Vende en la COPE el grano entregado de un cultivo
@@ -265,15 +267,17 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     api.avisa(`💶 Vendidos ${Math.round(kg).toLocaleString('es-ES')} kg de ${nombreGrano(id)} por ${euros(importe)}`, 6);
     return importe;
   }
-  const nombreCarga = (a) => (a.contenido === 'abono' ? 'abono' : `semilla de ${SEMILLAS[a.contenido]?.nombre.toLowerCase() ?? '…'}`);
+  const nombreCarga = (a) => (a.contenido === 'abono' ? 'abono' : SEMILLAS[a.contenido]?.material ?? `semilla de ${SEMILLAS[a.contenido]?.nombre.toLowerCase() ?? '…'}`);
+  const unidadCarga = (a) => (SEMILLAS[a.contenido ?? semilla]?.plantel ? 'plantas' : 'kg');
   function engancha(id, aviso = true) {
     if (enganche.apero?.id === id) return;
     dejaApero();
     const a = aperos[id];
+    if (a.config.acepta && !a.config.acepta.includes(semilla)) { semilla = a.config.acepta[0]; try { localStorage.setItem(CLAVE_SEMILLA, semilla); } catch { /* sin almacenamiento */ } }
     a.recoge();
     enganche.engancha(a);
     llenaTolva(a);
-    const lleno = a.config.tolva ? ` · tolva llena: ${Math.round(a.carga)} kg de ${nombreCarga(a)}` : '';
+    const lleno = a.config.tolva ? ` · tolva llena: ${Math.round(a.carga).toLocaleString('es-ES')} ${unidadCarga(a)} de ${nombreCarga(a)}` : '';
     if (aviso && a.config.recolector) api.avisa(`${a.config.icono} ${a.config.nombre} enganchado · ${conTeclado ? 'Q' : '⬇'}: bájala en la cebolla madura (a partir de los 165 días)`, 7);
     else if (aviso && a.config.grano) api.avisa(`${a.config.icono} ${a.config.nombre} enganchado · déjalo junto a la cosechadora para que lo llene con su tubo`, 6);
     else if (aviso) api.avisa(`${a.config.icono} ${a.config.nombre} enganchado${lleno} · ${conTeclado ? 'Q' : '⬇'}: bajarlo en la parcela`, 6);
@@ -352,12 +356,13 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     }
   });
   const modo = {
-    tractor, enganche, labranza, registro, aperos,
+    tractor, enganche, labranza, registro, aperos, recoleccion,
     get llevaTractor() { return api.coche === tractor; },
     get menuAbierto() { return menu.visible; },
     get sonido() { return sonido; },
     // Llamado al entrar por el aro de la COPE
     async entra() {
+      if (recoleccion.cesta.kg > 0.5) { const c = recoleccion.vacia(); entrega(c.kg, c.id); }
       const enTractor = api.coche === tractor;
       const enCosechadora = api.coche === combinada;
       const rem = enganche.apero?.config.grano || enganche.apero?.config.recolector ? enganche.apero : null;
@@ -368,7 +373,7 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
         dinero: economia.dinero,
         precios: { compra: ECONOMIA.compra, venta: ECONOMIA.venta },
         granero: { kg: Object.values(granero).reduce((a, b) => a + b, 0),
-          items: Object.entries(granero).filter(([, kg]) => kg > 0).map(([id, kg]) => ({ id, nombre: nombreGrano(id), kg, precio: ECONOMIA.venta[id] ?? 0 })) },
+          items: Object.entries(granero).filter(([, kg]) => kg > 0).map(([id, kg]) => ({ id, nombre: nombreGrano(id), kg, precio: ECONOMIA.venta[id] ?? 0, fuente: ECONOMIA.fuente?.[id] })) },
         parcelas: [...labranza.parcelas.values()].map((p) => {
           const e = estadoParcela(p, reloj.dia);
           const r = p.recuento();
@@ -380,10 +385,10 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
         colorElegido: indiceColor,
         aperos: listaAperos.map((a) => ({ id: a.id, nombre: a.config.nombre, detalle: a.config.detalle, icono: a.id,
           enganchado: enganche.apero === a })),
-        semillas: Object.entries(SEMILLAS).map(([id, x]) => ({ id, ...x })),
+        semillas: Object.entries(SEMILLAS).filter(([id]) => (enganche.apero?.config.acepta ?? ['trigo', 'cebada', 'cebolla']).includes(id)).map(([id, x]) => ({ id, ...x })),
         semilla,
         tolva: enTractor && enganche.apero?.config.tolva ? { nombre: nombreCarga(enganche.apero), llenado: enganche.apero.llenado,
-          kg: enganche.apero.carga, capacidad: enganche.apero.capacidad, esSemilla: enganche.apero.config.tolva === 'semilla' } : null,
+          kg: enganche.apero.carga, capacidad: enganche.apero.capacidad, esSemilla: enganche.apero.config.tolva === 'semilla', unidad: unidadCarga(enganche.apero) } : null,
         sonido: enTractor || enCosechadora ? Boolean(sonido?.activo) : null,
         reloj: { dia: reloj.dia, minutosParaManana: Math.ceil(reloj.segundosParaManana / 60), pasar: AGRICULTURA.reloj.pasarDias },
         acciones: { tractor: cogeTractor, coche: enCosechadora ? dejaCosechadora : dejaTractor, engancha, cosechadora: cogeCosechadora,
@@ -402,8 +407,22 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     // Cada fotograma, después de mover los vehículos
     actualiza(dt, mandos) {
       if (api.entrada.consume('apero')) alternaApero();
-      if (api.entrada.consume('descargar')) alternaTubo();
+      if (!api.aPie && api.entrada.consume('descargar')) alternaTubo();
       reloj.avanza(dt);
+      // Recolección a mano (A10): a pie, junto a un cultivo de mano, X (o la cesta) corta lo maduro
+      recoleccion.actualiza(dt);
+      if (api.aPie) {
+        const pe = api.peaton.estado();
+        const hayCerca = recoleccion.hayCerca(pe.posicion.x, pe.posicion.z);
+        hud.recoleccion(hayCerca);
+        if (hayCerca && api.entrada.consume('descargar')) {
+          const r = recoleccion.coge(pe.posicion.x, pe.posicion.z, pe.adelante);
+          if (r.llena) api.avisa(`🧺 Cesta llena (${RECOLECCION.cestaKg} kg) · llévala a la COPE (E en el aro)`, 4);
+          else if (r.otro) api.avisa('🧺 La cesta lleva otro cultivo · llévala antes a la COPE', 4);
+          else if (r.kg > 0) api.avisa(`🧺 ${Math.round(recoleccion.cesta.kg)} de ${RECOLECCION.cestaKg} kg de ${nombreGrano(recoleccion.cesta.id)}`, 2);
+          else if (r.verdes > 0) api.avisa('Todavía no está en su punto', 3);
+        }
+      } else hud.recoleccion(false);
       relojGuardado += dt;
       if (relojGuardado >= ECONOMIA.guardado.cadaSegundos) { relojGuardado = 0; guarda(); }
       const r = labranza.actualiza(dt);
@@ -576,6 +595,15 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
       // Tractor con el remolque fuera, junto a la entrada
       const ent = info.entrada ?? { x: cx, z: cz };
       const fx = ent.x - cx; const fz = ent.z - cz; const fl = Math.hypot(fx, fz) || 1;
+      if (CULTIVOS[cultivo].recoleccion === 'mano') {
+        // Cultivo de mano (brócoli, alcachofa, espárrago): a pie, dentro de la parcela, mirando a lo largo de las líneas
+        colocaEn(api.coche, [ent.x + (fx / fl) * 7, ent.z + (fz / fl) * 7, rumbo]);
+        const px = cx + e[0] * (min + 4); const pz = cz + e[1] * (min + 4);
+        api.bajarse();
+        api.peaton.activa(px, pz, Math.atan2(-e[0], e[1]));
+        api.peaton.llevaA(px, terreno.alturaEn(px, pz), pz);
+        return true;
+      }
       if (CULTIVOS[cultivo].arrancable) {
         // Hortícola que se arranca (cebolla): el tractor con la arrancadora, dentro, en una punta
         engancha('arrancadora', false);

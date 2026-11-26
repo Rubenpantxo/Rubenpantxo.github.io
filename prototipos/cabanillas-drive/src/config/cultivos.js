@@ -70,6 +70,62 @@ export const CULTIVOS = {
     pesoLitroKg: 0.62,
     arrancable: true,           // se arranca con la arrancadora, no con la cosechadora
   },
+  // A10: hortícolas de recolección a mano. «recoleccion: mano» → se cogen a pie, en cestas (cestaKg).
+  // Brócoli de plantel (se trasplanta; en la Ribera, de verano a otoño): la pella (la «espiga» aquí)
+  // se corta a los ~90 días y la planta se retira. ORIENTATIVO.
+  brocoli: {
+    nombre: 'Brócoli',
+    curva: [
+      [0, 0.04, 0.03, 0, [110, 140, 90], [150, 180, 110], 0, 'Plantado'],
+      [14, 0.12, 0.25, 0, [96, 138, 98], [150, 180, 110], 0, 'Arraigado'],
+      [40, 0.35, 0.72, 0, [84, 128, 98], [150, 180, 110], 0, 'Hojas'],
+      [68, 0.55, 0.95, 0.35, [78, 120, 96], [138, 176, 96], 0, 'Formando la pella'],
+      [90, 0.6, 0.97, 1, [76, 116, 92], [128, 172, 92], 0, 'Pella en su punto'],
+      [110, 0.6, 0.95, 1, [92, 120, 80], [160, 170, 80], 0, 'Se pasa'],
+    ],
+    madura: 90,
+    recoleccion: 'mano',
+    rendimientoKgHa: 12000,      // kg de pella por ha (orientativo)
+    pesoLitroKg: 0.4,
+  },
+  // Alcachofa (Blanca de Tudela) de zueca: plurianual. Aquí, cada corte devuelve la planta a «rebrote»
+  // (edadRebrote) y vuelve a madurar. ORIENTATIVO.
+  alcachofa: {
+    nombre: 'Alcachofa',
+    curva: [
+      [0, 0.05, 0.03, 0, [120, 130, 100], [128, 140, 110], 0, 'Zueca plantada'],
+      [25, 0.2, 0.3, 0, [126, 148, 118], [128, 140, 110], 0, 'Brotando'],
+      [60, 0.55, 0.7, 0, [118, 142, 118], [128, 140, 110], 0, 'Matas'],
+      [95, 0.85, 0.95, 0.4, [112, 138, 114], [120, 130, 120], 0, 'Alcachofas formándose'],
+      [120, 0.95, 0.98, 1, [108, 134, 110], [118, 126, 122], 0, 'Alcachofas en su punto'],
+      [150, 0.95, 0.96, 1, [120, 132, 100], [132, 124, 100], 0, 'Se abren'],
+    ],
+    madura: 120,
+    recoleccion: 'mano',
+    perenne: true,
+    edadRebrote: 95,             // tras cortar, la planta vuelve a esta edad
+    rendimientoKgHa: 4000,       // kg por corte y ha (orientativo)
+    pesoLitroKg: 0.3,
+  },
+  // Espárrago blanco de garra: plurianual, de tierra amontonada en caballones (A10 no los hace
+  // todavía). El turión se cosecha a mano; después la planta rebrota. ORIENTATIVO.
+  esparrago: {
+    nombre: 'Espárrago',
+    curva: [
+      [0, 0.02, 0.02, 0, [120, 110, 80], [200, 190, 150], 0, 'Garras plantadas'],
+      [30, 0.08, 0.1, 0, [118, 150, 80], [200, 190, 150], 0, 'Brotando'],
+      [70, 0.5, 0.35, 0, [96, 140, 74], [200, 190, 150], 0, 'Frondes'],
+      [100, 0.85, 0.55, 0.5, [92, 132, 70], [214, 204, 160], 0, 'Turiones en su punto'],
+      [130, 0.9, 0.6, 1, [96, 128, 68], [214, 204, 160], 0, null],
+      [170, 0.8, 0.5, 1, [150, 140, 70], [214, 204, 160], 0, 'Frondes amarilleando'],
+    ],
+    madura: 100,
+    recoleccion: 'mano',
+    perenne: true,
+    edadRebrote: 70,
+    rendimientoKgHa: 1500,
+    pesoLitroKg: 0.5,
+  },
 };
 
 // Matas de cerca (tarjetas cruzadas instanciadas alrededor de la cámara), por calidad:

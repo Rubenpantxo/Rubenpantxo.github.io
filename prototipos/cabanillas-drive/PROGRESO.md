@@ -593,12 +593,21 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - **Prueba:** `node tools/prueba_agricultura.mjs <carpeta> [bajo|medio|alto] [movil]`: partida nueva con 3 000 €; compra de tolvas (360 € de abono, 180 € de semilla; con 45 € solo 100 kg); la 2-700 labrada, abonada y sembrada; riego (93 % cubierto, 88 % regado); 60 días secos y avisa que pide agua; hasta el día 231 y avisa de que madura; «Tus parcelas»; una pasada de verdad de 40 m de cosechadora (163 kg, ~7 550 kg/ha); descargar en la COPE y vender (41 €); guardado (35 KB) y recarga con la parcela igual; `?agricultura=cosecha` no guarda; sin errores.
 - **No hecho (a decidir con Rubén):** comprar y vender parcelas (el plan lo deja a su gusto); el plantel y la recolección a mano llegan con los hortícolas (A10).
 
+### Hecho en A10 (2026-11-26) — hortícolas
+- **Cebolla** (`prueba_cebolla.mjs`): se siembra con la sembradora (3,5 kg/ha) y se arranca con la **arrancadora** (modelo propio hecho en código, `src/agricultura/modeloscodigo.js`): cinta, cajón de 3 000 kg que se llena a la vista; el cajón se descarga en la COPE y se vende (0,3355 €/kg, 55 t/ha).
+- **Brócoli, alcachofa y espárrago**: plantas y etapas propias (curvas y texturas en `cultivos.js` / `cultivo.js`), **plantadora** (modelo en código, 4 líneas, tolva de 12 000 **plantas** en vez de kg; solo acepta estos tres) con su plantel comprado en la COPE («plantel de brócoli», «zuecas de alcachofa», «garras de espárrago»).
+- **Recolección a mano** (`src/agricultura/recoleccion.js`): a pie junto a la parcela, X (o el botón de la **cesta**) corta lo maduro en un círculo de 1,3 m delante del personaje; cesta de 40 kg de un solo cultivo; al entrar en la COPE se entrega sola y se vende. El brócoli se retira; alcachofa y espárrago **rebrotan** (vuelven a su edad de rebrote y maduran otra vez).
+- **Precios** (`economia.js`): venta brócoli 0,8618, alcachofa 1,8538, espárrago 2,85 €/kg (con su fuente en `ECONOMIA.fuente`); compra de plantel ORIENTATIVA (0,04 / 0,45 / 0,2 € por planta). Rendimientos por corte orientativos: brócoli 12 t/ha, alcachofa 4 t/ha, espárrago 1,5 t/ha.
+- **Iconos nuevos:** brócoli, alcachofa, espárrago, plantadora, cesta, cebolla, arrancadora.
+- **Escenarios:** `?agricultura=cebolla|brocoli|alcachofa|esparrago[&edad=N]`. **Prueba:** `node tools/prueba_horticolas.mjs <carpeta> [bajo|medio|alto] [movil]` (`CULTIVOS=brocoli` para uno solo).
+- **No hecho / simplificado:** la **acaballonadora** y los caballones del espárrago no están (se planta en llano); los cultivos de varios años no se simulan (la edad solo llega a 254 días): rebrotan en lugar de pasar años.
+
 ### Pendiente de Rubén
 - Hacer un ciclo completo en escritorio y en el móvil (labrar, abonar, sembrar, regar, pasar días, cosechar, descargar y vender; recargar la página y comprobar que sigue todo) y decir qué cambiar.
 - Decir si quiere comprar y vender parcelas, y si los precios de compra de la semilla y el abono (0,45 €/kg) le cuadran.
 - (A8, ya aprobada) Probar la cosecha (`?agricultura=cosecha`, o sembrar, pasar días hasta que madure y coger la cosechadora en la COPE) y decir si le cuadran la cosechadora, la siega, el rendimiento y la descarga al remolque.
 - Si sabe los datos de verdad: rendimiento del trigo y la cebada en la 2-700, tamaño de la tolva y del remolque.
-- Confirmar que se empieza A10 (hortícolas).
+- Probar los hortícolas (A10) y decir si cuadran: precios del plantel, rendimientos por corte, dosis y tamaño de la cesta; si quiere acaballonadora para el espárrago.
 - Más adelante: precios (§3 del plan).
 
 ### Notas

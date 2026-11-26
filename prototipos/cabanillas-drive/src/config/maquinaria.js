@@ -104,7 +104,7 @@ export const APEROS = {
   sembradora: {
     modelo: 'sembradora', nombre: 'Sembradora', detalle: 'arrastrada · 20 líneas · 3 m', icono: '🌱', labor: 'sembrar',
     velocidadMaxKmh: 13, resistenciaN: 1500, trabajoKmh: [7, 12],
-    polvo: 0.5, terrones: 0, aves: 5, tolva: 'semilla', capacidadKg: 400,
+    polvo: 0.5, terrones: 0, aves: 5, tolva: 'semilla', capacidadKg: 400, acepta: ['trigo', 'cebada', 'cebolla'],
   },
   // A10: arrancadora de cebolla, suspendida del tripuntal. Saca solo la cebolla madura y la lleva al
   // cajón que lleva detrás (capacidadKg); se vacía en la COPE. Modelo hecho en código (modelosCodigo.js)
@@ -112,6 +112,13 @@ export const APEROS = {
     modelo: 'arrancadora', procedural: true, nombre: 'Arrancadora de cebolla', detalle: '1,8 m · cajón de 3 000 kg', icono: '🧅', labor: 'arrancar',
     velocidadMaxKmh: 7, resistenciaN: 2600, trabajoKmh: [3, 6],
     polvo: 0.9, terrones: 0.5, aves: 3, recolector: true, grano: false, capacidadKg: 3000, cultivos: ['cebolla'],
+  },
+  // A10: plantadora de plantel (brócoli), zuecas (alcachofa) y garras (espárrago), suspendida del
+  // tripuntal. La tolva cuenta PLANTAS (no kg). Modelo hecho en código (modelosCodigo.js)
+  plantadora: {
+    modelo: 'plantadora', procedural: true, nombre: 'Plantadora', detalle: '4 líneas · 2 m · 12 000 plantas', icono: '🌱', labor: 'sembrar',
+    velocidadMaxKmh: 6, resistenciaN: 1400, trabajoKmh: [2, 5],
+    polvo: 0.3, terrones: 0, aves: 2, tolva: 'semilla', capacidadKg: 12000, acepta: ['brocoli', 'alcachofa', 'esparrago'],
   },
   // Remolque de grano (A8): no labra; lo llena la cosechadora con el tubo (cargaKg, de grano)
   remolque: {
@@ -194,6 +201,11 @@ export const SEMILLAS = {
   cebada: { nombre: 'Cebada', icono: '🌾', dosisKgHa: 180 },
   // A10: semilla de cebolla (siembra de precisión: unos 3,5 kg/ha, orientativo)
   cebolla: { nombre: 'Cebolla', icono: '🧅', dosisKgHa: 3.5 },
+  // A10: lo que lleva la plantadora, en plantas (dosisKgHa = plantas por hectárea; orientativas):
+  // brócoli 20 000, alcachofa 5 000, espárrago 16 000
+  brocoli: { nombre: 'Brócoli', icono: '🥦', dosisKgHa: 20000, plantel: true, material: 'plantel de brócoli' },
+  alcachofa: { nombre: 'Alcachofa', icono: '🌿', dosisKgHa: 5000, plantel: true, material: 'zuecas de alcachofa' },
+  esparrago: { nombre: 'Espárrago', icono: '🌿', dosisKgHa: 16000, plantel: true, material: 'garras de espárrago' },
 };
 
 // Aperos arrastrados (sembradora): la lanza va al enganche de la barra de tiro y el apero sigue al

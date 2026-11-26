@@ -81,10 +81,18 @@ export function creaHudAgricultura({ tactil }) {
   if (botonDescargar) ponIcono(botonDescargar, 'tubo');
 
   let ultimo = '';
+  let recoleccionOn = false;
   return {
+    // A pie junto a un cultivo de mano: el botón de la cesta (el mismo de «descargar» de la cosechadora)
+    recoleccion(on) {
+      if (!botonDescargar) return;
+      recoleccionOn = on;
+      botonDescargar.hidden = !on;
+      if (on) { ponIcono(botonDescargar, 'cesta'); botonDescargar.setAttribute('aria-label', 'Recoger lo que está en su punto'); }
+    },
     // estado: null (no se lleva el tractor) o { apero, bajado, velocidadKmh, parcela, recuento, teclado }
     actualiza(estado) {
-      if (botonDescargar) botonDescargar.hidden = true;
+      if (botonDescargar) botonDescargar.hidden = !recoleccionOn;
       if (!estado) {
         caja.hidden = true;
         if (boton) boton.hidden = true;
@@ -121,7 +129,7 @@ export function creaHudAgricultura({ tactil }) {
       }
       if (cultivo) {
         const sig = cultivo.siguiente ? ` · ${cultivo.siguiente.etapa.toLowerCase()} en ${cultivo.siguiente.enDias} ${cultivo.siguiente.enDias === 1 ? 'día' : 'días'}` : '';
-        html += `<div class="cultivo">${iconoHtml(cultivo.nombre.toLowerCase(), 18)}${cultivo.nombre} · ${cultivo.etapa}${cultivo.madura ? ' ✓' : ''} · ${fmt(Math.floor(cultivo.edad))} días${sig}</div>`;
+        html += `<div class="cultivo">${iconoHtml(cultivo.id ?? cultivo.nombre.toLowerCase(), 18)}${cultivo.nombre} · ${cultivo.etapa}${cultivo.madura ? ' ✓' : ''} · ${fmt(Math.floor(cultivo.edad))} días${sig}</div>`;
       }
       if (parcela) {
         html += `<div class="parcela">${lineaParcela(parcela)}</div>`;
@@ -170,7 +178,7 @@ export function creaHudAgricultura({ tactil }) {
       else if (e.tuboFuera) html += `<div class="parcela">Tubo de descarga fuera${e.conTeclado ? ' (X)' : ''}</div>`;
       if (e.cultivo) {
         const sig = e.cultivo.siguiente ? ` · ${e.cultivo.siguiente.etapa.toLowerCase()} en ${e.cultivo.siguiente.enDias} ${e.cultivo.siguiente.enDias === 1 ? 'día' : 'días'}` : '';
-        html += `<div class="cultivo">${iconoHtml(e.cultivo.nombre.toLowerCase(), 18)}${e.cultivo.nombre} · ${e.cultivo.etapa}${e.cultivo.madura ? ' ✓' : ''}${sig}</div>`;
+        html += `<div class="cultivo">${iconoHtml(e.cultivo.id ?? e.cultivo.nombre.toLowerCase(), 18)}${e.cultivo.nombre} · ${e.cultivo.etapa}${e.cultivo.madura ? ' ✓' : ''}${sig}</div>`;
       }
       if (e.parcela) {
         html += `<div class="parcela">${lineaParcela(e.parcela)}</div>`;

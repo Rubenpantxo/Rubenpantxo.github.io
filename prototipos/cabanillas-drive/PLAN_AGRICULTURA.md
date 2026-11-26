@@ -327,6 +327,8 @@ Aceptación: Rubén hace un ciclo completo en escritorio y en el móvil.
 - Recolección a mano con el personaje y cajas al remolque; arrancado de la cebolla en hileras.
 - Venta en la COPE.
 
+Estado (2026-11-26): hecho salvo la **acaballonadora** (el espárrago se planta en llano) y el ciclo de varios años (alcachofa y espárrago rebrotan en su edad de rebrote). Cebolla con arrancadora y cajón; brócoli, alcachofa y espárrago con plantadora (tolva en plantas) y recolección a pie con cesta de 40 kg. Detalle en `PROGRESO.md`.
+
 Aceptación: Rubén planta y cosecha cada uno de los cuatro, en escritorio y en el móvil.
 
 ### A11 — Rendimiento, móvil y publicación
