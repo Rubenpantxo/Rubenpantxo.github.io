@@ -1,0 +1,361 @@
+/* ============================================================
+   ZONA 02 · CATÁLOGO Y CASOS DE USO (servicios/zonas/casos-uso.js)
+   Usa los tokens de #servicios (--sv-*), así sigue al tema claro/oscuro.
+   Todo cuelga de .svc para no chocar con las otras zonas.
+   ============================================================ */
+
+#sv-casos {
+    --svc-r: 22px;
+    margin: clamp(3rem, 8vw, 6rem) 0 clamp(2rem, 5vw, 4rem);
+    color: var(--sv-text);
+    scroll-margin-top: 80px;
+}
+#sv-casos:not(.svc-listo) { min-height: 420px; }
+
+/* ---------- cabecera ---------- */
+.svc-cabecera { max-width: 46rem; }
+.svc-eyebrow {
+    font-size: .78rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--sv-muted);
+    margin: 0 0 .6rem;
+}
+.svc-titulo {
+    font-size: clamp(2rem, 5.2vw, 3.6rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -.03em;
+    margin: 0;
+}
+.svc-titulo em { font-style: normal; color: var(--sv-acc); }
+.svc-lead { color: var(--sv-muted); margin: 1rem 0 0; font-size: 1.05rem; line-height: 1.5; }
+
+/* ---------- barra de filtros ---------- */
+.svc-barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem 1rem;
+    margin: clamp(1.4rem, 3vw, 2.2rem) 0 1.4rem;
+}
+.svc-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.svc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    min-height: 44px;
+    padding: .55rem 1.05rem;
+    border-radius: 999px;
+    border: 1px solid var(--sv-line);
+    background: var(--sv-surface);
+    color: var(--sv-text);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s, border-color .2s, color .2s, transform .15s;
+}
+.svc-chip:hover { border-color: var(--sv-stroke); }
+.svc-chip:active { transform: scale(.97); }
+.svc-chip-n {
+    min-width: 1.6em;
+    padding: .05em .45em;
+    border-radius: 999px;
+    background: var(--sv-surface-2);
+    color: var(--sv-muted);
+    font-size: .8em;
+    text-align: center;
+}
+.svc-chip[aria-pressed="true"] { background: var(--sv-text); color: var(--sv-bg); border-color: var(--sv-text); }
+.svc-chip[aria-pressed="true"] .svc-chip-n { background: color-mix(in srgb, var(--sv-bg) 18%, transparent); color: inherit; }
+.svc-chip:focus-visible, .svc-sector:focus-visible, .svc-btn:focus-visible, .svc-dlg-cerrar:focus-visible {
+    outline: 3px solid var(--sv-acc);
+    outline-offset: 3px;
+}
+.svc-sector {
+    min-height: 44px;
+    padding: .5rem 2.2rem .5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--sv-line);
+    background: var(--sv-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23888' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 1rem center / 11px;
+    color: var(--sv-text);
+    font: inherit;
+    appearance: none;
+    cursor: pointer;
+}
+.svc-contador { margin: 0 0 0 auto; color: var(--sv-muted); font-size: .9rem; }
+
+/* ---------- listado ---------- */
+.svc-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+    grid-auto-flow: dense;
+    gap: clamp(14px, 2vw, 24px);
+}
+.svc-lista > li[hidden] { display: none; }
+@media (min-width: 900px) {
+    /* Los destacados ocupan dos columnas: demo a un lado, historia al otro */
+    .svc-lista > li:has(.svc-card--destacado) { grid-column: span 2; }
+    .svc-card.svc-card--destacado { display: grid; grid-template-columns: 1.1fr 1fr; }
+    .svc-card--destacado .svc-media { aspect-ratio: auto; min-height: 100%; }
+}
+
+.svc-card {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--svc-r);
+    overflow: hidden;
+    background: var(--sv-surface);
+    border: 1px solid var(--sv-line);
+    box-shadow: 0 18px 40px -26px var(--sv-card-shadow);
+    transition: border-color .25s, transform .3s cubic-bezier(.2, .9, .25, 1);
+}
+.svc-card:hover { border-color: color-mix(in srgb, var(--acc) 55%, var(--sv-line)); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .svc-card:hover { transform: translateY(-3px); }
+}
+.svc-badge {
+    position: absolute;
+    z-index: 2;
+    top: 14px;
+    left: 14px;
+    padding: .3rem .7rem;
+    border-radius: 999px;
+    background: var(--acc);
+    color: #0a0a0f;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+/* ---------- media: póster de respaldo + canvas 3D ---------- */
+.svc-media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background:
+        radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, var(--acc) 38%, transparent), transparent 60%),
+        linear-gradient(160deg, var(--sv-surface-2), color-mix(in srgb, var(--acc) 14%, var(--sv-surface)));
+    overflow: hidden;
+}
+.svc-poster {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    transition: opacity .5s ease;
+}
+.svc-poster svg {
+    width: 34%;
+    max-width: 120px;
+    fill: none;
+    stroke: var(--acc);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 10px 26px color-mix(in srgb, var(--acc) 45%, transparent));
+}
+.svc-poster img {
+    width: 34%;
+    max-width: 128px;
+    height: auto;
+    border-radius: 22%;
+    box-shadow: 0 16px 34px -12px rgba(0, 0, 0, .5);
+}
+.svc-media.con-3d .svc-poster { opacity: 0; }
+.svc-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    touch-action: pan-y;
+}
+.svc-canvas:active { cursor: grabbing; }
+.svc-pista {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    margin: 0;
+    transform: translateX(-50%);
+    padding: .35rem .8rem;
+    border-radius: 999px;
+    background: rgba(10, 10, 15, .6);
+    color: #fff;
+    font-size: .78rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .4s ease;
+    backdrop-filter: blur(6px);
+}
+.svc-media.con-3d:not(.is-tocado) .svc-pista { opacity: 1; }
+.svc-carga {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    margin: 0;
+    display: none;
+    align-items: center;
+    gap: .5rem;
+    font-size: .78rem;
+    color: var(--sv-muted);
+}
+.svc-media.is-cargando .svc-carga { display: inline-flex; }
+.svc-carga span, .svc-dlg-carga span {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--acc) 35%, transparent);
+    border-top-color: var(--acc);
+    animation: svc-gira .8s linear infinite;
+}
+@keyframes svc-gira { to { transform: rotate(360deg); } }
+.svc-fps {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: .15rem .45rem;
+    border-radius: 6px;
+    background: #000;
+    color: #4ce0b3;
+    font: 700 .72rem/1.3 ui-monospace, monospace;
+}
+
+/* ---------- cuerpo ---------- */
+.svc-cuerpo {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+    flex: 1;
+    padding: clamp(1.1rem, 2.4vw, 1.6rem);
+}
+.svc-meta { margin: 0; font-size: .82rem; color: var(--sv-muted); }
+.svc-cat { color: var(--acc); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.svc-nombre { margin: 0; font-size: 1.35rem; font-weight: 850; letter-spacing: -.01em; line-height: 1.15; }
+.svc-card--destacado .svc-nombre { font-size: clamp(1.4rem, 2.4vw, 1.8rem); }
+.svc-resumen { margin: 0; line-height: 1.5; }
+.svc-resultado {
+    margin: 0;
+    padding: .65rem .85rem;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--acc) 12%, var(--sv-surface-2));
+    border-left: 3px solid var(--acc);
+    font-size: .92rem;
+    line-height: 1.45;
+}
+.svc-resultado strong { color: var(--acc); }
+.svc-tec { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .35rem; }
+.svc-tec li {
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    border: 1px solid var(--sv-line);
+    font-size: .76rem;
+    color: var(--sv-muted);
+}
+.svc-acciones { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: auto; padding-top: .4rem; }
+.svc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    min-height: 44px;
+    padding: .6rem 1.15rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: var(--acc, var(--sv-acc));
+    color: #0a0a0f;
+    font: inherit;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: filter .2s, transform .15s;
+}
+.svc-btn:hover { filter: brightness(1.08); }
+.svc-btn:active { transform: scale(.97); }
+.svc-btn--sec { background: transparent; color: var(--sv-text); border-color: var(--sv-stroke); }
+
+/* ---------- estado vacío ---------- */
+.svc-vacio {
+    padding: clamp(1.6rem, 4vw, 2.6rem);
+    border-radius: var(--svc-r);
+    border: 1px dashed var(--sv-stroke);
+    text-align: center;
+}
+.svc-vacio-titulo { margin: 0 0 .4rem; font-size: 1.4rem; font-weight: 850; }
+.svc-vacio-texto { margin: 0 auto 1.2rem; max-width: 32rem; color: var(--sv-muted); }
+.svc-vacio-acciones { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
+
+/* ---------- diálogo con la demo viva ---------- */
+.svc-dlg {
+    width: min(1180px, calc(100vw - 24px));
+    height: min(820px, calc(100dvh - 24px));
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    border: 1px solid var(--sv-line);
+    border-radius: 26px;
+    background: var(--sv-bg);
+    color: var(--sv-text);
+    overflow: hidden;
+}
+.svc-dlg::backdrop { background: rgba(5, 5, 12, .72); backdrop-filter: blur(6px); }
+.svc-dlg-caja { display: grid; grid-template-rows: minmax(0, 58%) minmax(0, 1fr); height: 100%; }
+@media (min-width: 900px) {
+    .svc-dlg-caja { grid-template-rows: none; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+}
+.svc-dlg-demo { position: relative; background: var(--sv-surface-2); }
+.svc-dlg-demo iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; opacity: 0; transition: opacity .4s ease; }
+.svc-dlg.is-cargado .svc-dlg-demo iframe { opacity: 1; }
+.svc-dlg-carga { position: absolute; inset: 0; display: grid; place-items: center; }
+.svc-dlg-carga span { width: 28px; height: 28px; border-width: 3px; }
+.svc-dlg.is-cargado .svc-dlg-carga { display: none; }
+.svc-dlg-info {
+    display: flex;
+    flex-direction: column;
+    gap: .9rem;
+    padding: clamp(1.2rem, 3vw, 2.2rem);
+    padding-top: clamp(1.2rem, 3vw, 3rem);
+    overflow-y: auto;
+}
+.svc-dlg-titulo { margin: 0; font-size: clamp(1.6rem, 3vw, 2.3rem); font-weight: 900; letter-spacing: -.02em; line-height: 1.05; }
+.svc-historia { margin: 0; display: grid; gap: .3rem; }
+.svc-historia dt { margin-top: .5rem; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+.svc-historia dd { margin: 0; line-height: 1.5; }
+.svc-cita { margin: 0; padding-left: 1rem; border-left: 3px solid var(--acc); font-style: italic; color: var(--sv-muted); }
+.svc-dlg .svc-acciones { padding-top: 1rem; }
+.svc-dlg-cerrar {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--sv-line);
+    background: var(--sv-surface);
+    color: var(--sv-text);
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+/* ---------- transición del filtrado ---------- */
+/* Mientras filtra, la página entera no se anima (lo hacen solo las tarjetas).
+   El nombre solo existe durante el filtrado para no colarse en otras transiciones. */
+:root.svc-vt .svc-lista > li:not([hidden]) { view-transition-name: var(--svc-vt); }
+:root.svc-vt::view-transition-old(root),
+:root.svc-vt::view-transition-new(root) { animation: none; }
+@media (prefers-reduced-motion: no-preference) {
+    :root.svc-vt::view-transition-group(*) { animation-duration: .38s; animation-timing-function: cubic-bezier(.2, .9, .25, 1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .svc-carga span, .svc-dlg-carga span { animation-duration: 2.4s; }
+    .svc-card, .svc-poster, .svc-dlg-demo iframe { transition: none; }
+}
