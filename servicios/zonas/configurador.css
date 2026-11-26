@@ -1,0 +1,318 @@
+/* ============================================================
+   Configurador de alcance (zona 5 de #servicios)
+   Lo carga configurador.js. Usa los tokens --sv-* de la sección, con
+   valores de reserva para que también funcione suelto.
+   ============================================================ */
+
+/* La tarjeta de la sección recorta con overflow:hidden, y eso anula
+   position:sticky (el ticket dejaría de seguirte al hacer scroll).
+   overflow:clip recorta igual, esquinas redondeadas incluidas, sin crear
+   un contenedor de scroll. */
+@supports (overflow: clip) {
+    #servicios .sv-wrap:has(#sv-configurador) { overflow: clip; }
+}
+
+.cfg {
+    --cfg-acc: var(--sv-acc, #7c6cff);
+    --cfg-bg: var(--sv-surface, #14141d);
+    --cfg-bg2: var(--sv-surface-2, color-mix(in srgb, var(--cfg-bg) 85%, #fff));
+    --cfg-txt: var(--sv-text, #f4f3ee);
+    --cfg-mut: var(--sv-muted, #9a99a8);
+    --cfg-line: var(--sv-line, rgba(255, 255, 255, .09));
+    --cfg-ok: #2ecc71;
+    /* Acento oscurecido para texto blanco encima (contraste 4.5:1) y para
+       texto de acento sobre papel claro. */
+    --cfg-acc-fuerte: color-mix(in srgb, var(--cfg-acc) 70%, #000);
+    --cfg-acc-txt: var(--cfg-acc);
+    --cfg-radio: 18px;
+    position: relative;
+    margin-top: clamp(2.6rem, 6vw, 4.5rem);
+    color: var(--cfg-txt);
+    font-family: 'Inter', system-ui, sans-serif;
+    scroll-margin-top: 24px;
+}
+#servicios[data-sv-tema="claro"] .cfg { --cfg-ok: #1a7f45; --cfg-acc-txt: var(--cfg-acc-fuerte); }
+
+.cfg-cab { max-width: 46rem; }
+.cfg-eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--cfg-mut);
+}
+.cfg-titulo {
+    margin-top: .7rem;
+    font-size: clamp(1.8rem, 4.5vw, 2.8rem); font-weight: 900; letter-spacing: -.035em;
+    line-height: 1.05; text-wrap: balance;
+}
+.cfg-titulo:focus { outline: none; }
+.cfg-titulo em { font-style: normal; color: var(--cfg-acc-txt); }
+.cfg-lead { margin-top: .9rem; font-size: .97rem; line-height: 1.7; color: var(--cfg-mut); }
+
+.cfg-cuerpo {
+    margin-top: clamp(1.6rem, 4vw, 2.4rem);
+    display: grid;
+    gap: clamp(1.2rem, 3vw, 2rem);
+    align-items: start;
+}
+@media (min-width: 960px) {
+    .cfg-cuerpo { grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); }
+}
+
+.cfg-opciones { display: grid; gap: clamp(1.4rem, 3.4vw, 2.2rem); min-width: 0; }
+.cfg-paso-tit {
+    display: flex; align-items: center; gap: 10px;
+    font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--cfg-mut);
+    margin-bottom: .9rem;
+}
+.cfg-paso-tit span {
+    display: inline-grid; place-items: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--cfg-acc-fuerte); color: #fff; letter-spacing: 0; font-size: .75rem;
+}
+
+/* ---------- botones base ---------- */
+.cfg button { font: inherit; color: inherit; }
+.cfg :focus-visible { outline: 3px solid var(--cfg-acc); outline-offset: 3px; }
+
+/* ---------- 1. perfiles ---------- */
+.cfg-perfiles { display: grid; gap: 10px; }
+@media (min-width: 620px) { .cfg-perfiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.cfg-perfil,
+.cfg-paquete {
+    position: relative;
+    display: grid; gap: 4px; align-content: start; text-align: left;
+    padding: 16px 16px 14px;
+    border-radius: var(--cfg-radio);
+    border: 1.5px solid var(--cfg-line);
+    background: var(--cfg-bg);
+    cursor: pointer;
+    transition: border-color .2s, transform .2s, box-shadow .2s, background-color .6s;
+}
+.cfg-perfil:hover,
+.cfg-paquete:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--cfg-acc) 55%, var(--cfg-line)); }
+.cfg-perfil[aria-checked="true"],
+.cfg-paquete[aria-pressed="true"] {
+    border-color: var(--cfg-acc);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--cfg-acc) 18%, transparent);
+    background: color-mix(in srgb, var(--cfg-acc) 9%, var(--cfg-bg));
+}
+.cfg-perfil[aria-checked="true"]::after,
+.cfg-paquete[aria-pressed="true"]::after {
+    content: "✓";
+    position: absolute; top: 12px; right: 12px;
+    display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--cfg-acc-fuerte); color: #fff; font-size: .75rem; font-weight: 900;
+}
+.cfg-icono { font-size: 1.35rem; line-height: 1; }
+.cfg-perfil-nombre,
+.cfg-paquete-nombre { font-weight: 800; font-size: 1rem; margin-top: 4px; }
+.cfg-perfil-desc,
+.cfg-paquete-lema { font-size: .84rem; line-height: 1.5; color: var(--cfg-mut); }
+.cfg-perfil-meta { margin-top: 6px; font-size: .78rem; font-weight: 700; }
+
+/* ---------- 2. paquetes ---------- */
+.cfg-paquetes { display: grid; gap: 10px; }
+@media (min-width: 620px) { .cfg-paquetes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.cfg-paquete.is-destacado { border-color: color-mix(in srgb, var(--cfg-acc) 60%, var(--cfg-line)); }
+.cfg-paquete-lista { margin-top: 6px; font-size: .78rem; line-height: 1.5; }
+.cfg-paquete-dto { margin-top: 4px; font-size: .78rem; font-weight: 800; color: var(--cfg-ok); }
+.cfg-sello {
+    justify-self: start;
+    font-size: .66rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 999px;
+    background: var(--cfg-acc-fuerte); color: #fff;
+}
+.cfg-sello--mini { padding: 3px 7px; font-size: .6rem; }
+
+/* ---------- 3. bloques ---------- */
+.cfg-bloques {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; gap: 10px;
+}
+@media (min-width: 620px) { .cfg-bloques { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cfg-bloque {
+    display: grid; gap: 6px; align-content: start;
+    padding: 16px;
+    border-radius: var(--cfg-radio);
+    border: 1.5px solid var(--cfg-line);
+    background: var(--cfg-bg);
+    transition: border-color .2s, background-color .3s;
+}
+.cfg-bloque.is-on {
+    border-color: var(--cfg-acc);
+    background: color-mix(in srgb, var(--cfg-acc) 8%, var(--cfg-bg));
+}
+.cfg-bloque.is-incluido { opacity: .78; }
+.cfg-bloque--urgente.is-on { border-color: #ffb648; background: color-mix(in srgb, #ffb648 10%, var(--cfg-bg)); }
+.cfg-bloque-cab { display: flex; align-items: center; gap: 10px; }
+.cfg-bloque-nombre { font-size: .98rem; font-weight: 800; margin: 0; flex: 1 1 auto; min-width: 0; }
+.cfg-bloque-cab .cfg-sello { flex: none; }
+.cfg-bloque-res { font-size: .86rem; line-height: 1.5; color: var(--cfg-mut); }
+.cfg-bloque-meta { font-size: .8rem; color: var(--cfg-mut); }
+.cfg-bloque-meta b { color: var(--cfg-txt); }
+.cfg-nota { font-size: .78rem; font-weight: 700; color: var(--cfg-acc-txt); }
+.cfg-nota:empty { display: none; }
+
+.cfg-incluye summary {
+    cursor: pointer; width: fit-content;
+    font-size: .8rem; font-weight: 700; color: var(--cfg-txt);
+    text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--cfg-line);
+}
+.cfg-incluye ul { margin: 8px 0 0; padding-left: 1.1rem; font-size: .82rem; line-height: 1.6; color: var(--cfg-mut); }
+
+/* Interruptor: pista + bola. 44 px de zona táctil con el padding. */
+.cfg-switch {
+    flex: none;
+    position: relative;
+    width: 50px; height: 30px; padding: 0;
+    border-radius: 999px;
+    border: 1.5px solid var(--cfg-line);
+    background: var(--cfg-bg2);
+    cursor: pointer;
+    transition: background-color .2s, border-color .2s;
+}
+.cfg-switch::before { content: ""; position: absolute; inset: -8px -2px; } /* zona táctil */
+.cfg-switch span {
+    position: absolute; top: 3px; left: 3px;
+    width: 21px; height: 21px; border-radius: 50%;
+    background: var(--cfg-mut);
+    transition: transform .22s cubic-bezier(.3, 1.5, .5, 1), background-color .2s;
+}
+.cfg-switch[aria-checked="true"] { background: var(--cfg-acc); border-color: var(--cfg-acc); }
+.cfg-switch[aria-checked="true"] span { transform: translateX(20px); background: #fff; }
+.cfg-bloque--urgente .cfg-switch[aria-checked="true"] { background: #c77700; border-color: #c77700; }
+.cfg-switch:disabled { cursor: not-allowed; opacity: .7; }
+
+/* ---------- ticket ---------- */
+.cfg-ticket {
+    position: sticky; top: 16px; z-index: 5;
+    border-radius: 24px;
+    border: 1px solid var(--cfg-line);
+    background-color: var(--cfg-bg);
+    background-image: radial-gradient(420px 220px at 100% 0%, color-mix(in srgb, var(--cfg-acc) 16%, transparent), transparent 65%);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .18);
+    transition: background-color .6s;
+}
+.cfg-ticket-cuerpo { padding: 20px; display: grid; gap: 14px; }
+.cfg-ticket-tit { font-size: 1.15rem; font-weight: 900; letter-spacing: -.02em; }
+.cfg-mini { display: none; }
+
+.cfg-lineas { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: .86rem; }
+.cfg-lineas li { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.cfg-lineas li span { color: var(--cfg-mut); }
+.cfg-lineas li small {
+    margin-left: 4px; font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 999px; border: 1px solid var(--cfg-line);
+}
+.cfg-lineas li b { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cfg-linea-descuento b { color: var(--cfg-ok); }
+.cfg-linea-recargo b { color: #ffb648; }
+#servicios[data-sv-tema="claro"] .cfg-linea-recargo b { color: #9a5a00; }
+
+.cfg-total {
+    display: grid; gap: 2px;
+    padding: 14px 16px; border-radius: 16px;
+    background: color-mix(in srgb, var(--cfg-acc) 12%, var(--cfg-bg2));
+}
+.cfg-total span,
+.cfg-plazo-tit span,
+.cfg-pagos-tit,
+.cfg-mensual span { font-size: .7rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--cfg-mut); }
+.cfg-total b { font-size: clamp(1.5rem, 3.4vw, 1.9rem); font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.cfg-total small { font-size: .75rem; color: var(--cfg-mut); }
+.cfg-total.is-cambio { animation: cfg-pulso .5s ease; }
+@keyframes cfg-pulso {
+    30% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--cfg-acc) 30%, transparent); }
+}
+.cfg-mensual { display: flex; justify-content: space-between; align-items: baseline; font-size: .9rem; }
+.cfg-mensual[hidden] { display: none; }
+
+.cfg-plazo-tit { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.cfg-plazo-tit b { font-size: .95rem; }
+.cfg-fases { list-style: none; margin: 0; padding: 0; display: flex; gap: 3px; }
+.cfg-fases li {
+    flex: var(--peso) 1 0; min-width: 0;
+    display: grid; gap: 3px;
+    font-size: .68rem; line-height: 1.2;
+}
+.cfg-fase-barra { height: 8px; border-radius: 4px; background: var(--cfg-acc); }
+.cfg-fases li:nth-child(2) .cfg-fase-barra { opacity: .8; }
+.cfg-fases li:nth-child(3) .cfg-fase-barra { opacity: .6; }
+.cfg-fases li:nth-child(4) .cfg-fase-barra { opacity: .4; }
+.cfg-fase-nombre { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cfg-fase-sem { color: var(--cfg-mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.cfg-pagos-tit { margin-bottom: 6px; }
+.cfg-pagos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.cfg-pagos li {
+    display: grid; gap: 2px; padding: 8px; border-radius: 12px;
+    border: 1px solid var(--cfg-line); font-size: .7rem; text-align: center;
+}
+.cfg-pagos li b { font-size: .85rem; }
+.cfg-pagos li span { color: var(--cfg-mut); font-variant-numeric: tabular-nums; }
+
+.cfg-letra { font-size: .75rem; line-height: 1.5; color: var(--cfg-mut); }
+
+.cfg-cta {
+    border: none; cursor: pointer;
+    font-size: 1rem; font-weight: 800; color: #fff !important;
+    /* Mismos tonos oscuros que .sv-submit: blanco con contraste 4.5:1 */
+    background: linear-gradient(120deg, #5b4ae0, #d6335c);
+    padding: 15px; border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(124, 108, 255, .35);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+.cfg-cta:hover { transform: translateY(-2px); box-shadow: 0 16px 44px rgba(124, 108, 255, .5); }
+.cfg-cta:active { transform: scale(.98); }
+.cfg-acciones { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.cfg-sec {
+    border: 1px solid var(--cfg-line); background: transparent; cursor: pointer;
+    font-size: .78rem !important; font-weight: 700; padding: 8px 12px; border-radius: 999px;
+    transition: border-color .2s;
+}
+.cfg-sec:hover { border-color: var(--cfg-acc); }
+.cfg-aviso {
+    font-size: .82rem; line-height: 1.5; font-weight: 600;
+    padding: 10px 12px; border-radius: 12px;
+    border: 1px dashed var(--cfg-acc);
+}
+.cfg-aviso[hidden] { display: none; }
+.cfg-admin {
+    margin: 0; padding: 10px; border-radius: 10px; overflow-x: auto;
+    font: 11px/1.5 ui-monospace, monospace; white-space: pre-wrap;
+    background: var(--cfg-bg2); color: var(--cfg-mut);
+}
+.cfg-sr {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ---------- móvil: el ticket baja a una barra pegada abajo ---------- */
+@media (max-width: 959px) {
+    .cfg-ticket {
+        top: auto; bottom: 10px;
+        border-radius: 20px;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, .28);
+    }
+    .cfg-mini {
+        display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 12px 16px; border: 0; background: transparent; cursor: pointer; text-align: left;
+    }
+    .cfg-mini-txt { display: grid; gap: 1px; }
+    .cfg-mini-txt small { font-size: .7rem; color: var(--cfg-mut); }
+    .cfg-mini-txt b { font-size: 1.15rem; font-weight: 900; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .cfg-detalle-txt {
+        flex: none; font-size: .8rem; font-weight: 800;
+        padding: 9px 14px; border-radius: 999px; background: var(--cfg-acc-fuerte); color: #fff;
+    }
+    .cfg-ticket-cuerpo { display: none; padding-top: 4px; }
+    .cfg-ticket.is-abierto .cfg-ticket-cuerpo {
+        display: grid;
+        max-height: min(62vh, 560px); overflow-y: auto; overscroll-behavior: contain;
+    }
+    .cfg-ticket-tit { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cfg *, .cfg *::before, .cfg *::after { transition: none !important; animation: none !important; }
+}
