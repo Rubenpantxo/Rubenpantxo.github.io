@@ -235,7 +235,7 @@ export function colisionaCochesAparcados(fisica, colocados) {
     const { largo, ancho, alto } = c.info;
     centro.set(0, alto / 2, 0).applyQuaternion(c.cuaternion).add(new THREE.Vector3(c.x, c.y, c.z));
     const collider = mundo.createCollider(
-      RAPIER.ColliderDesc.cuboid(Math.min(ancho, 2.0) / 2, alto / 2, largo / 2)
+      RAPIER.ColliderDesc.cuboid(ancho / 2, alto / 2, largo / 2)
         .setTranslation(centro.x, centro.y, centro.z)
         .setRotation({ x: c.cuaternion.x, y: c.cuaternion.y, z: c.cuaternion.z, w: c.cuaternion.w })
         .setFriction(0.6),
@@ -248,9 +248,24 @@ export function colisionaCochesAparcados(fisica, colocados) {
 // Devuelve el grupo (origen = suelo bajo el centro del coche) y las ruedas ordenadas:
 // 0 delantera izquierda (+X), 1 delantera derecha, 2 trasera izquierda, 3 trasera derecha.
 export function preparaCocheJugador(modelo, colorCarroceria) {
+  const datosRuedas = modelo.info.ruedas ?? [];
+  if (datosRuedas.length !== 4) {
+    const grupo = modelo.escena.clone(true);
+    grupo.name = `jugador_${modelo.id}`;
+    const radio = Math.min(0.42, Math.max(0.29, modelo.info.alto * 0.21));
+    const x = Math.min(modelo.info.ancho * 0.36, 0.82);
+    const z = modelo.info.largo * 0.31;
+    const ruedas = [[x, radio, z], [-x, radio, z], [x, radio, -z], [-x, radio, -z]].map(([cx, cy, cz]) => {
+      const pivote = new THREE.Group();
+      const giro = new THREE.Group();
+      pivote.add(giro);
+      return { pivote, giro, centro: new THREE.Vector3(cx, cy, cz), radio, ancho: radio * 0.55 };
+    });
+    return { grupo, ruedas };
+  }
+
   const grupo = new THREE.Group();
   grupo.name = `jugador_${modelo.id}`;
-  const datosRuedas = modelo.info.ruedas;
   const nombresRuedas = new Set(datosRuedas.map((d) => d.objeto));
   const ruedas = new Array(4);
   const inversa = new THREE.Matrix4();

@@ -95,6 +95,8 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
   const sucesos = [];                // lo último que ha hecho (para la F4): { tipo, t }
   let balanceo = 0;                  // inclinación lateral que se ve (rad)
   let dirCogida = [1, 0];
+  let tipoCogida = 'revolcon';
+  let impulsoCogidaPendiente = 0;
   let cogidas = 0;
 
   const E = P.energia;
@@ -165,18 +167,25 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     const ordenes = pide;
     pide = { quiebro: false, recorte: false, salto: false, especial: false, refugio: false };
 
-    // Cogida (F3): volteo sencillo. Por los aires en la dirección de la vaca y, al caer, a la valla más cercana
+    // La cápsula resuelve la colisión del golpe: el personaje no atraviesa la valla ni termina subido en ella.
     if (estado === 'cogido') {
-      const G = FIESTAS.cogida;
-      const t = Math.min(1, tEstado / G.vueloS);
-      peaton.llevaA(desde.x + dirCogida[0] * G.lejosM * t, desde.y + Math.sin(Math.PI * t) * G.altoM, desde.z + dirCogida[1] * G.lejosM * t);
-      vx = 0; vz = 0;
+      const G = FIESTAS.cogida[tipoCogida];
+      const t = limita(tEstado / G.duracionS, 0, 1);
+      const velocidadGolpe = (2 * G.distanciaM / G.duracionS) * (1 - t);
+      peaton.mueve(dirCogida[0] * velocidadGolpe, dirCogida[1] * velocidadGolpe, dt, impulsoCogidaPendiente);
+      impulsoCogidaPendiente = 0;
+      vx = dirCogida[0] * velocidadGolpe;
+      vz = dirCogida[1] * velocidadGolpe;
       if (t >= 1) {
-        enUso = buscaRefugio(desde.x, desde.z, true);
-        Object.assign(desde, peaton.pies());
+        peaton.ponColision(true);
         enAire = false;
-        cambia('subiendo');
+        cambia('levantandose');
       }
+      return;
+    }
+    if (estado === 'levantandose') {
+      vx = 0; vz = 0;
+      if (tEstado >= FIESTAS.cogida.recuperaS) cambia('libre');
       return;
     }
     // Refugio: subir, estar y bajar (la cápsula va sin colisión)
@@ -307,13 +316,13 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
       if (t >= 1) cambia('libre');
     } else {
       // Andar, correr o esprintar
-      const quiereEsprint = mandos.correr || (mandos.conJoystick && fuerza > P.joystickEsprint);
+      const quiereEsprint = mandos.esprintar || (mandos.conJoystick && fuerza > P.joystickEsprint);
       const esprinta = quiereEsprint && !sinFuelle && fuerza > 0.1;
       let objetivo = 0;
       if (fuerza > 0.05) {
         if (esprinta) objetivo = P.esprintMs;
-        else if (mandos.conJoystick && fuerza < P.joystickAndar) objetivo = P.andarMs;
-        else objetivo = P.correrMs;
+        else if (mandos.conJoystick) objetivo = fuerza < P.joystickAndar ? P.andarMs : P.correrMs;
+        else objetivo = mandos.correr ? P.correrMs : P.andarMs;
       }
       if (esprinta && suelo) {
         energia -= E.esprintPorS * dt;
@@ -356,9 +365,14 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     balanceo += (inclina - balanceo) * Math.min(1, dt * 22);
     objeto.position.set(pies.x, pies.y, pies.z);
     // En la cogida da una vuelta entera en el aire
-    const vuelta = estado === 'cogido' ? Math.min(1, tEstado / FIESTAS.cogida.vueloS) * Math.PI * 2 : 0;
-    objeto.rotation.set(vuelta, rumbo, balanceo, 'YXZ');
-    if (vuelta) objeto.position.y += 0.9 * Math.sin(vuelta / 2);       // gira sobre la cintura, no sobre los pies
+    const G = FIESTAS.cogida[tipoCogida];
+    const derribado = estado === 'cogido' || estado === 'levantandose';
+    const progresoGolpe = estado === 'cogido'
+      ? limita(tEstado / G.duracionS, 0, 1)
+      : estado === 'levantandose' ? 1 - limita(tEstado / FIESTAS.cogida.recuperaS, 0, 1) : 0;
+    const giroGolpe = derribado ? G.giroRad * progresoGolpe : 0;
+    objeto.rotation.set(tipoCogida === 'cornada' ? giroGolpe : 0, rumbo,
+      tipoCogida === 'revolcon' ? giroGolpe : balanceo, 'YXZ');
     objeto.updateMatrixWorld(true);
 
     const enRefugio = estado === 'refugiado' || (estado === 'subiendo' && tEstado > P.refugio.subirS * 0.6);
@@ -373,7 +387,7 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
       // Agachado tras el burladero o la valla gris
       gira(H.columna, 0.3);
       for (const i of [0, 1]) { gira(H.muslo[i], -0.55); gira(H.pierna[i], 0.95); }
-    } else if (enAire || estado === 'subiendo' || estado === 'bajando' || estado === 'cogido') {
+    } else if (enAire || estado === 'subiendo' || estado === 'bajando' || derribado) {
       // En el aire: piernas recogidas y brazos arriba
       const t = estado === 'libre' ? suave(tAire, 0, 0.12) : 1;
       const alto = saltoEspecial ? 1.25 : 1;
@@ -400,6 +414,7 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     reinicia(guinada) {
       rumbo = Math.atan2(-Math.sin(guinada), -Math.cos(guinada));
       vx = 0; vz = 0; energia = 1; sinFuelle = false; enAire = false; enUso = null; sentado = null; refugio = null; cogidas = 0;
+      tipoCogida = 'revolcon'; impulsoCogidaPendiente = 0;
       peaton.ponColision(true);
       cambia('libre');
     },
@@ -412,12 +427,15 @@ export function creaPersonaje({ peaton, terreno, recinto, personas, sombras = tr
     get rumbo() { return rumbo; },
     get combo() { return combo; },
     get cogidas() { return cogidas; },
-    // La vaca lo coge: sale despedido hacia (dx, dz). No hace nada si ya está a salvo o por los aires
-    cogida(dx, dz) {
-      if (estado === 'cogido' || estado === 'refugiado' || estado === 'subiendo') return false;
-      dirCogida = [dx, dz];
+    get tipoCogida() { return tipoCogida; },
+    // La fuerza del golpe distingue una cornada de un revolcón; el movimiento conserva las colisiones.
+    cogida(dx, dz, velocidad = 0) {
+      if (estado === 'cogido' || estado === 'levantandose' || estado === 'refugiado' || estado === 'subiendo') return false;
+      const largo = Math.hypot(dx, dz) || 1;
+      dirCogida = [dx / largo, dz / largo];
+      tipoCogida = velocidad > FIESTAS.recortes.cogida.fuerteMs ? 'cornada' : 'revolcon';
+      impulsoCogidaPendiente = FIESTAS.cogida[tipoCogida].impulsoY;
       Object.assign(desde, peaton.pies());
-      peaton.ponColision(false);
       sentado = null;
       cogidas++;
       cambia('cogido');

@@ -255,6 +255,8 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         ui.tactil.hidden = true;
       }
       pantallas.ponLugares(api.lugares ?? [], (nombre) => api.irA(nombre));
+      pantallas.ponVehiculos(api.vehiculosConducibles, () => api.vehiculoSeleccionado,
+        (id) => api.seleccionaVehiculo(id), () => api.puedeCambiarVehiculo);
       pantallas.ponFiestas((valor) => {
         if (valor === 'salir') return api.saleFiestas();
         if (valor === 'dejar') return api.fiestas.abandona();
@@ -269,7 +271,7 @@ modo({ renderer, escena, camara, ui, ciclo, render })
       jugadorGuardado();
       // Se empieza saltando del avión (PLAN_SALTO.md), salvo con ?salto=0, al entrar directo a las
       // fiestas o al volver de otro juego. ?salto=semilla repite la misma ruta. Desde la pantalla de
-      // inicio, «Empezar en la calle» lo omite; en la pausa, «Saltarse el salto»
+      // inicio, «Conducir» lo omite; en la pausa, «Saltarse el salto»
       // ?agricultura: modo agricultura (PLAN_AGRICULTURA.md): se empieza en la COPE, donde se cambia
       // el coche por el tractor. ?agricultura=pincel: pincel de pruebas de la fase A2 (&parcela=…).
       // ?agricultura=riego: con el tractor junto a la primera tajadera de la acequia (A7).

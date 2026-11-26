@@ -9,9 +9,10 @@ Por cada modelo de tools/coches.json:
     «pintura» el material de la carrocería para poder cambiarle el color en el juego
   - exporta <processed>/coches_raw/<id>.glb y una vista de comprobación
 
-El coche del jugador (jugador: true) conserva las 4 ruedas como objetos aparte, con el
-origen en su centro, para que giren. Se genera además <processed>/coches_raw/coches.json
-con medidas, ruedas y fuentes; `npm run coches` lo optimiza a public/assets/coches/.
+El coche del jugador (jugador: true) conserva las ruedas separadas cuando el modelo las
+trae como objetos reconocibles; si no, se conserva la malla completa y el juego aproxima
+los anclajes físicos. Se genera además <processed>/coches_raw/coches.json con medidas,
+ruedas y fuentes; `npm run coches` lo optimiza a public/assets/coches/.
 
 Uso (desde la raíz del proyecto):
     "<blender_path>" -b -P tools/build_coches.py -- --root . [--solo id1,id2]
@@ -444,7 +445,7 @@ def marca_pintura(objs, preferidos=None):
 def separa_ruedas():
     """Ruedas del coche del jugador: objetos con nombre de rueda (sin frenos), con el
     origen en su centro. Devuelve sus datos en coordenadas del juego (x, y, z)."""
-    ruedas = [o for o in mallas() if RUEDA.search(o.name) and not FRENO.search(o.name)]
+    ruedas = objetos_rueda()
     datos = []
     for o in ruedas:
         mn, mx = caja([o])
@@ -456,6 +457,10 @@ def separa_ruedas():
         datos.append({"objeto": o.name, "centro": [round(centro.x, 4), round(centro.z, 4), round(-centro.y, 4)],
                       "radio": round(radio, 4), "ancho": round(mx.x - mn.x, 4)})
     return ruedas, datos
+
+
+def objetos_rueda():
+    return [o for o in mallas() if RUEDA.search(o.name) and not FRENO.search(o.name)]
 
 
 def une(objs, nombre):
@@ -538,16 +543,19 @@ def main():
 
         datos_ruedas = []
         if jugador:
-            ruedas, datos_ruedas = separa_ruedas()
-            if len(ruedas) != 4:
-                raise SystemExit(f"{cfg['id']}: se esperaban 4 ruedas y hay {len(ruedas)}")
-            cuerpo = [o for o in mallas() if o not in ruedas]
-            tris_ruedas = reduce(ruedas, conf["tris_jugador"] // 8)
-            reduce(cuerpo, conf["tris_jugador"] - tris_ruedas)
-            une(cuerpo, "carroceria")
-            for o, d in zip(ruedas, datos_ruedas):
-                o.name = o.data.name = f"rueda_{'d' if d['centro'][2] > 0 else 't'}{'i' if d['centro'][0] > 0 else 'd'}"
-                d["objeto"] = o.name
+            ruedas = objetos_rueda()
+            if len(ruedas) == 4:
+                ruedas, datos_ruedas = separa_ruedas()
+                cuerpo = [o for o in mallas() if o not in ruedas]
+                tris_ruedas = reduce(ruedas, conf["tris_jugador"] // 8)
+                reduce(cuerpo, conf["tris_jugador"] - tris_ruedas)
+                une(cuerpo, "carroceria")
+                for o, d in zip(ruedas, datos_ruedas):
+                    o.name = o.data.name = f"rueda_{'d' if d['centro'][2] > 0 else 't'}{'i' if d['centro'][0] > 0 else 'd'}"
+                    d["objeto"] = o.name
+            else:
+                reduce(mallas(), cfg.get("tris", conf["tris_jugador"]))
+                une(mallas(), cfg["id"])
         else:
             reduce(mallas(), cfg.get("tris", conf["tris_aparcado"]))
             une(mallas(), cfg["id"])
@@ -556,14 +564,14 @@ def main():
 
         vista(vistas / f"{cfg['id']}.png")
         exporta(salida / f"{cfg['id']}.glb")
-        # Versión ligera para los coches aparcados lejanos
-        archivo_lejos = None
-        if not jugador:
-            reduce(mallas(), conf["tris_lejos"])
-            archivo_lejos = f"{cfg['id']}_lejos.glb"
-            exporta(salida / archivo_lejos)
+        # Versión ligera para los coches aparcados lejanos, también si se pueden conducir.
+        reduce(mallas(), conf["tris_lejos"])
+        une(mallas(), cfg["id"])
+        archivo_lejos = f"{cfg['id']}_lejos.glb"
+        exporta(salida / archivo_lejos)
         manifiesto[cfg["id"]] = {
-            "archivo": f"{cfg['id']}.glb", "archivo_lejos": archivo_lejos, "jugador": jugador,
+            "nombre": cfg.get("nombre", cfg["id"]), "archivo": f"{cfg['id']}.glb",
+            "archivo_lejos": archivo_lejos, "jugador": jugador,
             "largo": round(dims.y, 3), "ancho": round(dims.x, 3), "alto": round(dims.z, 3),
             "pintura": pintura is not None, "color_original": pintura, "triangulos": tris_fin,
             "ruedas": datos_ruedas, "fuente": cfg.get("fuente", ""),

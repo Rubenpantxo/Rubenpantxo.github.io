@@ -28,7 +28,7 @@ const ENTRADAS = {
   calle: { modo: 'calle', variante: 'libre' },
   encierro: { modo: 'encierro', variante: 'libre' },
 };
-const QUIETO = { avance: 0, lateral: 0, correr: false, conJoystick: false, giro: 0 };
+const QUIETO = { avance: 0, lateral: 0, correr: false, esprintar: false, conJoystick: false, giro: 0 };
 
 function centroide(poligono) {
   let x = 0; let z = 0;
@@ -394,7 +394,7 @@ export function creaModoFiestas({ escena, terreno, fisica, personas, ciclo, faro
         let cogido = false;
         if (suceso?.tipo === 'cogida') {
           const q = v.posicion();
-          if (o === objetivo) cogido = personaje.cogida(suceso.dx, suceso.dz);
+          if (o === objetivo) cogido = personaje.cogida(suceso.dx, suceso.dz, suceso.velocidad);
           else if (o.mozo) mozos.cogida(o.mozo, suceso.dx, suceso.dz);
           if (cogido || o.mozo) {
             ambiente.publico.reacciona('uy', o.mozo ? 0.7 : 1, q.x, q.z);

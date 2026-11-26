@@ -43,6 +43,7 @@ function mancha(geometria, claro, oscuro, azar) {
 function creaModelo(capa, azar, sombras) {
   const C = FIESTAS.vaca.colores;
   const pelo = capa === 'negra' ? C.negra : capa === 'berrenda' ? C.berrendaClaro : C.colorada;
+  const forma = capa === 'negra' ? [1.08, 1.04, 1.03] : capa === 'berrenda' ? [1.02, 0.98, 1.08] : [1, 1, 1];
   const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85 });
   const malla = (geometrias) => {
     const m = new THREE.Mesh(mergeGeometries(geometrias), material);
@@ -67,15 +68,23 @@ function creaModelo(capa, azar, sombras) {
   const cabeza = new THREE.Group();
   cabeza.position.set(0.72, 0.98, 0);
   const cuerno = (lado) => {
-    const g = new THREE.ConeGeometry(0.035, 0.34, 8).translate(0, 0.17, 0);
-    g.rotateZ(-0.5).rotateX(lado * 1.05).translate(0.44, 0.2, lado * 0.11);
+    const largo = capa === 'negra' ? 0.42 : capa === 'berrenda' ? 0.3 : 0.36;
+    const g = new THREE.ConeGeometry(0.04, largo, 9).translate(0, largo / 2, 0);
+    g.rotateZ(-0.48).rotateX(lado * 1.05).translate(0.44, 0.2, lado * 0.11);
     return pinta(g, C.cuerno);
   };
+  const ojo = (lado) => [
+    esfera(0.045, 0.038, 0.025, 0.49, 0.16, lado * 0.125, 0xf0e9d8),
+    esfera(0.023, 0.027, 0.018, 0.506, 0.16, lado * 0.145, 0x171513),
+    esfera(0.014, 0.014, 0.01, 0.512, 0.171, lado * 0.158, 0xffffff),
+    esfera(0.025, 0.018, 0.016, 0.72, 0.025, lado * 0.045, C.morro),
+  ];
   const piezasCabeza = [
     pinta(new THREE.CylinderGeometry(0.15, 0.2, 0.42, 10).rotateZ(-1.15).translate(0.16, 0.04, 0), pelo),   // cuello
     esfera(0.2, 0.15, 0.14, 0.44, 0.08, 0), caja(0.2, 0.15, 0.15, 0.6, 0.01, 0), esfera(0.07, 0.06, 0.09, 0.71, -0.01, 0, C.morro),
     cuerno(1), cuerno(-1),
     esfera(0.03, 0.07, 0.1, 0.36, 0.14, 0.17), esfera(0.03, 0.07, 0.1, 0.36, 0.14, -0.17),                  // orejas
+    ...ojo(1), ...ojo(-1),
   ];
   if (capa === 'berrenda') mancha(piezasCabeza[1], C.berrendaClaro, C.berrendaOscuro, azar);
   cabeza.add(malla(piezasCabeza));
@@ -99,6 +108,7 @@ function creaModelo(capa, azar, sombras) {
     esfera(0.035, 0.08, 0.035, 0, -0.66, 0, C.pezuna)]));
   rabo.rotation.z = -0.25;
   grupo.add(rabo);
+  grupo.scale.set(...forma);
   return { grupo, cabeza, patas, rabo, cuerpo, material };
 }
 

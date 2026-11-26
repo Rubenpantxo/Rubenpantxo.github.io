@@ -170,6 +170,27 @@ export function creaPantallas({ alCambiar }) {
     });
   }
 
+  function ponVehiculos(lista, seleccionado, alElegir, disponible) {
+    const select = $('vehiculo');
+    const etiqueta = select.closest('label');
+    for (const vehiculo of lista) {
+      const opcion = document.createElement('option');
+      opcion.value = vehiculo.id;
+      opcion.textContent = vehiculo.nombre;
+      select.append(opcion);
+    }
+    const actualiza = () => {
+      etiqueta.hidden = lista.length < 2 || !disponible();
+      select.value = seleccionado();
+    };
+    select.addEventListener('change', () => {
+      if (!alElegir(select.value)) select.value = seleccionado();
+      actualiza();
+    });
+    new MutationObserver(actualiza).observe(pausa, { attributes: true, attributeFilter: ['hidden'] });
+    actualiza();
+  }
+
   // «Fiestas»: entrar a un modo o volver al pueblo; al elegir se cierra la pausa. «enFiestas»
   // dice si se está dentro, para ofrecer «Volver al pueblo»
   function ponFiestas(alElegir, enFiestas) {
@@ -199,6 +220,7 @@ export function creaPantallas({ alCambiar }) {
 
   return {
     ponLugares,
+    ponVehiculos,
     ponFiestas,
     ponSalto,
     ponHoras,
