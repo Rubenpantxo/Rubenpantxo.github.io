@@ -217,7 +217,8 @@ function addFile(blob,name,x,y,isNew){
   const el=document.createElement('button');el.className='file';el.dataset.id=f.id;
   el.setAttribute('aria-label',`${name}, ${human(blob.size)}. Intro para convertir, Supr para quitar, doble clic para descargar`);
   const isImg=kindOf(f)==='image';
-  el.innerHTML=`<div class="thumb${isImg?'':' doc'}" style="--c:${EXT_COLOR[f.ext]||'#7a6a62'}">${isImg?`<img src="${f.url}" alt="" draggable="false">`:''}<span class="ext">${esc((f.ext||'?').toUpperCase())}</span></div><span class="fname">${esc(name)}</span>${isNew?'<span class="new" title="Nuevo">✓</span>':''}`;
+  el.innerHTML=`<div class="thumb${isImg?'':' doc'}" style="--c:${EXT_COLOR[f.ext]||'#7a6a62'}"><span class="ext">${esc((f.ext||'?').toUpperCase())}</span></div><span class="fname">${esc(name)}</span>${isNew?'<span class="new" title="Nuevo">✓</span>':''}`;
+  if(isImg){const im=document.createElement('img');im.src=f.url;im.alt='';im.draggable=false;el.querySelector('.thumb').prepend(im)}
   if(isImg)el.querySelector('img').onerror=function(){this.remove();el.querySelector('.thumb').classList.add('doc')};
   f.el=el;place(f,x,y);desk.appendChild(el);files.push(f);
   document.body.classList.add('has-files');bindFile(f);return f}
