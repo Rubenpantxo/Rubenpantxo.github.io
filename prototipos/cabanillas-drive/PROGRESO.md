@@ -602,7 +602,25 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - **Escenarios:** `?agricultura=cebolla|brocoli|alcachofa|esparrago[&edad=N]`. **Prueba:** `node tools/prueba_horticolas.mjs <carpeta> [bajo|medio|alto] [movil]` (`CULTIVOS=brocoli` para uno solo).
 - **No hecho / simplificado:** la **acaballonadora** y los caballones del espárrago no están (se planta en llano); los cultivos de varios años no se simulan (la edad solo llega a 254 días): rebrotan en lugar de pasar años.
 
+### Hecho en A11 (2026-11-26) — rendimiento, comprobaciones y créditos
+- **Presupuesto** (`node tools/mide_agricultura.mjs [bajo,medio,alto] [cebolla,brocoli]`, y `tools/atribuye_agricultura.mjs <nivel> <escenario>` para repartir el coste por grupos de la escena). Con la gráfica por software (los FPS no valen; los conteos sí), 40 fotogramas en la 2-700 sembrada:
+
+| Nivel | Escenario | Llamadas | Triángulos | Texturas | JS de agricultura/fotograma |
+|---|---|---|---|---|---|
+| bajo | cebolla (con tractor) | 764 | 2,0 M | 259 | 1,4 ms (máx. 9) |
+| bajo | brócoli (a pie) | 109 | 0,9 M | 96 | 0,3 ms |
+| medio | cebolla | 947 | 3,9 M | 279 | 1,6 ms |
+| medio | brócoli | 204 | 1,7 M | 115 | 0,3 ms |
+| alto | cebolla | 1 010 | 4,9 M | 277 | 1,5 ms |
+| alto | brócoli | 207 | 2,0 M | 113 | 0,4 ms |
+
+  Reparto en «bajo» con la cebolla: **el modo agricultura aporta 42 llamadas y 149 mil triángulos** (7 %); el grueso es del juego normal (tráfico 880 mil, mundo 505 mil, muros 284 mil, casas 293 mil; las sombras cuentan dos veces). Memoria de JS 200–290 MB. Máscaras de la 2-700: 195×189 px. **No hizo falta recortar nada**: los niveles de matas (`MATAS`: radio 14/24/32 m) y el tope de máscara (512 px en bajo) ya bastan. **Pendiente: medir los FPS reales en el Pixel 10** (aquí no hay GPU).
+- **Juego normal sin cambios:** `prueba_modos.mjs` entera bien; juego sin `?agricultura` en móvil/«bajo»: sin errores, se baja y se sube del coche, no sale el botón de descarga. La rama toca el juego normal solo en ganchos: `capaMinimapa` (vacía sin modo), tecla X (`descargar`), `subirse` al vehículo más cercano (distancia al rectángulo del vehículo en vez de al centro del coche: casi igual de cerca) y ruedas traseras directrices opcionales del tractor. Con `AGRICULTURA.activo = false` el modo solo existe con `?agricultura`.
+- **Créditos:** `CREDITOS.md` con el apartado «Modo agricultura» (Catastro, SIGPAC, regadío y MDT del Gobierno de Navarra; Lonja del Ebro; modelos, iconos y sonido propios).
+- **No hecho aquí:** `npm run publica`, poner `activo: true` y fusionar en `main` (lo decide y hace Rubén). Las pruebas largas con navegador (`prueba_siembra`, `prueba_cosecha`, `prueba_agricultura`) no acaban aquí en el tiempo disponible (la escena va a ~1 FPS); `prueba_cebolla` y `prueba_horticolas` sí se ejecutaron en A10.
+
 ### Pendiente de Rubén
+- (A11) Medir en el Pixel 10 (`npm run dev:red`, `?agricultura=cebolla&debug=1`, calidad «bajo») y decir si va fluido; decidir si se publica: poner `AGRICULTURA.activo = true`, `npm run publica` y fusionar la rama en `main`.
 - Hacer un ciclo completo en escritorio y en el móvil (labrar, abonar, sembrar, regar, pasar días, cosechar, descargar y vender; recargar la página y comprobar que sigue todo) y decir qué cambiar.
 - Decir si quiere comprar y vender parcelas, y si los precios de compra de la semilla y el abono (0,45 €/kg) le cuadran.
 - (A8, ya aprobada) Probar la cosecha (`?agricultura=cosecha`, o sembrar, pasar días hasta que madure y coger la cosechadora en la COPE) y decir si le cuadran la cosechadora, la siega, el rendimiento y la descarga al remolque.

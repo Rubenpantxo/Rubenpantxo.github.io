@@ -40,6 +40,18 @@ condiciones de cada web antes de publicar el juego.
 - Sonido (murmullo, olé, aplausos, «¡uy!», cencerros, pezuñas, pisadas, golpe en la valla y cohete):
   sintetizado en el navegador por `src/fiestas/sonido.js` (Web Audio). No hay grabaciones de terceros.
 
+## Modo agricultura
+- Parcelas (contornos, superficie y referencia catastral): Catastro de Navarra, © Gobierno de Navarra
+  (WFS público). Uso del suelo, tipo de cultivo y regadío: SIGPAC y mapa de regadíos, © Gobierno de Navarra.
+  Relieve de las acequias y del riego a manta: MDT LiDAR 2024, © Gobierno de Navarra.
+- Precios de venta (trigo, cebada): Lonja del Ebro, noviembre de 2026. Los de cebolla, brócoli, alcachofa
+  y espárrago llevan su fuente en `src/config/economia.js` (`ECONOMIA.fuente`). Los precios de compra
+  (semilla, abono, plantel), los rendimientos y las dosis son orientativos, sin fuente oficial.
+- Tractor, aperos (arado, cultivador, abonadora, sembradora, plantadora, arrancadora, remolque) y
+  cosechadora: modelos hechos con primitivas por el código del proyecto (`src/agricultura/`). Iconos del
+  menú: SVG propios dibujados a mano (`src/hud/iconos.js`). Sonido del motor: sintetizado (Web Audio).
+  No hay modelos ni grabaciones de terceros.
+
 ## Salto en paracaídas
 - Avión de carga y mochila-paracaídas (`modelos/salto/`): modelos propios de Rubén, sin texturas.
   `tools/build_activos_salto.py` (script CAD paramétrico de Rubén para Blender) genera una versión

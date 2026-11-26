@@ -333,6 +333,8 @@ Aceptación: Rubén planta y cosecha cada uno de los cuatro, en escritorio y en 
 
 ### A11 — Rendimiento, móvil y publicación
 
+Estado (2026-11-26): presupuesto medido (el modo suma ~42 llamadas y ~150 mil triángulos en «bajo»; sin recortes), juego normal comprobado, `CREDITOS.md` al día. Faltan la medición en el Pixel 10 y la publicación (`activo: true`, `npm run publica`, fusión en `main`), que decide Rubén. Detalle en `PROGRESO.md`.
+
 - Presupuesto por calidad (resolución de máscaras, distancia de matas, partículas, rejilla de riego) y medición en el Pixel 10 (recordar: sin sombras 3D en PowerVR).
 - Repetir todas las pruebas existentes (`prueba_salto`, `prueba_fiestas`, `prueba_modos`…) para confirmar que el juego normal no ha cambiado.
 - `CREDITOS.md` al día (Catastro, SIGPAC y regadío del Gobierno de Navarra), capturas de controles, `npm run publica`, fusión de la rama en `main` (lo hace Rubén).
