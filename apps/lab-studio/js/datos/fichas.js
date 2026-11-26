@@ -2221,3 +2221,482 @@ Object.assign(FICHAS, {
         ideas: ['Mapa de la casa con un robot y SLAM', 'Robot aspirador casero que no choca', 'Detector de personas en una habitación', 'Medir una habitación de un vistazo']
     }
 });
+
+// =================================================== salidas y alimentación
+const SK_OLED = `// OLED SSD1306 · primer sketch: un texto y una barra que se llena.
+#include <Arduino.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+Adafruit_SSD1306 oled(128, 64, &Wire, -1);
+int nivel = 0;
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin(8, 9);                     // SDA, SCL
+  if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println("No encuentro la OLED: prueba la dirección 0x3D");
+    while (true) delay(1000);
+  }
+}
+
+void loop() {
+  oled.clearDisplay();
+  oled.setTextColor(SSD1306_WHITE);
+  oled.setTextSize(2);
+  oled.setCursor(0, 0);
+  oled.println("Lab Studio");
+  oled.setTextSize(1);
+  oled.setCursor(0, 28);
+  oled.printf("Nivel: %d %%", nivel);
+  oled.drawRect(0, 44, 128, 12, SSD1306_WHITE);
+  oled.fillRect(2, 46, nivel * 124 / 100, 8, SSD1306_WHITE);
+  oled.display();
+  nivel = (nivel + 5) % 105;
+  delay(200);
+}
+`;
+
+const SK_WS2812 = `// WS2812B · primer sketch: un arcoíris que recorre la tira de 30 LED.
+// DIN en GPIO5. La tira se alimenta de una fuente de 5 V, no de la placa.
+#include <Arduino.h>
+#include <FastLED.h>
+
+constexpr int PIN_DIN = 5, NUM_LED = 30;
+CRGB leds[NUM_LED];
+uint8_t tono = 0;
+
+void setup() {
+  FastLED.addLeds<WS2812B, PIN_DIN, GRB>(leds, NUM_LED);
+  FastLED.setBrightness(50);            // a tope, 30 LED piden casi 2 A
+}
+
+void loop() {
+  fill_rainbow(leds, NUM_LED, tono++, 255 / NUM_LED);
+  FastLED.show();
+  delay(20);
+}
+`;
+
+const SK_MAX98357 = `// MAX98357A · primer sketch: un pitido de 440 Hz que se enciende y se apaga.
+// BCLK en GPIO4, LRC en GPIO5 y DIN en GPIO6. Altavoz de 4 – 8 Ω en + y −.
+#include <Arduino.h>
+#include <driver/i2s.h>
+
+constexpr int PIN_BCLK = 4, PIN_LRC = 5, PIN_DIN = 6;
+constexpr int FRECUENCIA = 16000;
+
+void setup() {
+  i2s_config_t cfg = {};
+  cfg.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX);
+  cfg.sample_rate = FRECUENCIA;
+  cfg.bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT;
+  cfg.channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT;
+  cfg.communication_format = I2S_COMM_FORMAT_STAND_I2S;
+  cfg.dma_buf_count = 4;
+  cfg.dma_buf_len = 256;
+  i2s_pin_config_t pines = {};
+  pines.mck_io_num = I2S_PIN_NO_CHANGE;
+  pines.bck_io_num = PIN_BCLK;
+  pines.ws_io_num = PIN_LRC;
+  pines.data_out_num = PIN_DIN;
+  pines.data_in_num = I2S_PIN_NO_CHANGE;
+  i2s_driver_install(I2S_NUM_0, &cfg, 0, nullptr);
+  i2s_set_pin(I2S_NUM_0, &pines);
+}
+
+void tono(int hz, int ms) {
+  static int16_t bloque[2 * 256];
+  static float fase = 0;
+  const int muestras = FRECUENCIA * ms / 1000;
+  for (int hechas = 0; hechas < muestras; hechas += 256) {
+    for (int i = 0; i < 256; i++) {
+      const int16_t v = hz ? (int16_t)(6000 * sinf(fase)) : 0;
+      fase += 2 * PI * hz / FRECUENCIA;
+      if (fase > 2 * PI) fase -= 2 * PI;
+      bloque[2 * i] = bloque[2 * i + 1] = v;
+    }
+    size_t escritos;
+    i2s_write(I2S_NUM_0, bloque, sizeof(bloque), &escritos, portMAX_DELAY);
+  }
+}
+
+void loop() {
+  tono(440, 300);
+  tono(0, 700);
+}
+`;
+
+const SK_LED = `// LED de 5 mm · primer sketch: parpadeo y después respiración por PWM.
+// Ánodo (pata larga) a GPIO4 a través de 220 Ω; cátodo a GND.
+#include <Arduino.h>
+
+constexpr int PIN_LED = 4;
+
+void setup() {
+  pinMode(PIN_LED, OUTPUT);
+}
+
+void loop() {
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(PIN_LED, HIGH);
+    delay(200);
+    digitalWrite(PIN_LED, LOW);
+    delay(200);
+  }
+  for (int v = 0; v <= 255; v += 5) { analogWrite(PIN_LED, v); delay(10); }
+  for (int v = 255; v >= 0; v -= 5) { analogWrite(PIN_LED, v); delay(10); }
+  delay(500);
+}
+`;
+
+const SK_IREMISOR = `// Emisor IR · primer sketch: manda la orden de encendido de una tele LG
+// (protocolo NEC) cada 5 s. Cambia el código por el que leas con el receptor IR.
+#include <Arduino.h>
+#include <IRremoteESP8266.h>
+#include <IRsend.h>
+
+IRsend emisor(4);                       // DAT en GPIO4
+
+void setup() {
+  Serial.begin(115200);
+  emisor.begin();
+}
+
+void loop() {
+  emisor.sendNEC(0x20DF10EF);
+  Serial.println("Enviado NEC 0x20DF10EF");
+  delay(5000);
+}
+`;
+
+const SK_TFT = `// TFT ST7789 de 240 × 240 · primer sketch: título, colores y un contador.
+// SCK GPIO12, MOSI GPIO11, CS GPIO10, D/C GPIO9, RST GPIO14 y BL GPIO13.
+#include <Arduino.h>
+#include <SPI.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7789.h>
+
+constexpr int PIN_SCK = 12, PIN_MOSI = 11, PIN_CS = 10, PIN_DC = 9, PIN_RST = 14, PIN_BL = 13;
+Adafruit_ST7789 tft(&SPI, PIN_CS, PIN_DC, PIN_RST);
+int cuenta = 0;
+
+void setup() {
+  pinMode(PIN_BL, OUTPUT);
+  digitalWrite(PIN_BL, HIGH);           // retroiluminación encendida
+  SPI.begin(PIN_SCK, -1, PIN_MOSI, PIN_CS);
+  tft.init(240, 240, SPI_MODE3);        // muchos módulos sin CS piden el modo 3
+  tft.fillScreen(ST77XX_BLACK);
+  const uint16_t colores[] = {ST77XX_RED, ST77XX_GREEN, ST77XX_BLUE, ST77XX_YELLOW, ST77XX_CYAN, ST77XX_MAGENTA};
+  for (int i = 0; i < 6; i++) tft.fillRect(i * 40, 200, 40, 40, colores[i]);
+  tft.setTextColor(ST77XX_WHITE);
+  tft.setTextSize(3);
+  tft.setCursor(20, 20);
+  tft.print("Lab Studio");
+}
+
+void loop() {
+  tft.fillRect(20, 100, 200, 40, ST77XX_BLACK);
+  tft.setCursor(20, 100);
+  tft.printf("%d s", cuenta++);
+  delay(1000);
+}
+`;
+
+const skTension = (nombre, nominal) => `// ${nombre} · primer sketch: mide su tensión con la ESP32-S3.
+// Divisor de 10 kΩ / 10 kΩ entre + y GND, y su punto medio a GPIO1 (ADC1).
+// Une también el GND de la ${nombre.toLowerCase().startsWith('portapilas') ? 'batería' : 'fuente'} al de la placa.
+#include <Arduino.h>
+
+constexpr int PIN_ADC = 1;
+constexpr float DIVISOR = 2.0;          // (10k + 10k) / 10k
+constexpr float NOMINAL = ${nominal};
+
+void setup() {
+  Serial.begin(115200);
+  analogReadResolution(12);
+}
+
+void loop() {
+  uint32_t suma = 0;
+  for (int i = 0; i < 16; i++) suma += analogReadMilliVolts(PIN_ADC);
+  const float voltios = suma / 16.0 / 1000.0 * DIVISOR;
+  Serial.printf("%.2f V (%.0f %% de lo nominal)\\n", voltios, voltios / NOMINAL * 100);
+  delay(1000);
+}
+`;
+
+const TERMINAL_HUB = `# En la Raspberry Pi: árbol USB con la velocidad de cada puerto.
+lsusb -t
+# 5000M = USB 3.0, 480M = USB 2.0. El Coral debe colgar de un 5000M.
+
+# Qué hay conectado (el Coral sale como «Global Unichip» o «Google»):
+lsusb`;
+
+const TERMINAL_RPI_ALIM = `# En la Raspberry Pi: ¿ha habido bajo voltaje?
+vcgencmd get_throttled
+# throttled=0x0      → todo bien
+# bit 0 (0x1)        → bajo voltaje ahora mismo
+# bit 16 (0x10000)   → hubo bajo voltaje desde el arranque
+
+# Tensión del núcleo y temperatura:
+vcgencmd measure_volts core
+vcgencmd measure_temp`;
+
+const pila = dz => ({ tipo: 'caja', dz, w: 47, d: 11.7, h: 11.7, color: '#c9742a' });
+
+Object.assign(FICHAS, {
+    // ======================================================== OLED SSD1306
+    'oled-ssd1306': {
+        claves: [['Pantalla', '0,96" · 128 × 64'], ['Color', 'Monocromo'], ['Bus', 'I²C (0x3C)'], ['Controlador', 'SSD1306'], ['Alimentación', '3,3 – 5 V']],
+        modelo: {
+            caja: { tipo: 'placa', w: 27.9, d: 27.9, h: 1.2, y: 8.6, r: 1, color: '#1b4f9c', fondo: ['OLED 0,96"', 'SSD1306 · I²C'] },
+            piezas: [
+                { n: 1, nombre: 'Pantalla OLED con su controlador', tipo: 'pantalla', rect: [5, 24, 100, 64], h: 1.6,
+                    texto: 'Cada píxel da su propia luz: negro de verdad y buen contraste. El SSD1306 va pegado al cristal y guarda la imagen.' },
+                { n: 2, nombre: 'Cinta flexible', tipo: 'caja', x: 55, z: 95, w: 10.7, d: 3.6, h: .3, color: '#a8733a',
+                    texto: 'Une el cristal a la placa. Es frágil: no dobles la pantalla hacia atrás.' },
+                { n: 3, nombre: 'Regulador y condensadores (por debajo)', tipo: 'chip', x: 55, z: 50, w: 2.9, d: 1.6, h: 1, abajo: true,
+                    texto: 'Bajan la alimentación a 3,3 V y generan la tensión alta que necesitan los píxeles orgánicos.' },
+                { n: 4, nombre: 'Tira de 4 pines', tipo: 'grupo', x: 55, z: 10, abajo: true,
+                    texto: 'GND, VCC, SCL y SDA. Ojo: en algunos módulos GND y VCC van al revés.',
+                    formas: [{ tipo: 'tira', x0: 40, x1: 70, n: 4 }] }
+            ]
+        },
+        fuertes: ['Muy legible y con contraste altísimo', 'Solo dos cables de datos', 'Consume poco: solo gastan los píxeles encendidos', 'Librerías muy conocidas (Adafruit, U8g2)'],
+        cuidado: ['Comprueba el orden de VCC y GND en la serigrafía', 'Una imagen fija durante meses deja marca', 'Si no aparece en 0x3C, prueba 0x3D', 'Usa 1 KB de RAM para la imagen'],
+        codigos: conS3('Primer sketch: texto y barra', SK_OLED, ['adafruit/Adafruit SSD1306', 'adafruit/Adafruit GFX Library']),
+        flasheo: conectar('Cuatro cables por I²C.', 'VCC a 3V3 y GND a GND (mira el orden en la serigrafía).', 'SDA a GPIO8 y SCL a GPIO9.'),
+        ideas: ['Mostrar la temperatura y la humedad del BME280', 'Reloj por Wi-Fi con la hora de internet', 'Medidor de nivel del depósito con el HC-SR04', 'Pantalla de estado de un robot']
+    },
+
+    // ============================================================= WS2812B
+    'ws2812b': {
+        claves: [['LED', '30 por metro'], ['Color', 'RGB de 24 bit'], ['Control', 'Un hilo de datos'], ['Alimentación', '5 V'], ['Consumo', 'Hasta 60 mA por LED']],
+        modelo: {
+            caja: { tipo: 'placa', w: 55.9, d: 10.2, h: .4, y: 0, r: .4, color: '#f2f1ec', fondo: ['WS2812B', '5 V · 30 LED/m'] },
+            piezas: [
+                { n: 1, nombre: 'LED WS2812B', tipo: 'grupo', x: 110, z: 20,
+                    texto: 'Cada LED lleva dentro su propio chip: recibe el color, se queda con el suyo y pasa el resto al siguiente.',
+                    formas: [38, 60, 82, 104, 126, 148, 170, 192].map((x, i) => ({ tipo: 'rgb', dx: (x - 110) * .254, w: 3.2, color: ['#ff4d4d', '#ffa64d', '#ffe24d', '#6fe06f', '#4dc3ff', '#6f7dff', '#c56bff', '#ff4d4d'][i] })) },
+                { n: 2, nombre: 'Condensadores de desacoplo', tipo: 'grupo', x: 110, z: 10,
+                    texto: 'Uno junto a cada LED: suavizan la alimentación cuando todos cambian de color a la vez.',
+                    formas: [46, 68, 90, 112, 134, 156, 178, 200].map(x => ({ tipo: 'smd', dx: (x - 110) * .254, w: 1, d: .6, h: .5, color: '#2a2c30' })) },
+                { n: 3, nombre: 'Pads de entrada', tipo: 'pads', x: 10, z: 20, etiquetas: ['5V', 'DIN', 'GND'], vertical: true,
+                    texto: 'Por aquí entran la alimentación y los datos. La flecha de la tira marca el sentido: DIN al principio, nunca DOUT.' }
+            ]
+        },
+        fuertes: ['Cada LED con su color, con un solo pin', 'Se corta por las marcas y se encadena', 'FastLED y WLED la manejan sin esfuerzo', 'Efectos de luz muy vistosos'],
+        cuidado: ['Fuente de 5 V aparte: 30 LED en blanco piden casi 2 A', 'Resistencia de 330 Ω en DIN y condensador de 1000 µF en la alimentación', 'Los datos a 3,3 V a veces fallan: un convertidor de nivel lo arregla', 'GND común entre la fuente y la placa'],
+        codigos: conS3('Primer sketch: arcoíris', SK_WS2812, ['fastled/FastLED']),
+        flasheo: conectar('La tira va a su fuente de 5 V; de la placa solo llega el dato.', '5V y GND de la tira a la fuente de 5 V; GND de la fuente también al GND de la placa.', 'DIN a GPIO5 con una resistencia de 330 Ω en serie.'),
+        ideas: ['Luz ambiental que sigue la hora del día', 'Indicador de consumo de la casa por colores', 'Iluminación del escritorio con WLED', 'Avisos de colores para las notificaciones del móvil']
+    },
+
+    // ========================================================== MAX98357A
+    'max98357a': {
+        claves: [['Potencia', '3,2 W a 4 Ω'], ['Entrada', 'I²S digital'], ['Clase', 'D (filtro integrado)'], ['Alimentación', '2,5 – 5,5 V'], ['Ganancia', '3 – 15 dB']],
+        modelo: {
+            caja: { tipo: 'placa', w: 17.8, d: 17.8, h: 1.2, y: 8.6, r: .8, color: '#1b5fa8', fondo: ['MAX98357A', 'I²S · 3 W'] },
+            piezas: [
+                { n: 1, nombre: 'Amplificador MAX98357A', tipo: 'chip', x: 35, z: 26, w: 3, d: 3, h: .8, rotulo: 'MAX',
+                    texto: 'Convierte el sonido digital I²S en analógico y lo amplifica en el mismo chip: sin DAC ni filtro aparte.' },
+                { n: 2, nombre: 'Condensadores de alimentación', tipo: 'grupo', x: 35, z: 24,
+                    texto: 'Filtran los picos de consumo cuando el altavoz suena fuerte.',
+                    formas: [{ tipo: 'smd', dx: -7.1, w: 2, d: 1.2, h: .8, color: '#c9a66b' }, { tipo: 'smd', dx: 7.1, w: 2, d: 1.2, h: .8, color: '#2a2c30' }] },
+                { n: 3, nombre: 'Salida del altavoz', tipo: 'pads', x: 35, z: 8, etiquetas: ['+', '−'],
+                    texto: 'Un altavoz de 4 a 8 Ω directamente, sin condensador. No unas ninguna de las dos a masa.' },
+                { n: 4, nombre: 'Tira de 5 pines', tipo: 'grupo', x: 30, z: 60, abajo: true,
+                    texto: 'LRC, BCLK, DIN, GND y VIN. Los pines GAIN y SD, si los tiene, ajustan el volumen y el canal.',
+                    formas: [{ tipo: 'tira', x0: 10, x1: 50, n: 5 }] }
+            ]
+        },
+        fuertes: ['Sonido digital limpio con solo tres pines', 'Mueve un altavoz de 3 W sin más', 'Pequeño y sin disipador', 'Funciona con ESP32-audioI2S y ESPHome'],
+        cuidado: ['A 5 V suena más fuerte que a 3,3 V', 'El altavoz va entre + y −: ninguno a masa', 'Un solo canal: para estéreo, dos módulos', 'Comparte GND con la placa para que no zumbe'],
+        codigos: conS3('Primer sketch: pitido de 440 Hz', SK_MAX98357, [], 'Usa el driver I²S de ESP-IDF que ya trae el ESP32: no hace falta librería.'),
+        flasheo: conectar('Tres señales I²S, alimentación y un altavoz.', 'VIN a 5V y GND a GND. Altavoz de 4 – 8 Ω entre + y −.', 'BCLK a GPIO4, LRC a GPIO5 y DIN a GPIO6.'),
+        ideas: ['Radio por internet', 'Asistente de voz con el micrófono INMP441', 'Timbre que anuncia quién llama', 'Avisos hablados de la domótica']
+    },
+
+    // ============================================================= LED 5 mm
+    'led': {
+        claves: [['Tamaño', '5 mm'], ['Tensión', '≈ 2 V (rojo)'], ['Corriente', '10 – 20 mA'], ['Resistencia', '220 Ω a 3,3 V'], ['Patas', 'Larga: ánodo (+)']],
+        modelo: {
+            caja: { w: 5, d: 5, h: 8.6, r: 2.4, color: '#ff3b30', rect: [2, 2, 16, 24, 6], fondo: ['LED 5 mm'] },
+            placa: { y: .4, color: '#e02d23', margen: .4 },
+            piezas: [
+                { n: 1, nombre: 'Chip emisor', tipo: 'chip', x: 10, z: 14, w: .6, d: .6, h: .3, color: '#f5f5f5',
+                    texto: 'Un cristal semiconductor diminuto: la corriente que lo atraviesa se convierte en luz de un solo color.' },
+                { n: 2, nombre: 'Yunque y poste', tipo: 'grupo', x: 10, z: 14,
+                    texto: 'Las dos piezas metálicas de dentro: el yunque (cátodo) sostiene el chip y el poste (ánodo) le lleva la corriente por un hilo de oro.',
+                    formas: [{ tipo: 'caja', dx: -1.1, w: 1.2, d: 1.6, h: 3.2, color: '#c9ced4' }, { tipo: 'caja', dx: 1.1, w: .6, d: .8, h: 4, color: '#c9ced4' }] },
+                { n: 3, nombre: 'Patas', tipo: 'grupo', x: 10, z: 40, asoma: true,
+                    texto: 'La larga es el ánodo (+), la corta el cátodo (−). El cátodo también se reconoce por el borde plano de la cápsula.',
+                    formas: [{ tipo: 'caja', dx: -1.25, w: .5, d: 9, h: .5, color: '#b9bec4' }, { tipo: 'caja', dx: 1.25, w: .5, d: 7, h: .5, color: '#b9bec4' }] }
+            ]
+        },
+        fuertes: ['El componente más básico para empezar', 'Consume poquísimo', 'Con PWM se regula el brillo', 'Muy barato y en todos los colores'],
+        cuidado: ['Siempre con resistencia en serie: sin ella se quema', 'Al revés no se enciende (y no pasa nada)', 'Un GPIO del ESP32 da como mucho unos 20 mA', 'Blancos y azules piden ≈ 3 V: a 3,3 V lucen poco'],
+        codigos: conS3('Primer sketch: parpadeo y respiración', SK_LED),
+        flasheo: conectar('Dos cables y una resistencia.', 'Pata larga (+) a GPIO4 a través de una resistencia de 220 Ω.', 'Pata corta (−) a GND.'),
+        ideas: ['Piloto de estado de la Wi-Fi', 'Semáforo con tres colores', 'Indicador de nivel con varios LED', 'Aviso de puerta abierta']
+    },
+
+    // ============================================================= hub USB 3
+    'hub-usb3': {
+        claves: [['Puertos', '4 × USB 3.0'], ['Velocidad', '5 Gbit/s compartidos'], ['Fuente', '5 V / 3 A propia'], ['Entrada', 'USB 3.0 al host'], ['Por puerto', 'Hasta 900 mA']],
+        modelo: {
+            caja: { w: 98, d: 31, h: 20, r: 4, color: '#3a3e45', rect: [2, 6, 196, 62, 9], fondo: ['USB 3.0 HUB', '4 puertos · 5 V / 3 A'] },
+            placa: { y: 1.5, color: '#1d5e3a', margen: 2 },
+            piezas: [
+                { n: 1, nombre: 'Controlador USB 3.0', tipo: 'chip', x: 100, z: 37, w: 6, d: 6, h: .9, rotulo: 'HUB',
+                    texto: 'Reparte el ancho de banda de un solo puerto del host entre los cuatro de salida.' },
+                { n: 2, nombre: 'Regulación de la fuente', tipo: 'grupo', x: 160, z: 37,
+                    texto: 'Recibe los 5 V de su adaptador y protege cada puerto contra cortocircuitos.',
+                    formas: [{ tipo: 'bobina', dx: -4, r: 2.5, h: 3 }, { tipo: 'condensador', dx: 4, r: 2.5, h: 7 }] },
+                { n: 3, nombre: 'Cuatro puertos USB 3.0', tipo: 'grupo', x: 100, z: 68, asoma: true,
+                    texto: 'De lengüeta azul. El Coral USB rinde de verdad solo en uno de estos, a 5 Gbit/s.',
+                    formas: [40, 80, 120, 160].flatMap(x => [{ tipo: 'blindaje', dx: (x - 100) * .5, w: 11, d: 8, h: 5 }, { tipo: 'caja', dx: (x - 100) * .5, dz: 4, dy: 1.6, w: 8, d: .3, h: 1.8, color: '#2f7ff0' }]) },
+                { n: 4, nombre: 'Cable al host', tipo: 'caja', x: 3, z: 40, w: 7, d: 9, h: 8, color: '#1b1d21', asoma: true,
+                    texto: 'Va a un USB 3.0 azul de la Raspberry Pi o del PC. En un USB 2.0 todo el hub baja a 480 Mbit/s.' },
+                { n: 5, nombre: 'LED de encendido', tipo: 'led', x: 186, z: 16, color: '#7dd3fc', en: 'tapa',
+                    texto: 'Indica que la fuente del hub está conectada.' }
+            ]
+        },
+        fuertes: ['Fuente propia: no carga la Raspberry Pi', 'Cuatro USB 3.0 a 5 Gbit/s', 'Ideal para el Coral, discos y cámaras a la vez', 'Evita el aviso de bajo voltaje de la Raspberry Pi'],
+        cuidado: ['Conéctalo a un USB 3.0 del host o todo irá a 480 Mbit/s', 'Los 5 Gbit/s se reparten entre los cuatro puertos', 'Algunos hubs alimentan al host por el cable de vuelta', 'Usa su adaptador: sin él, los discos no arrancan'],
+        codigos: [{ titulo: 'Comprobar la velocidad de cada puerto', lenguaje: 'Terminal', nota: 'En la Raspberry Pi o en un PC con Linux.', texto: TERMINAL_HUB }],
+        flasheo: { titulo: 'Conectarlo', resumen: 'Sin programar: solo hace falta enchufarlo bien.', pasos: ['Enchufa el adaptador de 5 V del hub antes de conectar nada.', 'Cable USB 3.0 del hub a un puerto azul de la Raspberry Pi.', 'Conecta el Coral, el disco o las cámaras a sus puertos.', 'Comprueba con `lsusb -t` que cuelgan de un puerto a 5000M.'] },
+        ideas: ['Coral USB y SSD en la misma Raspberry Pi', 'Varias webcams para un sistema de vigilancia', 'Programar varios ESP32 a la vez', 'Disco de copias para la Raspberry Pi']
+    },
+
+    // ============================================================ fuente 5 V
+    'fuente-5v': {
+        claves: [['Salida', '5 V ⎓ 3 A'], ['Potencia', '15 W'], ['Entrada', '100 – 240 V CA'], ['Conexión', 'Bornas de tornillo'], ['Protección', 'Cortocircuito y sobrecarga']],
+        modelo: {
+            caja: { w: 50, d: 53, h: 30, r: 4, color: '#22252a', rect: [0, 2, 72, 76, 6], fondo: ['5 V ⎓ 3 A · 15 W', 'IN 100-240 V~'] },
+            placa: { y: 1.5, color: '#1d5e3a', margen: 2.5 },
+            piezas: [
+                { n: 1, nombre: 'Transformador de alta frecuencia', tipo: 'caja', x: 40, z: 30, w: 14, d: 12, h: 13, color: '#e8c860',
+                    texto: 'Pequeño porque trabaja a decenas de kHz. Además de bajar la tensión, aísla la salida de la red.' },
+                { n: 2, nombre: 'Condensador de entrada', tipo: 'condensador', x: 18, z: 26, r: 5, h: 16,
+                    texto: 'Guarda la red rectificada a unos 325 V. Puede seguir cargado un rato después de desenchufar.' },
+                { n: 3, nombre: 'Controlador y optoacoplador', tipo: 'grupo', x: 30, z: 58,
+                    texto: 'El controlador conmuta el transformador y el optoacoplador le cuenta, sin unir los dos lados, cómo va la salida.',
+                    formas: [{ tipo: 'chip', dx: -5, w: 5, d: 4, h: 1.5, rotulo: 'PWM' }, { tipo: 'chip', dx: 5, w: 4.5, d: 3, h: 1.4, rotulo: 'PC817' }] },
+                { n: 4, nombre: 'Condensadores de salida', tipo: 'grupo', x: 56, z: 50,
+                    texto: 'Alisan los 5 V para que no lleguen rizados a los servos ni a la tira de LED.',
+                    formas: [{ tipo: 'condensador', dz: -4, r: 3, h: 10 }, { tipo: 'condensador', dz: 4, r: 3, h: 10 }] },
+                { n: 5, nombre: 'Bornas de salida', tipo: 'borna', x: 80, eje: 'z', polos: [30, 50], d: 7, h: 10, color: '#2a8f5a', asoma: true,
+                    texto: '+5V y GND. Con varias cargas, saca un cable de cada una hasta aquí en lugar de encadenarlas.' }
+            ]
+        },
+        fuertes: ['3 A para servos, tiras de LED y la Raspberry Pi', 'Bornas: sin soldar', 'Aísla la electrónica de la red', 'Protección contra cortocircuitos'],
+        cuidado: ['Por dentro hay 325 V: no la abras enchufada', 'GND común con la placa que manda las señales', 'Con cargas de arranque fuerte (motores), deja margen de corriente', 'Cables gruesos para 3 A: los dupont se calientan'],
+        codigos: conS3('Comprobar la tensión con la ESP32-S3', skTension('Fuente de 5 V', '5.0')),
+        flasheo: conectar('Se enchufa a la red y reparte 5 V por sus bornas.', 'Une +5V a la alimentación de la carga (tira, servos) y GND a su masa y a la de la placa.', 'Para medirla: divisor 10 kΩ / 10 kΩ entre +5V y GND, punto medio a GPIO1.'),
+        ideas: ['Alimentar la tira de WS2812B', 'Banco de servos con el PCA9685', 'Alimentar la Raspberry Pi y un ESP32 en un cuadro', 'Fuente del coche robot en la mesa de pruebas']
+    },
+
+    // ======================================================== fuente USB-C
+    'fuente-usbc': {
+        claves: [['Salida', '5,1 V ⎓ 3 A'], ['Potencia', '15,3 W'], ['Conector', 'USB-C con cable fijo'], ['Entrada', '100 – 240 V CA'], ['Para', 'Raspberry Pi 4']],
+        modelo: {
+            caja: { w: 54, d: 56, h: 26, r: 6, color: '#f4f5f7', rect: [2, 4, 60, 62, 10], fondo: ['5,1 V ⎓ 3 A', 'USB-C · Raspberry Pi'] },
+            placa: { y: 1.5, color: '#1d5e3a', margen: 2.5 },
+            piezas: [
+                { n: 1, nombre: 'Clavijas de red', tipo: 'grupo', x: 0, z: 34.5, asoma: true,
+                    texto: 'Clavija europea. Todo lo que hay detrás de ellas está a tensión de red.',
+                    formas: [{ tipo: 'blindaje', dz: -9, w: 10, d: 4, h: 4 }, { tipo: 'blindaje', dz: 9, w: 10, d: 4, h: 4 }] },
+                { n: 2, nombre: 'Transformador y controlador', tipo: 'grupo', x: 30, z: 30,
+                    texto: 'Una fuente conmutada como la de 5 V, ajustada a 5,1 V para compensar la caída del cable.',
+                    formas: [{ tipo: 'caja', w: 13, d: 11, h: 12, color: '#e8c860' }, { tipo: 'chip', dz: 10, w: 5, d: 4, h: 1.4, rotulo: 'PWM' }] },
+                { n: 3, nombre: 'Condensador de entrada', tipo: 'condensador', x: 14, z: 50, r: 4.5, h: 14,
+                    texto: 'Guarda la red rectificada. Puede seguir cargado un rato después de desenchufar.' },
+                { n: 4, nombre: 'Cable y conector USB-C', tipo: 'grupo', x: 76, z: 30, asoma: true,
+                    texto: 'Cable grueso y fijo: así la tensión llega entera a la Raspberry Pi. Solo da 5 V, sin carga rápida.',
+                    formas: [{ tipo: 'caja', dx: -6, w: 12, d: 4, h: 4, color: '#e8e8e6' }, { tipo: 'usbc', dx: 3.5, lado: 'x' }] }
+            ]
+        },
+        fuertes: ['La tensión justa para la Raspberry Pi 4', 'Cable grueso: sin aviso de bajo voltaje', 'Aguanta los picos del arranque', 'Fiable para tenerla encendida 24/7'],
+        cuidado: ['No da carga rápida: en un móvil cargará lento', 'No alimenta además discos o el Coral sin hub con fuente', 'Un cable alargador USB-C fino vuelve a dar bajo voltaje', 'No la abras: por dentro hay tensión de red'],
+        codigos: [{ titulo: '¿Le llega bien la corriente a la Raspberry Pi?', lenguaje: 'Terminal', nota: 'En la Raspberry Pi, por SSH.', texto: TERMINAL_RPI_ALIM }],
+        flasheo: { titulo: 'Conectarla', resumen: 'Sin programar: se enchufa y alimenta la Raspberry Pi.', pasos: ['Enchufa el USB-C a la entrada POWER IN de la Raspberry Pi.', 'Enchúfala a la red: la Raspberry Pi arranca sola.', 'Comprueba con `vcgencmd get_throttled` que responde 0x0.', 'Si añades discos o el Coral, ponlos en un hub con fuente propia.'] },
+        ideas: ['Servidor de casa 24/7 con la Raspberry Pi', 'Raspberry Pi con el Coral y el hub alimentado', 'Centro multimedia', 'Puesto de programación de los ESP32']
+    },
+
+    // ======================================================== portapilas 4 AA
+    'portapilas-4aa': {
+        claves: [['Tensión', '6 V (4,8 V recargables)'], ['Pilas', '4 × AA en serie'], ['Capacidad', '≈ 2000 – 2500 mAh'], ['Salida', 'Cables rojo y negro'], ['Interruptor', 'Según modelo']],
+        modelo: {
+            caja: { w: 59, d: 62, h: 16, r: 3, color: '#1b1d21', rect: [0, 0, 76, 80, 4], fondo: ['4 × AA', '6 V'] },
+            placa: { y: 1, color: '#1b1d21', margen: 1.5 },
+            piezas: [
+                { n: 1, nombre: 'Cuatro pilas AA en serie', tipo: 'grupo', x: 37, z: 40,
+                    texto: 'Cada una da 1,5 V; en serie suman 6 V. Con recargables NiMH son 4,8 V.',
+                    formas: [-21.5, -7.4, 6.6, 20.7].map(pila) },
+                { n: 2, nombre: 'Muelles y contactos', tipo: 'grupo', x: 37, z: 40,
+                    texto: 'Unen cada pila con la siguiente. Si se oxidan, la tensión cae: límpialos con alcohol.',
+                    formas: [-21.5, -7.4, 6.6, 20.7].map((dz, i) => ({ tipo: 'blindaje', dx: i % 2 ? -25 : 25, dz, w: 1, d: 5, h: 6 })) },
+                { n: 3, nombre: 'Cables de salida', tipo: 'grupo', x: 80, z: 40, asoma: true,
+                    texto: 'Rojo al + y negro al −. Van a la entrada de potencia del L298N o del PCA9685, no a un GPIO.',
+                    formas: [{ tipo: 'caja', dz: -8, w: 8, d: 2, h: 2, color: '#d62828' }, { tipo: 'caja', dz: 8, w: 8, d: 2, h: 2, color: '#16171a' }] }
+            ]
+        },
+        fuertes: ['Autonomía para robots sin cables', 'Pilas fáciles de encontrar', 'Tensión justa para motores TT y servos', 'Barato'],
+        cuidado: ['6 V no van a la entrada de 3,3 V de nada: pasa por un regulador', 'La tensión baja según se gastan las pilas', 'Con motores, las alcalinas se agotan rápido: mejor recargables', 'GND común con la placa que manda los motores'],
+        codigos: conS3('Medir la tensión de las pilas', skTension('Portapilas de 4 AA', '6.0')),
+        flasheo: conectar('Alimenta los motores; la placa puede ir por su lado o por un regulador.', 'Rojo a +12V del L298N y negro a su GND, unido también al GND de la placa.', 'Para medirlas: divisor 10 kΩ / 10 kΩ entre rojo y negro, punto medio a GPIO1.'),
+        ideas: ['Coche robot con dos motores TT', 'Avisar cuando las pilas bajen de 4,5 V', 'Robot que vuelve a la base con poca batería', 'Alimentar servos en un montaje portátil']
+    },
+
+    // =========================================================== emisor IR
+    'ir-emisor': {
+        claves: [['Longitud de onda', '940 nm'], ['Alcance', '≈ 5 – 8 m'], ['Control', 'Un GPIO'], ['Driver', 'Transistor'], ['Alimentación', '3,3 – 5 V']],
+        modelo: {
+            caja: { tipo: 'placa', w: 12.7, d: 15.2, h: 1.2, y: 8.6, r: .8, color: '#1b1d21', fondo: ['Emisor IR', '940 nm'] },
+            piezas: [
+                { n: 1, nombre: 'LED infrarrojo', tipo: 'grupo', x: 22, z: 16,
+                    texto: 'Emite luz a 940 nm, invisible para el ojo. La cámara del móvil la ve como un destello morado.',
+                    formas: [{ tipo: 'condensador', r: 2.5, h: 5, color: '#dfe7f3', tapa: false }, { tipo: 'condensador', r: 2.4, h: .6, color: '#eef3fa', tapa: false, dy: 5 }] },
+                { n: 2, nombre: 'Transistor de potencia', tipo: 'chip', x: 38.5, z: 33, w: 2.9, d: 1.6, h: 1, rotulo: '',
+                    texto: 'Da al LED los picos de corriente que un GPIO no puede: así llega más lejos.' },
+                { n: 3, nombre: 'Resistencia limitadora', tipo: 'smd', x: 22, z: 30, w: 2, d: 1.2, h: .5, color: '#2a2c30',
+                    texto: 'Limita la corriente del LED para que no se queme con pulsos largos.' },
+                { n: 4, nombre: 'Tira de 3 pines', tipo: 'grupo', x: 20, z: 50, abajo: true,
+                    texto: 'DAT, VCC y GND. DAT va a un GPIO.',
+                    formas: [{ tipo: 'tira', x0: 10, x1: 30, n: 3 }] }
+            ]
+        },
+        fuertes: ['La placa se convierte en mando de cualquier aparato', 'Con el receptor IR copia cualquier mando', 'Un solo GPIO', 'IRremoteESP8266 conoce cientos de protocolos'],
+        cuidado: ['Apúntalo al aparato: el haz es estrecho', 'Algunos aires acondicionados mandan el estado completo, no un botón', 'A 3,3 V el alcance es menor que a 5 V', 'Lee primero el código con el receptor IR'],
+        codigos: conS3('Primer sketch: encender la tele', SK_IREMISOR, ['crankyoldgit/IRremoteESP8266']),
+        flasheo: conectar('Tres cables.', 'VCC a 5V (más alcance) o a 3V3, y GND a GND.', 'DAT a GPIO4.'),
+        ideas: ['Encender el aire acondicionado por Wi-Fi', 'Apagar la tele a una hora', 'Mando universal con la pantalla de la CYD', 'Bajar el volumen cuando suena el timbre']
+    },
+
+    // ========================================================= TFT ST7789
+    'tft-st7789': {
+        claves: [['Pantalla', '1,3" IPS · 240 × 240'], ['Color', '65 536 colores'], ['Bus', 'SPI'], ['Controlador', 'ST7789'], ['Alimentación', '3,3 V']],
+        modelo: {
+            caja: { tipo: 'placa', w: 30.5, d: 30.5, h: 1.6, y: 8.6, r: 1, color: '#15171a', fondo: ['TFT 1,3" IPS', 'ST7789 · 240 × 240'] },
+            piezas: [
+                { n: 1, nombre: 'Pantalla IPS', tipo: 'pantalla', rect: [15, 4, 90, 88], h: 1.8,
+                    texto: 'IPS: los colores no cambian al mirarla de lado. El ST7789 va integrado en el borde del cristal.' },
+                { n: 2, nombre: 'Ranura microSD (por debajo)', tipo: 'blindaje', x: 60, z: 50, w: 14, d: 15, h: 1.8, abajo: true, rotulo: 'TF',
+                    texto: 'Comparte el bus SPI con la pantalla, con su propio CS. Para imágenes y fuentes.' },
+                { n: 3, nombre: 'Regulador de 3,3 V (por debajo)', tipo: 'chip', x: 30, z: 80, w: 2.9, d: 1.6, h: 1, abajo: true,
+                    texto: 'Permite alimentarla desde VIN. La lógica sigue siendo de 3,3 V.' },
+                { n: 4, nombre: 'Tira de 8 pines', tipo: 'grupo', x: 55, z: 110, abajo: true,
+                    texto: 'VIN, GND, SCK, MOSI, CS, D/C, RST y BL. BL enciende la retroiluminación (con PWM, regula el brillo).',
+                    formas: [{ tipo: 'tira', x0: 20, x1: 90, n: 8 }] }
+            ]
+        },
+        fuertes: ['Colores vivos y gran ángulo de visión', 'SPI rápido: animaciones fluidas', 'Pequeña y nítida (220 ppp)', 'Adafruit GFX, TFT_eSPI y LVGL la soportan'],
+        cuidado: ['Muchos módulos sin pin CS necesitan el modo SPI 3', 'Un buffer de pantalla completa son 115 KB de RAM', 'Lógica de 3,3 V: perfecta para el ESP32', 'Si la imagen sale desplazada, revisa la rotación y el offset'],
+        codigos: conS3('Primer sketch: colores y contador', SK_TFT, ['adafruit/Adafruit ST7735 and ST7789 Library', 'adafruit/Adafruit GFX Library']),
+        flasheo: conectar('Ocho cables por SPI.', 'VIN a 3V3 y GND a GND.', 'SCK a GPIO12, MOSI a GPIO11, CS a GPIO10, D/C a GPIO9, RST a GPIO14 y BL a GPIO13.'),
+        ideas: ['Reloj con el tiempo de internet', 'Visor de la cámara a baja resolución', 'Panel de estado de la Raspberry Pi', 'Juego pequeño con el joystick']
+    }
+});
