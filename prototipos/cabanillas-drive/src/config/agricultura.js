@@ -11,12 +11,24 @@ export const AGRICULTURA = {
   // (0 = norte, 90 = este). El aro de entrada está en src/config/entradas.js
   cope: {
     sitioTractor: [-306, -10, 180],     // mirando a la calle
+    sitiosTractores: {
+      tractor: [-306, -10, 180],
+      tractor_fendt_516: [-314, -10, 180],
+      tractor_jd_6r250: [-322, -10, 180],
+      tractor_nh_t7_300: [-330, -10, 180],
+      tractor_case_magnum_400: [-338, -10, 180],
+    },
     sitioCoche: [-291, -4, 180],
     // Aperos aparcados en el patio cuando no van en el tractor (a más de 9 m de cualquier edificio)
     sitiosAperos: { arado: [-299, -11, 180], cultivador: [-313, -6, 180], abonadora: [-292, -11, 180], sembradora: [-313, 3, 180],
       remolque: [-333, -12, 90], arrancadora: [-299, 3, 180], plantadora: [-292, 3, 180] },
     // A8: la cosechadora, en la parte oeste del patio (libre en la ortofoto), mirando a la calle
     sitioCosechadora: [-357, -8, 180],
+    sitiosCosechadoras: {
+      cosechadora: [-357, -8, 180],
+      cosechadora_nh_cx790: [-371, -8, 180],
+      cosechadora_claas_lexion7700: [-387, -8, 180],
+    },
   },
   // Reloj agrícola (A6). Decisión de Rubén (2026-11-25): un día de cultivo dura una hora de juego
   // (con el juego en marcha, no en pausa). En la COPE se pueden pasar días; ?agricultura&dia=N

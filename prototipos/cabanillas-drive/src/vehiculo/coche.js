@@ -19,6 +19,7 @@ export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
   const DIRECTRICES = direccion.trasera ? TRASERAS : DELANTERAS;
   const signoGiro = direccion.trasera ? -1 : 1;       // las de atrás giran al revés para ir al mismo lado
   const pieza = preparaCocheJugador(modeloJugador, config.color);
+  let marcha = 0;
 
   const cuerpo = mundo.createRigidBody(
     RAPIER.RigidBodyDesc.dynamic()
@@ -78,10 +79,20 @@ export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
     return vehiculo.currentVehicleSpeed(); // m/s, positiva hacia delante
   }
 
+  function limiteMarcha(kmh) {
+    const marchas = motor.marchasKmh;
+    if (!Array.isArray(marchas) || !marchas.length) return motor.velocidadMaxKmh;
+    const velocidad = Math.abs(kmh);
+    while (marcha < marchas.length - 1 && velocidad >= marchas[marcha] * 0.92) marcha++;
+    while (marcha > 0 && velocidad < marchas[marcha - 1] * 0.64) marcha--;
+    return Math.min(motor.velocidadMaxKmh, marchas[marcha]);
+  }
+
   // entrada: { acelerador 0..1, freno 0..1, direccion −1 (izq)..1 (der), frenoMano, analogica }
   function aplicaEntrada(entrada, dt) {
     const v = velocidad();
     const kmh = v * 3.6;
+    const limite = limiteMarcha(kmh);
 
     // Dirección: menos ángulo cuanto más rápido; con teclado se gira y vuelve gradualmente
     const t = Math.min(Math.abs(kmh) / direccion.velocidadReferenciaKmh, 1);
@@ -101,7 +112,7 @@ export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
     let freno = 0;
     if (entrada.acelerador > 0) {
       if (v < -0.5) freno = frenos.servicio * entrada.acelerador;
-      else fuerza = motor.fuerza * entrada.acelerador * Math.max(0, 1 - kmh / motor.velocidadMaxKmh);
+      else fuerza = motor.fuerza * entrada.acelerador * Math.max(0, 1 - kmh / limite);
     }
     if (entrada.freno > 0) {
       if (v > 0.5) freno = Math.max(freno, frenos.servicio * entrada.freno);
@@ -163,6 +174,7 @@ export function creaCoche(fisica, escena, modeloJugador, config = VEHICULO) {
       volcado: arriba.y < 0.35,
       velocidadKmh: velocidad() * 3.6,
       ruedasEnSuelo,
+      marcha: Array.isArray(motor.marchasKmh) ? marcha + 1 : null,
     };
   }
 

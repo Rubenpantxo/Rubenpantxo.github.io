@@ -19,8 +19,11 @@ import { estadoEn, labradoEn, pinta } from './pincel.js';
 import { creaParticulas } from './particulas.js';
 import { creaAves } from './aves.js';
 
-export function creaLabranza({ api, escena, camara, renderer, registro, tractor, enganche, raiz: raizDada, reloj }) {
+export function creaLabranza({ api, escena, camara, renderer, registro, tractor: tractorInicial, enganche: engancheInicial,
+  getTractor, getEnganche, raiz: raizDada, reloj }) {
   const L = AGRICULTURA.labranza;
+  const maquinaActiva = getTractor ?? (() => tractorInicial);
+  const engancheActivo = getEnganche ?? (() => engancheInicial);
   const terreno = api.mundo.terreno;
   const raiz = raizDada ?? new THREE.Group();
   raiz.name = 'raizAgricultura';
@@ -91,14 +94,19 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
   const rodadaAntes = new THREE.Vector3();
   let hayRodadaAntes = false;
   const adelante = new THREE.Vector3();
-  const via = Math.abs(tractor.info.ruedas[2].centro[0] - tractor.info.ruedas[3].centro[0]);
-  const anchoRodada = tractor.info.ruedas[2].ancho;
-  const ejeTrasero = tractor.info.ruedas[2].centro[2];
   let labrando = false;
   let relojRecuento = 0;
   let parcelaPisada = null;
   let recuento = null;
-  const motorOriginal = { velocidadMaxKmh: tractor.config.motor.velocidadMaxKmh, frenoMotor: tractor.config.motor.frenoMotor };
+  const motoresOriginales = new WeakMap();
+  const agarresOriginales = new WeakMap();
+  const motorDeSerie = (maquina) => {
+    if (!motoresOriginales.has(maquina)) {
+      motoresOriginales.set(maquina, { velocidadMaxKmh: maquina.config.motor.velocidadMaxKmh, frenoMotor: maquina.config.motor.frenoMotor });
+      agarresOriginales.set(maquina, maquina.config.ruedas.agarre);
+    }
+    return motoresOriginales.get(maquina);
+  };
   const cuenta = { kgArrancados: 0, tramos: 0, pixeles: 0, rodadas: 0, kgGastados: 0, rodadasApero: 0 };
   let cajonLleno = false;          // la arrancadora ya no puede cargar más
   let tolvaVacia = false;          // se intentó trabajar sin carga (para el aviso)
@@ -108,12 +116,11 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
   let hayEjeAntes = false;
   const salida = new THREE.Vector3();
 
-  const conduceTractor = () => api.coche === tractor;
+  const conduceTractor = () => api.coche === maquinaActiva();
   // Barro (A7): humedad del suelo bajo el tractor (0…1) y lámina de agua del riego
   let riego = null;
   let barro = 0;
   const B = AGRICULTURA.riego.barro;
-  const agarreOriginal = tractor.config.ruedas.agarre;
   const suave = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
   function humedadEn(x, z) {
     for (const p of parcelas.values()) {
@@ -141,6 +148,8 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
     ponRiego(r) { riego = r; },
     // Paso de física: la tierra frena el apero clavado
     paso(dt) {
+      const tractor = maquinaActiva();
+      const enganche = engancheActivo();
       if (!conduceTractor()) return;
       const ap = enganche.apero;
       const clavado = ap && enganche.subida <= 0.5;
@@ -154,6 +163,13 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
       tractor.cuerpo.applyImpulse({ x: adelante.x * f, y: 0, z: adelante.z * f }, true);
     },
     actualiza(dt, { acelerador = 0 } = {}) {
+      const tractor = maquinaActiva();
+      const enganche = engancheActivo();
+      const ruedasTraseras = tractor.info.ruedas;
+      const via = Math.abs(ruedasTraseras[2].centro[0] - ruedasTraseras[3].centro[0]);
+      const anchoRodada = ruedasTraseras[2].ancho;
+      const ejeTrasero = ruedasTraseras[2].centro[2];
+      const motorOriginal = motorDeSerie(tractor);
       enganche.actualiza(dt);
       const ap = enganche.apero;
       const motor = tractor.config.motor;
@@ -168,7 +184,7 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
         const lam = riego ? riego.laminaEn(e.posicion.x, e.posicion.z) : 0;
         barro = Math.max(suave(0.35, 0.85, humedadEn(e.posicion.x, e.posicion.z)), suave(0.004, 0.03, lam));
       } else barro = 0;
-      tractor.config.ruedas.agarre = agarreOriginal * (1 - B.agarre * barro);
+      tractor.config.ruedas.agarre = agarresOriginales.get(tractor) * (1 - B.agarre * barro);
       adelante.copy(e.adelante).setY(0).normalize();
       labrando = false;
       tolvaVacia = false;

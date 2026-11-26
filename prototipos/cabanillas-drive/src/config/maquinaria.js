@@ -16,6 +16,8 @@ export const COLORES_TRACTOR = [
 
 export const TRACTOR = {
   modelo: 'tractor',
+  nombre: 'Tractor Cabanillas',
+  referencia: 'Modelo original genérico',
   nombreGrupo: 'tractor_jugador',
   color: COLORES_TRACTOR[0].color,
 
@@ -77,6 +79,56 @@ export const TRACTOR = {
   },
 };
 
+function creaTractorReferencia({ modelo, nombre, color, potenciaCV, masa, fuerza, velocidadMaxKmh, marchaAtrasKmh,
+  transmision, marchasKmh, radioTrasero, radioDelantero, agarre, anguloMax }) {
+  return {
+    ...TRACTOR,
+    modelo,
+    nombre,
+    referencia: nombre,
+    nombreGrupo: `${modelo}_jugador`,
+    color,
+    chasis: { ...TRACTOR.chasis, masa, centroMasaY: -0.82 },
+    ruedas: { ...TRACTOR.ruedas, agarre, rigidez: 48, recorridoMax: 0.16 },
+    motor: {
+      ...TRACTOR.motor,
+      potenciaCV,
+      transmision,
+      marchasKmh,
+      fuerza,
+      velocidadMaxKmh,
+      marchaAtrasKmh,
+      fuerzaMarchaAtras: fuerza * 0.82,
+    },
+    direccion: { ...TRACTOR.direccion, anguloMax, velocidadReferenciaKmh: velocidadMaxKmh },
+    medidasRuedas: { radioTrasero, radioDelantero },
+  };
+}
+
+export const TRACTORES = {
+  tractor: TRACTOR,
+  tractor_fendt_516: creaTractorReferencia({
+    modelo: 'tractor_fendt_516', nombre: 'Fendt 516 Vario', color: 0x16803a,
+    potenciaCV: 163, masa: 7600, fuerza: 2800, velocidadMaxKmh: 50, marchaAtrasKmh: 20,
+    transmision: 'Vario continuo', marchasKmh: null, radioTrasero: 0.82, radioDelantero: 0.62, agarre: 3.0, anguloMax: 0.58,
+  }),
+  tractor_jd_6r250: creaTractorReferencia({
+    modelo: 'tractor_jd_6r250', nombre: 'John Deere 6R 250', color: 0x2e7d19,
+    potenciaCV: 250, masa: 9400, fuerza: 3600, velocidadMaxKmh: 50, marchaAtrasKmh: 20,
+    transmision: 'AutoPowr', marchasKmh: [8, 15, 23, 31, 40, 50], radioTrasero: 0.87, radioDelantero: 0.64, agarre: 3.2, anguloMax: 0.58,
+  }),
+  tractor_nh_t7_300: creaTractorReferencia({
+    modelo: 'tractor_nh_t7_300', nombre: 'New Holland T7.300', color: 0x145cb0,
+    potenciaCV: 300, masa: 10800, fuerza: 4200, velocidadMaxKmh: 50, marchaAtrasKmh: 20,
+    transmision: 'Auto Command', marchasKmh: null, radioTrasero: 0.90, radioDelantero: 0.66, agarre: 3.35, anguloMax: 0.56,
+  }),
+  tractor_case_magnum_400: creaTractorReferencia({
+    modelo: 'tractor_case_magnum_400', nombre: 'Case IH Magnum 400', color: 0xc52c20,
+    potenciaCV: 435, masa: 15000, fuerza: 5200, velocidadMaxKmh: 40, marchaAtrasKmh: 18,
+    transmision: 'PowerDrive', marchasKmh: [6, 12, 18, 24, 31, 40], radioTrasero: 0.98, radioDelantero: 0.70, agarre: 3.5, anguloMax: 0.52,
+  }),
+};
+
 // Aperos (A4): se enganchan al tripuntal del tractor en la COPE. Las medidas (anchura de trabajo,
 // alto de los bulones, dónde trabajan) salen de maquinaria.json; aquí, cómo trabajan.
 //   labor: lo que pintan en la parcela (src/agricultura/pincel.js)
@@ -132,8 +184,11 @@ export const APEROS = {
 // y la dirección en las traseras (pequeñas). Misma forma que TRACTOR (la mueve coche.js)
 export const COSECHADORA = {
   modelo: 'cosechadora',
+  nombre: 'Cosechadora Cabanillas',
+  referencia: 'Modelo original genérico',
   nombreGrupo: 'cosechadora_jugador',
   color: 0xc79a14,
+  potenciaCV: 240,
   piezasMoviles: ['cabezal', 'molinete', 'tubo_descarga', 'carga'],
 
   chasis: {
@@ -182,6 +237,7 @@ export const COSECHADORA = {
   // Cosecha: velocidad buena de trabajo y la máxima con el cabezal bajado; la tolva (litros) y lo
   // que tarda en vaciarse por el tubo; cuánto sube el cabezal y lo que tarda; el molinete
   cosecha: {
+    anchoCabezalM: 5.4,
     trabajoKmh: [3, 7],
     velocidadMaxKmh: 8,
     tolvaL: 6000,
@@ -192,6 +248,51 @@ export const COSECHADORA = {
     molineteRpm: 38,
     alturaCorteM: 0.15,
   },
+};
+
+function creaCosechadoraReferencia({ modelo, nombre, color, potenciaCV, masa, fuerza, velocidadMaxKmh,
+  tolvaL, descargaLs, agarre, marchaAtrasKmh, anchoCabezalM }) {
+  return {
+    ...COSECHADORA,
+    modelo,
+    nombre,
+    referencia: nombre,
+    nombreGrupo: `${modelo}_jugador`,
+    color,
+    potenciaCV,
+    chasis: { ...COSECHADORA.chasis, masa, centroMasaY: -1.0 },
+    ruedas: { ...COSECHADORA.ruedas, agarre },
+    motor: {
+      ...COSECHADORA.motor,
+      potenciaCV,
+      fuerza,
+      velocidadMaxKmh: 25,
+      marchaAtrasKmh,
+      fuerzaMarchaAtras: fuerza * 0.82,
+    },
+    cosecha: {
+      ...COSECHADORA.cosecha,
+      anchoCabezalM,
+      trabajoKmh: [4, 7],
+      velocidadMaxKmh,
+      tolvaL,
+      descargaLs,
+    },
+  };
+}
+
+export const COSECHADORAS = {
+  cosechadora: COSECHADORA,
+  cosechadora_nh_cx790: creaCosechadoraReferencia({
+    modelo: 'cosechadora_nh_cx790', nombre: 'New Holland CX7.90', color: 0x145cb0,
+    potenciaCV: 400, masa: 15500, fuerza: 8500, velocidadMaxKmh: 9, marchaAtrasKmh: 10,
+    tolvaL: 12500, descargaLs: 105, agarre: 3.1, anchoCabezalM: 7.6,
+  }),
+  cosechadora_claas_lexion7700: creaCosechadoraReferencia({
+    modelo: 'cosechadora_claas_lexion7700', nombre: 'CLAAS LEXION 7700', color: 0x95b31b,
+    potenciaCV: 585, masa: 19000, fuerza: 11200, velocidadMaxKmh: 9, marchaAtrasKmh: 10,
+    tolvaL: 13500, descargaLs: 120, agarre: 3.2, anchoCabezalM: 9.3,
+  }),
 };
 
 // Semillas que se cargan en la COPE (A5; los cereales crecen en A6). Dosis orientativas de siembra

@@ -29,6 +29,7 @@ import json
 import math
 import os
 import sys
+from copy import deepcopy
 from pathlib import Path
 
 import bpy
@@ -100,6 +101,100 @@ COLORES = {
     "goma": (0.03, 0.03, 0.03, 1.0),
 }
 
+TRACTORES_REFERENCIA = {
+    "tractor_fendt_516": {
+        "nombre": "Fendt 516 Vario",
+        "pintura": (0.035, 0.20, 0.055, 1.0),
+        "llanta": (0.16, 0.17, 0.17, 1.0),
+        "techo": (0.82, 0.83, 0.80, 1.0),
+        "medidas": {
+            "trasera": {"radio": 0.82, "ancho": 0.56, "via": 1.86, "y": 1.12, "tacos": 22, "llanta": 0.53},
+            "delantera": {"radio": 0.62, "ancho": 0.44, "via": 1.82, "y": -1.60, "tacos": 18, "llanta": 0.51},
+            "capo": {"ancho": 0.98, "y0": -2.05, "y1": -0.05, "z0": 1.0, "z1": 1.82, "caida_morro": 0.20, "retranqueo": 0.12},
+            "cabina": {"ancho": 1.58, "y0": -0.05, "y1": 1.48, "suelo": 1.36, "techo": 2.88},
+        },
+        "especificaciones": {"potenciaCV": 163, "masa": 7600, "velocidadMaxKmh": 50, "transmision": "continuously variable"},
+    },
+    "tractor_jd_6r250": {
+        "nombre": "John Deere 6R 250",
+        "pintura": (0.055, 0.20, 0.018, 1.0),
+        "llanta": (0.76, 0.57, 0.025, 1.0),
+        "techo": (0.88, 0.88, 0.84, 1.0),
+        "medidas": {
+            "trasera": {"radio": 0.87, "ancho": 0.61, "via": 1.94, "y": 1.20, "tacos": 24, "llanta": 0.55},
+            "delantera": {"radio": 0.64, "ancho": 0.47, "via": 1.88, "y": -1.72, "tacos": 18, "llanta": 0.52},
+            "capo": {"ancho": 1.08, "y0": -2.25, "y1": -0.04, "z0": 1.02, "z1": 1.92, "caida_morro": 0.16, "retranqueo": 0.10},
+            "cabina": {"ancho": 1.66, "y0": -0.04, "y1": 1.62, "suelo": 1.42, "techo": 3.02},
+        },
+        "especificaciones": {"potenciaCV": 250, "masa": 9400, "velocidadMaxKmh": 50, "transmision": "AutoPowr"},
+    },
+    "tractor_nh_t7_300": {
+        "nombre": "New Holland T7.300",
+        "pintura": (0.015, 0.075, 0.34, 1.0),
+        "llanta": (0.75, 0.76, 0.73, 1.0),
+        "techo": (0.84, 0.85, 0.84, 1.0),
+        "medidas": {
+            "trasera": {"radio": 0.90, "ancho": 0.63, "via": 1.98, "y": 1.25, "tacos": 24, "llanta": 0.57},
+            "delantera": {"radio": 0.66, "ancho": 0.48, "via": 1.90, "y": -1.82, "tacos": 18, "llanta": 0.53},
+            "capo": {"ancho": 1.12, "y0": -2.38, "y1": -0.06, "z0": 1.04, "z1": 1.98, "caida_morro": 0.22, "retranqueo": 0.17},
+            "cabina": {"ancho": 1.70, "y0": -0.06, "y1": 1.68, "suelo": 1.44, "techo": 3.08},
+        },
+        "especificaciones": {"potenciaCV": 300, "masa": 10800, "velocidadMaxKmh": 50, "transmision": "Auto Command"},
+    },
+    "tractor_case_magnum_400": {
+        "nombre": "Case IH Magnum 400",
+        "pintura": (0.38, 0.018, 0.012, 1.0),
+        "llanta": (0.10, 0.10, 0.095, 1.0),
+        "techo": (0.85, 0.85, 0.82, 1.0),
+        "medidas": {
+            "trasera": {"radio": 0.98, "ancho": 0.68, "via": 2.04, "y": 1.32, "tacos": 26, "llanta": 0.60},
+            "delantera": {"radio": 0.70, "ancho": 0.52, "via": 1.98, "y": -1.88, "tacos": 20, "llanta": 0.56},
+            "capo": {"ancho": 1.20, "y0": -2.55, "y1": -0.06, "z0": 1.06, "z1": 2.04, "caida_morro": 0.18, "retranqueo": 0.13},
+            "cabina": {"ancho": 1.76, "y0": -0.06, "y1": 1.78, "suelo": 1.50, "techo": 3.22},
+        },
+        "especificaciones": {"potenciaCV": 435, "masa": 15000, "velocidadMaxKmh": 40, "transmision": "PowerDrive"},
+    },
+}
+
+COSECHADORAS_REFERENCIA = {
+    "cosechadora_nh_cx790": {
+        "nombre": "New Holland CX7.90",
+        "pintura": (0.015, 0.075, 0.34, 1.0),
+        "medidas": {
+            **deepcopy(COSECHADORA),
+            "delantera": {"radio": 0.86, "ancho": 0.67, "via": 2.70, "y": 0.0, "tacos": 24, "llanta": 0.56},
+            "trasera": {"radio": 0.52, "ancho": 0.38, "via": 2.18, "y": 3.42, "tacos": 16, "llanta": 0.56},
+            "cabezal": {"ancho": 7.6, "corte_y": -4.25, "fondo_y": -2.65, "corte_z": 0.16, "pared_z": 1.18},
+            "molinete": {"y": -3.72, "z": 1.38, "radio": 0.62, "bates": 6},
+            "pivote_cabezal": (0.0, -0.62, 1.63),
+            "tolva": {"x": 1.32, "y0": 0.05, "y1": 2.42, "z0": 2.92, "z1": 3.68},
+            "tubo": {"pivote": (1.3, 2.35, 3.45), "largo": 4.55, "radio": 0.17, "bajante": 0.55},
+            "cabina": {"ancho": 1.72, "y0": -1.62, "y1": -0.12, "suelo": 2.42, "techo": 3.88},
+            "ancho_cuerpo": 2.78,
+            "sistema_trilla": "sacudidores",
+        },
+        "especificaciones": {"potenciaCV": 400, "masa": 15500, "velocidadMaxKmh": 25, "tolvaL": 12500},
+    },
+    "cosechadora_claas_lexion7700": {
+        "nombre": "CLAAS LEXION 7700",
+        "pintura": (0.58, 0.72, 0.025, 1.0),
+        "medidas": {
+            **deepcopy(COSECHADORA),
+            "delantera": {"radio": 0.92, "ancho": 0.72, "via": 2.86, "y": 0.0, "tacos": 26, "llanta": 0.60},
+            "trasera": {"radio": 0.55, "ancho": 0.40, "via": 2.25, "y": 3.55, "tacos": 16, "llanta": 0.58},
+            "cabezal": {"ancho": 9.3, "corte_y": -4.85, "fondo_y": -2.95, "corte_z": 0.17, "pared_z": 1.28},
+            "molinete": {"y": -4.28, "z": 1.52, "radio": 0.70, "bates": 6},
+            "pivote_cabezal": (0.0, -0.72, 1.76),
+            "tolva": {"x": 1.42, "y0": 0.10, "y1": 2.58, "z0": 3.02, "z1": 3.84},
+            "tubo": {"pivote": (1.48, 2.55, 3.62), "largo": 4.9, "radio": 0.18, "bajante": 0.62},
+            "cabina": {"ancho": 1.82, "y0": -1.72, "y1": -0.12, "suelo": 2.52, "techo": 4.02},
+            "ancho_cuerpo": 2.95,
+            "sistema_trilla": "híbrido",
+        },
+        "especificaciones": {"potenciaCV": 585, "masa": 19000, "velocidadMaxKmh": 30, "tolvaL": 13500},
+    },
+}
+
 
 def limpiar_escena():
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -137,10 +232,10 @@ def material(nombre, roughness=0.55, metallic=0.0, emision=0.0, color=None):
     return mat
 
 
-def mats():
-    return {
-        "pintura": material("pintura", 0.35, 0.05),
-        "llanta": material("llanta", 0.4, 0.3),
+def mats(color_pintura=None, color_llanta=None, color_techo=None):
+    materiales = {
+        "pintura": material("pintura", 0.35, 0.05, color=color_pintura),
+        "llanta": material("llanta", 0.4, 0.3, color=color_llanta),
         "negro": material("negro", 0.7),
         "neumatico": material("neumatico", 0.92),
         "metal": material("metal", 0.35, 0.8),
@@ -157,6 +252,9 @@ def mats():
         "senal_blanca": material("senal_blanca", 0.5),
         "grano": material("grano", 0.85),
     }
+    if color_techo:
+        materiales["techo"] = material("techo_modelo", 0.45, 0.05, color=color_techo)
+    return materiales
 
 
 # ----------------------------------------------------------------------------- Primitivas
@@ -319,8 +417,7 @@ def rueda(nombre, d, x, M):
     return une(nombre, partes)
 
 
-def tractor(M):
-    T = TRACTOR
+def tractor(M, T=TRACTOR):
     tr, de, cp, cb = T["trasera"], T["delantera"], T["capo"], T["cabina"]
     fijo = []
 
@@ -386,7 +483,7 @@ def tractor(M):
                              M["negro"], 0.015))
         fijo.append(caja(f"marco_puerta{sx}", (0.05, 0.05, techo - suelo - 0.1), (sx * (ancho / 2 - 0.03), y0 + 0.75, (suelo + techo) / 2),
                          M["negro"], 0.01))
-    fijo.append(caja("techo", (ancho + 0.16, y1 - y0 + 0.3, 0.17), (0, (y0 + y1) / 2 + 0.05, techo + 0.08), M["pintura"], 0.05))
+    fijo.append(caja("techo", (ancho + 0.16, y1 - y0 + 0.3, 0.17), (0, (y0 + y1) / 2 + 0.05, techo + 0.08), M.get("techo", M["pintura"]), 0.05))
     fijo.append(caja("visera", (ancho * 0.9, 0.18, 0.05), (0, y0 - 0.14, techo - 0.02), M["negro"], 0.01))
     fijo.append(caja("asiento", (0.5, 0.45, 0.12), (0, y0 + 1.0, suelo + 0.45), M["asiento"], 0.04))
     fijo.append(caja("respaldo", (0.5, 0.12, 0.6), (0, y0 + 1.25, suelo + 0.8), M["asiento"], 0.04))
@@ -872,26 +969,38 @@ def sembradora(M):
 
 
 # ----------------------------------------------------------------------------- Cosechadora (A8)
-def cosechadora(M):
+def cosechadora(M, C=COSECHADORA):
     """Cosechadora compacta genérica (amarilla, sin marca): cabezal de cereal con molinete, canal
     de alimentación, cabina delante, tolva de grano arriba, motor detrás, tubo de descarga a la
     izquierda (plegado hacia atrás), picador y esparcidor de paja. Ruedas delanteras motrices
     grandes y traseras directrices pequeñas."""
-    C = COSECHADORA
     de, tr, cb, ca, mo, tv, tu = (C[k] for k in ("delantera", "trasera", "cabina", "cabezal", "molinete", "tolva", "tubo"))
     pintura = M["pintura"]
     banda = material("gris_banda", 0.5)
     fijo = []
+    ancho_cuerpo = C.get("ancho_cuerpo", 2.5)
+    ancho_lateral = ancho_cuerpo / 2 + 0.007
     # --- Bastidor bajo, entre las ruedas, y cuerpo ancho por encima de ellas
-    fijo.append(caja("bastidor", (1.5, 4.3, 1.1), (0, 1.45, 1.15), pintura, 0.06))
-    fijo.append(caja("cuerpo", (2.5, 4.4, 1.2), (0, 1.6, 2.25), pintura, 0.1))
-    fijo.append(caja("faldon", (2.3, 1.3, 0.55), (0, 3.25, 1.35), pintura, 0.05))
+    fijo.append(caja("bastidor", (ancho_cuerpo * 0.6, 4.3, 1.1), (0, 1.45, 1.15), pintura, 0.06))
+    fijo.append(caja("cuerpo", (ancho_cuerpo, 4.4, 1.2), (0, 1.6, 2.25), pintura, 0.1))
+    fijo.append(caja("faldon", (ancho_cuerpo * 0.92, 1.3, 0.55), (0, 3.25, 1.35), pintura, 0.05))
     for s in (-1, 1):
-        fijo.append(caja(f"banda{s}", (0.012, 3.6, 0.16), (s * 1.257, 1.7, 2.32), banda))
-        fijo.append(caja(f"rejilla_motor{s}", (0.015, 1.1, 0.5), (s * 1.257, 3.15, 2.55), M["rejilla"], 0.01))
+        fijo.append(caja(f"banda{s}", (0.012, 3.6, 0.16), (s * ancho_lateral, 1.7, 2.32), banda))
+        fijo.append(caja(f"rejilla_motor{s}", (0.015, 1.1, 0.5), (s * ancho_lateral, 3.15, 2.55), M["rejilla"], 0.01))
         # Guardabarros de las ruedas delanteras
         fijo.append(arco_guardabarros(f"guardabarros{s}", de["radio"] + 0.06, de["ancho"] + 0.1, (s * de["via"] / 2, de["y"], de["radio"]),
                                       20, 160, 0.03, M["negro"]))
+    if C.get("sistema_trilla") == "sacudidores":
+        for k in range(5):
+            x = (k - 2) * 0.28
+            fijo.append(caja(f"sacudidor{k}", (0.22, 1.45, 0.12), (x, 4.2, 1.58), M["metal"], 0.02))
+            for j in range(4):
+                fijo.append(caja(f"peine_sacudidor{k}_{j}", (0.19, 0.06, 0.16), (x, 3.72 + j * 0.34, 1.48), M["negro"], 0.01))
+        fijo.append(caja("cubierta_sacudidores", (1.72, 1.55, 0.10), (0, 4.25, 1.85), pintura, 0.04))
+    elif C.get("sistema_trilla") == "híbrido":
+        for s in (-1, 1):
+            fijo.append(cilindro(f"rotor_axial{s}", 0.32, 2.5, (s * 0.39, 3.65, 1.55), "y", M["metal"], 28))
+            fijo.append(cilindro(f"tapa_rotor{s}", 0.35, 0.10, (s * 0.39, 4.92, 1.55), "y", M["negro"], 28))
     fijo.append(cilindro("eje_delantero", 0.2, de["via"] - de["ancho"] * 0.6, (0, de["y"], de["radio"]), "x", M["negro"], 20))
     fijo.append(caja("eje_trasero", (tr["via"] - tr["ancho"] * 0.6, 0.22, 0.2), (0, tr["y"], tr["radio"] + 0.05), M["negro"], 0.03))
     fijo.append(caja("soporte_eje_trasero", (0.35, 0.3, 0.75), (0, tr["y"], tr["radio"] + 0.42), M["negro"], 0.03))
@@ -1049,9 +1158,8 @@ def cosechadora(M):
     return objetos
 
 
-def ficha_cosechadora(objetos, mn, mx, d):
+def ficha_cosechadora(objetos, mn, mx, d, C=COSECHADORA, archivo="cosechadora.glb", referencia=None):
     """Como ficha() del tractor, con los puntos de la cosechadora (ejes del juego)."""
-    C = COSECHADORA
     ca, mo, tv, tu = C["cabezal"], C["molinete"], C["tolva"], C["tubo"]
     def j(p):
         return [round(p[0] + d.x, 4), round(p[2] + d.z, 4), round(-(p[1] + d.y), 4)]
@@ -1061,9 +1169,9 @@ def ficha_cosechadora(objetos, mn, mx, d):
         "tolva": {"carga": "carga", "y_vacia": round(tv["z0"] + 0.05 + d.z, 3), "y_llena": round(tv["z1"] - 0.08 + d.z, 3),
                   "escala_vacia": 0.85},
         "tubo": {"pivote": j(tu["pivote"]), "largo": tu["largo"], "salida": j((tu["pivote"][0], tu["pivote"][1] + tu["largo"] - 0.12, tu["pivote"][2] + 0.1 - tu["bajante"]))},
-        "paja": j((0, 4.45, 1.0)),
+        "paja": j((0, C.get("paja_y", 4.45), 1.0)),
     }
-    return ficha(objetos, mn, mx, d, "cosechadora.glb", medidas=C, puntos={}, extra=extra)
+    return ficha(objetos, mn, mx, d, archivo, medidas=C, puntos={}, extra=extra, referencia=referencia)
 
 
 def remolque(M):
@@ -1148,7 +1256,7 @@ def centra(objetos):
     return mn + d, mx + d, d
 
 
-def ficha(objetos, mn, mx, d, archivo, medidas=None, puntos=None, extra=None):
+def ficha(objetos, mn, mx, d, archivo, medidas=None, puntos=None, extra=None, referencia=None):
     """Medidas y ruedas en ejes del juego (x = Blender x, y = Blender z, z = −Blender y)."""
     medidas = medidas or TRACTOR
     puntos = ENGANCHE if puntos is None else puntos
@@ -1177,6 +1285,7 @@ def ficha(objetos, mn, mx, d, archivo, medidas=None, puntos=None, extra=None):
         "triangulos": triangulos,
         "ruedas": ruedas,
         "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)",
+        **({"referencia": referencia} if referencia else {}),
     }
 
 
@@ -1309,6 +1418,38 @@ if __name__ == "__main__":
         print(f"[OK] Cosechadora: {c['largo']} × {c['ancho']} × {c['alto']} m, {c['triangulos']} triángulos")
         if con_vistas:
             vistas(objetos, str(previews), c["largo"], "cosechadora", objetivo=(0, 0, 1.8), escala=1.55)
+    for id_, spec in TRACTORES_REFERENCIA.items():
+        if solo and id_ not in solo:
+            continue
+        limpiar_escena()
+        ENGANCHE.clear()
+        M = mats(spec["pintura"], spec["llanta"], spec["techo"])
+        objetos = tractor(M, T=spec["medidas"])
+        mn, mx, d = centra(objetos)
+        archivo = f"{id_}.glb"
+        exportar_glb(list(objetos.values()), str(salida / archivo))
+        datos[id_] = ficha(objetos, mn, mx, d, archivo, medidas=spec["medidas"], puntos=ENGANCHE, referencia=spec["nombre"])
+        datos[id_].update(spec["especificaciones"])
+        datos[id_]["fuente"] = "Modelo original sin emblemas; proporciones guiadas por datos públicos de referencia."
+        print(f"[OK] {spec['nombre']}: {datos[id_]['largo']} × {datos[id_]['ancho']} × {datos[id_]['alto']} m, {datos[id_]['triangulos']} triángulos")
+        if con_vistas:
+            vistas(objetos, str(previews), datos[id_]["largo"], id_)
+    for id_, spec in COSECHADORAS_REFERENCIA.items():
+        if solo and id_ not in solo:
+            continue
+        limpiar_escena()
+        M = mats(color_pintura=spec["pintura"])
+        objetos = cosechadora(M, C=spec["medidas"])
+        mn, mx, d = centra(objetos)
+        archivo = f"{id_}.glb"
+        exportar_glb(list(objetos.values()), str(salida / archivo))
+        datos[id_] = ficha_cosechadora(objetos, mn, mx, d, C=spec["medidas"], archivo=archivo, referencia=spec["nombre"])
+        datos[id_].update(spec["especificaciones"])
+        datos[id_]["sistema_trilla"] = spec["medidas"]["sistema_trilla"]
+        datos[id_]["fuente"] = "Modelo original sin emblemas; proporciones guiadas por datos públicos de referencia."
+        print(f"[OK] {spec['nombre']}: {datos[id_]['largo']} × {datos[id_]['ancho']} × {datos[id_]['alto']} m, {datos[id_]['triangulos']} triángulos")
+        if con_vistas:
+            vistas(objetos, str(previews), datos[id_]["largo"], id_, objetivo=(0, 0, 1.8), escala=1.55)
     for id_, constructor, nombre, vista in (
             ("arado", arado, "Arado reversible de 4 cuerpos", ((0, 1.6, -0.05), 0.75)),
             ("cultivador", cultivador, "Cultivador de 3 m", ((0, 1.6, -0.05), 0.75)),
