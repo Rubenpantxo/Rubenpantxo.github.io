@@ -98,7 +98,8 @@ test('paquete recomendado: descuento y cuota mensual aparte', () => {
     const minSin = web.min + admin.min + seo.min;
     assert.equal(r.subtotal.min, minSin);
     assert.equal(r.total.min, Math.round(minSin * 0.95 / 50) * 50);
-    assert.deepEqual({ min: r.mensual.min, max: r.mensual.max }, { min: 60, max: 150 });
+    const mant = datos.bloques.find(b => b.id === 'mantenimiento');
+    assert.deepEqual({ min: r.mensual.min, max: r.mensual.max }, { min: mant.min, max: mant.max });
     assert.equal(r.semanas, web.semanas + admin.semanas + seo.semanas);
 });
 
