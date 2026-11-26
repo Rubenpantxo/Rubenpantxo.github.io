@@ -2,7 +2,6 @@
 .*
 !.gitignore
 !.editorconfig
-!.htaccess
 !.githooks/
 !.githooks/**
 !.github/
