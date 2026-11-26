@@ -64,7 +64,22 @@ const LABOR = {
   rodar(m, l, c, w) {
     m.cultivo[c + 3] = Math.max(m.cultivo[c + 3], w * 255);
   },
+  // La cosechadora (A8): solo corta lo sembrado que está maduro (op.maduro(parcela, píxel, byte del
+  // día de siembra)) y lo deja como rastrojo; op.alCortar(parcela, píxel) apunta el grano. Lo verde
+  // no lo corta (op.verdes cuenta lo que encuentra). Lo de los bordes de la franja espera a la pasada siguiente
+  segar(m, l, c, w, dir, dia, op) {
+    const b = m.cultivo[c + 1];
+    if (!b || w <= 0.5) return;
+    if (op.maduro && !op.maduro(m, l >> 2, b)) { op.verdes = (op.verdes ?? 0) + 1; return; }
+    op.alCortar?.(m, l >> 2);
+    m.cultivo[c + 1] = 0;
+    m.cultivo[c + 2] = 255;
+    m.agua[l >> 2] = 128;
+    m.laboreo[l + 3] = dir;
+  },
 };
+
+LABOR.arrancar = LABOR.segar;     // A10: la arrancadora de cebolla arranca lo maduro como la cosechadora siega
 
 // Pinta una franja recta de anchura «ancho» (m) de (xa, za) a (xb, zb). Devuelve los píxeles tocados.
 function franja(parcela, labor, xa, za, xb, zb, ancho, opciones) {
@@ -107,7 +122,7 @@ function franja(parcela, labor, xa, za, xb, zb, ancho, opciones) {
       const d = Math.hypot(x - xa - t * dx, z - za - t * dz);
       if (d >= alcance) continue;
       const w = d <= media - suave ? 1 : (alcance - d) / (2 * suave);
-      efecto(parcela, k * 4, k * 4, Math.min(1, w) * fuerza, dir, dia);
+      efecto(parcela, k * 4, k * 4, Math.min(1, w) * fuerza, dir, dia, opciones);
       tocados++;
     }
   }

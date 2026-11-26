@@ -177,12 +177,14 @@ export function creaParcela(info, { terreno, nivelCalidad = 'alto' }) {
 
   const parcela = {
     info, ref: info.ref, malla, laboreo, cultivo, agua, dentro, interior, texturas, mascara,
+    version: 0,            // sube con cada cambio de las máscaras (para guardar solo lo que cambia)
     ox, oz, mpp, ancho, alto, pasoMalla: paso, triangulos, pixelesDentro,
     // Píxel de un punto (puede caer fuera de la máscara)
     aPixel: (x, z) => [(x - ox) / mpp - 0.5, (z - oz) / mpp - 0.5],
     // Anota los píxeles cambiados (para subir solo cuando toca y rehacer el recuento)
     marcaCambio(i0, j0, i1, j1) {
       recuentoCache = null;
+      parcela.version++;
       if (!sucio) sucio = [i0, j0, i1, j1];
       else sucio = [Math.min(sucio[0], i0), Math.min(sucio[1], j0), Math.max(sucio[2], i1), Math.max(sucio[3], j1)];
     },

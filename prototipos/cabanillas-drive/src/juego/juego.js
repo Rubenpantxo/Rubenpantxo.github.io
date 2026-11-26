@@ -154,7 +154,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
       botonBajar.textContent = '🚗';
       camara.fov = PEATON.fov;
       camara.updateProjectionMatrix();
-      avisa('A pie · E (o 🚗) cerca del coche para subir', 3);
+      avisa('A pie · E (o 🚗) junto a un vehículo para subir', 3);
       return;
     }
     avisa('No hay sitio para bajarse aquí');
@@ -246,11 +246,28 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     }
   }
 
+  // Distancia (m) de un punto a la planta de un vehículo (su rectángulo)
+  function distanciaAVehiculo(v, p) {
+    const e = v.estado();
+    const dx = p.x - e.posicion.x;
+    const dz = p.z - e.posicion.z;
+    const f = e.adelante.clone().setY(0).normalize();
+    const largo = Math.abs(dx * f.x + dz * f.z) - v.info.largo / 2;
+    const lado = Math.abs(dx * -f.z + dz * f.x) - v.info.ancho / 2;
+    return Math.hypot(Math.max(0, largo), Math.max(0, lado));
+  }
+  // Subirse al vehículo más cercano: el que se dejó o otro de los aparcados (el tractor, la cosechadora…)
   function subirse() {
     if (enFiestas()) return;
     const p = peaton.estado().posicion;
-    const c = coche.cuerpo.translation();
-    if (Math.hypot(p.x - c.x, p.z - c.z) > PEATON.distanciaSubirM + 1.2) { avisa('Acércate al coche para subir'); return; }
+    let elegido = coche;
+    let dMin = distanciaAVehiculo(coche, p);
+    for (const v of vehiculosAparcados) {
+      const d = distanciaAVehiculo(v, p);
+      if (d < dMin) { dMin = d; elegido = v; }
+    }
+    if (dMin > PEATON.distanciaSubirM - 1) { avisa('Acércate a un vehículo para subir'); return; }
+    if (elegido !== coche) cambiaVehiculo(elegido);
     peaton.desactiva();
     aPie = false;
     botonBajar.textContent = '🚶';
@@ -308,6 +325,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
   function entraPor(e) {
     if (e.accion.fiestas) { entraFiestas(e.accion.fiestas); return; }
     if (e.accion.agricultura) { entraAgricultura(e); return; }
+    if (e.accion.personaje) { window.dispatchEvent(new CustomEvent('cabanillas:editaPersonaje')); return; }
     if (e.accion.juego) {
       // Al volver (atrás en el navegador) se reaparece aquí
       const p = new URLSearchParams(location.search);

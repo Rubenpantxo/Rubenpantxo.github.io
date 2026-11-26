@@ -1,0 +1,79 @@
+{
+ "version": 1,
+ "fecha": "2026-11-25",
+ "nota": "Riego a manta (A7, tools/52_riego.py). Coordenadas locales del juego (x, z; norte = -Z). La acequia de la 2-700 sale de la ortofoto PNOA (canal estrecho que se ve como una línea clara a 1,5-2 m por fuera de la linde sureste, sobre el cajero que marca el LiDAR); las boqueras, de las flechas de Rubén (2026-11-24). Parámetros del modelo orientativos (pendientes de Rubén).",
+ "modelo": {
+  "celda_m": 1.0,
+  "celda_grande_m": 2.0,
+  "celda_grande_desde_ha": 3.0,
+  "caudal_boquera_ls": 60,
+  "manning_n": 0.08,
+  "infiltracion_inicial_mmh": 60,
+  "infiltracion_basica_mmh": 8,
+  "agua_util_mm": 100,
+  "evapotranspiracion_mm_dia": 4,
+  "lamina_visible_mm": 5,
+  "encharcado_mm": 20,
+  "humedad_lluvia": 0.3,
+  "ribazo_cm": 12,
+  "cierre_cubierto": 0.95
+ },
+ "convencion": "coordenadas locales del juego (x, z; norte = −Z)",
+ "parcelas": {
+  "2-700": {
+   "acequia": [
+    [
+     -219.8,
+     -265.0
+    ],
+    [
+     -220.6,
+     -263.6
+    ],
+    [
+     -242.6,
+     -230.0
+    ],
+    [
+     -255.0,
+     -200.0
+    ],
+    [
+     -263.3,
+     -180.0
+    ],
+    [
+     -275.0,
+     -155.0
+    ],
+    [
+     -282.1,
+     -135.8
+    ]
+   ],
+   "boqueras": [
+    {
+     "x": -230.2,
+     "z": -252.6
+    },
+    {
+     "x": -235.3,
+     "z": -244.6
+    }
+   ],
+   "celda_m": 1.0,
+   "cota": {
+    "pendiente_pct": 0.344,
+    "baja_hacia_grados": 225.4,
+    "microrrelieve_cm": 5.1,
+    "ribazo_pct": 5.7
+   },
+   "simulacion": {
+    "minutos_50": 14.3,
+    "minutos_90": 35.2,
+    "minutos_95": 47.2,
+    "mm_aplicados": 77
+   }
+  }
+ }
+}

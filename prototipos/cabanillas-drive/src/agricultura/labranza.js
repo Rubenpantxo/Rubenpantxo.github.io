@@ -12,6 +12,8 @@ import * as THREE from 'three';
 import { AGRICULTURA } from '../config/agricultura.js';
 import { ENGANCHE, SEMILLAS } from '../config/maquinaria.js';
 import { CALIDAD } from '../config/calidad.js';
+import { CULTIVOS } from '../config/cultivos.js';
+import { edadDe, vigorMedio } from './crecimiento.js';
 import { creaParcela } from './parcela.js';
 import { estadoEn, labradoEn, pinta } from './pincel.js';
 import { creaParticulas } from './particulas.js';
@@ -97,7 +99,8 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
   let parcelaPisada = null;
   let recuento = null;
   const motorOriginal = { velocidadMaxKmh: tractor.config.motor.velocidadMaxKmh, frenoMotor: tractor.config.motor.frenoMotor };
-  const cuenta = { tramos: 0, pixeles: 0, rodadas: 0, kgGastados: 0, rodadasApero: 0 };
+  const cuenta = { kgArrancados: 0, tramos: 0, pixeles: 0, rodadas: 0, kgGastados: 0, rodadasApero: 0 };
+  let cajonLleno = false;          // la arrancadora ya no puede cargar más
   let tolvaVacia = false;          // se intentó trabajar sin carga (para el aviso)
   let sinPreparar = false;         // se siembra sobre rastrojo (para el aviso)
   const ejeApero = new THREE.Vector3();
@@ -128,6 +131,7 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
     raiz, parcelas, particulas, aves, cuenta,
     get labrando() { return labrando; },
     get tolvaVacia() { return tolvaVacia; },
+    get cajonLleno() { return cajonLleno; },
     get sinPreparar() { return sinPreparar; },
     get parcelaPisada() { return parcelaPisada; },
     get recuento() { return recuento; },
@@ -184,8 +188,28 @@ export function creaLabranza({ api, escena, camara, renderer, registro, tractor,
             const est = estadoEn(parcelas.get(info.ref), trabajo.x, trabajo.z);
             sinPreparar = Boolean(est && !est.preparada);
           }
-          const n = pintaTramo(labor, desde, trabajo, ap.anchoTrabajo,
-            { extremosRectos: true, ...(labor === 'sembrar' ? { dia: reloj.byte, cultivo: ap.contenido } : {}) });
+          const opciones = { extremosRectos: true, ...(labor === 'sembrar' ? { dia: reloj.byte, cultivo: ap.contenido } : {}) };
+          if (labor === 'arrancar') {
+            // Arrancadora (A10): solo saca la cebolla madura y la lleva al cajón, hasta que se llena
+            cajonLleno = false;
+            opciones.maduro = (q, k, byte) => {
+              const c = CULTIVOS[q.siembra?.cultivo];
+              if (!c || !ap.config.cultivos.includes(q.siembra.cultivo) || edadDe(byte, reloj.dia) < c.madura) return false;
+              if (ap.carga >= ap.capacidad - 0.01) { cajonLleno = true; return false; }
+              return true;
+            };
+            opciones.alCortar = (q, k) => {
+              const c = CULTIVOS[q.siembra.cultivo];
+              const l = k * 4;
+              const prep = Math.max(q.laboreo[l], q.laboreo[l + 1]) / 255;
+              const kg = ((c.rendimientoKgHa * q.mpp * q.mpp) / 10000) * vigorMedio(Math.min(1, prep * 1.4), q.laboreo[l + 2] / 255, q.agua[k] / 255);
+              ap.carga = Math.min(ap.capacidad, ap.carga + kg);
+              ap.contenido = q.siembra.cultivo;
+              cuenta.kgArrancados += kg;
+            };
+          }
+          const n = pintaTramo(labor, desde, trabajo, ap.anchoTrabajo, opciones);
+          if (labor === 'arrancar') ap.pintaCarga();
           if (n > 0) {
             labrando = true;
             cuenta.tramos++;

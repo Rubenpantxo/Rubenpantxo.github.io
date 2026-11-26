@@ -189,6 +189,11 @@ function dibujaMiCoche(ctx, coche, x, z, escala, giro, c, r, f) {
   ctx.restore();
 }
 
+// Capa que añade otro modo (agricultura: parcelas y anchura de trabajo). Se pone con
+// capaMinimapa.dibuja = (ctx, aPunto, u) => {…}: aPunto(x, z) da la posición en el lienzo y u es lo que
+// mide un píxel de pantalla en las unidades del lienzo (para grosores de línea). Sin capa, no hace nada.
+export const capaMinimapa = { dibuja: null };
+
 export function creaMinimapa(lienzo, datos, zona, lugares = []) {
   const cfg = HUD.minimapa;
   const mapa = creaMapa(datos, zona);
@@ -230,6 +235,8 @@ export function creaMinimapa(lienzo, datos, zona, lugares = []) {
     ctx.rotate(giro);
     ctx.scale(escala / cfg.pixelesPorMetro, escala / cfg.pixelesPorMetro);
     ctx.drawImage(mapa, -(x - zona.x0) * cfg.pixelesPorMetro, -(z - zona.z0) * cfg.pixelesPorMetro);
+    capaMinimapa.dibuja?.(ctx, (mx, mz) => [(mx - x) * cfg.pixelesPorMetro, (mz - z) * cfg.pixelesPorMetro],
+      (t / 200) / (escala / cfg.pixelesPorMetro), { pxPorM: cfg.pixelesPorMetro, radioM: radioActual * 1.2, x, z, grande: false });
     // Otros coches: puntos de tamaño fijo en pantalla
     const radioPunto = (3.2 * (t / 200)) / (escala / cfg.pixelesPorMetro);
     for (const o of otros) {
@@ -319,6 +326,7 @@ export function creaMinimapa(lienzo, datos, zona, lugares = []) {
     const [x0, y0] = aPx(zona.x0, zona.z0);
     g.imageSmoothingEnabled = true;
     g.drawImage(mapa, x0, y0, zona.ancho * escala, zona.alto * escala);
+    capaMinimapa.dibuja?.(g, aPx, r, { pxPorM: escala, radioM: Math.max(w, h) / escala, x: vista.cx, z: vista.cz, grande: true });
     const f = r * Math.min(1.6, Math.max(1, Math.sqrt(vista.zoom)));
     for (const o of otros) {
       const [ox, oy] = aPx(o.x, o.z);

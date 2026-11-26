@@ -155,21 +155,21 @@ function ajustaTamano() {
 window.addEventListener('resize', ajustaTamano);
 ajustaTamano();
 
-// --- Editor de personaje (PLAN_PERSONAJE.md). Al empezar la sesión se elige la apariencia: se
-// abre con «Crea tu personaje» (también mientras carga el pueblo) o al pulsar cualquier botón de
-// jugar si aún no se ha hecho. Una vez en el juego no se vuelve a abrir. Comparte el renderer.
-// ?personaje=0 lo salta (pruebas); al volver de otro juego (?aparece) tampoco sale.
+// --- Editor de personaje (PLAN_PERSONAJE.md). Ya no sale al empezar ni en la portada: solo se abre
+// desde los tres sitios del mapa marcados «Tu personaje» (src/config/entradas.js), en mitad de la
+// partida. Sin personaje guardado se juega con el de por defecto; con el último guardado, ese.
+// ?personaje (sin más) abre solo el editor, como herramienta; ?personaje=0 se mantiene por las
+// pruebas. Comparte el renderer: mientras está abierto, el juego espera.
 let editor = null;
-let saltoPendiente = null;
-let personajeElegido = true;
-async function abrePersonaje(boton) {
+async function abrePersonaje() {
   if (editor) return;
   document.body.classList.add('editando-personaje');
+  document.exitPointerLock?.();
   const { abreEditor } = await import('./personaje/editor.js');
   try {
     editor = await abreEditor({
       renderer,
-      progresoJuego: esJuego ? () => pantallas.progreso() : null,
+      volverAlJuego: esJuego,
       calidad: { sombras: CALIDAD.sombras, texturaMax: CALIDAD.texturaMax ?? 2048 },
     });
   } catch (error) {
@@ -177,29 +177,21 @@ async function abrePersonaje(boton) {
     document.body.classList.remove('editando-personaje');
     document.getElementById('editor-personaje')?.remove();
     editor = null;
-    personajeElegido = true;
     return;
   }
   const apariencia = await editor.terminado;
-  window.__aparienciaJugador = apariencia;
   if (!esJuego) return;
-  personajeElegido = true;
   editor = null;
   document.body.classList.remove('editando-personaje');
-  // El juego ya ha cargado (el botón del editor espera): se monta el jugador y se empieza
-  await api?.ponJugador(apariencia);
-  saltoPendiente?.();
-  saltoPendiente = null;
-  (boton ?? document.getElementById('jugar')).click();
+  if (apariencia) {
+    window.__aparienciaJugador = apariencia;
+    await api?.ponJugador(apariencia);
+  }
 }
-if (esJuego) {
-  document.getElementById('crear-personaje').addEventListener('click', () => abrePersonaje(null));
-} else {
-  document.getElementById('crear-personaje').hidden = true;
-}
+if (esJuego) window.addEventListener('cabanillas:editaPersonaje', () => abrePersonaje());
 
 const modo = parametros.has('visor') ? iniciaVisor : parametros.has('arboles') ? iniciaVisorArboles
-  : soloPersonaje ? async () => { abrePersonaje(null); return { actualiza() {} }; } : iniciaJuego;
+  : soloPersonaje ? async () => { abrePersonaje(); return { actualiza() {} }; } : iniciaJuego;
 const reloj = new THREE.Clock();
 let actualiza = () => {};
 
@@ -268,15 +260,12 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         if (valor === 'dejar') return api.fiestas.abandona();
         return api.entraFiestas(valor);
       }, (que) => (que === 'partida' ? Boolean(api.fiestas?.partida) : api.modoFiestas !== null));
-      // Sin pasar por el editor (?personaje=0 o de vuelta de otro juego): el último personaje
-      // guardado, montado antes del salto para que caiga él y no la persona por defecto
-      let promesaJugador = null;
-      const jugadorGuardado = () => (promesaJugador ??= personajeElegido
-        ? import('./personaje/estado.js').then(({ cargaGuardada }) => {
-          const guardada = cargaGuardada();
-          return guardada ? api.ponJugador(guardada) : false;
-        })
-        : Promise.resolve(false));
+      // El último personaje guardado (si lo hay), montado antes del salto para que caiga él y no la
+      // persona por defecto
+      const jugadorGuardado = () => import('./personaje/estado.js').then(({ cargaGuardada }) => {
+        const guardada = cargaGuardada();
+        return guardada ? api.ponJugador(guardada) : false;
+      });
       jugadorGuardado();
       // Se empieza saltando del avión (PLAN_SALTO.md), salvo con ?salto=0, al entrar directo a las
       // fiestas o al volver de otro juego. ?salto=semilla repite la misma ruta. Desde la pantalla de
@@ -284,14 +273,15 @@ modo({ renderer, escena, camara, ui, ciclo, render })
       // ?agricultura: modo agricultura (PLAN_AGRICULTURA.md): se empieza en la COPE, donde se cambia
       // el coche por el tractor. ?agricultura=pincel: pincel de pruebas de la fase A2 (&parcela=…).
       // ?agricultura=riego: con el tractor junto a la primera tajadera de la acequia (A7).
+      // ?agricultura=cosecha: con la cosechadora en la 2-700 sembrada de trigo maduro y el remolque al lado (A8).
       // Su código se descarga solo entonces; sin el parámetro, el juego no cambia
       const agricultura = parametros.has('agricultura');
       const pincelAgricultura = parametros.get('agricultura') === 'pincel';
       if (parametros.get('salto') !== '0' && !parametros.get('fiestas') && !parametros.get('aparece') && !agricultura) {
         const semilla = Number.parseInt(parametros.get('salto'), 10);
         const arranca = () => api.empiezaSalto(Number.isFinite(semilla) ? semilla : undefined);
-        // Con el editor pendiente, el salto espera al personaje (lo monta abrePersonaje)
-        if (personajeElegido) { await jugadorGuardado(); arranca(); } else saltoPendiente = arranca;
+        await jugadorGuardado();
+        arranca();
       }
       pantallas.ponSalto(() => api.puedeOmitirSalto, () => api.omiteSalto());
 
@@ -311,6 +301,11 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         if (!parametros.get('aparece')) api.aparece('cope');
         const agri = await api.cargaAgricultura();        // el tractor espera aparcado en la COPE
         if (parametros.get('agricultura') === 'riego') agri.empiezaEnRiego();
+        if (parametros.get('agricultura') === 'cosecha') agri.empiezaEnCosecha();
+        for (const hc of ['brocoli', 'alcachofa', 'esparrago']) {
+          if (parametros.get('agricultura') === hc) agri.empiezaEnCosecha('2-700', hc, parseFloat(parametros.get('edad')));
+        }
+        if (parametros.get('agricultura') === 'cebolla') agri.empiezaEnCosecha('2-700', 'cebolla', parseFloat(parametros.get('edad')));
       }
       if (pincelAgricultura) {
         const { iniciaPincel } = await import('./agricultura/pincelPruebas.js');
