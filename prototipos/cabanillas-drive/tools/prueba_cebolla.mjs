@@ -56,7 +56,7 @@ async function hasta(p, condicion, max = 400) {
 const entra = async (edad) => {
   const p = await contexto.newPage();
   p.on('console', (m) => { if (m.type() === 'error') errores.push(m.text()); });
-  p.on('pageerror', (e) => errores.push(`PAGEERROR ${e.message}`));
+  p.on('pageerror', (e) => errores.push(`PAGEERROR ${e.message}`)); p.on('crash', () => console.log('  PÁGINA CAÍDA'));
   await p.goto(`http://localhost:${puerto}/?calidad=${calidad}&personaje=0&hora=dia&debug=1&agricultura=cebolla${edad ? `&edad=${edad}` : ''}&dia=40`);
   await p.waitForFunction(() => window.__juego && !document.getElementById('jugar').hidden, null, { timeout: 300000 });
   await p.evaluate(() => document.getElementById('jugar').click());
