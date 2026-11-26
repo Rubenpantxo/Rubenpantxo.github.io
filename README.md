@@ -14,7 +14,6 @@ Hub estático que reúne aplicaciones, juegos y enlaces propios.
 ├── CNAME                   # Dominio personalizado
 ├── .nojekyll               # Pages sirve el repo tal cual (sin Jekyll), para publicar .well-known/
 ├── .well-known/assetlinks.json  # Verifica la app Android de Pantxiko Notes (TWA)
-├── .htaccess               # Heredado de Apache: GitHub Pages lo ignora (las cabeceras van en Cloudflare)
 ├── robots.txt
 ├── sitemap.xml             # Portada, demos y fichas de sistemas de diseño, páginas legales
 ├── site.webmanifest        # Nombre e iconos del sitio
@@ -84,4 +83,4 @@ Luego abre <http://localhost:8000>.
 
 ## Licencia
 
-MIT — ver [`LICENSE.txt`](LICENSE.txt).
+MIT — ver [`LICENSE`](LICENSE). Las librerías de terceros incluidas en el repo (three.js, React, pdf.js, fuentes, Uiverse…) mantienen su propia licencia, que va junto a cada una.
