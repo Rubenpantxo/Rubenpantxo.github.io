@@ -1,0 +1,96 @@
+/* Kit «Bruma» — Glassmorphism.
+   Capas translúcidas con desenfoque sobre un fondo de color, brillos
+   suaves y radios generosos. Solo cambia valores de tokens.
+   Accesibilidad: el texto nunca va sobre el degradado directamente, sino
+   sobre una superficie casi opaca (≥ 72 %), y --color-fondo-solido sirve
+   de referencia al validador de contraste. */
+
+[data-kit="bruma"] {
+  /* 1 · Primitivos */
+  --p-lila: #b9a6ff;
+  --p-aguamarina: #8ee6dc;
+  --p-rosa: #ffb3d1;
+  --p-niebla: #eef0ff;
+  --p-tinta: #17153a;
+  --p-tinta-suave: #3f3c66;
+  --p-violeta: #5b3df5;
+
+  /* 2 · Semánticos */
+  --color-fondo: var(--p-niebla);
+  --color-fondo-solido: #dcd9f7;
+  --color-superficie: rgb(255 255 255 / .74);
+  --color-superficie-2: rgb(255 255 255 / .5);
+  --color-texto: var(--p-tinta);
+  --color-texto-suave: var(--p-tinta-suave);
+  --color-borde: rgb(255 255 255 / .85);
+  --color-accion: var(--p-violeta);
+  --color-sobre-accion: #ffffff;
+  --color-acento: rgb(255 255 255 / .9);
+  --color-sobre-acento: var(--p-tinta);
+  --color-exito: #0f7a5c;
+  --color-foco: var(--p-violeta);
+
+  --fuente-titulos: "Sora", system-ui, sans-serif;
+  --fuente-texto: "Manrope", system-ui, sans-serif;
+  --peso-titulos: 600;
+  --tracking-titulos: -.02em;
+
+  --radio-s: 10px;
+  --radio-m: 14px;
+  --radio-l: 24px;
+
+  --sombra-1: 0 2px 10px rgb(40 30 120 / .1);
+  --sombra-2: 0 20px 50px -12px rgb(40 30 120 / .35), inset 0 1px 0 rgb(255 255 255 / .8);
+  --desenfoque: 18px;
+  --duracion-media: 360ms;
+
+  --escena-fondo:
+    radial-gradient(40% 50% at 12% 18%, var(--p-lila) 0, transparent 70%),
+    radial-gradient(45% 55% at 88% 30%, var(--p-aguamarina) 0, transparent 70%),
+    radial-gradient(50% 60% at 50% 100%, var(--p-rosa) 0, transparent 70%),
+    var(--p-niebla);
+
+  /* 3 · Componente */
+  --boton-radio: var(--radio-pastilla);
+  --boton-peso: 600;
+  --boton-sombra: 0 8px 20px -6px color-mix(in oklab, var(--color-accion) 70%, transparent), inset 0 1px 0 rgb(255 255 255 / .35);
+  --boton-sec-fondo: rgb(255 255 255 / .55);
+  --boton-sec-borde: 1px solid rgb(255 255 255 / .9);
+  --tarjeta-borde: 1px solid rgb(255 255 255 / .85);
+  --media-fondo: linear-gradient(135deg, rgb(255 255 255 / .7), rgb(255 255 255 / .25));
+  --campo-fondo: rgb(255 255 255 / .82);
+  --campo-borde: 1px solid rgb(23 21 58 / .2);
+  --etiqueta-borde: 1px solid rgb(255 255 255 / .95);
+}
+
+[data-kit="bruma"][data-modo="oscuro"] {
+  --p-abismo: #0d0b24;
+  --color-fondo: var(--p-abismo);
+  --color-fondo-solido: #1a1640;
+  --color-superficie: rgb(22 19 56 / .78);
+  --color-superficie-2: rgb(255 255 255 / .08);
+  --color-texto: #f2f0ff;
+  --color-texto-suave: #c4c0ea;
+  --color-borde: rgb(255 255 255 / .18);
+  --color-accion: #9d8bff;
+  --color-sobre-accion: #120f33;
+  --color-acento: rgb(255 255 255 / .14);
+  --color-sobre-acento: #f2f0ff;
+  --color-exito: #5fe0b8;
+  --color-foco: #c9bdff;
+
+  --escena-fondo:
+    radial-gradient(40% 50% at 12% 18%, #4a2fb8 0, transparent 70%),
+    radial-gradient(45% 55% at 88% 30%, #136d70 0, transparent 70%),
+    radial-gradient(50% 60% at 50% 100%, #8a2a5c 0, transparent 70%),
+    var(--p-abismo);
+
+  --sombra-2: 0 20px 50px -12px rgb(0 0 0 / .6), inset 0 1px 0 rgb(255 255 255 / .12);
+  --boton-sec-fondo: rgb(255 255 255 / .08);
+  --boton-sec-borde: 1px solid rgb(255 255 255 / .25);
+  --tarjeta-borde: 1px solid rgb(255 255 255 / .16);
+  --media-fondo: linear-gradient(135deg, rgb(255 255 255 / .14), rgb(255 255 255 / .03));
+  --campo-fondo: rgb(255 255 255 / .06);
+  --campo-borde: 1px solid rgb(255 255 255 / .25);
+  --etiqueta-borde: 1px solid rgb(255 255 255 / .25);
+}

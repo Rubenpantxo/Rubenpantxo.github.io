@@ -1,0 +1,68 @@
+/* Kit «Sereno» — Corporativo sobrio.
+   Blanco, azul marino y grises cálidos. Serif en los titulares para dar
+   oficio, sombras apenas perceptibles y radios contenidos. Para clientes
+   conservadores: despacho, asesoría, clínica, ingeniería. */
+
+[data-kit="sereno"] {
+  /* 1 · Primitivos */
+  --p-blanco: #ffffff;
+  --p-hueso: #f6f5f2;
+  --p-niebla: #ecebe6;
+  --p-piedra: #d6d3cb;
+  --p-carbon: #1c2430;
+  --p-plomo: #545b66;
+  --p-marino: #1d3557;
+  --p-oro: #e9dcbc;
+
+  /* 2 · Semánticos */
+  --color-fondo: var(--p-hueso);
+  --color-superficie: var(--p-blanco);
+  --color-superficie-2: var(--p-niebla);
+  --color-texto: var(--p-carbon);
+  --color-texto-suave: var(--p-plomo);
+  --color-borde: var(--p-piedra);
+  --color-accion: var(--p-marino);
+  --color-sobre-accion: #ffffff;
+  --color-acento: var(--p-oro);
+  --color-sobre-acento: var(--p-carbon);
+  --color-exito: #2f6b3f;
+  --color-foco: var(--p-marino);
+
+  --fuente-titulos: "Source Serif 4", Georgia, serif;
+  --fuente-texto: "Inter", system-ui, sans-serif;
+  --peso-titulos: 600;
+  --tracking-titulos: -.01em;
+
+  --radio-s: 3px;
+  --radio-m: 6px;
+  --radio-l: 10px;
+  --radio-pastilla: 4px;
+
+  --sombra-1: 0 1px 2px rgb(28 36 48 / .06);
+  --sombra-2: 0 1px 3px rgb(28 36 48 / .06), 0 6px 16px rgb(28 36 48 / .06);
+  --duracion-media: 200ms;
+
+  /* 3 · Componente */
+  --boton-peso: 600;
+  --boton-sec-borde: 1px solid var(--p-piedra);
+  --media-fondo: linear-gradient(180deg, var(--p-niebla), var(--p-hueso));
+}
+
+[data-kit="sereno"][data-modo="oscuro"] {
+  --color-fondo: #12171e;
+  --color-superficie: #1a212b;
+  --color-superficie-2: #232c38;
+  --color-texto: #eef0f3;
+  --color-texto-suave: #b0b8c3;
+  --color-borde: #344050;
+  --color-accion: #a9c4ea;
+  --color-sobre-accion: #0f1a2b;
+  --color-acento: #5a4c2a;
+  --color-sobre-acento: #f3ead3;
+  --color-exito: #7fc796;
+  --color-foco: #a9c4ea;
+
+  --sombra-2: 0 1px 3px rgb(0 0 0 / .4), 0 6px 16px rgb(0 0 0 / .3);
+  --boton-sec-borde: 1px solid #4a586b;
+  --media-fondo: linear-gradient(180deg, #232c38, #1a212b);
+}

@@ -9,6 +9,7 @@ import { cargaCielo, creaEntorno } from './escena/entorno.js';
 import { configuraSombras, creaRender } from './escena/render.js';
 import { creaCicloDia } from './escena/cicloDia.js';
 import { creaPantallas } from './hud/pantallas.js';
+import { creaReportes } from './hud/reportes.js';
 import { vigilaDescargas } from './hud/progresoCarga.js';
 import { iniciaJuego } from './juego/juego.js';
 import { iniciaVisor } from './visor/visor.js';
@@ -45,6 +46,8 @@ const pantallas = creaPantallas({
     }
   },
 });
+// «Enviar fallo o idea» (desde la pausa): con el contexto del juego si ya ha cargado
+creaReportes({ leeContexto: () => api?.contextoReporte?.() ?? { Modo: 'cargando' } });
 // Al empezar a jugar, un recordatorio de dónde están los controles
 function muestraPista() {
   if (!api) return;
