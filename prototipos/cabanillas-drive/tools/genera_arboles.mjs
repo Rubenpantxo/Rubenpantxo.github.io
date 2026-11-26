@@ -85,6 +85,7 @@ function azar(semilla) {
 
 function mezcla(destino, origen) {
   for (const [k, v] of Object.entries(origen)) {
+    if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
     if (v && typeof v === 'object' && !Array.isArray(v)) mezcla(destino[k] ??= {}, v);
     else destino[k] = v;
   }

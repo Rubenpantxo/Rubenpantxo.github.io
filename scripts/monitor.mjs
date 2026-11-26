@@ -78,7 +78,7 @@ for (const origen of ['http://rubenpantxo.com/', 'https://www.rubenpantxo.com/']
     try {
         const { r } = await pedir(origen);
         const destino = r.headers.get('location') || '';
-        const ok = r.status >= 301 && r.status <= 308 && destino.startsWith(BASE);
+        const ok = r.status >= 301 && r.status <= 308 && (destino === BASE || destino.startsWith(BASE + '/'));
         filas.push(`| ${ok ? '✅' : '⚠️'} | ${origen} | ${r.status} → ${destino || '—'} | — |`);
         if (!ok) avisos.push(`${origen} no redirige a ${BASE}/ (responde ${r.status}${destino ? ' → ' + destino : ''})`);
     } catch (e) {
