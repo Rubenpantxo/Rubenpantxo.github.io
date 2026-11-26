@@ -1,0 +1,125 @@
+/* ============================================================
+   LABORATORIO DE UI KITS — capa base de tokens
+   ------------------------------------------------------------
+   Tres capas, siempre en este orden:
+
+     1. Primitivos   --p-*          la paleta completa del kit (solo valores)
+     2. Semánticos   --color-*, --fuente-*, --texto-*, --espacio-*,
+                     --radio-*, --sombra-*, --borde-*, --duracion-*, --curva-*
+                    (qué significa cada valor)
+     3. Componente   --boton-*, --tarjeta-*, --campo-*, --etiqueta-*
+                    (cómo lo usa cada pieza)
+
+   Un kit (kits/<id>/kit.css) declara primitivos y semánticos, y solo
+   sobrescribe tokens de componente cuando su estética lo pide. Todo lo
+   que un kit no declara sale de aquí.
+
+   :where() deja estas reglas con especificidad 0, así cualquier
+   [data-kit="…"] gana sin importar el orden de carga.
+   ============================================================ */
+
+:where([data-kit]) {
+  /* --- Semánticos de partida (neutros, por si un kit olvida alguno) --- */
+  --color-fondo: #ffffff;
+  --color-fondo-solido: var(--color-fondo); /* color liso de referencia si el fondo es un degradado */
+  --color-superficie: #ffffff;
+  --color-superficie-2: #f3f4f6;
+  --color-texto: #111827;
+  --color-texto-suave: #4b5563;
+  --color-borde: #d1d5db;
+  --color-accion: #2563eb;
+  --color-sobre-accion: #ffffff;
+  --color-acento: #fde68a;
+  --color-sobre-acento: #111827;
+  --color-exito: #15803d;
+  --color-foco: var(--color-accion);
+
+  /* Derivados: se calculan a partir de --color-accion, así el color de
+     marca que elige el visitante arrastra también hover y profundidad. */
+  --color-accion-hover: color-mix(in oklab, var(--color-accion) 84%, var(--color-texto));
+  --color-accion-profundo: color-mix(in oklab, var(--color-accion) 55%, #000);
+  --color-accion-suave: color-mix(in oklab, var(--color-accion) 14%, var(--color-superficie));
+
+  --fuente-titulos: system-ui, sans-serif;
+  --fuente-texto: system-ui, sans-serif;
+  --fuente-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --peso-titulos: 700;
+  --peso-texto: 400;
+  --tracking-titulos: 0;
+  --caja-titulos: none;
+
+  --texto-xs: .75rem;
+  --texto-s: .875rem;
+  --texto-m: 1rem;
+  --texto-l: 1.25rem;
+  --texto-xl: 1.75rem;
+  --interlineado: 1.5;
+
+  --espacio-1: .25rem;
+  --espacio-2: .5rem;
+  --espacio-3: .75rem;
+  --espacio-4: 1rem;
+  --espacio-5: 1.5rem;
+  --espacio-6: 2rem;
+
+  --radio-s: 4px;
+  --radio-m: 8px;
+  --radio-l: 14px;
+  --radio-pastilla: 999px;
+
+  --borde-ancho: 1px;
+  --borde-estilo: solid;
+
+  --sombra-1: 0 1px 2px rgb(0 0 0 / .08);
+  --sombra-2: 0 8px 24px rgb(0 0 0 / .12);
+  --sombra-foco: 0 0 0 3px color-mix(in oklab, var(--color-foco) 45%, transparent);
+
+  --duracion-rapida: 120ms;
+  --duracion-media: 240ms;
+  --curva: cubic-bezier(.2, .8, .2, 1);
+
+  --desenfoque: 0px;
+  --escena-fondo: var(--color-fondo);
+  --escena-decor: none;
+
+  /* --- Componente: por defecto, leen los semánticos --- */
+  --boton-radio: var(--radio-m);
+  --boton-alto: 2.75rem;
+  --boton-peso: 700;
+  --boton-caja: none;
+  --boton-tracking: 0;
+  --boton-fuente: var(--fuente-texto);
+  --boton-borde: var(--borde-ancho) var(--borde-estilo) transparent;
+  --boton-sombra: none;
+  --boton-sombra-hover: var(--boton-sombra);
+  --boton-sombra-activa: none;
+  --boton-pulsado: translateY(1px);
+  --boton-sec-fondo: transparent;
+  --boton-sec-texto: var(--color-texto);
+  --boton-sec-borde: var(--borde-ancho) var(--borde-estilo) var(--color-borde);
+
+  --tarjeta-fondo: var(--color-superficie);
+  --tarjeta-radio: var(--radio-l);
+  --tarjeta-borde: var(--borde-ancho) var(--borde-estilo) var(--color-borde);
+  --tarjeta-sombra: var(--sombra-2);
+  --tarjeta-relleno: var(--espacio-5);
+  --tarjeta-hover: none;
+
+  --media-fondo: var(--color-superficie-2);
+  --media-radio: calc(var(--tarjeta-radio) - 4px);
+
+  --campo-fondo: var(--color-superficie);
+  --campo-radio: var(--radio-m);
+  --campo-borde: var(--borde-ancho) var(--borde-estilo) var(--color-borde);
+  --campo-sombra: none;
+  --campo-alto: 2.75rem;
+
+  --etiqueta-fondo: var(--color-acento);
+  --etiqueta-texto: var(--color-sobre-acento);
+  --etiqueta-radio: var(--radio-pastilla);
+  --etiqueta-borde: none;
+  --etiqueta-fuente: var(--fuente-texto);
+  --etiqueta-caja: none;
+
+  --precio-fuente: var(--fuente-titulos);
+}

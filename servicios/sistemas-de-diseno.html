@@ -440,7 +440,8 @@
   .cierre .bloque { display: grid; gap: 28px; }
   .cierre h2 { font-size: clamp(2rem, 5vw, 3.6rem); }
   .enlaces { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: var(--pg-linea); border-radius: 22px; overflow: hidden; }
-  @media (min-width: 760px) { .enlaces { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 760px) { .enlaces { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .enlaces { grid-template-columns: repeat(4, 1fr); } }
   .enlaces a {
     display: grid; gap: 6px; padding: 26px; background: var(--pg-base); text-decoration: none; height: 100%;
     transition: background .25s;
@@ -761,6 +762,7 @@
     <div class="bloque">
       <h2 class="gordo" id="t-cierre">¿Y si ninguno es exactamente el tuyo?</h2>
       <ul class="enlaces">
+        <li><a href="sistemas/laboratorio/" data-evento="ver_laboratorio"><b>Laboratorio de UI Kits <span aria-hidden="true">↗</span></b><span>Neobrutalismo, glass, industrial, isométrico y corporativo sobre la misma tienda.</span></a></li>
         <li><a href="sistemas/configurador.html"><b>Configurador <span aria-hidden="true">↗</span></b><span>Monta el tuyo eje por eje y llévate los tokens.</span></a></li>
         <li><a href="sistemas/elementos.html"><b>Biblioteca de elementos <span aria-hidden="true">↗</span></b><span>Botones, campos y avisos de cada forma.</span></a></li>
         <li><a href="sistemas/paletas.html"><b>Muestrario de color <span aria-hidden="true">↗</span></b><span>Los <!--@colores-->174<!--/@colores--> colores, con nombre y código. Un clic y lo copias.</span></a></li>

@@ -690,3 +690,11 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - Resuelto el 2026-11-19 (pedido por Rubén): la niebla de la calidad «bajo» no se aplicaba, porque `main.js` copiaba `{ cerca, lejos }` a `THREE.Fog`, que usa `near` y `far`. Ahora va de 450 a 1300 m, como dice `calidad.js`, y tapa el corte de la cámara a 1400 m. Alta y media no cambian (1200–4000 m). La prueba del salto pasa en «bajo».
 - `npm audit`: 3 vulnerabilidades altas, solo en dependencias de desarrollo (`@gltf-transform/cli`). Las de ejecución están limpias.
 - Si se publica esta carpeta tal cual en GitHub Pages, `prototipos/cabanillas-drive/index.html` no funciona sin compilar (imports de npm). El juego se publica desde `dist/` (PLAN §8).
+
+## Reportes de fallos e ideas de los jugadores (2026-11-26, a petición de Rubén)
+- Botón «🐞 Enviar fallo o idea» en la pausa → panel `#reporte` (`src/hud/reportes.js`, ajustes en `src/config/reportes.js`).
+- Lo central es la descripción del jugador (obligatoria, mínimo 15 caracteres); tipo Fallo/Idea, categoría (las secciones de la pizarra de errores + Cesta punta + Otra cosa) y correo opcional.
+- Contexto automático opcional (casilla marcada por defecto, se puede ver antes de enviar): modo, vehículo, posición, lugar más cercano, hora, FPS, calidad, pantalla y navegador (`api.contextoReporte()` en `juego.js`).
+- Envío por Web3Forms con la misma clave que el formulario de servicios; asunto `[Cabanillas Drive] <Tipo> · <Categoría>` para filtrar en Gmail. Antispam: casilla trampa y tiempo mínimo.
+- Escribiendo en un campo, las teclas ya no mueven el coche ni pausan (`entrada.js`, `pantallas.js`).
+- Pendiente: `npm run publica` en el PC de Rubén para que llegue a `juegos/cabanillas-drive/`.

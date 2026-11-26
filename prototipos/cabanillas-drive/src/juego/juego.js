@@ -684,6 +684,27 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     get fps() { return fps; },
     get ultimoAviso() { return aviso; },     // para las pruebas (el aviso dura segundos y ellas van lentas)
     get pausado() { return pausado; },
+    // Para el reporte de fallos (src/hud/reportes.js): dónde está y qué hace el jugador.
+    // Es solo una ayuda; lo que cuenta es lo que escribe él
+    contextoReporte() {
+      const p = aPie ? peaton.estado().posicion : coche.estado().posicion;
+      let cercano = null;
+      for (const l of lugares) {
+        const d = Math.hypot(l.x - p.x, l.z - p.z);
+        if (!cercano || d < cercano.d) cercano = { nombre: l.nombre, d };
+      }
+      const modo = enSalto() ? 'salto en paracaídas' : enFiestas() ? `fiestas (${fiestas.modo})`
+        : aPie ? 'a pie' : coche === cocheJugador ? 'conduciendo' : 'conduciendo otro vehículo (tractor, maquinaria…)';
+      return {
+        Modo: modo,
+        Vehículo: aPie ? '—' : coche !== cocheJugador ? 'otro (no es el coche del jugador)' : (modelosCoches[modeloCocheSeleccionado]?.info.nombre ?? modeloCocheSeleccionado ?? '—'),
+        Posición: `x ${p.x.toFixed(1)}, z ${p.z.toFixed(1)}`,
+        'Lugar más cercano': cercano ? `${cercano.nombre} (a ${Math.round(cercano.d)} m)` : '—',
+        Hora: ciclo?.modo ?? '—',
+        Agricultura: agricultura ? 'cargada' : 'no',
+        FPS: Math.round(fps ?? 0),
+      };
+    },
     // Al volver de la pausa no se recupera el tiempo parado (la física no da un salto)
     ponPausa(valor) {
       pausado = valor;

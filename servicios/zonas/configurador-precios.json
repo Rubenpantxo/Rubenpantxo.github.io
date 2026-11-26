@@ -1,0 +1,299 @@
+{
+  "version": 1,
+  "nota": "Media de precios publicados en España (nov. 2026) con un 20 % de rebaja; fuentes y cálculo en configurador-precios.md. Importes en euros, sin IVA. Cambia aquí precios y semanas sin tocar el código.",
+  "moneda": "EUR",
+  "iva": false,
+  "redondeo": 50,
+  "perfiles": [
+    {
+      "id": "web",
+      "nombre": "Web a medida",
+      "icono": "🖥️",
+      "resuelve": "Tu negocio, presentable y encontrable desde el móvil.",
+      "incluye": [
+        "Diseño propio, sin plantillas",
+        "Hasta 5 secciones",
+        "Adaptada a móvil y tableta",
+        "Formulario de contacto",
+        "SEO básico y analítica"
+      ],
+      "min": 1050,
+      "max": 3400,
+      "semanas": 4
+    },
+    {
+      "id": "3d",
+      "nombre": "Experiencia 3D",
+      "icono": "🧊",
+      "resuelve": "Un producto o espacio que el cliente puede girar y tocar.",
+      "incluye": [
+        "Escena 3D interactiva",
+        "Modelos optimizados para móvil",
+        "Versión sin 3D para equipos antiguos",
+        "Web de soporte de 3 secciones"
+      ],
+      "min": 3050,
+      "max": 9300,
+      "semanas": 6
+    },
+    {
+      "id": "automatizacion",
+      "nombre": "Automatización",
+      "icono": "⚙️",
+      "resuelve": "Quita tareas repetidas: avisos, hojas de cálculo, pedidos.",
+      "incluye": [
+        "Análisis del proceso actual",
+        "Hasta 3 flujos automáticos",
+        "Panel sencillo de seguimiento",
+        "Formación de una hora"
+      ],
+      "min": 950,
+      "max": 2700,
+      "semanas": 3
+    }
+  ],
+  "bloques": [
+    {
+      "id": "admin",
+      "nombre": "Panel de administración",
+      "icono": "🗂️",
+      "resuelve": "Cambias tú los textos, productos y reservas sin llamar a nadie.",
+      "incluye": [
+        "Acceso con usuario y contraseña",
+        "Editar contenidos y fotos",
+        "Gestión de reservas o pedidos",
+        "Exportar a Excel"
+      ],
+      "min": 2250,
+      "max": 5400,
+      "semanas": 2,
+      "popular": true
+    },
+    {
+      "id": "tienda",
+      "nombre": "Tienda online",
+      "icono": "🛒",
+      "resuelve": "Vendes las 24 horas y cobras con tarjeta o Bizum.",
+      "incluye": [
+        "Catálogo con variantes y stock",
+        "Carrito y pago seguro",
+        "Avisos de pedido por correo",
+        "Envío o recogida en tienda"
+      ],
+      "min": 1350,
+      "max": 3400,
+      "semanas": 2,
+      "requiere": [
+        "admin"
+      ]
+    },
+    {
+      "id": "modulo3d",
+      "nombre": "Módulo 3D interactivo",
+      "icono": "🧊",
+      "resuelve": "Tu producto en 3D: se gira, cambia de color y se entiende sin explicarlo.",
+      "incluye": [
+        "Un objeto 3D a medida",
+        "Colores o variantes en vivo",
+        "Imagen fija si el equipo no tiene WebGL"
+      ],
+      "min": 2000,
+      "max": 5900,
+      "semanas": 2,
+      "incluidoEn": [
+        "3d"
+      ]
+    },
+    {
+      "id": "ia",
+      "nombre": "Integración IA / API",
+      "icono": "✨",
+      "resuelve": "Conecta con tus herramientas o añade un asistente que responde por ti.",
+      "incluye": [
+        "Conexión con 1 o 2 servicios externos",
+        "Asistente entrenado con tu información",
+        "Límites de uso y coste controlados"
+      ],
+      "min": 1150,
+      "max": 2100,
+      "semanas": 2
+    },
+    {
+      "id": "multidioma",
+      "nombre": "Multidioma",
+      "icono": "🌍",
+      "resuelve": "Turistas y clientes de fuera te leen en su idioma.",
+      "incluye": [
+        "Un idioma extra (más bajo petición)",
+        "Selector de idioma",
+        "SEO por idioma"
+      ],
+      "min": 100,
+      "max": 300,
+      "semanas": 1
+    },
+    {
+      "id": "seo",
+      "nombre": "SEO avanzado",
+      "icono": "📈",
+      "resuelve": "Apareces cuando te buscan en tu zona.",
+      "incluye": [
+        "Estudio de palabras clave",
+        "Ficha de Google Business",
+        "Datos estructurados",
+        "Informe a los 3 meses"
+      ],
+      "min": 200,
+      "max": 1250,
+      "semanas": 1,
+      "popular": true
+    },
+    {
+      "id": "mantenimiento",
+      "nombre": "Mantenimiento mensual",
+      "icono": "🛟",
+      "resuelve": "Copias, actualizaciones y pequeños cambios sin preocuparte.",
+      "incluye": [
+        "Copias de seguridad",
+        "Actualizaciones de seguridad",
+        "1 hora de cambios al mes",
+        "Respuesta en 48 h"
+      ],
+      "min": 40,
+      "max": 95,
+      "semanas": 0,
+      "mensual": true
+    }
+  ],
+  "urgente": {
+    "id": "urgente",
+    "nombre": "Urgente",
+    "icono": "⚡",
+    "resuelve": "Lo necesitas ya: priorizo tu proyecto en la agenda.",
+    "recargo": 0.25,
+    "reduccionSemanas": 0.3,
+    "semanasMinimas": 2
+  },
+  "paquetes": [
+    {
+      "id": "basica",
+      "nombre": "Básica",
+      "lema": "Para estar y que te encuentren",
+      "bloques": [
+        "seo"
+      ],
+      "descuento": 0
+    },
+    {
+      "id": "recomendada",
+      "nombre": "Recomendada",
+      "lema": "Lo que elige la mayoría",
+      "bloques": [
+        "admin",
+        "seo",
+        "mantenimiento"
+      ],
+      "descuento": 0.05,
+      "destacado": true
+    },
+    {
+      "id": "completa",
+      "nombre": "Completa",
+      "lema": "Todo para vender y crecer",
+      "bloques": [
+        "admin",
+        "tienda",
+        "ia",
+        "multidioma",
+        "seo",
+        "mantenimiento"
+      ],
+      "descuento": 0.1
+    }
+  ],
+  "fases": [
+    {
+      "id": "diseno",
+      "nombre": "Diseño",
+      "peso": 0.25
+    },
+    {
+      "id": "desarrollo",
+      "nombre": "Desarrollo",
+      "peso": 0.5
+    },
+    {
+      "id": "pruebas",
+      "nombre": "Pruebas",
+      "peso": 0.15
+    },
+    {
+      "id": "entrega",
+      "nombre": "Entrega",
+      "peso": 0.1
+    }
+  ],
+  "pagos": [
+    0.4,
+    0.3,
+    0.3
+  ],
+  "casos": {
+    "bar": {
+      "perfil": "web",
+      "bloques": [
+        "admin",
+        "multidioma"
+      ]
+    },
+    "ropa": {
+      "perfil": "web",
+      "bloques": [
+        "admin",
+        "tienda"
+      ]
+    },
+    "carne": {
+      "perfil": "web",
+      "bloques": [
+        "admin",
+        "seo"
+      ]
+    },
+    "gym": {
+      "perfil": "web",
+      "bloques": [
+        "admin",
+        "ia"
+      ]
+    },
+    "super": {
+      "perfil": "web",
+      "bloques": [
+        "admin",
+        "tienda"
+      ]
+    },
+    "granja": {
+      "perfil": "3d",
+      "bloques": [
+        "admin",
+        "seo"
+      ]
+    },
+    "industria": {
+      "perfil": "3d",
+      "bloques": [
+        "admin",
+        "ia"
+      ]
+    },
+    "logistica": {
+      "perfil": "automatizacion",
+      "bloques": [
+        "admin",
+        "ia"
+      ]
+    }
+  }
+}

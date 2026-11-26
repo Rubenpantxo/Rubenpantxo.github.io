@@ -99,6 +99,7 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="CSS/servicios.css" id="css-servicios" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="servicios/zonas/hero-selector.css" id="css-hero-sel" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="servicios/zonas/briefing-contacto.css" media="print" onload="this.media='all'">
     <script>
         // Si se entra directo a Servicios o al contacto, su CSS sí hace falta desde el principio
@@ -107,6 +108,7 @@
     <noscript>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
         <link rel="stylesheet" href="CSS/servicios.css">
+        <link rel="stylesheet" href="servicios/zonas/hero-selector.css">
     </noscript>
     <!-- Tailwind compilado (npm run css); antes, CDN de desarrollo -->
     <link rel="stylesheet" href="CSS/tailwind.css">
@@ -332,10 +334,10 @@
 
                     <!-- HERO -->
                     <header class="sv-hero">
-                        <p class="sv-eyebrow">Webs &amp; apps a medida</p>
+                        <p class="sv-eyebrow" data-hs="antetitulo">Webs &amp; apps a medida</p>
                         <h2 id="servicios-title" class="sv-title">
-                            <span class="sv-line" style="--d:0"><span>Tu negocio,</span></span>
-                            <span class="sv-line" style="--d:1"><em>en una app.</em></span>
+                            <span class="sv-line" style="--d:0"><span data-hs="titulo-1">Tu negocio,</span></span>
+                            <span class="sv-line" style="--d:1"><em data-hs="titulo-2">en una app.</em></span>
                         </h2>
                         <button type="button" class="sv-theme" id="sv-theme" role="switch" aria-checked="true" aria-label="Modo oscuro">
                             <span class="sv-theme-track" aria-hidden="true">
@@ -346,6 +348,39 @@
                             </span>
                             <span class="sv-theme-label" id="sv-theme-label">Oscuro</span>
                         </button>
+                        <!-- ZONA 01 · Selector por perfil: servicios/zonas/hero-selector.js
+                             (los textos de cada perfil, en hero-selector.datos.js; aquí va
+                             pintado el perfil por defecto para que se vea sin esperar al JS) -->
+                        <div class="hs" data-zona="hero-selector" data-perfil="web">
+                            <p class="hs-pregunta" id="hs-pregunta">¿Qué quieres conseguir?</p>
+                            <div class="hs-tabs" role="tablist" aria-labelledby="hs-pregunta">
+                                <button type="button" class="hs-tab" role="tab" id="hs-tab-web" data-perfil="web" aria-selected="true" aria-controls="hs-panel" tabindex="0">
+                                    <svg class="hs-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="13" height="10" rx="1.6"/><path d="M6 17.5h6"/><rect x="15.5" y="8" width="6" height="12" rx="1.6"/><path d="M18 17.5h1"/></svg>
+                                    <span class="hs-tab-txt"><span class="hs-tab-label">Una web o app</span><span class="hs-tab-micro">Para vender, reservar o gestionar tu negocio</span></span>
+                                </button>
+                                <button type="button" class="hs-tab" role="tab" id="hs-tab-3d" data-perfil="3d" aria-selected="false" aria-controls="hs-panel" tabindex="-1">
+                                    <svg class="hs-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8 20 7.3v9.4l-8 4.5-8-4.5V7.3z"/><path d="M4 7.3 12 12l8-4.7M12 12v9.2"/></svg>
+                                    <span class="hs-tab-txt"><span class="hs-tab-label">Mi producto en 3D</span><span class="hs-tab-micro">Que tu cliente lo gire, lo configure y lo pida</span></span>
+                                </button>
+                                <button type="button" class="hs-tab" role="tab" id="hs-tab-automatizacion" data-perfil="automatizacion" aria-selected="false" aria-controls="hs-panel" tabindex="-1">
+                                    <svg class="hs-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12a8 8 0 0 1 14.3-4.9"/><path d="M18.6 3.6v3.6H15M5.4 20.4v-3.6H9"/><path d="m10.4 9.2 4 2.8-4 2.8z"/></svg>
+                                    <span class="hs-tab-txt"><span class="hs-tab-label">Automatizar tareas</span><span class="hs-tab-micro">Pedidos, avisos e informes que salen solos</span></span>
+                                </button>
+                            </div>
+                            <div class="hs-panel" id="hs-panel" role="tabpanel" aria-labelledby="hs-tab-web">
+                                <p class="hs-sub" data-hs="subtitulo">Hecha a la medida de cómo trabajas, sin plantillas ni cuotas por usuario. El código es tuyo desde el primer día.</p>
+                                <ul class="hs-meta">
+                                    <li class="hs-plazo"><span class="hs-k">Plazo orientativo</span> <strong data-hs="plazo">4–10 semanas</strong>, <span data-hs="plazoDepende">según cuántas pantallas tenga y si se conecta con tu TPV, stock o reservas</span></li>
+                                    <li class="hs-prueba" data-hs="prueba">8 demos de negocio que puedes probar ahora mismo</li>
+                                </ul>
+                                <div class="hs-ctas">
+                                    <a class="hs-cta" href="#sv-deck" data-accion="demos"><span data-hs="cta">Quiero ver demos de mi sector</span> <span class="hs-flecha" aria-hidden="true">→</span></a>
+                                    <a class="hs-cta2" href="#contacto" data-accion="presupuesto"><span data-hs="cta2">Pedir mi presupuesto</span></a>
+                                    <a class="hs-indeciso" href="#contacto" data-accion="contacto">¿No lo tienes claro? Cuéntamelo en dos líneas</a>
+                                </div>
+                            </div>
+                            <p class="hs-sr" data-hs="aviso" aria-live="polite"></p>
+                        </div>
                         <div class="sv-hero-foot">
                             <p class="sv-lead">Elige uno y pruébalo. Sin descargar nada.</p>
                             <div class="sv-hero-bar">
@@ -552,11 +587,32 @@
                         </li>
                     </ul>
 
+                    <!-- ZONA 02 · CATÁLOGO Y CASOS DE USO: lo pinta servicios/zonas/casos-uso.js
+                         con los datos de servicios/zonas/casos-uso.json -->
+                    <link rel="stylesheet" href="servicios/zonas/casos-uso.css">
+                    <section class="svc" id="sv-casos" data-zona="casos-uso" aria-labelledby="svc-titulo">
+                        <noscript>
+                            <h3 id="svc-titulo">Casos de uso</h3>
+                            <ul>
+                                <li><a href="servicios/industria.html">Metalúrgica Ribera: pieza a medida en 3D con precio al momento</a></li>
+                                <li><a href="juegos/Chess3D/index.html">Ajedrez 3D en el navegador</a></li>
+                                <li><a href="servicios/logistica.html">Ebro Express: seguimiento en mapa 3D y tarifa con caja 3D</a></li>
+                                <li><a href="mapas/cabanillas.html">Plano interactivo de Cabanillas</a></li>
+                                <li><a href="apps/pantxiko-notes.html">Pantxiko Notes, notas con dictado</a></li>
+                                <li><a href="apps/lab-studio/">Lab Studio, mesa de montaje de electrónica</a></li>
+                            </ul>
+                        </noscript>
+                    </section>
+                    <script type="module" src="servicios/zonas/casos-uso.js"></script>
+
                     <div class="sv-marquee" aria-hidden="true">
                         <div class="sv-marquee-track">
                             <span>Webs · Apps · <em>UX</em> · Diseño · Rendimiento · Webs · Apps · <em>UX</em> · Diseño · Rendimiento · </span><span>Webs · Apps · <em>UX</em> · Diseño · Rendimiento · Webs · Apps · <em>UX</em> · Diseño · Rendimiento · </span>
                         </div>
                     </div>
+
+                    <!-- CONFIGURADOR DE ALCANCE: lo pinta servicios/zonas/configurador.js -->
+                    <div id="sv-configurador"></div>
 
                     <!-- CONTACTO -->
                     <div class="sv-contact sv-reveal" id="sv-contact">
@@ -1790,6 +1846,8 @@
     <script src="js/servicios.js" defer></script>
     <script src="servicios/zonas/briefing-contacto.js" defer></script>
     <script src="js/servicios-gl.js" defer></script>
+    <script type="module" src="servicios/zonas/hero-selector.js"></script>
+    <script type="module" src="servicios/zonas/configurador.js"></script>
     <script src="js/jenga.js" defer></script>
 </body>
 </html>

@@ -195,6 +195,8 @@
         if (!d || typeof d !== 'object') return;
         contextoZonas[zona] = d;
         if (zona === 'perfil') {
+            // El perfil por defecto del hero (origen 'inicio') no es una elección del visitante
+            if (d.origen === 'inicio') return;
             const obj = PERFIL_A_OBJETIVO[String(d.id || '').toLowerCase()];
             if (obj && (!estado.objetivo || precargado.objetivo)) {
                 estado.objetivo = obj;
@@ -252,7 +254,9 @@
     }
 
     ['perfil', 'caso', 'kit', 'configuracion'].forEach(zona => {
-        aplicarZona(zona, leerSesion('sv:' + zona));
+        const guardado = leerSesion('sv:' + zona);
+        // La zona 1 guarda también su perfil por defecto ('web'): solo cuenta si es otro
+        if (!(zona === 'perfil' && guardado === 'web')) aplicarZona(zona, guardado);
         document.addEventListener('sv:' + zona, e => aplicarZona(zona, e.detail));
     });
 

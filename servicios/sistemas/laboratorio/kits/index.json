@@ -1,0 +1,142 @@
+{
+  "$comentario": "Lista de kits del laboratorio. Para añadir uno: crea kits/<id>/kit.css y kits/<id>/ficha.json y añade aquí su entrada. Guía completa en ../LEEME.md.",
+  "version": 1,
+  "porDefecto": "petardo",
+  "kits": [
+    {
+      "id": "petardo",
+      "nombre": "Petardo",
+      "direccion": "Neobrutalismo",
+      "descripcion": "Bordes gruesos, sombras sólidas y colores sin miedo.",
+      "sectores": [
+        "Hostelería creativa",
+        "Eventos y cultura",
+        "Moda urbana",
+        "Startups de consumo"
+      ],
+      "css": "petardo/kit.css",
+      "ficha": "petardo/ficha.json",
+      "miniatura": null,
+      "fuentes": "family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700",
+      "muestra": {
+        "fondo": "#fff4e0",
+        "superficie": "#ffffff",
+        "accion": "#ff5c39",
+        "acento": "#7cf0c5",
+        "texto": "#111111",
+        "radio": 6,
+        "borde": 3,
+        "sombra": "solida"
+      },
+      "orden": 10
+    },
+    {
+      "id": "bruma",
+      "nombre": "Bruma",
+      "direccion": "Glassmorphism",
+      "descripcion": "Capas de cristal esmerilado sobre un fondo de color.",
+      "sectores": [
+        "Software y SaaS",
+        "Fintech",
+        "Salud digital",
+        "Tecnología de consumo"
+      ],
+      "css": "bruma/kit.css",
+      "ficha": "bruma/ficha.json",
+      "miniatura": null,
+      "fuentes": "family=Sora:wght@500;600;700&family=Manrope:wght@400;600;700",
+      "muestra": {
+        "fondo": "linear-gradient(135deg,#b9a6ff,#8ee6dc 55%,#ffb3d1)",
+        "superficie": "rgba(255,255,255,.74)",
+        "accion": "#5b3df5",
+        "acento": "#ffffff",
+        "texto": "#17153a",
+        "radio": 14,
+        "borde": 1,
+        "sombra": "difusa"
+      },
+      "orden": 20
+    },
+    {
+      "id": "cota",
+      "nombre": "Cota",
+      "direccion": "Industrial / Técnico",
+      "descripcion": "Rejilla a la vista, cotas y etiquetas de plano.",
+      "sectores": [
+        "Industria y fabricación",
+        "Ingeniería",
+        "Logística",
+        "Energía"
+      ],
+      "css": "cota/kit.css",
+      "ficha": "cota/ficha.json",
+      "miniatura": null,
+      "fuentes": "family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600",
+      "muestra": {
+        "fondo": "#eceee9",
+        "superficie": "#f8f9f6",
+        "accion": "#ff6b00",
+        "acento": "#15191c",
+        "texto": "#15191c",
+        "radio": 0,
+        "borde": 1,
+        "sombra": "ninguna"
+      },
+      "orden": 30
+    },
+    {
+      "id": "maqueta",
+      "nombre": "Maqueta",
+      "direccion": "Isométrico 3D",
+      "descripcion": "Piezas con canto, como una maqueta vista en ángulo.",
+      "sectores": [
+        "Formación y edtech",
+        "Plataformas y apps",
+        "Inmobiliaria",
+        "Producto físico"
+      ],
+      "css": "maqueta/kit.css",
+      "ficha": "maqueta/ficha.json",
+      "miniatura": null,
+      "fuentes": "family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700",
+      "muestra": {
+        "fondo": "#e7eeff",
+        "superficie": "#ffffff",
+        "accion": "#3757f5",
+        "acento": "#ff8a65",
+        "texto": "#1b2559",
+        "radio": 12,
+        "borde": 2,
+        "sombra": "canto"
+      },
+      "orden": 40
+    },
+    {
+      "id": "sereno",
+      "nombre": "Sereno",
+      "direccion": "Corporativo sobrio",
+      "descripcion": "Serif con oficio, azul marino y mucho orden.",
+      "sectores": [
+        "Despachos y asesorías",
+        "Salud privada",
+        "Seguros y banca",
+        "Administración"
+      ],
+      "css": "sereno/kit.css",
+      "ficha": "sereno/ficha.json",
+      "miniatura": null,
+      "fuentes": "family=Source+Serif+4:opsz,wght@8..60,600&family=Inter:wght@400;600",
+      "muestra": {
+        "fondo": "#f6f5f2",
+        "superficie": "#ffffff",
+        "accion": "#1d3557",
+        "acento": "#e9dcbc",
+        "texto": "#1c2430",
+        "radio": 6,
+        "borde": 1,
+        "sombra": "suave"
+      },
+      "orden": 50
+    }
+  ]
+}
