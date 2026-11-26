@@ -2,9 +2,6 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <!-- Seguridad: solo se cargan recursos de los orígenes de esta lista (GitHub Pages no permite cabeceras). -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; worker-src 'self' blob:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#1b2430" />
     <link rel="preload" as="image" href="ui/portada.webp" fetchpriority="high" />
@@ -226,11 +223,12 @@
       /* Con el editor de personaje abierto, la portada se aparta y se ve el lienzo 3D */
       body.editando-personaje #inicio { display: none; }
     </style>
-    <script type="module" crossorigin src="./assets/index-DDVJkgK9.js"></script>
-    <link rel="modulepreload" crossorigin href="./assets/librerias-DzWsnmLO.js">
+    <script type="module" crossorigin src="./assets/index-U_okcaHa.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/librerias-BRsXrkg8.js">
+    <link rel="modulepreload" crossorigin href="./assets/agricultura-DoxFWYIr.js">
     <link rel="modulepreload" crossorigin href="./assets/rapier-DpxwuBBO.js">
     <link rel="modulepreload" crossorigin href="./assets/personaje-0Dt6zHpz.js">
-    <link rel="modulepreload" crossorigin href="./assets/materiales-BsNINdfm.js">
+    <link rel="modulepreload" crossorigin href="./assets/materiales-BgxtPMfU.js">
   </head>
   <body>
     <canvas id="escena"></canvas>
@@ -258,6 +256,9 @@
         <button class="boton-tactil pequeno" type="button" data-pulsar="camara" aria-label="Cambiar cámara">👁</button>
         <button class="boton-tactil pequeno" type="button" data-pulsar="reiniciar" aria-label="Recolocar el coche">↺</button>
         <button class="boton-tactil pequeno entrar" type="button" data-pulsar="entrar" hidden>Entrar</button>
+        <button class="boton-tactil pequeno apero" type="button" data-pulsar="apero" aria-label="Bajar el apero" hidden></button>
+        <button class="boton-tactil pequeno tajadera" type="button" data-pulsar="tajadera" aria-label="Abrir la tajadera" hidden></button>
+        <button class="boton-tactil pequeno descargar" type="button" data-pulsar="descargar" aria-label="Sacar el tubo de descarga" hidden></button>
       </div>
       <!-- Salto en paracaídas (PLAN_SALTO.md) -->
       <div class="botones-salto">

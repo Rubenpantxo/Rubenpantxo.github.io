@@ -1,0 +1,422 @@
+{
+ "tractor": {
+  "archivo": "tractor.glb",
+  "enganche": {
+   "pivote": [
+    0.0,
+    0.5654,
+    -1.6787
+   ],
+   "rotula": [
+    0.0,
+    0.5014,
+    -2.5287
+   ],
+   "superior": [
+    0.0,
+    1.1814,
+    -2.4537
+   ],
+   "barra_tiro": [
+    0.0,
+    0.4214,
+    -2.1787
+   ],
+   "toma_fuerza": [
+    0.0,
+    0.7814,
+    -1.9037
+   ]
+  },
+  "largo": 5.157,
+  "ancho": 2.58,
+  "alto": 3.351,
+  "pintura": true,
+  "triangulos": 12948,
+  "ruedas": [
+   {
+    "objeto": "rueda_di",
+    "centro": [
+     0.92,
+     0.6214,
+     1.6213
+    ],
+    "radio": 0.62,
+    "ancho": 0.46
+   },
+   {
+    "objeto": "rueda_dd",
+    "centro": [
+     -0.92,
+     0.6214,
+     1.6213
+    ],
+    "radio": 0.62,
+    "ancho": 0.46
+   },
+   {
+    "objeto": "rueda_ti",
+    "centro": [
+     0.93,
+     0.8614,
+     -1.2287
+    ],
+    "radio": 0.86,
+    "ancho": 0.6
+   },
+   {
+    "objeto": "rueda_td",
+    "centro": [
+     -0.93,
+     0.8614,
+     -1.2287
+    ],
+    "radio": 0.86,
+    "ancho": 0.6
+   }
+  ],
+  "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ },
+ "arado": {
+  "archivo": "arado.glb",
+  "nombre": "Arado reversible de 4 cuerpos",
+  "largo": 5.211,
+  "ancho": 2.129,
+  "alto": 2.1,
+  "triangulos": 6500,
+  "enganche": {
+   "inferior": [
+    0,
+    0,
+    0
+   ],
+   "superior": [
+    0,
+    0.68,
+    0.075
+   ]
+  },
+  "suelo_y": -0.45,
+  "ancho_trabajo": 1.6,
+  "alto_bulon": 0.45,
+  "profundidad": 0.22,
+  "trabajo_z": -2.3,
+  "eje_volteo_y": 0.3,
+  "reversible": true,
+  "cuerpos": [
+   [
+    0.6,
+    -0.67,
+    -0.95
+   ],
+   [
+    0.2,
+    -0.67,
+    -1.85
+   ],
+   [
+    -0.2,
+    -0.67,
+    -2.75
+   ],
+   [
+    -0.6,
+    -0.67,
+    -3.65
+   ]
+  ],
+  "rueda_control": {
+   "objeto": "rueda_control",
+   "eje": [
+    0,
+    0.3,
+    -4.464
+   ]
+  },
+  "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ },
+ "cultivador": {
+  "archivo": "cultivador.glb",
+  "nombre": "Cultivador de 3 m",
+  "largo": 2.753,
+  "ancho": 3.12,
+  "alto": 1.346,
+  "triangulos": 5408,
+  "enganche": {
+   "inferior": [
+    0,
+    0,
+    0
+   ],
+   "superior": [
+    0,
+    0.68,
+    0.075
+   ]
+  },
+  "suelo_y": -0.45,
+  "ancho_trabajo": 3.0,
+  "alto_bulon": 0.45,
+  "profundidad": 0.1,
+  "trabajo_z": -1.25,
+  "reversible": false,
+  "rodillo": {
+   "objeto": "rodillo",
+   "radio": 0.2
+  },
+  "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ },
+ "abonadora": {
+  "archivo": "abonadora.glb",
+  "nombre": "Abonadora centrífuga",
+  "largo": 1.587,
+  "ancho": 1.988,
+  "alto": 2.009,
+  "triangulos": 2760,
+  "enganche": {
+   "inferior": [
+    0,
+    0,
+    0
+   ],
+   "superior": [
+    0,
+    0.68,
+    0.075
+   ]
+  },
+  "suelo_y": -0.55,
+  "ancho_trabajo": 12.0,
+  "alto_bulon": 0.55,
+  "profundidad": 0,
+  "trabajo_z": -0.83,
+  "reversible": false,
+  "tipo": "suspendido",
+  "discos": [
+   "disco_i",
+   "disco_d"
+  ],
+  "entrada_tdf": [
+   0,
+   -0.04,
+   0.0
+  ],
+  "salida_discos": [
+   [
+    0.34,
+    0.13,
+    -0.83
+   ],
+   [
+    -0.34,
+    0.13,
+    -0.83
+   ]
+  ],
+  "carga": {
+   "objeto": "carga",
+   "y_vacia": 0.67,
+   "y_llena": 1.36,
+   "escala_vacia": 0.275,
+   "escala_vacia_x": 0.605
+  },
+  "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ },
+ "sembradora": {
+  "archivo": "sembradora.glb",
+  "nombre": "Sembradora de cereal de 3 m",
+  "largo": 3.825,
+  "ancho": 3.624,
+  "alto": 1.67,
+  "triangulos": 4548,
+  "enganche": {
+   "inferior": [
+    0,
+    0,
+    0
+   ],
+   "superior": [
+    0,
+    0.68,
+    0.075
+   ]
+  },
+  "suelo_y": -0.42,
+  "ancho_trabajo": 3.0,
+  "alto_bulon": 0.42,
+  "profundidad": 0.04,
+  "trabajo_z": -3.2,
+  "reversible": false,
+  "tipo": "arrastrado",
+  "lineas": 20,
+  "eje_z": -2.25,
+  "rueda_r": 0.38,
+  "via": 3.4,
+  "ruedas": [
+   "rueda_i",
+   "rueda_d"
+  ],
+  "rejas": "rejas",
+  "pata": "pata",
+  "bajada_rejas": 0.12,
+  "carga": {
+   "objeto": "carga",
+   "y_vacia": 0.55,
+   "y_llena": 1.14,
+   "escala_vacia": 0.372,
+   "escala_vacia_x": 0.966
+  },
+  "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ },
+ "cosechadora": {
+  "archivo": "cosechadora.glb",
+  "cabezal": {
+   "pivote": [
+    0.02,
+    1.5524,
+    1.7107
+   ],
+   "ancho_corte": 5.4,
+   "corte": [
+    0.02,
+    0.1424,
+    4.7807
+   ],
+   "molinete": [
+    0.02,
+    1.2524,
+    4.4107
+   ]
+  },
+  "tolva": {
+   "carga": "carga",
+   "y_vacia": 2.902,
+   "y_llena": 3.472,
+   "escala_vacia": 0.85
+  },
+  "tubo": {
+   "pivote": [
+    1.14,
+    3.3524,
+    -1.0393
+   ],
+   "largo": 4.3,
+   "salida": [
+    1.14,
+    2.9524,
+    -5.2193
+   ]
+  },
+  "paja": [
+   0.02,
+   1.0024,
+   -3.2893
+  ],
+  "largo": 10.711,
+  "ancho": 5.44,
+  "alto": 4.227,
+  "pintura": true,
+  "triangulos": 15932,
+  "ruedas": [
+   {
+    "objeto": "rueda_di",
+    "centro": [
+     1.2,
+     0.8024,
+     1.1607
+    ],
+    "radio": 0.8,
+    "ancho": 0.62
+   },
+   {
+    "objeto": "rueda_dd",
+    "centro": [
+     -1.16,
+     0.8024,
+     1.1607
+    ],
+    "radio": 0.8,
+    "ancho": 0.62
+   },
+   {
+    "objeto": "rueda_ti",
+    "centro": [
+     1.07,
+     0.5024,
+     -2.0893
+    ],
+    "radio": 0.5,
+    "ancho": 0.34
+   },
+   {
+    "objeto": "rueda_td",
+    "centro": [
+     -1.03,
+     0.5024,
+     -2.0893
+    ],
+    "radio": 0.5,
+    "ancho": 0.34
+   }
+  ],
+  "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ },
+ "remolque": {
+  "archivo": "remolque.glb",
+  "nombre": "Remolque de grano de un eje",
+  "largo": 6.86,
+  "ancho": 2.45,
+  "alto": 3.09,
+  "triangulos": 2824,
+  "enganche": {
+   "inferior": [
+    0,
+    0,
+    0
+   ],
+   "superior": [
+    0,
+    0.68,
+    0.075
+   ]
+  },
+  "suelo_y": -0.55,
+  "ancho_trabajo": 0,
+  "alto_bulon": 0.55,
+  "profundidad": 0,
+  "trabajo_z": 0,
+  "reversible": false,
+  "tipo": "arrastrado",
+  "eje_z": -4.2,
+  "rueda_r": 0.56,
+  "via": 1.95,
+  "ruedas": [
+   "rueda_i",
+   "rueda_d"
+  ],
+  "pata": "pata",
+  "caja": {
+   "centro": [
+    0,
+    1.625,
+    -4.15
+   ],
+   "ancho": 2.3,
+   "largo": 5.2,
+   "alto": 1.15,
+   "borde_y": 2.2
+  },
+  "carga": {
+   "objeto": "carga",
+   "y_vacia": 0.87,
+   "y_llena": 2.08,
+   "escala_vacia": 1.0,
+   "escala_vacia_x": 1.0,
+   "escala_y": [
+    0.15,
+    1.6
+   ]
+  },
+  "fuente": "tools/build_maquinaria.py (modelo propio, genérico, sin marca)"
+ }
+}

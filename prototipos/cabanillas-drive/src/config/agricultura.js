@@ -2,7 +2,7 @@
 // malla sobre el terreno y pincel de depuración. Se activa en el juego publicado cuando A9 esté
 // aprobada; mientras, solo con ?agricultura.
 export const AGRICULTURA = {
-  activo: false,
+  activo: true,
   rutaParcelas: 'assets/agricultura/parcelas.json',
   // Parcela de pruebas elegida por Rubén (2026-11-20): 2-700, 0,44 ha de regadío al norte de la COPE
   parcelaPruebas: '2-700',
