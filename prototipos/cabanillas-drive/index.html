@@ -108,6 +108,33 @@
       label.calidad select { width: 100%; min-height: 42px; padding: 8px 10px; border-radius: 8px; background: #26313f; color: #fff;
         border: 1px solid rgba(255, 255, 255, .25); font: 15px system-ui, sans-serif; text-transform: none; letter-spacing: 0; cursor: pointer; }
 
+      /* Enviar fallo o idea (src/hud/reportes.js) */
+      #reporte { background: rgba(10, 14, 20, .94); }
+      #reporte .tarjeta { width: min(480px, 100%); }
+      .reporte-form { display: grid; gap: 12px; }
+      .reporte-tipo { display: flex; gap: 8px; border: 0; margin: 0; padding: 0; }
+      .reporte-tipo legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      .reporte-tipo label { flex: 1; display: flex; gap: 6px; align-items: center; justify-content: center; padding: 10px; border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, .3); color: #fff; font-weight: 600; cursor: pointer; }
+      .reporte-tipo label:has(input:checked) { background: var(--acento); color: #1b2430; border-color: var(--acento); }
+      .reporte-tipo input { accent-color: #1b2430; }
+      .reporte-campo { display: grid; gap: 4px; color: #fff; font-weight: 600; font-size: 15px; }
+      .reporte-campo small, .reporte-contador { color: var(--tenue); font-weight: 400; font-size: 12px; }
+      .reporte-campo textarea, .reporte-campo input { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px;
+        background: #26313f; color: #fff; border: 1px solid rgba(255, 255, 255, .25); font: 16px/1.4 system-ui, sans-serif; }
+      .reporte-campo textarea { min-height: 120px; resize: vertical; }
+      .reporte-campo textarea:focus, .reporte-campo input:focus { outline: 2px solid var(--acento); outline-offset: 1px; }
+      .reporte-contexto { color: var(--tenue); font-size: 13px; }
+      .reporte-contexto summary { cursor: pointer; }
+      .reporte-contexto pre { margin: 6px 0 0; padding: 8px; max-height: 140px; overflow: auto; border-radius: 8px; background: rgba(0, 0, 0, .3);
+        white-space: pre-wrap; word-break: break-word; font-size: 11px; }
+      .reporte-trampa { position: absolute; left: -9999px; }
+      .reporte-estado { margin: 0; min-height: 1.2em; font-size: 14px; }
+      .reporte-estado.ok { color: #9be49b; }
+      .reporte-estado.error { color: #ff9b8a; }
+      .reporte-nota { margin: 0; color: var(--tenue); font-size: 11px; }
+      .reporte-nota a { color: var(--tenue); }
+
       /* Inicio: portada, barra de carga, Jugar, calidad y hora */
       /* La portada es una imagen vertical (768 × 1376) con el título arriba. En horizontal se ve
          entera a lo alto, centrada sobre ella misma desenfocada. En vertical llena la pantalla
@@ -331,6 +358,7 @@
         <button class="boton" type="button" data-cierra="pausa">Continuar</button>
         <button id="omitir-salto" class="boton secundario" type="button" hidden>⏭ Saltarse el salto</button>
         <button class="boton secundario" type="button" data-abre="controles">Controles y ajustes</button>
+        <button class="boton secundario" type="button" data-abre="reporte">🐞 Enviar fallo o idea</button>
         <label class="calidad ir-a" hidden>Ir a <select id="ir-a"><option value="">Elige un lugar…</option></select></label>
         <label class="calidad">Vehículo <select id="vehiculo"></select></label>
         <label class="calidad">Fiestas <select id="fiestas">
@@ -481,6 +509,38 @@
         <div class="fila" style="margin-top: 16px">
           <button class="boton" type="button" data-cierra="controles">Cerrar</button>
         </div>
+      </div>
+    </section>
+
+    <section id="reporte" class="pantalla" hidden aria-labelledby="titulo-reporte">
+      <div class="tarjeta">
+        <h2 id="titulo-reporte">Enviar fallo o idea</h2>
+        <p style="margin: 0 0 14px; color: var(--tenue)">¿Has visto algo raro o se te ocurre una mejora? Cuéntamelo y lo apunto.</p>
+        <form id="reporte-form" class="reporte-form" novalidate>
+          <fieldset class="reporte-tipo">
+            <legend>Tipo</legend>
+            <label><input type="radio" name="tipo" value="fallo" checked /> 🐞 Un fallo</label>
+            <label><input type="radio" name="tipo" value="idea" /> 💡 Una idea</label>
+          </fieldset>
+          <label class="calidad">¿De qué parte del juego? <select name="categoria"></select></label>
+          <label class="reporte-campo"><span data-etiqueta-descripcion>¿Qué ha pasado? *</span>
+            <small data-ayuda-descripcion></small>
+            <textarea name="descripcion" required rows="5"></textarea>
+            <span class="reporte-contador" aria-live="polite"></span></label>
+          <label class="reporte-campo">Tu correo <small>Opcional, solo si quieres que te conteste.</small>
+            <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="nombre@correo.com" /></label>
+          <label class="opcion" style="display: flex; gap: 10px; align-items: center; color: #fff; cursor: pointer">
+            <input type="checkbox" name="incluirContexto" checked style="width: 20px; height: 20px; accent-color: var(--acento)" />
+            <span>Adjuntar datos del juego<small style="display: block; color: var(--tenue); font-size: 12px">Dónde estabas, el vehículo y tu aparato. Ayudan, pero lo importante es lo que escribas.</small></span></label>
+          <details class="reporte-contexto"><summary>Ver qué se adjunta</summary><pre></pre></details>
+          <input class="reporte-trampa" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="reporte-estado" role="status" aria-live="polite"></p>
+          <div class="fila">
+            <button class="boton secundario" type="button" data-cierra="reporte">Volver</button>
+            <button class="boton" type="submit">Enviar</button>
+          </div>
+          <p class="reporte-nota">Se envía por Web3Forms a mi correo. <a href="/legal/privacidad.html" target="_blank" rel="noopener">Privacidad</a></p>
+        </form>
       </div>
     </section>
 

@@ -23,6 +23,8 @@ export function creaEntrada(raizTactil) {
   // --- Teclado
   window.addEventListener('keydown', (e) => {
     if (!todasLasTeclas.has(e.code)) return;
+    // Escribiendo en un campo (el reporte de fallos), las teclas son letras, no mandos
+    if (e.target?.closest?.('input, textarea, [contenteditable]')) return;
     e.preventDefault();
     if (!e.repeat) {
       if (modo === 'fiestas') {
