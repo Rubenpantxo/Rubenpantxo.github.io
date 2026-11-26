@@ -1,0 +1,52 @@
+{
+  "id": "bruma",
+  "nombre": "Bruma",
+  "direccion": "Glassmorphism",
+  "lema": "Capas de cristal esmerilado sobre un fondo de color.",
+  "personalidad": "Ligero, tecnológico y amable. Transmite producto digital pulido.",
+  "paraQuien": "Productos digitales, SaaS, apps de bienestar o finanzas personales que quieren parecer modernos sin ser fríos.",
+  "sectores": [
+    "Software y SaaS",
+    "Fintech",
+    "Salud digital",
+    "Tecnología de consumo"
+  ],
+  "tipografia": {
+    "titulos": "Sora",
+    "texto": "Manrope"
+  },
+  "paleta": [
+    {
+      "nombre": "Niebla",
+      "valor": "#eef0ff"
+    },
+    {
+      "nombre": "Lila",
+      "valor": "#b9a6ff"
+    },
+    {
+      "nombre": "Aguamarina",
+      "valor": "#8ee6dc"
+    },
+    {
+      "nombre": "Rosa",
+      "valor": "#ffb3d1"
+    },
+    {
+      "nombre": "Violeta",
+      "valor": "#5b3df5"
+    }
+  ],
+  "rasgos": {
+    "bordes": "1 px blanco translúcido, como el canto de un cristal",
+    "sombras": "Amplias y difusas, con un brillo interior arriba",
+    "movimiento": "Suave y lento (360 ms)"
+  },
+  "ejemplo": "El panel de una app de ahorro con objetivos, gráficos y avisos.",
+  "accesibilidad": "El texto va siempre sobre superficies casi opacas (74 % o más) para que el contraste no dependa del fondo. Con poco rendimiento, el desenfoque es lo primero que se puede quitar.",
+  "referencia": {
+    "biblioteca": "",
+    "pieza": "",
+    "enlace": ""
+  }
+}

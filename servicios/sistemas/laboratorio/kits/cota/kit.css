@@ -1,0 +1,96 @@
+/* Kit «Cota» — Industrial / Técnico.
+   Rejilla visible, esquinas rectas, tipografía monoespaciada y etiquetas
+   de plano. Naranja de seguridad como única acción. Solo cambia valores
+   de tokens. */
+
+[data-kit="cota"] {
+  /* 1 · Primitivos */
+  --p-papel: #eceee9;
+  --p-blanco: #f8f9f6;
+  --p-gris: #dfe2dc;
+  --p-linea: #b9beb6;
+  --p-negro: #15191c;
+  --p-acero: #4a5258;
+  --p-seguridad: #ff6b00;
+  --p-amarillo: #ffd500;
+
+  /* 2 · Semánticos */
+  --color-fondo: var(--p-papel);
+  --color-superficie: var(--p-blanco);
+  --color-superficie-2: var(--p-gris);
+  --color-texto: var(--p-negro);
+  --color-texto-suave: var(--p-acero);
+  --color-borde: var(--p-linea);
+  --color-accion: var(--p-seguridad);
+  --color-sobre-accion: var(--p-negro);
+  --color-acento: var(--p-negro);
+  --color-sobre-acento: var(--p-amarillo);
+  --color-exito: #1d6b3a;
+  --color-foco: var(--p-negro);
+
+  --fuente-titulos: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --fuente-texto: "IBM Plex Sans", system-ui, sans-serif;
+  --fuente-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --peso-titulos: 600;
+  --tracking-titulos: .01em;
+  --caja-titulos: uppercase;
+
+  --radio-s: 0;
+  --radio-m: 0;
+  --radio-l: 0;
+  --radio-pastilla: 0;
+  --borde-ancho: 1px;
+
+  --sombra-1: none;
+  --sombra-2: none;
+  --sombra-foco: 0 0 0 2px var(--p-amarillo);
+  --curva: linear;
+
+  --escena-decor:
+    linear-gradient(var(--color-borde) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, var(--color-borde) 1px, transparent 1px) 0 0 / 24px 24px;
+
+  /* 3 · Componente */
+  --boton-fuente: var(--fuente-mono);
+  --boton-caja: uppercase;
+  --boton-tracking: .06em;
+  --boton-peso: 600;
+  --boton-borde: 1px solid var(--p-negro);
+  --boton-sec-borde: 1px solid var(--p-negro);
+  --boton-sec-fondo: var(--p-blanco);
+  --tarjeta-borde: 1px solid var(--p-negro);
+  --tarjeta-sombra: 0 0 0 4px var(--color-fondo), 0 0 0 5px var(--color-borde);
+  --media-fondo:
+    repeating-linear-gradient(-45deg, transparent 0 9px, color-mix(in oklab, var(--color-borde) 60%, transparent) 9px 10px),
+    var(--p-gris);
+  --campo-borde: 1px solid var(--p-negro);
+  --etiqueta-fuente: var(--fuente-mono);
+  --etiqueta-caja: uppercase;
+  --precio-fuente: var(--fuente-mono);
+}
+
+[data-kit="cota"][data-modo="oscuro"] {
+  --p-pizarra: #101417;
+  --p-pizarra-2: #182025;
+  --p-pizarra-3: #222b31;
+
+  --color-fondo: var(--p-pizarra);
+  --color-superficie: var(--p-pizarra-2);
+  --color-superficie-2: var(--p-pizarra-3);
+  --color-texto: #e8ece6;
+  --color-texto-suave: #a9b3b8;
+  --color-borde: #33404a;
+  --color-acento: var(--p-amarillo);
+  --color-sobre-acento: var(--p-negro);
+  --color-exito: #5fd38b;
+  --color-foco: var(--p-amarillo);
+
+  --boton-borde: 1px solid var(--p-seguridad);
+  --boton-sec-borde: 1px solid #e8ece6;
+  --boton-sec-fondo: transparent;
+  --tarjeta-borde: 1px solid #5b6b75;
+  --media-fondo:
+    repeating-linear-gradient(-45deg, transparent 0 9px, rgb(255 255 255 / .06) 9px 10px),
+    var(--p-pizarra-3);
+  --campo-borde: 1px solid #5b6b75;
+}

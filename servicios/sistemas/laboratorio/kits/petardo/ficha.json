@@ -1,0 +1,53 @@
+{
+  "id": "petardo",
+  "nombre": "Petardo",
+  "direccion": "Neobrutalismo",
+  "lema": "Bordes gruesos, sombras sólidas y colores sin miedo.",
+  "personalidad": "Directo, desenfadado y con humor. No pide permiso para llamar la atención.",
+  "paraQuien": "Marcas jóvenes y creativas que quieren que se las recuerde: estudios, cafeterías de especialidad, festivales, apps de consumo.",
+  "sectores": [
+    "Hostelería creativa",
+    "Eventos y cultura",
+    "Moda urbana",
+    "Startups de consumo"
+  ],
+  "tipografia": {
+    "titulos": "Archivo Black",
+    "texto": "Space Grotesk",
+    "mono": "Space Mono"
+  },
+  "paleta": [
+    {
+      "nombre": "Crema",
+      "valor": "#fff4e0"
+    },
+    {
+      "nombre": "Carbón",
+      "valor": "#111111"
+    },
+    {
+      "nombre": "Tomate",
+      "valor": "#ff5c39"
+    },
+    {
+      "nombre": "Menta",
+      "valor": "#7cf0c5"
+    },
+    {
+      "nombre": "Limón",
+      "valor": "#ffd23f"
+    }
+  ],
+  "rasgos": {
+    "bordes": "3 px, negros, siempre visibles",
+    "sombras": "Sólidas, desplazadas 4–6 px, sin desenfoque",
+    "movimiento": "Seco: el botón se hunde al pulsarlo, sin rebotes"
+  },
+  "ejemplo": "La web de reservas de una cafetería de barrio con carta del día y pedido para llevar.",
+  "accesibilidad": "Contraste alto por naturaleza. El foco se marca con un halo amarillo además del contorno.",
+  "referencia": {
+    "biblioteca": "",
+    "pieza": "",
+    "enlace": ""
+  }
+}

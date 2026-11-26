@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<!-- Seguridad: solo se cargan recursos de los orígenes de esta lista (GitHub Pages no permite cabeceras). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; worker-src 'self' blob:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Laboratorio de UI Kits — Rubenpantxo</title>
+<meta name="description" content="Prueba en vivo cinco estilos de interfaz sobre la misma tienda: neobrutalismo, glass, industrial, isométrico y corporativo. Cambia de kit, pon tu color y quédate con el tuyo.">
+<!--@cabecera-->
+<link rel="canonical" href="https://rubenpantxo.com/servicios/sistemas/laboratorio/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Rubenpantxo.com">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Laboratorio de UI Kits — Rubenpantxo">
+<meta property="og:description" content="Prueba en vivo cinco estilos de interfaz sobre la misma tienda: neobrutalismo, glass, industrial, isométrico y corporativo. Cambia de kit, pon tu color y quédate con el tuyo.">
+<meta property="og:url" content="https://rubenpantxo.com/servicios/sistemas/laboratorio/">
+<meta property="og:image" content="https://rubenpantxo.com/img/compartir.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../../../favicon.ico" sizes="any">
+<link rel="icon" href="../../../img/favicon-32.png" type="image/png">
+<link rel="apple-touch-icon" href="../../../img/apple-touch-icon.png">
+<script src="../../../js/consentimiento.js" defer></script>
+<!--/@cabecera-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Fuentes del kit por defecto; las de los demás se piden al elegirlos -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" data-fuentes-kit="petardo">
+<link rel="stylesheet" href="laboratorio.css">
+<link rel="stylesheet" href="tokens-base.css">
+<link rel="stylesheet" href="escena.css">
+<!-- Kit por defecto: el único que se carga de entrada -->
+<link rel="stylesheet" href="kits/petardo/kit.css" data-css-kit="petardo">
+<script src="laboratorio.js" defer></script>
+</head>
+<body>
+
+<a class="saltar" href="#playground">Saltar al laboratorio</a>
+
+<header class="lab-cab">
+  <a class="lab-volver" href="../../sistemas-de-diseno.html"><span aria-hidden="true">←</span> Sistemas de diseño</a>
+  <a class="lab-volver" href="../../../index.html#servicios">Servicios</a>
+</header>
+
+<main>
+  <section class="lab-intro" aria-labelledby="t-lab">
+    <p class="ojo">Laboratorio · UI Kits</p>
+    <h1 id="t-lab" class="gordo">La misma tienda, <em>cinco caras.</em></h1>
+    <p class="entradilla">Elige un estilo y mira cómo cambian botones, tarjetas y letra al instante, sin recargar. El contenido no cambia: solo el kit. Así de rápido se cambia la imagen de una web bien construida.</p>
+  </section>
+
+  <section class="lab-playground" id="playground" aria-labelledby="t-play">
+    <h2 id="t-play" class="sr">Playground de estilos</h2>
+
+    <div class="lab-muestras" id="muestras" role="radiogroup" aria-label="Elige un UI Kit">
+      <!-- laboratorio.js pinta aquí una miniatura por cada kit de kits/index.json -->
+    </div>
+
+    <div class="lab-barra" role="toolbar" aria-label="Opciones de la escena">
+      <div class="lab-segmentos" role="radiogroup" aria-label="Escena de muestra" id="escenas">
+        <button type="button" role="radio" aria-checked="true" data-escena="tienda">Tienda <span class="lab-sub">Web</span></button>
+        <button type="button" role="radio" aria-checked="false" data-escena="panel">Panel <span class="lab-sub">Automatización</span></button>
+        <button type="button" role="radio" aria-checked="false" data-escena="visor">Visor <span class="lab-sub">3D</span></button>
+      </div>
+      <div class="lab-ajustes">
+        <button type="button" class="lab-chip" id="modo" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 14.6A8.4 8.4 0 0 1 9.4 3.8a8.4 8.4 0 1 0 10.8 10.8z"/></svg>
+          <span>Modo oscuro</span>
+        </button>
+        <label class="lab-chip lab-color">
+          <input type="color" id="color-marca" value="#ff5c39" aria-describedby="color-ayuda">
+          <span>Tu color</span>
+        </label>
+        <button type="button" class="lab-chip" id="color-quitar" hidden>Quitar mi color</button>
+        <button type="button" class="lab-chip" id="comparar" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg>
+          <span>Comparar</span>
+        </button>
+        <label class="lab-chip lab-select" id="comparar-con-envoltura" hidden>
+          <span>con</span>
+          <select id="comparar-con" aria-label="Kit con el que comparar"></select>
+        </label>
+      </div>
+      <p class="sr" id="color-ayuda">Aplica tu color de marca como color de acción del kit.</p>
+    </div>
+
+    <div class="lab-escenario" id="escenario" data-comparando="false">
+      <div class="lab-escena" id="escena-a" data-kit="petardo" data-modo="claro" aria-live="polite" aria-label="Escena con el kit elegido"></div>
+      <div class="lab-escena" id="escena-b" data-modo="claro" hidden aria-label="Escena con el kit de comparación"></div>
+    </div>
+    <p class="lab-aviso" id="anuncio" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="lab-ficha" id="ficha" aria-labelledby="ficha-nombre">
+    <div class="lab-ficha-cab">
+      <div>
+        <p class="ojo" id="ficha-direccion">Neobrutalismo</p>
+        <h2 class="gordo gordo--m" id="ficha-nombre">Petardo</h2>
+        <p class="entradilla" id="ficha-lema"></p>
+      </div>
+      <div class="lab-elegir">
+        <button type="button" class="lab-boton" id="elegir" data-evento="lab_kit_favorito">Me quedo con este</button>
+        <p class="lab-elegido" id="elegido" hidden></p>
+      </div>
+    </div>
+
+    <dl class="lab-datos">
+      <div><dt>Personalidad</dt><dd id="ficha-personalidad"></dd></div>
+      <div><dt>Para qué marcas funciona</dt><dd id="ficha-para"></dd></div>
+      <div><dt>Sectores</dt><dd><ul class="lab-etiquetas" id="ficha-sectores"></ul></dd></div>
+      <div><dt>Tipografía</dt><dd id="ficha-tipo"></dd></div>
+      <div><dt>Paleta</dt><dd><ul class="lab-paleta" id="ficha-paleta"></ul></dd></div>
+      <div><dt>Bordes, sombras y movimiento</dt><dd><ul class="lab-rasgos" id="ficha-rasgos"></ul></dd></div>
+      <div><dt>Un ejemplo real</dt><dd id="ficha-ejemplo"></dd></div>
+      <div><dt>Accesibilidad</dt><dd><span id="ficha-accesibilidad"></span><ul class="lab-contraste" id="ficha-contraste" aria-label="Contraste medido en vivo"></ul></dd></div>
+      <div id="ficha-ref-fila" hidden><dt>Referencia en la biblioteca</dt><dd id="ficha-ref"></dd></div>
+    </dl>
+
+    <details class="lab-codigo" id="codigo">
+      <summary>Ver el código del kit</summary>
+      <p>Esto es todo lo que cambia entre un estilo y otro: un bloque de variables CSS. El HTML de la escena es siempre el mismo.</p>
+      <div class="lab-codigo-acciones">
+        <button type="button" class="lab-chip" id="copiar-css">Copiar CSS</button>
+        <button type="button" class="lab-chip" id="descargar-json" data-evento="lab_tokens_descarga">Descargar tokens (JSON para Figma)</button>
+      </div>
+      <pre><code id="codigo-css">Cargando…</code></pre>
+    </details>
+  </section>
+
+  <section class="lab-arquitectura" aria-labelledby="t-arq">
+    <p class="ojo">Cómo está hecho</p>
+    <h2 class="gordo gordo--m" id="t-arq">Tres capas de tokens, cero HTML tocado</h2>
+    <p class="entradilla">Cada kit solo da valores a una lista fija de variables. Por eso cambiar la imagen de tu marca dentro de un año será rápido y barato: se cambian valores, no páginas.</p>
+    <ol class="lab-capas">
+      <li><strong>Primitivos</strong> <code>--p-*</code><span>La paleta completa del kit. Solo valores, sin significado.</span></li>
+      <li><strong>Semánticos</strong> <code>--color-accion</code><span>Qué significa cada valor: fondo, texto, acción, borde, foco…</span></li>
+      <li><strong>Componente</strong> <code>--boton-radio</code><span>Cómo lo usa cada pieza. Por defecto leen los semánticos.</span></li>
+    </ol>
+    <div class="lab-tabla-envoltura">
+      <table class="lab-tabla">
+        <caption>Convención de nombres</caption>
+        <thead><tr><th scope="col">Familia</th><th scope="col">Patrón</th><th scope="col">Ejemplos</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Color</th><td><code>--color-&lt;papel&gt;</code></td><td><code>--color-fondo</code>, <code>--color-superficie</code>, <code>--color-texto</code>, <code>--color-accion</code>, <code>--color-sobre-accion</code>, <code>--color-foco</code></td></tr>
+          <tr><th scope="row">Tipografía</th><td><code>--fuente-&lt;uso&gt;</code>, <code>--peso-*</code></td><td><code>--fuente-titulos</code>, <code>--fuente-texto</code>, <code>--fuente-mono</code>, <code>--peso-titulos</code></td></tr>
+          <tr><th scope="row">Tamaño de texto</th><td><code>--texto-&lt;talla&gt;</code></td><td><code>--texto-xs</code> … <code>--texto-xl</code></td></tr>
+          <tr><th scope="row">Espaciado</th><td><code>--espacio-&lt;1-6&gt;</code></td><td><code>--espacio-2</code> (0,5 rem), <code>--espacio-5</code> (1,5 rem)</td></tr>
+          <tr><th scope="row">Radio</th><td><code>--radio-&lt;s|m|l|pastilla&gt;</code></td><td><code>--radio-m</code>, <code>--radio-pastilla</code></td></tr>
+          <tr><th scope="row">Borde</th><td><code>--borde-&lt;propiedad&gt;</code></td><td><code>--borde-ancho</code>, <code>--borde-estilo</code></td></tr>
+          <tr><th scope="row">Sombra</th><td><code>--sombra-&lt;nivel&gt;</code></td><td><code>--sombra-1</code>, <code>--sombra-2</code>, <code>--sombra-foco</code></td></tr>
+          <tr><th scope="row">Movimiento</th><td><code>--duracion-*</code>, <code>--curva</code></td><td><code>--duracion-rapida</code>, <code>--duracion-media</code></td></tr>
+          <tr><th scope="row">Componente</th><td><code>--&lt;pieza&gt;-&lt;propiedad&gt;</code></td><td><code>--boton-radio</code>, <code>--tarjeta-sombra</code>, <code>--campo-borde</code>, <code>--etiqueta-fondo</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="lab-cierre" aria-labelledby="t-cierre">
+    <h2 class="gordo gordo--m" id="t-cierre">¿Ninguno es exactamente el tuyo?</h2>
+    <p class="entradilla">Se hace uno a medida de tu marca con la misma base. Cuéntame tu idea y, si has elegido un kit, me llega con tu mensaje.</p>
+    <a class="lab-boton" href="../../../index.html#contacto" data-evento="quiero_una_asi" data-evento-origen="laboratorio">Cuéntame tu idea</a>
+  </section>
+</main>
+
+<!-- ============================================================
+     ESCENAS. El HTML es idéntico para todos los kits: solo cambia
+     el atributo data-kit del contenedor.
+     ============================================================ -->
+<template id="escena-tienda">
+  <div class="k-rejilla">
+    <article class="k-tarjeta">
+      <div class="k-media">
+        <span class="k-etiqueta">Nuevo</span>
+        <svg viewBox="0 0 120 100" aria-hidden="true" fill="currentColor"><path d="M22 22h62v44a20 20 0 0 1-20 20H42a20 20 0 0 1-20-20Z"/><path d="M84 32h8a14 14 0 0 1 0 28h-8v-8h8a6 6 0 0 0 0-12h-8Z" opacity=".75"/><rect x="14" y="88" width="78" height="6" rx="3" opacity=".35"/></svg>
+      </div>
+      <p class="k-sobre">Cerámica · Hecho a mano</p>
+      <h3 class="k-titulo">Taza de gres esmaltado</h3>
+      <p class="k-texto">35 cl, apta para lavavajillas. Cada pieza sale del horno con un esmalte ligeramente distinto.</p>
+      <div class="k-fila k-fila--entre">
+        <span class="k-precio">24,90 € <small>IVA incl.</small></span>
+        <span class="k-etiqueta">Envío en 48 h</span>
+      </div>
+      <div class="k-campo">
+        <label for="cp-{{id}}">Código postal</label>
+        <input id="cp-{{id}}" inputmode="numeric" autocomplete="postal-code" placeholder="Ej. 19171" aria-describedby="cp-ayuda-{{id}}">
+        <span class="k-ayuda" id="cp-ayuda-{{id}}">Te decimos cuándo llega antes de pagar.</span>
+      </div>
+      <div class="k-fila">
+        <button type="button" class="k-boton k-boton--ancho">Añadir a la cesta</button>
+        <button type="button" class="k-boton k-boton--sec" aria-label="Guardar en favoritos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg> Guardar</button>
+      </div>
+    </article>
+    <div class="k-bloque">
+      <p class="k-sobre">Taller de Lucía · Guadalajara</p>
+      <h3 class="k-titulo k-titulo--xl">Piezas para usar todos los días</h3>
+      <p>Torneamos en pequeñas tandas y esmaltamos a mano. Si se rompe en el primer año, te mandamos otra.</p>
+      <ul class="k-lista-ok">
+        <li>Devolución gratis en 30 días</li>
+        <li>Recogida en el taller los sábados</li>
+        <li>Pago con tarjeta o Bizum</li>
+      </ul>
+      <p><a href="#escena-a">Ver toda la colección</a></p>
+    </div>
+  </div>
+</template>
+
+<template id="escena-panel">
+  <div class="k-rejilla">
+    <div class="k-bloque">
+      <p class="k-sobre">Panel · Hoy, 9:41</p>
+      <h3 class="k-titulo k-titulo--xl">Pedidos en piloto automático</h3>
+      <div class="k-kpis">
+        <div class="k-tarjeta k-kpi"><span class="k-texto">Pedidos hoy</span><span class="k-precio">128</span><span class="k-sube">▲ 12 % vs. ayer</span></div>
+        <div class="k-tarjeta k-kpi"><span class="k-texto">Horas ahorradas</span><span class="k-precio">6,5</span><span class="k-sube">▲ esta semana</span></div>
+      </div>
+    </div>
+    <article class="k-tarjeta">
+      <div class="k-fila k-fila--entre">
+        <h3 class="k-titulo">Flujos activos</h3>
+        <span class="k-etiqueta">3 en marcha</span>
+      </div>
+      <ul class="k-tareas">
+        <li><span>Factura al cobrar</span><span class="k-etiqueta">Cada pedido</span></li>
+        <li><span>Aviso de stock bajo</span><span class="k-etiqueta">Diario</span></li>
+        <li><span>Resumen al dueño</span><span class="k-etiqueta">Lunes 8:00</span></li>
+      </ul>
+      <label class="k-interruptor">Avisarme por email si algo falla <input type="checkbox" role="switch" checked></label>
+      <div class="k-campo">
+        <label for="flujo-{{id}}">Nuevo flujo</label>
+        <input id="flujo-{{id}}" placeholder="Ej. Pedir valoración a los 7 días">
+      </div>
+      <div class="k-fila">
+        <button type="button" class="k-boton k-boton--ancho">Lanzar automatización</button>
+        <button type="button" class="k-boton k-boton--sec">Probar</button>
+      </div>
+    </article>
+  </div>
+</template>
+
+<template id="escena-visor">
+  <div class="k-rejilla">
+    <div class="k-tarjeta">
+      <div class="k-media k-visor">
+        <span class="k-etiqueta">Gira solo</span>
+        <div class="k-cubo" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <fieldset class="k-chips">
+        <legend>Acabado</legend>
+        <label><input type="radio" name="acabado-{{id}}" checked> Mate</label>
+        <label><input type="radio" name="acabado-{{id}}"> Satinado</label>
+        <label><input type="radio" name="acabado-{{id}}"> Brillo</label>
+      </fieldset>
+    </div>
+    <article class="k-bloque">
+      <p class="k-sobre">Configurador 3D</p>
+      <h3 class="k-titulo k-titulo--xl">Módulo de estantería M-40</h3>
+      <p class="k-texto">40 × 40 × 40 cm. Gíralo, cambia el acabado y míralo en tu salón antes de comprar.</p>
+      <div class="k-fila k-fila--entre">
+        <span class="k-precio">89 € <small>por módulo</small></span>
+        <span class="k-etiqueta">Montaje sin herramientas</span>
+      </div>
+      <div class="k-fila">
+        <button type="button" class="k-boton k-boton--ancho">Ver en tu espacio</button>
+        <button type="button" class="k-boton k-boton--sec">Descargar medidas</button>
+      </div>
+    </article>
+  </div>
+</template>
+
+</body>
+</html>
