@@ -591,7 +591,7 @@ function construirModelo(def, m, recursos, texturas, renderer, pedir) {
             } else if (t === 'condensador') {
                 const h = f.h || 7, r = f.r || 2.5;
                 add(malla(new THREE.CylinderGeometry(r, r, h, 28), mat(f.color || '#243a8f', { roughness: .4 })), ox, sentido * h / 2, oz);
-                add(malla(new THREE.CylinderGeometry(r * .92, r * .92, .25, 28), metal()), ox, sentido * (h + .1), oz);
+                if (f.tapa !== false) add(malla(new THREE.CylinderGeometry(r * .92, r * .92, .25, 28), metal()), ox, sentido * (h + .1), oz);
             } else if (t === 'bobina') {
                 const h = f.h || 3, r = f.r || 2.5;
                 add(malla(new THREE.CylinderGeometry(r, r, h, 24), mat('#3a3d42', { roughness: .7 })), ox, sentido * h / 2, oz);
@@ -657,13 +657,15 @@ function construirModelo(def, m, recursos, texturas, renderer, pedir) {
             } else if (t === 'borna') {
                 const h = alto(f.h || 8);
                 const cuerpo = mat(f.color || '#eceef1', { roughness: .55 });
+                // Polos a lo largo de x (por defecto) o de z con `eje: 'z'`.
+                const enZ = f.eje === 'z';
                 for (const px of f.polos) {
-                    const x = aX(px) - x0;
+                    const x = enZ ? 0 : aX(px) - x0, z = enZ ? aZ(px) - z0 : 0;
                     const yb = d.abajo ? -h : 0;
-                    add(malla(new THREE.BoxGeometry(4.6, h, f.d || 7), cuerpo), x, yb + h / 2, 0);
+                    add(malla(new THREE.BoxGeometry(enZ ? f.d || 7 : 4.6, h, enZ ? 4.6 : f.d || 7), cuerpo), x, yb + h / 2, z);
                     const yCab = d.abajo ? -h - .05 : h + .05;
-                    add(malla(new THREE.CylinderGeometry(1.7, 1.7, .5, 24), metal()), x, yCab, 0);
-                    add(malla(new THREE.BoxGeometry(2.6, .2, .45), mat('#3a3e44')), x, yCab + (d.abajo ? -.3 : .3), 0).rotation.y = Math.PI / 4;
+                    add(malla(new THREE.CylinderGeometry(1.7, 1.7, .5, 24), metal()), x, yCab, z);
+                    add(malla(new THREE.BoxGeometry(2.6, .2, .45), mat('#3a3e44')), x, yCab + (d.abajo ? -.3 : .3), z).rotation.y = Math.PI / 4;
                 }
             } else if (t === 'lente') {
                 const r = f.r || 6;
@@ -682,22 +684,39 @@ function construirModelo(def, m, recursos, texturas, renderer, pedir) {
                 an.rotation.x = Math.PI / 2;
                 add(an, ox, -C.h / 2, oz);
             } else if (t === 'usbc' || t === 'microusb') {
-                // Conector metálico con la boca hacia el borde (+z).
-                // `lado: 'x'` la gira para que mire al borde derecho.
-                const enX = f.lado === 'x';
+                // Conector metálico con la boca hacia el borde (+z por defecto).
+                // `lado`: 'x' (derecho), '-x' (izquierdo) o '-z' (de arriba).
+                const enX = f.lado === 'x' || f.lado === '-x', signo = f.lado && f.lado[0] === '-' ? -1 : 1;
                 const a = f.w || (t === 'usbc' ? 8.9 : 7.5), l = f.d || (t === 'usbc' ? 7.3 : 5.6), h = f.h || (t === 'usbc' ? 3.2 : 2.6);
                 const w = enX ? l : a, dd = enX ? a : l;
                 add(malla(cajaRedondeada(w, dd, h, t === 'usbc' ? Math.min(h / 2 - .05, .9) : .5, .15), metal()), ox, 0, oz);
                 const boca = malla(new THREE.BoxGeometry(enX ? .3 : a * .72, h * .42, enX ? a * .72 : .3), mat('#141518', { roughness: .8 }), false);
-                add(boca, ox + (enX ? w / 2 - .05 : 0), h / 2, oz + (enX ? 0 : dd / 2 - .05));
+                add(boca, ox + (enX ? signo * (w / 2 - .05) : 0), h / 2, oz + (enX ? 0 : signo * (dd / 2 - .05)));
+            } else if (t === 'cabecera') {
+                // Cabecera macho de 2,54 mm por encima de la placa, a lo largo de z
+                // (una o dos filas), como la de 40 pines de la Raspberry Pi.
+                // Con `x0`/`x1` va a lo largo de x y las filas se apilan en z.
+                const enX = f.x0 != null, filas = f.filas || 1;
+                const A = enX ? aX(f.x0) - x0 : aZ(f.z0) - z0, B = enX ? aX(f.x1) - x0 : aZ(f.z1) - z0, n = f.n || Math.round(Math.abs(B - A) / 2.54) + 1;
+                const paso = n > 1 ? (B - A) / (n - 1) : 0, largo = Math.abs(B - A) + 2.54, fijo = enX ? oz : ox;
+                const pon = (me, u, v, y) => add(me, enX ? u : fijo + v, y, enX ? fijo + v : u);
+                pon(malla(new THREE.BoxGeometry(enX ? largo : 2.5 * filas, 2.5, enX ? 2.5 * filas : largo), mat(f.color || '#141518', { roughness: .7 })), (A + B) / 2, 0, 1.25);
+                const alto = f.alto || 8.5, geo = new THREE.BoxGeometry(.64, alto, .64);
+                for (let fi = 0; fi < filas; fi++) {
+                    const v = (fi - (filas - 1) / 2) * 2.54;
+                    for (let i = 0; i < n; i++) pon(malla(geo, oro(), false), A + i * paso, v, alto / 2 - .5);
+                }
             } else if (t === 'tira') {
                 // Tira de pines macho de 2,54 mm a lo largo de z, montada por debajo:
                 // plástico pegado a la placa y pines que la atraviesan hasta el suelo.
-                const zA = aZ(f.z0) - z0, zB = aZ(f.z1) - z0, n = f.n || Math.round(Math.abs(zB - zA) / 2.54) + 1;
-                const paso = n > 1 ? (zB - zA) / (n - 1) : 0;
-                add(malla(new THREE.BoxGeometry(2.5, 2.5, Math.abs(zB - zA) + 2.54), mat('#141518', { roughness: .7 })), ox, -1.25, (zA + zB) / 2);
+                // Con `x0`/`x1` en lugar de `z0`/`z1`, la tira va a lo largo de x.
+                const enX = f.x0 != null;
+                const A = enX ? aX(f.x0) - x0 : aZ(f.z0) - z0, B = enX ? aX(f.x1) - x0 : aZ(f.z1) - z0, n = f.n || Math.round(Math.abs(B - A) / 2.54) + 1;
+                const paso = n > 1 ? (B - A) / (n - 1) : 0, largo = Math.abs(B - A) + 2.54, fijo = enX ? oz : ox;
+                const pon = (me, u, y) => add(me, enX ? u : fijo, y, enX ? fijo : u);
+                pon(malla(new THREE.BoxGeometry(enX ? largo : 2.5, 2.5, enX ? 2.5 : largo), mat('#141518', { roughness: .7 })), (A + B) / 2, -1.25);
                 const arriba = grosor + .9, abajoPin = -(y0 - .15), geo = new THREE.BoxGeometry(.64, arriba - abajoPin, .64);
-                for (let i = 0; i < n; i++) add(malla(geo, oro(), false), ox, (arriba + abajoPin) / 2, zA + i * paso);
+                for (let i = 0; i < n; i++) pon(malla(geo, oro(), false), A + i * paso, (arriba + abajoPin) / 2);
             } else if (t === 'pantalla') {
                 // Módulo TFT: marco metálico y, encima, el dibujo de la pantalla recortado.
                 const [rx, ry, rw, rh] = f.rect;
