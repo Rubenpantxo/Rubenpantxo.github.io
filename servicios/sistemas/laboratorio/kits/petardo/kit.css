@@ -1,0 +1,94 @@
+/* Kit «Petardo» — Neobrutalismo.
+   Bordes gruesos, sombras sólidas sin desenfoque, colores planos y
+   titulares con fuerza. Solo cambia valores de tokens. */
+
+[data-kit="petardo"] {
+  /* 1 · Primitivos */
+  --p-crema: #fff4e0;
+  --p-papel: #ffffff;
+  --p-arena: #ffe8bf;
+  --p-carbon: #111111;
+  --p-grafito: #3a3a3a;
+  --p-tomate: #ff5c39;
+  --p-menta: #7cf0c5;
+  --p-limon: #ffd23f;
+
+  /* 2 · Semánticos */
+  --color-fondo: var(--p-crema);
+  --color-superficie: var(--p-papel);
+  --color-superficie-2: var(--p-arena);
+  --color-texto: var(--p-carbon);
+  --color-texto-suave: var(--p-grafito);
+  --color-borde: var(--p-carbon);
+  --color-accion: var(--p-tomate);
+  --color-sobre-accion: var(--p-carbon);
+  --color-acento: var(--p-menta);
+  --color-sobre-acento: var(--p-carbon);
+  --color-exito: #0b7a43;
+  --color-foco: var(--p-carbon);
+
+  --fuente-titulos: "Archivo Black", "Arial Black", sans-serif;
+  --fuente-texto: "Space Grotesk", system-ui, sans-serif;
+  --fuente-mono: "Space Mono", ui-monospace, monospace;
+  --peso-titulos: 400;
+  --tracking-titulos: -.01em;
+  --texto-xl: 2rem;
+
+  --radio-s: 4px;
+  --radio-m: 6px;
+  --radio-l: 10px;
+  --borde-ancho: 3px;
+
+  --sombra-1: 3px 3px 0 var(--p-carbon);
+  --sombra-2: 6px 6px 0 var(--p-carbon);
+  --sombra-foco: 0 0 0 3px var(--p-limon);
+
+  --duracion-rapida: 90ms;
+  --curva: steps(2, end);
+
+  --escena-decor: radial-gradient(circle at 92% 8%, var(--p-limon) 0 3.5rem, transparent 3.6rem);
+
+  /* 3 · Componente */
+  --boton-borde: 3px solid var(--p-carbon);
+  --boton-sombra: 4px 4px 0 var(--p-carbon);
+  --boton-sombra-hover: 6px 6px 0 var(--p-carbon);
+  --boton-sombra-activa: 0 0 0 var(--p-carbon);
+  --boton-pulsado: translate(4px, 4px);
+  --boton-caja: uppercase;
+  --boton-tracking: .03em;
+  --boton-sec-fondo: var(--p-papel);
+  --boton-sec-borde: 3px solid var(--p-carbon);
+  --tarjeta-hover: translate(-2px, -2px);
+  --media-fondo: var(--p-limon);
+  --media-radio: var(--radio-m);
+  --campo-sombra: 3px 3px 0 var(--p-carbon);
+  --etiqueta-borde: 2px solid var(--p-carbon);
+  --etiqueta-radio: var(--radio-s);
+  --etiqueta-caja: uppercase;
+}
+
+[data-kit="petardo"][data-modo="oscuro"] {
+  --p-noche: #17140f;
+  --p-noche-2: #221e17;
+  --p-noche-3: #2d281f;
+
+  --color-fondo: var(--p-noche);
+  --color-superficie: var(--p-noche-2);
+  --color-superficie-2: var(--p-noche-3);
+  --color-texto: var(--p-crema);
+  --color-texto-suave: #d9ccb4;
+  --color-borde: var(--p-crema);
+  --color-foco: var(--p-limon);
+
+  --sombra-1: 3px 3px 0 var(--p-crema);
+  --sombra-2: 6px 6px 0 var(--p-crema);
+
+  --boton-borde: 3px solid var(--p-crema);
+  --boton-sombra: 4px 4px 0 var(--p-crema);
+  --boton-sombra-hover: 6px 6px 0 var(--p-crema);
+  --boton-sec-fondo: var(--p-noche-2);
+  --boton-sec-borde: 3px solid var(--p-crema);
+  --media-fondo: #3b3215;
+  --campo-sombra: 3px 3px 0 var(--p-crema);
+  --etiqueta-borde: 2px solid var(--p-crema);
+}

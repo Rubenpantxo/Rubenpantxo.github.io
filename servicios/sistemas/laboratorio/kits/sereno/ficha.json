@@ -1,0 +1,52 @@
+{
+  "id": "sereno",
+  "nombre": "Sereno",
+  "direccion": "Corporativo sobrio",
+  "lema": "Serif con oficio, azul marino y mucho orden.",
+  "personalidad": "Serio, cercano y de confianza. No llama la atención: la gana.",
+  "paraQuien": "Clientes conservadores que venden confianza: despachos, asesorías, clínicas, aseguradoras, ingenierías consolidadas.",
+  "sectores": [
+    "Despachos y asesorías",
+    "Salud privada",
+    "Seguros y banca",
+    "Administración"
+  ],
+  "tipografia": {
+    "titulos": "Source Serif 4",
+    "texto": "Inter"
+  },
+  "paleta": [
+    {
+      "nombre": "Hueso",
+      "valor": "#f6f5f2"
+    },
+    {
+      "nombre": "Carbón",
+      "valor": "#1c2430"
+    },
+    {
+      "nombre": "Marino",
+      "valor": "#1d3557"
+    },
+    {
+      "nombre": "Piedra",
+      "valor": "#d6d3cb"
+    },
+    {
+      "nombre": "Oro viejo",
+      "valor": "#e9dcbc"
+    }
+  ],
+  "rasgos": {
+    "bordes": "1 px gris cálido",
+    "sombras": "Apenas perceptibles",
+    "movimiento": "Rápido y discreto"
+  },
+  "ejemplo": "La web de una asesoría con cita previa y área de clientes.",
+  "accesibilidad": "Texto y acción superan 10:1 de contraste. Pensado también para públicos mayores.",
+  "referencia": {
+    "biblioteca": "",
+    "pieza": "",
+    "enlace": ""
+  }
+}
