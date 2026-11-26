@@ -28,13 +28,14 @@ export const CONTROLES = {
     camara: ['KeyC'],
     bajar: ['KeyE', 'KeyF'],          // bajarse del coche / volver a subir
     correr: ['ShiftLeft', 'ShiftRight'],
+    esprintar: ['ControlLeft', 'ControlRight'],
     hora: ['KeyT'],                   // adelantar una hora
     entrar: ['KeyE'],                 // en un punto de entrada (fiestas, frontón…): entrar
     apero: ['KeyQ'],                  // modo agricultura: bajar y subir el apero del tractor
     tajadera: ['KeyG'],               // modo agricultura: abrir o cerrar la tajadera de una boquera (riego)
     descargar: ['KeyX'],              // modo agricultura: sacar o recoger el tubo de descarga de la cosechadora
   },
-  // Modo fiestas (PLAN_FIESTAS.md §4b): mismas teclas de movimiento (WASD y Mayús) y estas acciones.
+  // Modo fiestas (PLAN_FIESTAS.md §4b): mismas teclas de movimiento (WASD, Mayús y Ctrl) y estas acciones.
   // E, F y Espacio dejan de ser «bajarse» y «freno de mano» mientras dura el modo.
   teclasFiestas: {
     quiebro: ['KeyQ'],

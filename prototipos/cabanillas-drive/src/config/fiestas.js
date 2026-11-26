@@ -51,7 +51,7 @@ export const FIESTAS = {
   // Jugador en tercera persona (F2). Velocidades en m/s, tiempos en s, energía de 0 a 1.
   personaje: {
     modelo: 'h_joven',               // persona de MakeHuman que hace de jugador (si falta, la primera)
-    andarMs: 2.2, correrMs: 4.6, esprintMs: 6.6,
+    andarMs: 4.4, correrMs: 5.8, esprintMs: 6.6,
     joystickAndar: 0.5,              // con el joystick por debajo de esto se anda; a fondo se esprinta
     joystickEsprint: 0.93,
     aceleracion: 14,                 // lo rápido que coge la velocidad pedida (1/s)
@@ -96,7 +96,12 @@ export const FIESTAS = {
     colores: { colorada: 0x8a4526, negra: 0x1c1816, berrendaClaro: 0xe9e2d2, berrendaOscuro: 0x1e1a18,
       cuerno: 0xd9cfb4, pezuna: 0x2a2420, morro: 0x3a2a26 },
   },
-  cogida: { vueloS: 0.9, altoM: 1.6, lejosM: 3.2 },   // volteo sencillo: por los aires y al refugio
+  cogida: {
+    vueloS: 0.9, altoM: 1.6, lejosM: 3.2,             // trayectoria de los mozos
+    cornada: { duracionS: 0.8, distanciaM: 1.7, impulsoY: 2.2, giroRad: 1.8 },
+    revolcon: { duracionS: 1.0, distanciaM: 1.1, impulsoY: 0.6, giroRad: 5.2 },
+    recuperaS: 0.45,
+  },
 
   // Recortes y puntuación (F4). Las distancias son del jugador a los cuernos, en metros.
   recortes: {

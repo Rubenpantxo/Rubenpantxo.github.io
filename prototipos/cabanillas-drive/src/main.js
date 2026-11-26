@@ -255,6 +255,8 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         ui.tactil.hidden = true;
       }
       pantallas.ponLugares(api.lugares ?? [], (nombre) => api.irA(nombre));
+      pantallas.ponVehiculos(api.vehiculosConducibles, () => api.vehiculoSeleccionado,
+        (id) => api.seleccionaVehiculo(id), () => api.puedeCambiarVehiculo);
       pantallas.ponFiestas((valor) => {
         if (valor === 'salir') return api.saleFiestas();
         if (valor === 'dejar') return api.fiestas.abandona();

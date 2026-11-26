@@ -66,10 +66,15 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     cargaModelosSalto(),                       // avión y mochila-paracaídas (nunca falla: null si no están)
     cargaHorizonte(ESCENA.rutaHorizonte),      // relieve y ortofoto de alrededor (null si no está)
   ]);
+  let modeloInicialId = VEHICULO.modelo;
+  try {
+    const guardado = localStorage.getItem('cabanillas.vehiculo');
+    if (modelosCoches[guardado]?.info.jugador) modeloInicialId = guardado;
+  } catch { /* el coche por defecto sigue disponible si el almacenamiento está bloqueado */ }
   const datosMuros = sinMurosSustituidos(murosLidar);
   escena.add(mundo.raiz);
   if (horizonte) escena.add(horizonte);
-  const cochesAparcados = creaCochesAparcados(modelosCoches, aparcados, mundo.terreno, { excluir: [VEHICULO.modelo] });
+  const cochesAparcados = creaCochesAparcados(modelosCoches, aparcados, mundo.terreno, { excluir: [modeloInicialId] });
   escena.add(cochesAparcados.raiz);
   const arboles = creaArboles(renderer, modelosArboles, sinArbolesSustituidos(datosArboles), mundo.terreno, { entorno: escena });
   escena.add(arboles.raiz);
@@ -101,14 +106,15 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
   const nodos = nodosDeCalles(geoCalles);
   // Vehículo que conduce el jugador: el coche, o el tractor del modo agricultura (cambiaVehiculo).
   // El que no se conduce se queda aparcado donde se dejó (sigue en la física, frenado)
-  let coche = creaCoche(fisica, escena, modelosCoches[VEHICULO.modelo]);
+  let coche = creaCoche(fisica, escena, modelosCoches[modeloInicialId]);
   const cocheJugador = coche;
+  let modeloCocheSeleccionado = modeloInicialId;
   const vehiculosAparcados = new Set();
   const entrada = creaEntrada(ui.tactil);
   const camaraCoche = creaCamaraCoche(camara, fisica, mundo.terreno, coche);
   const trafico = creaTrafico({
     escena, fisica, modelos: modelosCoches, grafo: creaGrafoCalles(geoCalles), terreno: mundo.terreno,
-    excluirModelo: VEHICULO.modelo,
+    excluirModelo: modeloInicialId,
   });
   const peaton = creaPeaton(fisica, mundo.terreno);
   const peatones = creaPeatones({
@@ -117,7 +123,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
   escena.add(peatones.raiz);
   let obstaculosPeatones = [];
   const luces = creaLuces({
-    escena, cocheJugador: coche.modelo.grupo, infoJugador: modelosCoches[VEHICULO.modelo].info, agentes: trafico.agentes,
+    escena, cocheJugador: coche.modelo.grupo, infoJugador: coche.info, agentes: trafico.agentes,
   });
   const botonBajar = document.querySelector('[data-pulsar="bajar"]');
   let aPie = false;
@@ -185,8 +191,19 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     vehiculosAparcados.add(coche);
     coche = nuevo;
     camaraCoche.ponVehiculo(coche);
+    luces.ponVehiculo(coche.modelo.grupo, coche.info);
     tiempoVolcado = 0;
     acumulado = 0;
+  }
+
+  function seleccionaVehiculo(id) {
+    const modelo = modelosCoches[id];
+    if (!modelo?.info.jugador || coche !== cocheJugador || aPie || enFiestas()) return false;
+    cocheJugador.ponModelo(modelo);
+    modeloCocheSeleccionado = id;
+    luces.ponVehiculo(cocheJugador.modelo.grupo, modelo.info);
+    try { localStorage.setItem('cabanillas.vehiculo', id); } catch { avisa('No se pudo guardar el vehículo elegido'); }
+    return true;
   }
 
   // Entrar al modo fiestas: sin tráfico ni peatones, el festejo montado y el jugador a pie dentro
@@ -644,6 +661,11 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
     get modoFiestas() { return enFiestas() ? fiestas.modo : null; }, carteles, luces, ciclo, peatones, muros, elementos, farolas,
     lugares: lugares.map(({ nombre, icono }) => ({ nombre, icono })),
     entradas, aparece, empiezaSalto, omiteSalto, cambiaVehiculo, aparcaVehiculo, cocheJugador, entraAgricultura, cargaAgricultura,
+    vehiculosConducibles: Object.values(modelosCoches).filter((m) => m.info.jugador)
+      .map((m) => ({ id: m.id, nombre: m.info.nombre ?? m.id })),
+    get vehiculoSeleccionado() { return modeloCocheSeleccionado; },
+    get puedeCambiarVehiculo() { return coche === cocheJugador && !aPie && !enFiestas(); },
+    seleccionaVehiculo,
     get agricultura() { return agricultura; },
     // El personaje del editor (PLAN_PERSONAJE.md) hace de jugador en las fiestas y en el salto
     async ponJugador(apariencia) {

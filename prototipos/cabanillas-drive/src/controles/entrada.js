@@ -1,4 +1,4 @@
-// Entrada unificada: teclado (WASD/flechas, Espacio, R, C, E, Mayús) y táctil (joystick
+// Entrada unificada: teclado (WASD/flechas, Espacio, R, C, E, Mayús, Ctrl) y táctil (joystick
 // izquierdo y botones a la derecha). El juego lee siempre el mismo objeto.
 // A pie: avance/lateral (W/S, A/D o joystick), giro con las flechas y mirada con el ratón
 // (clic para capturar el puntero) o arrastrando el dedo fuera del joystick.
@@ -6,7 +6,7 @@ import { CONTROLES } from '../config/camara.js';
 
 export function creaEntrada(raizTactil) {
   const estado = { acelerador: 0, freno: 0, direccion: 0, frenoMano: false, analogica: false,
-    avance: 0, lateral: 0, giro: 0, correr: false };
+    avance: 0, lateral: 0, giro: 0, correr: false, esprintar: false };
   const pendientes = { reiniciar: false, camara: false, bajar: false, hora: false };
   // Mapa de teclas por modo: en «fiestas» valen las de CONTROLES.teclasFiestas en vez de bajar,
   // reiniciar, cámara y freno de mano
@@ -193,6 +193,7 @@ export function creaEntrada(raizTactil) {
     estado.lateral = (pulsada('KeyD') ? 1 : 0) - (pulsada('KeyA') ? 1 : 0) || (tactil.activo ? tactil.direccion : 0);
     estado.giro = (pulsada('ArrowRight') ? 1 : 0) - (pulsada('ArrowLeft') ? 1 : 0);
     estado.correr = algunaDe(teclas.correr) || tactil.acelerador;
+    estado.esprintar = algunaDe(teclas.esprintar);
     // Para el modo fiestas: con el joystick, cuánto se inclina (0…1); con teclado, siempre 1
     estado.conJoystick = tactil.activo && (tactil.direccion !== 0 || tactil.avance !== 0);
     return estado;
