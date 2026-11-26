@@ -26,6 +26,9 @@ import { CULTIVOS } from '../config/cultivos.js';
 import { cargaDatosRiego, creaRiegoModo } from './riego.js';
 import { creaCosechadora } from './cosechadora.js';
 import { pinta as pintaLabor } from './pincel.js';
+import { ECONOMIA, euros } from '../config/economia.js';
+import { borraPartida, cargaParcela, guardaGeneral, guardaParcela, leePartida } from './partida.js';
+import { creaCapaMinimapa, estadoParcela, NOMBRE_ESTADO } from './capaMinimapa.js';
 
 const CLAVE_COLOR = 'cabdrive.agricultura.colorTractor';
 const CLAVE_SEMILLA = 'cabdrive.agricultura.semilla';
@@ -55,8 +58,14 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   escena.add(raiz);
   const enganche = creaEnganche(tractor, { terreno, raiz });
   // Reloj agrícola (?dia=N para empezar en otro día)
-  const diaPedido = Number.parseInt(new URLSearchParams(location.search).get('dia') ?? '', 10);
-  const reloj = creaReloj(Number.isFinite(diaPedido) && diaPedido >= 0 ? { dia: diaPedido } : {});
+  const parametros = new URLSearchParams(location.search);
+  const diaPedido = Number.parseInt(parametros.get('dia') ?? '', 10);
+  // Guardado (A9): solo en la partida normal (?agricultura). Con un escenario de pruebas
+  // (?agricultura=cosecha…) o con ?dia=N ni se carga ni se guarda, para no pisar la partida de verdad
+  const guardaActivo = !parametros.get('agricultura') && !Number.isFinite(diaPedido);
+  const guardado = guardaActivo ? leePartida() : null;
+  const reloj = creaReloj(Number.isFinite(diaPedido) && diaPedido >= 0 ? { dia: diaPedido } : guardado ? { dia: guardado.dia } : {});
+  const economia = { dinero: guardado?.dinero ?? ECONOMIA.dineroInicial };
   const labranza = creaLabranza({ api, escena, camara, renderer, registro, tractor, enganche, raiz, reloj });
   const cultivos = new Map();               // ref → cultivo (dosel y matas) de las parcelas sembradas
   const sol = escena.getObjectByName('sol');
@@ -65,17 +74,54 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   // Riego (A7): acequias y tajaderas; cada día el suelo se seca y lo que crece apunta el agua que tuvo
   const riego = creaRiegoModo({ datos: datosRiego, terreno, labranza, registro, raiz });
   labranza.ponRiego(riego);
+  let sucioGeneral = false;
+  let guardaActivo2 = guardaActivo;
+  // Parcelas trabajadas en la partida guardada
+  const versiones = new Map();         // ref → versión de las máscaras ya guardada
+  if (guardado) {
+    for (const ref of guardado.parcelas ?? []) {
+      const info = registro.porRef(ref);
+      if (!info) continue;
+      const p = labranza.activa(info);
+      if (!cargaParcela(p)) { console.warn(`[agricultura] La parcela ${ref} guardada no se pudo cargar`); continue; }
+      versiones.set(ref, p.version);
+    }
+  }
+  let relojGuardado = 0;
+  let avisoSinSitio = false;
+  let diaGuardado = reloj.dia;
+  function guarda(forzar = false) {
+    if (!guardaActivo2) return false;
+    let cambio = sucioGeneral || reloj.dia !== diaGuardado;
+    for (const p of labranza.parcelas.values()) {
+      if (versiones.get(p.ref) === p.version) continue;
+      if (!guardaParcela(p) && !avisoSinSitio) {
+        avisoSinSitio = true;
+        api.avisa('⚠ No se puede guardar la partida (el navegador no deja o no queda sitio)', 8);
+      }
+      versiones.set(p.ref, p.version);
+      cambio = true;
+    }
+    if (!cambio && !forzar) return false;
+    guardaGeneral({ dia: reloj.dia, dinero: economia.dinero, granero, parcelas: [...labranza.parcelas.keys()] });
+    sucioGeneral = false;
+    diaGuardado = reloj.dia;
+    return true;
+  }
+  const alOcultar = () => { if (document.visibilityState === 'hidden') guarda(true); };
+  document.addEventListener('visibilitychange', alOcultar);
+  addEventListener('pagehide', () => guarda(true));
   // Cosechadora (A8): en el patio; vacía su tolva en el remolque de grano (apero del tractor)
   const cosechadora = await creaCosechadora({ fisica, escena, terreno, registro, labranza, reloj,
     remolques: () => Object.values(aperos).filter((a) => a.config.grano) });
   const combinada = cosechadora.maquina;
-  const granero = {};                       // kg entregados en la COPE por cultivo (se venderán en A9)
+  const granero = { ...(guardado?.granero ?? {}) };   // kg entregados en la COPE por cultivo, a la venta
   reloj.alCambiarDia((dia, pasados) => riego.alCambiarDia(dia, pasados));
   function pasaDias(n) {
     riego.resuelve();          // el agua que queda se mete en el suelo y se cierran las tajaderas
+    api.avisa(`⏩ Día ${reloj.dia + n} de cultivo`, 3);       // antes: los avisos del día (maduro…) lo pisan
     reloj.pasaDias(n);
     for (const p of labranza.parcelas.values()) p.sube(performance.now(), true);
-    api.avisa(`⏩ Día ${reloj.dia} de cultivo`, 3);
   }
   // Lo que lleva la parcela donde está el tractor: cultivo, etapa y edad (para el panel)
   function cultivoEn(info, x, z) {
@@ -104,6 +150,16 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   let semilla = 'trigo';
   try { const g = localStorage.getItem(CLAVE_SEMILLA); if (g && SEMILLAS[g]) semilla = g; } catch { /* sin almacenamiento */ }
   const hud = creaHudAgricultura({ tactil: document.getElementById('tactil') });
+  // Minimapa: parcelas trabajadas por estado y la máquina con su anchura de trabajo
+  const capaMapa = creaCapaMinimapa({ registro, labranza, reloj, maquina: () => {
+    const conduce = api.coche === tractor ? tractor : api.coche === combinada ? combinada : null;
+    if (!conduce) return null;
+    const e = conduce.estado();
+    const f = Math.hypot(e.adelante.x, e.adelante.z) || 1;
+    const ancho = conduce === combinada ? combinada.info?.cabezal?.ancho_corte ?? 5.4 : (enganche.apero?.config.labor ? enganche.apero.anchoTrabajo : 2.5);
+    return { x: e.posicion.x, z: e.posicion.z, fx: e.adelante.x / f, fz: e.adelante.z / f, ancho };
+  } });
+  capaMapa.pon();
   let tajaderaCerca = null;
   let sonido = null;                         // se crea al coger el tractor (después de un toque o tecla)
   const conTeclado = !matchMedia('(pointer: coarse)').matches;
@@ -163,9 +219,9 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   function entrega(kg, id) {
     if (kg <= 0) return;
     granero[id] = (granero[id] ?? 0) + kg;
+    sucioGeneral = true;
     api.avisa(`🏭 ${Math.round(kg).toLocaleString('es-ES')} kg de ${nombreGrano(id)} entregados en la COPE`, 5);
   }
-  const textoGranero = () => Object.entries(granero).map(([id, kg]) => `${Math.round(kg).toLocaleString('es-ES')} kg de ${nombreGrano(id)}`).join(' y ');
   function dejaTractor() {
     enganche.pon(false);
     colocaEn(tractor, C.sitioTractor);
@@ -178,11 +234,36 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     if (viejo) viejo.aparca(labranza.raiz, terreno, C.sitiosAperos[viejo.id]);
     return viejo;
   }
-  // Llena la tolva del apero en la COPE (abono o la semilla elegida). De momento sin pagar (A9)
-  function llenaTolva(a = enganche.apero) {
+  // Llena la tolva del apero en la COPE (abono o la semilla elegida) pagando lo que falta. Si no
+  // llega el dinero, se llena lo que alcance
+  function llenaTolva(a = enganche.apero, aviso = false) {
     if (!a?.config.tolva) return false;
-    a.llena(a.config.tolva === 'abono' ? 'abono' : semilla);
+    const contenido = a.config.tolva === 'abono' ? 'abono' : semilla;
+    const mismo = a.contenido === contenido;
+    const falta = mismo ? a.capacidad - a.carga : a.capacidad;
+    if (falta < 0.5) return true;
+    const kg = Math.min(falta, economia.dinero / ECONOMIA.compra[contenido]);
+    if (kg < 1) { api.avisa(`💶 No te llega el dinero para ${contenido === 'abono' ? 'abono' : 'semilla'} (${euros(economia.dinero)})`, 5); return false; }
+    const coste = kg * ECONOMIA.compra[contenido];
+    economia.dinero -= coste;
+    const antes = mismo ? a.carga : 0;
+    a.llena(contenido);
+    a.carga = antes + kg;
+    a.pintaCarga();
+    sucioGeneral = true;
+    if (aviso || kg < falta) api.avisa(`🌨️ Tolva: ${Math.round(a.carga)} kg de ${nombreCarga(a)} · pagados ${euros(coste)}${kg < falta ? ' (no llegaba para llenarla)' : ''}`, 5);
     return true;
+  }
+  // Vende en la COPE el grano entregado de un cultivo
+  function vende(id) {
+    const kg = granero[id] ?? 0;
+    if (kg <= 0) return 0;
+    const importe = kg * (ECONOMIA.venta[id] ?? 0);
+    economia.dinero += importe;
+    granero[id] = 0;
+    sucioGeneral = true;
+    api.avisa(`💶 Vendidos ${Math.round(kg).toLocaleString('es-ES')} kg de ${nombreGrano(id)} por ${euros(importe)}`, 6);
+    return importe;
   }
   const nombreCarga = (a) => (a.contenido === 'abono' ? 'abono' : `semilla de ${SEMILLAS[a.contenido]?.nombre.toLowerCase() ?? '…'}`);
   function engancha(id, aviso = true) {
@@ -238,6 +319,37 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
   let avisoMarchaAtras = 0;
   let avisoTolva = 0;
   let avisoRastrojo = 0;
+  // Avisos de la parcela donde se está (A9): pide agua, está madura. Cada uno, como mucho cada minuto por parcela
+  const ultimoAviso = new Map();
+  const maduras = new Set();
+  let relojAvisos = 0;
+  function avisosParcela(info, x, z) {
+    const p = info ? labranza.parcelas.get(info.ref) : null;
+    if (!p?.siembra) return;
+    const ahora = performance.now();
+    const dicho = (k) => { const t = ultimoAviso.get(`${info.ref}:${k}`) ?? -Infinity; if (ahora - t < 60000) return true; ultimoAviso.set(`${info.ref}:${k}`, ahora); return false; };
+    const e = estadoParcela(p, reloj.dia);
+    const c = CULTIVOS[p.siembra.cultivo];
+    if (e.id === 'madura' && !dicho('madura')) { api.avisa(`🌾 El ${c.nombre.toLowerCase()} de la ${info.ref} está maduro: a cosechar`, 6); return; }
+    if (e.id === 'sembrada') {
+      const s2 = sueloEn(info);
+      if (s2 && s2.humedad < (riego.modelo?.humedad_lluvia ?? 0.3) + 0.05 && !dicho('agua')) {
+        api.avisa(`💧 La ${info.ref} pide agua${riego.estado(info.ref) ? ' · abre la tajadera de la acequia' : ''}`, 6);
+      }
+    }
+  }
+  // Al cambiar el día: el cereal que acaba de madurar
+  reloj.alCambiarDia(() => {
+    for (const p of labranza.parcelas.values()) {
+      if (!p.siembra) continue;
+      const k = `${p.ref}:${p.siembra.primerDia}`;
+      if (maduras.has(k)) continue;
+      if (estadoParcela(p, reloj.dia).id === 'madura') {
+        maduras.add(k);
+        api.avisa(`🌾 El ${CULTIVOS[p.siembra.cultivo].nombre.toLowerCase()} de la ${p.ref} ya está maduro`, 6);
+      }
+    }
+  });
   const modo = {
     tractor, enganche, labranza, registro, aperos,
     get llevaTractor() { return api.coche === tractor; },
@@ -252,10 +364,20 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
         en: enTractor ? 'tractor' : enCosechadora ? 'cosechadora' : 'coche',
         cosecha: enCosechadora ? { kg: cosechadora.tolvaKg, capacidad: cosechadora.capacidadKg, nombre: nombreGrano(cosechadora.contenido) } : null,
         remolque: enTractor && rem ? { kg: rem.carga, capacidad: rem.capacidad, nombre: nombreGrano(rem.contenido) } : null,
-        granero: { kg: Object.values(granero).reduce((a, b) => a + b, 0), texto: `Entregado en la COPE: ${textoGranero()} (se venderá más adelante)` },
+        dinero: economia.dinero,
+        precios: { compra: ECONOMIA.compra, venta: ECONOMIA.venta },
+        granero: { kg: Object.values(granero).reduce((a, b) => a + b, 0),
+          items: Object.entries(granero).filter(([, kg]) => kg > 0).map(([id, kg]) => ({ id, nombre: nombreGrano(id), kg, precio: ECONOMIA.venta[id] ?? 0 })) },
+        parcelas: [...labranza.parcelas.values()].map((p) => {
+          const e = estadoParcela(p, reloj.dia);
+          const r = p.recuento();
+          return { ref: p.ref, paraje: p.info.paraje, ha: p.info.superficie_ha, estado: NOMBRE_ESTADO[e.id], id: e.id, cultivo: e.cultivo ?? null,
+            faltan: e.faltan ?? null, cosechado: Math.round(r.cosechado), abonado: Math.round(r.abonado) };
+        }),
+        guardado: guardaActivo,
         colores: COLORES_TRACTOR,
         colorElegido: indiceColor,
-        aperos: listaAperos.map((a) => ({ id: a.id, nombre: a.config.nombre, detalle: a.config.detalle, icono: a.config.icono,
+        aperos: listaAperos.map((a) => ({ id: a.id, nombre: a.config.nombre, detalle: a.config.detalle, icono: a.id,
           enganchado: enganche.apero === a })),
         semillas: Object.entries(SEMILLAS).map(([id, x]) => ({ id, ...x })),
         semilla,
@@ -269,7 +391,9 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
           sonido: () => Boolean(sonido?.alterna()),
           pasaDias,
           semilla: (id) => { semilla = id; try { localStorage.setItem(CLAVE_SEMILLA, id); } catch { /* sin almacenamiento */ } },
-          llena: () => { if (llenaTolva()) api.avisa(`Tolva llena: ${Math.round(enganche.apero.carga)} kg de ${nombreCarga(enganche.apero)}`, 4); } },
+          llena: () => { llenaTolva(undefined, true); },
+          vende,
+          nueva: () => { borraPartida(); guardaActivo2 = false; location.reload(); } },
       });
     },
     // Cada paso de física (antes de avanzar el mundo)
@@ -279,6 +403,8 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
       if (api.entrada.consume('apero')) alternaApero();
       if (api.entrada.consume('descargar')) alternaTubo();
       reloj.avanza(dt);
+      relojGuardado += dt;
+      if (relojGuardado >= ECONOMIA.guardado.cadaSegundos) { relojGuardado = 0; guarda(); }
       const r = labranza.actualiza(dt);
       // Riego: la tajadera más cerca del vehículo y el agua
       const pv = posicionVehiculo();
@@ -301,6 +427,12 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
       // Cosechadora: cabezal, siega, tubo y descarga
       const enCosechadora = api.coche === combinada;
       cosechadora.actualiza(dt, enCosechadora);
+      relojAvisos += dt;
+      if (relojAvisos >= 2 && (enCosechadora || api.coche === tractor) && !labranza.tolvaVacia && !labranza.sinPreparar) {
+        relojAvisos = 0;
+        const pv2 = posicionVehiculo();
+        if (pv2) avisosParcela(registro.parcelaEn(pv2.x, pv2.z), pv2.x, pv2.z);
+      }
       const enTractor = api.coche === tractor;
       if (enCosechadora) {
         const e = combinada.estado();
@@ -346,14 +478,14 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
         }
         if (labranza.sinPreparar && ahora > avisoRastrojo) {
           avisoRastrojo = ahora + 12000;
-          api.avisa('Siembras sobre rastrojo · mejor arar y pasar el cultivador antes', 4);
+          api.avisa('Hay que labrar antes de sembrar · mejor arar y pasar el cultivador', 5);
         }
         const ap = enganche.apero;
         const carga = ap && (ap.config.resistenciaN > 0 || enganche.tdf) ? 1 : 0;
         const esfuerzo = ap && enganche.subida < 0.5 ? carga * Math.min(1, Math.abs(e.velocidadKmh) / 3) : 0;
         sonido?.actualiza(dt, { velocidadKmh: e.velocidadKmh, acelerador: mandos?.acelerador ?? 0, esfuerzo,
           distancia: camara.position.distanceTo(e.posicion) });
-        hud.actualiza({ apero: ap, bajado: enganche.bajado, velocidadKmh: e.velocidadKmh,
+        hud.actualiza({ apero: ap, bajado: enganche.bajado, tdf: enganche.tdf, velocidadKmh: e.velocidadKmh,
           parcela: labranza.parcelaPisada, recuento: labranza.recuento, conTeclado,
           dia: reloj.dia, minutosParaManana: Math.ceil(reloj.segundosParaManana / 60),
           cultivo: cultivoEn(labranza.parcelaPisada, e.posicion.x, e.posicion.z),
@@ -366,7 +498,11 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
       }
       return r;
     },
-    pausa() { sonido?.para(); },
+    pausa() { sonido?.para(); guarda(true); },
+    guarda,
+    economia,
+    vende,
+    get guardaActivo() { return guardaActivo2; },
     cogeTractor: (indice = indiceColor, idApero) => cogeTractor(indice, idApero),
     cosechadora,
     cogeCosechadora,

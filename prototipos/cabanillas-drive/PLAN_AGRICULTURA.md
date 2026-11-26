@@ -302,7 +302,7 @@ Aceptación: de una siembra a la madurez se ven nascencia, verde, espigado y dor
 
 Aceptación: al abrir la tajadera, el agua entra y cubre la parcela siguiendo la pendiente real en un tiempo razonable; al cerrarla se va secando. Rubén comprueba que el sentido del agua es el que conoce.
 
-### A8 — Cosecha — HECHA (2026-11-25), pendiente de que Rubén la pruebe
+### A8 — Cosecha — HECHA y aprobada (2026-11-26)
 
 - Cosechadora (modelo, dirección trasera, cabezal, molinete), corte del dosel con el escalón del vídeo 1, tolva, hileras de paja, rastrojo.
 - Remolque y descarga de grano con el tubo.
@@ -310,7 +310,9 @@ Aceptación: al abrir la tajadera, el agua entra y cubre la parcela siguiendo la
 
 Aceptación: cosechar una parcela madura deja rastrojo; la tolva se llena según el rendimiento y se descarga al remolque.
 
-### A9 — Ciclo completo, HUD y guardado
+### A9 — Ciclo completo, HUD y guardado — HECHA (2026-11-26), pendiente de que Rubén la pruebe
+
+- Hecho así: dinero (3 000 €), venta de grano (trigo 0,25 y cebada 0,238 €/kg, Lonja del Ebro, noviembre de 2026), compra de semilla y abono al llenar la tolva (0,45 €/kg, orientativo), menú de la COPE con «Tus parcelas», avisos, panel con SIGPAC y regadío, capa de parcelas y de anchura de trabajo en el minimapa, guardado en `localStorage` (RLE por canales + base64; un escenario de pruebas no guarda) y `tools/prueba_agricultura.mjs`. Comprar y vender parcelas: pendiente de que Rubén lo quiera.
 
 - `src/hud/agricultura.js`, panel de parcela, avisos, minimapa, menú de la COPE (comprar y vender), guardado y carga.
 - Comprar y vender parcelas si Rubén lo quiere.

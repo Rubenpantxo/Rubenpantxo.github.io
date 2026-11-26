@@ -469,7 +469,7 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 
 ## Agricultura (PLAN_AGRICULTURA.md)
 
-**Fase actual: A8 (cosecha) hecha el 2026-11-25, pendiente de que Rubén la pruebe.** A7 aprobada (2026-11-25); A6 aprobada (2026-11-25); A5 aprobada (2026-11-25); A4 aprobada (2026-11-25); A3 aprobada (2026-11-25); A2 aprobada (2026-11-24); A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
+**Fase actual: A9 (ciclo completo, dinero, guardado, avisos y minimapa) hecha el 2026-11-26, pendiente de que Rubén la pruebe.** A8 aprobada (2026-11-26); A7 aprobada (2026-11-25); A6 aprobada (2026-11-25); A5 aprobada (2026-11-25); A4 aprobada (2026-11-25); A3 aprobada (2026-11-25); A2 aprobada (2026-11-24); A0 aprobada; A1 omitida por decisión de Rubén (la parcela de pruebas, 2-700, está en la zona del juego). Rama `feat/cabanillas-agricultura` (subida a GitHub a petición de Rubén; `main` sin tocar).
 
 ### Hecho en A0
 - **Todas las parcelas del término** (decisión de Rubén): 1 775 rústicas + 22 mixtas = **1 797 parcelas, 3 275 ha** de las 3 574 del término; 9 polígonos. 259 dentro de la zona del juego, 70 en parte y 1 468 fuera.
@@ -582,10 +582,23 @@ Rubén mandó una captura con los dos frontones y los dos caminos de entrada. Lo
 - **COPE:** la cosechadora espera en el oeste del patio; en el menú, «Coger la cosechadora», y con ella su tolva, «Descargar la tolva en la COPE» y «Dejar la cosechadora». `?agricultura=cosecha` empieza en la cosechadora dentro de la 2-700 sembrada de trigo maduro, con el tractor y el remolque junto a la entrada.
 - **Prueba:** `node tools/prueba_cosecha.mjs <carpeta> [bajo|medio|alto] [movil]`. ?agricultura=cosecha; cabezal y molinete; una pasada de verdad de 39 m siega 5,4 m de ancho a 6 830 kg/ha (trigo en tierra preparada y abonada) y llena la tolva; detrás queda rastrojo y al lado sigue el trigo; una franja verde no la siega; sin remolque debajo el tubo no descarga y con él pasa lo mismo que sale; el montón sube; a pie se sube al tractor de al lado; en la COPE se descarga la tolva; sin errores. Bien en escritorio y en el móvil; `prueba_riego`, `prueba_siembra`, `prueba_labranza`, `prueba_tractor` y `prueba_cultivo` siguen bien.
 
+### Hecho en A9 (2026-11-26)
+- **Dinero** (`src/config/economia.js`): se empieza con 3 000 €. **Venta**: trigo 0,25 €/kg y cebada 0,238 €/kg, según la Lonja del Ebro de noviembre de 2026 (trigo 252–255 €/t, cebada de más de 64 de peso específico 238 €/t). **Compra** (semilla de trigo 0,45, de cebada 0,42, abono 0,45 €/kg): ORIENTATIVOS, sin fuente; a confirmar con Rubén.
+- **COPE** (`menuCope.js`): arriba, el dinero y los precios; llenar la tolva de abono o semilla **se paga** (solo lo que falta; sin dinero suficiente se llena lo que llegue y avisa); el grano entregado (tolva de la cosechadora o remolque) se **vende** con un botón por cultivo; «Tus parcelas» enseña cada parcela trabajada con su estado (rastrojo, arada, preparada, sembrada con los días que faltan, madura, cosechada); botón para empezar una partida nueva (con confirmación). Se quita el «Pronto: …».
+- **Guardado** (`src/agricultura/partida.js`): en `localStorage` una clave con lo general (día, dinero, grano, parcelas trabajadas) y una por parcela con sus máscaras (laboreo, cultivo y agua) en RLE por canales y base64 (la 2-700, de 195×189 píxeles, ocupa unos 35 KB). Se guarda sola cada 10 s si algo ha cambiado, al ocultar la pestaña y al pausar; al entrar se cargan las parcelas y el día. Si el navegador no deja guardar, avisa. **Un escenario de pruebas** (`?agricultura=cosecha`, `=riego`) **o `?dia=N` ni cargan ni guardan**, para no pisar la partida de verdad.
+- **Avisos:** «Hay que labrar antes de sembrar», «La parcela pide agua» (sembrada y con el suelo en la humedad de la lluvia, con «abre la tajadera» si tiene acequia), «El cereal está maduro» (al entrar en la parcela y el día en que madura) y el de tolva vacía; el «⏩ Día N» ya no pisa el aviso de maduro.
+- **Panel:** la línea de la parcela lleva el uso SIGPAC y secano o regadío; el apero con toma de fuerza enseña si gira.
+- **Minimapa** (`capaMinimapa.js`, gancho `capaMinimapa` en `hud/minimapa.js`): las parcelas trabajadas se colorean por su estado (también en el mapa grande); con una máquina se ven los contornos de las de alrededor y una barra con la anchura de trabajo (apero o cabezal de 5,4 m).
+- **Iconos propios** (`src/hud/iconos.js`): se acabaron los emojis del menú de la COPE, del panel y de los botones táctiles. Cada icono es un SVG dibujado a mano con degradados (tractor, arado de vertederas, cultivador con rodillo, abonadora, sembradora, remolque, cosechadora, coche, edificio de la COPE, billete, espigas de trigo y cebada, saco de abono, tolva, calendario, gota, tajadera, etc.), con `iconoHtml(nombre, px)`. Los avisos en pantalla aún llevan algún emoji suelto (texto).
+- **Prueba:** `node tools/prueba_agricultura.mjs <carpeta> [bajo|medio|alto] [movil]`: partida nueva con 3 000 €; compra de tolvas (360 € de abono, 180 € de semilla; con 45 € solo 100 kg); la 2-700 labrada, abonada y sembrada; riego (93 % cubierto, 88 % regado); 60 días secos y avisa que pide agua; hasta el día 231 y avisa de que madura; «Tus parcelas»; una pasada de verdad de 40 m de cosechadora (163 kg, ~7 550 kg/ha); descargar en la COPE y vender (41 €); guardado (35 KB) y recarga con la parcela igual; `?agricultura=cosecha` no guarda; sin errores.
+- **No hecho (a decidir con Rubén):** comprar y vender parcelas (el plan lo deja a su gusto); el plantel y la recolección a mano llegan con los hortícolas (A10).
+
 ### Pendiente de Rubén
-- Probar la cosecha (`?agricultura=cosecha`, o sembrar, pasar días hasta que madure y coger la cosechadora en la COPE) y decir si le cuadran la cosechadora, la siega, el rendimiento y la descarga al remolque.
+- Hacer un ciclo completo en escritorio y en el móvil (labrar, abonar, sembrar, regar, pasar días, cosechar, descargar y vender; recargar la página y comprobar que sigue todo) y decir qué cambiar.
+- Decir si quiere comprar y vender parcelas, y si los precios de compra de la semilla y el abono (0,45 €/kg) le cuadran.
+- (A8, ya aprobada) Probar la cosecha (`?agricultura=cosecha`, o sembrar, pasar días hasta que madure y coger la cosechadora en la COPE) y decir si le cuadran la cosechadora, la siega, el rendimiento y la descarga al remolque.
 - Si sabe los datos de verdad: rendimiento del trigo y la cebada en la 2-700, tamaño de la tolva y del remolque.
-- Confirmar que se empieza A9 (ciclo completo, panel, avisos, minimapa, guardado y comprar/vender en la COPE).
+- Confirmar que se empieza A10 (hortícolas).
 - Más adelante: precios (§3 del plan).
 
 ### Notas
