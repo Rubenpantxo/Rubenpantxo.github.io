@@ -1,0 +1,52 @@
+{
+  "id": "maqueta",
+  "nombre": "Maqueta",
+  "direccion": "Isométrico 3D",
+  "lema": "Piezas con canto, como una maqueta vista en ángulo.",
+  "personalidad": "Didáctico, optimista y tangible. Hace que lo abstracto parezca un objeto que se puede tocar.",
+  "paraQuien": "Empresas que necesitan explicar un producto o un proceso: plataformas, formación, inmobiliarias, logística.",
+  "sectores": [
+    "Formación y edtech",
+    "Plataformas y apps",
+    "Inmobiliaria",
+    "Producto físico"
+  ],
+  "tipografia": {
+    "titulos": "Fredoka",
+    "texto": "Nunito"
+  },
+  "paleta": [
+    {
+      "nombre": "Cielo",
+      "valor": "#e7eeff"
+    },
+    {
+      "nombre": "Marino",
+      "valor": "#1b2559"
+    },
+    {
+      "nombre": "Cobalto",
+      "valor": "#3757f5"
+    },
+    {
+      "nombre": "Canto",
+      "valor": "#b4c4ef"
+    },
+    {
+      "nombre": "Coral",
+      "valor": "#ff8a65"
+    }
+  ],
+  "rasgos": {
+    "bordes": "2 px suaves",
+    "sombras": "Una pila de sombras sólidas a 45° que dibuja el canto de cada pieza",
+    "movimiento": "Con un pequeño rebote, como una tecla"
+  },
+  "ejemplo": "La página de una plataforma de formación que explica sus pasos con piezas apiladas.",
+  "accesibilidad": "El volumen es decorativo: los estados (pulsado, foco) también se marcan con color y contorno.",
+  "referencia": {
+    "biblioteca": "",
+    "pieza": "",
+    "enlace": ""
+  }
+}

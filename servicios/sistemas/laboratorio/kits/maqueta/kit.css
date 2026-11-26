@@ -1,0 +1,89 @@
+/* Kit «Maqueta» — Isométrico 3D.
+   Piezas con volumen: cada tarjeta y cada botón tienen canto, como una
+   maqueta vista en ángulo fijo. Fondo con cubos isométricos dibujados.
+   Solo cambia valores de tokens. */
+
+[data-kit="maqueta"] {
+  /* 1 · Primitivos */
+  --p-cielo: #e7eeff;
+  --p-blanco: #ffffff;
+  --p-hielo: #d6e2ff;
+  --p-canto: #b4c4ef;
+  --p-marino: #1b2559;
+  --p-pizarra: #46507e;
+  --p-cobalto: #3757f5;
+  --p-coral: #ff8a65;
+
+  /* 2 · Semánticos */
+  --color-fondo: var(--p-cielo);
+  --color-superficie: var(--p-blanco);
+  --color-superficie-2: var(--p-hielo);
+  --color-texto: var(--p-marino);
+  --color-texto-suave: var(--p-pizarra);
+  --color-borde: var(--p-canto);
+  --color-accion: var(--p-cobalto);
+  --color-sobre-accion: #ffffff;
+  --color-acento: var(--p-coral);
+  --color-sobre-acento: var(--p-marino);
+  --color-exito: #127a4c;
+  --color-foco: var(--p-marino);
+
+  --fuente-titulos: "Fredoka", "Nunito", sans-serif;
+  --fuente-texto: "Nunito", system-ui, sans-serif;
+  --peso-titulos: 600;
+
+  --radio-s: 8px;
+  --radio-m: 12px;
+  --radio-l: 18px;
+
+  /* El canto isométrico: una pila de sombras sólidas a 45°. */
+  --sombra-1: 0 4px 0 var(--p-canto);
+  --sombra-2: 1px 1px 0 var(--p-canto), 2px 2px 0 var(--p-canto), 3px 3px 0 var(--p-canto), 4px 4px 0 var(--p-canto), 5px 5px 0 var(--p-canto), 6px 6px 0 var(--p-canto), 7px 7px 0 var(--p-canto), 8px 8px 0 var(--p-canto), 16px 18px 24px rgb(27 37 89 / .18);
+  --curva: cubic-bezier(.34, 1.56, .64, 1);
+
+  --escena-decor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64' viewBox='0 0 56 64'%3E%3Cg fill='none' stroke='%23b4c4ef' stroke-width='1'%3E%3Cpath d='M28 0 56 16 28 32 0 16Z'/%3E%3Cpath d='M0 16v32l28 16V32M56 16v32L28 64'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 56px 64px;
+
+  /* 3 · Componente */
+  --boton-radio: var(--radio-m);
+  --boton-sombra: 0 6px 0 var(--color-accion-profundo);
+  --boton-sombra-hover: 0 8px 0 var(--color-accion-profundo);
+  --boton-sombra-activa: 0 1px 0 var(--color-accion-profundo);
+  --boton-pulsado: translateY(5px);
+  --boton-sec-fondo: var(--p-blanco);
+  --boton-sec-borde: 2px solid var(--p-canto);
+  --tarjeta-borde: 2px solid var(--p-canto);
+  --tarjeta-hover: translate(-3px, -3px);
+  --media-fondo: linear-gradient(160deg, var(--p-hielo), var(--p-blanco));
+  --campo-borde: 2px solid var(--p-canto);
+  --campo-sombra: inset 0 3px 0 var(--p-hielo);
+  --etiqueta-borde: 2px solid var(--p-marino);
+}
+
+[data-kit="maqueta"][data-modo="oscuro"] {
+  --p-noche: #10142e;
+  --p-noche-2: #1a2048;
+  --p-noche-3: #242c5e;
+  --p-canto-noche: #0a0d22;
+
+  --color-fondo: var(--p-noche);
+  --color-superficie: var(--p-noche-2);
+  --color-superficie-2: var(--p-noche-3);
+  --color-texto: #eef2ff;
+  --color-texto-suave: #b7c0ea;
+  --color-borde: #39437e;
+  --color-accion: #7d93ff;
+  --color-sobre-accion: #0d1233;
+  --color-exito: #59d69c;
+  --color-foco: #ffd2c2;
+
+  --sombra-2: 1px 1px 0 var(--p-canto-noche), 2px 2px 0 var(--p-canto-noche), 3px 3px 0 var(--p-canto-noche), 4px 4px 0 var(--p-canto-noche), 5px 5px 0 var(--p-canto-noche), 6px 6px 0 var(--p-canto-noche), 7px 7px 0 var(--p-canto-noche), 8px 8px 0 var(--p-canto-noche);
+  --escena-decor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64' viewBox='0 0 56 64'%3E%3Cg fill='none' stroke='%23293266' stroke-width='1'%3E%3Cpath d='M28 0 56 16 28 32 0 16Z'/%3E%3Cpath d='M0 16v32l28 16V32M56 16v32L28 64'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 56px 64px;
+
+  --boton-sec-fondo: var(--p-noche-2);
+  --boton-sec-borde: 2px solid #39437e;
+  --tarjeta-borde: 2px solid #39437e;
+  --media-fondo: linear-gradient(160deg, var(--p-noche-3), var(--p-noche-2));
+  --campo-borde: 2px solid #39437e;
+  --campo-sombra: inset 0 3px 0 var(--p-canto-noche);
+  --etiqueta-borde: 2px solid var(--p-canto-noche);
+}

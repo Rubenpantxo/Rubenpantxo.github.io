@@ -15,6 +15,7 @@ export function creaPantallas({ alCambiar }) {
   const pausa = $('pausa');
   const controles = $('controles');
   const creditos = $('creditos');
+  const reporte = $('reporte');
   const mapa = $('mapa');
   const jugar = $('jugar');
   const barra = $('barra-carga');
@@ -31,7 +32,7 @@ export function creaPantallas({ alCambiar }) {
     inicio.hidden = nuevo !== 'inicio';
     pausa.hidden = nuevo !== 'pausa';
     mapa.hidden = nuevo !== 'mapa';
-    if (nuevo !== 'pausa') controles.hidden = true;
+    if (nuevo !== 'pausa') controles.hidden = reporte.hidden = true;
     alCambiar(nuevo);
   };
 
@@ -116,6 +117,9 @@ export function creaPantallas({ alCambiar }) {
 
   window.addEventListener('keydown', (e) => {
     if (e.code !== 'Escape' && e.code !== 'KeyP') return;
+    // Escribiendo (p. ej. un reporte), la P es una letra; Esc sigue cerrando
+    if (e.code === 'KeyP' && esCampoDeTexto(e.target)) return;
+    if (!reporte.hidden) { reporte.hidden = true; return; }
     if (!creditos.hidden) { creditos.hidden = true; return; }
     if (!controles.hidden) { controles.hidden = true; return; }
     if (estado === 'mapa') { cambia('jugando'); return; }
@@ -248,6 +252,10 @@ export function creaPantallas({ alCambiar }) {
       estado = 'jugando';
     },
   };
+}
+
+export function esCampoDeTexto(el) {
+  return Boolean(el?.closest?.('input, textarea, select, [contenteditable]'));
 }
 
 // Mismo criterio que cicloDia.js: ?hora= o lo último elegido

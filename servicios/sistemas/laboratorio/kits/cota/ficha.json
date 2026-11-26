@@ -1,0 +1,53 @@
+{
+  "id": "cota",
+  "nombre": "Cota",
+  "direccion": "Industrial / Técnico",
+  "lema": "Rejilla a la vista, cotas y etiquetas de plano.",
+  "personalidad": "Preciso, fiable y sin adornos. Habla el idioma del taller y de la oficina técnica.",
+  "paraQuien": "Ingenierías, industria, fabricantes y empresas técnicas que necesitan mostrar datos con claridad.",
+  "sectores": [
+    "Industria y fabricación",
+    "Ingeniería",
+    "Logística",
+    "Energía"
+  ],
+  "tipografia": {
+    "titulos": "IBM Plex Sans Condensed",
+    "texto": "IBM Plex Sans",
+    "mono": "IBM Plex Mono"
+  },
+  "paleta": [
+    {
+      "nombre": "Papel",
+      "valor": "#eceee9"
+    },
+    {
+      "nombre": "Negro",
+      "valor": "#15191c"
+    },
+    {
+      "nombre": "Acero",
+      "valor": "#4a5258"
+    },
+    {
+      "nombre": "Seguridad",
+      "valor": "#ff6b00"
+    },
+    {
+      "nombre": "Señal",
+      "valor": "#ffd500"
+    }
+  ],
+  "rasgos": {
+    "bordes": "1 px, esquinas a 90°, doble filete en las tarjetas",
+    "sombras": "Ninguna: la profundidad la dan las líneas",
+    "movimiento": "Lineal y breve"
+  },
+  "ejemplo": "El configurador de piezas de un taller de mecanizado, con cotas y precio por lote.",
+  "accesibilidad": "El naranja de seguridad lleva texto negro (contraste superior a 6:1). Los datos usan cifras tabulares para leerse en columna.",
+  "referencia": {
+    "biblioteca": "",
+    "pieza": "",
+    "enlace": ""
+  }
+}
