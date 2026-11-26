@@ -99,6 +99,7 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="CSS/servicios.css" id="css-servicios" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="servicios/zonas/briefing-contacto.css" media="print" onload="this.media='all'">
     <script>
         // Si se entra directo a Servicios o al contacto, su CSS sí hace falta desde el principio
         if (/^#(servicios|contacto)$/.test(location.hash)) document.getElementById('css-servicios').media = 'all';
@@ -1677,7 +1678,7 @@
                     const contacto = document.getElementById('sv-contact');
                     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
                     contacto.scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'start' });
-                    document.getElementById('sv-nombre').focus({ preventScroll: true });
+                    if (window.svBriefing) window.svBriefing.enfocar(); else document.getElementById('sv-nombre').focus({ preventScroll: true });
                 }, yaAbierta ? 0 : 800);
             };
             document.getElementById('cta-principal').addEventListener('click', e => {
@@ -1787,6 +1788,7 @@
         });
     </script>
     <script src="js/servicios.js" defer></script>
+    <script src="servicios/zonas/briefing-contacto.js" defer></script>
     <script src="js/servicios-gl.js" defer></script>
     <script src="js/jenga.js" defer></script>
 </body>
