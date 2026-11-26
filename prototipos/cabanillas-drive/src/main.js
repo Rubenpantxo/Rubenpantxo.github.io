@@ -321,6 +321,7 @@ modo({ renderer, escena, camara, ui, ciclo, render })
         const agri = await api.cargaAgricultura();        // el tractor espera aparcado en la COPE
         if (parametros.get('agricultura') === 'riego') agri.empiezaEnRiego();
         if (parametros.get('agricultura') === 'cosecha') agri.empiezaEnCosecha();
+        if (parametros.get('agricultura') === 'cebolla') agri.empiezaEnCosecha('2-700', 'cebolla', parseFloat(parametros.get('edad')));
       }
       if (pincelAgricultura) {
         const { iniciaPincel } = await import('./agricultura/pincelPruebas.js');

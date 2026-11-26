@@ -4,8 +4,8 @@
 // con Rubén). Todo se afina aquí.
 export const ECONOMIA = {
   dineroInicial: 3000,
-  venta: { trigo: 0.25, cebada: 0.238 },
-  compra: { trigo: 0.45, cebada: 0.42, abono: 0.45 },
+  venta: { trigo: 0.25, cebada: 0.238, cebolla: 0.3355 },     // cebolla: 33,55 €/100 kg, MAPA, semana 45 de 2026 (2–8 nov)
+  compra: { trigo: 0.45, cebada: 0.42, cebolla: 250, abono: 0.45 },     // cebolla: semilla (ORIENTATIVO, sin fuente)
   // Guardado en localStorage
   guardado: {
     clave: 'cabdrive.agricultura.partida.v1',

@@ -106,6 +106,13 @@ export const APEROS = {
     velocidadMaxKmh: 13, resistenciaN: 1500, trabajoKmh: [7, 12],
     polvo: 0.5, terrones: 0, aves: 5, tolva: 'semilla', capacidadKg: 400,
   },
+  // A10: arrancadora de cebolla, suspendida del tripuntal. Saca solo la cebolla madura y la lleva al
+  // cajón que lleva detrás (capacidadKg); se vacía en la COPE. Modelo hecho en código (modelosCodigo.js)
+  arrancadora: {
+    modelo: 'arrancadora', procedural: true, nombre: 'Arrancadora de cebolla', detalle: '1,8 m · cajón de 3 000 kg', icono: '🧅', labor: 'arrancar',
+    velocidadMaxKmh: 7, resistenciaN: 2600, trabajoKmh: [3, 6],
+    polvo: 0.9, terrones: 0.5, aves: 3, recolector: true, grano: false, capacidadKg: 3000, cultivos: ['cebolla'],
+  },
   // Remolque de grano (A8): no labra; lo llena la cosechadora con el tubo (cargaKg, de grano)
   remolque: {
     modelo: 'remolque', nombre: 'Remolque de grano', detalle: 'un eje · 10 000 kg', icono: '🛒', labor: null,
@@ -185,6 +192,8 @@ export const COSECHADORA = {
 export const SEMILLAS = {
   trigo: { nombre: 'Trigo', icono: '🌾', dosisKgHa: 200 },
   cebada: { nombre: 'Cebada', icono: '🌾', dosisKgHa: 180 },
+  // A10: semilla de cebolla (siembra de precisión: unos 3,5 kg/ha, orientativo)
+  cebolla: { nombre: 'Cebolla', icono: '🧅', dosisKgHa: 3.5 },
 };
 
 // Aperos arrastrados (sembradora): la lanza va al enganche de la barra de tiro y el apero sigue al

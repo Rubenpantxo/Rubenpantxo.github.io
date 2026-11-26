@@ -79,6 +79,8 @@ const LABOR = {
   },
 };
 
+LABOR.arrancar = LABOR.segar;     // A10: la arrancadora de cebolla arranca lo maduro como la cosechadora siega
+
 // Pinta una franja recta de anchura «ancho» (m) de (xa, za) a (xb, zb). Devuelve los píxeles tocados.
 function franja(parcela, labor, xa, za, xb, zb, ancho, opciones) {
   const { mpp, ox, oz, ancho: W, alto: H, interior } = parcela;

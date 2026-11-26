@@ -63,6 +63,17 @@ const SVG = {
     <path d="M24 44V20" stroke="#7a8f3a" stroke-width="2.4" stroke-linecap="round"/>
     ${[0, 1, 2, 3, 4].map((i) => { const y = 7 + i * 5; return `<ellipse cx="19.2" cy="${y + 3}" rx="3.1" ry="5" transform="rotate(-24 19.2 ${y + 3})" fill="url(#gtg)"/><ellipse cx="28.8" cy="${y + 3}" rx="3.1" ry="5" transform="rotate(24 28.8 ${y + 3})" fill="url(#gtg)"/>`; }).join('')}
     <ellipse cx="24" cy="6" rx="2.8" ry="5" fill="url(#gtg)"/><path d="M24 36c-4 0-8 3-9 8M24 38c4 0 8 2 10 7" fill="none" stroke="#7a8f3a" stroke-width="2" stroke-linecap="round"/>`,
+  // Cebolla: bulbo dorado con hojas
+  cebolla: `<defs>${G('gce', '#e9bd62', '#b5792a')}</defs>
+    <path d="M24 12c-1-4-2-7-5-9M24 12c1-4 3-8 6-9M24 12v-9" fill="none" stroke="#6f9a3a" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M24 12c9 4 17 12 17 21 0 7-7 11-17 11S7 40 7 33c0-9 8-17 17-21z" fill="url(#gce)"/>
+    <path d="M24 13c-3 7-4 18-1 30M24 13c4 7 5 18 1 30M24 13c-8 5-11 15-9 26M24 13c8 5 11 15 9 26" fill="none" stroke="#9a6420" stroke-width="1" opacity=".55"/>
+    <path d="M20 44l-1 3M24 45v3M28 44l1 3" stroke="#9a8a6a" stroke-width="1.4" stroke-linecap="round"/>`,
+  // Arrancadora de cebolla: cinta inclinada y cajón con cebollas
+  arrancadora: `<defs>${G('gar', '#6f9a3a', '#3f5a1f')}${G('gce2', '#e9bd62', '#b5792a')}</defs>
+    <path d="M3 38l20-14 3 4-20 14z" fill="#6d747a"/><path d="M5 34l18-13" stroke="#2b2f33" stroke-width="2.4"/>
+    <path d="M25 18h20v18H25z" fill="url(#gar)"/><path d="M27 26c3-4 6-4 8-1 2-4 6-4 8 0v8H27z" fill="url(#gce2)"/>
+    <circle cx="35" cy="40" r="5" fill="#1d1f21"/><circle cx="35" cy="40" r="2.2" fill="#8a9097"/><path d="M3 41h20" stroke="#6d747a" stroke-width="2.4" stroke-linecap="round"/>`,
   // Cebada: espiga con largas aristas
   cebada: `<defs>${G('gcb', '#e8d79a', '#b49a4a')}</defs>
     <path d="M24 46V24" stroke="#8a9a46" stroke-width="2.4" stroke-linecap="round"/>
@@ -107,7 +118,7 @@ const SVG = {
 };
 
 // id de apero → icono
-export const ICONO_APERO = { arado: 'arado', cultivador: 'cultivador', abonadora: 'abonadora', sembradora: 'sembradora', remolque: 'remolque' };
+export const ICONO_APERO = { arado: 'arado', cultivador: 'cultivador', abonadora: 'abonadora', sembradora: 'sembradora', remolque: 'remolque', arrancadora: 'arrancadora' };
 
 export function iconoHtml(nombre, px = 22) {
   const dibujo = SVG[nombre];

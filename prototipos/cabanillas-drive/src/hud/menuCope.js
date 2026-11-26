@@ -179,11 +179,11 @@ export function creaMenuCope() {
       } else {
         // Remolque de grano enganchado: lo que lleva, y descargarlo aquí
         if (remolque) {
-          crea('h3', '', caja, 'Remolque');
+          crea('h3', '', caja, remolque.titulo ?? 'Remolque');
           const pct = Math.round((remolque.kg / remolque.capacidad) * 100);
           const t = crea('div', 'tolva', caja, `${pct} % · ${Math.round(remolque.kg)} de ${remolque.capacidad} kg${remolque.kg > 0 ? ` de ${remolque.nombre}` : ''}`);
           crea('i', '', crea('div', 'barra', t)).style.width = `${pct}%`;
-          if (remolque.kg > 0) boton('Descargar el remolque en la COPE', '', () => { raiz.hidden = true; acciones.vaciaRemolque(); }, 'descargar');
+          if (remolque.kg > 0) boton(remolque.titulo ? 'Descargar el cajón en la COPE' : 'Descargar el remolque en la COPE', '', () => { raiz.hidden = true; acciones.vaciaRemolque(); }, 'descargar');
         }
         // Tolva del apero enganchado: cuánto queda y llenarla aquí
         if (tolva) {

@@ -274,7 +274,8 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     enganche.engancha(a);
     llenaTolva(a);
     const lleno = a.config.tolva ? ` · tolva llena: ${Math.round(a.carga)} kg de ${nombreCarga(a)}` : '';
-    if (aviso && a.config.grano) api.avisa(`${a.config.icono} ${a.config.nombre} enganchado · déjalo junto a la cosechadora para que lo llene con su tubo`, 6);
+    if (aviso && a.config.recolector) api.avisa(`${a.config.icono} ${a.config.nombre} enganchado · ${conTeclado ? 'Q' : '⬇'}: bájala en la cebolla madura (a partir de los 165 días)`, 7);
+    else if (aviso && a.config.grano) api.avisa(`${a.config.icono} ${a.config.nombre} enganchado · déjalo junto a la cosechadora para que lo llene con su tubo`, 6);
     else if (aviso) api.avisa(`${a.config.icono} ${a.config.nombre} enganchado${lleno} · ${conTeclado ? 'Q' : '⬇'}: bajarlo en la parcela`, 6);
   }
   function alternaApero() {
@@ -359,11 +360,11 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     async entra() {
       const enTractor = api.coche === tractor;
       const enCosechadora = api.coche === combinada;
-      const rem = enganche.apero?.config.grano ? enganche.apero : null;
+      const rem = enganche.apero?.config.grano || enganche.apero?.config.recolector ? enganche.apero : null;
       menu.abre({
         en: enTractor ? 'tractor' : enCosechadora ? 'cosechadora' : 'coche',
         cosecha: enCosechadora ? { kg: cosechadora.tolvaKg, capacidad: cosechadora.capacidadKg, nombre: nombreGrano(cosechadora.contenido) } : null,
-        remolque: enTractor && rem ? { kg: rem.carga, capacidad: rem.capacidad, nombre: nombreGrano(rem.contenido) } : null,
+        remolque: enTractor && rem ? { kg: rem.carga, capacidad: rem.capacidad, nombre: nombreGrano(rem.contenido), titulo: rem.config.recolector ? 'Cajón de la arrancadora' : 'Remolque' } : null,
         dinero: economia.dinero,
         precios: { compra: ECONOMIA.compra, venta: ECONOMIA.venta },
         granero: { kg: Object.values(granero).reduce((a, b) => a + b, 0),
@@ -540,11 +541,11 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
     // ?agricultura=cosecha: la 2-700 sembrada de trigo ya maduro (preparada y abonada), la cosechadora
     // dentro, en una punta, mirando a lo largo de las líneas, y el tractor con el remolque fuera, junto
     // a la entrada
-    empiezaEnCosecha(ref = '2-700', cultivo = 'trigo') {
+    empiezaEnCosecha(ref = '2-700', cultivo = 'trigo', edadPedida = null) {
       const info = registro.porRef(ref);
       if (!info) return false;
       const p = labranza.activa(info);
-      const edad = CULTIVOS[cultivo].madura + 3;
+      const edad = Number.isFinite(edadPedida) ? edadPedida : CULTIVOS[cultivo].madura + 3;
       const byte = ((((reloj.dia - edad) % 255) + 255) % 255) + 1;
       const r = ((info.labor_grados ?? 0) * Math.PI) / 180;
       const e = [Math.sin(r), -Math.cos(r)];
@@ -575,6 +576,13 @@ export async function creaModoAgricultura({ api, escena, fisica, camara, rendere
       // Tractor con el remolque fuera, junto a la entrada
       const ent = info.entrada ?? { x: cx, z: cz };
       const fx = ent.x - cx; const fz = ent.z - cz; const fl = Math.hypot(fx, fz) || 1;
+      if (CULTIVOS[cultivo].arrancable) {
+        // Hortícola que se arranca (cebolla): el tractor con la arrancadora, dentro, en una punta
+        engancha('arrancadora', false);
+        colocaEn(tractor, [cx + e[0] * (min + 5), cz + e[1] * (min + 5), rumbo]);
+        cogeTractor(indiceColor);
+        return true;
+      }
       engancha('remolque', false);
       colocaEn(tractor, [ent.x + (fx / fl) * 7, ent.z + (fz / fl) * 7, rumbo]);
       cogeCosechadora();

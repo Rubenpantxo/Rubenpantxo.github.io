@@ -121,7 +121,7 @@ export function creaHudAgricultura({ tactil }) {
       }
       if (cultivo) {
         const sig = cultivo.siguiente ? ` · ${cultivo.siguiente.etapa.toLowerCase()} en ${cultivo.siguiente.enDias} ${cultivo.siguiente.enDias === 1 ? 'día' : 'días'}` : '';
-        html += `<div class="cultivo">${iconoHtml(cultivo.nombre === 'Cebada' ? 'cebada' : 'trigo', 18)}${cultivo.nombre} · ${cultivo.etapa}${cultivo.madura ? ' ✓' : ''} · ${fmt(Math.floor(cultivo.edad))} días${sig}</div>`;
+        html += `<div class="cultivo">${iconoHtml(cultivo.nombre.toLowerCase(), 18)}${cultivo.nombre} · ${cultivo.etapa}${cultivo.madura ? ' ✓' : ''} · ${fmt(Math.floor(cultivo.edad))} días${sig}</div>`;
       }
       if (parcela) {
         html += `<div class="parcela">${lineaParcela(parcela)}</div>`;
@@ -170,7 +170,7 @@ export function creaHudAgricultura({ tactil }) {
       else if (e.tuboFuera) html += `<div class="parcela">Tubo de descarga fuera${e.conTeclado ? ' (X)' : ''}</div>`;
       if (e.cultivo) {
         const sig = e.cultivo.siguiente ? ` · ${e.cultivo.siguiente.etapa.toLowerCase()} en ${e.cultivo.siguiente.enDias} ${e.cultivo.siguiente.enDias === 1 ? 'día' : 'días'}` : '';
-        html += `<div class="cultivo">${iconoHtml(e.cultivo.nombre === 'Cebada' ? 'cebada' : 'trigo', 18)}${e.cultivo.nombre} · ${e.cultivo.etapa}${e.cultivo.madura ? ' ✓' : ''}${sig}</div>`;
+        html += `<div class="cultivo">${iconoHtml(e.cultivo.nombre.toLowerCase(), 18)}${e.cultivo.nombre} · ${e.cultivo.etapa}${e.cultivo.madura ? ' ✓' : ''}${sig}</div>`;
       }
       if (e.parcela) {
         html += `<div class="parcela">${lineaParcela(e.parcela)}</div>`;

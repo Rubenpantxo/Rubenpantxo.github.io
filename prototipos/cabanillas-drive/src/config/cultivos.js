@@ -49,6 +49,27 @@ export const CULTIVOS = {
     rendimientoKgHa: 5800,      // la cebada da algo menos (media de Navarra 3 900 frente a 4 500 del trigo, 2025)
     pesoLitroKg: 0.66,
   },
+  // A10. Cebolla de siembra directa en el regadío de la Ribera: se siembra a finales de invierno y
+  // se arranca a finales de verano, hacia los 165 días, cuando las hojas se han tumbado y secado.
+  // El cabeceo (último número de la hoja) es lo tumbada que está la mata. Calendario y rendimiento
+  // ORIENTATIVOS (a afinar con Rubén). Aquí «espiga» no se usa.
+  cebolla: {
+    nombre: 'Cebolla',
+    curva: [
+      [0, 0, 0, 0, [120, 104, 80], [120, 150, 70], 0, 'Sembrada'],
+      [18, 0.04, 0.06, 0, [124, 162, 76], [120, 150, 70], 0, 'Nascencia'],
+      [45, 0.14, 0.2, 0, [96, 146, 64], [120, 150, 70], 0, 'Hojas'],
+      [90, 0.42, 0.5, 0, [78, 132, 58], [120, 150, 70], 0, 'Bulbificación'],
+      [125, 0.55, 0.62, 0, [84, 134, 58], [120, 150, 70], 0.05, 'Engrosado del bulbo'],
+      [148, 0.5, 0.58, 0, [128, 148, 66], [120, 150, 70], 0.55, 'Tumbado'],
+      [165, 0.26, 0.4, 0, [176, 150, 84], [120, 150, 70], 1, 'Madura'],
+      [185, 0.2, 0.34, 0, [168, 138, 80], [120, 150, 70], 1, null],
+    ],
+    madura: 165,
+    rendimientoKgHa: 55000,     // 55 t/ha con vigor 1 (orientativo; la cebolla de Navarra anda en 50–70 t/ha)
+    pesoLitroKg: 0.62,
+    arrancable: true,           // se arranca con la arrancadora, no con la cosechadora
+  },
 };
 
 // Matas de cerca (tarjetas cruzadas instanciadas alrededor de la cámara), por calidad:

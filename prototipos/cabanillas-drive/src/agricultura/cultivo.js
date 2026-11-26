@@ -26,9 +26,30 @@ function texturaMata(id) {
   lienzo.width = W;
   lienzo.height = H;
   const ctx = lienzo.getContext('2d');
-  let semilla = id === 'cebada' ? 7 : 3;
+  let semilla = id === 'cebada' ? 7 : id === 'cebolla' ? 11 : 3;
   const azar = () => { semilla = (semilla * 16807) % 2147483647; return semilla / 2147483647; };
   const color = (r, g, matiz) => `rgb(${r},${g},${Math.round(60 + matiz * 195)})`;
+  if (id === 'cebolla') {
+    // Cebolla: hojas tubulares, gruesas y largas, que salen del cuello y se abren y se doblan por arriba
+    for (let k = 0; k < 15; k++) {
+      const x0 = W * (0.38 + azar() * 0.24);
+      const lado = (azar() - 0.5) * 2;
+      const alto = H * (0.55 + azar() * 0.4);
+      const x1 = x0 + lado * W * (0.1 + azar() * 0.2);
+      ctx.strokeStyle = color(255, 0, azar());
+      ctx.lineWidth = 4.5 + azar() * 2.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(x0, H);
+      ctx.quadraticCurveTo(x0 + lado * W * 0.03, H - alto * 0.65, x1, H - alto);
+      ctx.stroke();
+    }
+    const t = new THREE.CanvasTexture(lienzo);
+    t.colorSpace = THREE.NoColorSpace;
+    t.anisotropy = 2;
+    texturas.set(id, t);
+    return t;
+  }
   const topeTallo = H * 0.24;            // las espigas ocupan el cuarto de arriba
   // Hojas: láminas curvas desde abajo hacia los lados
   for (let k = 0; k < 14; k++) {

@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { APEROS, RUTA_MAQUINARIA } from '../config/maquinaria.js';
+import { MODELOS_CODIGO } from './modelosCodigo.js';
 
 let manifiesto = null;
 export async function leeManifiesto() {
@@ -23,12 +24,19 @@ export async function leeManifiesto() {
 export async function cargaApero(id, { fisica }) {
   const config = APEROS[id];
   if (!config) throw new Error(`Apero desconocido: ${id}`);
-  const info = (await leeManifiesto())[config.modelo];
-  if (!info) throw new Error(`No hay «${config.modelo}» en maquinaria.json (¿npm run maquinaria?)`);
-  const cargador = new GLTFLoader();
-  cargador.setMeshoptDecoder(MeshoptDecoder);
-  const gltf = await cargador.loadAsync(`${RUTA_MAQUINARIA}${info.archivo}`);
-  const modelo = gltf.scene;
+  let info;
+  let modelo;
+  if (config.procedural) {
+    // Modelo hecho en código (sin GLB ni maquinaria.json)
+    ({ modelo, info } = MODELOS_CODIGO[config.modelo]());
+  } else {
+    info = (await leeManifiesto())[config.modelo];
+    if (!info) throw new Error(`No hay «${config.modelo}» en maquinaria.json (¿npm run maquinaria?)`);
+    const cargador = new GLTFLoader();
+    cargador.setMeshoptDecoder(MeshoptDecoder);
+    const gltf = await cargador.loadAsync(`${RUTA_MAQUINARIA}${info.archivo}`);
+    modelo = gltf.scene;
+  }
   modelo.traverse((o) => {
     if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
   });
