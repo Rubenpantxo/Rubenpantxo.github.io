@@ -325,6 +325,7 @@ export async function iniciaJuego({ renderer, escena, camara, ui, ciclo, render 
   function entraPor(e) {
     if (e.accion.fiestas) { entraFiestas(e.accion.fiestas); return; }
     if (e.accion.agricultura) { entraAgricultura(e); return; }
+    if (e.accion.personaje) { window.dispatchEvent(new CustomEvent('cabanillas:editaPersonaje')); return; }
     if (e.accion.juego) {
       // Al volver (atrás en el navegador) se reaparece aquí
       const p = new URLSearchParams(location.search);
