@@ -29,7 +29,7 @@ export function pintarBiblioteca(el, app) {
         if (!items.length) continue;
         lista += `<h3 class="bib-cat">${esc(nombre)} <span>${items.length}</span></h3><ul class="bib-lista">` + items.map(c => `
 <li class="bib-item${app.tengo(c) ? ' propio' : ''}">
-  <button type="button" class="bib-pieza" data-colocar="${c.id}" title="Clic para colocar · doble clic para añadir al centro">
+  <button type="button" class="bib-pieza" data-colocar="${c.id}" draggable="true" title="Arrastra a la mesa o haz clic para colocar">
     <span class="bib-mini">${miniatura(c, { margen: 4 })}</span>
     <span class="bib-txt"><b>${esc(c.corto)}</b><small>${esc(c.fabricante)} · ${mm(c.w)} × ${mm(c.h)} mm</small></span>
   </button>

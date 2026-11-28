@@ -92,6 +92,11 @@
     </div>
   </div>
 
+  <div class="montajes-abiertos">
+    <nav id="pestanas-montaje" class="pestanas-montaje" role="tablist" aria-label="Montajes abiertos"></nav>
+    <button type="button" class="nueva-pestana" data-accion="nuevo" title="Crear un montaje vacío">+ Nuevo montaje</button>
+  </div>
+
   <div class="taller">
     <aside class="lateral lateral-izq" id="biblioteca" aria-label="Biblioteca de componentes">
       <div class="lateral-cab">
@@ -105,8 +110,8 @@
     <div class="mesa">
       <svg id="lienzo" tabindex="0" role="application" aria-label="Mesa de montaje"></svg>
       <div id="mesa-vacia" class="mesa-vacia" hidden>
-        <h2>La mesa está vacía</h2>
-        <p>Elige una pieza de la biblioteca y haz clic aquí para colocarla, o abre un montaje ya cableado.</p>
+        <h2>Diseña un montaje nuevo</h2>
+        <p>Arrastra componentes desde la biblioteca o selecciona uno y haz clic en la mesa. Después, conecta sus pines.</p>
         <a class="boton primario" href="#proyectos">Ver proyectos</a>
       </div>
       <button type="button" id="cancelar-modo" class="cancelar-modo" data-accion="cancelar" data-ico="cerrar" hidden>Cancelar</button>

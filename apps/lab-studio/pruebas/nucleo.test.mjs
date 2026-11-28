@@ -117,6 +117,27 @@ test('modelo: validarDoc sanea lo que viene de fuera', () => {
     assert.equal(avisos.length, 2);
 });
 
+test('modelo: los puertos USB no se conectan a pines sueltos', () => {
+    const doc = M.nuevoDoc();
+    const cyd = M.anadirParte(doc, def('esp32-2432s028r'), 0, 0);
+    const boton = M.anadirParte(doc, def('pulsador'), 20, 0);
+    const pc = M.anadirParte(doc, def('pc-host'), 40, 0);
+
+    const cableIncompatible = M.anadirCable(doc, CATALOGO, { p: cyd.id, pin: 'USB' }, { p: boton.id, pin: '1' });
+    assert.match(cableIncompatible, /puerto USB.*pulsador/i);
+    assert.equal(doc.cables.length, 0);
+
+    const cableUsb = M.anadirCable(doc, CATALOGO, { p: pc.id, pin: 'USB2' }, { p: cyd.id, pin: 'USB' });
+    assert.equal(typeof cableUsb, 'object', 'un host USB sí puede conectarse a la placa');
+
+    const resultado = M.validarDoc({
+        ...doc,
+        cables: [{ a: { p: cyd.id, pin: 'USB' }, b: { p: boton.id, pin: '1' } }]
+    }, CATALOGO);
+    assert.equal(resultado.doc.cables.length, 0);
+    assert.ok(resultado.avisos.some(a => /puerto USB.*pulsador/i.test(a)), 'los montajes antiguos deben explicar por qué se omitió el cable');
+});
+
 test('historial: deshacer y rehacer', () => {
     const h = new Historial();
     const doc = M.nuevoDoc();
@@ -172,6 +193,26 @@ test('ERC: 5 V en un GPIO de 3,3 V y arreglo con divisor', () => {
     const bien = analizar(montaje([...base, { k: 'd', tipo: 'divisor-5v-3v3', x: 30, y: 20 }],
         [...comunes, ['s.ECHO', 'd.IN'], ['d.OUT', 'u.GPIO5'], ['d.GND', 'u.GND_2']]), CATALOGO);
     assert.deepEqual(codigos(bien).filter(c => c.startsWith('E-')), []);
+});
+
+test('ERC: 12 V en una entrada de 3,6 V se avisa como error', () => {
+    const fuente12 = {
+        ...def('fuente-5v'),
+        id: 'fuente-12v-prueba',
+        corto: 'Fuente 12 V',
+        pines: def('fuente-5v').pines.map(p => p.id === 'V' ? { ...p, v: 12 } : p)
+    };
+    const catalogo = new Map(CATALOGO).set(fuente12.id, fuente12);
+    const doc = M.docDesdePlantilla({
+        partes: [{ k: 'ps', tipo: fuente12.id, x: 0, y: 0 }, { k: 'cyd', tipo: 'esp32-2432s028r', x: 30, y: 0 }],
+        cables: [['ps.V', 'cyd.GPIO35']]
+    }, catalogo, 'prueba');
+    const a = analizar(doc, catalogo);
+    const p = a.problemas.find(x => x.codigo === 'E-SOBRETENSION');
+    assert.ok(p, '12 V en un GPIO con 3,6 V máximos debe ser un error');
+    assert.equal(p.nivel, 'error');
+    assert.match(p.titulo, /12 V.*3,6 V máx\./);
+    assert.match(p.detalle, /GPIO35.*admite 3,6 V como máximo/);
 });
 
 test('ERC: micrófono a 5 V, pin obligatorio y pin reservado', () => {

@@ -30,6 +30,8 @@ const app = {
     analisis: null,
     lienzo: null,
     historial: new Historial(),
+    pestanasMontaje: [],
+    pestanaActiva: null,
     inventario: almacen.leer('inventario', {}) || {},
     prefs: { rejilla: true, rotulos: true, esquema: false, tema: 'oscuro', pestana: 'propiedades', ...(almacen.leer('prefs', {}) || {}) },
     filtro: { texto: '', propios: false },
@@ -60,12 +62,150 @@ function confirmar(titulo, texto, si = 'Continuar') {
 
 // --------------------------------------------------------------- documento
 let temporizadorGuardado = 0;
+let secuenciaPestana = 0;
+
+function nuevaPestana(doc, { id, vista = null } = {}) {
+    let idPestana = id || `montaje-${Date.now().toString(36)}-${(++secuenciaPestana).toString(36)}`;
+    while (app.pestanasMontaje.some(p => p.id === idPestana)) {
+        idPestana = `montaje-${Date.now().toString(36)}-${(++secuenciaPestana).toString(36)}`;
+    }
+    const pestana = {
+        id: idPestana,
+        doc,
+        vista: vista && Number.isFinite(vista.x) && Number.isFinite(vista.y) && Number.isFinite(vista.z)
+            ? { x: vista.x, y: vista.y, z: vista.z } : null,
+        historial: new Historial()
+    };
+    pestana.historial.reiniciar(doc);
+    app.pestanasMontaje.push(pestana);
+    return pestana;
+}
+
+function pestanasGuardadas() {
+    if (app.pestanaActiva && app.lienzo) app.pestanaActiva.vista = { ...app.lienzo.vista };
+    return {
+        version: 1,
+        activa: app.pestanaActiva && app.pestanaActiva.id,
+        pestanas: app.pestanasMontaje.map(({ id, doc, vista }) => ({ id, doc, vista }))
+    };
+}
+
+function restaurarPestanas() {
+    const sesion = almacen.leer('montajes');
+    let descartadas = 0;
+    const avisosRestauracion = [];
+    if (sesion && Array.isArray(sesion.pestanas)) {
+        const ids = new Set();
+        for (const guardada of sesion.pestanas) {
+            try {
+                if (!guardada || typeof guardada.id !== 'string' || ids.has(guardada.id)) { descartadas++; continue; }
+                const { doc, avisos } = validarDoc(guardada.doc, app.catalogo);
+                avisosRestauracion.push(...avisos);
+                ids.add(guardada.id);
+                nuevaPestana(doc, { id: guardada.id, vista: guardada.vista });
+            } catch { descartadas++; }
+        }
+        if (app.pestanasMontaje.length) {
+            app.pestanaActiva = app.pestanasMontaje.find(p => p.id === sesion.activa) || app.pestanasMontaje[0];
+        }
+    }
+
+    if (!app.pestanasMontaje.length) {
+        const guardado = almacen.leer('doc');
+        if (guardado) {
+            try {
+                const { doc, avisos } = validarDoc(guardado, app.catalogo);
+                avisosRestauracion.push(...avisos);
+                nuevaPestana(doc);
+            }
+            catch { descartadas++; }
+        }
+        app.pestanaActiva = nuevaPestana(nuevoDoc());
+    }
+
+    app.doc = app.pestanaActiva.doc;
+    app.historial = app.pestanaActiva.historial;
+    if (app.lienzo) app.lienzo.vista = app.pestanaActiva.vista ? { ...app.pestanaActiva.vista } : { x: 40, y: 40, z: 1 };
+    if (descartadas) avisosRestauracion.push(`${descartadas} montaje${descartadas === 1 ? '' : 's'} guardado${descartadas === 1 ? '' : 's'} no se pudo${descartadas === 1 ? '' : 'ieron'} restaurar.`);
+    if (avisosRestauracion.length) avisar([...new Set(avisosRestauracion)].join(' '), 'aviso');
+}
+
 function guardarAuto() {
     clearTimeout(temporizadorGuardado);
     temporizadorGuardado = setTimeout(() => {
-        const ok = almacen.guardar('doc', app.doc);
-        $('#estado-guardado').textContent = ok ? 'Guardado en este navegador' : 'Sin almacenamiento: descarga el archivo';
+        const ok = almacen.guardar('montajes', pestanasGuardadas());
+        $('#estado-guardado').textContent = ok ? 'Montajes guardados en este navegador' : 'Sin almacenamiento: descarga el archivo';
     }, 350);
+}
+
+function pintarPestanasMontaje() {
+    const el = $('#pestanas-montaje');
+    if (!el) return;
+    el.innerHTML = app.pestanasMontaje.map(p => `
+<div role="presentation" class="pestana-montaje${p === app.pestanaActiva ? ' activa' : ''}">
+  <button type="button" role="tab" aria-selected="${p === app.pestanaActiva}" data-montaje-tab="${esc(p.id)}" title="${esc(p.doc.nombre)}">${esc(p.doc.nombre || 'Montaje sin título')}</button>
+  <button type="button" class="cerrar-pestana" data-cerrar-montaje="${esc(p.id)}" title="Cerrar ${esc(p.doc.nombre)}" aria-label="Cerrar ${esc(p.doc.nombre)}">×</button>
+</div>`).join('');
+}
+
+function activarPestana(id) {
+    const siguiente = app.pestanasMontaje.find(p => p.id === id);
+    if (!siguiente || siguiente === app.pestanaActiva) return;
+    if (app.pestanaActiva) app.pestanaActiva.vista = { ...app.lienzo.vista };
+    app.lienzo.cancelar();
+    app.pestanaActiva = siguiente;
+    app.doc = siguiente.doc;
+    app.historial = siguiente.historial;
+    app.analisis = analizar(app.doc, app.catalogo);
+    app.lienzo.vista = siguiente.vista ? { ...siguiente.vista } : { x: 40, y: 40, z: 1 };
+    app.lienzo.fijar(app.doc, app.analisis, { conservarSeleccion: false });
+    app.lienzo.aplicarVista();
+    pintarLateral();
+    pintarBarra();
+    pista();
+    app.encuadrado = !!siguiente.vista;
+    encuadrarSiVisible();
+    guardarAuto();
+}
+
+function crearPestanaMontaje(doc = nuevoDoc()) {
+    const pestana = nuevaPestana(doc);
+    if (app.pestanaActiva) app.pestanaActiva.vista = { ...app.lienzo.vista };
+    app.pestanaActiva = pestana;
+    app.doc = pestana.doc;
+    app.historial = pestana.historial;
+    app.analisis = analizar(app.doc, app.catalogo);
+    app.lienzo.cancelar();
+    app.lienzo.vista = { x: 40, y: 40, z: 1 };
+    app.lienzo.fijar(app.doc, app.analisis, { conservarSeleccion: false });
+    app.lienzo.aplicarVista();
+    pintarLateral();
+    pintarBarra();
+    pista();
+    app.encuadrado = false;
+    encuadrarSiVisible();
+    guardarAuto();
+    location.hash = '#montaje';
+}
+
+function cerrarPestanaMontaje(id) {
+    const indice = app.pestanasMontaje.findIndex(p => p.id === id);
+    if (indice < 0) return;
+    const eraActiva = app.pestanasMontaje[indice] === app.pestanaActiva;
+    app.pestanasMontaje.splice(indice, 1);
+    if (!app.pestanasMontaje.length) {
+        app.pestanaActiva = null;
+        crearPestanaMontaje(nuevoDoc());
+        return;
+    }
+    if (eraActiva) {
+        app.pestanaActiva.vista = null;
+        app.pestanaActiva = null;
+        activarPestana(app.pestanasMontaje[Math.min(indice, app.pestanasMontaje.length - 1)].id);
+    } else {
+        pintarPestanasMontaje();
+        guardarAuto();
+    }
 }
 
 function pintarLateral() {
@@ -83,6 +223,7 @@ function pintarBarra() {
     $('#nombre-doc').value = app.doc.nombre;
     document.title = `${app.doc.nombre} · Lab Studio`;
     $('#cuenta-doc').textContent = `${app.doc.partes.length} piezas · ${app.doc.cables.length} cables · ${app.analisis.redes.length} redes`;
+    pintarPestanasMontaje();
     const chip = $('#chip-reglas');
     chip.className = 'chip-reglas ' + (c.error ? 'error' : c.aviso ? 'aviso' : 'ok');
     const texto = c.error ? `${c.error} error${c.error > 1 ? 'es' : ''}${c.aviso ? ` · ${c.aviso} aviso${c.aviso > 1 ? 's' : ''}` : ''}`
@@ -104,13 +245,20 @@ function cambio() {
     app.lienzo.resaltados.clear();
     app.historial.confirmar(app.doc);
     refrescar();
+    pintarPestanasMontaje();
     guardarAuto();
 }
 
 function cargar(doc, { encuadrar = true } = {}) {
+    const documentoDistinto = app.doc !== doc;
     app.doc = doc;
+    if (app.pestanaActiva) {
+        app.pestanaActiva.doc = doc;
+        if (documentoDistinto) app.pestanaActiva.vista = null;
+    }
     app.historial.reiniciar(doc);
     refrescar({ conservarSeleccion: false });
+    pintarPestanasMontaje();
     guardarAuto();
     app.encuadrado = false;
     if (encuadrar) encuadrarSiVisible();
@@ -154,9 +302,10 @@ function docDeProyecto(p) {
 function abrirProyecto(id) {
     const p = PROYECTOS.find(x => x.id === id);
     if (!p || !p.montaje) return;
-    reemplazar(() => docDeProyecto(p), 'Abrir el montaje del proyecto').then(ok => {
-        if (ok) { location.hash = '#montaje'; avisar('Montaje cargado: revisa el diagnóstico y el mapa de pines.', 'ok'); }
-    });
+    try {
+        crearPestanaMontaje(docDeProyecto(p));
+        avisar('Montaje del proyecto abierto en una pestaña nueva.', 'ok');
+    } catch (e) { avisar(e.message || 'No se pudo abrir el montaje del proyecto.', 'error'); }
 }
 
 // ----------------------------------------------------------------- archivo
@@ -223,7 +372,7 @@ function descargarEjemplo(ref) {
 
 // ---------------------------------------------------------------- acciones
 const ACCIONES = {
-    nuevo: () => reemplazar(() => nuevoDoc(), 'Montaje nuevo'),
+    nuevo: () => crearPestanaMontaje(),
     abrir: abrirArchivo,
     guardar: guardarArchivo,
     deshacer: () => restaurar(app.historial.deshacer()),
@@ -346,6 +495,11 @@ function iniciar() {
         alAbrirFicha: id => { location.hash = '#componentes/' + id; },
         avisar
     });
+
+    window.addEventListener('pagehide', () => {
+        clearTimeout(temporizadorGuardado);
+        almacen.guardar('montajes', pestanasGuardadas());
+    });
     const pintarOriginal = app.lienzo.pintar.bind(app.lienzo);
     app.lienzo.pintar = () => { pintarOriginal(); pista(); };
 
@@ -353,13 +507,10 @@ function iniciar() {
     fijarHerramienta('sel');
     pintarBiblioteca($('#biblioteca'), app);
 
-    // Documento inicial: el guardado en el navegador o, la primera vez, un
-    // proyecto de ejemplo para no empezar con la mesa vacía.
-    let doc = null;
-    const guardado = almacen.leer('doc');
-    if (guardado) { try { doc = validarDoc(guardado, app.catalogo).doc; } catch { doc = null; } }
-    if (!doc) doc = docDeProyecto(PROYECTOS[0]);
-    cargar(doc, { encuadrar: false });
+    restaurarPestanas();
+    const vistaGuardada = !!app.pestanaActiva.vista;
+    cargar(app.doc, { encuadrar: false });
+    if (vistaGuardada) app.encuadrado = true;
     pintarArea();
 
     enlazar();
@@ -381,6 +532,15 @@ function enlazar() {
         if (!t) { cerrarMenus(); return; }
         const d = t.dataset;
         if (!t.closest('.menu') && !d.menu) cerrarMenus();
+        if (d.area) {
+            e.preventDefault();
+            const ruta = '#' + d.area;
+            if (location.hash === ruta) pintarArea();
+            else location.hash = ruta;
+            return;
+        }
+        if (d.montajeTab) { activarPestana(d.montajeTab); return; }
+        if (d.cerrarMontaje) { cerrarPestanaMontaje(d.cerrarMontaje); return; }
         if (d.accion && ACCIONES[d.accion]) { ACCIONES[d.accion](); pintarBarra(); return; }
         if (d.menu) { const m = $('#' + d.menu), abierto = !m.hidden; cerrarMenus(); m.hidden = abierto; t.setAttribute('aria-expanded', String(!abierto)); return; }
         if (d.exportar) { exportar(d.exportar); cerrarMenus(); return; }
@@ -409,6 +569,26 @@ function enlazar() {
 
     // Tocar la mesa cierra los paneles superpuestos de la vista estrecha.
     $('#lienzo').addEventListener('pointerdown', () => { $('.taller').classList.remove('ver-izq', 'ver-der'); });
+    $('.mesa').addEventListener('dragover', e => {
+        if (Array.from(e.dataTransfer.types).includes('application/x-lab-studio-component')) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }
+    });
+    $('.mesa').addEventListener('drop', e => {
+        const id = e.dataTransfer.getData('application/x-lab-studio-component');
+        if (!id) return;
+        e.preventDefault();
+        const def = app.catalogo.get(id);
+        if (!def) { avisar('El componente arrastrado no está en la biblioteca.', 'error'); return; }
+        app.lienzo.colocarEnPunto(def, e.clientX, e.clientY);
+    });
+    document.addEventListener('dragstart', e => {
+        const pieza = e.target.closest('[data-colocar]');
+        if (!pieza || !e.dataTransfer) return;
+        e.dataTransfer.setData('application/x-lab-studio-component', pieza.dataset.colocar);
+        e.dataTransfer.effectAllowed = 'copy';
+    });
 
     document.addEventListener('dblclick', e => {
         const t = e.target.closest('[data-colocar]');
