@@ -87,7 +87,7 @@ input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--acento);
 
 /* ------------------------------------------------------------- montaje */
 .area { position: absolute; inset: 0; }
-.area-montaje { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 42px minmax(0, 1fr) 25px; }
+.area-montaje { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 42px 36px minmax(0, 1fr) 25px; }
 .cinta { display: flex; align-items: center; gap: 4px; padding: 0 8px; background: var(--panel); border-bottom: 1px solid var(--borde); overflow-x: auto; scrollbar-width: none; }
 .grupo-cinta { display: flex; align-items: center; gap: 1px; padding-right: 6px; margin-right: 2px; border-right: 1px solid var(--borde); flex: none; }
 .cinta-fin { display: flex; align-items: center; gap: 8px; margin-left: auto; flex: none; position: sticky; right: -8px; padding: 0 8px 0 14px; height: 100%; background: linear-gradient(90deg, transparent, var(--panel) 12px); }
@@ -107,6 +107,17 @@ input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--acento);
 .menu button:hover { background: var(--acento-suave) !important; }
 .menu hr { width: 100%; border: 0; border-top: 1px solid var(--borde); margin: 4px 0; }
 .solo-estrecho { display: none; }
+.montajes-abiertos { display: flex; align-items: center; min-width: 0; background: var(--fondo); border-bottom: 1px solid var(--borde); }
+.pestanas-montaje { display: flex; align-items: stretch; gap: 3px; min-width: 0; overflow-x: auto; padding: 3px 8px 0; flex: 1; scrollbar-width: thin; }
+.pestana-montaje { display: flex; align-items: stretch; flex: none; min-width: 0; border: 1px solid var(--borde); border-bottom: 0; border-radius: 6px 6px 0 0; background: var(--panel); }
+.pestana-montaje.activa { border-color: var(--acento); background: var(--panel-2); }
+.pestana-montaje button { height: 30px; border: 0; border-radius: 0; background: transparent; }
+.pestana-montaje [role="tab"] { min-width: 72px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; justify-content: flex-start; font-size: 11.5px; }
+.pestana-montaje.activa [role="tab"] { color: var(--acento); font-weight: 700; }
+.pestana-montaje .cerrar-pestana { width: 28px; padding: 0; color: var(--tenue); font-size: 16px; }
+.pestana-montaje .cerrar-pestana:hover { color: var(--error); }
+.nueva-pestana { align-self: center; margin: 0 8px 0 4px; height: 27px !important; border: 0; background: transparent; color: var(--tenue); font-size: 11.5px; }
+.nueva-pestana:hover { color: var(--texto); }
 
 .taller { display: grid; grid-template-columns: 268px minmax(0, 1fr) 336px; min-height: 0; }
 .lateral { display: flex; flex-direction: column; min-height: 0; background: var(--panel); }
@@ -137,7 +148,8 @@ input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--acento);
 
 .mesa { position: relative; min-width: 0; min-height: 0; background: var(--mesa); overflow: hidden; }
 #lienzo { width: 100%; height: 100%; display: block; touch-action: none; user-select: none; outline: none; }
-.mesa-vacia { position: absolute; inset: 0; margin: auto; width: min(360px, 80%); height: max-content; padding: 22px; text-align: center; background: rgba(255, 255, 255, .8); border: 1px dashed #a8a498; border-radius: 12px; color: #33373e; display: grid; gap: 10px; justify-items: center; }
+.mesa-vacia { position: absolute; inset: 0; margin: auto; width: min(360px, 80%); height: max-content; padding: 22px; text-align: center; background: rgba(255, 255, 255, .8); border: 1px dashed #a8a498; border-radius: 12px; color: #33373e; display: grid; gap: 10px; justify-items: center; pointer-events: none; }
+.mesa-vacia a { pointer-events: auto; }
 .mesa-vacia h2 { font-size: 16px; }
 .globo { position: absolute; z-index: 5; max-width: 270px; padding: 8px 10px; background: #14161a; color: #f1f3f5; border: 1px solid #3d434e; border-radius: 8px; box-shadow: var(--sombra); pointer-events: none; font-size: 12px; }
 .globo span { color: #9aa2ad; }
@@ -316,6 +328,23 @@ span.marca.error { color: var(--error); background: color-mix(in srgb, var(--err
 /* componentes */
 .area-componentes { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 0; padding: 0; overflow: hidden; }
 .area-componentes > * { max-width: none; margin: 0; }
+.area-componentes.catalogo-activo { display: block; overflow-y: auto; padding: 26px clamp(16px, 4vw, 44px) 60px; }
+.area-componentes.catalogo-activo > * { max-width: 1180px; margin-inline: auto; }
+.grupo-catalogo-componentes { margin-top: 30px; }
+.grupo-catalogo-componentes > h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 15px; }
+.grupo-catalogo-componentes > h3 span { color: var(--muy-tenue); font: 500 11px var(--mono); }
+.rejilla-componentes { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.tarjeta-componente { display: flex; flex-direction: column; min-width: 0; padding: 10px; background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; }
+.tarjeta-componente:hover { border-color: var(--borde-2); }
+.componente-vinculo { display: grid; gap: 7px; color: var(--texto); text-decoration: none; flex: 1; }
+.componente-vinculo:hover b { color: var(--acento); }
+.componente-mini { display: grid; place-items: center; height: 118px; padding: 8px; background: var(--mesa); border-radius: 7px; }
+.componente-mini svg { max-width: 100%; max-height: 100%; }
+.componente-vinculo .sobre { font-size: 9.5px; }
+.componente-vinculo > b { font-size: 13px; line-height: 1.25; }
+.componente-vinculo > .tenue { font-size: 11px; line-height: 1.4; }
+.tarjeta-componente .marca { width: max-content; }
+.anadir-componente { align-self: flex-start; margin-top: 10px; }
 .indice { overflow-y: auto; padding: 14px 8px 30px; background: var(--panel); border-right: 1px solid var(--borde); scrollbar-width: thin; }
 .indice h3 { padding: 10px 8px 4px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muy-tenue); }
 .indice a { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 6px; color: var(--tenue); text-decoration: none; font-weight: 500; }
@@ -324,6 +353,7 @@ span.marca.error { color: var(--error); background: color-mix(in srgb, var(--err
 .indice .mia { width: 11px; height: 11px; color: var(--aviso); }
 .ficha { overflow-y: auto; padding: 26px clamp(16px, 4vw, 44px) 60px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; align-content: start; }
 .ficha > * { max-width: 1000px; width: 100%; }
+.ficha > .ficha-volver { position: sticky; top: 0; z-index: 3; width: max-content; margin-top: -26px; padding: 7px 10px; border: 1px solid var(--borde); border-radius: 0 0 8px 8px; background: var(--panel); box-shadow: var(--sombra); }
 .ficha-cab { display: grid; grid-template-columns: minmax(200px, 340px) minmax(0, 1fr); gap: 28px; align-items: center; }
 .ficha-dibujo { background: var(--mesa); border-radius: 14px; padding: 18px; display: grid; place-items: center; min-height: 240px; border: 1px solid var(--borde); }
 .ficha-dibujo svg { max-width: 100%; max-height: 330px; }
@@ -503,6 +533,7 @@ h3.grupo { margin: 26px 0 10px; font-size: 11px; text-transform: uppercase; lett
     .areas a { padding: 0 9px; }
     .areas a .ico { display: none; }
     .bib-info { opacity: 1; }
+    .area-componentes:not(.catalogo-activo) .indice { display: none; }
 }
 @media (max-width: 520px) {
     .visor3d { height: 380px; border-radius: 12px; }
@@ -523,7 +554,7 @@ h3.grupo { margin: 26px 0 10px; font-size: 11px; text-transform: uppercase; lett
 /* Pantalla táctil: objetivos de al menos 40 px. */
 @media (pointer: coarse) {
     body { grid-template-rows: 50px minmax(0, 1fr); }
-    .area-montaje { grid-template-rows: 50px minmax(0, 1fr) 25px; }
+    .area-montaje { grid-template-rows: 50px 42px minmax(0, 1fr) 25px; }
     button, .boton, input[type="text"], input[type="search"], select { height: 40px; }
     button.icono { width: 40px; }
     .ico { width: 18px; height: 18px; }
@@ -534,6 +565,9 @@ h3.grupo { margin: 26px 0 10px; font-size: 11px; text-transform: uppercase; lett
     .bib-pieza { height: 58px; }
     .bib-info { width: 40px; opacity: 1; }
     .pestanas button { height: 44px; padding: 0 11px; }
+    .pestanas-montaje { padding-top: 3px; }
+    .pestana-montaje button { height: 36px; }
+    .nueva-pestana { height: 34px !important; }
     .menu button { height: 42px; }
     .filtros button { height: 36px; border-radius: 18px; }
     .paleta button { width: 34px; height: 34px; }

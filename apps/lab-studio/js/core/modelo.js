@@ -11,6 +11,8 @@ export const VERSION = 1;
 export const FORMATO = 'lab-studio';
 export const DIRS = ['arr', 'der', 'aba', 'izq'];
 export const VEC = { arr: [0, -1], der: [1, 0], aba: [0, 1], izq: [-1, 0] };
+const TIPOS_USB = new Set(['usb_host', 'usb_dev']);
+const ERROR_USB_INCOMPATIBLE = 'Un puerto USB solo puede conectarse a otro puerto USB, no a pines sueltos como los de un pulsador.';
 
 export function nuevoDoc(nombre = 'Montaje sin título') {
     return { formato: FORMATO, version: VERSION, nombre, partes: [], cables: [], notas: '' };
@@ -97,11 +99,15 @@ export function quitarCables(doc, ids) {
 // Devuelve el cable creado, o un texto con el motivo por el que no se puede.
 export function anadirCable(doc, catalogo, a, b, extra = {}) {
     if (a.p === b.p && a.pin === b.pin) return 'Un cable necesita dos pines distintos.';
+    const pines = [];
     for (const ext of [a, b]) {
         const parte = buscarParte(doc, ext.p);
         const def = parte && catalogo.get(parte.tipo);
-        if (!def || !def.pines.some(pin => pin.id === ext.pin)) return 'El pin ya no existe.';
+        const pin = def && def.pines.find(pin => pin.id === ext.pin);
+        if (!pin) return 'El pin ya no existe.';
+        pines.push(pin);
     }
+    if (TIPOS_USB.has(pines[0].tipo) !== TIPOS_USB.has(pines[1].tipo)) return ERROR_USB_INCOMPATIBLE;
     const ka = clavePin(a.p, a.pin), kb = clavePin(b.p, b.pin);
     const repetido = doc.cables.some(c => {
         const x = clavePin(c.a.p, c.a.pin), y = clavePin(c.b.p, c.b.pin);
@@ -192,15 +198,22 @@ export function validarDoc(obj, catalogo) {
         doc.partes.push(parte);
     }
     let colgando = 0;
+    const erroresCable = new Set();
     for (const c of Array.isArray(obj.cables) ? obj.cables : []) {
         if (!c || !c.a || !c.b) { colgando++; continue; }
         const extra = {};
         if (typeof c.color === 'string' && /^#[0-9a-f]{6}$/i.test(c.color)) extra.color = c.color;
         if (typeof c.etiqueta === 'string') extra.etiqueta = c.etiqueta.slice(0, 60);
         const r = anadirCable(doc, catalogo, { p: String(c.a.p), pin: String(c.a.pin) }, { p: String(c.b.p), pin: String(c.b.pin) }, extra);
-        if (typeof r === 'string') colgando++;
+        if (typeof r === 'string') {
+            colgando++;
+            if (r === ERROR_USB_INCOMPATIBLE) erroresCable.add(r);
+        }
     }
-    if (colgando) avisos.push(`${colgando} cable(s) no válidos se han omitido.`);
+    if (colgando) {
+        avisos.push(`${colgando} cable(s) no válidos se han omitido.`);
+        avisos.push(...erroresCable);
+    }
     return { doc, avisos };
 }
 

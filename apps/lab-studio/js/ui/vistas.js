@@ -33,7 +33,12 @@ function electrico(p) {
 
 // ---------------------------------------------------------------- componentes
 export function pintarComponentes(el, app, id) {
-    const def = app.catalogo.get(id) || COMPONENTES[0];
+    const def = app.catalogo.get(id);
+    el.classList.toggle('catalogo-activo', !def);
+    if (!def) {
+        cerrarVisor();
+        return pintarCatalogoComponentes(el, app);
+    }
     const nav = CATEGORIAS.map(([cid, nombre]) => {
         const items = COMPONENTES.filter(c => c.categoria === cid);
         return items.length ? `<h3>${esc(nombre)}</h3><ul>${items.map(c =>
@@ -54,6 +59,7 @@ export function pintarComponentes(el, app, id) {
     el.innerHTML = `
 <nav class="indice" aria-label="Componentes">${nav}</nav>
 <article class="ficha">
+  <a class="volver ficha-volver" href="#componentes">${ico('flecha', 'atras')}Volver a componentes</a>
   <header class="ficha-cab${con3d ? ' con-3d' : ''}">
     ${con3d ? visor3d(def, f) : `<div class="ficha-dibujo">${miniatura(def, { margen: 10 })}</div>`}
     <div class="ficha-intro">
@@ -85,6 +91,30 @@ export function pintarComponentes(el, app, id) {
   ${usos.length ? `<section><h3>Proyectos que lo usan</h3><ul class="lista-usos">${usos.map(p => `<li><a href="#proyectos/${p.id}">${ico('proyectos')}${esc(p.titulo)}</a></li>`).join('')}</ul></section>` : ''}
 </article>`;
     if (con3d) montarVisor(el, def, f);
+}
+
+function pintarCatalogoComponentes(el, app) {
+    const grupos = CATEGORIAS.map(([id, nombre]) => {
+        const items = COMPONENTES.filter(c => c.categoria === id);
+        if (!items.length) return '';
+        return `<section class="grupo-catalogo-componentes" id="catalogo-${id}">
+  <h3>${esc(nombre)} <span>${items.length}</span></h3>
+  <div class="rejilla-componentes">${items.map(c => {
+      const propio = app.tengo(c);
+      return `<article class="tarjeta-componente">
+  <a href="#componentes/${c.id}" class="componente-vinculo">
+    <span class="componente-mini">${miniatura(c, { margen: 8 })}</span>
+    <span class="sobre">${esc(c.fabricante)} · ${mm(c.w)} × ${mm(c.h)} mm</span>
+    <b>${esc(c.nombre)}</b>
+    <span class="tenue">${esc(c.resumen)}</span>
+    <span class="marca ${propio ? 'ok' : ''}">${ico(propio ? 'estrella' : 'info')}${propio ? 'En mi inventario' : 'No marcado como mío'}</span>
+  </a>
+  <button type="button" class="anadir-componente" data-anadir="${c.id}">${ico('mas')}Añadir a la mesa</button>
+</article>`;
+  }).join('')}</div>
+</section>`;
+    }).join('');
+    el.innerHTML = `<header class="cab-area"><div><h2>Componentes</h2><p>${COMPONENTES.length} componentes disponibles. La estrella identifica los que tienes marcados en tu inventario.</p></div></header>${grupos}`;
 }
 
 // ------------------------------------------------- ficha ampliada (vista 3/4)

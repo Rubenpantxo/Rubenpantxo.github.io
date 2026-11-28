@@ -504,12 +504,23 @@ export class Lienzo {
         this.pintar();
     }
 
+    colocarEnPunto(def, clientX, clientY) {
+        const centro = this.aMundo({ clientX, clientY });
+        this.colocarEn(def, centro.x, centro.y);
+    }
+
     colocarEnCentro(def) {
         const c = this.centroVisible();
-        const parte = anadirParte(this.doc, def, c.x - def.w * U / 2, c.y - def.h * U / 2, def.valor ? { valor: def.valor } : {});
+        this.colocarEn(def, c.x, c.y);
+    }
+
+    colocarEn(def, x, y) {
+        if (!this.doc || !def) return;
+        const parte = anadirParte(this.doc, def, x - def.w * U / 2, y - def.h * U / 2, def.valor ? { valor: def.valor } : {});
         // Si el hueco está ocupado, se desplaza en diagonal hasta quedar libre.
         const choca = () => this.doc.partes.some(o => o !== parte && o.x === parte.x && o.y === parte.y);
         while (choca()) { parte.x += 2 * U; parte.y += 2 * U; }
+        this.colocando = null;
         this.sel.partes = new Set([parte.id]); this.sel.cables.clear();
         this.alCambiar('Añadir ' + def.corto);
     }
